@@ -11,19 +11,16 @@ ini_set("display_errors", "on");
 
 // ZendFramework
 ini_set("include_path", ini_get("include_path") . ":../lib:../lib/ZendFramework:../lib/fedora:../lib/xml-utilities:../app/:../app/modules/");
-require("Zend/Loader.php");
-Zend_Loader::loadClass("Zend_Controller_Front");
 
-function __autoload($class) {
-  Zend_Loader::loadClass($class);
-}
+require("Zend/Loader.php");
+Zend_Loader::registerAutoload();
 
 //Load Configuration
-$env_config	= new Zend_Config_Xml("../config/environment.xml", "environment");
-$config 	= new Zend_Config_Xml("../config/config.xml", $env_config->mode);
-
+$env_config = new Zend_Config_Xml("../config/environment.xml", "environment");
+Zend_Registry::set('env-config', $env_config);
+$config = new Zend_Config_Xml("../config/config.xml", $env_config->mode);
 Zend_Registry::set('fedora-config',
-		   new Zend_Config_Xml("../config/fedora.xml", $env_config->mode));
+	  new Zend_Config_Xml("../config/fedora.xml", $env_config->mode));
 
 //set default timezone
 date_default_timezone_set($config->timezone);
