@@ -1,53 +1,46 @@
 <?php
 
-require_once("XmlObject.class.php");
+require_once("models/mods.php");
 
-// FIXME: mappings for dates
+class etd_mods extends mods {
 
-class etd_mods extends XmlObject {
-
-  public function __construct($dom, $xpath = null) {
-      $this->addNamespace("mods", "http://www.loc.gov/mods/v3");
-      
-      $config = $this->config(array(
-       "title" => array("xpath" => "//mods:titleInfo/mods:title"),
-       "author" => array("xpath" => "//mods:name[mods:role/mods:roleTerm = 'author']",
-		       "class_name" => "mods_name"),
-       "department" => array("xpath" => "//mods:name[mods:role/mods:roleTerm = 'author']/mods:affiliation"),
-       "advisor" => array("xpath" => "//mods:name[mods:role/mods:roleTerm = 'Thesis Advisor']",
-		       "class_name" => "mods_name"),
-
-       // can't seem to filter out empty committee members added by Fez...
-       "committee" => array("xpath" => "//mods:name[mods:description = 'Emory Committee Member']",
-			    "class_name" => "mods_name", "is_series" => "true"),
-
-       "nonemory_committee" => array("xpath" => "//mods:name[mods:description = 'Non-Emory Committee Member']",
-			    "class_name" => "mods_name", "is_series" => "true"),
-       "genre" => array("xpath" => "//mods:genre"),
-       "abstract" => array("xpath" => "//mods:abstract"),
-       "toc" => array("xpath" => "//mods:tableOfContents"),
-       "researchfields" => array("xpath" => "//mods:subject[@authority='proquestresearchfield']/mods:topic",
-				 "is_series" => true),
-       "keywords" => array("xpath" => "//mods:subject[@authority='keyword']/mods:topic",
-			   "is_series" => true),
-       "pages" => array("xpath" => "//mods:extent[@unit='pages']/mods:total")
-       ));
-
-      parent::__construct($dom, $config, $xpath);
-    }
-
-    public function addResearchField($text) {
-      $this->addSubject($text, "researchfields", "proquestresearchfield");
-    }
-
-    public function addKeyword($text) {
-      $this->addSubject($text, "keywords", "keyword");
-    }
-
-    //  function to add subject/topic pair - used to add keyword & research field
-    public function addSubject($text, $mapname, $authority = null) {
-      // add a new subject/topic to the DOM and the in-memory map
-      $subject = $this->dom->createElementNS($this->namespaceList["mods"], "mods:subject");
+  // add etd-specific mods mappings
+  protected function configure() {
+    parent::configure();
+    $this->xmlconfig["author"] = array("xpath" => "mods:name[mods:role/mods:roleTerm = 'author']",
+				       "class_name" => "mods_name");
+    $this->xmlconfig["department"] = array("xpath" => "mods:name[mods:role/mods:roleTerm = 'author']/mods:affiliation");
+    $this->xmlconfig["advisor"] = array("xpath" => "mods:name[mods:role/mods:roleTerm = 'Thesis Advisor']",
+					"class_name" => "mods_name");
+    // can't seem to filter out empty committee members added by Fez...
+    $this->xmlconfig["committee"] = array("xpath" => "mods:name[mods:description = 'Emory Committee Member']",
+					  "class_name" => "mods_name", "is_series" => "true");
+    $this->xmlconfig["nonemory_committee"] = array("xpath" =>
+						   "mods:name[mods:description = 'Non-Emory Committee Member']",
+						   "class_name" => "mods_name", "is_series" => "true");
+    
+    // note: not (currently) using mods_subject class for research fields & keywords
+    $this->xmlconfig["researchfields"] = array("xpath" =>
+					       "mods:subject[@authority='proquestresearchfield']/mods:topic",
+					       "is_series" => true);
+    $this->xmlconfig["keywords"] = array("xpath" => "mods:subject[@authority='keyword']/mods:topic",
+					 "is_series" => true);
+    $this->xmlconfig["pages"] = array("xpath" => "mods:extent[@unit='pages']/mods:total");
+  }
+  
+  
+  public function addResearchField($text) {
+    $this->addSubject($text, "researchfields", "proquestresearchfield");
+  }
+  
+  public function addKeyword($text) {
+    $this->addSubject($text, "keywords", "keyword");
+  }
+  
+  //  function to add subject/topic pair - used to add keyword & research field
+  public function addSubject($text, $mapname, $authority = null) {
+    // add a new subject/topic to the DOM and the in-memory map
+    $subject = $this->dom->createElementNS($this->namespaceList["mods"], "mods:subject");
       if (! is_null($authority)) 
 	$subject->setAttribute("authority", $authority);
       $topic = $this->dom->createElementNS($this->namespaceList["mods"],
@@ -72,10 +65,7 @@ class etd_mods extends XmlObject {
       $this->map{$mapname}[] = $topic;
     }
 
-    public static function getFedoraTemplate(){
-      return foxml::xmlDatastreamTemplate("MODS", "Descriptive Metadata", self::getTemplate());
-    }
-    
+    // FIXME: probably some way to share standard MODS with base mods class?
     public static function getTemplate() {
       return '<mods:mods xmlns:mods="http://www.loc.gov/mods/v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema">
   <mods:titleInfo>
@@ -165,19 +155,5 @@ class etd_mods extends XmlObject {
 
 
     
-}
-
-class mods_name extends XmlObject {
-  public function __construct($xml, $xpath) {
-      $config = $this->config(array(
-     "full" => array("xpath" => "mods:displayForm"),
-     "first" => array("xpath" => "mods:namePart[@type='given']"),
-     "last" => array("xpath" => "mods:namePart[@type='family']"),
-     "affiliation" => array("xpath" => "mods:affiliation"),
-     "role" => array("xpath" => "mods:role/mods:roleTerm"),
-     "role_authority" => array("xpath" => "mods:role/@authority"),
-     ));
-      parent::__construct($xml, $config, $xpath);
-    }
 }
 
