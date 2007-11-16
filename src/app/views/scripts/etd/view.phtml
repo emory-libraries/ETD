@@ -1,0 +1,27 @@
+<? $etd = $this->etd ?>
+
+<div id="title">
+   <?= $etd->html->title ?>
+</div>
+
+<div id="abstract">
+   <h2>Abstract</h2>
+   <?= $etd->html->abstract ?>
+</div>
+
+<div id="toc">
+   <h2>Table of Contents</h2>
+   <?= $etd->html->contents ?>
+</div>
+
+
+<div id="files">
+    <h2>Files</h2>
+
+<? foreach (array("pdfs", "originals", "supplements") as $filetype): ?>
+  <? foreach ($etd->$filetype as $file) : ?>
+    <a href="<?= $this->url(array("action" => "file", "pid" => $file->pid))?>"><?= $file->label ?></a>
+    <?= $file->dc->type ?><br/>
+  <? endforeach ?>
+<? endforeach ?>
+</div>
