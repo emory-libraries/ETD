@@ -4,25 +4,5 @@
 <div class="listrecord">
   <b><a href="<?= $this->url(array("controller" => "etd",
     "action" => "view", "pid" => $this->etd->pid), "", true)?>"><?= $this->etd->html->title ?></a></b> <br/>
-	<?= $this->etd->mods->author->full ?> 
-   (<?= $this->etd->mods->genre ?>)<br/>
-
-  <b>Advisor:</b> <?= $this->etd->mods->advisor->full ?><br/>
-  <b>Committee members:</b> 
-    <? foreach ($this->etd->mods->committee as $cm): ?>
-	 <?= $cm->full ?>;
-    <? endforeach ?>
-    <? foreach ($this->etd->mods->nonemory_committee as $cm): ?>
-         <?= $cm->full ?> (<?= $cm->affiliation ?>);
-    <? endforeach ?>
-    <br/>
-  <b>Research Fields:</b> 
-    <? for ($i = 0; $i < count($this->etd->mods->researchfields); $i++): ?>
-	 <?= $this->etd->mods->researchfields[$i] ?>;
-    <? endfor ?><br/>
-  <b>Program:</b> <?= $this->etd->mods->department ?><br/>
-  <b>Keywords:</b> 
-    <? for ($i = 0; $i < count($this->etd->mods->keywords); $i++): ?>
-       <?= $this->etd->mods->keywords[$i] ?>;
-   <? endfor ?><br/>
+  <?=  $this->render('etd/summary.phtml'); ?>
 </div>
