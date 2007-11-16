@@ -1,0 +1,20 @@
+<config>
+	<development>
+		<timezone>America/New_York</timezone>
+		<database>
+			<adapter>Pdo_Mysql</adapter>
+			<params>
+				<host>localhost</host>
+				<username></username>
+				<password></password>
+				<dbname></dbname>
+			</params>
+		</database>
+	</development>
+
+	<test extends="development">
+	</test>
+
+	<production extends="development">
+	</production>
+</config>
