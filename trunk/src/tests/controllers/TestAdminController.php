@@ -62,6 +62,8 @@ class AdminControllerTest extends ControllerTestCase {
 
     //         $this->view->etds = etd::findbyStatus($status);
     $this->assertEqual(1, count($viewVars['etds']));
+    $this->assertIsA($viewVars['etds'], "array");
+    $this->assertIsA($viewVars['etds'][0], "etd");
   }
 
 }
