@@ -1,3 +1,14 @@
+<?
+// where should this happen? (should get user name instead of login...)
+$auth = Zend_Auth::getInstance();
+if ($auth->hasIdentity()) { $identity = $auth->getIdentity(); }
+
+// TEMPORARY - until we get 
+$baseurl = "/~rsutton/etd/";
+
+?>
+
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html>
@@ -23,111 +34,51 @@
 </div>
 
 
+<div id="login">
+ <div class="text">	<!-- FIXME: get rid of extra div (holdover from fez) -->
 
-  <div id="login">
-</div>
+ <? if (isset($identity)): ?>
+   <b>Welcome, <?= $identity ?></b>
 
+   <ul class="horizontal">
+      <li class="first">
+         <a title="logout"
+		href="<?= $this->url(array("controller" => "auth", "action" => "logout"), "", true)?>"><b>Logout &gt;</b></a>
 
-<div id="navbar">
+	    </li>
 
-  <div id="etdhome"><a href="{$rel_url}">ETD HOME</a></div>
+            <? /* if $isAdministrator */ ?>
+            <li><a href="<?= $this->url(array("controller" => "admin"), "", true)?>">Admin</a></li>
 
- <div id="navbar-curve">
-   <div class="c1 c"></div>
-   <div class="c2 c"></div>
-   <div class="c3 c"></div>
-   <div class="c4 c"></div>
-   <div class="c5 c"></div>
-   <div class="c6 c"></div>
-   <div class="c7 c"></div>
-   <div class="c8 c"></div>
-   <div class="c9 c"></div>
-   <div class="c10 c"></div>
-   <div class="c11 c"></div>
-   <div class="c12 c"></div>
-   <div class="c13 c"></div>
-   <div class="c14 c"></div>
-   <div class="c15 c"></div>
-   <div class="c16 c"></div>
-   <div class="c17 c"></div>
-   <div class="c18 c"></div>
-   <div class="c19 c"></div>
-   <div class="c20 c"></div>
-   <div class="c21 c"></div>
-   <div class="c22 c"></div>
-   <div class="c23 c"></div>
-   <div class="c24 c"></div>
-   <div class="c25 c"></div>
-   <div class="c26 c"></div>
-   <div class="c27 c"></div>
-   <div class="c28 c"></div>
+      	    <li><a title="preferences" href="">Preferences</a></li>
+
+            <li><a href="">My ETDs</a></li>
+
+            <li><a href="docs/id/faq#help">Help</a></li>
+
+ <? else: ?>
+  Emory Login: 
+  <form name="login" method="post"
+    action="<?= $this->url(array("controller" => "auth", "action" => "login"), "", true)?>">
+  <?= $this->formText("login[username]", ""); ?>
+  <?= $this->formPassword("login[password]", "", array("size" => 32)); ?>
+  <input type="submit" class="submitlink" name="Submit" value="Login &gt;" class="button">
+</form>	
+
+ <ul class="horizontal">
+   <li><a href="" class="help">Why Login?</a></li>
+ </ul>
+
+ <? endif ?>
  </div>
 </div>
 
-
-<!-- sidenav -->
-<!-- <div id="sidenav">
-
-<div class="section">
-
-    <p><a href="{$rel_url}doc.php?id=about">About Us</a></p>
-
-    <p><a href="{$rel_url}doc.php?id=faq">Frequently Asked Questions</a></p>
-
-    <p><a href="{$rel_url}doc.php?id=faq#help" class="help">ETD Help</a></p>
-
-    <p><a href="{$rel_url}doc.php?id=policies">Policies and Procedures</a></p>
-
-    <p><a href="{$rel_url}doc.php?id=ip">Intellectual Property</a></p>
-
+<div id="navbar">
+  <div id="etdhome"><a href="<?= $baseurl?>">ETD HOME</a></div>
+  <?=  $this->render('navbar-curve.phtml'); ?>
 </div>
 
-Browse by:
- <ul class="browse">
-  <li><a {if $browse_type == 'browse_program'} class="current" {/if} 
-	href="{$rel_url}list.php?browse=program">Program</a></li>
-  <li><a {if $browse_type == 'browse_author'} class="current" {/if}
-	href="{$rel_url}list.php?browse=author">Author<a/></li>
-  <li><a {if $browse_type == 'browse_committee'} class="current" {/if}
-	href="{$rel_url}list.php?browse=committee">Committee Member</a></li>
-  <li><a {if $browse_type == 'browse_researchfield'} class="current" {/if}
-         href="{$rel_url}list.php?browse=researchfield">Research Field</a></li>
-  <li><a {if $browse_type == 'browse_year'} class="current" {/if}
-	 href="{$rel_url}list.php?browse=year">Year</a></li>
-</ul>
-
-<div class="proquest">
-
-<a
-href="http://proquest.umi.com.proxy.library.emory.edu/pqdweb?RQT=305&SQ=LSCHNAME%28%7BEMORY+UNIVERSITY%7D%29&clientId=1917">Browse
-      ProQuest</a>
-
-<form action="http://proquest.umi.com.proxy.library.emory.edu/pqdweb"
-    method="get">
-Search ProQuest
-<input type="hidden" name="RQT" value="305">
-<input type="hidden" name="querySyntax" value="PQ">
-<input type="hidden" name="clientId" value="1917">
-<input type="hidden" name="DBId" value="21729">
-<input type="text" name="SQ" size="12">
-<input class="submitlink" type="submit" value="Go &gt;">
-</form>
-</div>
-
-</div>
-
-<div class="section">
-<p><a href="http://www.emory.edu/GSOAS/">Emory Graduate School</a></p>
-
-<p><a href="http://www.college.emory.edu/">Emory College</a></p>
-
-<p><a href="http://www.emory.edu/libraries.cfm">Emory Libraries</a></p>
-</div>
-
-</div>
--->
-<!-- end sidebar -->
-
+<?=  $this->render('sidenav.phtml'); ?>
 
 <div class="content">
 
@@ -141,7 +92,7 @@ Search ProQuest
     href="http://www.emory.edu/copyright.cfm">&copy; 2007 Emory
     University.</a> 
    Version Zend-0.1 updated 8/07. 
- <a href="{$rel_url}doc.php?id=ip">Rights and Privileges</a>
+ <a href="doc.php?id=ip">Rights and Privileges</a>
 </div>
 
 </body>
