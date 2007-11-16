@@ -1,0 +1,11 @@
+<ldap>
+  <development>
+    <host></host>
+    <port></port>
+    <url></url>
+    <base_dn></base_dn>
+    <bind_dn></bind_dn> 
+    <bind_pw></bind_pw>
+    <user_attr></user_attr>
+  </development>
+</ldap>		
