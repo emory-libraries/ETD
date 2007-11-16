@@ -16,7 +16,10 @@ class EtdController extends Zend_Controller_Action {
      $this->view->assign("title", "Welcome to %project%");
    }
    
-   public function listAction() {
+   public function browseAction() {
+     // browse mode here?
+     // using solr ?
+     
    }
    
    public function createAction() {
@@ -29,8 +32,10 @@ class EtdController extends Zend_Controller_Action {
    }
    
    public function viewAction() {
-     $this->view->etd = new etd($this->_getParam("pid"));
-     
+     $etd = new etd($this->_getParam("pid"));
+     $this->view->etd = $etd;
+     $this->view->title = $etd->label;
+     $this->view->dc = $etd->dc;
    }
    
    public function deleteAction() {
