@@ -1,5 +1,5 @@
 <?
-require_once("../UnitTest.php");  
+require_once("UnitTest.php");  
  
 class ControllerTestCase extends UnitTest
 {
