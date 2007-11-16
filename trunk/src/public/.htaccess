@@ -1,0 +1,9 @@
+Options -MultiViews
+# disable multiviews so browse doesn't get rewritten to browse.php 
+# before it hits site-specific rewrite rules
+
+RewriteEngine on
+#edit this url path to point to your project relative to the webroot
+RewriteBase /~rsutton/etdnew/src/public
+
+RewriteRule !\.(js|ico|gif|jpg|png|css)$ index.php 
