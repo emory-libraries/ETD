@@ -1,5 +1,5 @@
 <?
-require_once('../ControllerTestCase.php');
+require_once('ControllerTestCase.php');
 require_once('controllers/EtdController.php');
       
 class etdControllerTest extends ControllerTestCase {
@@ -16,7 +16,8 @@ class etdControllerTest extends ControllerTestCase {
 
     $this->etdxml = array("etd1" => "test:etd1",
 		    "etd2" => "test:etd2",
-		    "etd3" => "test:etd3");
+			  //"etd3" => "test:etd3", //not ingesting for some reason
+			  );
     
 
     // load a test objects to repository
@@ -30,17 +31,19 @@ class etdControllerTest extends ControllerTestCase {
       fedora::purge($pid, "removing test object");
   }
   
-  function testIndexAction() {
-    $IndexController = new IndexControllerForTest($this->request,$this->response);
+  function testViewAction() {
+    $EtdController = new EtdControllerForTest($this->request,$this->response);
     
-    //$this->setUpPost(array('login' => array('username' => 'user_with_pwd', 'pwd' => 'test')));
+    $this->setUpGet(array('pid' => "test:etd1"));
     
-    $IndexController->indexAction();
+    $EtdController->viewAction();
     
-    $viewVars = $IndexController->view->getVars();	
-    $this->assertEqual($viewVars['title'], 'Welcome to testProject');				
+    $viewVars = $EtdController->view->getVars();	
+    $this->assertIsA($viewVars['etd'], "etd");
+    $this->assertIsA($viewVars['dc'], "dublin_core");
+    $this->assertEqual("Why I Like Cheese", $viewVars['title']);
   }
- }
+}
 
 
 

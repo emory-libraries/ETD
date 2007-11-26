@@ -17,11 +17,12 @@ $reporter = isset($argc) ? new TextReporter() : new HtmlReporter();
 $suite = new TestSuite('All Tests');
 
 // models
-
+$suite->addTestFile('models/etdTest.php');
+$suite->addTestFile('models/etd_htmlTest.php');
 
 // controllers
-//$suite->addTestFile('controllers/TestEtdController.php');
 $suite->addTestFile('controllers/TestAdminController.php');
+$suite->addTestFile('controllers/TestEtdController.php');
 
 // required - zend complains without this
 Zend_Session::start();
