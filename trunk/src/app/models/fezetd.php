@@ -5,8 +5,8 @@ require_once("fedora/api/fedora.php");
 require_once("person.php");
 require_once("etd_mods.php");
 
-// old emory etd (fez)
-class EmoryEtd {
+// compound-model etd (created with Fez)
+class FezEtd {
   public $pid;
   public $mods;
   public $vcard;
