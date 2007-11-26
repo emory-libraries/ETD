@@ -3,6 +3,7 @@
     <foxml:property NAME="http://www.w3.org/1999/02/22-rdf-syntax-ns#type" VALUE="FedoraObject"/>
     <foxml:property NAME="info:fedora/fedora-system:def/model#state" VALUE="Active"/>
     <foxml:property NAME="info:fedora/fedora-system:def/model#label" VALUE="Why I Like Cheese"/>
+    <foxml:property NAME="info:fedora/fedora-system:def/model#contentModel" VALUE="etd"/>
   </foxml:objectProperties>
 
   <foxml:datastream CONTROL_GROUP='X' ID='MODS' STATE='A'	VERSIONABLE='true'>
@@ -22,6 +23,7 @@
 	    </mods:role>
 	  </mods:name>
 	  <mods:abstract>Gouda or Cheddar?</mods:abstract>
+          <mods:tableOfContents/>
 	</mods:mods>
       </foxml:xmlContent>
     </foxml:datastreamVersion>
@@ -33,6 +35,7 @@
 	<html>
 	    <div id="title">Why <i>I</i> like cheese</div>
 	    <div id="abstract"><b>gouda</b> or <i>cheddar</i>?</div>
+            <div id="contents">Chapter 1: Gouda<br/> Chapter 2: Brie</div>
 	</html>
       </foxml:xmlContent>
     </foxml:datastreamVersion>
