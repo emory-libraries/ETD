@@ -1,6 +1,6 @@
 <?php
 
-  //require_once("foxmlds.php");
+//require_once("foxmlds.php");
 
 class etd_html extends XmlObject {
   const id = "XHTML";
@@ -67,10 +67,10 @@ class etd_html extends XmlObject {
   public static function cleanTags($string, $keep_breaks = false) {
     // convert tags to a more easily matchable form, remove unneeded formatting
     $search = array("&lt;", "&gt;", "&rsquo;", "&ldquo;", "&rdquo;", "&ndash;", "&nbsp;",);
-    $replace = array("<", ">", "'", '"', '"', '-');
+    $replace = array("<", ">", "'", '"', '"', '-', ' ');
     $string = str_replace($search, $replace, $string);
 
-    // replace unicode characters
+    // replace unicode characters 
     $search = array("&beta;");
     $replace = array("&#x03b2;");
     $string = str_replace($search, $replace, $string);
@@ -79,8 +79,8 @@ class etd_html extends XmlObject {
     $string = preg_replace("|<([a-z]+)\s+[^>/]+>|", "<$1>", $string);	// (don't mess up empty tags)
   
     // remove extra spaces, unused tags, clean up break tags
-    $search = array("|\s+|", "|<br\s+/?>|", "|</?em>|", "|</?strong>|","|</?sup>|", "|</?sub>|",
-		    "|</?span>|", "|</?st1:[^>]+>|", "|</?o:p>|", "|</?p>|");
+    $search = array("|\s+|", "|<br\s+/?>|", "|</?i>|", "|</?b>|", "|</?em>|", "|</?strong>|",
+		    "|</?sup>|", "|</?sub>|", "|</?span>|", "|</?st1:[^>]+>|", "|</?o:p>|", "|</?p>|");
     $replace = array(" ", "<br/>");  // standardize break tags to simplify split pattern later
     $string = preg_replace($search, $replace, $string);
 
@@ -88,6 +88,10 @@ class etd_html extends XmlObject {
       return $string;
     else
       return str_replace("<br/>", "", $string);
+  }
+
+  public static function removeTags($string) {
+    return preg_replace("|</?[a-z]>|", "", $string);
   }
 
 
@@ -113,6 +117,9 @@ class etd_html extends XmlObject {
     $replace = array();  // standardize break tags to simplify split pattern later  
     $nodetext = preg_replace($search, $replace, $nodetext);
 
+    // stack of nodes so new elements & text nodes can be added at the appropriate level
+    $current_node = array();
+    array_unshift($current_node, $node);
     
     // split the text on any tags 
     $chunks = preg_split("|(</?[a-z]+\s*/?>)|", $nodetext, null,
@@ -122,16 +129,20 @@ class etd_html extends XmlObject {
 	// open tag -- create node with the next section as text content
 	$tagname = $matches[1];
 	$text = $chunks[++$j];
-	$node->appendChild($node->ownerDocument->createElement($tagname, $text));
+	$newnode = $node->ownerDocument->createElement($tagname, $text);
+	$current_node[0]->appendChild($newnode);
+	// make new node the current one that subsequent elements & text are added to
+	array_unshift($current_node, $newnode);
       } elseif (preg_match("|<([a-z]+)\s*/>|", $chunks[$j], $matches)) {
 	// empty tag -- add to document with no text content
 	$tagname = $matches[1];
-	$node->appendChild($node->ownerDocument->createElement($tagname));
+	$current_node[0]->appendChild($node->ownerDocument->createElement($tagname));
       } elseif (preg_match("|</([a-z]+)>|", $chunks[$j])) {
-	// close tag -- do nothing
+	// close tag -- remove node from current node stack
+	array_shift($current_node);
       } else {
 	// regular text
-	$node->appendChild($node->ownerDocument->createTextNode($chunks[$j]));
+	$current_node[0]->appendChild($node->ownerDocument->createTextNode($chunks[$j]));
       }
     }
     return $node;
