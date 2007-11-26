@@ -1,23 +1,17 @@
 <?
-// ZendFramework
-ini_set("include_path", ini_get("include_path") . ":../../lib:../../app/:../../app/modules/");
-require("Zend/Loader.php");
 
-function __autoload($class) {
-  Zend_Loader::loadClass($class);
-}
+error_reporting(E_ALL);
+ini_set("include_path", ini_get("include_path") . ":../lib:../lib/ZendFramework:../lib/fedora:../lib/xml-utilities:../app/:../app/modules/");
 
-//Load Configuration
-$config = new Zend_Config_Xml("../../config/config.xml", "test");
+require_once('simpletest/unit_tester.php');
+require_once('simpletest/reporter.php');
 
-//Create DB object
-$db = Zend_Db::factory($config->database->adapter, $config->database->params->toArray());
-Zend_Registry::set('db', $db);
-Zend_Db_Table_Abstract::setDefaultAdapter($db);
+require('Zend/Loader.php');
+Zend_Loader::registerAutoload();
 
-//Store config values to the registry
-Zend_Registry::set('authentication_type', $config->authentication->type);
+Zend_Registry::set('fedora-config', new Zend_Config_Xml("../config/fedora.xml", "test"));
 
+// required - zend complains without this
 Zend_Session::start();
 
 ?>
