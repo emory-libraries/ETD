@@ -137,9 +137,11 @@ class etd_html extends XmlObject {
 	// empty tag -- add to document with no text content
 	$tagname = $matches[1];
 	$current_node[0]->appendChild($node->ownerDocument->createElement($tagname));
-      } elseif (preg_match("|</([a-z]+)>|", $chunks[$j])) {
-	// close tag -- remove node from current node stack
-	array_shift($current_node);
+      } elseif (preg_match("|</([a-z]+)>|", $chunks[$j], $matches)) {
+	$tagname = $matches[1];
+	// close tag -- remove node from current node stack, but ONLY if tagname matches
+	if ($tagname == $current_node[0]->nodeName)
+	  array_shift($current_node);
       } else {
 	// regular text
 	$current_node[0]->appendChild($node->ownerDocument->createTextNode($chunks[$j]));
