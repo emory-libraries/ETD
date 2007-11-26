@@ -55,6 +55,10 @@ class TestEtdHtml extends UnitTestCase {
     $this->etd_html->contents = "<p>chapter <font>1 <br/> ch</font>apter 2</p>";
     $this->assertEqual("<p>chapter <font>1 <br/> ch</font>apter 2</p>", $this->etd_html->contents);
 
+    // bad xml: close tag without open tag (should be ignored)
+    $this->etd_html->abstract = "<p>here is my </em> whoops</p>";
+    $this->assertEqual("<p>here is my  whoops</p>", $this->etd_html->abstract);
+    
   }
   
 }
