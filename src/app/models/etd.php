@@ -82,16 +82,21 @@ class etd extends foxml {
     switch ($name) {
       // store formatted version in html, plain-text version in mods
     case "title":
+      // remove tags that are not wanted even in html 
       $this->html->title = $value;
-      // clean up value first here (remove tags, etc.)
+
+      // clean entities & remove all tags before saving to mods/dc
       $value = etd_html::cleanTags($value);
+      $value = etd_html::removeTags($value); // necessary?
       // set title in multiple places (record label, dublin core, mods)
       $this->label = $this->dc->title = $this->mods->title = $value;
       break;
     case "abstract":
+      // remove unwanted tags
       $this->html->abstract = $value;
-      // clean up value first here (remove tags, etc.)
+      // clean & remove all tags
       $value = etd_html::cleanTags($value);
+      $value = etd_html::removeTags($value);
       $this->dc->description = $this->mods->abstract = $value;
       break;
     case "contents":
@@ -107,7 +112,7 @@ class etd extends foxml {
 	array_push($toc_lines, $line);
       }
       $toc_text = implode("--", $toc_lines);
-      $this->mods->toc = $toc_text;
+      $this->mods->tableOfContents = $toc_text;
       break;
     default:
       parent::__set($name, $value);
