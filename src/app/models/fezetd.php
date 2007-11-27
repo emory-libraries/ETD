@@ -5,81 +5,82 @@ require_once("fedora/api/fedora.php");
 require_once("person.php");
 require_once("etd_mods.php");
 
-// compound-model etd (created with Fez)
-class FezEtd {
-  public $pid;
-  public $mods;
-  public $vcard;
+// compound-model etd (records created with Fez)
+class FezEtd extends foxml {
   public $streams;
   public $files;
 
-
-  // fixme: make a static find that returns a new emoryetd; new should make an empty one
   public function __construct($pid) {
-    $this->pid = $pid;
-    $dom = new DOMDocument();
-    $dom->loadXML(Fedora::getDatastream($pid, "MODS"));
-    $this->mods = new etd_mods($dom);
-    $vdom = new DOMDocument();
-    $vdom->loadXML(Fedora::getDatastream($pid, "vCard"));
-    $this->vcard = new vcard($vdom);
-    $this->streams  = Fedora::listDatastreams($pid);
+    parent::__construct($pid);
+    
+    //    $this->streams  = Fedora::listDatastreams($pid);
     $this->files = array();
-    foreach ($this->streams as $stream) {
+    foreach ($this->fedora_streams as $stream) {
       if ($stream->MIMEType != "text/xml"){
 	array_push($this->files, $stream);
       }
     }
   }
+
+    // add datastreams here 
+  protected function configure() {
+    parent::configure();
+    // not adding to datastream[] because we should not be creating new fezetds from template
+
+    $this->addNamespace("mods", "http://www.loc.gov/mods/v3");
+    $this->xmlconfig["mods"] = array("xpath" => "//foxml:xmlContent/mods:mods",
+				     "class_name" => "etd_mods", "dsID" => "MODS");
+    $this->addNamespace("v", vcard::namespace);
+    $this->xmlconfig["vcard"] = array("xpath" => "//foxml:xmlContent/v:VCARD",
+				      "class_name" => "vcard", "dsID" => "vCard");
+
+    $this->xmlconfig["fezmd"] = array("xpath" => "//foxml:xmlContent/FezMD",
+				      "class_name" => "FezMD", "dsID" => "FezMD");
+  }
+
+
+  public function __get($name) {
+    switch ($name) {
+    case "status":
+      return $this->translateStatus($this->fezmd->status);
+    default:
+      return parent::__get($name);
+    }
+  }
+
+  // translate numeric fez status to text equivalent
+  private function translateStatus($id) {
+    // based on defines in fez config/globals
+    switch ($id) {
+    case 1: return "unpublished";
+    case 2: return "published";
+    case 3: return "draft"; 
+    case 4: return "submitted";
+    case 5: return "approved"; 
+    case 6: return "reviewed"; 
+    case 7: return "embargoed"; 
+    }
+  }
   
 }
 
-/*
-class etd_mods extends XmlObject {
-  public function __construct($xmlString) {
 
-    $dom = new DOMDocument();
-    $dom->loadXML($xmlString);
+class FezMD extends XmlObject {
+  
+  public function __construct($dom, $xpath = null) {
 
-    
-    $this->addNamespace("mods", "http://www.loc.gov/mods/v3");
     $config = $this->config(array(
-     "title" => array("xpath" => "//mods:titleInfo/mods:title"),
-     "author" => array("xpath" => "//mods:name[mods:role/mods:roleTerm = 'author']",
-		       "class_name" => "mods_name"),
-     "program" => array("xpath" => "//mods:name[mods:role/mods:roleTerm = 'author']/mods:affiliation"),
-     "advisor" => array("xpath" => "//mods:name[mods:role/mods:roleTerm = 'Thesis Advisor']",
-			"class_name" => "mods_name"),
-     // slight hack : ignore empty committee members added by Fez
-     "committee" => array("xpath" => "//mods:name[mods:role/mods:roleTerm = 'Committee Member' and mods:displayForm != '']/mods:displayForm",
-			  "class_name" => "mods_name",
-			  "is_series" => true),     // FIXME: need to handle non-Emory committee (subclass?)
-     "type" => array("xpath" => "//mods:genre"),
-     "abstract" => array("xpath" => "//mods:abstract"),
-     "toc" => array("xpath" => "//mods:tableOfContents"),
-     "researchfields" => array("xpath" => "//mods:subject[@authority='proquestresearchfield']/mods:topic",
-			      "is_series" => true),
-     "keywords" => array("xpath" => "//mods:subject[@authority='keyword']/mods:topic",
-			      "is_series" => true),
-     "pages" => array("xpath" => "//mods:extent[@unit='pages']/mods:total")
+       // fez id (numeric) for user who created this record
+      "depositor" => array("xpath" => "depositor"),	
+      "updated"   => array("xpath" => "updated_date"),
+      "created"   => array("xpath" => "created_date"),
+      "copyright" => array("xpath" => "copyright"),	 // ? corresponds to permission checkbox?
+      "ret_id" 	  => array("xpath" => "ret_id"),	// what is this?
+      "status" 	  => array("xpath" => "sta_id"),
       ));
-    parent::__construct($dom, $config);
+    parent::__construct($dom, $config, $xpath);
   }
-  }*/
 
-/*class mods_name extends XmlObject {
-    public function __construct($xmlString) {
-      $this->addNamespace("mods", "http://www.loc.gov/mods/v3");
-      $config = $this->config(array(
-     "full" => array("xpath" => "mods:displayForm"),
-     "first" => array("xpath" => "mods:namePart[@type='given']"),
-     "last" => array("xpath" => "mods:namePart[@type='family']"),
-     "affiliation" => array("xpath" => "mods:affiliation"),
-     "role" => array("xpath" => "mods:role/mods:roleTerm"),
-     "role_authority" => array("xpath" => "mods:role/@authority"),
-     ));
-    parent::__construct($xmlString, $config);
-    }
 }
-*/
+
 ?>
