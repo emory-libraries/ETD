@@ -91,7 +91,40 @@ class etd_html extends XmlObject {
   }
 
   public static function removeTags($string) {
+    $search = array("&lt;", "&gt;");
+    $replace = array("<", ">");
+    $string = str_replace($search, $replace, $string);
     return preg_replace("|</?[a-z]>|", "", $string);
+  }
+
+
+  // convert formatted table of contents to text
+  public static function formattedTOCtoText($string) {
+    // remove tags, convert line breaks to --
+      $text = etd_html::cleanTags($string, true);
+
+      /* split on:
+         - breaks
+	 - divs
+	 - li tags (<ul> tags in pattern so they will not be in output)
+       */
+      $unfiltered_toc_lines = preg_split('{(<ul>\s*)?</?(li|div|br/)>(\s*</ul>)?}', $text);
+      
+      $toc_lines = array();
+      foreach ($unfiltered_toc_lines as $line) {
+	// filter out blank lines
+	if (preg_match("/^\s*$/", $line)) continue;
+
+	// remove unnecessary whitespace at beginning and end of lines
+	$line = trim($line);
+	
+	array_push($toc_lines, $line);
+      }
+
+      // reassemble split lines, marking sections with -- 
+      $text = implode(" -- ", $toc_lines);
+      // in case any tags were missed
+      return etd_html::removeTags($text);
   }
 
 

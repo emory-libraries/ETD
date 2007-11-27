@@ -101,8 +101,9 @@ class etd extends foxml {
       break;
     case "contents":
       $this->html->contents = $value;
-
-      // remove tags, convert breaks to --
+      $this->mods->tableOfContents = etd_html::formattedTOCtoText($value);
+      
+      /*      // remove tags, convert breaks to --
       $toc_text = etd_html::cleanTags($value, true);
       $unfiltered_toc_lines = split('<br/>', $toc_text);
       $toc_lines = array();
@@ -112,7 +113,7 @@ class etd extends foxml {
 	array_push($toc_lines, $line);
       }
       $toc_text = implode("--", $toc_lines);
-      $this->mods->tableOfContents = $toc_text;
+      $this->mods->tableOfContents = $toc_text;*/
       break;
     default:
       parent::__set($name, $value);
