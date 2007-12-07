@@ -3,6 +3,6 @@
      
 <div class="listrecord">
   <b><a href="<?= $this->url(array("controller" => "etd",
-    "action" => "view", "pid" => $this->etd->pid), "", true)?>"><?= $this->etd->html->title ?></a></b> <br/>
+    "action" => "view", "pid" => $this->etd->pid()), "", true)?>"><?= $this->etd->title() ?></a></b> <br/>
   <?=  $this->render('etd/summary.phtml'); ?>
 </div>
