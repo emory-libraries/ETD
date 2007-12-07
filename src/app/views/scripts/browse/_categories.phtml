@@ -1,0 +1,29 @@
+<ul <?if (isset($this->browse_class)):?> class="<?= $this->browse_class ?>"<? endif ?>>
+
+  <? $urlopts = array("controller" => "browse"); ?>
+  <li class="first">
+     <? $urlopts['action'] = "program"; ?>
+     <a  <? if ($this->browse_mode == "program"): ?> class="current" <? endif?>
+	href="<?= $this->url($urlopts, '', true)?>">Program</a>
+  </li>
+  <li>
+     <? $urlopts['action'] = "author"; ?>
+     <a <? if ($this->browse_mode == "author"): ?> class="current" <? endif?>
+	href="<?= $this->url($urlopts, '', true)?>">Author</a>
+  </li>
+  <li>
+     <? $urlopts['action'] = "committee"; ?>
+     <a <? if ($this->browse_mode == "committee"): ?> class="current" <? endif?>
+        href="<?= $this->url($urlopts, '', true)?>">Committee Member</a>
+  </li>
+  <li>
+     <? $urlopts['action'] = "researchfield"; ?>
+     <a <? if ($this->browse_mode == "researchfield"): ?> class="current" <? endif?>
+        href="<?= $this->url($urlopts, '', true)?>">Research Field</a>
+  </li>
+  <li>
+     <? $urlopts['action'] = "year"; ?>
+     <a <? if ($this->browse_mode == "year"): ?> class="current" <? endif?>
+        href="<?= $this->url($urlopts, '', true)?>">Year</a>
+  </li>
+</ul>
