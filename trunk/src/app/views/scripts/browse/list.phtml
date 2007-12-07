@@ -1,0 +1,4 @@
+<? foreach ($this->etds as $etd): ?>
+  <?  $this->etd = $etd; ?>
+  <?=  $this->render('etd/shortrecord.phtml'); ?>
+<? endforeach ?>

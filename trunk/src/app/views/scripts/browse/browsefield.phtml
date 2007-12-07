@@ -1,0 +1,20 @@
+<p class="browse_heading"><b>Browse by <?= $this->mode ?></b></p>
+
+<? if ($this->mode == "program" || $this->mode == "researchfield"): ?>
+   <p><i>Note:</i> this field should be a controlled vocabulary (not yet implemented) </p>
+<? endif ?>      
+
+<p><?= $this->count ?> match<? if ($this->count != 1):?>es<? endif ?> found</p>
+
+<? if ($this->count): ?>
+  <ul>
+  <? foreach ($this->values as $value =>  $count): ?>
+     <li><a href="<?= $this->url(array("value" => urlencode($value))) ?>"><?= $value ?></a> (<?= $count ?>)</li>
+  <? endforeach ?>
+  </ul>
+<? endif ?>       
+
+
+<!--<pre>
+     <?//= print_r($this->values); ?>
+</pre> -->

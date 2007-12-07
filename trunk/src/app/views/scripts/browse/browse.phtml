@@ -1,0 +1,15 @@
+
+<!-- <pre>
+<?//= print_r($this->facets); ?>
+</pre>    -->
+
+<?=  $this->render('browse/_facets.phtml'); ?>
+
+<p class="browse_heading"><b>Browse by <?= $this->mode ?></b> - <?= $this->value ?></p>
+
+<p><?= $this->count ?> match<? if ($this->count != 1): ?>es<? endif ?> found</p>
+<?=  $this->render('browse/list.phtml'); ?>
+
+<pre>
+<?//= print_r($this->results); ?>
+</pre>    
