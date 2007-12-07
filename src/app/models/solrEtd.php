@@ -1,8 +1,8 @@
 <?php
 
-require_once("abstractEtd.php");
+require_once("etdInterface.php");
 
-class solrEtd implements abstractEtd {
+class solrEtd implements etdInterface {
 
   public function __construct(array $values) {
 
