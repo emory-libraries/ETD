@@ -1,23 +1,29 @@
 <? /* summary ETD information - displayed in both full and short record views */ ?>
 
-<?= $this->etd->mods->author->full ?> 
-   (<?= $this->etd->mods->genre ?>)<br/>
+<?= $this->etd->author() ?> 
+     (<?= $this->etd->document_type() ?>)<br/>
 
-  <b>Advisor:</b> <?= $this->etd->mods->advisor->full ?><br/>
-  <b>Committee members:</b> 
-    <? foreach ($this->etd->mods->committee as $cm): ?>
-	 <?= $cm->full ?>;
+<b>Advisor:</b> <?= $this->etd->advisor() ?><br/>
+
+<b>Committee members:</b> 
+    <? foreach ($this->etd->committee() as $cm): ?>
+	 <?= $cm ?>;
     <? endforeach ?>
-    <? foreach ($this->etd->mods->nonemory_committee as $cm): ?>
+    
+    <? // nonemory committee not yet handled in etd interface... ?>
+    <? if (isset($this->etd->mods->nonemory_committee)): ?>
+      <? foreach ($this->etd->mods->nonemory_committee as $cm): ?>
          <?= $cm->full ?> (<?= $cm->affiliation ?>);
-    <? endforeach ?>
-    <br/>
-  <b>Research Fields:</b> 
-    <? for ($i = 0; $i < count($this->etd->mods->researchfields); $i++): ?>
-	 <?= $this->etd->mods->researchfields[$i] ?>;
-    <? endfor ?><br/>
+      <? endforeach ?> 
+    <? endif ?>
+    <? // linebreak only after both sets of committee members ?> <br/>
+      
+  <b>Research Fields:</b>
+    <? foreach ($this->etd->researchfields() as $field): ?>
+         <?= $field ?>;
+    <? endforeach ?><br/>
   <b>Keywords:</b> 
-    <? for ($i = 0; $i < count($this->etd->mods->keywords); $i++): ?>
-       <?= $this->etd->mods->keywords[$i] ?>;
-   <? endfor ?><br/>
-  <b>Program:</b> <?= $this->etd->mods->department ?><br/>
+    <? foreach ($this->etd->keywords() as $keyword): ?>
+         <?= $keyword ?>;
+    <? endforeach ?><br/>
+  <b>Program:</b> <?= $this->etd->program() ?><br/>
