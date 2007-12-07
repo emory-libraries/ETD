@@ -4,13 +4,13 @@ require_once("api/fedora.php");
 require_once("api/risearch.php");
 require_once("models/foxml.php");
 
-require_once("abstractEtd.php");
+require_once("etdInterface.php");
 require_once("etd_mods.php");
 require_once("etd_html.php");
 require_once("etdfile.php");
 
 // etd object for etd08
-class etd extends foxml implements abstractEtd {
+class etd extends foxml implements etdInterface {
   //  public $mods;
   //  public $html;
   //  public $rels;
