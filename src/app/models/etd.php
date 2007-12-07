@@ -4,12 +4,13 @@ require_once("api/fedora.php");
 require_once("api/risearch.php");
 require_once("models/foxml.php");
 
+require_once("abstractEtd.php");
 require_once("etd_mods.php");
 require_once("etd_html.php");
 require_once("etdfile.php");
 
 // etd object for etd08
-class etd extends foxml {
+class etd extends foxml implements abstractEtd {
   //  public $mods;
   //  public $html;
   //  public $rels;
@@ -25,9 +26,7 @@ class etd extends foxml {
   public function __construct($arg = null) {
     parent::__construct($arg);
     
-    //    $this->cmodel = "etd";
     //    $this->owner = "rsutton";	// just to test
-
 
     if ($this->init_mode == "pid") {
       $dom = new DOMDocument();
@@ -38,9 +37,12 @@ class etd extends foxml {
       $dom->loadXML(fedora::getDatastream($arg, "XHTML"));
       $this->map{"html"} = new etd_html($dom);
 
+    } else {
+      $this->cmodel = "etd";
     }
 
 
+    // FIXME: this part (at least) should be lazy-init - slows down the browse listing significantly
     $this->pdfs = array();
     $files = array("pdfs" => "PDF",
 		   "originals" => "Original",
@@ -192,6 +194,44 @@ class etd extends foxml {
     return $etds;
   }
     
+  
+  public function pid() { return $this->pid; }
+  public function title() { return $this->html->title; }	// how to know which?
+  public function author() { return $this->mods->author->full; }
+  public function program() { return $this->mods->department; }
+  public function advisor() { return $this->mods->advisor->full; }
+
+  // note: doesn't handle non-emory committee members
+  public function committee() {
+    $committee = array();
+    foreach ($this->mods->committee as $cm) {
+      array_push($committee, $cm->full);
+    }
+    return $committee;
+  }
+			  // how to handle non-emory committee?
+  	// dissertation/thesis/etc
+  public function document_type() { return $this->mods->genre; }
+  public function language() { return $this->mods->language; }
+  public function year() { return $this->mods->year; }
+  public function _abstract() { return $this->mods->abstract; }
+  public function tableOfContents() { return $this->mods->tableOfContents; }
+  public function num_pages() { return $this->mods->num_pages; }
+  
+  public function keywords() {
+    $keywords = array();
+    for ($i = 0; $i < count($this->mods->keywords); $i++)
+      array_push($keywords, $this->mods->keywords[$i]->topic);
+    return $keywords;
+  }
+  
+  public function researchfields() {
+    $subjects = array();
+    for ($i = 0; $i < count($this->mods->researchfields); $i++) 
+      array_push($subjects, $this->mods->researchfields[$i]->topic);
+    return $subjects;
+  }
+
   
   
 }
