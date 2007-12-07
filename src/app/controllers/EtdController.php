@@ -16,17 +16,46 @@ class EtdController extends Zend_Controller_Action {
      $this->view->assign("title", "Welcome to %project%");
    }
    
-   public function browseAction() {
-     // browse mode here?
-     // using solr ?
-     
-   }
-   
    public function createAction() {
    }
    
    public function editAction() {
    }
+
+   public function editModsAction() {
+     $pid = $this->_getParam("pid");
+     $etd = new etd($pid);
+
+     $env = Zend_Registry::get('env-config');
+     $this->view->site_mode = $env->mode;	// better name for this? (test/dev/prod)
+     
+    $this->view->etd = $etd;
+    $this->view->xforms = true;
+    //    $this->view->xforms_model_xml = $etd->mods->saveXML();
+    $this->view->xforms_model_uri = $this->view->url(array("controller" => "etd", "action" => "mods", "pid" => $pid));
+  }
+
+   // show mods - referenced as model for xform
+   public function modsAction() {
+     $etd = new etd($this->_getParam("pid"));
+     $this->view->xml = $etd->mods->saveXML();
+     $this->getHelper('layoutManager')->useLayoutName('xml');
+     $this->_helper->viewRenderer->setScriptAction("xml");
+     //$this->_helper->viewRenderer->setNoRender(true);
+   }
+
+   public function savemodsAction() {
+     global $HTTP_RAW_POST_DATA;
+     $xml = $HTTP_RAW_POST_DATA;
+    if ($xml == "") {
+      // if no xml is submitted, don't modify 
+      // forward to a different view?
+      $this->view->noxml = true;
+    }
+    $this->view->xml = $xml;
+    
+   }
+
    
    public function saveAction() {
    }

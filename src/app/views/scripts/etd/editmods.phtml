@@ -1,0 +1,113 @@
+<!--
+fixme: bindings need to go into header with model... how to get them there? 
+
+<xf:bind id="fullname" nodeset="/mods:name[@type='personal']/mods:displayForm" 
+   calculate="concat(../mods:namePart[@type='family'], ', ', ../mods:namePart[@type='given'])"/>
+   <xf:bind nodeset="mods:name/mods:displayForm" type="xsd:string"
+	calculate="concat(../mods:namePart[@type='family'], ', ', ../mods:namePart[@type='given'])"/>
+
+		       
+<xf:submission id="submission" action="<?= $this->url(array('action' => 'savemods', 'id' => $this->etd->pid))?>"
+		method="post" /> -->
+
+			       <?/*-		       includenamespaceprefixes="v"  */?>
+			       <?/*=  $this->render('xforms-head.phtml'); */?>
+
+      
+<h1>edit thesis information</h1> 
+
+<!-- fixme: figure out some way to hide this until form is loaded -->
+
+<?//= $this->xformTextarea("Title", "mods:titleInfo/mods:title"); ?>
+ <?= $this->xformOutput("Title", "mods:titleInfo/mods:title"); ?>
+ <br/>
+
+ <xf:group ref="mods:name[mods:role/mods:roleTerm='author']">
+    <xf:label>author</xf:label>
+    <?=  $this->render('etd/_mods_name.phtml'); ?>
+   <br/>
+   <?= $this->xformText("Department", "mods:affiliation"); ?>
+ </xf:group>
+
+  <br/>
+
+ <xf:group ref="mods:name[mods:role/mods:roleTerm='Thesis Advisor']">
+    <xf:label>advisor</xf:label>
+     <?=  $this->render('etd/_mods_name.phtml'); ?>
+ </xf:group>
+
+  <br/>
+
+ <p><u>committee members</u></p>
+ <xf:repeat id="repeat-committee" nodeset="mods:name[mods:description='Emory Committee Member']">
+    <xf:label>committee members</xf:label>
+     <?=  $this->render('etd/_mods_name.phtml'); ?>
+   <br/>
+ </xf:repeat>
+ 
+  <xf:trigger>
+        <xf:label>Add</xf:label>
+        <xf:action ev:event="DOMActivate">
+          <xf:insert nodeset="mods:name[mods:description='Emory Committee Member']" at="last()" position="after"/>
+	<!--  <xf:setvalue ref="mods:name[mods:description='Emory Committee Member'][last()]" value=". * ."/> -->
+        </xf:action>
+      </xf:trigger>
+      
+      <xf:trigger>
+        <xf:label>Remove</xf:label>
+        <xf:delete ev:event="DOMActivate" nodeset="//mods:name[mods:description='Emory Committee Member']" at="last()"/>
+      </xf:trigger>
+
+  <p><u>non-emory committee members</u></p>
+ <xf:repeat id="repeat-nonemory-committee" nodeset="mods:name[mods:description='Non-Emory Committee Member']">
+     <?=  $this->render('etd/_mods_name.phtml'); ?>
+    <br/>
+ </xf:repeat>
+
+ 
+<!-- title/abstract/toc really should not be edited here -->
+ <?//= $this->xformTextarea("Abstract", "mods:abstract"); ?>
+ <?= $this->xformOutput("Abstract", "mods:abstract"); ?>
+ <br/>
+
+ <?//= $this->xformTextarea("Contents", "mods:tableOfContents"); ?>
+ <?= $this->xformOutput("Contents", "mods:tableOfContents"); ?>
+ <br/>
+
+ <!-- FIXME: may want to define opts in xml, use itemset tag -->
+ <? $genre_opts = array("Dissertation", "Master's Thesis", "Honors Thesis"); ?>
+ <?= $this->xformSelect("Thesis type", "mods:genre", $genre_opts); ?>
+  <br/>
+
+  <? $lang_opts = array("English", "French", "Spanish"); ?>
+  <?= $this->xformSelect("Language", "mods:language/mods:languageTerm[@type='text']", $lang_opts); ?>
+ <br/>
+
+
+  <xf:repeat id="repeat-keywords" nodeset="mods:subject[@authority='keyword']">
+   <?= $this->xformText("keyword", "mods:topic"); ?>
+   <br/>
+  </xf:repeat>
+
+  <xf:trigger>
+      <xf:label>Add</xf:label>
+      <xf:action ev:event="DOMActivate">
+        <xf:insert nodeset="mods:subject[@authority='keyword']" at="last()" position="after"/>
+        <xf:setvalue ref="mods:subject[@authority='keyword']/mods:topic[last()]" value="''"/>
+       </xf:action>
+     </xf:trigger>
+      
+    <xf:trigger>
+      <xf:label>Remove</xf:label>
+      <xf:delete ev:event="DOMActivate" nodeset="//mods:subject[@authority='keyword']" at="last()"/>
+    </xf:trigger>
+<br/>
+ 
+ <xf:submit submission="submission">
+<xf:label>Save</xf:label>
+</xf:submit>
+
+<? if ($this->site_mode == 'development'): ?>
+  <p id="status"></p>
+<? endif ?>   
+
