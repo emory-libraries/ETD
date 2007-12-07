@@ -1,4 +1,7 @@
-<mods:mods xmlns:mods="http://www.loc.gov/mods/v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema">
+<mods:mods 
+  xmlns:mods="http://www.loc.gov/mods/v3" 
+  xmlns:etd="http://www.ndltd.org/standards/metadata/etdms/1.0/"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema">
   <mods:titleInfo>
     <mods:title/>
   </mods:titleInfo>
@@ -56,16 +59,22 @@
   <mods:genre authority="aat"/>
   <mods:originInfo>
     <mods:dateIssued keyDate="yes"/>
+	<!-- convert to 4-digit year, set encoding="marc" before handing off to marc transform -->
     <mods:copyrightDate qualifier="inferred"/>
     <mods:dateOther type="embargoedUntil"/>
   </mods:originInfo>
   <mods:language>
     <mods:languageTerm authority="iso639-2b" type="text">English</mods:languageTerm>
+<!-- FIXME: use appropriate language code here (in record or add before converting to MARC?) -->
+    <mods:languageTerm authority="iso639-2b" type="code">ENG</mods:languageTerm>
   </mods:language>
   <mods:physicalDescription>
     <mods:form authority="marcform">electronic</mods:form>
     <mods:internetMediaType>application/pdf</mods:internetMediaType>
     <mods:digitalOrigin>born digital</mods:digitalOrigin>
+    <mods:note type="physical details">digital, PDF file</mods:note>
+    <mods:form authority="gmd">electronic resource</mods:form>
+    <mods:extent/> <!-- ### p -->
   </mods:physicalDescription>
   <mods:abstract/>
   <mods:tableOfContents/>
@@ -75,10 +84,49 @@
   <mods:subject authority="keyword">
     <mods:topic/>
   </mods:subject>
+  <mods:identifier type="ark"/>	<!-- insert ark/pid ? -->
+  <mods:location>
+    <mods:url/>	<!-- ark url here -->
+   <!-- can include multiple urls; need to label them properly -->
+   <!-- attributes:
+	access: preview = thumbnail; raw object = pdf, 
+		object in context = page in etd site (with link to pdf) -->
+  </mods:location>
+  <mods:accessCondition type="useAndReproduction">
+    statement from boilerplate circulation agreement
+  </mods:accessCondition>
+  <mods:accessCondition type="restrictionOnAccess">
+     statement about embargo goes here
+  </mods:accessCondition>
+
+  <mods:relatedItem type="host">
+    <mods:titleInfo>
+     <mods:title>Emory University - Electronic Theses and Dissertations</mods:title>
+   </mods:titleInfo>
+   <mods:location>
+     <mods:url>http://etd.library.emory.edu</mods:url>
+   </mods:location>
+  </mods:relatedItem>
+
+  <mods:recordInfo>
+    <mods:recordCreationDate/>
+    <mods:recordChangeDate/>
+  </mods:recordInfo>
+
+  <mods:extension>
+    <etd:degree>
+      <etd:name/>
+      <etd:level/>
+      <etd:discipline/>
+    </etd:degree>
+  </mods:extension>
+
+<!-- FIXME: don't use part ; put extend under physical description -->
   <mods:part>
     <mods:detail>entire dissertation (pdf format)</mods:detail>
     <mods:extent unit="pages">
       <mods:total></mods:total>
     </mods:extent>
   </mods:part>
+
 </mods:mods>
