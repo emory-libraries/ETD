@@ -29,7 +29,7 @@ class FezEtd extends foxml {
 
     $this->addNamespace("mods", "http://www.loc.gov/mods/v3");
     $this->xmlconfig["mods"] = array("xpath" => "//foxml:xmlContent/mods:mods",
-				     "class_name" => "etd_mods", "dsID" => "MODS");
+				     "class_name" => "fez_etd_mods", "dsID" => "MODS");
     $this->addNamespace("v", vcard::namespace);
     $this->xmlconfig["vcard"] = array("xpath" => "//foxml:xmlContent/v:VCARD",
 				      "class_name" => "vcard", "dsID" => "vCard");
@@ -81,6 +81,15 @@ class FezMD extends XmlObject {
     parent::__construct($dom, $config, $xpath);
   }
 
+}
+
+class fez_etd_mods extends etd_mods {
+
+  // add mappings that have changed from fez to new etd
+  protected function configure() {
+    parent::configure();
+    $this->xmlconfig["pages"] = array("xpath" => "mods:part/mods:extent[@unit='pages']/mods:total");
+  }
 }
 
 ?>
