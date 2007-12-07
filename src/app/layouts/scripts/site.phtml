@@ -9,24 +9,33 @@ $baseurl = "/~rsutton/etd/";
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html>
+<html  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:xf="http://www.w3.org/2002/xforms"
+  xmlns:ev="http://www.w3.org/2001/xml-events"
+  xmlns:v="http://www.w3.org/2001/vcard-rdf/3.0#"
+  xmlns:mods="http://www.loc.gov/mods/v3"
+  xml:lang="en">
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-   <title>ETD : <?= $this->escape($this->title) ?></title>
-  <link rel="stylesheet" href="http://wilson.library.emory.edu/~rsutton/etds/css/etd.css" type="text/css">
+   <title>ETD08 : <?= $this->escape($this->title) ?></title>
+  <link rel="stylesheet" href="http://wilson.library.emory.edu/~rsutton/etds/css/etd.css" type="text/css"/>
   <?= $this->render('dc_header.phtml'); ?>
+
+  <? if ($this->xforms): ?>
+       <?= $this->render('xforms_head.phtml'); ?>
+  <? endif ?>       
 </head>
 <body>
 
 <div id="header">
   <div id="emory">
 	<a href="http://www.emory.edu"><img
-	    src="http://wilson.library.emory.edu/~rsutton/etds/images/emory.gif" alt="EMORY" title="EMORY"></a>
+	    src="http://wilson.library.emory.edu/~rsutton/etds/images/emory.gif" alt="EMORY" title="EMORY"/></a>
       </div>
-  <div id="title"><a href="http://wilson.library.emory.edu/~rsutton/zend-etds/www/">Electronic Theses and Dissertations</a></div>
+<div id="title"><a href="<?//= $this->url(array(), '', true) ?>">Electronic Theses and Dissertations</a> (ETD08)</div>
 
   <div id="photo">
-	<img src="http://wilson.library.emory.edu/~rsutton/etds/images/woodruff-path.jpg"> 
+	<img src="http://wilson.library.emory.edu/~rsutton/etds/images/woodruff-path.jpg"/> 
 <p>Welcome to Emory University's Electronic Thesis and Dissertation
 	  repository.</p>
       </div>
@@ -61,7 +70,7 @@ $baseurl = "/~rsutton/etd/";
     action="<?= $this->url(array("controller" => "auth", "action" => "login"), "", true)?>">
   <?= $this->formText("login[username]", ""); ?>
   <?= $this->formPassword("login[password]", "", array("size" => 32)); ?>
-  <input type="submit" class="submitlink" name="Submit" value="Login &gt;" class="button">
+  <input type="submit button" class="submitlink" name="Submit" value="Login &gt;"/>
 </form>	
 
  <ul class="horizontal">
