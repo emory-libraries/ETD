@@ -10,38 +10,10 @@
 </div>
 
 Browse by:
- <ul class="browse">
-  <li><a <?//if $browse_type == 'browse_program' class="current" /if?>
-	href="browse/program">Program</a></li>
-  <li><a <?//if $browse_type == 'browse_author'} class="current" {/if?>
-	href="browse/author">Author<a/></li>
-  <li><a <?//if $browse_type == 'browse_committee'} class="current" {/if?>
-	href="/browse/committee">Committee Member</a></li>
-  <li><a <?//if $browse_type == 'browse_researchfield'} class="current" {/if?>
-         href="/browse/researchfield">Research Field</a></li>
-  <li><a <?//if $browse_type == 'browse_year'} class="current" {/if?>
-	 href="browse/year">Year</a></li>
-</ul> 
+<? $this->browse_class = 'browse'; ?>
+<?=  $this->render('browse/_categories.phtml'); ?>
 
-
-<div class="proquest">
-
-<a
-href="http://proquest.umi.com.proxy.library.emory.edu/pqdweb?RQT=305&SQ=LSCHNAME%28%7BEMORY+UNIVERSITY%7D%29&clientId=1917">Browse
-      ProQuest</a>
-
-<form action="http://proquest.umi.com.proxy.library.emory.edu/pqdweb"
-    method="get">
-Search ProQuest
-<input type="hidden" name="RQT" value="305">
-<input type="hidden" name="querySyntax" value="PQ">
-<input type="hidden" name="clientId" value="1917">
-<input type="hidden" name="DBId" value="21729">
-<input type="text" name="SQ" size="12">
-<input class="submitlink" type="submit" value="Go &gt;">
-</form>
-</div>
-
+<?=  $this->render('_proquest.phtml'); ?>
 
 
 <div class="section">
