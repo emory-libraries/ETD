@@ -66,8 +66,8 @@ class etd_html extends XmlObject {
   // utility functions for handling html-related of tasks
   public static function cleanTags($string, $keep_breaks = false) {
     // convert tags to a more easily matchable form, remove unneeded formatting
-    $search = array("&lt;", "&gt;", "&rsquo;", "&ldquo;", "&rdquo;", "&ndash;", "&nbsp;",);
-    $replace = array("<", ">", "'", '"', '"', '-', ' ');
+    $search = array("&lt;", "&gt;", "&rsquo;", "&ldquo;", "&rdquo;", "&ndash;", "&mdash;", "&nbsp;",);
+    $replace = array("<", ">", "'", '"', '"', '-', '--', ' ');
     $string = str_replace($search, $replace, $string);
 
     // replace unicode characters 
