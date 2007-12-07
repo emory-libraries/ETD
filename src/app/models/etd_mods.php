@@ -4,9 +4,14 @@ require_once("models/mods.php");
 
 class etd_mods extends mods {
 
+  protected $etd_namespace = "http://www.ndltd.org/standards/metadata/etdms/1.0/";
+  
   // add etd-specific mods mappings
   protected function configure() {
     parent::configure();
+
+    $this->addNamespace("etd", $this->etd_namespace);
+    
     $this->xmlconfig["author"] = array("xpath" => "mods:name[mods:role/mods:roleTerm = 'author']",
 				       "class_name" => "mods_name");
     $this->xmlconfig["department"] = array("xpath" => "mods:name[mods:role/mods:roleTerm = 'author']/mods:affiliation");
@@ -25,7 +30,9 @@ class etd_mods extends mods {
 					       "is_series" => true, "class_name" => "mods_subject");
     $this->xmlconfig["keywords"] = array("xpath" => "mods:subject[@authority='keyword']",
 					 "is_series" => true, "class_name" => "mods_subject");
-    $this->xmlconfig["pages"] = array("xpath" => "mods:part/mods:extent[@unit='pages']/mods:total");
+    $this->xmlconfig["pages"] = array("xpath" => "mods:physicalDescription/mods:extent");
+
+    $this->xmlconfig["degree"] = array("xpath" => "mods:extension/etd:degree", "class_name" => "etd_degree");
   }
   
   
@@ -65,5 +72,17 @@ class etd_mods extends mods {
       $this->map{$mapname}[] = $topic;
     }
 
+}
+
+
+class etd_degree extends XmlObject {
+  public function __construct($xml, $xpath) {
+    $config = $this->config(array(
+	"name" => array("xpath" => "etd:name"),
+	"level" => array("xpath" => "etd:level"),
+	"discipline" => array("xpath" => "etd:discipline"),
+	 ));
+    parent::__construct($xml, $config, $xpath);
+  }
 }
 
