@@ -2,6 +2,7 @@
 /** Zend_Controller_Action */
 /* Require models */
 require_once("models/etd.php");
+require_once("helpers/ProcessPDF.php");
 
 class EtdController extends Zend_Controller_Action {
 
@@ -32,18 +33,32 @@ class EtdController extends Zend_Controller_Action {
     $this->view->etd = $etd;
     $this->view->xforms = true;
     //    $this->view->xforms_model_xml = $etd->mods->saveXML();
-    $this->view->xforms_model_uri = $this->view->url(array("controller" => "etd", "action" => "mods", "pid" => $pid));
+    $this->view->xforms_model_uri = $this->view->url(array("controller" => "etd",
+							   "action" => "xml", "ds" => "mods", "pid" => $pid));
   }
 
    // show mods - referenced as model for xform
-   public function modsAction() {
+   // FIXME: maybe make this a more generic 
+   public function xmlAction() {
      $etd = new etd($this->_getParam("pid"));
-     $this->view->xml = $etd->mods->saveXML();
-     $this->getHelper('layoutManager')->useLayoutName('xml');
-     $this->_helper->viewRenderer->setScriptAction("xml");
-     //$this->_helper->viewRenderer->setNoRender(true);
+
+     $datastream = $this->_getParam("ds");
+     if (isset($etd->$datastream)) {
+       $xml = $etd->$datastream->saveXML();
+       $this->getHelper('layoutManager')->disableLayouts();
+       //  $this->_helper->viewRenderer->setScriptAction("xml");
+       $this->_helper->viewRenderer->setNoRender(true);
+       
+       //     $this->getResponse()->setHeader('Content-Type', $etdfile->dc->type);
+       $this->getResponse()->setHeader('Content-Type', "text/xml")->setBody($xml);
+     } else {
+       $this->_helper->flashMessenger("invalid xml datastream");
+     }
+       
+
    }
 
+   // fixme: not actually saving anything yet...
    public function savemodsAction() {
      global $HTTP_RAW_POST_DATA;
      $xml = $HTTP_RAW_POST_DATA;
@@ -53,6 +68,8 @@ class EtdController extends Zend_Controller_Action {
       $this->view->noxml = true;
     }
     $this->view->xml = $xml;
+
+    $this->view->title = "edit mods";
     
    }
 
@@ -70,6 +87,8 @@ class EtdController extends Zend_Controller_Action {
    public function deleteAction() {
    }
 
+
+   // serve out a file attached to an ETD record from fedora
    public function fileAction() {
 
      // FIXME: write routes or set headers so file will save with original filename
@@ -91,5 +110,9 @@ class EtdController extends Zend_Controller_Action {
      //    $this->_helper->viewRenderer->setNoRender(true);
 
    }
+
+
+   
+
 }
 ?>
