@@ -21,8 +21,8 @@ class EditController extends Zend_Controller_Action {
     $this->view->xforms = true;
     //    $this->view->xforms_model_xml = $etd->mods->saveXML();
     // link to xml rather than embedding directly in the page
-    $this->view->xforms_model_uri = $this->view->url(array("controller" => "etd",
-							   "action" => "xml", "ds" => "mods", "pid" => $pid));
+    $this->view->xforms_model_uri = $this->view->url(array("controller" => "view",
+							   "action" => "mods", "pid" => $pid));
   }
 
   // formatted/html fields - edit one at a time 
