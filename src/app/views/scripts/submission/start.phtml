@@ -1,0 +1,16 @@
+<form name="submission" method="post" enctype="multipart/form-data"
+    action="<?= $this->url(array("action" => "processPDF"))?>">
+
+  <p>Please upload the PDF of your dissertation.</p>
+
+<?//= $this->formHidden("MAX_FILE_SIZE", "3000000"); ?> 
+  <p><?= $this->formFile("pdf"); ?></p>
+  <?= $this->formSubmit("Begin", "Begin"); ?>
+
+</form>
+
+<p><b>(instructions/notes/help should go here)</b></p>
+<p>document should be in order/format specified by graduate school....  (circulation agreement, etc.)</p>
+<p>note about multiple pdfs - upload first only here... </p>
+
+
