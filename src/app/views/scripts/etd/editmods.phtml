@@ -61,6 +61,7 @@ fixme: bindings need to go into header with model... how to get them there?
   <p><u>non-emory committee members</u></p>
  <xf:repeat id="repeat-nonemory-committee" nodeset="mods:name[mods:description='Non-Emory Committee Member']">
      <?=  $this->render('etd/_mods_name.phtml'); ?>
+     <?= $this->xformText("Affiliation", "mods:affiliation"); ?>
     <br/>
  </xf:repeat>
 
