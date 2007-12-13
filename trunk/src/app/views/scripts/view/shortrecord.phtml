@@ -2,7 +2,7 @@
      expects $view->etd to be set with record to display.  */ ?>
      
 <div class="listrecord">
-  <b><a href="<?= $this->url(array("controller" => "etd",
-    "action" => "view", "pid" => $this->etd->pid()), "", true)?>"><?= $this->etd->title() ?></a></b> <br/>
+  <b><a href="<?= $this->url(array("controller" => "view",
+    "action" => "record", "pid" => $this->etd->pid()), "", true)?>"><?= $this->etd->title() ?></a></b> <br/>
   <?=  $this->render('view/summary.phtml'); ?>
 </div>
