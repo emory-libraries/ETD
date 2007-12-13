@@ -1,6 +1,13 @@
 <?/* left side navigation */?>
 <div id="sidenav">
 
+   <? /* fixme: needs a check if user is authorized to submit */ ?>
+   <p><b><a
+href="<?= $this->url(array("controller" => "submission", "action" => "start"), "", true); ?>">Submit &gt;</a></b>
+<font color="red">(beta)</font>
+</p>
+
+
 <div class="section">
   <p><a href="doc.php?id=about">About Us</a></p>
   <p><a href="doc.php?id=faq">Frequently Asked Questions</a></p>
