@@ -18,7 +18,7 @@ $baseurl = "/~rsutton/etd/";
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
    <title>ETD08 : <?= $this->escape($this->title) ?></title>
-  <link rel="stylesheet" href="http://wilson.library.emory.edu/~rsutton/etds/css/etd.css" type="text/css"/>
+  <?= $this->css('etd.css'); ?>
   <?= $this->render('dc_header.phtml'); ?>
 
   <? if ($this->xforms): ?>
@@ -63,6 +63,7 @@ $baseurl = "/~rsutton/etd/";
             <li><a href="">My ETDs</a></li>
 
             <li><a href="docs/id/faq#help">Help</a></li>
+         </ul>
 
  <? else: ?>
   Emory Login: 
@@ -70,7 +71,7 @@ $baseurl = "/~rsutton/etd/";
     action="<?= $this->url(array("controller" => "auth", "action" => "login"), "", true)?>">
   <?= $this->formText("login[username]", ""); ?>
   <?= $this->formPassword("login[password]", "", array("size" => 32)); ?>
-  <input type="submit button" class="submitlink" name="Submit" value="Login &gt;"/>
+  <?= $this->formSubmit("Submit", "Login >", array("class" => "button submitlink")); ?>
 </form>	
 
  <ul class="horizontal">
@@ -89,6 +90,15 @@ $baseurl = "/~rsutton/etd/";
 <?=  $this->render('sidenav.phtml'); ?>
 
 <div class="content">
+
+<? if (isset($this->messages)):?>
+  <div id="messages" style="color:green;">
+   <? foreach ($this->messages as $message): ?>
+     <p <? if (strpos($message, "Error") !== false): ?> style="color:red" <? endif ?> ><?= $message ?></p>
+   <? endforeach ?>
+  </div>
+<? endif ?>
+
 
   <?= $this->content ?>
 
