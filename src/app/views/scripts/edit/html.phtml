@@ -1,0 +1,32 @@
+<? include "fckeditor/fckeditor.php"; ?>
+
+<h1><?= $this->etd_title ?></h1>
+
+<p>edit <?= $this->mode ?></p>
+
+<?php
+$oFCKeditor = new FCKeditor("edit_content");
+$oFCKeditor->BasePath = "/~rsutton/fckeditor/";
+$oFCKeditor->Value = (string)$this->edit_content;
+//$oFCKeditor->Config["CustomConfigurationsPath"] = "/myconfig.js"  ;
+
+$oFCKeditor->Config["CustomConfigurationsPath"] = (string)$this->linkTo("js/FCKconfig.js");
+$oFCKeditor->ToolbarSet = 'Basic';
+if ($this->mode == "title") {
+  $oFCKeditor->Height = '200';
+  $oFCKeditor->ToolbarSet = "etd-title";
+} else {
+  $oFCKeditor->Height = '400';
+  $oFCKeditor->ToolbarSet = "etd";
+}
+$oFCKeditor->Create();
+?>
+
+
+<h2>Preview:</h2>
+<div class="fullrecord">
+  <!-- <h1><?//= $this->edit_content ?></h1> -->
+  <div id="<?= $this->mode ?>">
+    <?= $this->edit_content ?>
+  </div> 
+</div>
