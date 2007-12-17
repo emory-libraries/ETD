@@ -3,14 +3,20 @@
 
 <div class="fullrecord">
   <h1><?= $this->etd->html->title ?></a></h1>
+<a style="float:right" href="<?= $this->url(array("controller" => "edit", "action" => "title")) ?>">edit title</a>
+<a style="float:right;clear:right" href="<?= $this->url(array("controller" => "edit", "action" => "mods")) ?>">edit record</a>
+
   <?=  $this->render('view/summary.phtml'); ?>
- 
+
   <h2>Abstract</h2>
+  <? // FIXME: edit links for convenience; need to check if user has permission ?>
+  <a style="float:right" href="<?= $this->url(array("controller" => "edit", "action" => "abstract")) ?>">edit</a>
   <div id="abstract">
      <?= $etd->html->abstract ?>
   </div>
 
   <h2>Table of Contents</h2>
+  <a style="float:right" href="<?= $this->url(array("controller" => "edit", "action" => "contents")) ?>">edit</a>
   <div id="toc">
     <?= $etd->html->contents ?>
   </div>
@@ -21,10 +27,23 @@
 
   <? foreach (array("pdfs", "originals", "supplements") as $filetype): ?>
     <? foreach ($etd->$filetype as $file) : ?>
-      <a href="<?= $this->url(array("action" => "file", "pid" => $file->pid))?>"><?= $file->label ?></a>
-      <?= $file->dc->type ?><br/>
+      <a href="<?= $this->url(array("controller" => "file", "action" => "view",
+ 				     "pid" => $file->pid))?>"><?= $file->dc->title ?></a>
+  <? if (isset($file->dc->type)): ?> <?= $file->dc->type ?> <? endif ?>
+  <? if (isset($file->dc->format)): ?> <?= $file->dc->format ?> <? endif ?>
+
+  <a href="<?= $this->url(array("controller" => "file", "action" => "edit", "pid" => $file->pid))?>">edit</a>
+
+  <a href="<?= $this->url(array("controller" => "file", "action" => "remove", "pid" => $file->pid))?>">remove</a>
+
+  <br/>
     <? endforeach ?>
   <? endforeach ?>
+
+<hr/>
+<p><a href="<?= $this->url(array("controller" => "file",
+		"action" => "add", "etd" => $etd->pid), null, true)?>">add another file</a></p>
+					   
   </div>
 
-</div>  
+</div>
