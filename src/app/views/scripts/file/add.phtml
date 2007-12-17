@@ -1,0 +1,12 @@
+<h1><?= $this->etd->label ?></h1>
+
+<p>Adding file to record</p>
+
+<form name="addfile" method="post" enctype="multipart/form-data"
+    action="<?= $this->url(array("action" => "new", "etd" => $this->pid))?>">
+
+  <p>Please upload your file.</p>
+  <p><?= $this->formFile("file"); ?></p>
+  
+  <?= $this->formSubmit("Upload", "Upload"); ?>
+</form>

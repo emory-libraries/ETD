@@ -1,0 +1,32 @@
+<h1>edit file information</h1>
+
+
+<?= $this->xformText("title", "dc:title"); ?> <br/>
+<?= $this->xformText("author", "dc:creator"); ?> <br/>
+<?= $this->xformTextarea("description", "dc:description"); ?> <br/>
+<?= $this->xformText("file type", "dc:type"); ?> <br/>
+<? /* FIXME: mime-type should be in dc:format, not dc:type */ ?>
+<?= $this->xformText("file type", "dc:format"); ?> <br/>
+
+
+ <xf:submit submission="submission">
+<xf:label>Save</xf:label>
+</xf:submit>
+
+
+
+
+
+<p>upload a new version of this file (if desired)</p>
+
+<form name="updatefile" method="post" enctype="multipart/form-data"
+    action="<?= $this->url(array("action" => "update", "etd" => $this->pid))?>">
+  <p><?= $this->formFile("file"); ?>
+     <?= $this->formSubmit("Upload", "Upload"); ?>
+  </p>
+</form>
+
+
+<? if ($this->site_mode == 'development'): ?>
+  <p id="status"></p>
+<? endif ?>   

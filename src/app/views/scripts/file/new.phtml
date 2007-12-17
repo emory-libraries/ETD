@@ -1,0 +1,10 @@
+
+<p>etd record updated on <?= $this->save_result ?></p>
+
+<? /* fixme: display file information so they know if they need to edit it  */ ?>
+
+<p><a href="<?= $this->url(array("controller" => "file", "action" => "edit",
+	"pid" => $this->file_pid), null, true) ?>">edit file information</a></p>
+
+
+<p><a href="<?= $this->url(array("controller" => "view", "action" => "record")) ?>">return to record</a></p>
