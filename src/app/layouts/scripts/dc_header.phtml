@@ -1,33 +1,36 @@
 <?/* Dublin Core metadata formatted for HTML header */ ?>
-<? $dc = $this->dc; ?>
-<link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"/>
-<link rel="schema.DCTERMS" href="http://purl.org/dc/terms/"/>
-<? if (isset($dc->title)): ?>    
-  <meta name="DC.title" content="<?= $dc->title ?>"/>
-<? endif ?>            
-<? if (isset($dc->creator)): ?>
-   <meta name="DC.creator" content="<?= $dc->creator ?>"/>
-<? endif ?>
-<? if (isset($dc->contributor)): ?>
-   <meta name="DC.contributor" content="<?= $dc->contributor ?>"/>
-<? endif ?>
-<? if (isset($dc->publisher)): ?>
-   <meta name="DC.publisher" content="<?= $dc->publisher ?>"/>
-<? endif ?>
-<? if (isset($dc->date)): ?>
-  <meta name="DCTERMS.issued" content="<?= $dc->date ?>"/>
-<? endif ?>
-<? if (isset($dc->identifier)): ?>
-    <?/* FIXME: translate into url; (also) use ark? */ ?>
-   <meta name="DC.identifier" content="<?= $dc->identifier?>"/>
-<? endif ?>
-<? if (isset($dc->language)): ?>
+<? if ($this->dc): ?>
+
+  <? $dc = $this->dc; ?>
+  <link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"/>
+  <link rel="schema.DCTERMS" href="http://purl.org/dc/terms/"/>
+  <? if (isset($dc->title)): ?>    
+    <meta name="DC.title" content="<?= $dc->title ?>"/>
+  <? endif ?>            
+  <? if (isset($dc->creator)): ?>
+     <meta name="DC.creator" content="<?= $dc->creator ?>"/>
+  <? endif ?>
+  <? if (isset($dc->contributor)): ?>
+     <meta name="DC.contributor" content="<?= $dc->contributor ?>"/>
+  <? endif ?>
+  <? if (isset($dc->publisher)): ?>
+     <meta name="DC.publisher" content="<?= $dc->publisher ?>"/>
+  <? endif ?>
+  <? if (isset($dc->date)): ?>
+    <meta name="DCTERMS.issued" content="<?= $dc->date ?>"/>
+  <? endif ?>
+  <? if (isset($dc->identifier)): ?>
+     <?/* FIXME: translate into url; (also) use ark? */ ?>
+     <meta name="DC.identifier" content="<?= $dc->identifier?>"/>
+  <? endif ?>
+  <? if (isset($dc->language)): ?>
       <meta name="DC.language" content="<?= $dc->language ?>"/>
+  <? endif ?>
+  <? if (isset($dc->subject)): ?>
+    <? for ($i = 0; $i < count($dc->subject); $i++): ?>
+      <meta name="DC.subject" content="<?= $dc->subject[$i]?>"/>
+    <? endfor ?>
+  <? endif ?>       
+  <meta name="DC.type" scheme="DCTERMS.DCMIType" content="Text"/>
+  <meta name="DC.format" scheme="DCTERMS.IMT" content="text/xml"/>
 <? endif ?>
-<? if (isset($dc->subject)): ?>
-  <? for ($i = 0; $i < count($dc->subject); $i++): ?>
-    <meta name="DC.subject" content="<?= $dc->subject[$i]?>"/>
-  <? endfor ?>
-<? endif ?>       
-<meta name="DC.type" scheme="DCTERMS.DCMIType" content="Text"/>
-<meta name="DC.format" scheme="DCTERMS.IMT" content="text/xml"/>
