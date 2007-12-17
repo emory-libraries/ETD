@@ -1,8 +1,8 @@
 <?php
 
-//require_once("foxmlds.php");
+require_once("models/foxmlDatastreamAbstract.php");
 
-class etd_html extends XmlObject {
+class etd_html extends foxmlDatastreamAbstract {
   const id = "XHTML";
   const label = "Formatted ETD fields";
 
