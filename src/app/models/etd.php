@@ -50,7 +50,7 @@ class etd extends foxml implements etdInterface {
     foreach ($files as $var => $type) {
       $this->$var = array();
       $pids = $this->findFiles($type);
-      foreach ($pids as $pid) $this->{$var}[] = new etd_file($pid);
+      foreach ($pids as $pid) $this->{$var}[] = new etd_file($pid, $this);
     }
   }
 
@@ -64,10 +64,10 @@ class etd extends foxml implements etdInterface {
 
     // add mappings for xmlobject
     $this->xmlconfig["html"] = array("xpath" => "//foxml:xmlContent/html",
-				     "class_name" => "etd_html");
+				     "class_name" => "etd_html", "dsID" => "XHTML");
     $this->addNamespace("mods", "http://www.loc.gov/mods/v3");
     $this->xmlconfig["mods"] = array("xpath" => "//foxml:xmlContent/mods:mods",
-				     "class_name" => "etd_mods");
+				     "class_name" => "etd_mods", "dsID" => "MODS");
   }
 
 
