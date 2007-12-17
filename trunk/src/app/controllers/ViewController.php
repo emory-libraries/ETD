@@ -42,7 +42,15 @@ class ViewController extends Zend_Controller_Action {
 
    // show etd xml datastream
    public function xmlAction() {
-     $etd = new etd($this->_getParam("pid"));
+     $pid = $this->_getParam("pid");
+     $type = $this->_getParam("type", "etd");
+
+     if ($type == "etd")
+       $etd = new etd($pid);
+     elseif ($type == "etdfile")
+       $etd = new etd_file($pid);
+
+     
      $datastream = $this->_getParam("datastream");
      
      if (isset($etd->$datastream)) {	// check that it is the correct type, also?
@@ -59,31 +67,6 @@ class ViewController extends Zend_Controller_Action {
        // do something with this message?
      }
    }
-
-
-   // serve out a file attached to an ETD record from fedora
-   public function fileAction() {
-
-     // FIXME: write routes or set headers so file will save with original filename
-     
-     $pid = $this->_getParam("pid");
-     $etdfile = new etd_file($pid);
-
-     //     $this->getResponse()->setHeader('Content-Type', $etdfile->dc->type);
-     $this->getResponse()->setHeader('Content-Disposition',
-				     'attachment; filename="' . $etdfile->dc->description);
-
-     
-     $fedora = Zend_Registry::get('fedora-config');
-     $url = "http://" . $fedora->server . ":" . $fedora->port . "/fedora/get/$pid/FILE";
-
-     // do a redirect so the file doesn't get loaded into memory by php
-     $this->_redirect($url);
-     // for debugging redirect url:
-     //    $this->_helper->viewRenderer->setNoRender(true);
-
-   }
-
 
    
 
