@@ -1,4 +1,10 @@
 <? // just printing the xml to see that it was received ?>
+
+<p>record updated on <?= $this->save_result ?></p>
+
+<p><a href="<?= $this->url(array("controller" => "view", "action" => "record",
+	"pid" => $this->etd_pid), null, true) ?>">return to record</a></p>
+
 <pre>
 <?= htmlentities($this->xml) ?>
 </pre>
