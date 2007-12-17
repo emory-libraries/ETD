@@ -1,23 +1,15 @@
 <?= $this->javascript("FormFaces/formfaces.js"); ?>
-
-<!--<script type="text/javascript" language="Javascript" src="/~rsutton/etd/js/FormFaces/formfaces.js" /> -->
-   <link rel="stylesheet" href="http://wilson.library.emory.edu/~rsutton/etd/css/xforms.css" type="text/css"/> 
+<?= $this->css('xforms.css'); ?>
 
 <xf:model>
 <? if (isset($this->xforms_model_uri)): ?>
    <xf:instance src="<?= $this->xforms_model_uri ?>"/>
 <? elseif (isset($this->xforms_model_xml)): ?>
-  <xf:instance>
-   <?= $this->xforms_model_xml ?>
-</xf:instance>
+  <xf:instance><?= $this->xforms_model_xml ?></xf:instance>
 <? endif ?>     
 
-			       <!-- FIXME: temporary ; where should this go? -->
-   <xf:bind nodeset="mods:name/mods:displayForm" type="xsd:string"
-	calculate="concat(../mods:namePart[@type='family'], ', ', ../mods:namePart[@type='given'])"/>
-
-			       <!-- FIXME: temporary ; how to configure generically? -->			       
-<xf:submission id="submission" action="<?= $this->url(array('action' => 'savemods', 'id' => $this->pid))?>"
-		method="post" />
+<? if (isset($this->xforms_bind_script)): ?>
+  <?= $this->render($this->xforms_bind_script); ?>
+<? endif ?>
 
 </xf:model>
