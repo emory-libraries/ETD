@@ -38,5 +38,6 @@ class SubmissionController extends Zend_Controller_Action {
 
   //  other actions:
   // review, submit, addfile (upload/enter info)
+  // check required fields/files/etc
    
 }
