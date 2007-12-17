@@ -4,6 +4,9 @@
 
 <p>edit <?= $this->mode ?></p>
 
+<form name="edit" method="post"
+    action="<?= $this->url(array("action" => "save" . ucfirst($this->mode), "mode" => $this->mode))?>">
+
 <?php
 $oFCKeditor = new FCKeditor("edit_content");
 $oFCKeditor->BasePath = "/~rsutton/fckeditor/";
@@ -21,6 +24,9 @@ if ($this->mode == "title") {
 }
 $oFCKeditor->Create();
 ?>
+
+  <?= $this->formSubmit("Save", "Save"); ?>
+</form>
 
 
 <h2>Preview:</h2>
