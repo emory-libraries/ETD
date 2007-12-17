@@ -3,20 +3,23 @@
 $auth = Zend_Auth::getInstance();
 if ($auth->hasIdentity()) { $identity = $auth->getIdentity(); }
 
-// TEMPORARY - until we get 
-$baseurl = "/~rsutton/etd/";
+//xmlns:v="http://www.w3.org/2001/vcard-rdf/3.0#"
 
 ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html  xmlns="http://www.w3.org/1999/xhtml"
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+ <? if ($this->xforms): ?>
   xmlns:xf="http://www.w3.org/2002/xforms"
   xmlns:ev="http://www.w3.org/2001/xml-events"
-  xmlns:v="http://www.w3.org/2001/vcard-rdf/3.0#"
-  xmlns:mods="http://www.loc.gov/mods/v3"
+   <? if (isset($this->namespaces)): ?>
+    <? foreach ($this->namespaces as $prefix => $uri): ?>
+	 xmlns:<?= $prefix ?>="<?= $uri ?>"
+    <? endforeach ?>
+    <? endif ?>
+ <? endif ?>    	 
   xml:lang="en">
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
    <title>ETD08 : <?= $this->escape($this->title) ?></title>
   <?= $this->css('etd.css'); ?>
   <?= $this->render('dc_header.phtml'); ?>
@@ -32,7 +35,7 @@ $baseurl = "/~rsutton/etd/";
 	<a href="http://www.emory.edu"><img
 	    src="http://wilson.library.emory.edu/~rsutton/etds/images/emory.gif" alt="EMORY" title="EMORY"/></a>
       </div>
-<div id="title"><a href="<?//= $this->url(array(), '', true) ?>">Electronic Theses and Dissertations</a> (ETD08)</div>
+<div id="title"><a href="<?= $this->url(array(), '', true) ?>">Electronic Theses and Dissertations</a> (ETD08)</div>
 
   <div id="photo">
 	<img src="http://wilson.library.emory.edu/~rsutton/etds/images/woodruff-path.jpg"/> 
@@ -83,7 +86,7 @@ $baseurl = "/~rsutton/etd/";
 </div>
 
 <div id="navbar">
-  <div id="etdhome"><a href="<?= $baseurl?>">ETD HOME</a></div>
+  <div id="etdhome"><a href="<?= $this->url(array(), "", true) ?>">ETD HOME</a></div>
   <?=  $this->render('navbar-curve.phtml'); ?>
 </div>
 
