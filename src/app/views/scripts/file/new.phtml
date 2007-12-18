@@ -1,5 +1,6 @@
-
-<p>etd record updated on <?= $this->save_result ?></p>
+<? if ($this->save_result): ?>
+  <p>etd record updated on <?= $this->save_result ?></p>
+<? endif ?>     
 
 <? /* fixme: display file information so they know if they need to edit it  */ ?>
 
