@@ -100,8 +100,6 @@ class FileController extends Zend_Controller_Action {
    }
 
    // upload and save a new version of the binary file
-
-   // FIXME: fedora modifyDatastreamByReference NOT WORKING
    public function updateAction() {
      $pid = $this->_getParam("pid");
      $etdfile = new etd_file($pid);
@@ -116,7 +114,11 @@ class FileController extends Zend_Controller_Action {
      $uploaded = $this->_helper->FileUpload($fileinfo, $filename);
      if ($uploaded) {
        $result = $etdfile->updateFile($filename, $fileinfo['type'], "new version of file");
-       $this->view->save_result = $result;
+       if ($result === false) {
+	 $this->_helper->flashMessenger->addMessage("Error: there was a problem saving the record.");
+       } else {
+	 $this->view->save_result = $result;
+       }
        $this->_helper->viewRenderer->setScriptAction("new");
      } else {
        // problem with file - redirect somewhere?
