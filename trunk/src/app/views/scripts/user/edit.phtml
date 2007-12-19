@@ -1,0 +1,40 @@
+<h1>edit user information</h1>
+
+<xf:group nodeset="mads:authority/mads:name"> 
+   <xf:label>name</xf:label> 
+
+   <?= $this->xformText("last name", "mads:namePart[@type='family']"); ?>
+   <?= $this->xformText("first name", "mads:namePart[@type='given']"); ?>
+   <?= $this->xformText("birth year", "mads:namePart[@type='date']"); ?>
+</xf:group> 
+<br/>
+
+<xf:group nodeset="mads:affiliation">
+
+   <xf:group ref="mads:address">
+     <xf:label>address</xf:label>
+     <?= $this->xformText("street", "mads:street"); ?> <br/>
+     <?= $this->xformText("city", "mads:city"); ?> <br/>
+     <?= $this->xformText("state", "mads:state"); ?> <br/>
+     <?= $this->xformText("country", "mads:country"); ?> <br/>
+     <?= $this->xformText("postcode", "mads:postcode"); ?>
+  </xf:group>
+ <br/>
+  
+  <?= $this->xformText("email", "mads:email"); ?> <br/>
+  <?= $this->xformText("phone", "mads:phone"); ?> <br/>
+  <?= $this->xformText("date valid", "mads:dateValid"); ?> <br/>
+  
+</xf:group>  
+
+<?= $this->xformOutput("netid", "mads:identifier[@type='netid']"); ?> <br/>
+
+ <xf:submit submission="submission">
+<xf:label>Save</xf:label>
+</xf:submit>
+
+
+<? if ($this->site_mode == 'development'): ?>
+  <p id="status"></p>
+<? endif ?>   
+
