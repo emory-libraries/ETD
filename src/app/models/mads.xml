@@ -1,0 +1,34 @@
+<mads:mads xmlns:mads="http://www.loc.gov/mads/"
+   xmlns:mods="http://www.loc.gov/mods/v3" >
+ <mads:authority>
+   <mads:name>
+     <mads:namePart type="family"/>
+     <mads:namePart type="given"/>
+     <mads:namePart type="date"/>
+<!-- description ? -->
+   </mads:name>
+ </mads:authority>
+<!-- note? -->
+ <mads:affiliation>
+   <!-- position? 
+	organization? 
+
+ 	should/could departmental affiliation be stored here?
+
+	-->
+   <mads:address>
+     <mads:street/>
+     <mads:city/>
+     <mads:state/>
+     <mads:country/>
+     <mads:postcode/>
+   </mads:address>
+   <mads:email/>
+   <mads:phone/>
+   <mads:dateValid/>
+ </mads:affiliation>
+
+ <mads:identifier type="netid"/>
+
+</mads:mads>
+
