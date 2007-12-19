@@ -97,7 +97,7 @@ if ($auth->hasIdentity()) { $identity = $auth->getIdentity(); }
 <? if (isset($this->messages)):?>
   <div id="messages" style="color:green;">
    <? foreach ($this->messages as $message): ?>
-     <p <? if (strpos($message, "Error") !== false): ?> style="color:red" <? endif ?> ><?= $message ?></p>
+     <p<? if (strpos($message, "Error") !== false): ?> style="color:red" <? endif ?> ><?= $message ?></p>
    <? endforeach ?>
   </div>
 <? endif ?>
