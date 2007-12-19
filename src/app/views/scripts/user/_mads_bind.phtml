@@ -1,0 +1,8 @@
+<xf:bind nodeset="/mads:mads/mads:authority/mads:name/mads:namePart[@type='family' or @type='given']" type="xsd:string" required="true()"/>
+
+<!-- <xf:bind nodeset="/mads:mads/mads:affiliation/mads:address/*" type="xsd:string" required="true()"/> -->
+
+<xf:bind nodeset="mads:email" type="xforms:email"/>
+
+<xf:submission id="submission" action="<?= $this->url(array('action' => 'save', 'id' => $this->pid))?>"
+		method="post" />

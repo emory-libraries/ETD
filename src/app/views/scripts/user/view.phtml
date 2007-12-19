@@ -1,0 +1,21 @@
+<h1>user information</h1>
+<? $user = $this->user->mads; ?>
+
+<?= $user->name->first ?> <?= $user->name->last ?>
+
+<p><b>address</b> (valid as of <?= $user->date ?>)</p>
+<?= $user->address->street ?> <br/>
+<?= $user->address->city ?>, <?= $user->address->state ?>, <?= $user->address->postcode ?> <br/>
+<?= $user->address->country ?> <br/>
+
+
+<p><b>email:</b>
+<? foreach ($user->email as $email): ?>
+  <?= $email ?>
+<? endforeach ?>   
+</p>
+<p><b>phone:</b> <?= $user->phone ?></p>
+<p><b>netid:</b> <?= $user->netid ?></p>
+
+
+<p><a href="<?= $this->url(array("action" => "edit")) ?>">edit</a></p>
