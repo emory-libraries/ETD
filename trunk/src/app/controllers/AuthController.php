@@ -2,6 +2,8 @@
 /** Zend_Controller_Action */
 /* Require models */
 
+require_once("models/user.php");
+
 class AuthController extends Zend_Controller_Action {
 
   protected $_flashMessenger = null;
@@ -10,6 +12,11 @@ class AuthController extends Zend_Controller_Action {
      $this->_flashMessenger = $this->_helper->getHelper('FlashMessenger');
      $this->initView();
    }
+
+   public function postDispatch() {
+     $this->view->messages = $this->_helper->flashMessenger->getCurrentMessages();
+   }
+
 
    public function loginAction() {
      $login = $this->_getParam('login');
@@ -27,7 +34,7 @@ class AuthController extends Zend_Controller_Action {
 
      $result = $auth->authenticate($authAdapter);
      if (!$result->isValid()) {
-       $message = "Login failed";
+       $message = "Error: login failed";
        switch($result->getCode()) {
        case Zend_Auth_Result::FAILURE_IDENTITY_NOT_FOUND :
        case Zend_Auth_Result::FAILURE_IDENTITY_AMBIGUOUS :
@@ -42,12 +49,27 @@ class AuthController extends Zend_Controller_Action {
        
        // FIXME: more detailed error message, if possible
        $this->_flashMessenger->addMessage($message);
-       print "$message\n";
+
+       // forward to .. ?
+       $this->_forward("index", "Index");
      } else {
-       print "Login successful\n";
+       $this->_flashMessenger->addMessage("Login successful");
+       
+       $user = user::find_by_username($username);
+       if ($user) {
+	 // do what? save user to session?
+	 $this->_flashMessenger->addMessage("found user information");
+	 // forward to ... ?
+	 $this->_forward("index", "Index");
+       } else {
+	 $this->_flashMessenger->addMessage("did not found user information, sending to edit");
+	 $this->_forward("new", "user");
+       }
+       
      }
+     
      // forward to ... ?
-     $this->_forward("index", "Index");
+     //     $this->_forward("index", "Index");
      //     $this->_helper->viewRenderer->setNoRender(true);
    }
 
