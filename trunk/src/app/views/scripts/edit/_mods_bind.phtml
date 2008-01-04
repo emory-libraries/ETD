@@ -1,5 +1,6 @@
 <? /* secondary xml instances used for data, choices, etc. */ ?>
 <xf:instance id="languages" xmlns=""><? include('../config/languages.xml'); ?></xf:instance>
+<xf:instance id="degrees" xmlns=""><? include('../config/degrees.xml'); ?></xf:instance>
 <xf:instance id="tmp-data" xmlns="">
    <tmp-data>
     <non-emory-faculty><?= ($this->etd->mods->nonemory_committee[0]->last == "") ? "false" : "true" ?></non-emory-faculty>
@@ -10,6 +11,11 @@
 
 <xf:bind nodeset="mods:name[mods:description = 'Non-Emory Committee Member']"
     relevant="instance('tmp-data')/non-emory-faculty = 'true'"/> 
+
+<xf:bind nodeset="mods:extension/etd:degree/etd:level" type="xsd:string" calculate="concat(instance('degrees')/level[degree/@name = instance('main')/mods:extension/etd:degree/etd:name]/@name, ' (', ../etd:name, ') ')"/> 
+
+<!-- FIXME: seems like a hack; can't get degree genre without including etd:level in the expression -->
+<xf:bind nodeset="mods:genre" type="xsd:string" calculate="substring-before(concat(instance('degrees')/level[contains(instance('main')/mods:extension/etd:degree/etd:level, @name)]/@genre, ' ... ', instance('main')/mods:extension/etd:degree/etd:level), ' ...')"/> 
 
 
 <xf:submission id="submission" action="<?= $this->url(array('action' => 'savemods', 'id' => $this->pid))?>"

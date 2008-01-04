@@ -101,11 +101,6 @@ fixme: bindings need to go into header with model... how to get them there?
  <?= $this->xformOutput("Contents", "mods:tableOfContents"); ?>
  <br/>
 
- <!-- FIXME: may want to define opts in xml, use itemset tag -->
- <? $genre_opts = array("Dissertation", "Master's Thesis", "Honors Thesis"); ?>
- <?= $this->xformSelect("Thesis type", "mods:genre", $genre_opts); ?>
-  <br/>
-
   <xf:select1 ref="mods:language/mods:languageTerm[@type='text']">
    <xf:label>language</xf:label>
    <xf:itemset nodeset="instance('languages')/language">
@@ -132,6 +127,19 @@ fixme: bindings need to go into header with model... how to get them there?
       <xf:delete ev:event="DOMActivate" nodeset="mods:subject[@authority='keyword']" at="last()"/>
     </xf:trigger>
 <br/>
+
+  <xf:select1 ref="mods:extension/etd:degree/etd:name">
+   <xf:label>degree</xf:label>
+   <xf:itemset nodeset="instance('degrees')/level/degree">
+     <xf:label ref="@name"/><xf:value ref="@name"/>
+   </xf:itemset>
+  </xf:select1>
+
+  <?= $this->xformText("degree level", "mods:extension/etd:degree/etd:level"); ?>
+  <?= $this->xformText("thesis type", "mods:genre"); ?>
+  <br/>
+
+    
  
  <xf:submit submission="submission">
 <xf:label>Save</xf:label>
