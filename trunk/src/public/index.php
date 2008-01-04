@@ -9,8 +9,10 @@
 error_reporting(E_ALL|E_STRICT);
 ini_set("display_errors", "on");
 
-// ZendFramework
-ini_set("include_path", ini_get("include_path") . ":../lib:../lib/ZendFramework:../lib/fedora:../lib/xml-utilities:../app/:../app/modules/");
+// ZendFramework, etc.
+ini_set("include_path", ini_get("include_path") . ":../app/::../app/models:../app/modules/:../lib:../lib/ZendFramework:../lib/fedora:../lib/xml-utilities:/home/rsutton/public_html");
+// NOTE: local models should come before fedora models so that correct
+// xml template files will be found first
 
 require("Zend/Loader.php");
 Zend_Loader::registerAutoload();
@@ -29,15 +31,26 @@ date_default_timezone_set($config->timezone);
 $front = Zend_Controller_Front::getInstance();
 
 // Set the default controller directory:
-$front->setControllerDirectory(array("default" => "../app/controllers"));
+$front->setControllerDirectory(array("default" => "../app/controllers", "emory" => "../lib/ZendFramework/Emory"));
 $front->addModuleDirectory("../app/modules");
 
 // Define Layout
 Xend_Layout::setup(array('path' => '../app/layouts',));
 Xend_Layout::setDefaultLayoutName('site');
 
+
+// add new helper path to view
+$viewRenderer = Zend_Controller_Action_HelperBroker::getStaticHelper('ViewRenderer');
+$viewRenderer->initView();
+$viewRenderer->view->addHelperPath('Emory/View/Helper', 'Emory_View_Helper');
+
 //set internal error handler
-$front->throwExceptions($env_config->display_exception);
+$front->throwExceptions((boolean)$env_config->display_exception);
+
+// define custom routes
+//$routecfg = new Zend_Config_Xml("../config/routes.xml", $env_config->mode);
+//$router = $front->getRouter();
+//$router->addConfig($routecfg, "routes");
 
 $front->dispatch();
 ?>
