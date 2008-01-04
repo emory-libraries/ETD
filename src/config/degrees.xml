@@ -1,0 +1,12 @@
+<degrees>
+  <level name="doctoral" genre="Dissertation">
+    <degree name="PhD"/>
+  </level>
+  <level name="masters" genre="Master's Thesis">
+    <degree name="MA"/>
+    <degree name="MS"/>
+  </level>
+  <level name="bachelors" genre="Honors Thesis">
+    <degree name="BA"/>
+  </level>
+</degrees>
