@@ -49,22 +49,41 @@ fixme: bindings need to go into header with model... how to get them there?
         <xf:label>Add</xf:label>
         <xf:action ev:event="DOMActivate">
           <xf:insert nodeset="mods:name[mods:description='Emory Committee Member']" at="last()" position="after"/>
-	<!--  <xf:setvalue ref="mods:name[mods:description='Emory Committee Member'][last()]" value=". * ."/> -->
+          <xf:setvalue ref="mods:name[mods:description='Emory Committee Member']/mods:namePart[@type='family']" value="''"/>
+             <xf:setvalue ref="mods:name[mods:description='Emory Committee Member']/mods:namePart[@type='given']" value="''"/>
         </xf:action>
       </xf:trigger>
       
       <xf:trigger>
         <xf:label>Remove</xf:label>
-        <xf:delete ev:event="DOMActivate" nodeset="//mods:name[mods:description='Emory Committee Member']" at="last()"/>
+        <xf:delete ev:event="DOMActivate" nodeset="mods:name[mods:description='Emory Committee Member']" at="last()"/>
       </xf:trigger>
 
   <p><u>non-emory committee members</u></p>
+      
  <xf:repeat id="repeat-nonemory-committee" nodeset="mods:name[mods:description='Non-Emory Committee Member']">
      <?=  $this->render('edit/_mods_name.phtml'); ?>
      <?= $this->xformText("Affiliation", "mods:affiliation"); ?>
-    <br/>
+     <br/>
  </xf:repeat>
 
+
+  <xf:trigger>
+        <xf:label>Add</xf:label>
+        <xf:action ev:event="DOMActivate">
+          <xf:insert ref="mods:name[mods:description='Non-Emory Committee Member']" at="last()" position="after"/> 
+          <xf:setvalue ref="mods:name[mods:description='Non-Emory Committee Member']/mods:namePart[@type='family']" value="''"/>
+          <xf:setvalue ref="mods:name[mods:description='Non-Emory Committee Member']/mods:namePart[@type='given']" value="''"/>
+          <xf:setvalue ref="mods:name[mods:description='Non-Emory Committee Member']/mods:affiliation[last()]" value="''"/> 
+        </xf:action>
+      </xf:trigger>
+      
+      <xf:trigger>
+        <xf:label>Remove</xf:label>
+        <xf:delete ev:event="DOMActivate" nodeset="mods:name[mods:description='Non-Emory Committee Member']" at="last()"/>
+      </xf:trigger>  
+    
+    <br/>
  
 <!-- title/abstract/toc really should not be edited here -->
  <?//= $this->xformTextarea("Abstract", "mods:abstract"); ?>
@@ -100,7 +119,7 @@ fixme: bindings need to go into header with model... how to get them there?
       
     <xf:trigger>
       <xf:label>Remove</xf:label>
-      <xf:delete ev:event="DOMActivate" nodeset="//mods:subject[@authority='keyword']" at="last()"/>
+      <xf:delete ev:event="DOMActivate" nodeset="mods:subject[@authority='keyword']" at="last()"/>
     </xf:trigger>
 <br/>
  
