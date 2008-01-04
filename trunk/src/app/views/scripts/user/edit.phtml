@@ -9,28 +9,33 @@
 </xf:group> 
 <br/>
 
-<xf:group nodeset="mads:affiliation">
+<xf:group nodeset="mads:affiliation[mads:position != 'permanent resident']">
 
-   <xf:group ref="mads:address">
-     <xf:label>address</xf:label>
-     <?= $this->xformText("street", "mads:street"); ?> <br/>
-     <?= $this->xformText("city", "mads:city"); ?> <br/>
-     <?= $this->xformText("state", "mads:state"); ?> <br/>
-     <?= $this->xformText("country", "mads:country"); ?> <br/>
-     <?= $this->xformText("postcode", "mads:postcode"); ?>
-  </xf:group>
- <br/>
+   <?= $this->xformText("degree", "mads:position"); ?><br/>
+   <?= $this->xformText("department", "mads:organization"); ?><br/>
+
+   <?=  $this->render('user/_mads_address.phtml'); ?>
+   <?= $this->xformText("email", "mads:email"); ?> <br/>
+   <?= $this->xformText("date valid", "mads:dateValid"); ?> <br/>
   
-  <?= $this->xformText("email", "mads:email"); ?> <br/>
-  <?= $this->xformText("phone", "mads:phone"); ?> <br/>
+</xf:group>
+<br/>
+
+<xf:group nodeset="mads:affiliation[mads:position = 'permanent resident']">
+   <xf:label>permanent address</xf:label>
+
+   <?=  $this->render('user/_mads_address.phtml'); ?>
+   <?= $this->xformText("non-emory email", "mads:email"); ?> <br/>
+
   <?= $this->xformText("date valid", "mads:dateValid"); ?> <br/>
   
-</xf:group>  
+</xf:group>
+<br/>
 
 <?= $this->xformOutput("netid", "mads:identifier[@type='netid']"); ?> <br/>
 
- <xf:submit submission="submission">
-<xf:label>Save</xf:label>
+<xf:submit submission="submission">
+  <xf:label>Save</xf:label>
 </xf:submit>
 
 

@@ -1,8 +1,24 @@
-<xf:bind nodeset="/mads:mads/mads:authority/mads:name/mads:namePart[@type='family' or @type='given']" type="xsd:string" required="true()"/>
+<!-- FIXME: formfaces does not actually check that all required fields are filled in before submitting; need to use constraints on all? -->
 
-<!-- <xf:bind nodeset="/mads:mads/mads:affiliation/mads:address/*" type="xsd:string" required="true()"/> -->
+<xf:bind nodeset="//mads:namePart[@type='family' or @type='given']" type="xsd:string"  constraint=". != ''" required="true()"/>
+<!--   <xf:bind nodeset="//mads:namePart[@type='given']" type="xsd:string"  constraint=". != ''"  required="true()"/> -->
+
+<xf:bind nodeset="//mads:affiliation[mads:position != 'permanent resident']/mads:address/*" type="xsd:string" required="true()"/> 
+
+ <xf:bind nodeset="//mads:dateValid" type="xsd:date"/>
+   
+<xf:bind nodeset="/mads:mads/mads:affiliation[mads:position = 'permanent resident']/mads:email"
+   constraint="not(contains(., 'emory.edu'))"
+   type="xsd:string"
+   required="true()"/> 
 
 <xf:bind nodeset="mads:email" type="xforms:email"/>
 
-<xf:submission id="submission" action="<?= $this->url(array('action' => 'save', 'id' => $this->pid))?>"
-		method="post" />
+<xf:submission id="submission" action="<?= $this->url(array('controller' => 'user',
+		'action' => 'save', 'id' => $this->pid))?>"
+		method="post" >
+   <xf:setvalue ref="submit-done" ev:event="xforms-submit-done">true</xf:setvalue>
+</xf:submission>   
+   
+<xf:message level="modal"
+   ev:event="xforms-submit-error">Error: check that all required fields are filled in correctly</xf:message>
