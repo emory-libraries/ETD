@@ -99,10 +99,13 @@ fixme: bindings need to go into header with model... how to get them there?
  <?= $this->xformSelect("Thesis type", "mods:genre", $genre_opts); ?>
   <br/>
 
-  <? $lang_opts = array("English", "French", "Spanish"); ?>
-  <?= $this->xformSelect("Language", "mods:language/mods:languageTerm[@type='text']", $lang_opts); ?>
+  <xf:select1 ref="mods:language/mods:languageTerm[@type='text']">
+   <xf:label>language</xf:label>
+   <xf:itemset nodeset="instance('languages')/language">
+     <xf:label ref="@display"/><xf:value ref="@text"/>
+   </xf:itemset>
+  </xf:select1>
  <br/>
-
 
   <xf:repeat id="repeat-keywords" nodeset="mods:subject[@authority='keyword']">
    <?= $this->xformText("keyword", "mods:topic"); ?>
