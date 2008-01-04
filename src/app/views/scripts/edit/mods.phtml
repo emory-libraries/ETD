@@ -60,6 +60,13 @@ fixme: bindings need to go into header with model... how to get them there?
       </xf:trigger>
 
   <p><u>non-emory committee members</u></p>
+
+  <xf:select1 ref="instance('tmp-data')/non-emory-faculty">
+   <xf:label>committee includes non-emory faculty?</xf:label>
+     <xf:item><xf:label>no</xf:label><xf:value>false</xf:value></xf:item>
+     <xf:item><xf:label>yes</xf:label><xf:value>true</xf:value></xf:item>
+  </xf:select1>
+ <br/>
       
  <xf:repeat id="repeat-nonemory-committee" nodeset="mods:name[mods:description='Non-Emory Committee Member']">
      <?=  $this->render('edit/_mods_name.phtml'); ?>
@@ -68,7 +75,7 @@ fixme: bindings need to go into header with model... how to get them there?
  </xf:repeat>
 
 
-  <xf:trigger>
+  <xf:trigger id="nonemory-add">
         <xf:label>Add</xf:label>
         <xf:action ev:event="DOMActivate">
           <xf:insert ref="mods:name[mods:description='Non-Emory Committee Member']" at="last()" position="after"/> 
