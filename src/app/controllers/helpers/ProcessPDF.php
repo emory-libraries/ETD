@@ -23,76 +23,34 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
 
     // fixme: set this somewhere else... (environment config?)
     $tmpdir = "/tmp/etd";
-    //     mkdir($tmpdir); 	// make only if it doesn't exist
+    //mkdir($tmpdir); 	// make only if it doesn't exist
 
+    $pdf = $tmpdir . "/" . $fileinfo['name'];
+    
     $flashMessenger = $this->_actionController->getHelper('FlashMessenger');
 
-    $error = false;
-
-    // FIXME: can't seem to use flashMessenger here...  need to figure out another way to send messages;
+    $fileUpload = $this->_actionController->getHelper('FileUpload');
     
-    // check that it is pdf, size, no errors first
-    if ($fileinfo['type'] != "application/pdf") {
-      $flashMessenger->addMessage("Error: file is not a PDF.");
-      $error = true;
+    if($fileUpload->direct($fileinfo, $pdf, array("application/pdf"))) {
 
-      $error = true;
-    }
-
-    if ($fileinfo['size'] == 0) {
-      $flashMessenger->addMessage("Error: file is zero size.");
-      //      print "file is zero size<br/>\n";
-      $error = true;
-    }
-
-    if ($fileinfo['error'] != UPLOAD_ERR_OK) {
-      $error = true;
-      switch($fileinfo['error']) {
-      case UPLOAD_ERR_INI_SIZE:
-      case UPLOAD_ERR_FORM_SIZE:
-	$msg = "Error: file is too large."; break;
-      case UPLOAD_ERR_PARTIAL:
-	$msg = "Error: file was only partially uploaded."; break;
-      case UPLOAD_ERR_NO_FILE:
-	$msg = "Error: no file was uploaded."; break;
-      case UPLOAD_ERR_NO_TMP_DIR:
-	$msg = "Error: missing temporary folder."; break;
-      case UPLOAD_ERR_CANT_WRITE:
-	$msg = "Error: failed to write file to disk."; break;
-      default:
-	$msg = "Error: problem with file upload (reason unknown)."; break;
-      }
-      $flashMessenger->addMessage($msg);
-    }
-
-    if (! $error) {
-      // file type & size are ok, no error - so handle file
-      //     $this->view->file = $_FILES['pdf']; ?
-      if (move_uploaded_file($fileinfo['tmp_name'], $tmpdir . "/" . $fileinfo['name'])) {
-	$flashMessenger->addMessage("Successfully uploaded file.");
+      $this->_actionController->view->log = array();
+      $html = $tmpdir . "/" . basename($fileinfo['name'], ".pdf") . ".html";
 	
-	$pdf = $tmpdir . "/" . $fileinfo['name'];
-	$html = $tmpdir . "/" . basename($fileinfo['name'], ".pdf") . ".html";
-	
-	$pdftohtml = "/home/rsutton/bin/pdftohtml";
-	//pdftohtml -q -noframes -i -l 10 filename.pdf filename.html
-	// generate a single file (no frames), first 10 pages, ignor images, quiet (no output)
-	$cmd = "$pdftohtml -q -noframes -i -l 10 $pdf $html";
-	$result = system($cmd);
-	if ($result === 0) {
-	  $flashMessenger->addMessage("error converting pdf to html");
-	} else {
-	  $this->getInformation($html);
-	  return $this->fields;
-	}
-      } else { // error on move_uploaded_file 
-	// ? message here?
+      $pdftohtml = "/home/rsutton/bin/pdftohtml";
+      //pdftohtml -q -noframes -i -l 10 filename.pdf filename.html
+      // generate a single file (no frames), first 10 pages, ignor images, quiet (no output)
+      $cmd = "$pdftohtml -q -noframes -i -l 10 $pdf $html";
+      $result = system($cmd);
+      if ($result === 0) {
+	$flashMessenger->addMessage("error converting pdf to html");
+      } else {
+	$this->getInformation($html);
+	$this->fields['pdf'] = $pdf;
+	return $this->fields;
       }
     }
 
   }
-
-
    
   private function getInformation($file) {
     $handle = fopen($file, "r");
@@ -112,7 +70,6 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
 			  "toc" => "",
 			  "keywords" => array());
     
-
     if ($handle) {
       while (! feof($handle)) {
 	$buffer = fgets($handle);
@@ -141,6 +98,7 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
     // minor cleaning on fields that need it
     $this->fields['toc'] = preg_replace("|<hr/?>|", "",  $this->fields['toc']);
     $this->fields['abstract'] = preg_replace("|<hr/?>|", "",  $this->fields['abstract']);
+    $this->fields['abstract'] = preg_replace("|<A name=\d></a>|", "",  $this->fields['abstract']);
   }
   
 
@@ -150,6 +108,7 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
 
     $_content = $content;	// preserve the original version of the page
 
+
     // remove break tags 
     $content = str_replace("<br>", " ", $_content);
     // collapse multiple spaces into one
@@ -158,12 +117,14 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
     $lines = split("\n", $content);
     // remove newlines
     $content = str_replace("\n", "", $content);
+	
   
     if ($this->debug) print "processing page $number<br>";
     switch($this->next) {
     case "signature":
       if ($this->debug) print "signature page expected<br>\n";
       $this->processSignaturePage($content, $lines);
+      $this->_actionController->view->log[] = "expected title page on page $number";
       $this->next = "abstract-cover";
       break;
     
@@ -195,9 +156,11 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
 	  }
 	}
 	if ($this->debug) print "DEBUG: abstract does not continue on second page<br>\n";
+	$this->_actionController->view->log[] = "found abstract on page " . ($number - 1);
 	$this->next = "";
       } else {
 	if ($this->debug) print "DEBUG: abstract continues on second page<br>\n";
+	$this->_actionController->view->log[] = "found abstract on pages " . ($number - 1) . "-" . $number;
 	$this->fields['abstract'] .= $content;
 	$this->next = "";
       }
@@ -210,6 +173,7 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
 	  preg_match("/available for inspection and circulation/", $content)) {
 	// part of boiler-plate grad-school circ agreement text
 	if ($this->debug) print "* found circ agreement - page $number<br>\n";
+	$this->_actionController->view->log[] = "found circulation agreement on page $number";
 	$this->next = "signature";	// next page expected
 	return;
       } elseif ($number == 1) {
@@ -217,6 +181,7 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
 	$this->processSignaturePage($content, $lines);
       } elseif (preg_match("/Table of Contents/i", $content)) {
 	if ($this->debug) print "* found table of contents - page $number<br>\n";
+	$this->_actionController->view->log[] = "found table of contents on page $number";
 	//	$toc = "";
 	foreach ($lines as $line) {
 	  // remove link and bold tags
