@@ -2,7 +2,6 @@
 /** Zend_Controller_Action */
 /* Require models */
 
-require_once("solr.php");
 require_once("models/solrEtd.php");
 require_once("models/programs.php");
 
@@ -23,7 +22,7 @@ class BrowseController extends Zend_Controller_Action {
      $request = $this->getRequest();
      $field = $request->getParam("field");
 
-     $solr = new solr("mothra.library.emory.edu", "8983");
+     $solr = Zend_Registry::get('solr');
      $results = $solr->browse($field);
      //     print "<pre>"; print_r($results); print "</pre>";
      $this->view->count = count($results['facet_counts']['facet_fields'][$field]);
@@ -35,10 +34,8 @@ class BrowseController extends Zend_Controller_Action {
    public function searchAction() {
      $request = $this->getRequest();
      $query = $request->getParam("q");
-     $solr = new solr("mothra.library.emory.edu", "8983");
 
-     $solr->addFacets(array("advisor_lastnamefirst", "year", "subject_facet",
-			    "author_lastnamefirst", "committee_lastnamefirst"));
+     $solr = Zend_Registry::get('solr');
      $results = $solr->query(urlencode($query));
      
      $this->view->count = $results['response']['numFound'];
@@ -111,10 +108,7 @@ class BrowseController extends Zend_Controller_Action {
        $value = strtolower($value);
      
      $value = urlencode($value);
-     
-     $solr = new solr("mothra.library.emory.edu", "8983");
-     $solr->addFacets(array("advisor_lastnamefirst", "year", "subject_facet", "program",
-			    "author_lastnamefirst", "committee_lastnamefirst"));
+     $solr = Zend_Registry::get('solr');
 
      // note - solr default set to OR (seems to work best)
      //splitting out name parts to get an accurate match here (e.g.,
@@ -165,7 +159,7 @@ class BrowseController extends Zend_Controller_Action {
 
    public function programsAction() {
      $skos = new DOMDocument();
-     $skos->load("../../notes/programs.skos");	// temporary
+     $skos->load("../config/programs.xml");   // better place?
      $request = $this->getRequest();
      $coll = $request->getParam("coll", "programs");
 
@@ -174,11 +168,7 @@ class BrowseController extends Zend_Controller_Action {
 
      $this->view->browse_mode = "program"; // fixme: singular or plural?
 
-
-     $solr = new solr("mothra.library.emory.edu", "8983");
-     $solr->addFacets(array("advisor_lastnamefirst", "year", "subject_facet", "program",
-			    "author_lastnamefirst", "committee_lastnamefirst"));
-
+     $solr = Zend_Registry::get('solr');
      // get all fields of this collection and its members (all the way down)
      $all_fields = $programs->getAllFields();
      // construct a query that will find any of these
@@ -215,6 +205,23 @@ class BrowseController extends Zend_Controller_Action {
      $this->view->etds = $etds;
      $this->view->facets = $results['facet_counts']['facet_fields'];
 
+   }
+
+
+   public function researchfieldsAction() {
+     $skos = new DOMDocument();
+     $skos->load("../config/umi-researchfields.xml");   // better place?
+     $request = $this->getRequest();
+     $coll = $request->getParam("coll", "researchfields");
+
+     $fields = new programs($skos, "#$coll");
+     $this->view->collection = $fields;
+
+     $this->view->browse_mode = "researchfield"; 
+
+     // temporary - just for testing;
+     // should be able to combine code for programs & researchfields
+     $this->_helper->viewRenderer->setScriptAction("programs");
    }
 
 	public function indexAction() {	
