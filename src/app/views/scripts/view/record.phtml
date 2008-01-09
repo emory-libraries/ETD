@@ -2,8 +2,12 @@
 <? $etd = $this->etd ?>
 
 <div class="fullrecord">
-  <h1 style="font-weight:normal"><?= $this->etd->html->title ?></a></h1>
+    <? if ($etd->status() != "published"): ?>
+     <p class="note">This record is not published. Current status: <b><?= $etd->status() ?></b></p>
+    <? endif ?>
+    
 <a style="float:right" href="<?= $this->url(array("controller" => "edit", "action" => "title")) ?>">edit title</a>
+  <h1 style="font-weight:normal"><?= $this->etd->html->title ?></a></h1>
 <a style="float:right;clear:right" href="<?= $this->url(array("controller" => "edit", "action" => "mods")) ?>">edit record</a>
 
   <?=  $this->render('view/summary.phtml'); ?>
