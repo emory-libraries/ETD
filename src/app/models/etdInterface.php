@@ -4,6 +4,7 @@
 interface etdInterface {
 
   public function pid();
+  public function status();
   public function title();
   public function author();
   public function program();

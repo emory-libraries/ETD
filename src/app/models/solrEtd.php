@@ -14,6 +14,7 @@ class solrEtd implements etdInterface {
   }
 
   public function pid() { return $this->PID; }
+  public function status() { return $this->status; }
   public function title() { return $this->title; }
   public function author() { return $this->author; }
   public function program() { return $this->program; }
