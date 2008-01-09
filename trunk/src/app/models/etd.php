@@ -38,12 +38,15 @@ class etd extends foxml implements etdInterface {
       $this->map{"html"} = new etd_html($dom);
 
     } else {
+      // new etd object
       $this->cmodel = "etd";
+      // all new etds should start out as drafts
+      $this->rels_ext->addRelation("rel:etdStatus", "draft");
     }
 
 
     // FIXME: this part (at least) should be lazy-init - slows down the browse listing significantly
-    $this->pdfs = array();
+        $this->pdfs = array();
     $files = array("pdfs" => "PDF",
 		   "originals" => "Original",
 		   "supplements" => "Supplement");
@@ -61,6 +64,7 @@ class etd extends foxml implements etdInterface {
     // add to template for new foxml
     $this->datastreams[] = "etd_html";
     $this->datastreams[] = "etd_mods";
+    $this->datastreams[] = "etd_rels";
 
     // add mappings for xmlobject
     $this->xmlconfig["html"] = array("xpath" => "//foxml:xmlContent/html",
@@ -68,6 +72,10 @@ class etd extends foxml implements etdInterface {
     $this->addNamespace("mods", "http://www.loc.gov/mods/v3");
     $this->xmlconfig["mods"] = array("xpath" => "//foxml:xmlContent/mods:mods",
 				     "class_name" => "etd_mods", "dsID" => "MODS");
+
+    // override default rels-ext
+    $this->xmlconfig["rels_ext"]["class_name"] = "etd_rels";
+
   }
 
 
@@ -132,7 +140,7 @@ class etd extends foxml implements etdInterface {
       $pid = "info:fedora/$pid";
     
     $query = 'select $etdfile  from <#ri>
-	where  <' . $pid . '> <fedora-rels-ext:has' . $type . '> $etdfile';
+    	where  <' . $pid . '> <fedora-rels-ext:has' . $type . '> $etdfile';
 
     $filelist = risearch::query($query);
 
@@ -196,6 +204,7 @@ class etd extends foxml implements etdInterface {
     
   
   public function pid() { return $this->pid; }
+  public function status() { return $this->rels_ext->status; }
   public function title() { return $this->html->title; }	// how to know which?
   public function author() { return $this->mods->author->full; }
   public function program() { return $this->mods->department; }
