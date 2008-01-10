@@ -46,9 +46,17 @@ class SubmissionController extends Zend_Controller_Action {
 
       $etd->abstract = $etd_info['abstract'];
       $etd->contents = $etd_info['toc'];
-      // FIXME: need to find a match from controlled vocab list
-      $etd->mods->department = $etd_info['department'];
+
+
+      // attempt to find a match for department from program list
+      $xml = new DOMDocument();
+      $xml->load("../config/programs.xml"); 
+      $programs = new programs($xml);
+      $department = $programs->findLabel($this->view->etd_info['department']);
+      if ($department)
+	$etd->mods->department = $department;
       // fixme: also set degree discipline from department?
+
 
       // FIXME: need to find names from faculty list
       $etd->mods->advisor->full = $etd_info['advisor'];
@@ -101,6 +109,14 @@ class SubmissionController extends Zend_Controller_Action {
     $this->view->site_mode = $env->mode;	// better name for this? (test/dev/prod)
      
     $this->view->etd_info = $this->_helper->processPDF($_FILES['pdf']);
+
+    $xml = new DOMDocument();
+    $xml->load("../config/programs.xml"); 
+    $programs = new programs($xml);
+
+    $this->view->department =  $programs->findLabel($this->view->etd_info['department']);
+    
+    
     $this->view->messages = $this->_helper->flashMessenger->getCurrentMessages();
     
   }
