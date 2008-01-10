@@ -82,6 +82,18 @@ class collectionHierarchy extends XmlObject {
    
   }
 
+  public function findIdbyLabel($string) {
+    //    $xpath = "//skos:Collection[rdfs:label = '$string' or contains(rdfs:label, '$string')]/rdf:about";
+    $xpath = "//skos:Collection[rdfs:label[. = '$string' or contains(., '$string')]]";
+    $nodeList = $this->xpath->query($xpath, $this->domnode);
+    if ($nodeList->length == 1) {
+      return $nodeList->item(0)->getAttributeNS($this->rdf_namespace, "about");
+    } else {
+      return null;
+    }
+   
+  }
+
 }
 
 
