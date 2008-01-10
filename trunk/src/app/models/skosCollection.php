@@ -71,6 +71,17 @@ class collectionHierarchy extends XmlObject {
     return $fields;
   }
 
+  public function findLabel($string) {
+    $xpath = "//rdfs:label[. = '$string' or contains(., '$string')]";
+    $nodeList = $this->xpath->query($xpath, $this->domnode);
+    if ($nodeList->length == 1) {
+      return $nodeList->item(0)->nodeValue;
+    } else {
+      return null;
+    }
+   
+  }
+
 }
 
 
