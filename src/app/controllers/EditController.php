@@ -26,11 +26,44 @@ class EditController extends Zend_Controller_Action {
     // xforms setting - so layout can include needed code in the header
     $this->view->xforms = true;
     $this->view->xforms_bind_script = "edit/_mods_bind.phtml";
-    $this->view->namespaces = array("mods" => "http://www.loc.gov/mods/v3");
+    $this->view->namespaces = array("mods" => "http://www.loc.gov/mods/v3",
+				    "etd" => "http://www.ndltd.org/standards/metadata/etdms/1.0/",
+				    );
     //    $this->view->xforms_model_xml = $etd->mods->saveXML();
     // link to xml rather than embedding directly in the page
     $this->view->xforms_model_uri = $this->view->url(array("controller" => "view",
 							   "action" => "mods", "pid" => $pid));
+  }
+
+  public function programAction() {
+    $pid = $this->_getParam("pid");
+    $etd = new etd($pid);
+    
+    $this->view->title = "Edit Program";
+    $this->view->etd = $etd;
+
+    // necessary?
+    $xml = new DOMDocument();
+    $xml->load("../config/programs.xml"); 
+    $programs = new programs($xml);
+    $id = $programs->findIdbyLabel(trim($etd->mods->department));
+    if ($id)
+      $this->view->program = new programs($xml, $id);
+
+    
+    // xforms setting - so layout can include needed code in the header
+    $this->view->xforms = true;
+    $this->view->xforms_bind_script = "edit/_program_bind.phtml";
+    $this->view->namespaces = array("mods" => "http://www.loc.gov/mods/v3",
+				    "etd" => "http://www.ndltd.org/standards/metadata/etdms/1.0/",
+				    "skos" => "http://www.w3.org/2004/02/skos/core#",
+				    "rdf" => "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+				    "rdfs" => "http://www.w3.org/2000/01/rdf-schema#",
+				    );
+    // link to xml rather than embedding directly in the page
+    $this->view->xforms_model_uri = $this->view->url(array("controller" => "view",
+							   "action" => "mods", "pid" => $pid));
+
   }
 
   // formatted/html fields - edit one at a time 
@@ -107,17 +140,22 @@ class EditController extends Zend_Controller_Action {
 
    public function savemodsAction() {
     $pid = $this->_getParam("pid");
+    $log_message = $this->_getParam("log", "edited record information");
     $etd = new etd($pid);
+
     
      global $HTTP_RAW_POST_DATA;
      $xml = $HTTP_RAW_POST_DATA;
+
+     print_r($xml);
+
     if ($xml == "") {
       // if no xml is submitted, don't modify 
       // forward to a different view?
       $this->view->noxml = true;
     } else {
       $etd->mods->updateXML($xml);
-      $this->view->save_result = $etd->save("edited record information");
+      $this->view->save_result = $etd->save($log_message);
       $this->_helper->flashMessenger->addMessage("Saved changes");
     }
 

@@ -1,0 +1,28 @@
+<? /* secondary xml instances used for data, choices, etc. */ ?>
+<xf:instance id="programs" xmlns=""><? include('../config/programs.xml'); ?></xf:instance>
+<xf:instance id="tmp" xmlns="">
+   <tmp>
+    <program>
+<? if ($this->program): ?>
+      <level1><?= $this->program->parent->parent->id ?></level1>
+      <level2><?= $this->program->parent->id ?></level2>
+      <department><?= $this->program->id ?></department>
+<? else: ?>
+      <level1/>
+      <level2/>
+      <department/>
+<? endif ?>	 
+      <subfield/>
+    </program>
+   </tmp>
+</xf:instance>
+
+<xf:bind nodeset="instance('tmp')/program/level2" relevant="../level1 != ''"/>
+<xf:bind nodeset="instance('tmp')/program/department" relevant="../level2 != ''"/>
+<xf:bind nodeset="instance('tmp')/program/subfield" relevant="../department != ''
+and instance('programs')/skos:Collection[@rdf:about = instance('tmp')/program/department]/skos:member"/>
+
+<xf:submission id="submission" action="<?= $this->url(array('action' => 'savemods',
+		'id' => $this->pid, "log" => "edited program"))?>"
+		method="post" />
+	 
