@@ -1,0 +1,36 @@
+<h1>Processing PDF</h1>
+
+<p>information extracted from pdf</p>
+
+<? if($this->etd_info): ?>
+<div>
+<b>Title:</b> <?= $this->etd_info['title'] ?><br/>
+<b>Department:</b> <?= $this->etd_info['department'] ?> <br/>
+<b>Advisor:</b> <?= $this->etd_info['advisor'] ?> <br/>
+<b>Committee Members:</b> <?=  implode("; ", $this->etd_info['committee']) ?><br/>
+<b>Keywords:</b> <?= implode("; ", $this->etd_info['keywords']) ?><br/>
+<b>Abstract:</b> <div><?= $this->etd_info['abstract'] ?></div> 
+<b>Table of Contents:</b> <div><?= $this->etd_info['toc'] ?></div>
+<? endif ?>
+
+<? if ($this->site_mode == 'development'): ?>
+  <p id="log">
+     <? foreach ($this->log as $logline): ?>
+       <?= $logline ?><br/>
+     <? endforeach ?>
+  </p>
+<? endif ?>
+     
+
+<p><b>Department match from program list:</b> <?= $this->department ?>   
+
+<hr>
+
+<p>raw content pulled from pdf</p>
+<pre>
+     <?= htmlentities(print_r($this->etd_info, true)); ?>
+</pre>
+
+
+
+
