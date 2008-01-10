@@ -1,0 +1,67 @@
+<?= $this->xformOutput("Department", "instance('main')/mods:name[mods:role/mods:roleTerm='author']/mods:affiliation"); ?>
+
+<br/>
+ <xf:select1 ref="instance('tmp')/program/level1">
+   <xf:label>program</xf:label>
+   <xf:itemset nodeset="instance('programs')/skos:Collection[@rdf:about = '#programs']/skos:member">
+   <xf:label ref="instance('programs')/skos:Collection[@rdf:about = current()/@rdf:resource]/rdfs:label"/>
+   <xf:value ref="@rdf:resource"/>
+   </xf:itemset>
+
+   <xf:action ev:event="xforms-value-changed"> 
+     <xf:setvalue ref="../level2"/>
+     <xf:rebuild model="model"/> 
+   </xf:action>
+  </xf:select1>
+  <br/>
+
+ <xf:select1 ref="instance('tmp')/program/level2">
+   <xf:label>division</xf:label>
+   <xf:itemset nodeset="instance('programs')/skos:Collection[@rdf:about = instance('tmp')/program/level1]/skos:member">
+   <xf:label ref="instance('programs')/skos:Collection[@rdf:about = current()/@rdf:resource]/rdfs:label"/>
+   <xf:value ref="@rdf:resource"/>
+   </xf:itemset>
+
+   <xf:action ev:event="xforms-value-changed">
+     <xf:setvalue ref="../department"/>
+    <xf:rebuild model="model"/> 
+   </xf:action>
+  </xf:select1>
+  <br/>
+  
+ <xf:select1 ref="instance('tmp')/program/department">
+   <xf:label>department</xf:label>
+   <xf:itemset nodeset="instance('programs')/skos:Collection[@rdf:about = instance('tmp')/program/level2]/skos:member">
+   <xf:label ref="instance('programs')/skos:Collection[@rdf:about = current()/@rdf:resource]/rdfs:label"/>
+   <xf:value ref="@rdf:resource"/>
+   </xf:itemset>
+
+   <xf:action ev:event="xforms-value-changed">
+     <xf:setvalue ref="../subfield"/>
+     <xf:setvalue nodeset="instance('main')/mods:name[mods:role/mods:roleTerm='author']/mods:affiliation"
+      value="instance('programs')/skos:Collection[@rdf:about = instance('tmp')/program/department]/rdfs:label"/>
+     <xf:rebuild model="model"/> 
+   </xf:action>
+  </xf:select1>
+  <br/>
+  
+ <xf:select1 ref="instance('tmp')/program/subfield">
+   <xf:label>subfield</xf:label>
+   <xf:itemset nodeset="instance('programs')/skos:Collection[@rdf:about = instance('tmp')/program/department]/skos:member">
+   <xf:label ref="instance('programs')/skos:Collection[@rdf:about = current()/@rdf:resource]/rdfs:label"/>
+   <xf:value ref="@rdf:resource"/>
+   </xf:itemset>
+  </xf:select1>
+ 
+<br/>
+
+  
+ <xf:submit submission="submission">
+<xf:label>Save</xf:label>
+</xf:submit>
+
+<? if ($this->site_mode == 'development'): ?>
+  <p id="status"></p>
+<? endif ?>   
+
+
