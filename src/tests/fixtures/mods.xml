@@ -1,0 +1,22 @@
+<mods:mods xmlns:mods="http://www.loc.gov/mods/v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema">
+  <mods:titleInfo>
+    <mods:title>Why I Like Cheese</mods:title>
+  </mods:titleInfo>
+  <mods:name type="personal">
+    <mods:namePart type="given">Minnie</mods:namePart>
+    <mods:namePart type="family">Mouse</mods:namePart>
+    <mods:displayForm>Mouse, Minnie</mods:displayForm>
+    <mods:affiliation>Disney</mods:affiliation>
+    <mods:role>
+      <mods:roleTerm authority="marcrelator" type="text">author</mods:roleTerm>
+    </mods:role>
+  </mods:name>
+  <mods:abstract>Gouda or Cheddar?</mods:abstract>
+  <mods:tableOfContents/>
+  <mods:subject ID="7024" authority="proquestresearchfield">
+    <mods:topic>Cheese Studies</mods:topic>
+  </mods:subject>
+  <mods:subject authority="keyword">
+    <mods:topic>cheese</mods:topic>
+  </mods:subject>
+</mods:mods>
