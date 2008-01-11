@@ -3,19 +3,29 @@
 
 <?= $user->name->first ?> <?= $user->name->last ?>
 
-<p><b>address</b> (valid as of <?= $user->date ?>)</p>
-<?= $user->address->street ?> <br/>
-<?= $user->address->city ?>, <?= $user->address->state ?>, <?= $user->address->postcode ?> <br/>
-<?= $user->address->country ?> <br/>
+   <? if (isset($user->current)): ?>
+ <p><u>current contact information:</u></p>
+    <p><b>address</b> (valid as of <?= $user->current->date ?>)</p>
+    <? $this->address = $user->current->address; ?>
+    <?= $this->render("user/address.phtml"); ?>
 
+    <p><b>phone:</b> <?= $user->current->phone ?></p>
+<p><b>email:</b> <?= $user->current->email ?>
+<? endif ?>
 
-<p><b>email:</b>
-<? foreach ($user->email as $email): ?>
-  <?= $email ?>
-<? endforeach ?>   
+<? if (isset($user->permanent)): ?>
+  <p><u>permanent contact information</u></p>
+  <p><b>address</b> (valid as of <?= $user->permanent->date ?>)</p>
+  <? $this->address = $user->permanent->address; ?>
+  <?= $this->render("user/address.phtml"); ?>
+
+<p><b>email:</b> <?= $user->permanent->email ?>
 </p>
-<p><b>phone:</b> <?= $user->phone ?></p>
+<p><b>phone:</b> <?= $user->permanent->phone ?></p>
+<? endif ?>
+
 <p><b>netid:</b> <?= $user->netid ?></p>
 
 
-<p><a href="<?= $this->url(array("action" => "edit")) ?>">edit</a></p>
+<p><a href="<?= $this->url(array("controller" => "user",
+		 "action" => "edit", "pid" => $this->user->pid), null, true) ?>">edit</a></p>
