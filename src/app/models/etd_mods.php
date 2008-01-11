@@ -94,6 +94,15 @@ class etd_mods extends mods {
     }
   }
 
+  
+  public function hasResearchField($id) {
+    foreach ($this->researchfields as $field) {
+      if ($field->id == $id)
+	return true;
+    }
+    return false;
+  }
+
 }
 
 
