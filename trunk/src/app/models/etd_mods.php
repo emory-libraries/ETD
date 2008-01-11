@@ -77,8 +77,8 @@ class etd_mods extends mods {
     
     $this->map{$mapname}[] = new mods_subject($subject, $this->xpath);
   }
-  
 
+  
   // set all research fields from an array, over writing any currently set fields
   // and adding new fields as necessary
   public function setResearchFields(array $values) {
@@ -91,6 +91,30 @@ class etd_mods extends mods {
 	$this->addResearchField($text, $id);
       }
       $i++;
+    }
+    for (; isset($this->researchfields[$i]); $i++) {
+      $this->removeResearchField($this->researchfields[$i]->id);
+    }
+  }
+
+  public function removeResearchField($id) {
+    // remove the node from the xml dom
+    $nodelist = $this->xpath->query("//mods:subject[@authority='proquestresearchfield'][@ID = '$id']");
+    for ($i = 0; $i < $nodelist->length; $i++) {
+      $node = $nodelist->item($i);      
+      $node->parentNode->removeChild($node);
+    }
+
+    // remove from the in-memory array
+    array_splice($this->map{"researchfields"}, $this->researchFieldIndex($id));
+  }
+
+  // find the index for a research field by id
+  public function researchFieldIndex($id) {
+    for ($i = 0; count($this->researchfields); $i++) {
+      $field = $this->researchfields[$i];
+      if ($field->id == $id)
+	return $i;
     }
   }
 
