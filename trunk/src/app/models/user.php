@@ -49,16 +49,51 @@ class user extends foxml {
     }*/
 
 
+  /**
+   * check required fields; returns an array with problems, missing data
+   * @return array missing fields
+   */
+  public function checkRequired() {
+    $missing = array();
+
+    // permanent non-emory email address
+    if ($this->mads->permanent->email == "") {
+      $missing[] = "permanent (non-emory) email address";
+    }
+
+    // permanent mailing address
+    $perm_addr = $this->mads->permanent->address;
+    if ($perm_addr->street == "" ||
+	$perm_addr->city == "" ||
+	$perm_addr->state == "" ||
+	$perm_addr->country == "" ||
+	$perm_addr->postcode == "" ||
+	$this->mads->permanent->date == "") {
+      $missing[] = "permanent mailing address";
+    }
+    
+    return $missing;
+  }
+  
+
+
   public static function find_by_username($netid) {
     $query = 'select $user  from <#ri>
 	where  $user <fedora-model:contentModel> \'user\'
-	and $user <fedora-model:owner> \'' . $netid . '\'';
-    //	and $user <dc:title> \'' . $netid . '\'';
+        and $user <dc:title> \'' . $netid . '\'';
+
+    // FIXME: what value whould we actually key on? fedora-model:owner is not used (arg)
+    // -- possible to set a rels-ext property of owner = netid?
+    // and/or additional dc:identifier of netid ?
+
+    // this one doesn't work
+    //and $user <fedora-model:owner> \'' . $netid . '\'';
 
     $pidlist = risearch::query($query);
 
     if (isset($pidlist->results->result)) {
       $pid = $pidlist->results->result[0]->user["uri"];
+      $pid = str_replace("info:fedora/", "", $pid);
       return new user($pid);
     } else {
       // no matches found
