@@ -1,11 +1,11 @@
-<pre>
-<? print_r($this->fields); ?>
-</pre>
-
-
 <? foreach ($this->etd->mods->researchfields as $field): ?>
 <?= $field->id ?> : <?= $field->topic ?><br/>
 <? endforeach ?>
+
+<p>record updated on <?= $this->save_result ?></p>
+
+<p><a href="<?= $this->url(array("controller" => "view", "action" => "record",
+	"pid" => $this->etd->pid), null, true) ?>">return to record</a></p>
 
 <pre>
   <?= htmlentities($this->etd->mods->saveXML()) ?>
