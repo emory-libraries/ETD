@@ -3,10 +3,12 @@
 <xf:bind nodeset="//mads:namePart[@type='family' or @type='given']" type="xsd:string"  constraint=". != ''" required="true()"/>
 <!--   <xf:bind nodeset="//mads:namePart[@type='given']" type="xsd:string"  constraint=". != ''"  required="true()"/> -->
 
-<xf:bind nodeset="//mads:affiliation[mads:position != 'permanent resident']/mads:address/*" type="xsd:string" required="true()"/> 
+<xf:bind nodeset="//mads:affiliation[mads:position = 'permanent resident']/mads:address/*" type="xsd:string" required="true()"/> 
+<xf:bind nodeset="//mads:affiliation[mads:position = 'permanent resident']/mads:dateValid" type="xsd:date" required="true()"/> 
 
  <xf:bind nodeset="//mads:dateValid" type="xsd:date"/>
-   
+
+<? /* require that permanent email not contain emory.edu */ ?>
 <xf:bind nodeset="/mads:mads/mads:affiliation[mads:position = 'permanent resident']/mads:email"
    constraint="not(contains(., 'emory.edu'))"
    type="xsd:string"
