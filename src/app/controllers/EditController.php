@@ -63,8 +63,43 @@ class EditController extends Zend_Controller_Action {
     // link to xml rather than embedding directly in the page
     $this->view->xforms_model_uri = $this->view->url(array("controller" => "view",
 							   "action" => "mods", "pid" => $pid));
-
   }
+
+
+  public function researchfieldAction() {
+    $pid = $this->_getParam("pid");
+    $etd = new etd($pid);
+    
+    $this->view->title = "Edit Research Fields";
+    $this->view->etd = $etd;
+
+    // necessary?
+    $xml = new DOMDocument();
+    $xml->load("../config/umi-researchfields.xml"); 
+    $this->view->fields = new researchfields($xml); 
+  }
+
+  public function saveResearchfieldAction() {
+    $pid = $this->_getParam("pid");
+    $etd = new etd($pid);
+    $this->view->fields = $this->_getParam("fields");
+
+    // construct an array of id => text name
+    $values = array();
+    foreach ($this->view->fields as $i => $value) {
+      if(preg_match("/#([0-9]{4}) (.*)$/", $value, $matches)) {
+	$id = $matches[1];
+	$text = $matches[2];
+	$values[$id] = $text;
+      }
+    }
+    $etd->mods->setResearchFields($values);
+
+    $this->view->etd = $etd;
+  }
+
+
+  
 
   // formatted/html fields - edit one at a time 
   public function titleAction() {
