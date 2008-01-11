@@ -24,12 +24,11 @@ class etd_mods extends mods {
 						   "mods:name[mods:description = 'Non-Emory Committee Member']",
 						   "class_name" => "mods_name", "is_series" => "true");
     
-    // note: not (currently) using mods_subject class for research fields & keywords
     $this->xmlconfig["researchfields"] = array("xpath" =>
 					       "mods:subject[@authority='proquestresearchfield']",
-					       "is_series" => true, "class_name" => "mods_subject");
+					       "is_series" => true, "class_name" => "etdmods_subject");
     $this->xmlconfig["keywords"] = array("xpath" => "mods:subject[@authority='keyword']",
-					 "is_series" => true, "class_name" => "mods_subject");
+					 "is_series" => true, "class_name" => "etdmods_subject");
     $this->xmlconfig["pages"] = array("xpath" => "mods:physicalDescription/mods:extent");
 
     $this->xmlconfig["degree"] = array("xpath" => "mods:extension/etd:degree", "class_name" => "etd_degree");
@@ -52,7 +51,7 @@ class etd_mods extends mods {
       $subject->setAttribute("authority", $authority);
       // proquest fields need an ID attribute, even if it is not set when the field is created
       if ($authority == "proquestresearchfield") {
-	$subject->setAttribute("ID", $id);
+	$subject->setAttribute("ID", "id$id");	  // id can't start with a number to be valid xml
       }
     }
 
@@ -75,7 +74,7 @@ class etd_mods extends mods {
       $this->dom->documentElement->appendChild($subject);
     }
     
-    $this->map{$mapname}[] = new mods_subject($subject, $this->xpath);
+    $this->map{$mapname}[] = new etdmods_subject($subject, $this->xpath);
   }
 
   
@@ -127,7 +126,85 @@ class etd_mods extends mods {
     return false;
   }
 
+
+  /**
+   * check if this portion of the record is ready to submit and all required fields are filled in
+   *
+   * @return boolean ready or not
+   */
+  public function readyToSubmit() {
+    // xml should be valid MODS
+    if (! $this->isValid()) {
+      // error message?
+      return false;
+    }      
+
+    // if anything is missing, record is not ready to submit
+    if (count($this->checkRequired())) return false;
+      
+    // all checks passed
+    return true;
+  }
+
+  /**
+   * check required fields; returns an array with problems, missing data
+   * @return array missing fields
+   */
+  public function checkRequired() {
+    $missing = array();
+    
+    // must have a valid advisor - how to tell if valid? username?
+
+    // at least one committee member (valid faculty - same as advisor test?)
+
+    // at least one research field (filled out, not blank)
+    if (!count($this->researchfields) ||
+	$this->researchfields[0]->id == "" || $this->researchfields[0]->topic == "") {
+      $missing[] = "proquest research field (at least one)";
+    }
+    // fixme: check if there are too many? app should not let them set too many
+
+    // author's department 
+    if ($this->department == "") $missing[] = "department";
+
+    // abstract
+    if ($this->abstract == "")   $missing[] = "abstract";
+
+    // table of contents
+    if ($this->tableOfContents == "")  $missing[] = "table of contents";
+
+
+    // other required fields?
+    // genre/etd type (?)
+    // degree
+    
+    return $missing;
+  }
+  
 }
+
+
+/**
+ * ProQuest fields are stored as subjects with a numerical id, but this
+ * is not valid xml; intercept the get/and set calls on the id of the
+ * mods_subject to add the id to the xml but not show to the user
+ */
+class etdmods_subject extends mods_subject {
+  public function __set($name, $value) {
+    if ($name == "id" && preg_match("/[0-9]{4}/", $value)) {
+      $value = "id$value";
+    } 
+    parent::__set($name, $value);
+  }
+
+  public function __get($name) {
+    $value = parent::__get($name);
+    if ($name == "id")
+      return preg_replace("/^id/", "", $value);
+    else return $value;
+  }
+}
+
 
 
 class etd_degree extends XmlObject {
