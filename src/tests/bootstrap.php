@@ -1,7 +1,7 @@
 <?
 
 error_reporting(E_ALL);
-ini_set("include_path", ini_get("include_path") . ":../lib:../lib/ZendFramework:../lib/fedora:../lib/xml-utilities:../app/:../app/modules/");
+ini_set("include_path", ini_get("include_path") . ":../app/:../app/modules/:../lib:../lib/ZendFramework:../lib/fedora:../lib/xml-utilities");
 
 require_once('simpletest/unit_tester.php');
 require_once('simpletest/reporter.php');
