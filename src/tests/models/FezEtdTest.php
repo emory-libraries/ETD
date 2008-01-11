@@ -25,7 +25,7 @@ class TestFezEtd extends UnitTestCase {
     $this->assertIsA($this->etd, "FezEtd");
     $this->assertIsA($this->etd->dc, "dublin_core");
     $this->assertIsA($this->etd->rels_ext, "rels_ext");
-    $this->assertIsA($this->etd->mods, "etd_mods");
+    $this->assertIsA($this->etd->mods, "fez_etd_mods");
     $this->assertIsA($this->etd->fezmd, "FezMD");
     
     $this->assertEqual("test:fezetd1", $this->etd->pid);
