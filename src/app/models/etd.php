@@ -11,10 +11,6 @@ require_once("etdfile.php");
 
 // etd object for etd08
 class etd extends foxml implements etdInterface {
-  //  public $mods;
-  //  public $html;
-  //  public $rels;
-
 
   // associated files
   public $pdfs;
@@ -153,6 +149,27 @@ class etd extends foxml implements etdInterface {
 
     return $files;
   }
+
+
+  
+  public function readyToSubmit() {
+    if (! $this->mods->readyToSubmit()) return false;
+    if (! $this->hasPDF()) return false;
+    if (! $this->hasOriginal()) return false;
+    
+  }
+
+  // should have at least one pdf
+  public function hasPDF() {
+    // what is the best way to check this? use rels-ext?
+    return (count($this->pdfs) > 0);
+  }
+
+  public function hasOriginal() {
+    return (count($this->originals) > 0);
+  }
+
+  
   
   
   public static function totals_by_status() {
@@ -193,6 +210,21 @@ class etd extends foxml implements etdInterface {
     
     //    $etdlist = simplexml_load_file("http://wilson:6080/fedora/risearch?type=tuples&lang=iTQL&format=Sparql&query=" . urlencode($query));
 
+    $etds = array();
+    foreach($etdlist->results->result as $result) {
+      $pid = (string)$result->etd["uri"];
+      $pid = str_replace("info:fedora/", "", $pid);
+      $etds[] = new etd($pid);
+    }
+    return $etds;
+  }
+
+  public static function findbyAuthor($username) {
+    // FIXME: need sanity checking on username
+    $query = 'select $etd from <#ri>
+	      where $etd <fedora-rels-ext:author> \'' . $username . '\'
+	      and $etd <fedora-model:contentModel> \'etd\'';
+    $etdlist = risearch::query($query);
     $etds = array();
     foreach($etdlist->results->result as $result) {
       $pid = (string)$result->etd["uri"];
