@@ -1,0 +1,12 @@
+<pre>
+<? print_r($this->fields); ?>
+</pre>
+
+
+<? foreach ($this->etd->mods->researchfields as $field): ?>
+<?= $field->id ?> : <?= $field->topic ?><br/>
+<? endforeach ?>
+
+<pre>
+  <?= htmlentities($this->etd->mods->saveXML()) ?>
+</pre>
