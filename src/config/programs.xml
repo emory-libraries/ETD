@@ -39,7 +39,7 @@
   </skos:Collection>
 
   <skos:Collection rdf:about="#arthistory">
-    <rdfs:label>Art  History</rdfs:label>
+    <rdfs:label>Art History</rdfs:label>
   </skos:Collection>
   <skos:Collection rdf:about="#complit">
     <rdfs:label>Comparative Literature</rdfs:label>
@@ -54,7 +54,7 @@
     <rdfs:label>French</rdfs:label>
   </skos:Collection>
   <skos:Collection rdf:about="#ILA">
-    <rdfs:label>Graudate Institute of the Liberal Arts</rdfs:label>
+    <rdfs:label>Graduate Institute of the Liberal Arts</rdfs:label>
   </skos:Collection>
   <skos:Collection rdf:about="#history">
     <rdfs:label>History</rdfs:label>
@@ -134,9 +134,45 @@
   <skos:Collection rdf:about="#behavsci">
     <rdfs:label>Behavioral Sciences and Health Education</rdfs:label>
   </skos:Collection>
+
   <skos:Collection rdf:about="#biosci">
     <rdfs:label>Biological and Biomedical Sciences</rdfs:label>
+    <skos:member rdf:resource="#biochem"/>
+    <skos:member rdf:resource="#genetics"/>
+    <skos:member rdf:resource="#immunology"/>
+    <skos:member rdf:resource="#microbiology"/>
+    <skos:member rdf:resource="#pharmacology"/>
+    <skos:member rdf:resource="#neuroscience"/>
+    <skos:member rdf:resource="#nutrition"/>
+    <skos:member rdf:resource="#population"/>
   </skos:Collection>
+
+  <skos:Collection rdf:about="#biochem">
+   <rdfs:label>Biochemistry, Cell &amp; Developmental Biology</rdfs:label>
+  </skos:Collection>
+  <skos:Collection rdf:about="#genetics">
+    <rdfs:label>Genetics and Molecular Biology</rdfs:label>
+  </skos:Collection>
+  <skos:Collection rdf:about="#immunology">
+    <rdfs:label>Immunology</rdfs:label>
+  </skos:Collection>
+  <skos:Collection rdf:about="#microbiology">
+    <rdfs:label>Microbiology &amp; Molecular Genetics</rdfs:label>
+  </skos:Collection>
+  <skos:Collection rdf:about="#pharmacology">
+   <rdfs:label>Molecular &amp; Systems Pharmacology</rdfs:label>
+  </skos:Collection>
+  <skos:Collection rdf:about="#neuroscience">
+   <rdfs:label>Neuroscience</rdfs:label>
+  </skos:Collection>
+  <skos:Collection rdf:about="#nutrition">
+   <rdfs:label>Nutrition and Health Sciences</rdfs:label>
+  </skos:Collection>
+  <skos:Collection rdf:about="#population">
+   <rdfs:label>Population Biology, Ecology &amp; Evolution</rdfs:label>
+  </skos:Collection>
+
+
   <skos:Collection rdf:about="#biomedeng">
     <rdfs:label>Biomedical Engineering</rdfs:label>
   </skos:Collection>
@@ -193,9 +229,25 @@
   <skos:Collection rdf:about="#polisci">
     <rdfs:label>Political Science</rdfs:label>
   </skos:Collection>
+
   <skos:Collection rdf:about="#psychology">
     <rdfs:label>Psychology</rdfs:label>
+    <skos:member rdf:resource="#clinicalpsych"/>
+    <skos:member rdf:resource="#cognitivepsych"/>
+    <skos:member rdf:resource="#animalbehavior"/>
   </skos:Collection>
+
+  <skos:Collection rdf:about="#clinicalpsych">
+    <rdfs:label>Clinical Psychology</rdfs:label>
+  </skos:Collection>
+  <skos:Collection rdf:about="#cognitivepsych">
+    <rdfs:label>Cognitive and Developmental Psychology</rdfs:label>
+  </skos:Collection>
+  <skos:Collection rdf:about="#animalbehavior">
+    <rdfs:label>Neuroscience and Animal Behavior</rdfs:label>
+  </skos:Collection>
+
+
   <skos:Collection rdf:about="#sociology">
     <rdfs:label>Sociology</rdfs:label>
   </skos:Collection>
