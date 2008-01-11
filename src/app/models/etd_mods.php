@@ -36,8 +36,8 @@ class etd_mods extends mods {
   }
   
   
-  public function addResearchField($text) {
-    $this->addSubject($text, "researchfields", "proquestresearchfield");
+  public function addResearchField($text, $id = "") {
+    $this->addSubject($text, "researchfields", "proquestresearchfield", $id);
   }
   
   public function addKeyword($text) {
@@ -45,32 +45,54 @@ class etd_mods extends mods {
   }
   
   //  function to add subject/topic pair - used to add keyword & research field
-  public function addSubject($text, $mapname, $authority = null) {
+  public function addSubject($text, $mapname, $authority = null, $id = "") {
     // add a new subject/topic to the DOM and the in-memory map
     $subject = $this->dom->createElementNS($this->namespaceList["mods"], "mods:subject");
-      if (! is_null($authority)) 
-	$subject->setAttribute("authority", $authority);
-      $topic = $this->dom->createElementNS($this->namespaceList["mods"],
-					     "mods:topic", $text);
-      $topic = $subject->appendChild($topic);
-
-      // find first node following current type of subjects and append before
-      $nodeList = $this->xpath->query("//mods:subject[@authority='$authority'][last()]/following-sibling::*");
-      
-      // if a context node was found, insert the new node before it
-      if ($nodeList->length) {
-	$contextnode = $nodeList->item(0);
-	//	print "attempting to insert before:\n";
-	//	print $this->dom->saveXML($nodeList->item(0)) . "\n";
-	
-	$contextnode->parentNode->insertBefore($subject, $contextnode);
-      } else {
-	// if no context node is found, new node will be appended at end of xml document
-	$this->dom->documentElement->appendChild($subject);
+    if (! is_null($authority)) {
+      $subject->setAttribute("authority", $authority);
+      // proquest fields need an ID attribute, even if it is not set when the field is created
+      if ($authority == "proquestresearchfield") {
+	$subject->setAttribute("ID", $id);
       }
-
-      $this->map{$mapname}[] = $topic;
     }
+
+    $topic = $this->dom->createElementNS($this->namespaceList["mods"],
+					 "mods:topic", $text);
+    $topic = $subject->appendChild($topic);
+    
+    // find first node following current type of subjects and append before
+    $nodeList = $this->xpath->query("//mods:subject[@authority='$authority'][last()]/following-sibling::*");
+    
+    // if a context node was found, insert the new node before it
+    if ($nodeList->length) {
+      $contextnode = $nodeList->item(0);
+      //	print "attempting to insert before:\n";
+      //	print $this->dom->saveXML($nodeList->item(0)) . "\n";
+      
+      $contextnode->parentNode->insertBefore($subject, $contextnode);
+    } else {
+      // if no context node is found, new node will be appended at end of xml document
+      $this->dom->documentElement->appendChild($subject);
+    }
+    
+    $this->map{$mapname}[] = new mods_subject($subject, $this->xpath);
+  }
+  
+
+  // set all research fields from an array, over writing any currently set fields
+  // and adding new fields as necessary
+  public function setResearchFields(array $values) {
+    $i = 0;	// research field array index
+    foreach ($values as $id => $text) {
+      if (array_key_exists($i, $this->researchfields)) {
+	  $this->researchfields[$i]->id = $id;
+	  $this->researchfields[$i]->topic = $text;
+      } else {
+	$this->addResearchField($text, $id);
+      }
+      $i++;
+    }
+  }
 
 }
 
