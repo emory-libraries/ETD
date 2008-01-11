@@ -19,7 +19,9 @@ class TestEtdMods extends UnitTestCase {
     $this->assertEqual(1, count($this->mods->keywords));
     $this->assertIsa($this->mods->keywords[0], "mods_subject");
     $this->assertEqual("1", count($this->mods->keywords));
-
+  }
+  
+  function testAddKeywords()
     // adding new values
     $this->mods->addKeyword("animated mice");
     $this->assertEqual(2, count($this->mods->keywords));
@@ -36,6 +38,9 @@ class TestEtdMods extends UnitTestCase {
     // test if a field is currently set
     $this->assertTrue($this->mods->hasResearchField("7024"));
     $this->assertFalse($this->mods->hasResearchField("5934"));
+  }
+
+  function testAddResearchFields() {
 
     // add a single field
     $this->mods->addResearchField("Mouse Studies", "7025");
@@ -45,7 +50,10 @@ class TestEtdMods extends UnitTestCase {
     $this->assertEqual("7025", $this->mods->researchfields[1]->id);
     // note: pattern is dependent on attribute order; this is how they are created currently
     $this->assertPattern('|<mods:subject authority="proquestresearchfield" ID="7025"><mods:topic>Mouse Studies</mods:topic></mods:subject>|', $this->mods->saveXML());
+    
+  }
 
+  function testSetResearchFields() {
 
     // set all fields from an array 
     $newfields = array("7334" => "Animated Arts", "8493" => "Cheese and Mice",
@@ -68,6 +76,11 @@ class TestEtdMods extends UnitTestCase {
     $this->assertTrue($this->mods->hasResearchField("8593"));
     $this->assertTrue($this->mods->hasResearchField("8493"));
     $this->assertFalse($this->mods->hasResearchField("6006"));
+
+    // set by array with a shorter list - research fields should only contain new values
+    $newfields = array("7024" => "Cheese Studies");
+    $this->mods->setResearchFields($newfields);
+    $this->assertEqual(1, count($this->mods->researchfields));
     
   }
   
