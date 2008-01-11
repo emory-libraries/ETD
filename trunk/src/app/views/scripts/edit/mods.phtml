@@ -25,11 +25,10 @@ fixme: bindings need to go into header with model... how to get them there?
  <xf:group ref="mods:name[mods:role/mods:roleTerm='author']">
     <xf:label>author</xf:label>
     <?=  $this->render('edit/_mods_name.phtml'); ?>
-   <br/>
-   <?= $this->xformText("Department", "mods:affiliation"); ?>
+    <?/* note: department now edited on separate page */ ?>
+    <?//= $this->xformOutput("Department", "mods:affiliation"); ?>
  </xf:group>
-
-  <br/>
+ <br/>
 
  <xf:group ref="mods:name[mods:role/mods:roleTerm='Thesis Advisor']">
     <xf:label>advisor</xf:label>
@@ -94,12 +93,12 @@ fixme: bindings need to go into header with model... how to get them there?
  
 <!-- title/abstract/toc really should not be edited here -->
  <?//= $this->xformTextarea("Abstract", "mods:abstract"); ?>
- <?= $this->xformOutput("Abstract", "mods:abstract"); ?>
- <br/>
+      <!-- <?//= $this->xformOutput("Abstract", "mods:abstract"); ?>
+ <br/> -->
 
  <?//= $this->xformTextarea("Contents", "mods:tableOfContents"); ?>
- <?= $this->xformOutput("Contents", "mods:tableOfContents"); ?>
- <br/>
+      <!-- <?//= $this->xformOutput("Contents", "mods:tableOfContents"); ?>
+ <br/> -->
 
   <xf:select1 ref="mods:language/mods:languageTerm[@type='text']">
    <xf:label>language</xf:label>
@@ -109,8 +108,11 @@ fixme: bindings need to go into header with model... how to get them there?
   </xf:select1>
  <br/>
 
+ <?/*  umi/proquest research fields edited separately */ ?>
+
+  <p><u>keywords</u></p>
   <xf:repeat id="repeat-keywords" nodeset="mods:subject[@authority='keyword']">
-   <?= $this->xformText("keyword", "mods:topic"); ?>
+   <?= $this->xformText("", "mods:topic"); ?>
    <br/>
   </xf:repeat>
 
