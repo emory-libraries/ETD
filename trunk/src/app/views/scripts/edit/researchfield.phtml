@@ -8,8 +8,7 @@
 	Element.remove(id + '_input');
       } else {
 	new Insertion.Bottom('user_fields', '<li id="' + id + '_list">' + text + '</li>');
-	// FIXME: inserting at top puts them in the wrong order; need to just insert before save button. 
-	new Insertion.Top('fields_form',
+	new Insertion.Before('save_button',
 			     '<input id="' + id + '_input" type="text" name="fields[]" value="'
 			     + id + ' ' + text + '"/>');
 	Element.addClassName(id, 'selected');
@@ -23,16 +22,23 @@ a.selected { background-color:yellow; }
 <p><b>Edit Research Fields</b></p>
 
 <ul id="user_fields">
-
+     <? foreach ($this->etd->mods->researchfields as $field): ?>
+        <li id="#<?= $field->id ?>_list"><?= $field->topic ?></li>
+     <? endforeach ?>
 </ul>     
 
 <form method="post" id="fields_form"  action="<?= $this->url(array("action" => "saveResearchfield"))?>">
-   <input type="submit" value="save"/>
+  <? foreach ($this->etd->mods->researchfields as $field): ?>
+     <input id="#<?= $field->id ?>_input" type="text" name="fields[]"
+       value="#<?= $field->id ?> <?= $field->topic ?>"/>
+   <? endforeach ?>
+   <input id="save_button" type="submit" value="save"/>
 </form>
 <br/>
 
-<!-- FIXME: highlight user's selected terms -->
-<div id="browse_all" style="height:300px;overflow:auto;">
+
+<p><b>UMI ProQuest Research Fields</b></p>
+<div id="browse_all" style="height:300px;overflow:auto;border:1px solid grey;">
 <? foreach ($this->fields->members as $this->field): ?>
   <?=  $this->render('edit/_researchfield.phtml'); /* recursive */ ?>
 <? endforeach ?>
