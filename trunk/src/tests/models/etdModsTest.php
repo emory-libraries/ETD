@@ -33,6 +33,9 @@ class TestEtdMods extends UnitTestCase {
     $this->assertIsa($this->mods->researchfields[0], "mods_subject");
     $this->assertEqual("1", count($this->mods->researchfields));
 
+    // test if a field is currently set
+    $this->assertTrue($this->mods->hasResearchField("7024"));
+    $this->assertFalse($this->mods->hasResearchField("5934"));
 
     // add a single field
     $this->mods->addResearchField("Mouse Studies", "7025");
@@ -60,6 +63,11 @@ class TestEtdMods extends UnitTestCase {
     $this->assertEqual("Disney Studies", $this->mods->researchfields[2]->topic);
     
     $this->assertPattern('|<mods:subject authority="proquestresearchfield" ID="8593"><mods:topic>Disney Studies</mods:topic></mods:subject>|', $this->mods->saveXML());
+
+    // check hasResearchField when there are multiple fields
+    $this->assertTrue($this->mods->hasResearchField("8593"));
+    $this->assertTrue($this->mods->hasResearchField("8493"));
+    $this->assertFalse($this->mods->hasResearchField("6006"));
     
   }
   
