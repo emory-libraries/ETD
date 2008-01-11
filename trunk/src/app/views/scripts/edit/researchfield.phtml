@@ -1,0 +1,39 @@
+<?= $this->javascript("projax/js/prototype.js"); ?>
+<script type="text/javascript">
+     function toggle_selection(id, text) {
+      if (Element.hasClassName(id, 'selected')) {
+	Element.removeClassName(id, 'selected');
+	//remove from list
+	Element.remove(id + '_list');
+	Element.remove(id + '_input');
+      } else {
+	new Insertion.Bottom('user_fields', '<li id="' + id + '_list">' + text + '</li>');
+	// FIXME: inserting at top puts them in the wrong order; need to just insert before save button. 
+	new Insertion.Top('fields_form',
+			     '<input id="' + id + '_input" type="text" name="fields[]" value="'
+			     + id + ' ' + text + '"/>');
+	Element.addClassName(id, 'selected');
+      }
+}
+</script>     
+
+<style type="text/css">
+a.selected { background-color:yellow; }
+</style>
+<p><b>Edit Research Fields</b></p>
+
+<ul id="user_fields">
+
+</ul>     
+
+<form method="post" id="fields_form"  action="<?= $this->url(array("action" => "saveResearchfield"))?>">
+   <input type="submit" value="save"/>
+</form>
+<br/>
+
+<!-- FIXME: highlight user's selected terms -->
+<div id="browse_all" style="height:300px;overflow:auto;">
+<? foreach ($this->fields->members as $this->field): ?>
+  <?=  $this->render('edit/_researchfield.phtml'); /* recursive */ ?>
+<? endforeach ?>
+</div>
