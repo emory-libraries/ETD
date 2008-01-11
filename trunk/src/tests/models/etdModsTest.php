@@ -21,7 +21,7 @@ class TestEtdMods extends UnitTestCase {
     $this->assertEqual("1", count($this->mods->keywords));
   }
   
-  function testAddKeywords()
+  function testAddKeywords() {
     // adding new values
     $this->mods->addKeyword("animated mice");
     $this->assertEqual(2, count($this->mods->keywords));
