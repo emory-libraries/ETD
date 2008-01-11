@@ -24,11 +24,11 @@ class mads extends foxmlDatastreamAbstract {
     $this->xmlconfig =  array(
 	"name" => array("xpath" => "mads:authority/mads:name", "class_name" => "mads_name"),
 
-	// repeat affiliation for multiple address - will need to separate out affiliation
-	"address" => array("xpath" => "mads:affiliation/mads:address", "class_name" => "mads_address"),
-	"email" => array("xpath" => "mads:affiliation/mads:email", "is_series" => true),
-	"phone" => array("xpath" => "mads:affiliation/mads:phone"),
-	"date" => array("xpath" => "mads:affiliation/mads:dateValid"),
+	//
+	"permanent" => array("xpath" => "mads:affiliation[mads:position = 'permanent resident']",
+			     "class_name" => "mads_affiliation"),
+	"current" =>  array("xpath" => "mads:affiliation[mads:position != 'permanent resident']",
+			     "class_name" => "mads_affiliation"),
 	"netid" => array("xpath" => "mads:identifier[@type='netid']"),
 	);
   }
@@ -63,6 +63,18 @@ class mads_name extends XmlObject {
   // full name is default display content
   public function __toString() {
     return $this->full;
+  }
+}
+
+class mads_affiliation extends XmlObject {
+  public function __construct($xml, $xpath) {
+    $config = $this->config(array(
+	"address" => array("xpath" => "mads:address", "class_name" => "mads_address"),
+	"email" => array("xpath" => "mads:email"),
+	"phone" => array("xpath" => "mads:phone"),
+	"date" => array("xpath" => "mads:dateValid")
+	));
+    parent::__construct($xml, $config, $xpath);
   }
 }
 
