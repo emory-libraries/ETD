@@ -9,7 +9,7 @@
       } else {
 	new Insertion.Bottom('user_fields', '<li id="' + id + '_list">' + text + '</li>');
 	new Insertion.Before('save_button',
-			     '<input id="' + id + '_input" type="text" name="fields[]" value="'
+			     '<input id="' + id + '_input" type="hidden" name="fields[]" value="'
 			     + id + ' ' + text + '"/>');
 	Element.addClassName(id, 'selected');
       }
@@ -29,7 +29,7 @@ a.selected { background-color:yellow; }
 
 <form method="post" id="fields_form"  action="<?= $this->url(array("action" => "saveResearchfield"))?>">
   <? foreach ($this->etd->mods->researchfields as $field): ?>
-     <input id="#<?= $field->id ?>_input" type="text" name="fields[]"
+     <input id="#<?= $field->id ?>_input" type="hidden" name="fields[]"
        value="#<?= $field->id ?> <?= $field->topic ?>"/>
    <? endforeach ?>
    <input id="save_button" type="submit" value="save"/>
