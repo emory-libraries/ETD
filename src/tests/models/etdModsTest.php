@@ -49,7 +49,7 @@ class TestEtdMods extends UnitTestCase {
     $this->assertEqual("Mouse Studies", $this->mods->researchfields[1]->topic);
     $this->assertEqual("7025", $this->mods->researchfields[1]->id);
     // note: pattern is dependent on attribute order; this is how they are created currently
-    $this->assertPattern('|<mods:subject authority="proquestresearchfield" ID="7025"><mods:topic>Mouse Studies</mods:topic></mods:subject>|', $this->mods->saveXML());
+    $this->assertPattern('|<mods:subject authority="proquestresearchfield" ID="id7025"><mods:topic>Mouse Studies</mods:topic></mods:subject>|', $this->mods->saveXML());
     
   }
 
@@ -70,7 +70,7 @@ class TestEtdMods extends UnitTestCase {
     $this->assertEqual("8593", $this->mods->researchfields[2]->id);
     $this->assertEqual("Disney Studies", $this->mods->researchfields[2]->topic);
     
-    $this->assertPattern('|<mods:subject authority="proquestresearchfield" ID="8593"><mods:topic>Disney Studies</mods:topic></mods:subject>|', $this->mods->saveXML());
+    $this->assertPattern('|<mods:subject authority="proquestresearchfield" ID="id8593"><mods:topic>Disney Studies</mods:topic></mods:subject>|', $this->mods->saveXML());
 
     // check hasResearchField when there are multiple fields
     $this->assertTrue($this->mods->hasResearchField("8593"));
@@ -82,6 +82,17 @@ class TestEtdMods extends UnitTestCase {
     $this->mods->setResearchFields($newfields);
     $this->assertEqual(1, count($this->mods->researchfields));
     
+  }
+
+  function testCheckRequirements() {
+    $missing = $this->mods->checkRequired();
+    $this->assertTrue(in_array("table of contents", $missing));
+    $this->assertFalse($this->mods->readyToSubmit());
+
+
+    //NOTE: this is preliminary; not all fields are tested yet, and this will need to change
+    $this->mods->tableOfContents = "1. a chapter -- 2. another chapter";
+    $this->assertTrue($this->mods->readyToSubmit());
   }
   
 
