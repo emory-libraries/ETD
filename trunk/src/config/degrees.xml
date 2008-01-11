@@ -1,4 +1,5 @@
 <degrees>
+  <level><degree name="select one"/></level>
   <level name="doctoral" genre="Dissertation">
     <degree name="PhD"/>
   </level>
