@@ -2,7 +2,7 @@
 
 require_once("skosCollection.php");
 
-class programs extends collectionHierarchy  {
+class researchfields extends collectionHierarchy  {
   public function __construct($dom, $id = "#researchfields") {
     parent::__construct($dom, $id);
   }
