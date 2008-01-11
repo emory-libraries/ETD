@@ -38,6 +38,28 @@ class TestEtdHtml extends UnitTestCase {
 		       etd_html::cleanTags("first line<br/> second line", true));
   }
 
+  function testFormattedTOCtoText() {
+    // convert html-formatted table of contents into text delimited toc for mods/marc
+    
+    // paragraphs with breaks
+    $this->assertEqual("chapter 1 -- chapter 2",
+		       etd_html::formattedTOCtoText("<p>chapter 1 <br/> chapter 2</p>"));
+
+    // html list 
+    $this->assertEqual("chapter 3 -- chapter 4",
+		       etd_html::formattedTOCtoText("<ul><li>chapter 3</li> <li>chapter 4</li></ul>"));
+
+    // html list with divs
+    $this->assertEqual("chapter 5 -- chapter 6",
+	       etd_html::formattedTOCtoText("<ul><li>chapter 5</li> <li><div>chapter 6</div></li></ul>"));
+
+    // divs only
+    $this->assertEqual("chapter 7 -- chapter 8",
+	       etd_html::formattedTOCtoText("<div>chapter 7</div> <div>chapter 8</div>"));
+
+  }
+
+  
   function testTagsToNodes() {
     // no tags
     $this->etd_html->title = "unformatted title";
@@ -58,7 +80,7 @@ class TestEtdHtml extends UnitTestCase {
     // bad xml: close tag without open tag (should be ignored)
     $this->etd_html->abstract = "<p>here is my </em> whoops</p>";
     $this->assertEqual("<p>here is my  whoops</p>", $this->etd_html->abstract);
-    
+
   }
   
 }
