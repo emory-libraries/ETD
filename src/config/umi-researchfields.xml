@@ -3,7 +3,7 @@
   xmlns:skos="http://www.w3.org/2004/02/skos/core#"
   xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
   
-  <skos:Collection rdf:about="#programs">
+  <skos:Collection rdf:about="#researchfields">
     <rdfs:label>UMI Research Fields</rdfs:label>
     <skos:member rdf:resource="#hum-soc"/>
     <skos:member rdf:resource="#sci-eng"/>
