@@ -1,5 +1,5 @@
 <form name="submission" method="post" enctype="multipart/form-data"
-    action="<?= $this->url(array("action" => "processPDF"))?>">
+    action="<?= $this->url(array("action" => "processPdf"))?>">
 
   <p>Please upload the PDF of your dissertation.</p>
 
@@ -14,3 +14,15 @@
 <p>note about multiple pdfs - upload first only here... </p>
 
 
+<hr/>
+
+<form name="submission" method="post" enctype="multipart/form-data"
+    action="<?= $this->url(array("action" => "debugPdf"))?>">
+
+   <p><b>For debugging purposes only</b>: test information extracted from a PDF.</p>
+
+<?//= $this->formHidden("MAX_FILE_SIZE", "3000000"); ?> 
+  <p><?= $this->formFile("pdf"); ?></p>
+  <?= $this->formSubmit("Submit", "Submit"); ?>
+
+</form>
