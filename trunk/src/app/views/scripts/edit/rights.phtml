@@ -1,0 +1,53 @@
+<h1>Author Rights and Access Restrictions</h1>
+
+<style type="text/css">
+   div.xfselect div span.xforms-label { display:inline; }
+   div.xfselect div label { display:inline; font-weight:normal; }
+</style>            
+
+  <? $yesno = array(" " => "--", "no" => "no", "yes" => "yes"); ?>
+
+<? $embargo_opts = array("yes" => "Yes, I want an access restriction.",
+			   "no" => "No, my ETD can be published immediately after graduation."); 
+    $opts = array("appearance" => "full");
+?>
+
+<div class="xfselect">
+  <?= $this->xformSelect("access restriction (embargo)", "instance('tmp')/embargo", $embargo_opts, $opts); ?>
+</div>
+
+<!--  <p>Choose 'Yes' to indicate you want an access restriction or 'No' to indicate that your ETD can be published immediately after graduation.<br/> -->
+<p><b>NOTE:</b> requests for an access restriction must be made on the paper ETD Submission Agreement Form which you will present to the Graduate School for approval.</p>
+
+<? $copyright_opts = array("yes" => "Yes, I intend to have Proquest apply for a copyright on my behalf. (See Proquest/UMI Publishing Agreement, page 5.)",
+			   "no" => "No");  ?>
+<div class="xfselect">  
+  <?= $this->xformSelect("apply for copyright?", "instance('tmp')/copyright", $copyright_opts, $opts); ?>
+</div>
+
+<!--  <p>Indicate 'Yes' if you intend to have Proquest apply for copyright on your behalf. (See Proquest/UMI Publishing Agreement, page 5.)</p> -->
+
+<div class="xfselect">
+  <xf:select ref="instance('tmp')/agreement" appearance="full">
+    <xf:label>submission agreement</xf:label>
+      <xf:item>
+      <xf:label>I hereby grant to Emory University and its agents the non-exclusive license to archive, make accessible, and display, (subject to the conditions agreed upon in the separate written agreement I have submitted to the graduate school,) my thesis or dissertation in whole or in part in all forms of media, now or hereafter known, including the display of the thesis or dissertation on the world wide web. I retain all ownership rights to the copyright of the thesis or dissertation. I also retain the right to use in future works (such as articles or books) all or part of this thesis or dissertation. I certify that my electronic submission is the version of my thesis/dissertation that was approved by my committee.</xf:label>
+      <xf:value>yes</xf:value>
+      </xf:item>
+
+      <xf:action ev:event="xforms-value-changed">
+       <xf:setvalue ref="instance('main')/mods:accessCondition[@type='useAndReproduction']"
+      	value="instance('tmp')/rights[@id = instance('tmp')/agreement]"/>
+      </xf:action>
+
+   </xf:select>     
+</div>
+
+   
+  <xf:submit submission="submission">
+<xf:label>Save</xf:label>
+</xf:submit>
+
+<? if ($this->site_mode == 'development'): ?>
+  <p id="status"></p>
+<? endif ?>   
