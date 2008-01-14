@@ -1,22 +1,28 @@
 <? /* secondary xml instances used for data, choices, etc. */ ?>
-<xf:instance id="languages" xmlns=""><? include('../config/languages.xml'); ?></xf:instance>
-<xf:instance id="degrees" xmlns=""><? include('../config/degrees.xml'); ?></xf:instance>
+<xf:instance id="languages" xmlns="" src="<?= $this->url(array("controller" => "config", "action" => "view",
+ "id" => "languages"), "", true) ?>"/>
+<xf:instance id="degrees" xmlns="" src="<?= $this->url(array("controller" => "config", "action" => "view",
+ "id" => "degrees"), "", true) ?>"/>
 <xf:instance id="tmp-data" xmlns="">
    <tmp-data>
-    <non-emory-faculty><?= ($this->etd->mods->nonemory_committee[0]->last == "") ? "false" : "true" ?></non-emory-faculty>
+<non-emory-faculty><?= (!isset($this->etd->mods->nonemory_committee[0]) ||
+			$this->etd->mods->nonemory_committee[0]->last == "") ? "false" : "true" ?></non-emory-faculty>
    </tmp-data>
 </xf:instance>
+<?// FIXME: set tmp-data department info based on what is in the mods ?>
 <xf:bind nodeset="mods:name/mods:displayForm" type="xsd:string"
-	calculate="concat(../mods:namePart[@type='family'], ', ', ../mods:namePart[@type='given'])"/>
+   relevant="../mods:namePart != ''"
+   calculate="concat(../mods:namePart[@type='family'], ', ', ../mods:namePart[@type='given'])"/>
 
-<xf:bind nodeset="mods:name[mods:description = 'Non-Emory Committee Member']"
-    relevant="instance('tmp-data')/non-emory-faculty = 'true'"/> 
+   <!-- FIXME: causes an error if there is no matching nodeset -->
+<!--<xf:bind nodeset="mods:name[mods:description = 'Non-Emory Committee Member']"
+   relevant="instance('tmp-data')/non-emory-faculty = 'true'"/>  -->
 
-<xf:bind nodeset="mods:extension/etd:degree/etd:level" type="xsd:string" calculate="concat(instance('degrees')/level[degree/@name = instance('main')/mods:extension/etd:degree/etd:name]/@name, ' (', ../etd:name, ') ')"/> 
+<xf:bind nodeset="mods:extension/etd:degree/etd:level" type="xsd:string" calculate="concat(instance('degrees')/level[degree/@name = instance('main')/mods:extension/etd:degree/etd:name]/@name, ' (', ../etd:name, ') ')"/>
+ <xf:bind nodeset="mods:extension/etd:degree/etd:name" type="xsd:string" constraint=". != 'select one'"/> 
 
 <!-- FIXME: seems like a hack; can't get degree genre without including etd:level in the expression -->
 <xf:bind nodeset="mods:genre" type="xsd:string" calculate="substring-before(concat(instance('degrees')/level[contains(instance('main')/mods:extension/etd:degree/etd:level, @name)]/@genre, ' ... ', instance('main')/mods:extension/etd:degree/etd:level), ' ...')"/> 
-
 
 <xf:submission id="submission" action="<?= $this->url(array('action' => 'savemods', 'id' => $this->pid))?>"
 		method="post" />
