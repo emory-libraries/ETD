@@ -66,6 +66,23 @@ class EditController extends Zend_Controller_Action {
   }
 
 
+  public function rightsAction() {
+    $pid = $this->_getParam("pid");
+    $etd = new etd($pid);
+
+    $this->view->title = "Edit Author Rights/Access Restrictions";
+
+    
+    // xforms setting - so layout can include needed code in the header
+    $this->view->xforms = true;
+    $this->view->xforms_bind_script = "edit/_rights_bind.phtml";
+    $this->view->namespaces = array("mods" => "http://www.loc.gov/mods/v3");
+    // link to xml rather than embedding directly in the page
+    $this->view->xforms_model_uri = $this->view->url(array("controller" => "view",
+							   "action" => "mods", "pid" => $pid));
+  }
+
+
   public function researchfieldAction() {
     $pid = $this->_getParam("pid");
     $etd = new etd($pid);
@@ -94,6 +111,12 @@ class EditController extends Zend_Controller_Action {
       }
     }
     $etd->mods->setResearchFields($values);
+    $save_result = $etd->save("modified UMI/ProQuest research fields");
+    $this->view->save_result = $save_result;
+    if ($save_result) 
+      $this->_helper->flashMessenger->addMessage("Saved changes to research fields");
+    else
+      $this->_helper->flashMessenger->addMessage("No changes made to research fields");
 
     $this->view->etd = $etd;
   }
@@ -164,7 +187,8 @@ class EditController extends Zend_Controller_Action {
     // title/abstract/contents - special fields that set values in html, mods and dublin core
     $etd->$mode = $content;
 
-    $this->view->save_result = $etd->save("modified $mode");
+    $save_result = $etd->save("modified $mode");
+    $this->view->save_result = $save_result;
     $this->_helper->flashMessenger->addMessage("Saved changes to $mode");
 
     $this->view->pid = $pid;
