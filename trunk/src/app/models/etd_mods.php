@@ -34,7 +34,11 @@ class etd_mods extends mods {
     $this->xmlconfig["degree"] = array("xpath" => "mods:extension/etd:degree", "class_name" => "etd_degree");
 
     $this->xmlconfig["copyright"] = array("xpath" => "mods:note[@type='admin'][@ID='copyright']");
-    $this->xmlconfig["embargo"] = array("xpath" => "mods:note[@type='admin'][@ID='embargo']");
+
+    $this->xmlconfig["embargo-request"] = array("xpath" => "mods:note[@type='admin'][@ID='embargo']");
+    $this->xmlconfig["embargo"] = array("xpath" => "mods:accessCondition[@type='restrictionOnAccess']");
+
+    $this->xmlconfig["rights"] = array("xpath" => "mods:accessCondition[@type='useAndReproduction']");
     
   }
   
