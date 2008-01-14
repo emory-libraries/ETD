@@ -32,8 +32,29 @@ class etd_mods extends mods {
     $this->xmlconfig["pages"] = array("xpath" => "mods:physicalDescription/mods:extent");
 
     $this->xmlconfig["degree"] = array("xpath" => "mods:extension/etd:degree", "class_name" => "etd_degree");
+
+    $this->xmlconfig["copyright"] = array("xpath" => "mods:note[@type='admin'][@ID='copyright']");
+    $this->xmlconfig["embargo"] = array("xpath" => "mods:note[@type='admin'][@ID='embargo']");
+    
   }
   
+
+  public function __set($name, $value) {
+    switch ($name) {
+    case "pages":
+      $value .= " p."; break;	// value should be passed in as a number (check incoming value?)
+    } 
+    parent::__set($name, $value);
+  }
+
+  public function __get($name) {
+    $value = parent::__get($name);
+    switch ($name) {
+    case "pages":
+      $value = str_replace(" p.", "", $value);	// return just the number 
+    }
+    return $value;
+  }
   
   public function addResearchField($text, $id = "") {
     $this->addSubject($text, "researchfields", "proquestresearchfield", $id);
