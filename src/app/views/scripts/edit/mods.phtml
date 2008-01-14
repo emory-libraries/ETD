@@ -141,8 +141,15 @@ fixme: bindings need to go into header with model... how to get them there?
   <?= $this->xformText("thesis type", "mods:genre"); ?>
   <br/>
 
-    
+
+  <? $yesno = array(" " => "--", "no" => "no", "yes" => "yes"); ?>
  
+  <?= $this->xformSelect("access restriction (embargo)", "instance('tmp-data')/embargo", $yesno); ?>
+  Choose 'Yes' to indicate you want an access restriction or 'No' to indicate that your ETD can be published immediately after graduation. <b>NOTE:</b> requests for an access restriction must be made on the paper ETD Submission Agreement Form which you will present to the Graduate School for approval.<br/>
+
+  <?= $this->xformSelect("apply for copyright?", "instance('tmp-data')/copyright", $yesno); ?>
+  Indicate 'Yes' if you intend to have Proquest apply for copyright on your behalf. (See Proquest/UMI Publishing Agreement, page 5.)<br/>
+
  <xf:submit submission="submission">
 <xf:label>Save</xf:label>
 </xf:submit>
