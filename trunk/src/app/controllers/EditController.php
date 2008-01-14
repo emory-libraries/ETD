@@ -16,8 +16,7 @@ class EditController extends Zend_Controller_Action {
   }
   
   // edit main record metadata
-  // better name?
-  public function modsAction() {
+  public function recordAction() {
     $pid = $this->_getParam("pid");
     $etd = new etd($pid);
     
