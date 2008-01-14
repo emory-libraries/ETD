@@ -36,7 +36,7 @@
      <mads:street/>
      <mads:city/>
      <mads:state/>
-     <mads:country/>
+     <mads:country>UNITED STATES</mads:country>
      <mads:postcode/>
    </mads:address>
    <mads:email/>
