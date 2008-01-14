@@ -74,7 +74,7 @@
     <mods:digitalOrigin>born digital</mods:digitalOrigin>
     <mods:note type="physical details">digital, PDF file</mods:note>
     <mods:form authority="gmd">electronic resource</mods:form>
-    <mods:extent/> <!-- ### p -->
+    <mods:extent/> <!-- ### p. -->
   </mods:physicalDescription>
   <mods:abstract/>
   <mods:tableOfContents/>
@@ -121,12 +121,7 @@
     </etd:degree>
   </mods:extension>
 
-<!-- FIXME: don't use part ; put extend under physical description -->
-  <mods:part>
-    <mods:detail>entire dissertation (pdf format)</mods:detail>
-    <mods:extent unit="pages">
-      <mods:total></mods:total>
-    </mods:extent>
-  </mods:part>
+  <mods:note type="admin" ID="copyright">copyright requested?</mods:note>
+  <mods:note type="admin" ID="embargo">embargo requested?</mods:note>
 
 </mods:mods>
