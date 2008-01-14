@@ -1,4 +1,7 @@
 <!-- FIXME: formfaces does not actually check that all required fields are filled in before submitting; need to use constraints on all? -->
+<xf:instance id="countries" xmlns="" src="<?= $this->url(array("controller" => "config", "action" => "view",
+ "id" => "countries"), "", true) ?>"/>
+
 
 <xf:bind nodeset="//mads:namePart[@type='family' or @type='given']" type="xsd:string"  constraint=". != ''" required="true()"/>
 <!--   <xf:bind nodeset="//mads:namePart[@type='given']" type="xsd:string"  constraint=". != ''"  required="true()"/> -->
