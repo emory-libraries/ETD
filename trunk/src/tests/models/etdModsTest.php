@@ -94,6 +94,15 @@ class TestEtdMods extends UnitTestCase {
     $this->mods->tableOfContents = "1. a chapter -- 2. another chapter";
     $this->assertTrue($this->mods->readyToSubmit());
   }
+
+  function testPageNumbers() {
+    // number of pages stored in mods:extent - should be able to set and write as a number
+    $this->mods->pages = 133;
+    $this->assertEqual(133, $this->mods->pages);
+    // but should be stored in the xml with page abbreviation
+    $this->assertPattern('|<mods:extent>133 p.</mods:extent>|', $this->mods->saveXML());
+    
+  }
   
 
 }
