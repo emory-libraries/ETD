@@ -57,6 +57,17 @@ class FileController extends Zend_Controller_Action {
    public function newAction() {
      $etd_pid = $this->_getParam("etd");	// etd record the file should be added to
 
+     // how this file is related to the to the etd record
+     $file_rel = $this->_getParam("filetype");
+     switch($file_rel) {
+     case "pdf": $relation = "PDF"; break;
+     case "original": 
+     case "supplement":
+       $relation = ucfirst($file_rel); break;
+     default:
+       // error/warning?
+     }
+
      $fileinfo = $_FILES['file'];
 
      Zend_Controller_Action_HelperBroker::addPrefix('Etd_Controller_Action_Helper');
@@ -67,15 +78,17 @@ class FileController extends Zend_Controller_Action {
      if ($uploaded) {
        $etdfile = new etd_file();
        $etdfile->label = $fileinfo['name'];
-       $etdfile->dc->format = $fileinfo['type'];
+       // this is not quite right; both should actually be dc:format
+       $etdfile->dc->type = $fileinfo['type'];
+       $etdfile->dc->format = $fileinfo['size'];
 
        $upload_id = fedora::upload($filename);
-       $upload_id = $upload_id;
        print "fedora upload id is $upload_id<br/>\n";
        
        $etdfile->file->url = $upload_id;
        // FIXME: need a way to set what kind of etd file this is (original, pdf, supplement)
-       $etdfile->rels_ext->addRelationToResource("rel:isSupplementOf", $etd_pid);
+       
+       $etdfile->rels_ext->addRelationToResource("rel:is{$relation}Of", $etd_pid);
 
        print "etd file xml:<pre>" . htmlentities($etdfile->saveXML()) . "</pre>";
        $filepid = $etdfile->save("adding new file");
@@ -86,7 +99,7 @@ class FileController extends Zend_Controller_Action {
 
        $etd = new etd($etd_pid);
        // FIXME: etd rels shortcut - add supplement, add pdf, etc.
-       $etd->rels_ext->addRelationToResource("rel:hasSupplement", $filepid);
+       $etd->rels_ext->addRelationToResource("rel:has{$relation}", $filepid);
        $result = $etd->save("adding new file: " . $etdfile->label);
        $this->view->etd_pid = $etd_pid;
               
