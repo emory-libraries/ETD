@@ -1,7 +1,8 @@
 <?php
 
+  //require_once("models/foxmlDatastreamAbstract.php");
 
-class premis extends XmlObject {
+class premis extends foxmlDatastreamAbstract  {
 
   protected $schema = "http://www.loc.gov/standards/premis/v1/PREMIS-v1-1.xsd";
   protected $namespace = "http://www.loc.gov/standards/premis/v1";
@@ -27,10 +28,6 @@ class premis extends XmlObject {
 					"A", "false");		// datastream should NOT be versionable
   }
 
-  public function isValid() {
-    return $this->dom->schemaValidate($this->schema);
-  }
-
 
   // need a function to add another event
   public function addEvent($type, $detail, $outcome, array $agent, $date = null) {
@@ -39,15 +36,24 @@ class premis extends XmlObject {
       $date = date(DATE_W3C);
     }
 
-    $eventnode = $this->map{"event"}[0]->domnode->cloneNode(true);
-    $eventnode = $this->domnode->appendChild($eventnode);
+    // if the first event is empty, use that one
+    if ((count($this->map{"event"}) == 1)
+	&& $this->map{"event"}[0]->identifier->value == "") {
+      $event = $this->map{"event"}[0];
+    } else {
+      // otherwise, clone the xml for the first event and set all the values
+      $eventnode = $this->map{"event"}[0]->domnode->cloneNode(true);
+      $eventnode = $this->domnode->appendChild($eventnode);
 
-    // map new dom node to xml object
-    $event = new premis_event($eventnode, $this->xpath);
+      // map new dom node to xml object
+      $event = new premis_event($eventnode, $this->xpath);
+      
+      // load to in-memory map so it can be accessed normally 
+      $this->map{"event"}[] = $event;
+    }
 
     // calculate new identifier based on current object identifier and number of events
-    $event->identifier->value = $this->object->identifier->value . "." . (count($this->event) + 1);
-    
+    $event->identifier->value = $this->object->identifier->value . "." . count($this->event);
     $event->type = $type;
     $event->date = $date;
     $event->detail = $detail;
@@ -55,9 +61,6 @@ class premis extends XmlObject {
     list($agentid, $agentval)  = $agent;
     $event->agent->type = $agentid;
     $event->agent->value = $agentval;
-
-    // load to in-memory map so it can be accessed normally 
-    $this->map{"event"}[] = $event;
   }
   
 }
