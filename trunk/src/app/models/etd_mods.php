@@ -35,7 +35,7 @@ class etd_mods extends mods {
 
     $this->xmlconfig["copyright"] = array("xpath" => "mods:note[@type='admin'][@ID='copyright']");
 
-    $this->xmlconfig["embargo-request"] = array("xpath" => "mods:note[@type='admin'][@ID='embargo']");
+    $this->xmlconfig["embargo_request"] = array("xpath" => "mods:note[@type='admin'][@ID='embargo']");
     $this->xmlconfig["embargo"] = array("xpath" => "mods:accessCondition[@type='restrictionOnAccess']");
 
     $this->xmlconfig["rights"] = array("xpath" => "mods:accessCondition[@type='useAndReproduction']");
@@ -55,7 +55,14 @@ class etd_mods extends mods {
     $value = parent::__get($name);
     switch ($name) {
     case "pages":
-      $value = str_replace(" p.", "", $value);	// return just the number 
+      $value = str_replace(" p.", "", $value);	// return just the number
+      break;
+    case "copyright":
+      $value = str_replace("applying for copyright? ", "", $value);
+      break;
+    case "embargo_request":
+      $value = str_replace("embargo requested? ", "", $value);
+      break;
     }
     return $value;
   }
@@ -142,7 +149,6 @@ class etd_mods extends mods {
     }
   }
 
-  
   public function hasResearchField($id) {
     foreach ($this->researchfields as $field) {
       if ($field->id == $id)
@@ -158,14 +164,16 @@ class etd_mods extends mods {
    * @return boolean ready or not
    */
   public function readyToSubmit() {
-    // xml should be valid MODS
-    if (! $this->isValid()) {
+    // if anything is missing, record is not ready to submit
+    if (count($this->checkRequired())) return false;
+
+    // don't attempt to validate until all required fields are filled
+    // (missing research fields is invalid because of the ID attribute)
+    if (! $this->isValid()) {	    // xml should be valid MODS
       // error message?
       return false;
     }      
 
-    // if anything is missing, record is not ready to submit
-    if (count($this->checkRequired())) return false;
       
     // all checks passed
     return true;
@@ -205,6 +213,21 @@ class etd_mods extends mods {
     
     return $missing;
   }
+
+  function hasCopyright() {
+    return ($this->copyright != "");
+    //    return preg_match("/applying for copyright\? (yes|no)/", $this->copyright);
+  }
+
+  function hasEmbargoRequest() {
+    return ($this->embargo_request != "");
+  }
+
+  function hasSubmissionAgreement() {
+    return ($this->rights != "");
+  }
+
+
   
 }
 
@@ -226,7 +249,8 @@ class etdmods_subject extends mods_subject {
     $value = parent::__get($name);
     if ($name == "id")
       return preg_replace("/^id/", "", $value);
-    else return $value;
+    else
+      return $value;
   }
 }
 
