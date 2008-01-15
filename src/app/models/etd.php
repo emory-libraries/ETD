@@ -7,6 +7,7 @@ require_once("models/foxml.php");
 require_once("etdInterface.php");
 require_once("etd_mods.php");
 require_once("etd_html.php");
+require_once("premis.php");
 require_once("etdfile.php");
 
 // etd object for etd08
@@ -32,6 +33,10 @@ class etd extends foxml implements etdInterface {
       $dom = new DOMDocument();
       $dom->loadXML(fedora::getDatastream($arg, "XHTML"));
       $this->map{"html"} = new etd_html($dom);
+
+      $dom = new DOMDocument();
+      $dom->loadXML(fedora::getDatastream($arg, "PREMIS"));
+      $this->map{"premis"} = new premis($dom);
 
     } else {
       // new etd object
@@ -60,7 +65,9 @@ class etd extends foxml implements etdInterface {
     // add to template for new foxml
     $this->datastreams[] = "etd_html";
     $this->datastreams[] = "etd_mods";
-    $this->datastreams[] = "etd_rels";
+    $this->datastreams[] = "premis";
+    // etd_rels does not need to be added here because rels_ext template is fine
+    // important: making duplicate datastreams (e.g., two RELS-EXTs) makes foxml invalid
 
     // add mappings for xmlobject
     $this->xmlconfig["html"] = array("xpath" => "//foxml:xmlContent/html",
@@ -69,12 +76,16 @@ class etd extends foxml implements etdInterface {
     $this->xmlconfig["mods"] = array("xpath" => "//foxml:xmlContent/mods:mods",
 				     "class_name" => "etd_mods", "dsID" => "MODS");
 
+    $this->addNamespace("premis", "http://www.loc.gov/standards/premis/v1");
+    $this->xmlconfig["premis"] = array("xpath" => "//foxml:xmlContent/premis:premis",
+				       "class_name" => "premis", "dsID" => "premis");
+
     // override default rels-ext
     $this->xmlconfig["rels_ext"]["class_name"] = "etd_rels";
 
   }
 
-
+  
   /* FIXME: systematic way to link mods fields to dublin core?  update
      them all at once when saving?
 
@@ -86,6 +97,24 @@ class etd extends foxml implements etdInterface {
   // handle special values
   public function __set($name, $value) {
     switch ($name) {
+
+    case "pid":
+      if (isset($this->premis)) {
+	// store pid in premis object; used for basis of event identifiers
+	$this->premis->object->identifier->value = $value;
+      }
+      // base foxml class also stores pid value in multiple places
+      parent::__set($name, $value);
+      break;
+
+    case "cmodel":	
+      if (isset($this->premis)) {
+	// use content model name for premis object category
+	$this->premis->object->category = $value;
+      }
+      parent::__set($name, $value);
+      break;
+	    
       // store formatted version in html, plain-text version in mods
     case "title":
       // remove tags that are not wanted even in html 
@@ -107,7 +136,8 @@ class etd extends foxml implements etdInterface {
       break;
     case "contents":
       $this->html->contents = $value;
-      $this->mods->tableOfContents = etd_html::formattedTOCtoText($value);
+      // use the html contents value, since it is already slightly cleaned up
+      $this->mods->tableOfContents = etd_html::formattedTOCtoText($this->html->contents);
       
       /*      // remove tags, convert breaks to --
       $toc_text = etd_html::cleanTags($value, true);
