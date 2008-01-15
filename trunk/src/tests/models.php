@@ -9,6 +9,7 @@ class ModelGroupTest extends GroupTest {
     $this->addTestFile('models/etd_htmlTest.php');
     $this->addTestFile('models/etdModsTest.php');
     $this->addTestFile('models/FezEtdTest.php');
+    $this->addTestFile('models/premisTest.php');
   }
 }
 
