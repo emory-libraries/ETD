@@ -92,9 +92,7 @@
 	access: preview = thumbnail; raw object = pdf, 
 		object in context = page in etd site (with link to pdf) -->
   </mods:location>
-  <mods:accessCondition type="useAndReproduction">
-    statement from boilerplate circulation agreement
-  </mods:accessCondition>
+  <mods:accessCondition type="useAndReproduction"/>
   <mods:accessCondition type="restrictionOnAccess">
      statement about embargo goes here
   </mods:accessCondition>
@@ -121,7 +119,7 @@
     </etd:degree>
   </mods:extension>
 
-  <mods:note type="admin" ID="copyright">copyright requested?</mods:note>
+  <mods:note type="admin" ID="copyright">applying for copyright?</mods:note>
   <mods:note type="admin" ID="embargo">embargo requested?</mods:note>
 
 </mods:mods>
