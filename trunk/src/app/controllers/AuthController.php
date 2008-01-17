@@ -29,8 +29,8 @@ class AuthController extends Zend_Controller_Action {
      $ldap_config = new Zend_Config_Xml("../config/ldap.xml", $env->mode);
      $authAdapter = new Zend_Auth_Adapter_Ldap($username, $password, $ldap_config->toArray());
      
-     
      $auth = Zend_Auth::getInstance();
+
 
      $result = $auth->authenticate($authAdapter);
      if (!$result->isValid()) {
@@ -56,14 +56,17 @@ class AuthController extends Zend_Controller_Action {
        $this->_flashMessenger->addMessage("Login successful");
        
        $user = user::find_by_username($username);
+       $this->view->current_user = $user;
        if ($user) {
-	 // do what? save user to session?
-	 $this->_flashMessenger->addMessage("found user information");
+	 // NOTE: cannot save user to session because user object does not recover from serialization
+	 $this->_flashMessenger->addMessage("(found user information)");
 	 // forward to ... ?
 	 $this->_forward("index", "Index");
        } else {
+	 // note: doing a forward causes a problem with the xforms for some reason, but redirect works fine
 	 $this->_flashMessenger->addMessage("did not found user information, sending to edit");
-	 $this->_forward("new", "user");
+	 $this->_flashMessenger->addMessage("please enter your user information");
+	 $this->_helper->redirector->gotoRoute(array("controller" => "user", "action" => "new"));
        }
        
      }
@@ -77,6 +80,7 @@ class AuthController extends Zend_Controller_Action {
    public function logoutAction() {
      $auth = Zend_Auth::getInstance();
      $auth->clearIdentity();
+     unset($this->view->current_user);
 
      // forward to ... ?
      $this->_forward("index", "Index");
