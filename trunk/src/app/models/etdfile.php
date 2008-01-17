@@ -51,9 +51,26 @@ class etd_file extends foxml {
   }
 
 
+  /**  override default foxml ingest function to use arks for object pids
+   */
+  public function ingest($message ) {
+    $persis = Zend_Registry::get("persis");
+    // FIXME: temporary url
+    $ark = $persis->generateArk("http://wilson/~rsutton/etdfile/", $this->label);
+    $pid = $persis->pidfromArk($ark);
+
+    // FIXME: need a way to update ark in persistent id server with url (which is based on pid...)
+    $this->pid = $pid;
+    return fedora::ingest($this->saveXML(), $message);
+  }
+
+
+
   // remove from parent etd record, THEN purge from fedora
   public function purge($message) {
     $rel = "rel:has" . ucfirst($this->type);	// FIXME: won't work for pdf...
+    if ($this->type == "pdf")
+      $rel = "rel:hasPDF";
     // maybe add removePdf, removeSupplement, etc. functions for etd_rels ?
 
     // remove relation stored in parent etd record, save parent etd

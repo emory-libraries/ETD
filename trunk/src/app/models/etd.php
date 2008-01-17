@@ -181,6 +181,23 @@ class etd extends foxml implements etdInterface {
   }
 
   
+  /**  override default foxml ingest function to use arks for object pids
+   *
+   */
+  public function ingest($message ) {
+    $persis = Zend_Registry::get("persis");
+    // FIXME: temporary url
+    $ark = $persis->generateArk("http://wilson/~rsutton/etd/", $this->label);
+    $pid = $persis->pidfromArk($ark);
+
+    // FIXME: need a way to update ark in persistent id server with url (which is based on pid...)
+    
+    $this->pid = $pid;
+    $this->mods->ark = $ark;
+    return fedora::ingest($this->saveXML(), $message);
+  }
+
+
   
   
   public static function totals_by_status() {
@@ -244,7 +261,8 @@ class etd extends foxml implements etdInterface {
     }
     return $etds;
   }
-    
+
+
   
   public function pid() { return $this->pid; }
   public function status() { return $this->rels_ext->status; }

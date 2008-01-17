@@ -93,7 +93,23 @@ class user extends foxml {
     
     return $missing;
   }
+
+
+
   
+  /**  override default foxml ingest function to use arks for object pids
+   */
+  public function ingest($message ) {
+    $persis = Zend_Registry::get("persis");
+    // FIXME: temporary url
+    $ark = $persis->generateArk("http://wilson/~rsutton/user/view/pid/", $this->label);
+    $pid = $persis->pidfromArk($ark);
+
+    // FIXME: need a way to update ark in persistent id server with url (which is based on pid...)
+    $this->pid = $pid;
+    return fedora::ingest($this->saveXML(), $message);
+  }
+
 
 
   public static function find_by_username($netid) {
