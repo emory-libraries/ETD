@@ -39,6 +39,9 @@ class etd_mods extends mods {
     $this->xmlconfig["embargo"] = array("xpath" => "mods:accessCondition[@type='restrictionOnAccess']");
 
     $this->xmlconfig["rights"] = array("xpath" => "mods:accessCondition[@type='useAndReproduction']");
+
+    $this->xmlconfig["ark"] = array("xpath" => "mods:identifier[@type='ark']");
+    
     
   }
   
