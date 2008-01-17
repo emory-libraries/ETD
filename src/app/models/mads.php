@@ -4,6 +4,7 @@ require_once("models/foxmlDatastreamAbstract.php");
 
 class mads extends foxmlDatastreamAbstract {
   
+  const dslabel = "Agent Information";
   protected $schema = "http://www.loc.gov/mads/mads.xsd";
   protected $namespace = "http://www.loc.gov/mads/";
 
@@ -12,7 +13,6 @@ class mads extends foxmlDatastreamAbstract {
   public function __construct($dom, $xpath = null) {
     $this->addNamespace("mads", $this->namespace);
 
-    $this->dslabel = "Agent Information";
     
     $this->configure();
     $config = $this->config($this->xmlconfig);
@@ -40,8 +40,12 @@ class mads extends foxmlDatastreamAbstract {
   }
   
   public static function getFedoraTemplate(){
-    return foxml::xmlDatastreamTemplate("MADS", $this->dslabel,
+    return foxml::xmlDatastreamTemplate("MADS", mads::dslabel,
 					file_get_contents("mads.xml", FILE_USE_INCLUDE_PATH));
+  }
+  
+  public function datastream_label() {
+    return mads::dslabel;
   }
 
 }

@@ -8,6 +8,7 @@ class premis extends foxmlDatastreamAbstract  {
   protected $namespace = "http://www.loc.gov/standards/premis/v1";
 
   protected $xmlconfig;
+  const dslabel = "Preservation Metadata - Record History";
   
   public function __construct($xml) {
     $this->addNamespace("premis", $this->namespace);
@@ -23,10 +24,15 @@ class premis extends foxmlDatastreamAbstract  {
   }
   
   public static function getFedoraTemplate(){
-    return foxml::xmlDatastreamTemplate("PREMIS", "Preservation Metadata",
+    return foxml::xmlDatastreamTemplate("PREMIS", premis::dslabel,
 					file_get_contents("premis.xml", FILE_USE_INCLUDE_PATH),
 					"A", "false");		// datastream should NOT be versionable
   }
+
+  public function datastream_label() {
+    return premis::dslabel;
+  }
+
 
 
   // need a function to add another event
