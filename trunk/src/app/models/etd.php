@@ -23,23 +23,10 @@ class etd extends foxml implements etdInterface {
   public function __construct($arg = null) {
     parent::__construct($arg);
     
-    //    $this->owner = "rsutton";	// just to test
-
     if ($this->init_mode == "pid") {
-      $dom = new DOMDocument();
-      $dom->loadXML(fedora::getDatastream($arg, "MODS"));
-      $this->map{"mods"} = new etd_mods($dom);
-
-      $dom = new DOMDocument();
-      $dom->loadXML(fedora::getDatastream($arg, "XHTML"));
-      $this->map{"html"} = new etd_html($dom);
-
-      $dom = new DOMDocument();
-      $dom->loadXML(fedora::getDatastream($arg, "PREMIS"));
-      $this->map{"premis"} = new premis($dom);
-
+      // anything here?
     } else {
-      // new etd object
+      // new etd objects
       $this->cmodel = "etd";
       // all new etds should start out as drafts
       $this->rels_ext->addRelation("rel:etdStatus", "draft");
@@ -62,12 +49,6 @@ class etd extends foxml implements etdInterface {
   // add datastreams here 
   protected function configure() {
     parent::configure();
-    // add to template for new foxml
-    $this->datastreams[] = "etd_html";
-    $this->datastreams[] = "etd_mods";
-    $this->datastreams[] = "premis";
-    // etd_rels does not need to be added here because rels_ext template is fine
-    // important: making duplicate datastreams (e.g., two RELS-EXTs) makes foxml invalid
 
     // add mappings for xmlobject
     $this->xmlconfig["html"] = array("xpath" => "//foxml:xmlContent/html",

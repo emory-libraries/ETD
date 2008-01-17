@@ -12,6 +12,8 @@ class mads extends foxmlDatastreamAbstract {
   public function __construct($dom, $xpath = null) {
     $this->addNamespace("mads", $this->namespace);
 
+    $this->dslabel = "Agent Information";
+    
     $this->configure();
     $config = $this->config($this->xmlconfig);
 
@@ -38,10 +40,9 @@ class mads extends foxmlDatastreamAbstract {
   }
   
   public static function getFedoraTemplate(){
-    return foxml::xmlDatastreamTemplate("MADS", "Agent Information",
+    return foxml::xmlDatastreamTemplate("MADS", $this->dslabel,
 					file_get_contents("mads.xml", FILE_USE_INCLUDE_PATH));
   }
-
 
 }
 
