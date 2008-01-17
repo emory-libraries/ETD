@@ -4,7 +4,7 @@ require_once("models/foxmlDatastreamAbstract.php");
 
 class etd_html extends foxmlDatastreamAbstract {
   const id = "XHTML";
-  const label = "Formatted ETD fields";
+  const dslabel = "Formatted ETD Fields";
 
 
   
@@ -29,8 +29,13 @@ class etd_html extends foxmlDatastreamAbstract {
   }
 
   public static function getFedoraTemplate(){
-    return foxml::xmlDatastreamTemplate("XHTML", "Formatted ETD Fields", self::getTemplate());
+    return foxml::xmlDatastreamTemplate("XHTML", etd_html::dslabel, self::getTemplate());
   }
+
+  public function datastream_label() {
+    return etd_html::dslabel;
+  }
+
 
 
 
@@ -40,6 +45,7 @@ class etd_html extends foxmlDatastreamAbstract {
     case "title":
     case "abstract":
     case "contents":
+      //      print "DEBUG: setting $name to <pre>" . htmlentities($value) . "</pre>";      
       parent::__set($name, $value);
       return $this->map{$name} = etd_html::tags_to_nodes($this->map{$name});
     default:
@@ -66,8 +72,8 @@ class etd_html extends foxmlDatastreamAbstract {
   // utility functions for handling html-related of tasks
   public static function cleanTags($string, $keep_breaks = false) {
     // convert tags to a more easily matchable form, remove unneeded formatting
-    $search = array("&lt;", "&gt;", "&rsquo;", "&ldquo;", "&rdquo;", "&ndash;", "&mdash;", "&nbsp;",);
-    $replace = array("<", ">", "'", '"', '"', '-', '--', ' ');
+    $search = array("&lt;", "&gt;", "&rsquo;", "&ldquo;", "&rdquo;", "&quot;", "&ndash;", "&mdash;", "&nbsp;",);
+    $replace = array("<", ">", "'", '"', '"', '"', '-', '--', ' ');
     $string = str_replace($search, $replace, $string);
 
     // replace unicode characters 
@@ -140,7 +146,6 @@ class etd_html extends foxmlDatastreamAbstract {
 
     //* minimal clean-up to remove formatting that shouldn't be even in the HTML
 
-      
     // remove classnames (MSONORMAL, etc.) or any other formatting inside of tags
     $nodetext = preg_replace("|<([a-z]+)\s+[^>/]+>|", "<$1>", $nodetext);
     	// (don't mess up empty tags)
