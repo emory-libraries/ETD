@@ -14,10 +14,10 @@ class user extends foxml {
     parent::__construct($arg);
 
     if ($this->init_mode == "pid") {
-      // initialize mads datastream...
+      /*      // initialize mads datastream...
       $dom = new DOMDocument();
       $dom->loadXML(fedora::getDatastream($arg, "MADS"));
-      $this->map{"mads"} = new mads($dom);
+      $this->map{"mads"} = new mads($dom);*/
     } else {
       $this->cmodel = "user";
     }
@@ -27,7 +27,6 @@ class user extends foxml {
   protected function configure() {
     parent::configure();
 
-    $this->datastreams[] = "mads";
     $this->addNamespace("mads", "http://www.loc.gov/mads/");
     
     // add mappings for xmlobject
@@ -35,6 +34,9 @@ class user extends foxml {
 				     "class_name" => "mads", "dsID" => "MADS");
   }
 
+  public function __toString() {
+    return $this->mads->name->first;
+  }
 
     // handle special values
   /*  public function __set($name, $value) {
@@ -48,6 +50,23 @@ class user extends foxml {
     }
     }*/
 
+
+  public function readyToSubmit() {
+    // if anything is missing, record is not ready to submit
+    if (count($this->checkRequired())) return false;
+
+    // don't attempt to validate until all required fields are filled
+    // (missing research fields is invalid because of the ID attribute)
+    if (! $this->mads->isValid()) {	    // xml should be valid MODS
+      // error message?
+      return false;
+    }      
+      
+    // all checks passed
+    return true;
+  }
+
+  
 
   /**
    * check required fields; returns an array with problems, missing data
