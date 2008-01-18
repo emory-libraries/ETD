@@ -12,6 +12,16 @@ function __autoload($class) {
 $config = new Zend_Config_Xml('../config/fedora.xml', 'development');
 Zend_Registry::set('fedora-config', $config);
 
+//persistent id service
+require_once("persis.php");
+
+$persis_config = new Zend_Config_Xml("../config/persis.xml", 'development');
+$persis = new persis($persis_config->url, $persis_config->username,
+		     $persis_config->password, $persis_config->domain);
+Zend_Registry::set('persis', $persis);
+
+
+
 require_once("fezetd.php");
 require_once("etd.php");
 require_once("etdfile.php");
@@ -32,45 +42,33 @@ $etd = new FezEtd($pid);
 //print_r($etd->vcard);
 
 // create new user object
-$user = new person();
-$user->pid = fedora::getNextPid("emoryetd");
+$user = new user();
+//$user->pid = fedora::getNextPid("emoryetd");
 
+// map vcard to mads
+$user->mads->name->first = $etd->mods->author->first;	// first & middle - split these out?
+$user->mads->name->last = $etd->mods->author->last;
+$user->mads->permanent->email = $etd->vcard->permanent_email;
+$user->mads->permanent->address->street = $etd->vcard->street;
+$user->mads->permanent->address->city = $etd->vcard->city;
+$user->mads->permanent->address->state = $etd->vcard->state;
+$user->mads->permanent->address->postcode = $etd->vcard->zip;
+$user->mads->permanent->address->country = $etd->vcard->country;
+$user->mads->permanent->phone = $etd->vcard->telephone;
+//$user->mads->permanent->netid  == ?	// pull from fez db?
 
-//transfer common fields from vcard to vcard
-$common_fields = array("permanent_email", "street", "city", "state", "zip", "country", "telephone");
-foreach ($common_fields as $field) {
-  if (isset($etd->vcard->$field))
-    $user->vcard->$field = $etd->vcard->$field;
-  // FIXME: losing address type (currently permanent for all)
-}
-
-// pick up fields fez didn't properly set in the vcard
-//$user->vcard->fullname = $etd->mods->author->full;
-
-// magically set vcard name, dc:title, and foxml label 
+// set dc:title, and foxml label 
 $user->name = $etd->mods->author->full;
 
-$user->vcard->name->last = $etd->mods->author->last;
-// split out given name into first & middle names
-
-
-if (strpos($etd->mods->author->first, ' ')) {
-  list($firstname, $middlename) = split(' ', $etd->mods->author->first, 2);
-  $user->vcard->name->first = $firstname;
-  $user->vcard->name->middle = $middlename;
-} else {
-  $user->vcard->name->first = $etd->mods->author->first;
-}
-
-// FIXME: get info from fez db: netid, current email
+// FIXME: get info from fez db: netid, emory email
 // (OR, maybe easier? - get from ldap or emory shared data?)
-//print $user->vcard->saveXML() . "\n";
+//print $user->saveXML() . "\n";
 
 
 // FIXME: do dublin core mapping from mods
 
 $newetd = new etd();
-$newetd->pid = fedora::getNextPid("emoryetd");
+//$newetd->pid = fedora::getNextPid("emoryetd");
 
 // set formatted fields in html & clean versions in mods
 $newetd->title = $etd->mods->title;
@@ -117,6 +115,8 @@ foreach (array("committee", "nonemory_committee") as $cm) {
   }
 }
 
+// FIXME: need to retrieve committee member & advisor netids and add them as relations
+
 
 $newetd->mods->genre = $etd->mods->genre;
 $newetd->mods->language->text = $etd->mods->language->text;
@@ -156,7 +156,7 @@ for ($i= 0; $i < count($etd->mods->keywords); $i++) {
 
 // copy number of pages
 if (isset($etd->mods->pages))
-  $newetd->mods->pages = $etd->mods->pages . " p";
+  $newetd->mods->pages = $etd->mods->pages;
 else 
   print "Warning: record does not seem to have page count\n";
 
@@ -165,7 +165,7 @@ if ($etd->mods->genre == "Dissertation") {
   $newetd->mods->degree->name = "Ph.D.";
 } else { // check genre again? should be one or the other
   $newetd->mods->degree->level = "Masters";
-  // how to determine degree name?
+  // FIXME: pull degree name from alumni feed
 }
 
 // how to set discipline ? is this a controlled vocabulary?
@@ -173,8 +173,14 @@ $newetd->mods->degree->discipline = $etd->mods->department;
 
 
 // add relations to user
-$newetd->rels_ext->addRelationToResource("rel:owner", $user->pid);
+//$newetd->rels_ext->addRelationToResource("rel:owner", $user->pid);
+// FIXME: need user's netid to set object owner and author relation
+//$newetd->rels_ext->addRelation("rel:author", $user->pid);
 $newetd->rels_ext->addRelation("rel:etdStatus", $etd->status);
+
+
+
+
 
 //print $newetd->html->saveXML() . "\n";
 //print $newetd->mods->saveXML() . "\n";
@@ -204,7 +210,7 @@ foreach ($etd->files as $file) {
   }
 
   $etdfile = new etd_file();
-  $etdfile->pid = fedora::getNextPid("emoryetd");
+  //  $etdfile->pid = fedora::getNextPid("emoryetd");	// let etdfile handle, use arks
   $etdfile->label = $file->label;
   $etdfile->file->url = "http://" . $config->server . ":" . $config->port
     . "/fedora/get/" . $pid . "/" . $file->ID;
@@ -223,8 +229,8 @@ foreach ($etd->files as $file) {
   
   // ingest into fedora
   
-  //  $fileid = $etdfile->save("migrating to atomistic content model from $pid");
-  //  print "etd file object saved as $fileid\n";
+  $fileid = $etdfile->save("migrating to atomistic content model from $pid");
+  print "etd file object saved as $fileid\n";
 }
 
 
@@ -235,15 +241,80 @@ $user->saveXMLtoFile("tmp/user.xml");
 
 print "saving etd foxml to tmp file: tmp/etd.xml\n";
 $newetd->saveXMLtoFile("tmp/etd.xml");
-//$newid = $newetd->save("migrating to atomistic content model from $pid");
-//print "etd object saved as $newid\n";
+$newid = $newetd->save("migrating to atomistic content model from $pid");
+print "etd object saved as $newid\n";
 
 /* FIXME: still needs to be included in the migration:
-    - migrate record history
     - set permissions for embargo, policy status, etc.
-    - fez status
 */
  
+
+// copy premis events, updating to new format
+
+// need to reinitialize from fedora so datastreams can be saved separately
+$newetd = new etd($newid);
+
+// note: premis must be done after object has a pid
+$newetd->premis->object->identifier->value = $newid;
+
+//FIXME: need to set object id in premis before adding events (event ids based on object id)
+// fez lists most recent events first; we want the history in chronological order
+foreach (array_reverse($etd->premis->event) as $event) {
+  // note: agent value is returning fez userid (numeric database id)
+
+  preg_match("/(^.*) by (.*)$/", $event->detail, $matches);
+  $action = $matches[1];
+  $agent = $matches[2];
+
+  // determine event type according to action taken
+  switch ($action) {
+  case "Record created": $event_type = "ingest"; break;
+  case "Record modified": $event_type = "change"; break;
+  case "Submitted for Approval":
+  case "Published":
+  case "Document approved":
+    $event_type = "status change";
+    break;
+  case "Record Reviewed":
+    $event_type = "review";
+    break;
+  case "Access Restrictions requested":
+  case "Access restriction of 0 days approved":
+  case "Access restriction of 6 months approved":
+  case "Access restriction of 1 year approved":
+  case "Access restriction of 2 years approved":
+  case "Access restriction of 6 years approved":
+  case "Graduation Confirmed":
+    $event_type = "administrative";
+    break;
+  case "Publication Notification":
+  case "Submission Notification":
+  case "Publication Notification":	// are these correct? any others?
+    $event_type = "notice";
+    break;
+  default:
+    $event_type = "unknown";
+  }
+
+  // agent - handle non-user actions
+  switch($agent) {
+  case "ETD System":
+    $agent = array("name", "ETD software"); break;
+  case "Graduate School":
+    $agent = array("name", "Graduate School"); break;
+  default:
+    // FIXME: look up netid by fezid in fez db 
+    $agent = array("fezid", $event->agent->value);
+  }
+
+  $newetd->premis->addEvent($event_type, $event->detail, "success",
+			    $agent, $event->date);
+}
+
+$result = $newetd->save("migrated record history");
+print "added premis actions and saved at $result\n";
+
+
 
 
 ?>
