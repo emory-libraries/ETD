@@ -214,7 +214,7 @@ class BrowseController extends Zend_Controller_Action {
      $request = $this->getRequest();
      $coll = $request->getParam("coll", "researchfields");
 
-     $fields = new programs($skos, "#$coll");
+     $fields = new researchfields($skos, "#$coll");
      $this->view->collection = $fields;
 
      $this->view->browse_mode = "researchfield"; 
@@ -222,6 +222,19 @@ class BrowseController extends Zend_Controller_Action {
      // temporary - just for testing;
      // should be able to combine code for programs & researchfields
      $this->_helper->viewRenderer->setScriptAction("programs");
+   }
+
+
+   // list a users ETDs
+   public function myAction() {
+     $auth = Zend_Auth::getInstance();
+     if ($auth->hasIdentity()) {
+       $identity = $auth->getIdentity();
+       // should be expanded to find by role, depending on current user - faculty, dept. staff, etc.
+       $this->view->etds = etd::findbyAuthor($identity);
+      
+     }
+     $this->_helper->viewRenderer->setScriptAction("list");
    }
 
 	public function indexAction() {	
