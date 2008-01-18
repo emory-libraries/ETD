@@ -25,6 +25,9 @@ class ViewController extends Zend_Controller_Action {
      $this->view->etd = $etd;
      $this->view->title = $etd->label;
      $this->view->dc = $etd->dc;
+
+     $this->view->messages = $this->_helper->flashMessenger->getMessages();
+
    }
 
    // show mods xml - referenced as model for xform
