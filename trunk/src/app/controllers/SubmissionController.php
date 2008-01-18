@@ -41,7 +41,9 @@ class SubmissionController extends Zend_Controller_Action {
       $auth = Zend_Auth::getInstance();
       if ($auth->hasIdentity()) {
 	$identity = $auth->getIdentity();
+	// use netid for object ownership and author relation
 	$etd->owner = $identity;
+	$etd->rels_ext->addRelation("rel:author", $identity);
       }
 
       $etd->abstract = $etd_info['abstract'];
@@ -69,35 +71,57 @@ class SubmissionController extends Zend_Controller_Action {
       }
 
       foreach ($etd_info['keywords'] as $i => $keyword) {
-	if (array_key_exists($i, $newetd->mods->keywords))
+	if (array_key_exists($i, $etd->mods->keywords))
 	  $etd->mods->keywords[$i]->topic = $keyword;
 	else 
 	  $etd->mods->addKeyword($keyword);
       }
-
+          
       // create an etd file object for uploaded PDF and associate with etd record
-      $pid = $etd->save();
+      $pid = $etd->save("creating preliminary record from uploaded pdf");
+      if ($pid) {
+	// need to retrieve record from fedora so datastreams can be saved, etc.
+	$etd = new etd($pid);
+	
+	// could use fullname as agent id, but netid seems more userful
+	//FIXME: use full/display name here for user identity
+	$etd->premis->addEvent("ingest", "Record created by $identity", "success",
+			       array("netid", $identity));
+	$etd->save();
 
-      $etdfile = new etd_file();
-      $etdfile->label = "Dissertation";
-      $etdfile->file->url = fedora::upload($etd_info['pdf']);
-      $etdfile->file->mimetype = $etdfile->dc->type = "application/pdf";
-      // fixme: any other settings we can/should do?
+	$this->_helper->flashMessenger->addMessage("Saved etd to fedora with pid $pid");
 
-      // add relations between objects
-      //      $etdfile->rels_ext->addRelationToResource("rel:owner", $user->pid);
-      $etdfile->rels_ext->addRelationToResource("rel:isPDFOf", $etd->pid);
-      $filepid = $etdfile->save();	// save and get pid
+	// only create the etdfile object if etd was successfully created
+	$etdfile = new etd_file();
+	$etdfile->label = "Dissertation";	// FIXME: what should this be?
+	$etdfile->file->url = fedora::upload($etd_info['pdf']);
+	$etdfile->file->mimetype = $etdfile->dc->type = "application/pdf";
+	// fixme: any other settings we can/should do?
+	
+	// add relations between objects
+	//      $etdfile->rels_ext->addRelationToResource("rel:owner", $user->pid);
+	$etdfile->rels_ext->addRelationToResource("rel:isPDFOf", $etd->pid);
+	$filepid = $etdfile->save("creating record from uploaded pdf");	// save and get pid
+	$this->_helper->flashMessenger->addMessage("Saved etdfile to fedora with pid $filepid");
+	
+	
+	// add relation to etd object and save changes
+	$etd->rels_ext->addRelationToResource("rel:hasPDF", $filepid);
+	$etd->save("added relation to uploaded pdf");
+	
+	$this->_helper->redirector->gotoRoute(array("controller" => "view",
+						    "action" => "record",
+						    "pid" => $pid));
+	
+      } else {
+	$this->_helper->flashMessenger->addMessage("Error saving etd to fedora");
+	$this->view->foxml = $etd->saveXML();
+      }
 
-      // add relation to etd object and save changes
-      $etd->rels_ext->addRelationToResource("rel:hasPDF", $filepid);
-      $etd->save();
-  
-      $this->_helper->redirector->gotoRoute(array("controller" => "view",
-						  "action" => "record",
-						  "pid" => $pid));
     } else {
       // error finding title; ask user if pdf is in correct format...
+
+      $this->view->messages = $this->_helper->flashMessenger->getCurrentMessages();
     }
   }
 
