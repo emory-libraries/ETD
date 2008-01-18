@@ -55,11 +55,10 @@ class etd_file extends foxml {
    */
   public function ingest($message ) {
     $persis = Zend_Registry::get("persis");
-    // FIXME: temporary url
-    $ark = $persis->generateArk("http://wilson/~rsutton/etdfile/", $this->label);
+    // FIXME: use view/controller to build this url?
+    $ark = $persis->generateArk("http://etd/file/view/pid/emory:{%PID%}", $this->label);
     $pid = $persis->pidfromArk($ark);
 
-    // FIXME: need a way to update ark in persistent id server with url (which is based on pid...)
     $this->pid = $pid;
     return fedora::ingest($this->saveXML(), $message);
   }

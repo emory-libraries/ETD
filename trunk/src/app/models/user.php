@@ -39,16 +39,15 @@ class user extends foxml {
   }
 
     // handle special values
-  /*  public function __set($name, $value) {
+  public function __set($name, $value) {
     switch ($name) {
-      // store formatted version in html, plain-text version in mods
     case "name":
-      $this->label = $this->dc->title = $this->vcard->fullname = $value;
-      break;
+      $this->label = $this->dc->title = $value;
+      break; 
     default:
-      parent::__set($name, $value);
+      parent::__set($name, $value); 
     }
-    }*/
+  }
 
 
   public function readyToSubmit() {
@@ -101,11 +100,10 @@ class user extends foxml {
    */
   public function ingest($message ) {
     $persis = Zend_Registry::get("persis");
-    // FIXME: temporary url
-    $ark = $persis->generateArk("http://wilson/~rsutton/user/view/pid/", $this->label);
+    // FIXME: use view/controller to build this url?
+    $ark = $persis->generateArk("http://etd/user/view/pid/emory:{%PID%}", $this->label);
     $pid = $persis->pidfromArk($ark);
 
-    // FIXME: need a way to update ark in persistent id server with url (which is based on pid...)
     $this->pid = $pid;
     return fedora::ingest($this->saveXML(), $message);
   }
