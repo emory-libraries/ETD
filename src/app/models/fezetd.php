@@ -4,6 +4,7 @@ require_once("xml-utilities/XmlObject.class.php");
 require_once("fedora/api/fedora.php");
 require_once("vcard.php");
 require_once("etd_mods.php");
+require_once("premis.php");
 
 // compound-model etd (records created with Fez)
 class FezEtd extends foxml {
@@ -36,6 +37,12 @@ class FezEtd extends foxml {
 
     $this->xmlconfig["fezmd"] = array("xpath" => "//foxml:xmlContent/FezMD",
 				      "class_name" => "FezMD", "dsID" => "FezMD");
+
+    $this->addNamespace("premis", "http://www.loc.gov/standards/premis/v1");
+    $this->xmlconfig["premis"] = array("xpath" => "//foxml:xmlContent/premis:premis",
+				       "class_name" => "premis", "dsID" => "PremisEvent");
+
+
   }
 
 
