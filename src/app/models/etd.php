@@ -61,7 +61,7 @@ class etd extends foxml implements etdInterface {
 
     $this->addNamespace("premis", "http://www.loc.gov/standards/premis/v1");
     $this->xmlconfig["premis"] = array("xpath" => "//foxml:xmlContent/premis:premis",
-				       "class_name" => "premis", "dsID" => "premis");
+				       "class_name" => "premis", "dsID" => "PREMIS");
 
     // override default rels-ext
     $this->xmlconfig["rels_ext"]["class_name"] = "etd_rels";
