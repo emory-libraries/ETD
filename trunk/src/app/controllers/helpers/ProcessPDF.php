@@ -99,9 +99,15 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
     $this->fields['toc'] = preg_replace("|<hr/?>|", "",  $this->fields['toc']);
     $this->fields['toc'] = preg_replace("|^\s*(<b>)?Table of Contents\s*(</b>)?\s*(<br/>)\s*?|i", "",
 					     $this->fields['toc']);
+    $this->fields['toc'] = preg_replace("|</?html>|i", "", $this->fields['toc']);
+
     $this->fields['abstract'] = preg_replace("|<hr/?>|", "",  $this->fields['abstract']);
     $this->fields['abstract'] = preg_replace("|<A name=\d></a>|", "",  $this->fields['abstract']);
     $this->fields['abstract'] = preg_replace("|^\s*(<b>)?abstract\s*(</b>)?\s*(<br/>)?\s*|i", "",  $this->fields['abstract']);
+    $this->fields['abstract'] = preg_replace("|</?html>|i", "", $this->fields['abstract']);
+	
+
+    $this->fields['department'] = trim($this->fields['department']);
   }
   
 
