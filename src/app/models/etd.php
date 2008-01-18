@@ -17,8 +17,8 @@ class etd extends foxml implements etdInterface {
   public $pdfs;
   public $originals;
   public $supplements;
-    
 
+  
   
   public function __construct($arg = null) {
     parent::__construct($arg);
@@ -31,6 +31,8 @@ class etd extends foxml implements etdInterface {
       // all new etds should start out as drafts
       $this->rels_ext->addRelation("rel:etdStatus", "draft");
     }
+
+
 
 
     // FIXME: this part (at least) should be lazy-init - slows down the browse listing significantly
@@ -186,12 +188,10 @@ class etd extends foxml implements etdInterface {
    */
   public function ingest($message ) {
     $persis = Zend_Registry::get("persis");
-    // FIXME: temporary url
-    $ark = $persis->generateArk("http://wilson/~rsutton/etd/", $this->label);
+    // FIXME: use view/controller to build this url?
+    $ark = $persis->generateArk("http://etd/view/pid/emory:{%PID%}", $this->label);
     $pid = $persis->pidfromArk($ark);
 
-    // FIXME: need a way to update ark in persistent id server with url (which is based on pid...)
-    
     $this->pid = $pid;
     $this->mods->ark = $ark;
     return fedora::ingest($this->saveXML(), $message);
