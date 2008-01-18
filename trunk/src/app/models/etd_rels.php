@@ -38,6 +38,14 @@ class etd_rels extends rels_ext {
     $this->xmlconfig["supplement"] = array("xpath" => "rdf:description/emoryrel:hasSupplement/@rdf:resource",
 				    "is_series" => true);
     */
+
+
+    // relationships to users
+    $this->xmlconfig["author"] = array("xpath" => "rdf:description/rel:author");
+    $this->xmlconfig["advisor"] = array("xpath" => "rdf:description/rel:advisor");
+    $this->xmlconfig["committee"] = array("xpath" => "rdf:description/rel:committee",
+					    "is_series" => true);
+    
     
     // rels from etd file to etd
     $this->xmlconfig["pdfOf"] = array("xpath" => "rdf:description/rel:isPDFOf/@rdf:resource");
