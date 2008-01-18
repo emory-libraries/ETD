@@ -71,6 +71,7 @@ class EditController extends Zend_Controller_Action {
 
     $this->view->title = "Edit Author Rights/Access Restrictions";
 
+    $this->view->etd = $etd;
     
     // xforms setting - so layout can include needed code in the header
     $this->view->xforms = true;
