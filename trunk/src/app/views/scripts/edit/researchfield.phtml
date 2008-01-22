@@ -1,17 +1,28 @@
 <?= $this->javascript("projax/js/prototype.js"); ?>
+<? $blank = ($this->etd->mods->researchfields[0]->id == ""); ?>     
 <script type="text/javascript">
+var field_count = <?= $blank ? 0 : count($this->etd->mods->researchfields); ?>;
+var field_max = 3;
      function toggle_selection(id, text) {
       if (Element.hasClassName(id, 'selected')) {
+	// unselect & remove from list
+	field_count--;
 	Element.removeClassName(id, 'selected');
-	//remove from list
 	Element.remove(id + '_list');
 	Element.remove(id + '_input');
-      } else {
-	new Insertion.Bottom('user_fields', '<li id="' + id + '_list">' + text + '</li>');
+      } else if (field_count < field_max) {
+	field_count++;
+	// select & add to list
+	if (field_count == 1) { var label = " <i>(primary field)</i>"; }
+	else { var label = ""; }
+	new Insertion.Bottom('user_fields', '<li id="' + id + '_list">' + text + label + '</li>');
 	new Insertion.Before('save_button',
 			     '<input id="' + id + '_input" type="hidden" name="fields[]" value="'
 			     + id + ' ' + text + '"/>');
 	Element.addClassName(id, 'selected');
+      } else {
+	// alert user, don't select
+	alert("You may choose a maximum of " + field_max + " fields. Save your choices or reselect.");
       }
 }
 </script>     
@@ -19,9 +30,11 @@
 <p><b>Edit Research Fields</b></p>
 
 <ul id="user_fields">
+  <? if ($this->etd->mods->researchfields[0]->id != ""): ?>     
      <? foreach ($this->etd->mods->researchfields as $field): ?>
         <li id="#<?= $field->id ?>_list"><?= $field->topic ?></li>
      <? endforeach ?>
+  <? endif ?>	  
 </ul>     
 
 <form method="post" id="fields_form"  action="<?= $this->url(array("action" => "saveResearchfield"))?>">
