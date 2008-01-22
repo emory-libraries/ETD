@@ -18,7 +18,7 @@ return false;"><?= $current_field->label ?></a>
       <a id="<?= $current_field->id ?>" href="#"
 	 <? $id = str_replace('#', '', $current_field->id); ?>
 	 <? if ($this->etd->mods->hasResearchField($id)): ?>class="selected" <? endif ?>
-	 onclick="javascript:toggle_selection('<?= $current_field->id ?>', '<?= $current_field->label ?>');return false;"><?= $id ?> <?= $current_field->label ?></a>
+	 onclick="javascript:toggle_selection('<?= $current_field->id ?>', '<?= addslashes($current_field->label) ?>');return false;"><?= $id ?> <?= $current_field->label ?></a>
    <? endif ?>
 </li>
 
