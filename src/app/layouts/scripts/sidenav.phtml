@@ -9,11 +9,11 @@ href="<?= $this->url(array("controller" => "submission", "action" => "start"), "
 
 
 <div class="section">
-  <p><a href="doc.php?id=about">About Us</a></p>
-  <p><a href="doc.php?id=faq">Frequently Asked Questions</a></p>
-  <p><a href="doc.php?id=faq#help" class="help">ETD Help</a></p>
-  <p><a href="doc.php?id=policies">Policies and Procedures</a></p>
-  <p><a href="doc.php?id=ip">Intellectual Property</a></p>
+  <p><a href="<?= $this->url(array("controller" => "docs", "action" => "about"), '', true); ?>">About Us</a></p>
+  <p><a href="<?= $this->url(array("controller" => "docs", "action" => "faq"), '', true); ?>">Frequently Asked Questions</a></p>
+  <p><a href="<?= $this->url(array("controller" => "docs", "action" => "faq"), '', true); ?>#help" class="help">ETD Help</a></p>
+  <p><a href="<?= $this->url(array("controller" => "docs", "action" => "policies"), '', true); ?>">Policies and Procedures</a></p>
+  <p><a href="<?= $this->url(array("controller" => "docs", "action" => "ip"), '', true); ?>">Intellectual Property</a></p>
 </div>
 
 Browse by:
