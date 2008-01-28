@@ -237,6 +237,13 @@ class BrowseController extends Zend_Controller_Action {
      $this->_helper->viewRenderer->setScriptAction("list");
    }
 
+   
+   // nice readable url - redirect to proquest listings for emory
+   public function proquestAction() {
+     // note: should this url be configurable, stored somewhere else?
+     $this->_redirect("http://proquest.umi.com.proxy.library.emory.edu/pqdweb?RQT=305&SQ=LSCHNAME%28%7BEMORY+UNIVERSITY%7D%29&clientId=1917");
+   }
+
 	public function indexAction() {	
 		$this->view->assign("title", "Welcome to %project%");
 	}
