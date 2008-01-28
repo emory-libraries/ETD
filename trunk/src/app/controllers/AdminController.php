@@ -26,6 +26,7 @@ class AdminController extends Zend_Controller_Action {
    public function summaryAction() {
      $this->view->title = "Admin : Summary";
      $this->view->status_totals = etd::totals_by_status();
+     $this->view->messages = $this->_helper->flashMessenger->getMessages();
    }
    
    public function listAction() {
@@ -36,6 +37,43 @@ class AdminController extends Zend_Controller_Action {
      $this->view->etds = etd::findbyStatus($status);
    }
 
+   public function reviewAction() {
+     $etd = new etd($this->_getParam("pid"));
+     $this->view->etd = $etd;
+     $this->view->title = "Review record information";
+     // fixme: should probably also find and include user object
+     //	       (review contact information)
+
+     // still needs view script - same basic components as submission review
+   }
+
+   public function acceptAction() {
+     // change status on etd to reviewed
+     $etd = new etd($this->_getParam("pid"));
+     $newstatus = "reviewed";
+     $etd->rels_ext->status = $newstatus;
+     // FIXME: also need a history log
+     $result = $etd->save("set status to 'reviewed'");
+     
+     // set flash message, forward to ...
+     $this->_helper->flashMessenger->addMessage("Record status changed to <b>$newstatus</b>; record saved at $result");
+     // forward to .. main admin page ?
+     $this->_helper->redirector->gotoRoute(array("controller" => "admin",
+						 "action" => "summary"), "", true); 
+   }
+
+   public function requestChangesAction() {
+     $etd = new etd($this->_getParam("pid"));
+     $newstatus = "draft";
+     $etd->rels_ext->status = $newstatus;
+     $result = $etd->save("set status to 'draft'");
+
+     $this->_helper->flashMessenger->addMessage("Record status changed to <b>$newstatus</b>; saved at $result");
+     // user information also, for email address ?
+     
+     $this->view->title = "Request changes to record information";
+     $this->view->messages = $this->_helper->flashMessenger->getCurrentMessages();
+   }
    
    
    public function createAction() {
