@@ -11,7 +11,7 @@ require_once("premis.php");
 require_once("etdfile.php");
 
 // etd object for etd08
-class etd extends foxml implements etdInterface {
+class etd extends foxml implements etdInterface, Zend_Acl_Resource_Interface {
 
   // associated files
   public $pdfs;
@@ -43,7 +43,10 @@ class etd extends foxml implements etdInterface {
     foreach ($files as $var => $type) {
       $this->$var = array();
       $pids = $this->findFiles($type);
-      foreach ($pids as $pid) $this->{$var}[] = new etd_file($pid, $this);
+      foreach ($pids as $pid) {
+	if ($pid)
+	  $this->{$var}[] = new etd_file($pid, $this);
+      }
     }
   }
 
@@ -170,6 +173,7 @@ class etd extends foxml implements etdInterface {
     if (! $this->hasPDF()) return false;
     if (! $this->hasOriginal()) return false;
     
+    return true;
   }
 
   // should have at least one pdf
@@ -302,7 +306,17 @@ class etd extends foxml implements etdInterface {
     return $subjects;
   }
 
-  
+
+
+  // for Zend ACL Resource
+
+  public function getResourceId() {
+    if ($this->status() != "") {
+      return $this->status() . " etd";
+    } else {
+      return "etd";
+    }
+  }
   
 }
 
