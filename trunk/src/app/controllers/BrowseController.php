@@ -16,6 +16,10 @@ class BrowseController extends Zend_Controller_Action {
      $this->initView();
    }
 
+   public function postDispatch() {
+     $this->view->messages = $this->_helper->flashMessenger->getMessages();
+   }
+
 
    // list of terms by field
    public function browseFieldAction() {
