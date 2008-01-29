@@ -1,13 +1,13 @@
 <?= $this->javascript("FormFaces/formfaces.js"); ?>
 <?= $this->css('xforms.css'); ?>
 
-<xf:model>
+<xf:model id="model">
 <? if (isset($this->xforms_model_uri)): ?>
-   <xf:instance src="<?= $this->xforms_model_uri ?>"/>
+   <xf:instance id="main" src="<?= $this->xforms_model_uri ?>"/>
 <? elseif (isset($this->xforms_model_xml)): ?>
-  <xf:instance><?= $this->xforms_model_xml ?></xf:instance>
-<? endif ?>     
-
+  <xf:instance id="main"><?= $this->xforms_model_xml ?></xf:instance>
+<? endif ?>
+      
 <? if (isset($this->xforms_bind_script)): ?>
   <?= $this->render($this->xforms_bind_script); ?>
 <? endif ?>
