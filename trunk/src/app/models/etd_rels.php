@@ -59,14 +59,14 @@ class etd_rels extends rels_ext {
     case "status":
       if (in_array($value, $this->status_list)) {
 	// if value is in the list of known statuses, set normally
-	parent::__set($name, $value);
+	return parent::__set($name, $value);
       } else {
 	//otherwise: warn user
 	throw new XmlObjectException("'$value' is not a recognized etd status");
       }
       break;
     default:
-      parent::__set($name, $value);
+      return parent::__set($name, $value);
     }
   }
 
