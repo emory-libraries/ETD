@@ -1,0 +1,58 @@
+<p>You are about to deposit the final version of your
+Thesis/Dissertation to the ETD Repository.  Please review the document
+thoroughly.  After the document is deposited, you will NOT be able to
+access the file to make changes of any kind without authorization from
+the Graduate School.</p>
+
+<? $this->acl = new Xml_Acl(); ?>
+<? $this->role = "author"; /* fixme: where should these be set? */ ?>
+<? /* FIXME: there must be a better way to do this; split out to more partials? */ ?>
+<style type="text/css">
+   p.note, a.action, #submission_status, #history {display:none; }
+</style>
+<?=  $this->render('view/fullrecord.phtml'); ?>
+
+<div class="fullrecord">
+  <div id="access">
+   <h2>Access Restrictions</h2>
+   Access restrictions requested? <b><?= $this->etd->mods->embargo_request ?></b>
+  </div>
+
+  <div id="proquest">
+   <h2>ProQuest Submission Information</h2>
+   Applying for copyright? <b><?= $this->etd->mods->copyright ?></b>
+  </div>
+
+  <div id="contact">
+    <h2>Contact information</h2>
+ <? /* fixme: need a shorter version of this; split out user view into partials? */ ?>
+   <?//=  $this->render('user/view.phtml'); ?>
+
+   <? $user =  $this->user->mads; ?>
+   
+   <? if (isset($user->current)): ?>
+ <p><u>current contact information:</u></p>
+    <p><b>current address</b> (valid as of <?= $user->current->date ?>)</p>
+    <? $this->address = $user->current->address; ?>
+    <?= $this->render("user/address.phtml"); ?>
+
+    <p><b>current phone:</b> <?= $user->current->phone ?></p>
+<p><b>current email:</b> <?= $user->current->email ?>
+<? endif ?>
+
+<? if (isset($user->permanent)): ?>
+  <p><b>permanent:</b></p>
+  <p><b>address</b> (valid as of <?= $user->permanent->date ?>)</p>
+  <? $this->address = $user->permanent->address; ?>
+  <?= $this->render("user/address.phtml"); ?>
+<p><b>phone:</b> <?= $user->permanent->phone ?></p>
+<p><b>email:</b> <?= $user->permanent->email ?></p>
+<? endif ?>
+
+  </div>
+</div>
+
+</hr>
+<p><b><a href="<?= $this->url(array('action' => 'submit')) ?>">Submit &gt;</a></b></p>
+<? /* fixme; make this a form, add a hidden parameter to confirm that
+    it was reviewed? */ ?>

@@ -23,6 +23,7 @@ class SubmissionController extends Zend_Controller_Action {
     $this->view->title = "Begin Submission";
   }
 
+
   // pulls information from the PDF, creates a new fedora record with associated pdf file,
   // then forwards to the view/master edit page
   public function processPdfAction() {
@@ -145,6 +146,38 @@ class SubmissionController extends Zend_Controller_Action {
     
   }
 
+  public function reviewAction() {
+    // double-check that etd is ready to submit?
+    $this->view->etd = new etd($this->_getParam("pid"));	// fixme: error handling if pid is not specified?
+    // probably also need user record...
+
+    $this->view->title = "final review";
+    
+    if ($this->view->current_user) {
+      // don't retrieve from Fedora again if we already have it 
+      $this->view->user = $this->view->current_user;
+    }
+  }
+
+  public function submitAction() {
+    // fixme: double-check that etd is ready to submit
+    
+    $etd = new etd($this->_getParam("pid"));
+    $newstatus = "submitted";
+    $etd->rels_ext->status = $newstatus;
+    // FIXME: also need a history log
+    $result = $etd->save("set status to '$newstatus'");
+    // fixme: more student-readable message here
+    $this->_helper->flashMessenger->addMessage("Record status changed to <b>$newstatus</b>; record saved at $result");
+
+    // forward to .. my etds page ?
+    $this->_helper->redirector->gotoRoute(array("controller" => "browse",
+						 "action" => "my"), "", true); 
+
+
+  }
+
+  
   //  other actions:
   // review, submit, addfile (upload/enter info)
   // check required fields/files/etc
