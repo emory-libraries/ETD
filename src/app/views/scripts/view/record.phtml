@@ -1,71 +1,24 @@
 <? /* full record view for an etd */ ?>
-<? $etd = $this->etd ?>
-    <? $acl = Zend_Registry::get('acl'); ?>
-    
-<!--<p><? $role = "author"; ?> (testing ACL) role: <?= $role ?> </p> -->
+    <?// $acl = Zend_Registry::get('acl'); ?>
+<? $this->acl = new Xml_Acl(); ?>
+<?// $role =  (isset($this->view->current_user)) ? $this->view->current_user->netid : "guest"; ?>
+<? $this->role = "author"; ?>
+current role: <?= $this->role ?><br/>
+resource: <?= $this->etd->getResourceId() ?><br/>
+<!-- FIXME: how to get role with regard to etd ? -->
 
-<?=  $this->render('view/submission_status.phtml'); ?>
-    
-<div class="fullrecord">
-    <? if ($etd->status() != "published"): ?>
-     <p class="note">This record is not published. Current status: <b><?= $etd->status() ?></b></p>
-    <? endif ?>
-
-	<? if ($acl->isAllowed($role, "draft etd", "edit metadata")): ?>
-<a class="action" href="<?= $this->url(array("controller" => "edit", "action" => "title")) ?>">edit title</a>
-   <? endif ?>
-  <h1><?= $this->etd->html->title ?></a></h1>
-<a class="action" href="<?= $this->url(array("controller" => "edit", "action" => "record")) ?>">edit record</a>
-
-   <a class="action" href="<?= $this->url(array("controller" => "edit", "action" => "researchfield")) ?>">edit research fields</a>
-   <a class="action" href="<?= $this->url(array("controller" => "edit", "action" => "program")) ?>">edit program</a>
-
-  <?=  $this->render('view/summary.phtml'); ?>
-
-  <h2>Abstract</h2>
-  <? // FIXME: edit links for convenience; need to check if user has permission ?>
-  <a class="action" href="<?= $this->url(array("controller" => "edit", "action" => "abstract")) ?>">edit</a>
-  <div id="abstract">
-     <?= $etd->html->abstract ?>
-  </div>
-
-  <h2>Table of Contents</h2>
-  <a class="action" href="<?= $this->url(array("controller" => "edit", "action" => "contents")) ?>">edit</a>
-  <div id="toc">
-    <?= $etd->html->contents ?>
-  </div>
-
-
-  <div id="files">
-    <h2>Files</h2>
-     <? if ($acl->isAllowed($role, "draft etd", "add file")): ?>
-       <p><a class="action" href="<?= $this->url(array("controller" => "file",
-		"action" => "add", "etd" => $etd->pid), null, true)?>">add another file</a></p>
-     <? endif ?>					   
-
-
-  <? foreach (array("pdfs", "originals", "supplements") as $filetype): ?>
-    <? foreach ($etd->$filetype as $file) : ?>
-      <a href="<?= $this->url(array("controller" => "file", "action" => "view",
- 				     "pid" => $file->pid))?>"><?= $file->dc->title ?></a>
-  <? if (isset($file->dc->type)): ?> <?= $file->dc->type ?> <? endif ?>
-  <? if (isset($file->dc->format)): ?> <?= $file->dc->format ?> <? endif ?>
-
-  <a href="<?= $this->url(array("controller" => "file", "action" => "edit", "pid" => $file->pid))?>">edit</a>
-
-  <a href="<?= $this->url(array("controller" => "file", "action" => "remove", "pid" => $file->pid))?>">remove</a>
-
-  <br/>
-    <? endforeach ?>
-  <? endforeach ?>
-
-  </div>
-
-   <? if ($acl->isAllowed($role, "draft etd", "view history")): ?>
-   <div id="history">
-   <h2>record history</h2>
-   <p><i>(not yet implemented)</i></p>
-   </div>
-<? endif ?>      
-
+<? if ($this->etd->status() == "draft"): ?>
+  <? /* if record is still a draft, show submission progress */ ?>
+<div id="submission_status">
+  <?=  $this->render('submission/_status.phtml'); ?>
 </div>
+
+ <div id="submission">
+<? endif ?>
+
+  <?=  $this->render('view/fullrecord.phtml'); ?>
+<div class="fullrecord">
+  <?=  $this->render('view/_history.phtml'); ?>
+</div>
+
+<? if ($this->etd->status() == "draft"): ?></div><? endif /* end submission div */?>

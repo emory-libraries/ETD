@@ -1,0 +1,44 @@
+<div id="files">
+    <h2>Files</h2>
+     <? if ($this->acl->isAllowed($this->role, $this->etd, "add file")): ?>
+       <p><a class="action" href="<?= $this->url(array("controller" => "file",
+		"action" => "add", "etd" => $this->etd->pid), null, true)?>">add another file</a></p>
+     <? endif ?>					   
+
+
+  <? foreach (array("pdfs", "originals", "supplements") as $filetype): ?>
+    <? foreach ($this->etd->$filetype as $file) : ?>
+      <a href="<?= $this->url(array("controller" => "file", "action" => "view",
+ 				     "pid" => $file->pid))?>"><?= $file->dc->title ?></a>
+  <? if (isset($file->dc->type)): ?> <?= $file->dc->type ?> <? endif ?>
+  <? if (isset($file->dc->format)): ?>
+					   <? if (is_numeric($file->dc->format)): ?>
+      <? 
+function readable_size($size) {
+$bytes = array('B','KB','MB','GB','TB');
+  foreach($bytes as $val) {
+   if($size > 1024){
+    $size = $size / 1024;
+   }else{
+    break;
+   }
+  }
+  return round($size, 1)." ".$val;
+} ?>
+	(<?= readable_size($file->dc->format) ?>)
+	  
+    <? else: ?>		  
+	 <?= $file->dc->format ?>
+    <? endif ?>
+  <? endif ?>
+
+
+  <a href="<?= $this->url(array("controller" => "file", "action" => "edit", "pid" => $file->pid))?>">edit</a>
+
+  <a href="<?= $this->url(array("controller" => "file", "action" => "remove", "pid" => $file->pid))?>">remove</a>
+
+  <br/>
+    <? endforeach ?>
+  <? endforeach ?>
+
+</div>
