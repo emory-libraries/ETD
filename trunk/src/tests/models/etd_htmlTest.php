@@ -81,6 +81,10 @@ class TestEtdHtml extends UnitTestCase {
     $this->etd_html->abstract = "<p>here is my </em> whoops</p>";
     $this->assertEqual("<p>here is my  whoops</p>", $this->etd_html->abstract);
 
+    $this->etd_html->abstract = '<div><b>Background:</b> lots of text here.</div>';
+    $this->assertEqual('<div><b>Background:</b> lots of text here.</div>', $this->etd_html->abstract);
+ 
+    
   }
   
 }
