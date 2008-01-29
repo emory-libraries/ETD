@@ -1,7 +1,17 @@
 <?/* short record view  for an ETD (list/browse)
      expects $view->etd to be set with record to display.  */ ?>
-     
+<? $this->acl = new Xml_Acl(); ?>
+<? $this->role = "admin"; ?>
+current role: <?= $this->role ?><br/>
+
 <div class="listrecord">
+    <? if ($this->acl->isAllowed($this->role, $this->etd, "review")): ?>
+<a class="action" href="<?= $this->url(array('controller' => 'admin',
+		'action' => 'review', 'pid' => $this->etd->pid), '', true) ?>">review</a> <? endif ?>
+    <? if ($this->acl->isAllowed($this->role, $this->etd, "approve")): ?>
+<a class="action" href="<?= $this->url(array('controller' => 'admin',
+		'action' => 'approve', 'pid' => $this->etd->pid), '', true) ?>">approve</a> <? endif ?>
+   
   <b><a href="<?= $this->url(array("controller" => "view",
     "action" => "record", "pid" => $this->etd->pid()), "", true)?>"><?= $this->etd->title() ?></a></b> <br/>
   <?=  $this->render('view/summary.phtml'); ?>
