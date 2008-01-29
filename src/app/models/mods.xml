@@ -119,7 +119,7 @@
     </etd:degree>
   </mods:extension>
 
-  <mods:note type="admin" ID="copyright">applying for copyright?</mods:note>
-  <mods:note type="admin" ID="embargo">embargo requested?</mods:note>
+  <mods:note type="admin" ID="copyright">applying for copyright? </mods:note>
+  <mods:note type="admin" ID="embargo">embargo requested? </mods:note>
 
 </mods:mods>
