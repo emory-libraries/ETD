@@ -44,7 +44,8 @@ class AdminController extends Zend_Controller_Action {
      // fixme: should probably also find and include user object
      //	       (review contact information)
 
-     // still needs view script - same basic components as submission review
+     // still needs view script - same basic components as submission review,
+     // links to accept or request changes
    }
 
    public function acceptAction() {
@@ -52,8 +53,16 @@ class AdminController extends Zend_Controller_Action {
      $etd = new etd($this->_getParam("pid"));
      $newstatus = "reviewed";
      $etd->rels_ext->status = $newstatus;
-     // FIXME: also need a history log
-     $result = $etd->save("set status to 'reviewed'");
+
+     // log event in record history (fixme: better way of getting user)
+     $auth = Zend_Auth::getInstance();
+     if ($auth->hasIdentity()) $identity = $auth->getIdentity();
+     $etd->premis->addEvent("status change", "Record reviewed by Graduate School",
+			    "success",  array("netid", $identity));
+     print htmlentities($etd->premis->saveXML());
+
+     
+     $result = $etd->save("set status to '$newstatus'");
      
      // set flash message, forward to ...
      $this->_helper->flashMessenger->addMessage("Record status changed to <b>$newstatus</b>; record saved at $result");
@@ -66,8 +75,18 @@ class AdminController extends Zend_Controller_Action {
      $etd = new etd($this->_getParam("pid"));
      $newstatus = "draft";
      $etd->rels_ext->status = $newstatus;
+
+     // log event in record history (fixme: better way of getting user)
+     $auth = Zend_Auth::getInstance();
+     if ($auth->hasIdentity()) $identity = $auth->getIdentity();
+     $etd->premis->addEvent("status change",
+			    "Changes to record requested by Graduate School",
+			    "success",  array("netid", $identity));
+     
      $result = $etd->save("set status to 'draft'");
 
+
+     
      $this->_helper->flashMessenger->addMessage("Record status changed to <b>$newstatus</b>; saved at $result");
      // user information also, for email address ?
      
