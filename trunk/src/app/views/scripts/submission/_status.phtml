@@ -1,0 +1,58 @@
+<?= $this->javascript("projax/js/prototype.js"); ?>
+<?
+ $etd = $this->etd; 
+ $ok = "<span style='color:green'>&#x2714;</span>"; // green check mark 
+ $incomplete = "<span style='color:red'>&#x2717;</span>"; // red x
+$unknown = '<font color="blue">?</font>';
+?>
+<h2>submission status</h2>
+ <? if ($this->current_user): ?>
+   <? if ($this->current_user->readyToSubmit()): ?>
+	<?= $ok ?> user information<br/>
+   <? else: ?>
+      	<?= $incomplete ?> user information<br/>
+        <ul id="user_missing" class="missing">
+          <? foreach ($this->current_user->checkRequired() as $missing): ?>
+             <li><?= $missing ?></li>
+          <? endforeach ?>
+        </ul>
+   <? endif ?>
+ <? else: ?>
+    <?= $unknown ?> user information<br/>
+ <? endif ?>	  
+
+  <? if ($etd->mods->readyToSubmit()): ?>
+    <?= $ok ?> thesis information<br/>
+ <? else: ?> 
+  <?= $incomplete; ?> thesis information
+    <? /* display which required fields are missing, if any */   ?>
+   <ul id="mods_missing" class="missing">
+     <? foreach ($etd->mods->checkRequired() as $missing): ?>
+      <li><?= $missing ?></li>
+     <? endforeach ?>
+    </ul>
+  <? endif ?>       
+
+  <?= $etd->hasPDF() ? $ok : $incomplete ?> PDF file<br/>
+  <?= $etd->hasOriginal() ? $ok : $incomplete ?> original file<br/>
+
+<?/* FIXME: should this be grouped as rights/restrictions since they are edited on the same page? */ ?>
+  <? $copyright = $etd->mods->hasCopyright(); ?>
+  <?= $copyright ? $ok : $incomplete; ?> copyright
+  <?= $copyright ? "(" . $etd->mods->copyright . ")" : "";	/* display if set */ ?>
+  <br/>
+  <? $embargo = $etd->mods->hasEmbargoRequest(); ?>
+  <?= $embargo ? $ok : $incomplete; ?> embargo request
+  <?= $embargo ? "(" . $etd->mods->embargo_request . ")" : "" ?>
+  <br/>
+  <?= $etd->mods->hasSubmissionAgreement() ? $ok : $incomplete; ?> submission agreement<br/>
+
+<p><?= $unknown ?> = status unknown / not yet implemented</p>
+
+   <? if ($this->acl->isAllowed($this->role, $this->etd, "submit")
+	  && $etd->readyToSubmit()): ?>
+      <p style="font-weight:bold;font-size:125%"><a href="<?= $this->url(array('controller' => 'submission',
+				'action' => 'review')) ?>">review &amp; submit&gt;</a></p>
+  <? endif ?>								     
+
+</p>
