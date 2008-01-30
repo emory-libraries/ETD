@@ -6,6 +6,7 @@ require_once("bootstrap.php");
 // test groups
 require_once('models.php');
 require_once('controllers.php');
+require_once('lib.php');
 
 $suite = new TestSuite('All Tests');
 
