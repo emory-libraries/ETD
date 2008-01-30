@@ -41,11 +41,12 @@ class etd_html extends foxmlDatastreamAbstract {
 
 
   public function __set($name, $value) {
+    //    print "DEBUG: setting $name to <pre>$value</pre>";      
+
     switch ($name) {
     case "title":
     case "abstract":
     case "contents":
-      //      print "DEBUG: setting $name to <pre>" . htmlentities($value) . "</pre>";      
       parent::__set($name, $value);
       return $this->map{$name} = etd_html::tags_to_nodes($this->map{$name});
     default:
@@ -72,6 +73,9 @@ class etd_html extends foxmlDatastreamAbstract {
   // utility functions for handling html-related of tasks
   public static function cleanTags($string, $keep_breaks = false) {
     // convert tags to a more easily matchable form, remove unneeded formatting
+
+    $string = str_replace("&amp;", "&", $string);
+    
     $search = array("&lt;", "&gt;", "&rsquo;", "&ldquo;", "&rdquo;", "&quot;", "&ndash;", "&mdash;", "&nbsp;",);
     $replace = array("<", ">", "'", '"', '"', '"', '-', '--', ' ');
     $string = str_replace($search, $replace, $string);
@@ -166,8 +170,8 @@ class etd_html extends foxmlDatastreamAbstract {
       if (preg_match("|<([a-z]+)>|", $chunks[$j], $matches)) {
 	// open tag -- create node with the next section as text content
 	$tagname = $matches[1];
-	$text = $chunks[++$j];
-	$newnode = $node->ownerDocument->createElement($tagname, $text);
+	// don't add text to node here-- next chunk could be another tag
+	$newnode = $node->ownerDocument->createElement($tagname);
 	$current_node[0]->appendChild($newnode);
 	// make new node the current one that subsequent elements & text are added to
 	array_unshift($current_node, $newnode);
