@@ -1,0 +1,40 @@
+<? if ($this->environment == "development"): ?>
+<p>In development mode.  If in production, this email would have been sent to the following people:<br/>
+<i>(no way to retrieve email addresses yet)</i></p>
+<hr/>
+<? endif ?>
+
+<p>Dear <?= $this->etd->mods->author->first ?>,</p>
+
+<p>Congratulations!  You have successfully submitted your ETD to
+Emory's repository.</p>
+
+<p>Your next step is to print a paper copy of the document you deposited for
+the Dean's review.  To ensure that the Dean will be reviewing the final
+version of your document, click the link below to visit your record in the
+ETD repository, open your PDF file, and print a paper copy.</p>
+
+<? $url = $this->url(array("controller" => "view", "action" => "record", "pid" => $this->etd->pid), '', true); // FIXME: how to make this url absolute ??>
+<p>View your record:
+<a href="<?= $url ?>"><?= $url ?></a></p>
+
+<p>All students must submit the ETD Submission Agreement Form with the
+paper copy of their dissertation. In part 2 of that form, you must
+choose between the "Open" or "Restricted" Access options.  Your access
+   restriction choice was: <?= $this->etd->mods->embargo_request ?>.</p>
+
+<p>You will receive written notification confirming whether or not your
+<?= $this->etd->document_type() ?> has been approved by the Graduate School.  Upon approval
+you will receive further information regarding the publication of your
+ETD in our repository, as well as your opportunity to order bound
+copies.</p>
+
+<table>
+<tr><th valign="top">Title:</th><td><?= $this->etd->title() ?></td></tr>
+<tr><th valign="top">Author:</th><td><?= $this->etd->author() ?></td></tr>
+<tr><th valign="top">Advisor:</th><td><?= $this->etd->advisor() ?></td></tr>
+<tr><th valign="top">Committee:</th><td><?= implode("; ", $this->etd->committee()) ?></td></tr>
+<tr><th valign="top">Abstract:</th><td><?= $this->etd->html->abstract ?></td></tr>
+</table>
+
+
