@@ -81,10 +81,17 @@ class TestEtdHtml extends UnitTestCase {
     $this->etd_html->abstract = "<p>here is my </em> whoops</p>";
     $this->assertEqual("<p>here is my  whoops</p>", $this->etd_html->abstract);
 
+    // node following directly after another one (ticket:102)
     $this->etd_html->abstract = '<div><b>Background:</b> lots of text here.</div>';
     $this->assertEqual('<div><b>Background:</b> lots of text here.</div>', $this->etd_html->abstract);
  
-    
+    // quote entities (also ticket:102)
+    $this->etd_html->abstract = 'I have some &quot;text&quot; in quotes.';
+    $this->assertEqual('I have some "text" in quotes.', $this->etd_html->abstract);
+ 
+  
+
+
   }
   
 }
