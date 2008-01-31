@@ -1,6 +1,6 @@
 <?php
 
-include("notifier.php");
+include("Emory/notifier.php");
 
 class submission_notifier extends notifier {
 
@@ -28,3 +28,14 @@ class submission_notifier extends notifier {
   }
 }
 
+/* notes
+   make this an etd_notifier
+  
+   add functions for the different emails that need to get sent-- they
+   would set subject, template
+
+   $notify = new etd_notifier();
+   $notify->send_submission();
+   
+
+ */
