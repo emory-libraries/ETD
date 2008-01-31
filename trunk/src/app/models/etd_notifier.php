@@ -2,7 +2,7 @@
 
 include("Emory/notifier.php");
 
-class submission_notifier extends notifier {
+class etd_notifier extends notifier {
 
   public function __construct(etd $etd) {
     parent::__construct();
@@ -11,8 +11,8 @@ class submission_notifier extends notifier {
     $this->view->environment = $environment->mode;
     $config = Zend_Registry::get('config');
     
-    $this->mail->setSubject("Your ETD Has Been Successfully Submitted")
-      ->setFrom($config->email->etd->address, $config->email->etd->name);
+    $this->mail->setFrom($config->email->etd->address,
+			 $config->email->etd->name);
     if ($environment->mode != "production") {
       // use a configured debug email address when in development mode
       $this->mail->addTo($config->email->test);
@@ -22,9 +22,14 @@ class submission_notifier extends notifier {
     // 		    that would be used in production?...
 
     // fixme: need a way to look up author & committee email addresses (from ESD perhaps?)
-
     $this->view->etd = $etd;
+
+  }
+
+  public function submission() {
+    $this->mail->setSubject("Your ETD Has Been Successfully Submitted");
     $this->setBodyHtml($this->view->render("email/submission.phtml"));
+    $this->send();
   }
 }
 
