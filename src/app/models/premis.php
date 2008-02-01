@@ -54,8 +54,8 @@ class premis extends foxmlDatastreamAbstract  {
       // map new dom node to xml object
       $event = new premis_event($eventnode, $this->xpath);
       
-      // load to in-memory map so it can be accessed normally 
-      $this->map{"event"}[] = $event;
+      // update in-memory map so it can be accessed normally 
+      $this->update();
     }
 
     // calculate new identifier based on current object identifier and number of events

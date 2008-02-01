@@ -37,7 +37,10 @@ class etd_mods extends mods {
 
     $this->xmlconfig["embargo_request"] = array("xpath" => "mods:note[@type='admin'][@ID='embargo']");
     $this->xmlconfig["embargo"] = array("xpath" => "mods:accessCondition[@type='restrictionOnAccess']");
+    $this->xmlconfig["embargo_end"] = array("xpath" => "mods:originInfo/mods:dateOther[@type='embargoedUntil']");
 
+    // FIXME: may need mods_date class to set keyDate, start/end, qualifier attributes
+    
     $this->xmlconfig["rights"] = array("xpath" => "mods:accessCondition[@type='useAndReproduction']");
 
     $this->xmlconfig["ark"] = array("xpath" => "mods:identifier[@type='ark']");
@@ -50,6 +53,8 @@ class etd_mods extends mods {
     switch ($name) {
     case "pages":
       $value .= " p."; break;	// value should be passed in as a number (check incoming value?)
+    case "embargo":
+      $value = "Embargoed for " . $value;
     } 
     parent::__set($name, $value);
   }
@@ -62,10 +67,14 @@ class etd_mods extends mods {
       break;
     case "copyright":
       $value = str_replace("applying for copyright? ", "", $value);
+      $value = str_replace("applying for copyright?", "", $value);
       break;
     case "embargo_request":
       $value = str_replace("embargo requested? ", "", $value);
+      $value = str_replace("embargo requested?", "", $value);
       break;
+    case "embargo":
+      $value = str_replace("Embargoed for ", "", $value);
     }
     return $value;
   }
@@ -108,8 +117,9 @@ class etd_mods extends mods {
       // if no context node is found, new node will be appended at end of xml document
       $this->dom->documentElement->appendChild($subject);
     }
-    
-    $this->map{$mapname}[] = new etdmods_subject($subject, $this->xpath);
+
+    // update in-memory map
+    $this->update();
   }
 
   
@@ -126,21 +136,23 @@ class etd_mods extends mods {
       }
       $i++;
     }
-    for (; isset($this->researchfields[$i]); $i++) {
+    // remove any research fields beyond the set of new ones
+    while (isset($this->researchfields[$i]) ) {
       $this->removeResearchField($this->researchfields[$i]->id);
     }
   }
 
   public function removeResearchField($id) {
     // remove the node from the xml dom
-    $nodelist = $this->xpath->query("//mods:subject[@authority='proquestresearchfield'][@ID = '$id']");
+    // NOTE: takes numerical id as parameter, prepends 'id' (needed for valid id)
+    $nodelist = $this->xpath->query("//mods:subject[@authority='proquestresearchfield'][@ID = 'id$id']");
     for ($i = 0; $i < $nodelist->length; $i++) {
       $node = $nodelist->item($i);      
       $node->parentNode->removeChild($node);
     }
 
-    // remove from the in-memory array
-    array_splice($this->map{"researchfields"}, $this->researchFieldIndex($id));
+    // update in-memory array so it will reflect the change
+    $this->update();
   }
 
   // find the index for a research field by id
@@ -201,7 +213,7 @@ class etd_mods extends mods {
     // fixme: check if there are too many? app should not let them set too many
 
     // author's department 
-    if ($this->department == "") $missing[] = "department";
+    if ($this->department == "") $missing[] = "program";
 
     // abstract
     if ($this->abstract == "")   $missing[] = "abstract";
@@ -213,6 +225,7 @@ class etd_mods extends mods {
     // other required fields?
     // genre/etd type (?)
     // degree
+    // keywords?
     
     return $missing;
   }
