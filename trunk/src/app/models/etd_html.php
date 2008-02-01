@@ -104,7 +104,7 @@ class etd_html extends foxmlDatastreamAbstract {
     $search = array("&lt;", "&gt;");
     $replace = array("<", ">");
     $string = str_replace($search, $replace, $string);
-    return preg_replace("|</?[a-z]>|", "", $string);
+    return preg_replace("|</?[a-z]+>|", "", $string);
   }
 
 
