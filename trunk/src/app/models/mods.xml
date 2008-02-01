@@ -93,9 +93,7 @@
 		object in context = page in etd site (with link to pdf) -->
   </mods:location>
   <mods:accessCondition type="useAndReproduction"/>
-  <mods:accessCondition type="restrictionOnAccess">
-     statement about embargo goes here
-  </mods:accessCondition>
+  <mods:accessCondition type="restrictionOnAccess">Embargoed for </mods:accessCondition>
 
   <mods:relatedItem type="host">
     <mods:titleInfo>
