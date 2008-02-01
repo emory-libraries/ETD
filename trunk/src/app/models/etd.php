@@ -246,7 +246,11 @@ class etd extends foxml implements etdInterface, Zend_Acl_Resource_Interface {
     foreach($etdlist->results->result as $result) {
       $pid = (string)$result->etd["uri"];
       $pid = str_replace("info:fedora/", "", $pid);
-      $etds[] = new etd($pid);
+      try {
+	$etds[] = new etd($pid);
+      } catch (FedoraObjectNotFound $e) {
+	trigger_error("Record not found: $pid", E_USER_WARNING);
+      }
     }
     return $etds;
   }
