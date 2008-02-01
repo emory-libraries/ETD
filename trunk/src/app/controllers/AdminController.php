@@ -2,6 +2,7 @@
 /** Zend_Controller_Action */
 /* Require models */
 require_once("models/etd.php");
+require_once("models/etd_notifier.php");
 
 class AdminController extends Zend_Controller_Action {
 
@@ -37,6 +38,8 @@ class AdminController extends Zend_Controller_Action {
      $this->view->etds = etd::findbyStatus($status);
    }
 
+   /* review workflow (review, accept, requestChanges) */
+
    public function reviewAction() {
      $etd = new etd($this->_getParam("pid"));
      $this->view->etd = $etd;
@@ -71,7 +74,7 @@ class AdminController extends Zend_Controller_Action {
 						 "action" => "summary"), "", true); 
    }
 
-   public function requestChangesAction() {
+   public function requestchangesAction() {
      $etd = new etd($this->_getParam("pid"));
      $newstatus = "draft";
      $etd->rels_ext->status = $newstatus;
@@ -94,6 +97,58 @@ class AdminController extends Zend_Controller_Action {
      $this->view->messages = $this->_helper->flashMessenger->getCurrentMessages();
    }
 
+   /* approve workflow  (approve, doapprove)*/
+
+   public function approveAction() {
+     $etd = new etd($this->_getParam("pid"));
+
+     $this->view->etd = $etd;
+     $this->view->title = "Approve ETD";
+   }
+
+   public function doapproveAction() {
+     $etd = new etd($this->_getParam("pid"));
+     $embargo = $this->_getParam("embargo");	// duration
+
+     // set status to approved
+     $newstatus = "approved";
+     $etd->rels_ext->status = $newstatus;
+     $etd->mods->embargo = $embargo;	// save embargo duration
+
+     // log event in record history (fixme: better way of getting user)
+     $auth = Zend_Auth::getInstance();
+     if ($auth->hasIdentity()) $identity = $auth->getIdentity();
+     // log record approval
+     $etd->premis->addEvent("status change",
+			    "Record approved by Graduate School",	// by whom ?
+			    "success",  array("netid", $identity));
+     // log embargo duration
+     // FIXME: should this not be logged if embargo is 0 days ?
+     $etd->premis->addEvent("admin",
+			    "Access restriction of $embargo approved",	// by whom ?
+			    "success",  array("netid", $identity));
+
+     // send approval email & log that it was sent
+     $notify = new etd_notifier($etd);
+     $notify->approval();		// any way to do error checking? (doesn't seem to be)
+     $etd->premis->addEvent("notice",
+			    "Approval Notification sent by ETD system",
+			    "success",  array("software", "etd system"));
+     $result = $etd->save("approved");
+     
+     $this->_helper->flashMessenger->addMessage("Record approved with an embargo of $embargo; saved at $result");
+     // user information also, for email address ?
+
+     $this->_helper->redirector->gotoRoute(array("controller" => "admin",
+     						 "action" => "summary"), "", true); 
+
+   }
+    
+
+   
+
+   /* unpublish workflow (unpublish, doUnpublish) */
+   
    public function unpublishAction() {
      $etd = new etd($this->_getParam("pid"));
 
