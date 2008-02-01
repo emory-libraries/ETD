@@ -93,6 +93,36 @@ class AdminController extends Zend_Controller_Action {
      $this->view->title = "Request changes to record information";
      $this->view->messages = $this->_helper->flashMessenger->getCurrentMessages();
    }
+
+   public function unpublishAction() {
+     $etd = new etd($this->_getParam("pid"));
+
+     $this->view->etd = $etd;
+     $this->view->title = "Unpublish ETD";
+   }
+
+   public function doUnpublishAction() {
+     $etd = new etd($this->_getParam("pid"));
+     $reason = $this->_getParam("reason", "");
+     
+     $newstatus = "draft";
+     $etd->rels_ext->status = $newstatus;
+
+     // log event in record history (fixme: better way of getting user)
+     $auth = Zend_Auth::getInstance();
+     if ($auth->hasIdentity()) $identity = $auth->getIdentity();
+     $etd->premis->addEvent("status change",
+			    "Unpublished - $reason",	// by whom ?
+			    "success",  array("netid", $identity));
+     $result = $etd->save("unpublished");
+     
+     $this->_helper->flashMessenger->addMessage("Record unpublished and status changed to <b>$newstatus</b>; saved at $result");
+     // user information also, for email address ?
+
+     $this->_helper->redirector->gotoRoute(array("controller" => "admin",
+						 "action" => "summary"), "", true); 
+     
+   }
    
    
    public function createAction() {
