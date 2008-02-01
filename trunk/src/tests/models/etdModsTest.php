@@ -103,6 +103,25 @@ class TestEtdMods extends UnitTestCase {
     $this->assertPattern('|<mods:extent>133 p.</mods:extent>|', $this->mods->saveXML());
     
   }
+
+  function testAddCommittee() {
+    $count = count($this->mods->committee);
+    $this->mods->addCommitteeMember("Duck", "Donald");
+    $this->assertEqual($count + 1, count($this->mods->committee));
+    $this->assertEqual("Duck", $this->mods->committee[$count]->last);
+    $this->assertEqual("Donald", $this->mods->committee[$count]->first);
+    $this->assertEqual("Duck, Donald", $this->mods->committee[$count]->full);
+    // should probably check xml with regexp, but mods:name is complicated and it seems to be working...
+  }
+
+  function testAddNonemoryCommittee() {
+    $count = count($this->mods->nonemory_committee);
+    $this->mods->addCommitteeMember("Duck", "Daisy", false, "Disney World");
+    $this->assertEqual($count + 1, count($this->mods->nonemory_committee));
+    $this->assertEqual("Duck", $this->mods->nonemory_committee[$count]->last);
+    $this->assertEqual("Daisy", $this->mods->nonemory_committee[$count]->first);
+    $this->assertEqual("Duck, Daisy", $this->mods->nonemory_committee[$count]->full);
+  }
   
 
 }

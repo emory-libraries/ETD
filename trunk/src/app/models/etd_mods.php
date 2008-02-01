@@ -122,6 +122,40 @@ class etd_mods extends mods {
     $this->update();
   }
 
+  public function addCommitteeMember($lastname, $firstname, $emory = true, $affiliation = null) {
+    if ($emory)  {
+      $type = "Emory Committee Member";
+      $newnode = $this->map['committee'][0]->domnode->cloneNode(true);
+    } else {
+      // fixme: what if there are no nonemory_committee nodes?
+      // could easily clone emory committee and set description
+      $type = "Non-Emory Committee Member";
+      $newnode = $this->map['nonemory_committee'][0]->domnode->cloneNode(true);
+    }
+
+    // map new domnode to xml object
+    $name = new mods_name($newnode, $this->xpath);
+    $name->first = $firstname;
+    $name->last = $lastname;
+    $name->full = "$lastname, $firstname";
+    if (!$emory && !is_null($affiliation)) {
+      $name->affiliation = $affiliation;
+    }
+    
+    // find first node following current type of subjects and append before
+    $nodeList = $this->xpath->query("//mods:name[mods:description='$type'][last()]/following-sibling::*");
+
+    // if a context node was found, insert the new node before it
+    if ($nodeList->length) {
+      $contextnode = $nodeList->item(0);
+      $newnode = $contextnode->parentNode->insertBefore($newnode, $contextnode);
+    } else {
+      print "error: couldn't find context node...<br/>\n";	// this shouldn't happen.... ?
+    }
+
+    $this->update();
+  }
+
   
   // set all research fields from an array, over writing any currently set fields
   // and adding new fields as necessary
