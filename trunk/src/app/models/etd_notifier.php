@@ -42,7 +42,6 @@ class etd_notifier extends notifier {
 
   public function publication() {
     // NOT default recipients - send to author's permanent address
-    Subject: 
     $this->mail->setSubject("Your ETD Has Been Published in the Emory Repository");
     $this->setBodyHtml($this->view->render("email/publication.phtml"));
     $this->send();
