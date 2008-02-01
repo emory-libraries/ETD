@@ -38,6 +38,12 @@ class TestEtdHtml extends UnitTestCase {
 		       etd_html::cleanTags("first line<br/> second line", true));
   }
 
+  function testRemoveTags() {
+    $this->assertEqual("content in divs",
+		       etd_html::removeTags("<div>content in divs</div>", true));
+    
+  }
+
   function testFormattedTOCtoText() {
     // convert html-formatted table of contents into text delimited toc for mods/marc
     
