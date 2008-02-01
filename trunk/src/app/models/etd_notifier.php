@@ -27,8 +27,16 @@ class etd_notifier extends notifier {
   }
 
   public function submission() {
+    // default recipients ?
     $this->mail->setSubject("Your ETD Has Been Successfully Submitted");
     $this->setBodyHtml($this->view->render("email/submission.phtml"));
+    $this->send();
+  }
+
+  public function approval() {
+    // default recipients ?
+    $this->mail->setSubject("Your ETD Has Been Approved By the Graduate School");
+    $this->setBodyHtml($this->view->render("email/approval.phtml"));
     $this->send();
   }
 }
