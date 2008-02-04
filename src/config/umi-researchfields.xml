@@ -696,7 +696,7 @@
     <skos:member rdf:resource="#health-envsci"/>
     <skos:member rdf:resource="#physsci-applied"/>
     <skos:member rdf:resource="#physsci-pure"/>
-    <skos:member rdf:resource="#pyschology"/>
+    <skos:member rdf:resource="#psychology"/>
   </skos:Collection>
 
   <skos:Collection rdf:about="#biosci">
