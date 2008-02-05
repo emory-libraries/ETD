@@ -13,6 +13,8 @@ class ModelGroupTest extends GroupTest {
 
     $this->addTestFile('models/userTest.php');
     $this->addTestFile('models/madsTest.php');
+
+    $this->addTestFile('models/skosCollectionTest.php');
   }
 }
 
