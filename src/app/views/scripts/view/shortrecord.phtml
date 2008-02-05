@@ -11,7 +11,9 @@ current role: <?= $this->role ?><br/>
     <? if ($this->acl->isAllowed($this->role, $this->etd, "approve")): ?>
 <a class="action" href="<?= $this->url(array('controller' => 'admin',
 		'action' => 'approve', 'pid' => $this->etd->pid), '', true) ?>">approve</a> <? endif ?>
-   
+    <? if ($this->acl->isAllowed($this->role, $this->etd, "unpublish")): ?>
+<a class="action" href="<?= $this->url(array('controller' => 'admin',
+		'action' => 'unpublish', 'pid' => $this->etd->pid), '', true) ?>">unpublish</a> <? endif ?>
   <b><a href="<?= $this->url(array("controller" => "view",
     "action" => "record", "pid" => $this->etd->pid()), "", true)?>"><?= $this->etd->title() ?></a></b> <br/>
   <?=  $this->render('view/summary.phtml'); ?>
