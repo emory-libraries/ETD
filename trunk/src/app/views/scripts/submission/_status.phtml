@@ -8,9 +8,9 @@ $unknown = '<font color="blue">?</font>';
 <h2>submission status</h2>
  <? if ($this->current_user): ?>
    <? if ($this->current_user->readyToSubmit()): ?>
-	<?= $ok ?> user information<br/>
+	<?= $ok ?> contact information<br/>
    <? else: ?>
-      	<?= $incomplete ?> user information<br/>
+      	<?= $incomplete ?> contact information<br/>
         <ul id="user_missing" class="missing">
           <? foreach ($this->current_user->checkRequired() as $missing): ?>
              <li><?= $missing ?></li>
@@ -18,7 +18,7 @@ $unknown = '<font color="blue">?</font>';
         </ul>
    <? endif ?>
  <? else: ?>
-    <?= $unknown ?> user information<br/>
+    <?= $unknown ?> contact information<br/>
  <? endif ?>	  
 
   <? if ($etd->mods->readyToSubmit()): ?>
