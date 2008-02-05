@@ -121,7 +121,20 @@ class TestEtdMods extends UnitTestCase {
     $this->assertEqual("Duck", $this->mods->nonemory_committee[$count]->last);
     $this->assertEqual("Daisy", $this->mods->nonemory_committee[$count]->first);
     $this->assertEqual("Duck, Daisy", $this->mods->nonemory_committee[$count]->full);
+
+    // add when there are none already in the xml
+    $xml = new DOMDocument();
+    $xml->load("fixtures/mods2.xml");
+    $mods = new etd_mods($xml);
+
+    $mods->addCommitteeMember("Duck", "Daisy", false, "Disney World");
+    $this->assertEqual(1, count($mods->nonemory_committee));
+    $this->assertEqual("Duck", $mods->nonemory_committee[0]->last);
+    $this->assertEqual("Daisy", $mods->nonemory_committee[0]->first);
+    $this->assertEqual("Duck, Daisy", $mods->nonemory_committee[0]->full);
+
   }
+
   
 
 }
