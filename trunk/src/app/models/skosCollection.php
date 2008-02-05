@@ -11,6 +11,9 @@ class collectionHierarchy extends XmlObject {
   public $id;
   protected $members_by_id;
 
+
+  protected $index_field;
+
   // reference to parent collection (if not at top level)
   public $parent;
   
@@ -35,9 +38,9 @@ class collectionHierarchy extends XmlObject {
       }
     }
 	  
-    // if this collection has a parent initialize parent as another program object
+    // if this collection has a parent initialize parent as another collection object
     if (isset($this->parent_id)) {
-      $this->parent = new programs($this->dom, (string)$this->parent_id);
+      $this->parent = new collectionHierarchy($this->dom, (string)$this->parent_id);
     } else {
       $this->parent = null;
     }
@@ -51,10 +54,10 @@ class collectionHierarchy extends XmlObject {
     switch($name) {
     case "label":
       return $this->collection->label;
-      break;
     case "members":
       return $this->collection->members;
-      break;
+    case "count":
+      return $this->collection->count;
     default:
       return parent::__get($name);
     }
@@ -71,6 +74,7 @@ class collectionHierarchy extends XmlObject {
     return $fields;
   }
 
+  // find the label for a matching word (may need improvement) - used to map departments to our hierarchy
   public function findLabel($string) {
     $xpath = "//rdfs:label[. = '$string' or contains(., '$string')]";
     $nodeList = $this->xpath->query($xpath, $this->domnode);
@@ -94,6 +98,30 @@ class collectionHierarchy extends XmlObject {
    
   }
 
+
+  
+  public function findEtds() {
+
+     $solr = Zend_Registry::get('solr');
+     // get all fields of this collection and its members (all the way down)
+     $all_fields = $this->getAllFields();
+     
+     // construct a query that will find any of these
+     $queryparts = array();
+     foreach ($all_fields as $field)
+       array_push($queryparts, $this->index_field .":(" . urlencode($field) . ")");
+
+     $query = join($queryparts, "+OR+");
+     $results = $solr->query($query, null, null, -1);
+     $totals = $results['facet_counts']['facet_fields'][$this->index_field];
+
+     // sum up totals recursively
+     $this->collection->calculateTotal($totals);
+
+     return $results;
+  }
+
+  
 }
 
 
@@ -101,7 +129,8 @@ class collectionHierarchy extends XmlObject {
 
 class skosCollection extends XmlObject {
   protected $members_by_id;
-    
+  public $count;
+  
   public function __construct($dom, $xpath) {
     $id = $dom->getAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "about");
     $config = $this->config(array(
@@ -137,11 +166,23 @@ class skosCollection extends XmlObject {
   }
 
 
+  public function calculateTotal($totals) {
+    $sum = isset($totals[$this->label]) ? $totals[$this->label] : 0;
+    //    print "DEBUG: calculating total for " . $this->label . ", starts as $sum<br/>\n";
+    foreach ($this->members as $mem) {
+      //      print "DEBUG: adding " . $mem->label . "<br/>\n";
+      $sum += $mem->calculateTotal($totals);
+    }
+    $this->count = $sum;
+    //    print "DEBUG: total for {$this->label} is {$this->count}<br/>\n";
+    return $this->count;
+  }
+
   
 }
 
 class skosMember extends XmlObject {
-  
+
   public function __construct($dom, $xpath) {
     $id = $dom->getAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "resource");
     //    print "in skosMember constructor, id is $id\n";
@@ -171,6 +212,10 @@ class skosMember extends XmlObject {
       foreach ($this->collection->members as $member)
 	$fields = array_merge($fields, $member->getAllFields());
     return $fields;
+  }
+
+  public function calculateTotal($totals) {
+    return $this->collection->calculateTotal($totals);
   }
 
 }

@@ -1,22 +1,28 @@
 <p class="browse_heading">
    <?=  $this->render('browse/_collection_breadcrumb.phtml'); ?>
 </p>
-
   
     <? if ($this->coll != '') $linkmode = "subcoll"; else $linkmode = "coll"; ?>
 <? foreach ($this->collection->members as $member): ?>
    <? $link_id = str_replace("#", '', $member->id);?>
 
   <p><a href="<?= $this->url(array('coll' => $link_id)) ?>"><?= $member->label ?></a>
-   <?/* category totals: display if non-zero */?>
-  <? if (isset($this->program_totals[$member->label]) && $this->program_totals[$member->label]): ?>
-     (<?= $this->program_totals[$member->label]?>)
+   <?/* category totals: only display if non-zero */?>
+  <? if ($member->count): ?>
+    (<?= $member->count ?>)
   <? endif ?>
    </p>
 <? endforeach ?>
-
+<? if (count($this->etds) && count($this->collection->members)) : ?>
+     <hr/> <? /* divider if there are both records and categories listed */ ?>
+<? endif ?>
+       
 <? /* don't show etd records at top level */ ?>
-<? if ($this->collection->label != "Programs"): ?>
+<? if ($this->collection->parent): ?>
   <?=  $this->render('browse/_facets.phtml'); ?>
-  <?=  $this->render('browse/list.phtml'); ?>
+
+  <? if (count($this->etds)): ?>
+   <?=  $this->render('browse/list.phtml'); ?>
+  <? endif ?>
+	 
 <? endif ?>  
