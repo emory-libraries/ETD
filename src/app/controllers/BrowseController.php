@@ -217,50 +217,6 @@ class BrowseController extends Zend_Controller_Action {
 
 
 
-     public function oldprogramsAction() {
-     
-     $solr = Zend_Registry::get('solr');
-     // get all fields of this collection and its members (all the way down)
-     $all_fields = $programs->getAllFields();
-     // construct a query that will find any of these
-     $queryparts = array();
-     foreach ($all_fields as $field)
-       array_push($queryparts, "program:(" . urlencode($field) . ")");
-
-     $query = join($queryparts, "+OR+");
-     
-     $results = $solr->query($query);
-     
-     $this->view->count = $results['response']['numFound'];
-
-     // sum up totals (FIXME: only goes one level down currently; make recursive?)
-     $totals = $results['facet_counts']['facet_fields']['program'];
-     foreach ($programs->members as $mem) {
-       if (!isset($totals[$mem->label])) {
-	 $totals[$mem->label] = 0;
-	 foreach ($mem->members as $child) {
-	   if (isset($totals[$child->label]))
-	     $totals[$mem->label] += $totals[$child->label];
-	 }
-       }
-     }
-	      
-     $this->view->program_totals = $totals;
-     $this->view->results = $results;
-     
-     $etds = array();
-     foreach ($results['response']['docs'] as $result_doc) {
-       array_push($etds, new solrEtd($result_doc));
-     }
-
-     $this->view->etds = $etds;
-     $this->view->facets = $results['facet_counts']['facet_fields'];
-
-   }
-
-
-
-
    // list a user's ETDs
    public function myAction() {
      $auth = Zend_Auth::getInstance();
