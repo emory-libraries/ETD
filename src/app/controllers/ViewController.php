@@ -66,8 +66,15 @@ class ViewController extends Zend_Controller_Action {
      elseif ($type == "etdfile")
        $etd = new etd_file($pid);
 
-     
      $datastream = $this->_getParam("datastream");
+     $mode = $this->_getParam("mode");
+
+     /* xforms needs to have a non-emory committee name present here.
+        If not used, it will not be submitted or saved, but it should be added here
+	for editing in case a new non-emory committee member needs to be added.  */
+     if (($datastream == "mods") && ($mode == "edit") && !$etd->mods->nonemory_committee) {
+       $etd->mods->addCommitteeMember("", "", false, "");
+     }
      
      if (isset($etd->$datastream)) {	// check that it is the correct type, also?
        $xml = $etd->$datastream->saveXML();
@@ -77,7 +84,6 @@ class ViewController extends Zend_Controller_Action {
        $this->_helper->viewRenderer->setNoRender(true);
        
        $this->getResponse()->setHeader('Content-Type', "text/xml")->setBody($xml);
-       
      } else {
        $this->_helper->flashMessenger("Error: invalid xml datastream");
        // do something with this message?

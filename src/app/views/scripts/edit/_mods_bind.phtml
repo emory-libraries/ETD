@@ -15,8 +15,8 @@
    calculate="concat(../mods:namePart[@type='family'], ', ', ../mods:namePart[@type='given'])"/>
 
    <!-- FIXME: causes an error if there is no matching nodeset -->
-<!--<xf:bind nodeset="mods:name[mods:description = 'Non-Emory Committee Member']"
-   relevant="instance('tmp-data')/non-emory-faculty = 'true'"/>   -->
+<xf:bind nodeset="mods:name[mods:description = 'Non-Emory Committee Member']"
+   relevant="instance('tmp-data')/non-emory-faculty = 'true'"/>  
 
 
    
