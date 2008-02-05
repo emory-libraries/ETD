@@ -15,6 +15,8 @@ class etd_mods extends mods {
     $this->xmlconfig["author"] = array("xpath" => "mods:name[mods:role/mods:roleTerm = 'author']",
 				       "class_name" => "mods_name");
     $this->xmlconfig["department"] = array("xpath" => "mods:name[mods:role/mods:roleTerm = 'author']/mods:affiliation");
+    $this->xmlconfig["subfield"] = array("xpath" => "mods:extension/etd:degree/etd:discipline");
+    
     $this->xmlconfig["advisor"] = array("xpath" => "mods:name[mods:role/mods:roleTerm = 'Thesis Advisor']",
 					"class_name" => "mods_name");
     // can't seem to filter out empty committee members added by Fez...
@@ -130,7 +132,15 @@ class etd_mods extends mods {
       // fixme: what if there are no nonemory_committee nodes?
       // could easily clone emory committee and set description
       $type = "Non-Emory Committee Member";
-      $newnode = $this->map['nonemory_committee'][0]->domnode->cloneNode(true);
+      if (isset($this->map['nonemory_committee'][0])) {
+	$no_nonemory = false;
+	$newnode = $this->map['nonemory_committee'][0]->domnode->cloneNode(true);
+      } else {
+	// xml does not include a non-emory committee member - copy emory and change accordingly
+	$no_nonemory = true;
+	$newnode = $this->map['committee'][0]->domnode->cloneNode(true);
+	$newnode->appendChild($this->dom->createElementNS($this->namespaceList["mods"], "mods:affiliation"));
+      }
     }
 
     // map new domnode to xml object
@@ -140,6 +150,7 @@ class etd_mods extends mods {
     $name->full = "$lastname, $firstname";
     if (!$emory && !is_null($affiliation)) {
       $name->affiliation = $affiliation;
+      if ($no_nonemory) $name->description = $type;
     }
     
     // find first node following current type of subjects and append before
@@ -149,7 +160,15 @@ class etd_mods extends mods {
     if ($nodeList->length) {
       $contextnode = $nodeList->item(0);
       $newnode = $contextnode->parentNode->insertBefore($newnode, $contextnode);
-    } else {
+    } elseif (!$emory) {
+      // if adding a non-emory committee member and there are none in the xml,
+      // then add after last emory committee membe
+      $nodeList = $this->xpath->query("//mods:name[mods:description='Emory Committee Member'][last()]/following-sibling::*");
+      if ($nodeList->length) {
+	$contextnode = $nodeList->item(0);
+	$newnode = $contextnode->parentNode->insertBefore($newnode, $contextnode);
+      }
+    }else {
       print "error: couldn't find context node...<br/>\n";	// this shouldn't happen.... ?
     }
 
