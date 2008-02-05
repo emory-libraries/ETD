@@ -31,7 +31,8 @@ class EditController extends Zend_Controller_Action {
     //    $this->view->xforms_model_xml = $etd->mods->saveXML();
     // link to xml rather than embedding directly in the page
     $this->view->xforms_model_uri = $this->view->url(array("controller" => "view",
-							   "action" => "mods", "pid" => $pid));
+							   "action" => "mods", "pid" => $pid,
+							   "mode" => "edit"));
   }
 
   public function programAction() {
