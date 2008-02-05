@@ -13,6 +13,9 @@ class solrEtd implements etdInterface {
     // note that facet fields will be ignored here
   }
 
+
+  // fixme: handle fields that could be empty?
+
   public function pid() { return $this->PID; }
   public function status() { return $this->status; }
   public function title() { return $this->title; }
@@ -32,6 +35,17 @@ class solrEtd implements etdInterface {
   public function keywords() { return  $this->keyword; }	//array
   public function researchfields() { return $this->subject; } 	//array
 
+
+  // for Zend ACL Resource
+  public function getResourceId() {
+    if (isset($this->status) && $this->status != "") {
+      return $this->status() . " etd";
+    } else {
+      return "etd";
+    }
+  }
+
+  
 }
 
 ?>

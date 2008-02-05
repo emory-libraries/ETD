@@ -11,7 +11,7 @@ require_once("premis.php");
 require_once("etdfile.php");
 
 // etd object for etd08
-class etd extends foxml implements etdInterface, Zend_Acl_Resource_Interface {
+class etd extends foxml implements etdInterface {
 
   // associated files
   public $pdfs;
