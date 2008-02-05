@@ -11,7 +11,8 @@
   xmlns:rel="info:fedora/fedora-system:def/relations-external#"
   xmlns:skos="http://www.w3.org/2004/02/skos/core#"
   xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
-  exclude-result-prefixes="exts foxml dc oai_dc mods rdf rel rdfs skos">
+  xmlns:etd="http://www.ndltd.org/standards/metadata/etdms/1.0/"
+  exclude-result-prefixes="exts foxml dc oai_dc mods rdf rel rdfs skos etd">
 
   <xsl:output method="xml" indent="yes" encoding="UTF-8"/>
 
@@ -181,7 +182,10 @@
                 <xsl:apply-templates select="mods:abstract"/>
                 <xsl:apply-templates select="mods:tableOfContents"/>
                 <xsl:apply-templates select="mods:note"/>
+                <xsl:apply-templates select="mods:physicalDescription/mods:extent"/>
                 <xsl:apply-templates select="mods:part/mods:extent"/>
+
+                <xsl:apply-templates select="mods:extension/etd:degree/etd:discipline"/>
 
               </xsl:template>
 
@@ -421,6 +425,8 @@
           </xsl:if>
         </xsl:template>
 
+
+        <!-- OLD place where page count was stored -->
         <xsl:template match="mods:extent[@unit = 'pages']">
           <xsl:if test=". != ''">	<!-- ignore when blank -->
           <IndexField index="UN_TOKENIZED" store="YES" termVector="YES">
@@ -429,6 +435,25 @@
             <xsl:value-of select="format-number(mods:total, '00000')"/>
           </IndexField>
         </xsl:if>
+      </xsl:template>
+
+      <!-- NEW page count location -->
+      <xsl:template match="mods:physicalDescription/mods:extent">
+          <xsl:if test=". != ''">	<!-- ignore when blank -->
+          <IndexField index="UN_TOKENIZED" store="YES" termVector="YES">
+            <xsl:attribute name="IFname">num_pages</xsl:attribute>
+            <!-- format with leading zeroes so a range-search will work -->
+            <xsl:value-of select="format-number(substring-before(., ' p.'), '00000')"/>
+          </IndexField>
+        </xsl:if>
+      </xsl:template>
+
+
+      <!-- departmental subfield; part of program facet -->
+      <xsl:template match="mods:extension/etd:degree/etd:discipline">
+        <IndexField index="UN_TOKENIZED" store="YES" termVector="YES" IFname="program">
+          <xsl:apply-templates/>
+        </IndexField>
       </xsl:template>
 
 
