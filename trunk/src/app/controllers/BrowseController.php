@@ -20,8 +20,78 @@ class BrowseController extends Zend_Controller_Action {
      $this->view->messages = $this->_helper->flashMessenger->getMessages();
    }
 
+   /* browse by author */
+   public function authorAction() {
+     $request = $this->getRequest();
+     $request->setParam("nametype", "author");
+     $this->_forward("name");
+   }
+   /* browse by committee member */
+   public function committeeAction() {
+     $request = $this->getRequest();
+     $request->setParam("nametype", "committee");
+     $this->_forward("name");
+     $this->view->browse_mode = "Committee Member";
+   }
 
-   // list of terms by field
+   /* browse by advisor */
+   /* (not actually public, but might be nice to have available...) */
+   public function advisorAction() {
+     $request = $this->getRequest();
+     $request->setParam("nametype", "advisor");
+     $this->_forward("name");
+     $this->view->browse_mode = "advisor";
+   }
+
+   /* handle common functionality for "name" fields (author, committee, advisor) */
+   public function nameAction() {
+     $request = $this->getRequest();
+     $type = $request->getParam("nametype");
+     $value = $request->getParam("value", null);
+
+     if (!isset($this->view->browse_mode))
+       $this->view->browse_mode = $type;
+
+     if (is_null($value)) {
+       $request->setParam("field", $type . "_lastnamefirst");
+       $this->_forward("browseField");
+     } else {
+       $request->setParam("field", $type);
+       $this->_forward("browse");
+     }
+   }
+
+   /* browse by year */
+   public function yearAction() {
+     $request = $this->getRequest();
+     $request->setParam("exact_type", "year");
+     $this->_forward("exact");
+   }
+
+   /* handle common functionality for exact fields */
+   public function exactAction() {
+     $request = $this->getRequest();
+     $type = $request->getParam("exact_type");
+     $value = $request->getParam("value", null);
+     $request->setParam("exact", true);
+     
+     if (!isset($this->view->browse_mode))
+       $this->view->browse_mode = $type;
+
+     if (is_null($value)) {
+       $request->setParam("field", $type);
+       $this->_forward("browseField");
+     } else {
+       $request->setParam("field", $type);
+       $this->_forward("browse");
+     }
+   }
+   
+
+
+   /* common functionality - get a list of terms by field
+      expects field parameter to be set 
+    */
    public function browseFieldAction() {
      $request = $this->getRequest();
      $field = $request->getParam("field");
@@ -31,74 +101,10 @@ class BrowseController extends Zend_Controller_Action {
      //     print "<pre>"; print_r($results); print "</pre>";
      $this->view->count = count($results['facet_counts']['facet_fields'][$field]);
      $this->view->values = $results['facet_counts']['facet_fields'][$field];
-     $this->view->title = "Browse " . $this->view->mode . "s";
+     $this->view->title = "Browse " . $this->view->browse_mode . "s";
    }
 
-   // FIXME: this doesn't really belong here... where should it go?
-   public function searchAction() {
-     $request = $this->getRequest();
-     $query = $request->getParam("q");
 
-     $solr = Zend_Registry::get('solr');
-     $results = $solr->query(urlencode($query));
-     
-     $this->view->count = $results['response']['numFound'];
-     $this->view->etds = $results['response']['docs'];
-     
-     $this->view->facets = $results['facet_counts']['facet_fields'];
-     
-     /*       $this->view->count = $results->response->numFound;
-      $this->view->etds = $results->response->docs;
-      $this->view->facets = $results->facet_counts->facet_fields;*/
-     
-     $this->view->results = $results;
-     $this->view->title = "Search"; 
-     $this->_helper->viewRenderer->setScriptAction("browse");
-   }
-
-   
-   public function __call($method, $args) {
-     $request = $this->getRequest();
-     $params = $request->getParams();
-     $action = $request->getParam("action");	// okay to use this instead of $method ?
-
-     // note: method is authorAction, etc. 
-     //     $name = str_replace("Action", "", $method);
-     
-     switch($action) {
-     case "author":
-     case "committee":
-     case "advisor":
-       if (isset($params['value']))
-	 $request->setParam("field", $action);
-       else
-	 $request->setParam("field", $action . "_lastnamefirst");
-       break;
-     case "status":	// hidden, not really implemented...
-     case "year":
-     case "program":	// temporary, should be a controlled vocab somehow
-       $request->setParam("field", $action);
-       $request->setParam("exact", true);
-       break;
-     case "researchfield":	// temporary, should be a controlled vocab somehow
-       if (isset($params['value']))
-	 $request->setParam("field", "subject");
-       else 
-	 $request->setParam("field", "subject_facet");
-     }
-     $this->view->browse_mode = $action;
-
-     if (isset($params['value'])) {
-       $this->_forward("browse");
-     } else {
-       $this->_forward("browseField");
-     }
-
-     /*     print "params are<pre>";
-     print_r($params);
-     print "</pre>";
-     $this->_helper->viewRenderer->setScriptAction("index");*/
-   }
 
    
    // list of records by field + value
@@ -142,28 +148,20 @@ class BrowseController extends Zend_Controller_Action {
      $this->view->etds = $etds;
      $this->view->facets = $results['facet_counts']['facet_fields'];
 
-     /*     $testetd = new solrEtd($results['response']['docs'][0]);
-     print "testing solrEtd\n";
-     print "title: " . $testetd->title . "<br>\n";
-     print "<pre>"; print_r($testetd); print "</pre>";
-     print "<pre>"; print_r($results['response']['docs'][0]); print "</pre>";*/
-
-     /*       $this->view->count = $results->response->numFound;
-      $this->view->etds = $results->response->docs;
-      $this->view->facets = $results->facet_counts->facet_fields;*/
-     
      $this->view->value = $_value;
      $this->view->results = $results;
-     
-     
      
      $this->view->title = "Browse by " . $field . " : " . $_value;
    }
 
 
+   /* browse hierarchies - programs, research fields */
+
+
+   /* browse by program */
    public function programsAction() {
      $skos = new DOMDocument();
-     $skos->load("../config/programs.xml");   // better place?
+     $skos->load("../config/programs.xml");   // better place, better way to initialize?
      $request = $this->getRequest();
      $coll = $request->getParam("coll", "programs");
 
@@ -172,6 +170,53 @@ class BrowseController extends Zend_Controller_Action {
 
      $this->view->browse_mode = "program"; // fixme: singular or plural?
 
+
+     $results = $programs->findEtds();
+
+     $this->view->count = $results['response']['numFound'];
+          $this->view->results = $results;
+     
+     $etds = array();
+     foreach ($results['response']['docs'] as $result_doc) {
+       array_push($etds, new solrEtd($result_doc));
+     }
+
+     $this->view->etds = $etds;
+     $this->view->facets = $results['facet_counts']['facet_fields'];
+   }
+
+   public function researchfieldsAction() {
+     $skos = new DOMDocument();
+     $skos->load("../config/umi-researchfields.xml");   // better place?
+     $request = $this->getRequest();
+     $coll = $request->getParam("coll", "researchfields");
+
+     $fields = new researchfields($skos, "#$coll");
+     $this->view->collection = $fields;
+
+     $results = $fields->findEtds();
+
+     $this->view->browse_mode = "researchfield"; 
+
+     $this->view->count = $results['response']['numFound'];
+          $this->view->results = $results;
+     
+     $etds = array();
+     foreach ($results['response']['docs'] as $result_doc) {
+       array_push($etds, new solrEtd($result_doc));
+     }
+     $this->view->etds = $etds;
+     $this->view->facets = $results['facet_counts']['facet_fields'];
+
+     // temporary - just for testing;
+     // should be able to combine code for programs & researchfields
+     $this->_helper->viewRenderer->setScriptAction("programs");
+   }
+
+
+
+     public function oldprogramsAction() {
+     
      $solr = Zend_Registry::get('solr');
      // get all fields of this collection and its members (all the way down)
      $all_fields = $programs->getAllFields();
@@ -205,31 +250,16 @@ class BrowseController extends Zend_Controller_Action {
      foreach ($results['response']['docs'] as $result_doc) {
        array_push($etds, new solrEtd($result_doc));
      }
-     //     $this->view->etds = $results['response']['docs'];
+
      $this->view->etds = $etds;
      $this->view->facets = $results['facet_counts']['facet_fields'];
 
    }
 
 
-   public function researchfieldsAction() {
-     $skos = new DOMDocument();
-     $skos->load("../config/umi-researchfields.xml");   // better place?
-     $request = $this->getRequest();
-     $coll = $request->getParam("coll", "researchfields");
-
-     $fields = new researchfields($skos, "#$coll");
-     $this->view->collection = $fields;
-
-     $this->view->browse_mode = "researchfield"; 
-
-     // temporary - just for testing;
-     // should be able to combine code for programs & researchfields
-     $this->_helper->viewRenderer->setScriptAction("programs");
-   }
 
 
-   // list a users ETDs
+   // list a user's ETDs
    public function myAction() {
      $auth = Zend_Auth::getInstance();
      if ($auth->hasIdentity()) {
@@ -238,6 +268,7 @@ class BrowseController extends Zend_Controller_Action {
        $this->view->etds = etd::findbyAuthor($identity);
       
      }
+     $this->view->title = "My ETDs";
      $this->_helper->viewRenderer->setScriptAction("list");
    }
 
@@ -248,7 +279,31 @@ class BrowseController extends Zend_Controller_Action {
      $this->_redirect("http://proquest.umi.com.proxy.library.emory.edu/pqdweb?RQT=305&SQ=LSCHNAME%28%7BEMORY+UNIVERSITY%7D%29&clientId=1917");
    }
 
-	public function indexAction() {	
+
+
+      // FIXME: this doesn't really belong here... where should it go?
+   public function searchAction() {
+     $request = $this->getRequest();
+     $query = $request->getParam("q");
+
+     $solr = Zend_Registry::get('solr');
+     $results = $solr->query(urlencode($query));
+     
+     $this->view->count = $results['response']['numFound'];
+     $this->view->etds = $results['response']['docs'];
+     
+     $this->view->facets = $results['facet_counts']['facet_fields'];
+     
+     /*       $this->view->count = $results->response->numFound;
+      $this->view->etds = $results->response->docs;
+      $this->view->facets = $results->facet_counts->facet_fields;*/
+     
+     $this->view->results = $results;
+     $this->view->title = "Search"; 
+     $this->_helper->viewRenderer->setScriptAction("browse");
+   }
+
+   public function indexAction() {	
 		$this->view->assign("title", "Welcome to %project%");
 	}
 
