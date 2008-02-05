@@ -277,6 +277,7 @@ class etd extends foxml implements etdInterface {
   public function title() { return $this->html->title; }	// how to know which?
   public function author() { return $this->mods->author->full; }
   public function program() { return $this->mods->department; }
+  public function subfield() { return isset($this->mods->subfield) ? $this->mods->subfield : ""; }
   public function advisor() { return $this->mods->advisor->full; }
 
   // note: doesn't handle non-emory committee members

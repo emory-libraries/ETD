@@ -21,6 +21,7 @@ class solrEtd implements etdInterface {
   public function title() { return $this->title; }
   public function author() { return $this->author; }
   public function program() { return $this->program; }
+  public function subfield() { return isset($this->subfield) ? $this->subfield : ""; }
   public function advisor() { return $this->advisor; }
   public function committee() { return $this->committee; }
 			  // how to handle non-emory committee?

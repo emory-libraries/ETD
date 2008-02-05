@@ -26,4 +26,6 @@
     <? foreach ($this->etd->keywords() as $keyword): ?>
          <?= $keyword ?>;
     <? endforeach ?><br/>
-  <b>Program:</b> <?= $this->etd->program() ?><br/>
+  <b>Program:</b> <?= $this->etd->program() ?>
+     <? if ($this->etd->subfield()): ?>(<?= $this->etd->subfield() ?>)<? endif ?>
+     <br/>
