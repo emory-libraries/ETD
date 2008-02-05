@@ -20,11 +20,24 @@ class ViewController extends Zend_Controller_Action {
 
    // view a full record
    public function recordAction() {
-     $etd = new etd($this->_getParam("pid"));	// fixme: error handling if pid is not specified?
+     // fixme: error handling if pid is not specified?
+     $pid = $this->_getParam("pid", null);
+     if (is_null($pid)) {
+       trigger_error("No record specified", E_USER_WARNING);
+       $this->_helper->viewRenderer->setNoRender(true);
+     } else {
+       try {
+	 $etd = new etd($this->_getParam("pid"));
+	 
+	 $this->view->etd = $etd;
+	 $this->view->title = $etd->label;
+	 $this->view->dc = $etd->dc;
+       } catch (FedoraObjectNotFound $e) {
+	 trigger_error("Record not found: $pid", E_USER_WARNING);
+	 $this->_helper->viewRenderer->setNoRender(true);
+       }
+     }
 
-     $this->view->etd = $etd;
-     $this->view->title = $etd->label;
-     $this->view->dc = $etd->dc;
 
      $this->view->messages = $this->_helper->flashMessenger->getMessages();
 
