@@ -183,6 +183,9 @@ class BrowseController extends Zend_Controller_Action {
 
      $this->view->etds = $etds;
      $this->view->facets = $results['facet_counts']['facet_fields'];
+     
+     // shared view script for programs & researchfields
+     $this->_helper->viewRenderer->setScriptAction("collection");
    }
 
    public function researchfieldsAction() {
@@ -208,9 +211,8 @@ class BrowseController extends Zend_Controller_Action {
      $this->view->etds = $etds;
      $this->view->facets = $results['facet_counts']['facet_fields'];
 
-     // temporary - just for testing;
-     // should be able to combine code for programs & researchfields
-     $this->_helper->viewRenderer->setScriptAction("programs");
+     // shared view script for programs & researchfields
+     $this->_helper->viewRenderer->setScriptAction("collection");
    }
 
 
