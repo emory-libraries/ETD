@@ -3,6 +3,7 @@
 
 /* Require models */
 require_once("models/etd.php");
+require_once("models/etd_notifier.php");
 require_once("helpers/ProcessPDF.php");
 
 
@@ -165,11 +166,31 @@ class SubmissionController extends Zend_Controller_Action {
     $etd = new etd($this->_getParam("pid"));
     $newstatus = "submitted";
     $etd->rels_ext->status = $newstatus;
-    // FIXME: also need a history log
+
+    // log event in record history (fixme: better way of getting user?)
+    $user = $this->view->current_user;
+    $etd->premis->addEvent("status change",
+			   "Submitted for Approval by " .
+			   $user->mads->name->first . " " . $user->mads->name->last,
+			   "success",  array("netid", $user->mads->netid));
+    
     $result = $etd->save("set status to '$newstatus'");
     // fixme: more student-readable message here
     $this->_helper->flashMessenger->addMessage("Record status changed to <b>$newstatus</b>; record saved at $result");
 
+    // ?
+
+    $notify = new etd_notifier($etd);
+    $notify->submission();
+
+    $etd->premis->addEvent("notice",
+			   "Submission Notification sent by ETD system",
+			   "success",  array("software", "etd system"));
+    $result = $etd->save("notification event");
+    
+    $this->_helper->flashMessenger->addMessage("Submission notification email sent");
+
+    
     // forward to .. my etds page ?
     $this->_helper->redirector->gotoRoute(array("controller" => "browse",
 						 "action" => "my"), "", true); 
