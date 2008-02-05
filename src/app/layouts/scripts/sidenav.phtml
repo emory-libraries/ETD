@@ -16,6 +16,17 @@ href="<?= $this->url(array("controller" => "submission", "action" => "start"), "
   <p><a href="<?= $this->url(array("controller" => "docs", "action" => "ip"), '', true); ?>">Intellectual Property</a></p>
 </div>
 
+
+<? /* fixme: how to tell if we are not on the index page? */ ?>
+<a href="<?= $this->url(array("controller" => "search"), '', true)?>">Search Repository</a>
+
+ <form name="search" method="post" action="<?= $this->url(array("controller" => "search",
+			"action" => "results"))?>"
+   <?= $this->formText("query"); ?>
+   <?= $this->formSubmit("Search", "Go >", array("class" => "submitlink")); ?>
+</form>
+
+
 Browse by:
 <? $this->browse_class = 'browse'; ?>
 <?=  $this->render('browse/_categories.phtml'); ?>
