@@ -11,8 +11,13 @@
       <level1/>
       <level2/>
       <department/>
-<? endif ?>	 
+<? endif ?>
+<? if ($this->program && $this->etd->mods->subfield): ?>
+    <subfield><?= $this->program->findIdbyLabel($this->etd->mods->subfield) ?></subfield>
+<? else: ?>
       <subfield/>
+<? endif ?>
+       <subfield-clear/>
     </program>
    </tmp>
 </xf:instance>
@@ -21,7 +26,9 @@
 <xf:bind nodeset="instance('tmp')/program/department" relevant="../level2 != ''"/>
 <xf:bind nodeset="instance('tmp')/program/subfield" relevant="../department != ''
 and instance('programs')/skos:Collection[@rdf:about = instance('tmp')/program/department]/skos:member"/>
-
+<xf:bind nodeset="instance('tmp')/program/subfield-clear" relevant="../subfield != ''"/>
+<xf:bind nodeset="mods:name[mods:role/mods:roleTerm='author']/mods:affiliation" required="true()"/>
+	 
 <xf:submission id="submission" action="<?= $this->url(array('action' => 'savemods',
 		'id' => $this->pid, "log" => "modified author affiliation - program"))?>"
 		method="post" />
