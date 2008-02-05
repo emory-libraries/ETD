@@ -2,7 +2,7 @@
 
   <? $urlopts = array("controller" => "browse"); ?>
   <li class="first">
-     <? $urlopts['action'] = "program"; ?>
+     <? $urlopts['action'] = "programs"; ?>
      <a  <? if ($this->browse_mode == "program"): ?> class="current" <? endif?>
 	href="<?= $this->url($urlopts, '', true)?>">Program</a>
   </li>
@@ -17,7 +17,7 @@
         href="<?= $this->url($urlopts, '', true)?>">Committee Member</a>
   </li>
   <li>
-     <? $urlopts['action'] = "researchfield"; ?>
+     <? $urlopts['action'] = "researchfields"; ?>
      <a <? if ($this->browse_mode == "researchfield"): ?> class="current" <? endif?>
         href="<?= $this->url($urlopts, '', true)?>">Research Field</a>
   </li>
