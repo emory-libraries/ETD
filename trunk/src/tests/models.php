@@ -10,11 +10,15 @@ class ModelGroupTest extends GroupTest {
     $this->addTestFile('models/etdModsTest.php');
     $this->addTestFile('models/FezEtdTest.php');
     $this->addTestFile('models/premisTest.php');
+    $this->addTestFile('models/policyTest.php');
 
+    
     $this->addTestFile('models/userTest.php');
     $this->addTestFile('models/madsTest.php');
 
     $this->addTestFile('models/skosCollectionTest.php');
+
+    
   }
 }
 
