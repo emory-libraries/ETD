@@ -30,7 +30,7 @@ class XacmlPolicy extends foxmlDatastreamAbstract {
         "policyid" => array("xpath" => "@PolicyId"),
 	"description" => array("xpath" => "x:Description"),
 	// pid for the object that this policy applies to
-	"pid" => array("xpath" => "x:Resources/x:Resource/x:ResourceMatch/x:AttributeValue"),
+	"pid" => array("xpath" => "x:Target/x:Resources/x:Resource/x:ResourceMatch/x:AttributeValue[following-sibling::x:ResourceAttributeDesignator[@AttributeId='urn:fedora:names:fedora:2.1:resource:object:pid']]"),
 	"rules" => array("xpath" => "x:Rule", "is_series" => true, "class_name" => "PolicyRule"),
 	);
 
@@ -92,7 +92,7 @@ class XacmlPolicy extends foxmlDatastreamAbstract {
   
   public static function getFedoraTemplate(){
     return foxml::xmlDatastreamTemplate("POLICY", XacmlPolicy::dslabel,
-					XacmlPolicy::getTemplate());
+					XacmlPolicy::getTemplate(), "A", "false");
   }
   
   public function datastream_label() {
@@ -180,6 +180,11 @@ class policyCondition extends XmlObject {
     $this->xmlconfig =  array(
 			      // fairly specific to etd xacml - list of users (logins)
         "users" => array("xpath" => $this->userxpath, "is_series" => true),
+
+	// single user (draft rule)
+	//	"user" => array("xpath" => ".[@FunctionId='urn:oasis:names:tc:1.0:function:string-is-in']/x:AttributeValue[following-sibling::x:SubjectAttributeDesignator[@AttributeId='urn:fedora:names:fedora:2.1:subject:loginId']]"),
+	"user" => array("xpath" => "x:AttributeValue[following-sibling::x:SubjectAttributeDesignator[@AttributeId='urn:fedora:names:fedora:2.1:subject:loginId'] and parent::x:Condition[@FunctionId='urn:oasis:names:tc:1.0:function:string-is-in']]"),
+	
 	);
   }
 
@@ -281,8 +286,6 @@ const view = '<Rule xmlns="urn:oasis:names:tc:xacml:1.0:policy" RuleId="view" Ef
         <SubjectAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:subject:loginId" DataType="http://www.w3.org/2001/XMLSchema#string"/>
         <Apply FunctionId="urn:oasis:names:tc:1.0:function:string-bag">
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">author</AttributeValue>
-          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">committee</AttributeValue>
-          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">etdadmin</AttributeValue>
         </Apply>
     </Condition>
   </Rule>
@@ -333,16 +336,17 @@ const etdadmin = '<Rule  xmlns="urn:oasis:names:tc:xacml:1.0:policy" RuleId="etd
 </Rule>
      ';
 
- const draft = '<Rule  xmlns="urn:oasis:names:tc:xacml:1.0:policy" RuleId="draft" Effect="Permit">
- <!-- Allow author to modify metadata, history, and status (mods, premis, rels-ext)   
-      should only be active when etd is a draft -->
+ const draft = '
+  <Rule xmlns="urn:oasis:names:tc:xacml:1.0:policy" RuleId="draft" Effect="Permit">
+ <!-- (should only be active when etd is a draft)
+    Allow author to modify metadata, history, and status (mods, premis, rels-ext)  -->
     <Target>
      <Subjects>
         <AnySubject/>
       </Subjects>
       <Resources>
     <Resource>
-        <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+        <ResourceMatch MatchId="urn:oasis:names:tc:1.0:function:string-equal">
             <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">MODS</AttributeValue>
             <ResourceAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:resource:datastream:id" 
                 DataType="http://www.w3.org/2001/XMLSchema#string"/>
@@ -350,7 +354,7 @@ const etdadmin = '<Rule  xmlns="urn:oasis:names:tc:xacml:1.0:policy" RuleId="etd
       </Resource>
 
     <Resource>
-        <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+        <ResourceMatch MatchId="urn:oasis:names:tc:1.0:function:string-equal">
             <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">PREMIS</AttributeValue>
             <ResourceAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:resource:datastream:id" 
                 DataType="http://www.w3.org/2001/XMLSchema#string"/>
@@ -358,7 +362,7 @@ const etdadmin = '<Rule  xmlns="urn:oasis:names:tc:xacml:1.0:policy" RuleId="etd
       </Resource>
 
     <Resource>
-        <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+        <ResourceMatch MatchId="urn:oasis:names:tc:1.0:function:string-equal">
             <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">RELS-EXT</AttributeValue>
             <ResourceAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:resource:datastream:id" 
                 DataType="http://www.w3.org/2001/XMLSchema#string"/>
@@ -367,7 +371,7 @@ const etdadmin = '<Rule  xmlns="urn:oasis:names:tc:xacml:1.0:policy" RuleId="etd
       </Resources>
       <Actions>
         <Action>
-          <ActionMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+          <ActionMatch MatchId="urn:oasis:names:tc:1.0:function:string-equal">
             <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">urn:fedora:names:fedora:2.1:action:id-modifyDatastreamByValue</AttributeValue>
             <ActionAttributeDesignator DataType="http://www.w3.org/2001/XMLSchema#string" AttributeId="urn:fedora:names:fedora:2.1:action:id"/>
           </ActionMatch>
@@ -375,12 +379,11 @@ const etdadmin = '<Rule  xmlns="urn:oasis:names:tc:xacml:1.0:policy" RuleId="etd
       </Actions>
     </Target>
 
-    <Condition FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-is-in">
+    <Condition FunctionId="urn:oasis:names:tc:1.0:function:string-is-in">
          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">author</AttributeValue>
         <SubjectAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:subject:loginId" DataType="http://www.w3.org/2001/XMLSchema#string"/>
    </Condition>
-</Rule>
-';
+</Rule>';
  
 
 const published = '<Rule xmlns="urn:oasis:names:tc:xacml:1.0:policy"  RuleId="published" Effect="Permit">

@@ -8,6 +8,8 @@ require_once("etdInterface.php");
 require_once("etd_mods.php");
 require_once("etd_html.php");
 require_once("premis.php");
+require_once("policy.php");
+
 require_once("etdfile.php");
 
 // etd object for etd08
@@ -65,10 +67,13 @@ class etd extends foxml implements etdInterface {
     $this->addNamespace("premis", "http://www.loc.gov/standards/premis/v1");
     $this->xmlconfig["premis"] = array("xpath" => "//foxml:xmlContent/premis:premis",
 				       "class_name" => "premis", "dsID" => "PREMIS");
-
-    // override default rels-ext
+    // override default rels-ext class
     $this->xmlconfig["rels_ext"]["class_name"] = "etd_rels";
 
+    // xacml policy
+    $this->addNamespace("x", "urn:oasis:names:tc:xacml:1.0:policy");
+    $this->xmlconfig["policy"] = array("xpath" => "//foxml:xmlContent/x:Policy",
+				       "class_name" => "XacmlPolicy", "dsID" => "POLICY");
   }
 
   
@@ -89,10 +94,26 @@ class etd extends foxml implements etdInterface {
 	// store pid in premis object; used for basis of event identifiers
 	$this->premis->object->identifier->value = $value;
       }
+
+      // set pid in policy - used to set what resource policy applies to
+      if ($this->policy) {
+	$this->policy->pid = $value;
+	$this->policy->policyid = str_replace(":", "-", $value);
+      }
+      
       // base foxml class also stores pid value in multiple places
       parent::__set($name, $value);
       break;
 
+    case "owner":
+      // add author's username to the appropriate rules
+      if (isset($this->policy)) {
+	if (isset($this->policy->view)) $this->policy->view->condition->users[0] = $value;
+	if (isset($this->policy->draft)) $this->policy->draft->condition->user = $value;
+      }
+      parent::__set($name, $value);
+      break;
+      
     case "cmodel":	
       if (isset($this->premis)) {
 	// use content model name for premis object category
@@ -191,6 +212,10 @@ class etd extends foxml implements etdInterface {
    *
    */
   public function ingest($message ) {
+    /* Note: it would be good to validate the XACML policy here,
+       but the policy->isValid can only validate the entire record (since it is all in one DOM)
+     */
+
     $persis = Zend_Registry::get("persis");
     // FIXME: use view/controller to build this url?
     $ark = $persis->generateArk("http://etd/view/pid/emory:{%PID%}", $this->label);
@@ -198,6 +223,8 @@ class etd extends foxml implements etdInterface {
 
     $this->pid = $pid;
     $this->mods->ark = $ark;
+
+    print "<pre>" . htmlentities($this->saveXML()) . "</pre>";
     return fedora::ingest($this->saveXML(), $message);
   }
 
