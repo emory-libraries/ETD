@@ -22,6 +22,7 @@ class policyTest extends UnitTestCase {
     $this->assertIsA($this->policy->rules[0], "PolicyRule", "first rule object type");
 
     $this->assertEqual("emory-123", $this->policy->policyid, "policy id value");
+    $this->assertEqual("emory:123", $this->policy->pid, "policy pid value");
     $this->assertEqual("object-specific policy", $this->policy->description, "policy description value");
     $this->assertEqual("fedoraAdmin", $this->policy->rules[0]->id, "rule id value");
 
@@ -43,6 +44,9 @@ class policyTest extends UnitTestCase {
     $this->assertEqual($this->policy->view->condition->users[0], "author");
     $this->assertEqual($this->policy->view->condition->users[1], "committee");
     $this->assertEqual($this->policy->view->condition->users[2], "etdadmin");
+
+    // single user
+    $this->assertEqual($this->policy->draft->condition->user, "author");
   }
 
   function testValidation() {
@@ -136,7 +140,10 @@ class policyTest extends UnitTestCase {
 
     // should not include published rule
     $this->assertFalse(isset($policy->published));
-  }
 
+    // some kind of problem accessing users from template
+    $this->assertEqual($policy->view->condition->users[0], "author");
+    $this->assertEqual($policy->draft->condition->user, "author");
+  }
   
 }
