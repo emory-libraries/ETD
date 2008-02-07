@@ -1,0 +1,17 @@
+<config>
+  <development>
+    <database>
+      <adapter>Pdo_Mysql</adapter>
+      <params>
+	<host>localhost</host>
+	<username>feztest</username>
+	<password>f3zt3st!</password>
+	<dbname>fez_rebecca</dbname>
+      </params>
+   </database>
+  </development>
+  <test extends="development">
+  </test>
+  <production extends="development">
+  </production>
+</config>

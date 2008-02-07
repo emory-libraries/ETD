@@ -1,49 +1,64 @@
 #!/usr/bin/php -q
 <?php
 
-set_include_path('.:../lib:../lib/fedora:../lib/xml-utilities:../app/models/:' . get_include_path());
+set_include_path('.:../lib:../lib/ZendFramework:../lib/fedora:../lib/xml-utilities:../app/models/:' . get_include_path());
 //set_include_path('.:../lib:../app/models/:' . get_include_path());
 
-include 'Zend/Loader.php';
 
-function __autoload($class) {
-    Zend_Loader::loadClass($class);
+
+include 'Zend/Loader.php';
+Zend_Loader::registerAutoload();
+
+$opts = new Zend_Console_Getopt(
+  array(
+	'noact|n'	=> "no action: don't save to fedora",
+	'pid|p=s'		=> "fedora pid of the fez etd to convert",
+  )
+);
+
+try {
+  $opts->parse();
+} catch (Zend_Console_Getopt_Exception $e) {
+  echo $usage;
+  exit;
 }
-$config = new Zend_Config_Xml('../config/fedora.xml', 'development');
+$pid = $opts->pid;
+
+
+$env_config = new Zend_Config_Xml("../config/environment.xml", "environment");
+
+$config = new Zend_Config_Xml('../config/fedora.xml', $env_config->mode);
 Zend_Registry::set('fedora-config', $config);
 
-//persistent id service
+//persistent id service -- needs to be configured for generating new fedora pids
 require_once("persis.php");
 
-$persis_config = new Zend_Config_Xml("../config/persis.xml", 'development');
+$persis_config = new Zend_Config_Xml("../config/persis.xml", $env_config->mode);
 $persis = new persis($persis_config->url, $persis_config->username,
 		     $persis_config->password, $persis_config->domain);
 Zend_Registry::set('persis', $persis);
 
 
+//Create DB object
+$fezconfig = new Zend_Config_Xml('../config/fez.xml', $env_config->mode);
+$db = Zend_Db::factory($fezconfig->database->adapter, $fezconfig->database->params->toArray());
+Zend_Registry::set('db', $db);
+Zend_Db_Table_Abstract::setDefaultAdapter($db);
 
 require_once("fezetd.php");
+require_once("fezuser.php");
 require_once("etd.php");
 require_once("etdfile.php");
 
 /** convert a compound (fez) emory etd object into new atomist model  */
 
 
-if (! isset($argv[1])) {
-  print "Error: please supply pid of record to convert\n";
-  exit;
-}
-$pid = $argv[1];
-
-
 $etd = new FezEtd($pid);
 
 // map vcard to new user object
-//print_r($etd->vcard);
 
 // create new user object
 $user = new user();
-//$user->pid = fedora::getNextPid("emoryetd");
 
 // map vcard to mads
 $user->mads->name->first = $etd->mods->author->first;	// first & middle - split these out?
@@ -54,8 +69,23 @@ $user->mads->permanent->address->city = $etd->vcard->city;
 $user->mads->permanent->address->state = $etd->vcard->state;
 $user->mads->permanent->address->postcode = $etd->vcard->zip;
 $user->mads->permanent->address->country = $etd->vcard->country;
-$user->mads->permanent->phone = $etd->vcard->telephone;
-//$user->mads->permanent->netid  == ?	// pull from fez db?
+if (isset($etd->vcard->telephone))
+    $user->mads->permanent->phone = $etd->vcard->telephone;
+
+// pull some information from Fez DB (things not stored in vcard)
+$fezUserObject = new FezUserObject();
+//$fezuser = $fezUserObject->findByUsrId($etd->vcard->uid);
+$fezuser = $fezUserObject->findByUsrId(16);
+if ($fezuser) {  // in case user is not in the Fez DB
+  print "found fezuser... username is " . $fezuser->username . "\n";
+  $user->mads->netid = $fezuser->username;
+  // also use netid for mods name id
+  $newetd->mods->author->id = $fezuser->username;
+  // emory email
+  $user->mads->current->email = $fezuser->email;
+} else {
+  print "Warning: cannot find user information in Fez Db for author (fez id=" . $etd->vcard->uid . ")\n";
+}
 
 // set dc:title, and foxml label 
 $user->name = $etd->mods->author->full;
@@ -64,8 +94,6 @@ $user->name = $etd->mods->author->full;
 // (OR, maybe easier? - get from ldap or emory shared data?)
 //print $user->saveXML() . "\n";
 
-
-// FIXME: do dublin core mapping from mods
 
 $newetd = new etd();
 //$newetd->pid = fedora::getNextPid("emoryetd");
@@ -91,11 +119,21 @@ foreach ($name_fields as $field) {
   if ($field == "affiliation") continue;	// no affiliation for advisor
   $newetd->mods->advisor->$field = $etd->mods->advisor->$field;
 }
-
+// retrieve netid and use for mods name id
+$fezAdvisor = $fezUserObject->findByUsrId($etd->mods->advisor->id);
+// FIXME: is author id equivalent to user id?
+if ($fezAdvisor)
+  $newetd->mods->advisor->id = $fezAdvisor->username;
+else
+  print "Warning: cannot find user information in Fez Db for advisor (fez id=" . $etd->mods->advisor->id . ")\n";
 
 // copy committee members
 foreach (array("committee", "nonemory_committee") as $cm) {
   for ($i = 0, $j = 0; $i < count($etd->mods->$cm); $i++) {
+    /* note: since Fez xml may contain empty committee members followed by non-emory committee,
+       $i is the index in the fez etd committee array and $j is the index in the new etd committee array
+     */
+    
     // skip blank entries (added by Fez)
     if (!isset($etd->mods->{$cm}[$i]->full) || ($etd->mods->{$cm}[$i]->full == ""))
 	continue;
@@ -107,10 +145,23 @@ foreach (array("committee", "nonemory_committee") as $cm) {
 	$newetd->mods->{$cm}[$j]->$field = $etd->mods->{$cm}[$i]->$field;
       }
     } else {
-      print "Warning: cannot add committee member " . $etd->mods->{$cm}[$i]->full . "\n";
-      // FIXME: need a way to add new mod:name nodes
-      // create new node and then set values...
+      $newetd->mods->addCommitteeMember($etd->mods->{$cm}[$i]->last,
+					$etd->mods->{$cm}[$i]->first,
+					($cm == "committee"),	// true = emory, false = non-emory
+		// affiliation, if there is one
+		(isset($etd->mods->{$cm}[$i]->affiliation) ? $etd->mods->{$cm}[$i]->affiliation : null));
     }
+
+    if ($cm == "committee") {
+      // retrieve netid (for emory people only) and use for mods name id
+      $fezCommittee = $fezUserObject->findByUsrId($etd->mods->{$cm}[$i]->id);
+      // FIXME: is author id equivalent to user id?
+      if ($fezCommittee) 
+	$newetd->mods->{$cm}[$j]->id = $fezCommittee->username;
+      else 
+	print "Warning: cannot find user information in Fez Db for advisor (fez id=" . $etd->mods->{$cm}[$i]->id . ")\n";
+    }
+    
     $j++;
   }
 }
@@ -136,7 +187,7 @@ $newetd->mods->recordInfo->modified = $etd->mods->originInfo->modified;
 // construct an array of id => text name
 $fields = array();
 for ($i= 0; $i < count($etd->mods->researchfields); $i++) {
-  $fields[$etd->mods->researchfields[$i]->id] = $etd->mods->researchfields[$i]->topic;
+  $fields["id" . $etd->mods->researchfields[$i]->id] = $etd->mods->researchfields[$i]->topic;
  }
 // set all the fields at once
 $newetd->mods->setResearchFields($fields);
@@ -176,21 +227,17 @@ $newetd->mods->degree->discipline = $etd->mods->department;
 //$newetd->rels_ext->addRelationToResource("rel:owner", $user->pid);
 // FIXME: need user's netid to set object owner and author relation
 //$newetd->rels_ext->addRelation("rel:author", $user->pid);
-$newetd->rels_ext->addRelation("rel:etdStatus", $etd->status);
+
+$newetd->rels_ext->status = $etd->status;
 
 
 
-
-
-//print $newetd->html->saveXML() . "\n";
-//print $newetd->mods->saveXML() . "\n";
 //$newetd->saveXMLtoFile("tmp-etd-foxml.xml");
-
 //print $newetd->saveXML();
 
-/* // actually ingest into fedora
- $newpid = $newetd->save();
- print "saved in fedora - id is $newpid\n";*/
+ // actually ingest into fedora
+/*  $newpid = $newetd->save();
+  print "saved in fedora - id is $newpid\n";*/
 
 
 // generate etdFile objects based on these
@@ -224,29 +271,40 @@ foreach ($etd->files as $file) {
   $etdfile->rels_ext->addRelationToResource("rel:is" . $reltype . "Of", $newetd->pid);
   $newetd->rels_ext->addRelationToResource("rel:has" . $reltype, $etdfile->pid);
   
-  print "saving etdfile " . $file->label . " to tmp file: tmp/" . $file->ID . ".xml\n";
-  $etdfile->saveXMLtoFile("tmp/" . $file->ID . ".xml");
   
   // ingest into fedora
-  
-  $fileid = $etdfile->save("migrating to atomistic content model from $pid");
-  print "etd file object saved as $fileid\n";
+  if ($opts->noact) {
+    print "saving etdfile " . $file->label . " to tmp file: tmp/" . $file->ID . ".xml\n";
+    $etdfile->saveXMLtoFile("tmp/" . $file->ID . ".xml");
+  } else {
+    $fileid = $etdfile->save("migrating to atomistic content model from $pid");
+    print "etd file object saved as $fileid\n";
+  }
 }
 
+if ($opts->noact) {
+  print "saving user xml to tmp file: tmp/user.xml\n";
+  $user->saveXMLtoFile("tmp/user.xml");
+} else {
+  $uid = $user->save("migrating to atomistic content model from $pid");
+  print "user object saved as $uid\n";
+}
 
-print "saving user xml to tmp file: tmp/user.xml\n";
-$user->saveXMLtoFile("tmp/user.xml");
-//$uid = $user->save("migrating to atomistic content model from $pid");
-//print "user object saved as $uid\n";
-
-print "saving etd foxml to tmp file: tmp/etd.xml\n";
-$newetd->saveXMLtoFile("tmp/etd.xml");
-$newid = $newetd->save("migrating to atomistic content model from $pid");
-print "etd object saved as $newid\n";
+if ($opts->noact) {
+  print "saving etd foxml to tmp file: tmp/etd.xml\n";
+  $newetd->saveXMLtoFile("tmp/etd.xml");
+} else {
+  $newid = $newetd->save("migrating to atomistic content model from $pid");
+  print "etd object saved as $newid\n";
+}
 
 /* FIXME: still needs to be included in the migration:
     - set permissions for embargo, policy status, etc.
 */
+
+
+// remaining actions depend on etd object having been created in fedora
+if ($opts->noact) exit;
  
 
 // copy premis events, updating to new format
