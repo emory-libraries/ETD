@@ -9,6 +9,9 @@ class XacmlPolicy extends foxmlDatastreamAbstract {
   protected $schema = "http://www.oasis-open.org/committees/download.php/915/cs-xacml-schema-policy-01.xsd";
   
   protected $xmlconfig;
+
+
+
   
   public function __construct($dom, $xpath = null) {
     // note: even though namespace is not used in xml, needs to be used here for xpath to work
@@ -41,6 +44,21 @@ class XacmlPolicy extends foxmlDatastreamAbstract {
 
 
   public function addRule($name) {
+    $dom = new DOMDocument();
+    switch ($name) {
+    case "view": 	$xml = EtdXacmlRules::view; break;
+    case "etdadmin":	$xml = EtdXacmlRules::etdadmin; break;
+    case "draft":	$xml = EtdXacmlRules::draft; break;
+    case "published":	$xml = EtdXacmlRules::published; break;
+    default:
+      trigger_error("Rule '$name' unknown - cannot add to policy", E_USER_WARNING); return;
+    }
+    $dom->loadXML($xml);
+
+    $newrule = $this->dom->importNode($dom->documentElement, true);
+    $this->domnode->insertBefore($newrule, $this->map{"deny_most"}->domnode);
+
+    $this->update();
     // FIXME: what is a good way to do this? how to manage the rules?
   }
 
@@ -59,7 +77,17 @@ class XacmlPolicy extends foxmlDatastreamAbstract {
 
 
   public static function getTemplate() {
-    return file_get_contents("policy.xml", FILE_USE_INCLUDE_PATH);
+    $xml = new DOMDocument();
+    $xml->loadXML(file_get_contents("policy.xml", FILE_USE_INCLUDE_PATH));
+    $policy = new XacmlPolicy($xml);
+
+    // starts with a bare-bones xacml  (fedoraAdmin rule & deny-most rule)
+    // add the appropriate rules for a new etd
+    $policy->addRule("view");
+    $policy->addRule("etdadmin");
+    $policy->addRule("draft");
+    
+    return $policy->saveXML();
   }
   
   public static function getFedoraTemplate(){
@@ -182,3 +210,230 @@ class policyCondition extends XmlObject {
 
 
 
+class EtdXacmlRules {
+  /* namespace needs to be explicit so it will match main policy record
+     and xpath queries will find these rules
+  */
+  
+const view = '<Rule xmlns="urn:oasis:names:tc:xacml:1.0:policy" RuleId="view" Effect="Permit">
+ <!-- Allow author, committee members, departmental staff, and
+	etd admin to view everything (mods, dc, xhtml, premis, rels-ext)  -->
+    <Target>
+     <Subjects>
+        <AnySubject/>
+      </Subjects>
+      <Resources>
+
+        <Resource>
+         <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">DC</AttributeValue>
+             <ResourceAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:resource:datastream:id" 
+                 DataType="http://www.w3.org/2001/XMLSchema#string"/>
+        </ResourceMatch>
+      </Resource>
+
+
+        <Resource>
+         <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">MODS</AttributeValue>
+             <ResourceAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:resource:datastream:id" 
+                 DataType="http://www.w3.org/2001/XMLSchema#string"/>
+        </ResourceMatch>
+      </Resource>
+
+        <Resource>
+         <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">XHTML</AttributeValue>
+             <ResourceAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:resource:datastream:id" 
+                 DataType="http://www.w3.org/2001/XMLSchema#string"/>
+        </ResourceMatch>
+      </Resource>
+
+
+    <Resource>
+        <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">PREMIS</AttributeValue>
+            <ResourceAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:resource:datastream:id" 
+                DataType="http://www.w3.org/2001/XMLSchema#string"/>
+        </ResourceMatch>
+      </Resource>
+
+    <Resource>
+        <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">RELS-EXT</AttributeValue>
+            <ResourceAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:resource:datastream:id" 
+                DataType="http://www.w3.org/2001/XMLSchema#string"/>
+        </ResourceMatch>
+      </Resource>
+      </Resources>
+      <Actions>
+        <Action>
+          <ActionMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">urn:fedora:names:fedora:2.1:action:id-getDatastreamDissemination</AttributeValue>
+            <ActionAttributeDesignator DataType="http://www.w3.org/2001/XMLSchema#string" AttributeId="urn:fedora:names:fedora:2.1:action:id"/>
+          </ActionMatch>
+        </Action>
+      </Actions>
+    </Target>
+	
+    <!-- author and committee by username -->
+    <Condition FunctionId="urn:oasis:names:tc:1.0:function:string-at-least-one-member-of">
+        <SubjectAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:subject:loginId" DataType="http://www.w3.org/2001/XMLSchema#string"/>
+        <Apply FunctionId="urn:oasis:names:tc:1.0:function:string-bag">
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">author</AttributeValue>
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">committee</AttributeValue>
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">etdadmin</AttributeValue>
+        </Apply>
+    </Condition>
+  </Rule>
+';
+
+
+
+const etdadmin = '<Rule  xmlns="urn:oasis:names:tc:xacml:1.0:policy" RuleId="etdadmin" Effect="Permit">
+   <!-- Allow admin to modify history and status (premis, rels-ext)  -->
+    <Target>
+     <Subjects>
+        <AnySubject/>
+      </Subjects>
+      <Resources>
+
+    <Resource>
+        <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">PREMIS</AttributeValue>
+            <ResourceAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:resource:datastream:id" 
+                DataType="http://www.w3.org/2001/XMLSchema#string"/>
+        </ResourceMatch>
+      </Resource>
+
+    <Resource>
+        <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">RELS-EXT</AttributeValue>
+            <ResourceAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:resource:datastream:id" 
+                DataType="http://www.w3.org/2001/XMLSchema#string"/>
+        </ResourceMatch>
+      </Resource>
+      </Resources>
+      <Actions>
+        <Action>
+          <ActionMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">urn:fedora:names:fedora:2.1:action:id-modifyDatastreamByValue</AttributeValue>
+            <ActionAttributeDesignator DataType="http://www.w3.org/2001/XMLSchema#string" AttributeId="urn:fedora:names:fedora:2.1:action:id"/>
+          </ActionMatch>
+        </Action>
+      </Actions>
+    </Target>
+
+    <Condition FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-at-least-one-member-of">
+        <SubjectAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:subject:loginId" DataType="http://www.w3.org/2001/XMLSchema#string"/>
+        <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-bag">
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">etdadmin</AttributeValue>
+        </Apply>
+    </Condition>
+</Rule>
+     ';
+
+ const draft = '<Rule  xmlns="urn:oasis:names:tc:xacml:1.0:policy" RuleId="draft" Effect="Permit">
+ <!-- Allow author to modify metadata, history, and status (mods, premis, rels-ext)   
+      should only be active when etd is a draft -->
+    <Target>
+     <Subjects>
+        <AnySubject/>
+      </Subjects>
+      <Resources>
+    <Resource>
+        <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">MODS</AttributeValue>
+            <ResourceAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:resource:datastream:id" 
+                DataType="http://www.w3.org/2001/XMLSchema#string"/>
+        </ResourceMatch>
+      </Resource>
+
+    <Resource>
+        <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">PREMIS</AttributeValue>
+            <ResourceAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:resource:datastream:id" 
+                DataType="http://www.w3.org/2001/XMLSchema#string"/>
+        </ResourceMatch>
+      </Resource>
+
+    <Resource>
+        <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">RELS-EXT</AttributeValue>
+            <ResourceAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:resource:datastream:id" 
+                DataType="http://www.w3.org/2001/XMLSchema#string"/>
+        </ResourceMatch>
+      </Resource>
+      </Resources>
+      <Actions>
+        <Action>
+          <ActionMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">urn:fedora:names:fedora:2.1:action:id-modifyDatastreamByValue</AttributeValue>
+            <ActionAttributeDesignator DataType="http://www.w3.org/2001/XMLSchema#string" AttributeId="urn:fedora:names:fedora:2.1:action:id"/>
+          </ActionMatch>
+        </Action>
+      </Actions>
+    </Target>
+
+    <Condition FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-is-in">
+         <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">author</AttributeValue>
+        <SubjectAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:subject:loginId" DataType="http://www.w3.org/2001/XMLSchema#string"/>
+   </Condition>
+</Rule>
+';
+ 
+
+const published = '<Rule xmlns="urn:oasis:names:tc:xacml:1.0:policy"  RuleId="published" Effect="Permit">
+ <!-- Allow anyone to view metadata + related objects (mods, dc, xhtml, rels-ext)  
+      should only be active when etd is published -->
+    <Target>
+     <Subjects>
+        <AnySubject/>
+      </Subjects>
+      <Resources>
+    <Resource>
+        <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">DC</AttributeValue>
+            <ResourceAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:resource:datastream:id" 
+                DataType="http://www.w3.org/2001/XMLSchema#string"/>
+        </ResourceMatch>
+      </Resource>
+    <Resource>
+        <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">XHTML</AttributeValue>
+            <ResourceAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:resource:datastream:id" 
+                DataType="http://www.w3.org/2001/XMLSchema#string"/>
+        </ResourceMatch>
+      </Resource>
+
+    <Resource>
+        <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">MODS</AttributeValue>
+            <ResourceAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:resource:datastream:id" 
+                DataType="http://www.w3.org/2001/XMLSchema#string"/>
+        </ResourceMatch>
+      </Resource>
+
+    <Resource>
+        <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">RELS-EXT</AttributeValue>
+            <ResourceAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:resource:datastream:id" 
+                DataType="http://www.w3.org/2001/XMLSchema#string"/>
+        </ResourceMatch>
+      </Resource>
+      </Resources>
+      <Actions>
+        <Action>
+          <ActionMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">urn:fedora:names:fedora:2.1:action:id-getDatastreamDissemination</AttributeValue>
+            <ActionAttributeDesignator DataType="http://www.w3.org/2001/XMLSchema#string" AttributeId="urn:fedora:names:fedora:2.1:action:id"/>
+          </ActionMatch>
+        </Action>
+      </Actions>
+    </Target>
+</Rule>
+';
+  
+
+
+}

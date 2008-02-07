@@ -65,7 +65,28 @@ class policyTest extends UnitTestCase {
 
   
   function testAddRule() {
-    // add rule function not yet implemented
+
+    $this->policy->removeRule("draft");
+    $this->policy->addRule("draft");
+    $this->assertIsA($this->policy->draft, "PolicyRule");
+
+    $this->policy->removeRule("view");
+    $this->policy->addRule("view");
+    $this->assertIsA($this->policy->view, "PolicyRule");
+
+
+    $this->policy->removeRule("etdadmin");
+    $this->policy->addRule("etdadmin");
+    $this->assertIsA($this->policy->etdadmin, "PolicyRule");
+
+    $this->policy->removeRule("published");
+    $this->policy->addRule("published");
+    $this->assertIsA($this->policy->published, "PolicyRule");
+
+    // add a non-existent rule
+    $this->expectError("Rule 'nonexistent' unknown - cannot add to policy");
+    $this->policy->addRule("nonexistent");
+    
   }
 
   function testAddDatastream() {
@@ -100,6 +121,21 @@ class policyTest extends UnitTestCase {
     $this->expectError("Cannot find user to be removed: 'nonexistent'");
     $this->policy->view->condition->removeUser("nonexistent");
     
+  }
+
+  function testGetTemplate() {
+    $xml = new DOMDocument();
+    $xml->loadXML(XacmlPolicy::getTemplate());
+    $policy = new XacmlPolicy($xml);
+
+    // these rules should be included in a new policy
+    $this->assertTrue(isset($policy->fedoraAdmin));
+    $this->assertTrue(isset($policy->view));
+    $this->assertTrue(isset($policy->etdadmin));
+    $this->assertTrue(isset($policy->draft));
+
+    // should not include published rule
+    $this->assertFalse(isset($policy->published));
   }
 
   
