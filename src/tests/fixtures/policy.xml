@@ -24,8 +24,8 @@
     </Actions>
   </Target>
 
-  <!-- Rule 1: Allow anything to administrator (fedoraAdmin) unconditionally  -->
   <Rule RuleId="fedoraAdmin" Effect="Permit">
+  <!-- Allow anything to administrator (fedoraAdmin) unconditionally  -->
     <Target>
       <Subjects>
         <Subject>
@@ -45,10 +45,9 @@
     </Target>
   </Rule>
 
- <!-- Rule 2: Allow author, committee members, departmental staff, and
-	etd admin to view everything (mods, dc, xhtml, premis, rels-ext)  -->
-
   <Rule RuleId="view" Effect="Permit">
+ <!-- Allow author, committee members, departmental staff, and
+      etd admin to view everything (mods, dc, xhtml, premis, rels-ext)  -->
     <Target>
      <Subjects>
         <AnySubject/>
@@ -122,9 +121,8 @@
 
   
 
- <!-- Rule 3: Allow admin to modify history and status (premis, rels-ext)  -->
-
   <Rule RuleId="etdadmin" Effect="Permit">
+ <!-- Allow admin to modify history and status (premis, rels-ext)  -->
     <Target>
      <Subjects>
         <AnySubject/>
@@ -166,10 +164,9 @@
 </Rule>
 
 
- <!-- Rule 4: (should only be active when etd is a draft)
-    Allow author to modify metadata, history, and status (mods, premis, rels-ext)  -->
-
   <Rule RuleId="draft" Effect="Permit">
+ <!-- (should only be active when etd is a draft)
+    Allow author to modify metadata, history, and status (mods, premis, rels-ext)  -->
     <Target>
      <Subjects>
         <AnySubject/>
@@ -216,10 +213,10 @@
 </Rule>
 
 
- <!-- Rule 5: (should only be active when etd is published)
-    Allow anyone to view metadata + related objects (mods, dc, xhtml, rels-ext)  -->
 
   <Rule RuleId="published" Effect="Permit">
+ <!--  (should only be active when etd is published)
+    Allow anyone to view metadata + related objects (mods, dc, xhtml, rels-ext)  -->
     <Target>
      <Subjects>
         <AnySubject/>
@@ -268,8 +265,8 @@
 </Rule>
 
 
-  <!-- Rule 6:  Deny access to everything not explicitly granted above -->
   <Rule RuleId="deny_most" Effect="Deny">
+  <!--  Deny access to everything not explicitly granted above -->
     <Target>
       <Subjects>
         <AnySubject/>
