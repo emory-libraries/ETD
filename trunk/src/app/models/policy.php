@@ -182,8 +182,8 @@ class policyCondition extends XmlObject {
         "users" => array("xpath" => $this->userxpath, "is_series" => true),
 
 	// single user (draft rule)
-	//	"user" => array("xpath" => ".[@FunctionId='urn:oasis:names:tc:1.0:function:string-is-in']/x:AttributeValue[following-sibling::x:SubjectAttributeDesignator[@AttributeId='urn:fedora:names:fedora:2.1:subject:loginId']]"),
-	"user" => array("xpath" => "x:AttributeValue[following-sibling::x:SubjectAttributeDesignator[@AttributeId='urn:fedora:names:fedora:2.1:subject:loginId'] and parent::x:Condition[@FunctionId='urn:oasis:names:tc:1.0:function:string-is-in']]"),
+	//	"user" => array("xpath" => ".[@FunctionId='urn:oasis:names:tc:xacml:1.0:function:string-is-in']/x:AttributeValue[following-sibling::x:SubjectAttributeDesignator[@AttributeId='urn:fedora:names:fedora:2.1:subject:loginId']]"),
+	"user" => array("xpath" => "x:AttributeValue[following-sibling::x:SubjectAttributeDesignator[@AttributeId='urn:fedora:names:fedora:2.1:subject:loginId'] and parent::x:Condition[@FunctionId='urn:oasis:names:tc:xacml:1.0:function:string-is-in']]"),
 	
 	);
   }
@@ -282,9 +282,9 @@ const view = '<Rule xmlns="urn:oasis:names:tc:xacml:1.0:policy" RuleId="view" Ef
     </Target>
 	
     <!-- author and committee by username -->
-    <Condition FunctionId="urn:oasis:names:tc:1.0:function:string-at-least-one-member-of">
+    <Condition FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-at-least-one-member-of">
         <SubjectAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:subject:loginId" DataType="http://www.w3.org/2001/XMLSchema#string"/>
-        <Apply FunctionId="urn:oasis:names:tc:1.0:function:string-bag">
+        <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-bag">
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">author</AttributeValue>
         </Apply>
     </Condition>
@@ -346,7 +346,7 @@ const etdadmin = '<Rule  xmlns="urn:oasis:names:tc:xacml:1.0:policy" RuleId="etd
       </Subjects>
       <Resources>
     <Resource>
-        <ResourceMatch MatchId="urn:oasis:names:tc:1.0:function:string-equal">
+        <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
             <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">MODS</AttributeValue>
             <ResourceAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:resource:datastream:id" 
                 DataType="http://www.w3.org/2001/XMLSchema#string"/>
@@ -354,7 +354,7 @@ const etdadmin = '<Rule  xmlns="urn:oasis:names:tc:xacml:1.0:policy" RuleId="etd
       </Resource>
 
     <Resource>
-        <ResourceMatch MatchId="urn:oasis:names:tc:1.0:function:string-equal">
+        <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
             <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">PREMIS</AttributeValue>
             <ResourceAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:resource:datastream:id" 
                 DataType="http://www.w3.org/2001/XMLSchema#string"/>
@@ -362,7 +362,7 @@ const etdadmin = '<Rule  xmlns="urn:oasis:names:tc:xacml:1.0:policy" RuleId="etd
       </Resource>
 
     <Resource>
-        <ResourceMatch MatchId="urn:oasis:names:tc:1.0:function:string-equal">
+        <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
             <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">RELS-EXT</AttributeValue>
             <ResourceAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:resource:datastream:id" 
                 DataType="http://www.w3.org/2001/XMLSchema#string"/>
@@ -371,7 +371,7 @@ const etdadmin = '<Rule  xmlns="urn:oasis:names:tc:xacml:1.0:policy" RuleId="etd
       </Resources>
       <Actions>
         <Action>
-          <ActionMatch MatchId="urn:oasis:names:tc:1.0:function:string-equal">
+          <ActionMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
             <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">urn:fedora:names:fedora:2.1:action:id-modifyDatastreamByValue</AttributeValue>
             <ActionAttributeDesignator DataType="http://www.w3.org/2001/XMLSchema#string" AttributeId="urn:fedora:names:fedora:2.1:action:id"/>
           </ActionMatch>
@@ -379,7 +379,7 @@ const etdadmin = '<Rule  xmlns="urn:oasis:names:tc:xacml:1.0:policy" RuleId="etd
       </Actions>
     </Target>
 
-    <Condition FunctionId="urn:oasis:names:tc:1.0:function:string-is-in">
+    <Condition FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-is-in">
          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">author</AttributeValue>
         <SubjectAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:subject:loginId" DataType="http://www.w3.org/2001/XMLSchema#string"/>
    </Condition>
