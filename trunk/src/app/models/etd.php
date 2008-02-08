@@ -27,15 +27,14 @@ class etd extends foxml implements etdInterface {
     
     if ($this->init_mode == "pid") {
       // anything here?
+    } elseif ($this->init_mode == "dom") {
+      // anything here?
     } else {
       // new etd objects
       $this->cmodel = "etd";
       // all new etds should start out as drafts
       $this->rels_ext->addRelation("rel:etdStatus", "draft");
     }
-
-
-
 
     // FIXME: this part (at least) should be lazy-init - slows down the browse listing significantly
         $this->pdfs = array();
