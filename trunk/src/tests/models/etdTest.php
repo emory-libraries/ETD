@@ -26,6 +26,7 @@ class TestEtd extends UnitTestCase {
     $this->assertIsA($this->etd->rels_ext, "rels_ext");
     $this->assertIsA($this->etd->mods, "etd_mods");
     $this->assertIsA($this->etd->html, "etd_html");
+    $this->assertIsA($this->etd->premis, "premis");
     $this->assertIsA($this->etd->policy, "XacmlPolicy");
     
     $this->assertEqual("test:etd1", $this->etd->pid);
