@@ -224,7 +224,7 @@ class etd extends foxml implements etdInterface {
     $this->mods->ark = $ark;
 
     print "<pre>" . htmlentities($this->saveXML()) . "</pre>";
-    return fedora::ingest($this->saveXML(), $message);
+    return $this->fedora->ingest($this->saveXML(), $message);
   }
 
 

@@ -16,7 +16,7 @@ class user extends foxml {
     if ($this->init_mode == "pid") {
       /*      // initialize mads datastream...
       $dom = new DOMDocument();
-      $dom->loadXML(fedora::getDatastream($arg, "MADS"));
+      $dom->loadXML($this->fedora->getDatastream($arg, "MADS"));
       $this->map{"mads"} = new mads($dom);*/
     } else {
       $this->cmodel = "user";
@@ -105,7 +105,7 @@ class user extends foxml {
     $pid = $persis->pidfromArk($ark);
 
     $this->pid = $pid;
-    return fedora::ingest($this->saveXML(), $message);
+    return $this->fedora->ingest($this->saveXML(), $message);
   }
 
 
