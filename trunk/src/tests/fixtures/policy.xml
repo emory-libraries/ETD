@@ -116,15 +116,38 @@
     </Target>
 
  
-    <!-- author and committee by username -->
-    <Condition FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-at-least-one-member-of">
+    <Condition FunctionId="urn:oasis:names:tc:xacml:1.0:function:or">
+
+      <!-- author and committee by username -->
+      <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-at-least-one-member-of">
         <SubjectAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:subject:loginId" DataType="http://www.w3.org/2001/XMLSchema#string"/>
         <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-bag">
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">author</AttributeValue>
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">committee</AttributeValue>
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">etdadmin</AttributeValue>
         </Apply>
+      </Apply>
+
+      <!-- departmental staff: should be staff + in a particular department -->
+      <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:and">
+        <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-is-in">
+         <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">Staff</AttributeValue>
+	 <SubjectAttributeDesignator DataType="http://www.w3.org/2001/XMLSchema#string"
+		AttributeId="organizationalstatus" MustBePresent="false"/>
+	<!-- organizationalstatus is LDAP attribute : faculty/staff -->
+        </Apply>
+
+        <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-is-in">
+         <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">Chemistry</AttributeValue>
+	 <SubjectAttributeDesignator DataType="http://www.w3.org/2001/XMLSchema#string"
+		AttributeId="ou" MustBePresent="false"/>
+	<!-- ou is an LDAP attribute : organizational unit (= department) -->
+        </Apply>
+      </Apply>	<!-- end departmental staff -->
+
     </Condition>
+
+
   </Rule>
 
 

@@ -45,6 +45,8 @@ class policyTest extends UnitTestCase {
     $this->assertEqual($this->policy->view->condition->users[1], "committee");
     $this->assertEqual($this->policy->view->condition->users[2], "etdadmin");
 
+    $this->assertEqual($this->policy->view->condition->department, "Chemistry");
+
     // single user
     $this->assertEqual($this->policy->draft->condition->user, "author");
   }

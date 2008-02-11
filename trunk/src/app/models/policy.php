@@ -174,7 +174,7 @@ class policyCondition extends XmlObject {
 
   // define xml mappings 
   protected function configure() {
-    $this->userxpath = "x:Apply[contains(@FunctionId,'string-bag')][preceding-sibling::x:SubjectAttributeDesignator[contains(@AttributeId, 'loginId')]]/x:AttributeValue";
+    $this->userxpath = ".//x:Apply[contains(@FunctionId,'string-bag')][preceding-sibling::x:SubjectAttributeDesignator[contains(@AttributeId, 'loginId')]]/x:AttributeValue";
 	
 
     $this->xmlconfig =  array(
@@ -184,6 +184,9 @@ class policyCondition extends XmlObject {
 	// single user (draft rule)
 	//	"user" => array("xpath" => ".[@FunctionId='urn:oasis:names:tc:xacml:1.0:function:string-is-in']/x:AttributeValue[following-sibling::x:SubjectAttributeDesignator[@AttributeId='urn:fedora:names:fedora:2.1:subject:loginId']]"),
 	"user" => array("xpath" => "x:AttributeValue[following-sibling::x:SubjectAttributeDesignator[@AttributeId='urn:fedora:names:fedora:2.1:subject:loginId'] and parent::x:Condition[@FunctionId='urn:oasis:names:tc:xacml:1.0:function:string-is-in']]"),
+
+	// department name for departmental staff
+	"department" => array("xpath" => "x:Apply[@FunctionId='urn:oasis:names:tc:xacml:1.0:function:and'][x:Apply[@FunctionId='urn:oasis:names:tc:xacml:1.0:function:string-is-in'][x:AttributeValue='Staff'][x:SubjectAttributeDesignator/@AttributeId='organizationalstatus']]/x:Apply[@FunctionId='urn:oasis:names:tc:xacml:1.0:function:string-is-in'][x:SubjectAttributeDesignator/@AttributeId='ou']/x:AttributeValue"),
 	
 	);
   }
@@ -282,12 +285,33 @@ const view = '<Rule xmlns="urn:oasis:names:tc:xacml:1.0:policy" RuleId="view" Ef
       </Actions>
     </Target>
 	
-    <!-- author and committee by username -->
-    <Condition FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-at-least-one-member-of">
+    <Condition FunctionId="urn:oasis:names:tc:xacml:1.0:function:or">
+
+      <!-- author and committee by username -->
+      <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-at-least-one-member-of">
         <SubjectAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:subject:loginId" DataType="http://www.w3.org/2001/XMLSchema#string"/>
         <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-bag">
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">author</AttributeValue>
         </Apply>
+      </Apply>
+
+      <!-- departmental staff: should be staff + in a particular department -->
+      <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:and">
+        <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-is-in">
+         <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">Staff</AttributeValue>
+	 <SubjectAttributeDesignator DataType="http://www.w3.org/2001/XMLSchema#string"
+		AttributeId="organizationalstatus" MustBePresent="false"/>
+	<!-- organizationalstatus is LDAP attribute : faculty/staff -->
+        </Apply>
+
+        <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-is-in">
+         <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string"/>
+	 <SubjectAttributeDesignator DataType="http://www.w3.org/2001/XMLSchema#string"
+		AttributeId="ou" MustBePresent="false"/>
+	<!-- ou is an LDAP attribute : organizational unit (= department) -->
+        </Apply>
+      </Apply>	<!-- end departmental staff -->
+
     </Condition>
   </Rule>
 ';
