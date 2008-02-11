@@ -60,8 +60,8 @@ class etd_file extends foxml {
     $pid = $persis->pidfromArk($ark);
 
     $this->pid = $pid;
-    return fedora::ingest($this->saveXML(), $message);
-  }
+    return $this->fedora->ingest($this->saveXML(), $message);
+    }
 
 
 
@@ -81,8 +81,8 @@ class etd_file extends foxml {
   }
 
   public function updateFile($filename, $mimetype, $message) {
-    $upload_id = fedora::upload($filename);
-    return fedora::modifyBinaryDatastream($this->pid, "FILE", "Binary File", $mimetype, $upload_id, $message);
+    $upload_id = $this->fedora->upload($filename);
+    return $this->fedora->modifyBinaryDatastream($this->pid, "FILE", "Binary File", $mimetype, $upload_id, $message);
   }
 
 }  
