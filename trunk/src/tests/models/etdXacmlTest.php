@@ -2,43 +2,69 @@
 
 require_once('models/etd.php');
 
-/* NOTE: this test depends on having these user accounts defined in the test fedora instance:
-	 author, committee, etdadmin, guest
-    (and xacml must be enabled)
 
-  Warning: this is a very slow test
- */
+/* NOTE: this test depends on having these user accounts defined in the test fedora instance:
+ author, committee, etdadmin, guest
+ (and xacml must be enabled)
+
+ Warning: this is a very slow test
+*/
 
 class TestEtdXacml extends UnitTestCase {
-    private $pid;
+  private $pid;
 
+  /**
+   * FedoraConnection with default test user credentials
+   */
+  private $fedoraAdmin;
+    
   function setUp() {
+    if (!isset($this->fedoraAdmin)) {
+      $fedora_cfg = Zend_Registry::get('fedora-config');
+      $this->fedoraAdmin = new FedoraConnection($fedora_cfg->user, $fedora_cfg->password,
+			       $fedora_cfg->server, $fedora_cfg->port);
+    }
+      
     $fname = 'fixtures/etd1.xml';
     $dom = new DOMDocument();
     $dom->load($fname);
     $etd = new etd($dom);
-
+      
     // initialize the xacml policy the way it should be set up normally
     $etd->policy->addRule("view");
     $etd->policy->view->condition->users[0] = "author";
     $etd->policy->view->condition->addUser("committee");
     $etd->policy->view->condition->addUser("etdadmin");
+    $etd->policy->view->condition->department = "department";
     $etd->policy->addRule("draft");
     $etd->policy->draft->condition->user = "author";
     $etd->policy->addRule("etdadmin");
     $etd->policy->etdadmin->condition->users[0] = "etdadmin";
 
-    fedora::ingest($etd->saveXML(), "loading test object");
     $this->pid =  $etd->pid;
+    
+    try {
+      $this->fedoraAdmin->ingest($etd->saveXML(), "loading test object");
+    } catch (FedoraObjectExists $e) {
+      // if a previous test run failed, object may still be in Fedora
+      $this->purgeTestObject();
+      $this->fedoraAdmin->ingest($etd->saveXML(), "loading test object");
+    }
 
   }
 
   function tearDown() {
-    // restore fedora config to default test user
-    Zend_Registry::set('fedora-config', new Zend_Config_Xml("../config/fedora.xml", "test"));
-    fedora::purge($this->pid, "removing test object");
+    $this->purgeTestObject();
   }
 
+  function purgeTestObject() {
+    $this->fedoraAdmin->purge($this->pid, "removing test object");
+  }
+
+
+  /* FIXME: need to test rules for departmental staff..
+     can't seem to accurately simulate ldap attributes with test account (?)
+   */
 
   function testGuestPermissions() {
     // use guest account to access fedora
@@ -48,21 +74,19 @@ class TestEtdXacml extends UnitTestCase {
     $etd = new etd($this->pid);
 
     // should not be able to access any datastreams
-    $this->expectError("Authorization Denied to get datastream DC");
+    $this->expectException(new FedoraAccessDenied("getDatastream for {$this->pid}/DC"));
     $this->assertNull($etd->dc);
-    $this->expectError("Authorization Denied to get datastream MODS");
+    $this->expectException(new FedoraAccessDenied("getDatastream for {$this->pid}/MODS"));
     $this->assertNull($etd->mods);
-    $this->expectError("Authorization Denied to get datastream XHTML");
+    $this->expectException(new FedoraAccessDenied("getDatastream for {$this->pid}/XHTML"));
     $this->assertNull($etd->html);
-    $this->expectError("Authorization Denied to get datastream RELS-EXT");
+    $this->expectException(new FedoraAccessDenied("getDatastream for {$this->pid}/RELS-EXT"));
     $this->assertNull($etd->rels_ext);
-    $this->expectError("Authorization Denied to get datastream PREMIS");
+    $this->expectException(new FedoraAccessDenied("getDatastream for {$this->pid}/PREMIS"));
     $this->assertNull($etd->premis);
-    $this->expectError("Authorization Denied to get datastream POLICY");
+    $this->expectException(new FedoraAccessDenied("getDatastream for {$this->pid}/POLICY"));
     $this->assertNull($etd->policy);
 
-
-    
     $this->setFedoraAccount("etdadmin");
     $etd = new etd($this->pid);
     $etd->policy->addRule("published");
@@ -76,9 +100,9 @@ class TestEtdXacml extends UnitTestCase {
     $this->assertIsA($etd->mods, "etd_mods");
     $this->assertIsA($etd->html, "etd_html");
     // these datastreams should still not be accessible
-    $this->expectError("Authorization Denied to get datastream PREMIS");
+    $this->expectException(new FedoraAccessDenied("getDatastream for {$this->pid}/PREMIS"));
     $this->assertNull($etd->premis);
-    $this->expectError("Authorization Denied to get datastream POLICY");
+    $this->expectException(new FedoraAccessDenied("getDatastream for {$this->pid}/POLICY"));
     $this->assertNull($etd->policy);
   }  
 
@@ -140,7 +164,7 @@ class TestEtdXacml extends UnitTestCase {
     about attempting to modify DC and expecting it doesn't catch it properly
     
     $etd->premis->addEvent("test", "testing permissions", "success",
-			   array("testid", "author"));    	// PREMIS
+    array("testid", "author"));    	// PREMIS
     $this->expectError("Access Denied to modify datastream PREMIS");
     $this->assertNull($etd->save("test author permissions - modify PREMIS on non-draft etd"));
     print "\n<br/><b>DEBUG:</b> end modifying premis<br/>\n";
@@ -150,6 +174,7 @@ class TestEtdXacml extends UnitTestCase {
     $this->expectError("Access Denied to modify datastream POLICY"); 
     $this->assertNull($etd->save("test author permissions - modify POLICY on non-draft etd"));
     */
+
   }
 
 
@@ -169,7 +194,7 @@ class TestEtdXacml extends UnitTestCase {
     $this->assertIsA($etd->policy, "XacmlPolicy");
 
 
-    /* testing all datastreams at once because it is much simpler */
+    /* committee should not have access to change any datastreams */
     $etd->dc->title = "new title";	  //   DC
     $this->expectError("Access Denied to modify datastream DC");
     $this->assertNull($etd->save("test committee permissions - modify DC"));
@@ -193,19 +218,21 @@ class TestEtdXacml extends UnitTestCase {
 
 
     /** these two fail - same weird DC error as for author 
-    $etd->premis->addEvent("test", "testing permissions", "success",
-			   array("testid", "author"));    	// PREMIS
-    $this->expectError("Access Denied to modify datastream PREMIS");
-    $this->assertNull($etd->save("test committee permissions - modify PREMIS"));
-    $etd->premis->calculateChecksum();
+     $etd->premis->addEvent("test", "testing permissions", "success",
+     array("testid", "author"));    	// PREMIS
+     $this->expectError("Access Denied to modify datastream PREMIS");
+     $this->assertNull($etd->save("test committee permissions - modify PREMIS"));
+     $etd->premis->calculateChecksum();
     
-    $etd->policy->removeRule("etdadmin");    // POLICY
-    $this->expectError("Access Denied to modify datastream POLICY");
-    $this->assertNull($etd->save("test committee permissions - modify POLICY"));
+     $etd->policy->removeRule("etdadmin");    // POLICY
+     $this->expectError("Access Denied to modify datastream POLICY");
+     $this->assertNull($etd->save("test committee permissions - modify POLICY"));
     */
   }
 
+  
 
+  
   function testEtdAdminPermissions() {
     // set user account to etd admin
     $this->setFedoraAccount("etdadmin");
@@ -250,10 +277,14 @@ class TestEtdXacml extends UnitTestCase {
  
   
   function setFedoraAccount($user) {
-    $fedora_cfg = Zend_Registry::get('fedora-config')->toArray();
-    $fedora_cfg['user'] = $user;
-    $fedora_cfg['password'] = $user;
-    Zend_Registry::set('fedora-config', new Zend_Config($fedora_cfg));
+    $fedora_cfg = Zend_Registry::get('fedora-config');
+
+    // create a new fedora connection with configured port & server, specified password
+    $fedora = new FedoraConnection($user, $user,	// for test accounts, username = password
+				   $fedora_cfg->server, $fedora_cfg->port);
+
+    // note: needs to be in registry because this is what the etd object will use
+    Zend_Registry::set('fedora', $fedora);
   }
   
 }
