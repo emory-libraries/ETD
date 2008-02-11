@@ -8,8 +8,15 @@ require_once('simpletest/reporter.php');
 
 require('Zend/Loader.php');
 Zend_Loader::registerAutoload();
+require_once("api/FedoraConnection.php");
 
-Zend_Registry::set('fedora-config', new Zend_Config_Xml("../config/fedora.xml", "test"));
+$fedora_cfg = new Zend_Config_Xml("../config/fedora.xml", "test");
+Zend_Registry::set('fedora-config', $fedora_cfg);
+
+$fedora = new FedoraConnection($fedora_cfg->user, $fedora_cfg->password,
+			       $fedora_cfg->server, $fedora_cfg->port);
+Zend_Registry::set('fedora', $fedora);
+
 
 // required - zend complains without this
 Zend_Session::start();
