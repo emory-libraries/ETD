@@ -18,12 +18,32 @@ require("Zend/Loader.php");
 Zend_Loader::registerAutoload();
 
 
+require_once("api/FedoraConnection.php");
+
 //Load Configuration
 $env_config = new Zend_Config_Xml("../config/environment.xml", "environment");
 Zend_Registry::set('env-config', $env_config);
 $config = new Zend_Config_Xml("../config/config.xml", $env_config->mode);
+Zend_Registry::set('config', $config);
+
+$fedora_cfg = new Zend_Config_Xml("../config/fedora.xml", $env_config->mode);
 Zend_Registry::set('fedora-config',
 	  new Zend_Config_Xml("../config/fedora.xml", $env_config->mode));
+
+// if there is a logged in user, retrieve their information from fedora so it is available everywhere
+$auth = Zend_Auth::getInstance();
+if ($auth->hasIdentity()) {
+  $username = $auth->getIdentity();
+  $password = strtoupper($username);	// because of the way fedora ldap config is hacked right now
+  $fedora = new FedoraConnection($username, $password,
+				 $fedora_cfg->server, $fedora_cfg->port);
+
+} else {
+  $fedora = new FedoraConnection($fedora_cfg->user, $fedora_cfg->password,
+				 $fedora_cfg->server, $fedora_cfg->port);
+}
+Zend_Registry::set('fedora', $fedora);
+
 
 //set default timezone
 date_default_timezone_set($config->timezone);
@@ -37,35 +57,20 @@ $solr->addFacets(explode(',', $solr_config->facets)); 	// array of default facet
 Zend_Registry::set('solr', $solr);
 
 
+require_once("persis.php");
+
+$persis_config = new Zend_Config_Xml("../config/persis.xml", $env_config->mode);
+$persis = new persis($persis_config->url, $persis_config->username,
+		     $persis_config->password, $persis_config->domain);
+Zend_Registry::set('persis', $persis);
+
+
 // set up access controls
-$acl = new Zend_Acl();
-
-//roles
-$guest = new Zend_Acl_Role('guest');
-$acl->addRole($guest);
-$author = new Zend_Acl_Role('author');
-$acl->addRole($author);
-$committee = new Zend_Acl_Role('committee');
-$acl->addRole($committee);
-$admin = new Zend_Acl_Role('admin');
-$acl->addRole($admin);
-
-//resources
-$acl->add(new Zend_Acl_Resource("etd"));
-$acl->add(new Zend_Acl_Resource("published etd"), "etd");
-$acl->add(new Zend_Acl_Resource("draft etd"), "etd");
-
-//privileges
-$acl->allow("guest", "published etd", "view metadata");
-
-$acl->allow("author", "etd", array("view metadata", "view history", "view status",
-				   "download", "edit metadata", "add file"));
-
-$acl->allow("committee", "etd", array("view metadata", "view history", "view status", "download"));
-$acl->allow("admin", "etd", array("view metadata", "view history", "view status", "download",
-				  "edit history", "edit status"));
-
+require_once("xml_acl.php");
+$acl = new Xml_Acl();
 Zend_Registry::set('acl', $acl);
+
+
 
 //Setup Controller
 $front = Zend_Controller_Front::getInstance();
@@ -83,12 +88,12 @@ Xend_Layout::setDefaultLayoutName('site');
 $viewRenderer = Zend_Controller_Action_HelperBroker::getStaticHelper('ViewRenderer');
 $viewRenderer->initView();
 $viewRenderer->view->addHelperPath('Emory/View/Helper', 'Emory_View_Helper');
-
-
-$auth = Zend_Auth::getInstance();
-if ($auth->hasIdentity()) {
-  $viewRenderer->view->current_user = user::find_by_username($auth->getIdentity());
+if (isset($username)) {
+  // fedora connection  needs to be defined before instantiating user
+  $viewRenderer->view->current_user =  user::find_by_username($username);
 }
+
+
 
 
 
