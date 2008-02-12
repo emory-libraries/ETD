@@ -18,20 +18,21 @@ href="<?= $this->url(array("controller" => "submission", "action" => "start"), "
 
 
 <? /* fixme: how to tell if we are not on the index page? */ ?>
+<div class="section">
 <a href="<?= $this->url(array("controller" => "search"), '', true)?>">Search Repository</a>
 
  <form name="search" method="post" action="<?= $this->url(array("controller" => "search",
-			"action" => "results"))?>"
+			"action" => "results"))?>">
    <?= $this->formText("query"); ?>
    <?= $this->formSubmit("Search", "Go >", array("class" => "submitlink")); ?>
 </form>
-
 
 Browse by:
 <? $this->browse_class = 'browse'; ?>
 <?=  $this->render('browse/_categories.phtml'); ?>
 
 <?=  $this->render('_proquest.phtml'); ?>
+</div>
 
 
 <div class="section">
