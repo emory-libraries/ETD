@@ -10,7 +10,7 @@ error_reporting(E_ALL|E_STRICT);
 ini_set("display_errors", "on");
 
 // ZendFramework, etc.
-ini_set("include_path", ini_get("include_path") . ":../app/::../app/models:../app/modules/:../lib:../lib/ZendFramework:../lib/fedora:../lib/xml-utilities:/home/rsutton/public_html");
+ini_set("include_path", "../app/::../app/models:../app/modules/:../lib:../lib/ZendFramework:../lib/fedora:../lib/xml-utilities:/home/rsutton/public_html:" . ini_get("include_path")); // use local copies first (e.g., Zend)
 // NOTE: local models should come before fedora models so that correct
 // xml template files will be found first
 
@@ -33,9 +33,9 @@ Zend_Registry::set('fedora-config',
 // if there is a logged in user, retrieve their information from fedora so it is available everywhere
 $auth = Zend_Auth::getInstance();
 if ($auth->hasIdentity()) {
-  $username = $auth->getIdentity();
-  $password = strtoupper($username);	// because of the way fedora ldap config is hacked right now
-  $fedora = new FedoraConnection($username, $password,
+  $current_user = $auth->getIdentity();
+  $password = strtoupper($current_user->netid);	// because of the way fedora ldap config is hacked right now
+  $fedora = new FedoraConnection($current_user->netid, $password,
 				 $fedora_cfg->server, $fedora_cfg->port);
 
 } else {
@@ -43,6 +43,12 @@ if ($auth->hasIdentity()) {
 				 $fedora_cfg->server, $fedora_cfg->port);
 }
 Zend_Registry::set('fedora', $fedora);
+
+// create DB object for access to Emory Shared Data
+$esdconfig = new Zend_Config_Xml('../config/esd.xml', $env_config->mode);
+$esd = Zend_Db::factory($esdconfig);
+Zend_Registry::set('esd-db', $esd);
+Zend_Db_Table_Abstract::setDefaultAdapter($esd);
 
 
 //set default timezone
@@ -88,9 +94,9 @@ Xend_Layout::setDefaultLayoutName('site');
 $viewRenderer = Zend_Controller_Action_HelperBroker::getStaticHelper('ViewRenderer');
 $viewRenderer->initView();
 $viewRenderer->view->addHelperPath('Emory/View/Helper', 'Emory_View_Helper');
-if (isset($username)) {
+if (isset($current_user)) {
   // fedora connection  needs to be defined before instantiating user
-  $viewRenderer->view->current_user =  user::find_by_username($username);
+  $viewRenderer->view->current_user = $current_user;
 }
 
 
