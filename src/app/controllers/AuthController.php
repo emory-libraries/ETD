@@ -3,6 +3,7 @@
 /* Require models */
 
 require_once("models/user.php");
+require_once("models/esdPerson.php");
 
 class AuthController extends Zend_Controller_Action {
 
@@ -52,17 +53,22 @@ class AuthController extends Zend_Controller_Action {
 
        // forward to .. ?
        $this->_forward("index", "Index");
-     } else {
+     } else {	
        $this->_flashMessenger->addMessage("Login successful");
+       $personObj = new esdPersonObject();
+       $current_user = $personObj->findByUsername($username);
+       $auth->getStorage()->write($current_user);
+       $this->view->current_user = $current_user;
        
-       $user = user::find_by_username($username);
-       $this->view->current_user = $user;
-       if ($user) {
+       if ($current_user) {
 	 // NOTE: cannot save user to session because user object does not recover from serialization
 	 $this->_flashMessenger->addMessage("(found user information)");
 	 // forward to ... ?
 	 $this->_forward("index", "Index");
        } else {
+
+	 // fixme: this behavior no longer makes sense...
+	 
 	 // note: doing a forward causes a problem with the xforms for some reason, but redirect works fine
 	 $this->_flashMessenger->addMessage("did not found user information, sending to edit");
 	 $this->_flashMessenger->addMessage("please enter your user information");
@@ -74,6 +80,17 @@ class AuthController extends Zend_Controller_Action {
      // forward to ... ?
      //     $this->_forward("index", "Index");
      //     $this->_helper->viewRenderer->setNoRender(true);
+   }
+
+
+   // just a test action to get the esd person object working properly
+   public function infoAction() {
+
+     $personObj = new esdPersonObject();
+     $person = $personObj->findByUsername("stoton");
+
+     $this->view->person = $person;
+     
    }
 
 
