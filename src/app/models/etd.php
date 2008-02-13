@@ -5,12 +5,15 @@ require_once("api/risearch.php");
 require_once("models/foxml.php");
 
 require_once("etdInterface.php");
+// etd datastreams
 require_once("etd_mods.php");
 require_once("etd_html.php");
 require_once("premis.php");
 require_once("policy.php");
 
+// related objects
 require_once("etdfile.php");
+require_once("user.php");
 
 // etd object for etd08
 class etd extends foxml implements etdInterface {
@@ -19,6 +22,7 @@ class etd extends foxml implements etdInterface {
   public $pdfs;
   public $originals;
   public $supplements;
+  public $authorInfo;
 
   
   
@@ -43,12 +47,18 @@ class etd extends foxml implements etdInterface {
 		   "supplements" => "Supplement");
     foreach ($files as $var => $type) {
       $this->$var = array();
+      // FIXME: why not just use RELS-EXT ?
       $pids = $this->findFiles($type);
       foreach ($pids as $pid) {
 	if ($pid)
 	  $this->{$var}[] = new etd_file($pid, $this);
       }
     }
+
+    if (isset($this->rels_ext->authorInfo)) {
+      $this->authorInfo = new user($this->rels_ext->authorInfo);
+    }
+    
   }
 
 
