@@ -50,15 +50,17 @@ class mads extends foxmlDatastreamAbstract {
     // academic/emory info
     $this->current->organization = $person->academic_plan;
     $this->current->email = $person->email;
-    
-    // set current address
-    $this->setAddressFromEsd($this->current, $person->address->current);
-    // set to valid as of today
-    $this->current->date = date("Y-m-d");
 
-    // set permanent address
-    $this->setAddressFromEsd($this->permanent, $person->address->permanent);
-
+    // address information is only available for current students
+    if (isset($person->address)) {
+      // set current address
+      $this->setAddressFromEsd($this->current, $person->address->current);
+      // set to valid as of today
+      $this->current->date = date("Y-m-d");
+      
+      // set permanent address
+      $this->setAddressFromEsd($this->permanent, $person->address->permanent);
+    }
   }
 
 
