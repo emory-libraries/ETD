@@ -2,7 +2,6 @@
 <xf:instance id="countries" xmlns="" src="<?= $this->url(array("controller" => "config", "action" => "view",
  "id" => "countries"), "", true) ?>"/>
 
-
 <xf:bind nodeset="//mads:namePart[@type='family' or @type='given']" type="xsd:string"  constraint=". != ''" required="true()"/>
 <!--   <xf:bind nodeset="//mads:namePart[@type='given']" type="xsd:string"  constraint=". != ''"  required="true()"/> -->
 

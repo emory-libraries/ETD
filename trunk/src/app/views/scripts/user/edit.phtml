@@ -1,30 +1,36 @@
 <h1>edit user information</h1>
 
-<xf:group nodeset="mads:authority/mads:name"> 
-   <xf:label>name</xf:label> 
+<p><i>probably should have some information here... this info collected for proquest,etc.</i></p>
 
-   <?= $this->xformText("last name", "mads:namePart[@type='family']"); ?>
-   <?= $this->xformText("first name", "mads:namePart[@type='given']"); ?>
-   <?= $this->xformText("birth year", "mads:namePart[@type='date']"); ?>
+<xf:group nodeset="mads:authority/mads:name"> 
+  <xf:label>name</xf:label> 
+
+   <?= $this->xformText("last", "mads:namePart[@type='family']"); ?>
+   <?= $this->xformText("first and middle", "mads:namePart[@type='given']"); ?>
+   <?//= $this->xformText("birth year", "mads:namePart[@type='date']"); ?>
 </xf:group> 
 <br/>
 
-<xf:group nodeset="mads:affiliation[mads:position != 'permanent resident']">
+<xf:group nodeset="mads:affiliation[mads:position != 'permanent resident' or not(mads:position)]">
 
-   <?= $this->xformText("degree", "mads:position"); ?><br/>
-   <?= $this->xformText("department", "mads:organization"); ?><br/>
+   <?//= $this->xformText("degree", "mads:position"); ?>
+<?= $this->xformOutput("department", "mads:organization"); ?><br/>
 
+   <xf:label>current address</xf:label>
    <?=  $this->render('user/_mads_address.phtml'); ?>
    <?= $this->xformText("email", "mads:email"); ?> <br/>
    <?= $this->xformText("date valid", "mads:dateValid"); ?> <br/>
   
 </xf:group>
-<br/>
+
+<hr/>
 
 <xf:group nodeset="mads:affiliation[mads:position = 'permanent resident']">
    <xf:label>permanent address</xf:label>
 
    <?=  $this->render('user/_mads_address.phtml'); ?>
+   <?= $this->xformOutput("phone", "mads:phone"); ?> <br/>
+
    <?= $this->xformText("non-emory email", "mads:email"); ?> <br/>
 
   <?= $this->xformText("date valid", "mads:dateValid"); ?> <br/>
