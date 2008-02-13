@@ -11,28 +11,31 @@ class esdPerson {
 
   private $alias;
   private $_address;
-  
+
   public function __construct() {
     $this->alias = array("netid" => "LOGN8NTWR_I",
-		       "type" => "PRSN_C_TYPE",
-		       "lastname" => "PRSN_N_LAST",
-		       "firstname" => "PRSN_N_FRST",
-		       "middlename" => "PRSN_N_MIDL",
-		       "directoryname" => "PRSN_N_FM_DTRY",
-		       "department_code" => "DPRT_C",
-		       "academic_career" => "ACCA_I",
-		       "academic_program" => "ACPR8PRMR_I",
-		       "degree" => "DEGR_I",
-		       "term_complete" => "TERM8CMPL_I",
-		       "email" => "EMAD_N",
-		       "id" => "PRSN_I",
-		       "department" => "DPRT_N",
-		       "academic_plan_id" => "ACPL_I",
-		       "academic_plan" => "ACPL_N");
+			 "type" => "PRSN_C_TYPE",
+			 "lastname" => "PRSN_N_LAST",
+			 "firstname" => "PRSN_N_FRST",
+			 "middlename" => "PRSN_N_MIDL",
+			 "directory_name" => "PRSN_N_FM_DTRY",
+			 "department_code" => "DPRT_C",
+			 "academic_career" => "ACCA_I",
+			 "academic_program" => "ACPR8PRMR_I",
+			 "degree" => "DEGR_I",
+			 "term_complete" => "TERM8CMPL_I",
+			 "email" => "EMAD_N",
+			 "id" => "PRSN_I",
+			 "department" => "DPRT_N",
+			 "academic_plan_id" => "ACPL_I",
+			 "academic_plan" => "ACPL_N");
+    
   }
 
   public function __get($field) {
+    $this->alias["directory_name"] = "PRSN_N_FM_DTRY";
     switch ($field) {
+      
     case "address":
       // semi-dynamic for esd person address object
       if (isset($this->_address)) { return  $this->_address;  }
@@ -41,15 +44,22 @@ class esdPerson {
 	$this->_address =  $addressObj->find($this->id);
 	return $this->_address;
       }
-    case "name":	// directory name or first and middle name 
-      if ($this->directoryname)
-	return $this->directoryname;
-      else
-	return $this->firstname . " " . $this->middlename;
-    case "netid":
+    case "name":	// directory name or first and middle name
+      // fixme: directory name doesn't seem to be working properly in some cases....
+      if ($this->directory_name) {
+	return $this->directory_name;
+      } else {
+	$name = $this->firstname;
+	if ($this->middlename)  $name .= " " . $this->middlename;
+	return $name;
+      }
+    case "netid":	// netid is stored in all caps, but we will always use it lower case
       return strtolower($this->{$this->alias["netid"]});
     default:
-      return $this->{$this->alias[$field]};
+      if (isset($this->{$this->alias[$field]}))
+	return $this->{$this->alias[$field]};
+      else
+	return null;
     }
   }
 
@@ -86,7 +96,7 @@ class esdPersonObject extends Emory_Db_Table {
 			     "PRSN_C_TYPE" => array("DATA_TYPE" => "char"),
 			     "PRSN_N_LAST" => array("DATA_TYPE" => "char"),
 			     "PRSN_N_FRST" => array("DATA_TYPE" => "char"),
-			     "PRSN_N_FM_DTRY" => array("DATA_TYPE" => "char"),
+			     "PRSN_N_FM_DTRY" => array("DATA_TYPE" => "char", "NULLABLE" => true),
 			     "PRSN_N_MIDL" => array("DATA_TYPE" => "char", "NULLABLE" => true, "DEFAULT" => null),
 			     "DPRT_C" => array("DATA_TYPE" => "int", "NULLABLE" => true, "DEFAULT" => null),
 			     "ACCA_I" => array("DATA_TYPE" => "int", "NULLABLE" => true, "DEFAULT" => null),
@@ -165,8 +175,11 @@ class esdPersonObject extends Emory_Db_Table {
 
 /* fixme: need to split out addresses into manageable groups */
 
-class esdAddress {
+class esdAddressInfo {
   private $alias;
+
+  public $current;
+  public $permanent;
   
   public function __construct() {
     $this->alias = array("person_id" => "PRSN_I",
@@ -174,26 +187,76 @@ class esdAddress {
 			 "local_line2" => "PRAD_A_LOCL_LIN2",
 			 "local_line3" => "PRAD_A_LOCL_LIN3",
 			 "local_city" => "PRAD_A_LOCL_CITY",
-			 /*			     "PRAD_A_LOCL_STAT"
-			     "PRAD_A_LOCL_ZIP" 
-			     "PRAD_A_LOCL_CNTRY,
-			     "PRAD_A_LOCL_TLPH",
-			     
-			     "PRAD_A_STDN_LIN1"
-			     "PRAD_A_STDN_LIN2"
-			     "PRAD_A_STDN_LIN3"
-			     "PRAD_A_STDN_CITY"
-			     "PRAD_A_STDN_STAT"
-			     "PRAD_A_STDN_ZIP" 
-			     "PRAD_A_STDN_CNTRY",
-			     "PRAD_A_STDN_TLPH"*/
-
-
+			 "local_state" => "PRAD_A_LOCL_STAT",
+			 "local_zip" => "PRAD_A_LOCL_ZIP",
+			 "local_country" => "PRAD_A_LOCL_CNTRY",
+			 "local_telephone" => "PRAD_A_LOCL_TLPH",
+			 "perm_line1" => "PRAD_A_STDN_LIN1",
+			 "perm_line2" => "PRAD_A_STDN_LIN2",
+			 "perm_line3" => "PRAD_A_STDN_LIN3",
+			 "perm_city"  => "PRAD_A_STDN_CITY",
+			 "perm_state" => "PRAD_A_STDN_STAT",
+			 "perm_zip"   => "PRAD_A_STDN_ZIP" ,
+			 "perm_country" => "PRAD_A_STDN_CNTRY",
+			 "perm_telephone" => "PRAD_A_STDN_TLPH",
 			 );
+
+    $this->current = new esdAddress();
+    $this->permanent = new esdAddress();
+
+    $this->setAddress("current");
+    $this->setAddress("permanent");
   }
 
+  public function setAddress($type) {
+    switch ($type) {
+    case "current":
+      $prefix = "local";
+      $address = $this->current;
+      break;
+    case "permanent":
+      $prefix = "perm";
+      $address = $this->permanent;
+      break;
+    default:
+      return;	// do nothing
+    }
+    
+    $address->street = array();
+    foreach (array(1,2,3) as $i) {
+      if ($this->{$prefix . "_line" . $i})
+	$address->street[] = $this->{$prefix . "_line" . $i};
+    }
+    $address->city = $this->{$prefix . "_city"};
+    $address->state = $this->{$prefix . "_state"};
+    $address->zip = $this->{$prefix . "_zip"};
+    $address->country = $this->{$prefix . "_country"};
+    $address->telephone = $this->{$prefix . "_telephone"};
+  }    
+  
+
   public function __get($field) {
-    return $this->{$this->alias[$field]};
+    if (isset($this->alias[$field]))
+      return $this->{$this->alias[$field]};
+    elseif (isset($this->{$field}))
+      return  $this->{$field};
+    else
+      return null;
+  }
+}
+
+
+/* convenience class to access the permanent & current addresses in a more usable form */
+class esdAddress {
+  public $street;
+  public $city;
+  public $state;
+  public $zip;
+  public $country;
+  public $telephone;
+
+  public function __construct() {
+    
   }
 }
 
@@ -203,7 +266,7 @@ class esdAddressObject extends Emory_Db_Table {
   protected $_name           = 'v_etd_prad';	// table name
   protected $_schema         = 'ESDV';
   protected $_rowsetClass    = 'esdAddresses';  
-  protected $_rowClass       = 'esdAddress';  
+  protected $_rowClass       = 'esdAddressInfo';  
   protected $_primary        = 'PRSN_I';    	// person ID within ESD
 
 
@@ -215,7 +278,7 @@ class esdAddressObject extends Emory_Db_Table {
 			     "PRAD_A_LOCL_CITY" => array("DATA_TYPE" => "char"),
 			     "PRAD_A_LOCL_STAT" => array("DATA_TYPE" => "char"),
 			     "PRAD_A_LOCL_ZIP" => array("DATA_TYPE" => "char"),
-			     "PRAD_A_LOCL_CNTRY" => array("DATA_TYPE" => "char"),
+			     "PRAD_A_LOCL_CNTRY" => array("DATA_TYPE" => "char", "NULLABLE" => true),
 			     "PRAD_A_LOCL_TLPH" => array("DATA_TYPE" => "char"),
 			     
 			     "PRAD_A_STDN_LIN1" => array("DATA_TYPE" => "char"),
@@ -238,7 +301,7 @@ class esdAddressObject extends Emory_Db_Table {
     $db = $this->getAdapter();
     $sql = "select * from ESDV.v_etd_prad where PRSN_I = ?";
     $stmt = $this->_db->query($sql, array($id));
-    return $stmt->fetchObject("esdAddress");
+    return $stmt->fetchObject("esdAddressInfo");
   }
 
 
