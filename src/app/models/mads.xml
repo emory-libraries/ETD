@@ -12,12 +12,6 @@
  <mads:affiliation>
   <mads:position>degree candidate</mads:position> <!-- possibility: degree candidate, Master of Science -->
   <mads:organization/> <!-- Department of Chemistry, Emory University -->
-   <!-- position? 
-	organization? 
-
- 	should/could departmental affiliation be stored here?
-
-	-->
    <mads:address>
      <mads:street/>
      <mads:city/>
