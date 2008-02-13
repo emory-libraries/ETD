@@ -1,0 +1,87 @@
+<?= $this->javascript("projax/js/prototype.js"); ?>
+<?= $this->javascript("projax/js/scriptaculous.js"); ?>
+
+<? //php ajax/scriptaculous
+include("projax/projax.php");
+$projax = new Projax();
+
+$ajaxopts = array("url" => $this->url(array("controller" => "search", "action" => "facultySuggestor"), "", true),
+		  "indicator" => "adv-loading", "value" => "id", "select" => "value",
+		  "after_update_element" => "setAdvisor" );
+$inputopts = array("size" => "55", "autocomplete" => "off", "id" => "advisor_autocomplete");
+?>
+
+<script language="Javascript" type="text/javascript">
+  function setAdvisor(text, li) {
+  /* create a hidden input with faculty's netid, and display name */
+      new Insertion.Bottom('advisor', '<p id="'+li.id+'"><input type="hidden" name="advisor" value="' + li.id + '"/>' + text.value + '<a class="remove" href="#" onClick="javascript:removeAdvisor(\''+li.id+'\')">remove</a></p>');
+      // blank out suggestor and hide it -- only one advisor
+      text.value = '';
+      Element.hide("advisor_autocomplete");
+  }
+  function addFaculty(text, li) {
+    /* create a hidden input with faculty's netid, and display name */
+    new Insertion.Bottom('faculty_list', '<li id="' + li.id +'"><input type="hidden" name="committee[]" value="' + li.id + '"/>' + text.value + '<a class="remove" href="#" onClick="Element.remove(\''+li.id+'\')">remove</a></li>');
+
+    // make the faculty list sortable (needs to be updated when new fields are added)
+    Sortable.create("faculty_list");
+    text.value = '';	// blank out suggestor for more entries
+  }
+ function removeAdvisor(id) { Element.remove(id); Element.show("advisor_autocomplete"); }
+</script>
+
+
+<h1>Edit Advisor & Committee Members</h1>
+<p><?= $this->etd->title() ?> </p>
+
+
+<p><i>need instructions here...</i><br/>
+begin typing and select from the list;<br/>
+drag committee members to re-arrange order<br/>
+add non-Emory committee members on record page (link?)</p>
+
+<div id="edit_faculty">
+<? $advisor = $this->etd->mods->advisor; ?>
+<? $committeeMembers = $this->etd->mods->committee; ?>
+
+<form method="post" id="fields_form"  action="<?= $this->url(array("action" => "savefaculty"))?>">
+   <div id="advisor"><h2>Advisor</h2>
+     <? if ($advisor->id) : ?>
+       <p id="<?= $advisor->id ?>"><input type="hidden" name="advisor" value="<?= $advisor->id ?>"/>
+	  <?= $advisor->full ?>
+	  <a class="remove" href="#" onClick="javascript:removeAdvisor('<?= $advisor->id ?>')">remove</a>
+       </p>
+     <? endif ?>
+   </div>
+	  <div id="advisor_autocomplete" <? if ($advisor->id): ?> style="display:none" <? endif ?> >
+      <?=  $projax->text_field_with_auto_complete('faculty', $inputopts, $ajaxopts); ?>
+	<span id="adv-loading" style="display:none;">Searching...</span>
+    </div>
+    <hr/>
+   <h2>Committee Members</h2>
+   <ul id="faculty_list">
+     <? foreach ($committeeMembers as $committee): ?>
+	<? if ($committee->id) : ?>
+	   <li id="<?= $committee->id ?>">
+	      <input type="hidden" name="committee[]" value="<?= $committee->id ?>"/>
+	      <?= $committee->full ?>
+	      <a class="remove" href="#" onClick="Element.remove('<?= $committee->id ?>')">remove</a>
+	<? endif ?>
+     <? endforeach ?>	
+   </ul>
+
+  <? if (count($committeeMembers) > 1): ?>
+      <?= $projax->sortable_element("faculty_list", array("url" => null)); ?>     
+  <? endif ?>	      
+ 
+<? $ajaxopts["after_update_element"] = "addFaculty"; $ajaxopts["indicator"] = "cm-loading"; ?>
+<?= $projax->text_field_with_auto_complete('faculty', $inputopts, $ajaxopts); ?>
+     <span id="cm-loading" style="display:none;">Searching...</span>
+
+<p><input type="submit" value="save"/></p>
+</form>
+ <div id="autocomplete"/>
+     
+</div>
+
+
