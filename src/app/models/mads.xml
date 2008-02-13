@@ -10,7 +10,7 @@
  </mads:authority>
 <!-- note? -->
  <mads:affiliation>
-  <mads:position/> <!-- possibility: degree candidate, Master of Science -->
+  <mads:position>degree candidate</mads:position> <!-- possibility: degree candidate, Master of Science -->
   <mads:organization/> <!-- Department of Chemistry, Emory University -->
    <!-- position? 
 	organization? 
@@ -22,7 +22,7 @@
      <mads:street/>
      <mads:city/>
      <mads:state/>
-     <mads:country/>
+     <mads:country>UNITED STATES</mads:country>
      <mads:postcode/>
    </mads:address>
    <mads:email/>
