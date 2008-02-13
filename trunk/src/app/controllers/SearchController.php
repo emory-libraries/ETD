@@ -12,6 +12,7 @@ class SearchController extends Zend_Controller_Action {
     $request = $this->getRequest();
      $query = $request->getParam("query");
 
+     /* fixme: maybe get all params at once and then loop through them ? */
      
      $title = $request->getParam("title");
      if ($title) $query .= " title:($title)";
@@ -57,5 +58,22 @@ class SearchController extends Zend_Controller_Action {
      }
      $this->view->etds = $etds;
    }
+
+
+
+  public function facultySuggestorAction() {
+    $name = $this->_getParam("faculty");
+    $p = new esdPersonObject();
+
+    $this->view->faculty = $p->match_faculty(stripslashes($name));
+    
+    // disable layouts and view script rendering in order to set content-type header as xml
+    $this->getHelper('layoutManager')->disableLayouts();
+    //    $this->_helper->viewRenderer->setNoRender(true);
+    
+    //    $this->getResponse()->setHeader('Content-Type', "text/xml")->setBody($xml);
+    $this->getResponse()->setHeader('Content-Type', "text/xml");
+
+  }
   
 }
