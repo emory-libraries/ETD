@@ -18,6 +18,7 @@ class esdPerson {
 		       "lastname" => "PRSN_N_LAST",
 		       "firstname" => "PRSN_N_FRST",
 		       "middlename" => "PRSN_N_MIDL",
+		       "directoryname" => "PRSN_N_FM_DTRY",
 		       "department_code" => "DPRT_C",
 		       "academic_career" => "ACCA_I",
 		       "academic_program" => "ACPR8PRMR_I",
@@ -31,14 +32,23 @@ class esdPerson {
   }
 
   public function __get($field) {
-    if ($field == "address") {
+    switch ($field) {
+    case "address":
+      // semi-dynamic for esd person address object
       if (isset($this->_address)) { return  $this->_address;  }
       else {
 	$addressObj = new esdAddressObject();
 	$this->_address =  $addressObj->find($this->id);
 	return $this->_address;
       }
-    } else {
+    case "name":	// directory name or first and middle name 
+      if ($this->directoryname)
+	return $this->directoryname;
+      else
+	return $this->firstname . " " . $this->middlename;
+    case "netid":
+      return strtolower($this->{$this->alias["netid"]});
+    default:
       return $this->{$this->alias[$field]};
     }
   }
@@ -76,6 +86,7 @@ class esdPersonObject extends Emory_Db_Table {
 			     "PRSN_C_TYPE" => array("DATA_TYPE" => "char"),
 			     "PRSN_N_LAST" => array("DATA_TYPE" => "char"),
 			     "PRSN_N_FRST" => array("DATA_TYPE" => "char"),
+			     "PRSN_N_FM_DTRY" => array("DATA_TYPE" => "char"),
 			     "PRSN_N_MIDL" => array("DATA_TYPE" => "char", "NULLABLE" => true, "DEFAULT" => null),
 			     "DPRT_C" => array("DATA_TYPE" => "int", "NULLABLE" => true, "DEFAULT" => null),
 			     "ACCA_I" => array("DATA_TYPE" => "int", "NULLABLE" => true, "DEFAULT" => null),
@@ -96,11 +107,44 @@ class esdPersonObject extends Emory_Db_Table {
   }
 
   public function findByUsername($netid) {
-    $db = $this->getAdapter();
     $sql = "select * from ESDV.v_etd_prsn where LOGN8NTWR_I = ?";
     $stmt = $this->_db->query($sql, array(strtoupper($netid)));
     return $stmt->fetchObject("esdPerson");
   }
+
+
+
+  public function match_faculty($name) {
+    $sql = "SELECT * FROM ESDV.v_etd_prsn WHERE PRSN_C_TYPE='F' ";
+
+    // FIXME: handle multiple names - split on spaces and search for both names
+    $names = split(' ', $name);
+
+    foreach ($names as $name) {
+      if (trim($name) == "") continue;	// skip blanks (multiple spaces)
+
+      $uname = ucfirst($name) . "%";        	// better way to make it semi- case-insensitive ?
+      
+      $where_sql = " AND (PRSN_N_LAST LIKE ? OR PRSN_N_FRST LIKE ? OR PRSN_N_MIDL LIKE ? OR PRSN_N_FM_DTRY LIKE ?) ";
+      $sql .= $this->getAdapter()->quoteInto($where_sql, $uname);
+    }
+
+    $sql .= " ORDER BY PRSN_N_LAST";	// sort by last name
+    $sql = "SELECT * FROM ( $sql ) WHERE ROWNUM <= 5";	// limit results to first 25
+    // (oracle notation for limiting results)
+
+    $sql = $this->getAdapter()->quoteInto($sql, $uname);
+    $stmt = $this->_db->query($sql);
+
+    // build an array of esdPersons (better way to do this?)
+    $result = array();
+    while ($obj =  $stmt->fetchObject("esdPerson")) {
+      $result[] = $obj;
+    }
+    
+    return $result;
+  }
+  
 
   
   /*  public function findByUsername($netid) {
