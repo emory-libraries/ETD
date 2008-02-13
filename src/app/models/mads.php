@@ -35,9 +35,58 @@ class mads extends foxmlDatastreamAbstract {
 	);
   }
 
+
+
+  /**
+   * initialize information from Emory Shared Data, as much as possible
+   */
+  public function initializeFromEsd(esdPerson $person) {
+    
+    // set netid and name
+    $this->netid = $person->netid;
+    $this->name->first = $person->name;
+    $this->name->last = $person->lastname;
+    
+    // academic/emory info
+    $this->current->organization = $person->academic_plan;
+    $this->current->email = $person->email;
+    
+    // set current address
+    $this->setAddressFromEsd($this->current, $person->address->current);
+    // set to valid as of today
+    $this->current->date = date("Y-m-d");
+
+    // set permanent address
+    $this->setAddressFromEsd($this->permanent, $person->address->permanent);
+
+  }
+
+
+  /**
+   * set address (current or permanent) from ESD
+   */
+  private function setAddressFromEsd($addr, esdAddress $esdAddress) {
+    for ($i = 0; isset($esdAddress->street[$i]) && $i < 3; $i++)
+      if ($i == 0)
+	$addr->address->street[$i] = $esdAddress->street[$i];	// fixme: multiple?
+      else 
+	$addr->address->street[] = $esdAddress->street[$i];
+    
+    $addr->address->city = $esdAddress->city;
+    $addr->address->state = $esdAddress->state;
+    if ($esdAddress->country)
+      $addr->address->country = $esdAddress->country;
+    $addr->address->postcode = $esdAddress->zip;
+    $addr->phone = $esdAddress->telephone;
+  }    
+
+  
+
+
+  /*   should have already from base class
   public function isValid() {
     return $this->dom->schemaValidate($this->schema);
-  }
+    }*/
   
   public static function getFedoraTemplate(){
     return foxml::xmlDatastreamTemplate("MADS", mads::dslabel,
@@ -75,6 +124,8 @@ class mads_affiliation extends XmlObject {
   public function __construct($xml, $xpath) {
     $config = $this->config(array(
 	"address" => array("xpath" => "mads:address", "class_name" => "mads_address"),
+	"organization" => array("xpath" => "mads:organization"),
+	"position" => array("xpath" => "mads:position"),
 	"email" => array("xpath" => "mads:email"),
 	"phone" => array("xpath" => "mads:phone"),
 	"date" => array("xpath" => "mads:dateValid")
@@ -86,7 +137,7 @@ class mads_affiliation extends XmlObject {
 class mads_address extends XmlObject {
   public function __construct($xml, $xpath) {
     $config = $this->config(array(
-	"street" => array("xpath" => "mads:street"),
+        "street" => array("xpath" => "mads:street", "is_series" => true),
 	"city" => array("xpath" => "mads:city"),
 	"state" => array("xpath" => "mads:state"),
 	"country" => array("xpath" => "mads:country"),
