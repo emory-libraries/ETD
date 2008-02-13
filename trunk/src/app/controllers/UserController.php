@@ -19,7 +19,7 @@ class UserController extends Zend_Controller_Action {
       $user = new user($this->_getParam("pid"));
     } else {
       //default to currently logged in user
-      $user = $this->view->current_user;
+      $user = user::find_by_username(strtolower($this->view->current_user->netid));
     }
 
     $this->view->user = $user;
@@ -42,12 +42,7 @@ class UserController extends Zend_Controller_Action {
   public function editAction() {
     // default to null pid - create an empty user object
     $pid = $this->_getParam("pid", null);
-    if ($pid == $this->view->current_user->pid) {
-      // don't retrieve from Fedora again if we already have it 
-      $user = $this->view->current_user;
-    } else {
-      $user = new user($pid);
-    }
+    $user = new user($pid);
     $this->view->user = $user;
 
     $this->view->title = "Edit User Information";
@@ -99,22 +94,16 @@ class UserController extends Zend_Controller_Action {
    public function madsAction() {
     // if pid is null, display template xml with netid set to id for current user
      $pid = $this->_getParam("pid", null);
-     if ($pid == $this->view->current_user->pid) {
-      // don't retrieve from Fedora again if we already have it 
-      $user = $this->view->current_user;
-     } else {
-       $user = new user($pid);
-     }
+     $user = new user($pid);
      $this->view->user = $user;
 
      if (is_null($pid)) {
        // empty template - set a few values
        $auth = Zend_Auth::getInstance();
        if ($auth->hasIdentity()) {
-	 $identity = $auth->getIdentity(); 
-	 $user->mads->netid = $identity;
+	 $current_user = $auth->getIdentity();
+	 $user->mads->initializeFromEsd($current_user);
        }
-       $user->mads->permanent->date = date("Y-m-d");
      }
 
      $xml = $user->mads->saveXML();
