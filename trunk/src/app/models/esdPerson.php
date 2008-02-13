@@ -117,23 +117,26 @@ class esdPersonObject extends Emory_Db_Table {
   public function match_faculty($name) {
     $sql = "SELECT * FROM ESDV.v_etd_prsn WHERE PRSN_C_TYPE='F' ";
 
+    $name = strtolower($name);	// convert to lower case for case-insensitive comparison
     // FIXME: handle multiple names - split on spaces and search for both names
     $names = split(' ', $name);
 
-    foreach ($names as $name) {
-      if (trim($name) == "") continue;	// skip blanks (multiple spaces)
+    foreach ($names as $n) {
+      if (trim($n) == "") continue;	// skip blanks (multiple spaces)
 
-      $uname = ucfirst($name) . "%";        	// better way to make it semi- case-insensitive ?
-      
-      $where_sql = " AND (PRSN_N_LAST LIKE ? OR PRSN_N_FRST LIKE ? OR PRSN_N_MIDL LIKE ? OR PRSN_N_FM_DTRY LIKE ?) ";
+      $uname = "%$n%";       
+      $where_sql = " AND (LOWER(PRSN_N_LAST) LIKE ? OR LOWER(PRSN_N_FRST) LIKE ? OR
+			LOWER(PRSN_N_MIDL) LIKE ? OR LOWER(PRSN_N_FM_DTRY) LIKE ?) ";
       $sql .= $this->getAdapter()->quoteInto($where_sql, $uname);
     }
 
     $sql .= " ORDER BY PRSN_N_LAST";	// sort by last name
-    $sql = "SELECT * FROM ( $sql ) WHERE ROWNUM <= 5";	// limit results to first 25
+    $sql = "SELECT * FROM ( $sql ) WHERE ROWNUM <= 25";	// limit results to first 25
     // (oracle notation for limiting results)
 
     $sql = $this->getAdapter()->quoteInto($sql, $uname);
+    // NOTE: Zend OCI quote class doesn't quote apostrophes correctly - fix them here
+    $sql = str_replace("\'", "''", $sql);
     $stmt = $this->_db->query($sql);
 
     // build an array of esdPersons (better way to do this?)
