@@ -66,6 +66,47 @@ class EditController extends Zend_Controller_Action {
   }
 
 
+  public function facultyAction() {
+    $pid = $this->_getParam("pid");
+    $etd = new etd($pid);
+
+    $this->view->title = "Edit Advisor & Committee Members";
+    $this->view->etd = $etd;
+  }
+
+  
+  public function savefacultyAction() {
+    $pid = $this->_getParam("pid");
+    $etd = new etd($pid);
+    $this->view->etd = $etd;
+    
+    $advisor_id = $this->_getParam("advisor");
+    $committee_ids = $this->_getParam("committee");	//array
+    $this->view->committee_ids = $committee_ids;
+
+    // set fields
+    $etd->mods->setAdvisor($advisor_id);
+    $etd->mods->setCommittee($committee_ids);
+
+    if ($etd->mods->hasChanged()) {
+      $save_result = $etd->save("updated advisor & committee members");
+      $this->view->save_result = $save_result;
+      if ($save_result) 
+	$this->_helper->flashMessenger->addMessage("Saved changes to advisor & committee");
+      else
+      $this->_helper->flashMessenger->addMessage("Could not save changes to advisor & committee (permission denied?)");
+    } else {
+      $this->_helper->flashMessenger->addMessage("No changes made to advisor & committee");
+    }
+
+    // FIXME: why is message not showing up after redirect?
+    $this->_helper->redirector->gotoRoute(array("controller" => "view", "action" => "record",
+						"pid" => $pid), '', true);
+  }
+
+
+
+
   public function rightsAction() {
     $pid = $this->_getParam("pid");
     $etd = new etd($pid);
