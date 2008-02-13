@@ -2,6 +2,8 @@
 
 require_once("models/mods.php");
 
+require_once("models/esdPerson.php");
+
 class etd_mods extends mods {
 
   protected $etd_namespace = "http://www.ndltd.org/standards/metadata/etdms/1.0/";
@@ -125,6 +127,8 @@ class etd_mods extends mods {
   }
 
   public function addCommitteeMember($lastname, $firstname, $emory = true, $affiliation = null) {
+    // fixme: need a way to set netid -- set from netid if emory ?
+    
     if ($emory)  {
       $type = "Emory Committee Member";
       $newnode = $this->map['committee'][0]->domnode->cloneNode(true);
@@ -172,6 +176,66 @@ class etd_mods extends mods {
       print "error: couldn't find context node...<br/>\n";	// this shouldn't happen.... ?
     }
 
+    $this->update();
+  }
+
+
+  public function setAdvisor($id) {
+    if ($this->advisor->id == $id)   // if id is unchanged, don't lookup/reset
+      return;
+    
+    $esd = new esdPersonObject();
+    $person = $esd->findByUsername($id);
+    $this->advisor->id    = $id;
+    $this->advisor->last  = $person->lastname;
+    $this->advisor->first = $person->name;	// directory name OR first+middle
+    $this->advisor->full  = $person->lastname . ", " . $person->name;
+  }
+  
+  public function setCommittee(array $netids) {
+    $esd = new esdPersonObject();
+    $i = 0;	// index for looping over committee array
+    
+    foreach ($netids as $id) {  // if id is unchanged, don't lookup/reset
+      if (isset($this->map["committee"][$i]) && $this->committee[$i]->id == $id) {
+	$i++;
+	continue;
+      }
+      $person = $esd->findByUsername($id);
+      if ($person) {
+	if (isset($this->map["committee"][$i])) {
+	  $this->committee[$i]->id = $id;
+	  $this->committee[$i]->last = $person->lastname;
+	  $this->committee[$i]->first = $person->name;	// directory name OR first+middle
+	  $this->committee[$i]->full = $person->lastname . ", " . $person->name;
+	} else {
+	  $this->addCommitteeMember($person->lastname, $person->name);
+	  // FIXME: need a better way store netid... - should be part of addCommittee function...
+	  $this->committee[$i]->id = $id;
+	}
+      } else {
+	// shouldn't come here, since ids should be selected by drop-down populated from ESD...
+	trigger_error("Could not find person information for '$id' in Emory Shared Data", E_USER_WARNING);
+      }
+      $i++;
+    }
+
+    // remove any committee members beyond this set of new ones
+    while (isset($this->committee[$i]) ) {
+      $this->removeCommitteeMember($this->committee[$i]->id);
+    }
+
+    $this->update();
+  }
+
+  public function removeCommitteeMember($id) {
+    // remove the node from the xml dom
+    $nodelist = $this->xpath->query("//mods:name[@ID = '$id']");
+    for ($i = 0; $i < $nodelist->length; $i++) {
+      $node = $nodelist->item($i);      
+      $node->parentNode->removeChild($node);
+    }
+    // update in-memory array so it will reflect the change
     $this->update();
   }
 
