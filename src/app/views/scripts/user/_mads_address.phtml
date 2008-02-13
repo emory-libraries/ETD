@@ -1,6 +1,23 @@
    <xf:group ref="mads:address">
      <xf:label>address</xf:label>
-     <?= $this->xformText("street", "mads:street"); ?> <br/>
+     <xf:repeat id="repeat-street" nodeset="mads:street"> 
+        <?= $this->xformText("street", "."); ?> <br/>
+     </xf:repeat>
+
+     <xf:trigger id="street-add">
+       <xf:label>Add</xf:label>
+        <xf:action ev:event="DOMActivate">
+          <xf:insert ref="mads:street" at="last()" position="after"/> 
+          <xf:setvalue ref="mads:street[last()]" value="''"/>
+        </xf:action>
+      </xf:trigger>
+      
+      <xf:trigger>
+        <xf:label>Remove</xf:label>
+        <xf:delete ev:event="DOMActivate" nodeset="mads:street" at="last()"/>
+      </xf:trigger>
+      <br/>
+
      <?= $this->xformText("city", "mads:city"); ?> <br/>
      <?= $this->xformText("state", "mads:state"); ?>
        <xf:select1 ref="mads:country">
@@ -13,4 +30,3 @@
      <?= $this->xformText("postcode", "mads:postcode"); ?>
   </xf:group>
  <br/>
-  <?= $this->xformText("phone", "mads:phone"); ?> <br/>
