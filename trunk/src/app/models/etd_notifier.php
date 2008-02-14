@@ -4,6 +4,9 @@ include("Emory/notifier.php");
 
 class etd_notifier extends notifier {
 
+  private $to;
+  private $cc;
+  
   public function __construct(etd $etd) {
     parent::__construct();
 
@@ -16,15 +19,44 @@ class etd_notifier extends notifier {
     if ($environment->mode != "production") {
       // use a configured debug email address when in development mode
       $this->mail->addTo($config->email->test);
+
+      // retrieve & display email addresses that would be used in production
+      $this->getEmailAddresses($etd);
+    } else {
+      // add author & committee email addresses from ESD 
+      $this->getEmailAddresses($etd);
+      foreach ($this->to as $email => $name) $this->mail->addTo($email, $name);
+      foreach ($this->cc as $email => $name) $this->mail->addCc($email, $name);
+      $this->mailaddBcc($config->email->etd->address, $config->email->etd->name);
     }
-
-    // 	      also: add to template development output with email addresses
-    // 		    that would be used in production?...
-
-    // fixme: need a way to look up author & committee email addresses (from ESD perhaps?)
     $this->view->etd = $etd;
 
   }
+
+
+  private function getEmailAddresses(etd $etd) {
+    // author - send to both currnet & permanent addresses
+    $name = $etd->author->mads->name->first . " " . $etd->author->mads->name->last;
+    $this->to[$etd->author->mads->current->email] = $name;
+    $this->to[$etd->author->mads->permanent->email] = $name;
+
+    // advisor & committee  - look up in ESD
+    $esd = new esdPersonObject();
+
+    // advisor
+    $person = $esd->findByUsername($etd->mods->advisor->id);
+    $this->cc[$person->email] = $person->fullname;
+    // committee members
+    foreach ($etd->mods->committee as $cm) {
+      $person = $esd->findByUsername($cm->id);
+      $this->cc[$person->email] = $person->fullname;
+    }
+
+    // store in the view for debugging output
+    $this->view->to = $this->to;
+    $this->view->cc = $this->cc;
+  }
+  
 
   public function submission() {
     // default recipients ?
