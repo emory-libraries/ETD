@@ -266,6 +266,7 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
   private function clean_name ($name) {
     $name = str_replace("Dr. ", "", $name);
     $name = str_replace(", Ph.D.", "", $name);
+    $name = trim($name);
     return $name;
   }
 
