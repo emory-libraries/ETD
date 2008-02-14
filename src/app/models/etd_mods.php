@@ -353,26 +353,30 @@ class etd_mods extends mods {
    */
   public function checkRequired() {
     $missing = array();
-    
-    // must have a valid advisor - how to tell if valid? username?
 
-    // at least one committee member (valid faculty - same as advisor test?)
+    // note - key is display of what is missing, value is edit action (where should this logic be?)
+    
+    // must have a valid advisor - should have an emory id
+    if ($this->advisor->id == "") $missing["advisor"] = "faculty";
+
+    // at least one committee member (valid faculty, same as advisor test)
+    if ($this->committee[0]->id == "") $missing["committee members"] = "faculty";
 
     // at least one research field (filled out, not blank)
     if (!count($this->researchfields) ||
 	$this->researchfields[0]->id == "" || $this->researchfields[0]->topic == "") {
-      $missing[] = "proquest research field (at least one)";
+      $missing["proquest research fields"] = "researchfield";
     }
     // fixme: check if there are too many? app should not let them set too many
 
     // author's department 
-    if ($this->department == "") $missing[] = "program";
+    if ($this->department == "") $missing["program"] = "program";
 
     // abstract
-    if ($this->abstract == "")   $missing[] = "abstract";
+    if ($this->abstract == "")   $missing["abstract"] = "abstract";
 
     // table of contents
-    if ($this->tableOfContents == "")  $missing[] = "table of contents";
+    if ($this->tableOfContents == "")  $missing["table of contents"] = "contents";
 
 
     // other required fields?
