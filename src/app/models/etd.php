@@ -22,7 +22,7 @@ class etd extends foxml implements etdInterface {
   public $pdfs;
   public $originals;
   public $supplements;
-  public $authorInfo;
+  public $author;	// user object
 
   
   
@@ -55,8 +55,8 @@ class etd extends foxml implements etdInterface {
       }
     }
 
-    if (isset($this->rels_ext->authorInfo)) {
-      $this->authorInfo = new user($this->rels_ext->authorInfo);
+    if (isset($this->rels_ext->hasAuthor)) {
+      $this->author = new user($this->rels_ext->hasAuthor);
     }
     
   }
@@ -183,6 +183,7 @@ class etd extends foxml implements etdInterface {
     
     $query = 'select $etdfile  from <#ri>
     	where  <' . $pid . '> <fedora-rels-ext:has' . $type . '> $etdfile';
+    // fixme: order by sequenceNumber
 
     $filelist = risearch::query($query);
 
@@ -202,7 +203,7 @@ class etd extends foxml implements etdInterface {
     if (! $this->mods->readyToSubmit()) return false;
     if (! $this->hasPDF()) return false;
     if (! $this->hasOriginal()) return false;
-    
+    if (!isset($this->author) || !$this->author->readyToSubmit()) return false;
     return true;
   }
 
