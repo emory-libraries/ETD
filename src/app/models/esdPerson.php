@@ -44,6 +44,13 @@ class esdPerson {
 	$this->_address =  $addressObj->find($this->id);
 	return $this->_address;
       }
+
+      // convenience attributes for two versions of full name
+    case "fullname":	// directory name or first and middle name followed by last name
+	return $this->name . " " . $this->lastname;
+    case "lastnamefirst":	// lastname, firstname + middle OR lastname, directoryname
+      return $this->lastname . ", " . $this->name;
+      
     case "name":	// directory name or first and middle name
       // fixme: directory name doesn't seem to be working properly in some cases....
       if ($this->directory_name) {
@@ -123,7 +130,9 @@ class esdPersonObject extends Emory_Db_Table {
   }
 
 
-
+  /**
+   * find a list of matching faculty based on name - used for suggestor
+   */
   public function match_faculty($name) {
     $sql = "SELECT * FROM ESDV.v_etd_prsn WHERE PRSN_C_TYPE='F' ";
 
@@ -157,6 +166,41 @@ class esdPersonObject extends Emory_Db_Table {
     
     return $result;
   }
+
+
+
+  
+  public function findFacultyByName($name) {
+    $sql = "SELECT * FROM ESDV.v_etd_prsn WHERE PRSN_C_TYPE='F' ";
+
+    $name = str_replace(".", "", $name);
+    // split on spaces and search for both all names
+    $names = split(' ', $name);
+
+    foreach ($names as $n) {
+      if (trim($n) == "") continue;	// skip blanks (multiple spaces)
+
+      $uname = "%$n%";       
+      $where_sql = " AND (PRSN_N_LAST LIKE ? OR PRSN_N_FRST LIKE ? OR
+			PRSN_N_MIDL LIKE ? OR PRSN_N_FM_DTRY LIKE ?) ";
+      $sql .= $this->getAdapter()->quoteInto($where_sql, $uname);
+    }
+
+    // shouldn't need to sort or limit - we only want one match
+
+    $sql = $this->getAdapter()->quoteInto($sql, $uname);
+    // NOTE: Zend OCI quote class doesn't quote apostrophes correctly - fix them here
+    $sql = str_replace("\'", "''", $sql);
+    $stmt = $this->_db->query($sql);
+    // rowCount doesn't seem to be accurate - how to determine if there is more than one?
+
+    // only return the first match 
+    $result = $stmt->fetchObject("esdPerson");
+    return $result;
+    
+  }
+
+
   
 
   
