@@ -33,21 +33,22 @@ class SubmissionController extends Zend_Controller_Action {
 
     // as long as title is not blank, create fedora object for user to edit
     if ($etd_info['title'] != "") {
-      print "title is not  blank, creating new etd and setting values<br/>\n";
-
       // create new etd record and save all the fields
       $etd = new etd();
       $etd->title = $etd_info['title'];
 
-      // fixme: need a better way of doing this...
+      // fixme: can we rely on current_user stored in view object?
+      // user must be logged in to run this action anyway
       $auth = Zend_Auth::getInstance();
       if ($auth->hasIdentity()) {
 	$identity = $auth->getIdentity();
 	// use netid for object ownership and author relation
-	$etd->owner = $identity;
-	$etd->rels_ext->addRelation("rel:author", $identity);
+	$etd->owner = $identity->netid;
+	$etd->rels_ext->addRelation("rel:author", $identity->netid);
       }
-
+      // set author info
+      $etd->mods->setAuthorFromPerson($identity);
+      
       $etd->abstract = $etd_info['abstract'];
       $etd->contents = $etd_info['toc'];
 
@@ -59,18 +60,26 @@ class SubmissionController extends Zend_Controller_Action {
       $department = $programs->findLabel($this->view->etd_info['department']);
       if ($department)
 	$etd->mods->department = $department;
-      // fixme: also set degree discipline from department?
 
-
-      // FIXME: need to find names from faculty list
-      $etd->mods->advisor->full = $etd_info['advisor'];
-      foreach ($etd_info['committee'] as $i => $member) {
-	if (array_key_exists($i, $etd->mods->committee)) {
-	  $etd->mods->committee[$i]->full = $member;
-	} else {
-	  // need a way to add committee members....
-	}
+      // match faculty names found in the PDF to persons in ESD
+      $esd = new esdPersonObject();
+      if ($advisor = $esd->findFacultyByName($etd_info['advisor'])) {
+	$etd->mods->setAdvisorFromPerson($advisor);
+      } else {
+	$this->_helper->flashMessenger->addMessage("Couldn't find directory match for " .
+				   $this->view->etd_info['advisor'] . "; please enter manually");
       }
+      
+      $committee = array();
+      foreach ($etd_info['committee'] as $cm) {
+	if ($person = $esd->findFacultyByName($cm)) 
+	  $committee[] = $person;
+	else 
+	  $this->_helper->flashMessenger->addMessage("Couldn't find directory match for "
+						     . $cm . "; please enter manually");
+      }
+      $etd->mods->setCommitteeFromPersons($committee);
+
 
       foreach ($etd_info['keywords'] as $i => $keyword) {
 	if (array_key_exists($i, $etd->mods->keywords))
@@ -87,7 +96,7 @@ class SubmissionController extends Zend_Controller_Action {
 	
 	// could use fullname as agent id, but netid seems more userful
 	//FIXME: use full/display name here for user identity
-	$etd->premis->addEvent("ingest", "Record created by $identity", "success",
+	$etd->premis->addEvent("ingest", "Record created by " . $identity->fullname, "success",
 			       array("netid", $identity));
 	$etd->save();
 
@@ -142,7 +151,22 @@ class SubmissionController extends Zend_Controller_Action {
 
     $this->view->department =  $programs->findLabel($this->view->etd_info['department']);
     
-    
+
+    $esd = new esdPersonObject();
+    if ($advisor = $esd->findFacultyByName($this->view->etd_info['advisor']))
+      $this->view->advisor = $advisor;
+    else 
+      $this->_helper->flashMessenger->addMessage("Couldn't find directory match for " . $this->view->etd_info['advisor'] . "; please enter manually");
+
+    $this->view->committee = array();
+    foreach ($this->view->etd_info['committee'] as $cm) {
+      if ($committee = $esd->findFacultyByName($cm)) 
+	$this->view->committee[] = $committee;
+      else 
+	$this->_helper->flashMessenger->addMessage("Couldn't find directory match for " . $cm . "; please enter manually");
+    }
+
+
     $this->view->messages = $this->_helper->flashMessenger->getCurrentMessages();
     
   }
