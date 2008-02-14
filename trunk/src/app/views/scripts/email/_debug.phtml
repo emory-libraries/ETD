@@ -1,5 +1,8 @@
-<? if ($this->environment == "development"): ?>
+<? if ($this->environment != "production"): ?>
 <p>In development mode.  If in production, this email would have been sent to the following people:<br/>
-<i>(no way to retrieve email addresses yet)</i></p>
+   <b>To:</b>
+   <? foreach ($this->to as $email => $name): ?> <?= $name ?> <?= $email ?><br/> <? endforeach ?>
+   <b>Cc:</b>
+   <? foreach ($this->cc as $email => $name): ?> <?= $name ?> <?= $email ?><br/> <? endforeach ?>
 <hr/>
 <? endif ?>
