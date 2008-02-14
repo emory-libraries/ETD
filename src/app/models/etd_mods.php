@@ -180,16 +180,55 @@ class etd_mods extends mods {
   }
 
 
+
+  public function setAuthorFromPerson(esdPerson $person) {
+    $this->setNameFromPerson($this->author, $person);
+  }
+
+  // generic function to set name fields from an esdPerson object
+  private function setNameFromPerson(mods_name $name, esdPerson $person) {
+    $name->id    = trim($person->netid);
+    $name->last  = trim($person->lastname);
+    $name->first = trim($person->name);	// directory name OR first+middle
+    $name->full  = trim($person->lastnamefirst);
+  }
+
+  /**
+   * set advisor fields
+   */
   public function setAdvisor($id) {
     if ($this->advisor->id == $id)   // if id is unchanged, don't lookup/reset
       return;
-    
     $esd = new esdPersonObject();
     $person = $esd->findByUsername($id);
-    $this->advisor->id    = $id;
-    $this->advisor->last  = $person->lastname;
-    $this->advisor->first = $person->name;	// directory name OR first+middle
-    $this->advisor->full  = $person->lastname . ", " . $person->name;
+  }
+
+  public function setAdvisorFromPerson(esdPerson $person) {
+    $this->setNameFromPerson($this->advisor, $person);
+  }
+  
+  public function setCommitteeFromPersons(array $people) {
+    $needUpdate = false;
+    $i = 0;	// index for looping over committee array
+    foreach ($people as $person) {
+      if (isset($this->map["committee"][$i])) {
+	$this->setNameFromPerson($this->map["committee"][$i], $person);
+      } else {
+	$this->addCommitteeMember($person->lastname, $person->name);
+	// FIXME: need a better way store netid... - should be part of addCommittee function ?
+	$this->committee[$i]->id = $person->netid;
+	$needUpdate = true;	// DOM has changed - new nodes
+      }
+      $i++;
+    }
+
+    // remove any committee members beyond this set of new ones
+    while (isset($this->committee[$i]) ) {
+      $this->removeCommitteeMember($this->committee[$i]->id);
+      $needUpdate = true;	// DOM has changed - removed nodes
+    }
+
+    if ($needUpdate) $this->update();
   }
   
   public function setCommittee(array $netids) {
@@ -204,13 +243,10 @@ class etd_mods extends mods {
       $person = $esd->findByUsername($id);
       if ($person) {
 	if (isset($this->map["committee"][$i])) {
-	  $this->committee[$i]->id = $id;
-	  $this->committee[$i]->last = $person->lastname;
-	  $this->committee[$i]->first = $person->name;	// directory name OR first+middle
-	  $this->committee[$i]->full = $person->lastname . ", " . $person->name;
+	  $this->setNameFromPerson($this->committee[$i], $person);
 	} else {
 	  $this->addCommitteeMember($person->lastname, $person->name);
-	  // FIXME: need a better way store netid... - should be part of addCommittee function...
+	  // FIXME: need a better way store netid... - should be part of addCommittee function ?
 	  $this->committee[$i]->id = $id;
 	}
       } else {
