@@ -52,7 +52,7 @@ class mads extends foxmlDatastreamAbstract {
     $this->current->email = $person->email;
 
     // address information is only available for current students
-    if (isset($person->address)) {
+    if ($person->address) {
       // set current address
       $this->setAddressFromEsd($this->current, $person->address->current);
       // set to valid as of today
