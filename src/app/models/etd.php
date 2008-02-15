@@ -22,7 +22,7 @@ class etd extends foxml implements etdInterface {
   public $pdfs;
   public $originals;
   public $supplements;
-  public $author;	// user object
+  public $authorInfo;	// user object
 
   
   
@@ -55,8 +55,13 @@ class etd extends foxml implements etdInterface {
       }
     }
 
-    if (isset($this->rels_ext->hasAuthor)) {
-      $this->author = new user($this->rels_ext->hasAuthor);
+    // FIXME: this only works if user has permissions on rels-ext...
+    if (isset($this->rels_ext->hasAuthorInfo)) {
+      try {
+	$this->authorInfo = new user($this->rels_ext->hasAuthorInfo);
+      } catch (FedoraAccessDenied $e) {
+	// no access to rels-ext - warn about this ?
+      }
     }
     
   }
@@ -83,6 +88,20 @@ class etd extends foxml implements etdInterface {
     $this->addNamespace("x", "urn:oasis:names:tc:xacml:1.0:policy");
     $this->xmlconfig["policy"] = array("xpath" => "//foxml:xmlContent/x:Policy",
 				       "class_name" => "XacmlPolicy", "dsID" => "POLICY");
+  }
+
+
+  public function addPdf(etd_file $etdfile) { return $this->addFile($etdfile, "PDF");  }
+  public function addOriginal(etd_file $etdfile) { return $this->addFile($etdfile, "Original");  }
+  public function addSupplement(etd_file $etdfile) { return $this->addFile($etdfile, "Supplement");  }
+  
+  // set the relations between this etd and a file object (original, pdf, supplement)
+  private function addFile(etd_file $etdfile,  $relation) {
+    // etd is related to file
+    $this->rels_ext->addRelationToResource("rel:has{$relation}", $etdfile->pid);
+
+    // fixme: need better error handling here...
+    return $this->save("adding relation to file ($relation) " . $etdfile->pid);
   }
 
   
@@ -119,6 +138,11 @@ class etd extends foxml implements etdInterface {
       if (isset($this->policy)) {
 	if (isset($this->policy->view)) $this->policy->view->condition->users[0] = $value;
 	if (isset($this->policy->draft)) $this->policy->draft->condition->user = $value;
+      }
+      // store author's username in rels-ext as author
+      if (isset($this->rels_ext)) {
+	if (isset($this->rels_ext->author)) $this->rels_ext->author = $value;
+	else $this->rels_ext->addRelation("rel:author", $value);
       }
       parent::__set($name, $value);
       break;
@@ -203,7 +227,7 @@ class etd extends foxml implements etdInterface {
     if (! $this->mods->readyToSubmit()) return false;
     if (! $this->hasPDF()) return false;
     if (! $this->hasOriginal()) return false;
-    if (!isset($this->author) || !$this->author->readyToSubmit()) return false;
+    if (!isset($this->authorInfo) || !$this->authorInfo->readyToSubmit()) return false;
     return true;
   }
 

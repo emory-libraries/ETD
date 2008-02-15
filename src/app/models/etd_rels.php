@@ -33,7 +33,7 @@ class etd_rels extends rels_ext {
 
 
     // user information object
-    $this->xmlconfig["hasAuthor"] = array("xpath" => "rdf:description/rel:hasAuthor/@rdf:resource");
+    $this->xmlconfig["hasAuthorInfo"] = array("xpath" => "rdf:description/rel:hasAuthorInfo/@rdf:resource");
 
     
     /*    $this->xmlconfig["pdf"] = array("xpath" => "rdf:description/emoryrel:hasPDF/@rdf:resource",
@@ -58,7 +58,7 @@ class etd_rels extends rels_ext {
     $this->xmlconfig["supplementOf"] = array("xpath" => "rdf:description/rel:isSupplementOf/@rdf:resource");
 
     // rels from user to etd
-    $this->xmlconfig["authorOf"] = array("xpath" => "rdf:description/rel:isAuthorOf/@rdf:resource");
+    $this->xmlconfig["authorInfofor"] = array("xpath" => "rdf:description/rel:isAuthorInfofor/@rdf:resource");
   }
 
     // handle special values
