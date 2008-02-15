@@ -13,18 +13,6 @@
   <? if (isset($file->dc->type)): ?> <?= $file->dc->type ?> <? endif ?>
   <? if (isset($file->dc->format)): ?>
 					   <? if (is_numeric($file->dc->format)): ?>
-      <? 
-function readable_size($size) {
-$bytes = array('B','KB','MB','GB','TB');
-  foreach($bytes as $val) {
-   if($size > 1024){
-    $size = $size / 1024;
-   }else{
-    break;
-   }
-  }
-  return round($size, 1)." ".$val;
-} ?>
 	(<?= readable_size($file->dc->format) ?>)
 	  
     <? else: ?>		  
