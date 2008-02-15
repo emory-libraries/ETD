@@ -55,19 +55,21 @@ class FileController extends Zend_Controller_Action {
 
    // upload a file and create a new etdfile
    public function newAction() {
-     $etd_pid = $this->_getParam("etd");	// etd record the file should be added to
+     $etd_pid = $this->_getParam("etd");	// etd record the file belongs to
+     $etd = new etd($etd_pid);		
 
      // how this file is related to the to the etd record
      $file_rel = $this->_getParam("filetype");
      switch($file_rel) {
-     case "pdf": $relation = "PDF"; break;
+     case "pdf":  $relation = "PDF"; break;
      case "original": 
      case "supplement":
-       $relation = ucfirst($file_rel); break;
+       $relation = ucfirst($file_rel);
+       break;
      default:
-       // error/warning?
+       trigger_error("Unknown etd file relation: $file_rel", E_USER_WARNING);
      }
-
+     
      $fileinfo = $_FILES['file'];
 
      Zend_Controller_Action_HelperBroker::addPrefix('Etd_Controller_Action_Helper');
@@ -83,32 +85,37 @@ class FileController extends Zend_Controller_Action {
        $etdfile->dc->format = $fileinfo['size'];
 
        $upload_id = fedora::upload($filename);
-       print "fedora upload id is $upload_id<br/>\n";
-       
        $etdfile->file->url = $upload_id;
-       // FIXME: need a way to set what kind of etd file this is (original, pdf, supplement)
-       
-       $etdfile->rels_ext->addRelationToResource("rel:is{$relation}Of", $etd_pid);
 
-       print "etd file xml:<pre>" . htmlentities($etdfile->saveXML()) . "</pre>";
+       // add relation to etd
+       // fixme: this should probably be a function of etdfile or rels
+       $etdfile->rels_ext->addRelationToResource("rel:is{$relation}Of", $etd->pid);
        $filepid = $etdfile->save("adding new file");
+       $this->_helper->flashMessenger->addMessage("Saved etd file object as $filepid");
        $this->view->file_pid = $filepid;
 
-       print "uploaded file as $filepid<br/>\n";
 
+       //FIXME: not working - not getting added to etd
+       // add relation to etd object as well
+       switch($file_rel) {
+       case "pdf":        $result = $etd->addPdf($etdfile); break;
+       case "original":   $result = $etd->addOriginal($etdfile); break;
+       case "supplement": $result = $etd->addSupplement($etdfile); break;
+       default:
+	 trigger_warning("relation '$relation' not recognized - not adding to etd", E_USER_WARNING);
+       }
+       if ($result)
+	 $this->_helper->flashMessenger->addMessage("Added file to etd as $relation - updated at $result");
+       else 
+	 $this->_helper->flashMessenger->addMessage("Error: could not add file to etd as $relation");
 
-       $etd = new etd($etd_pid);
-       // FIXME: etd rels shortcut - add supplement, add pdf, etc.
-       $etd->rels_ext->addRelationToResource("rel:has{$relation}", $filepid);
-       $result = $etd->save("adding new file: " . $etdfile->label);
-       $this->view->etd_pid = $etd_pid;
-              
-       $this->view->save_result = $result;
-
-       // allow user to edit file info
-
+       // direct user to edit file info
+       //       $this->_helper->redirector->gotoRoute(array("controller" => "file", "action" => "edit",
+       //						   "pid" => $etdfile->pid, 'etd' => $etd->pid), '', true);
+       
      } else {
-       // $this->_forward("addfile");
+       // upload failed (what should happen here?)  - there should be error messages from file upload failure
+       $this->_forward("addfile");
      }
    }
 
@@ -178,7 +185,8 @@ class FileController extends Zend_Controller_Action {
        $this->view->noxml = true;
      } else {
        $etdfile->dc->updateXML($xml);
-       
+
+       // fixme: needs better error checking (like in EditController)
        $save_result = $etdfile->save("edited file information");
        $this->view->save_result = $save_result;
        if ($save_result)
@@ -193,6 +201,8 @@ class FileController extends Zend_Controller_Action {
     //    $this->view->xml = $xml;
     $this->view->xml = $etdfile->dc->saveXML();
     $this->view->title = "save file information";
+
+    // redirect to etd record... (?) or to view file record ?
    }
 
 
