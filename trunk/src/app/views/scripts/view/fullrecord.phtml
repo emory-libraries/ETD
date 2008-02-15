@@ -9,6 +9,7 @@
   <h1><?= $this->etd->html->title ?></a></h1>
  	<? if ($this->acl->isAllowed($this->role, $this->etd, "edit metadata")): ?>
 <a class="action" href="<?= $this->url(array("controller" => "edit", "action" => "record")) ?>">edit record</a>
+   <a class="action" href="<?= $this->url(array("controller" => "edit", "action" => "faculty")) ?>">edit advisor & committee</a>
 
    <a class="action" href="<?= $this->url(array("controller" => "edit", "action" => "rights")) ?>">edit rights/restrictions</a>
 
@@ -34,6 +35,20 @@
     <?= $this->etd->html->contents ?>
   </div>
 
+     <? /* FIXME: make this a helper? */ 
+function readable_size($size) {
+$bytes = array('B','KB','MB','GB','TB');
+  foreach($bytes as $val) {
+   if($size > 1024){
+    $size = $size / 1024;
+   }else{
+    break;
+   }
+  }
+  return round($size, 1)." ".$val;
+} ?>
+
+     
   <?=  $this->render('view/_files.phtml'); ?>
 
 </div>
