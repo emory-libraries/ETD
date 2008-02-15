@@ -13,8 +13,18 @@ class etd_file extends foxml {
   public function __construct($pid = null, etd $parent = null) {
     parent::__construct($pid);
 
-    if (is_null($pid)) 
+    if ($this->init_mode == "pid") {
+      // anything here?
+    } elseif ($this->init_mode == "dom") {
+      // anything here?
+    } else {
+      // new etd objects
       $this->cmodel = "etdFile";
+      
+      // assume new etdFile is the first of it's type in a given ETD
+      $this->rels_ext->addRelation("rel:sequenceNumber", "1");
+    }
+
 
 
     // determine what type of etd file this is
@@ -24,10 +34,12 @@ class etd_file extends foxml {
       $this->type = "original";
     } elseif (isset($this->rels_ext->supplementOf)) {
       $this->type = "supplement";
+    } else {
+      trigger_error("etdFile object " . $this->pid . " is not related to an etd object", E_USER_WARNING);
     }
 
     // based on file type, get parent pid and initialize parent object (if not set and if not a new object)
-    if (is_null($parent) && !is_null($pid)) {
+    if (isset($this->type) && is_null($parent) && !is_null($pid)) {
       $parent_rel = $this->type . "Of";
       $this->parent = new etd($this->rels_ext->$parent_rel);
     } else {
