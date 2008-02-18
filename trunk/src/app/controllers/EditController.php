@@ -99,9 +99,8 @@ class EditController extends Zend_Controller_Action {
       $this->_helper->flashMessenger->addMessage("No changes made to advisor & committee");
     }
 
-    // FIXME: why is message not showing up after redirect?
     $this->_helper->redirector->gotoRoute(array("controller" => "view", "action" => "record",
-						"pid" => $pid), '', true);
+    						"pid" => $pid), '', true);
   }
 
 
@@ -153,14 +152,22 @@ class EditController extends Zend_Controller_Action {
       }
     }
     $etd->mods->setResearchFields($values);
-    $save_result = $etd->save("modified UMI/ProQuest research fields");
-    $this->view->save_result = $save_result;
-    if ($save_result) 
-      $this->_helper->flashMessenger->addMessage("Saved changes to research fields");
-    else
-      $this->_helper->flashMessenger->addMessage("No changes made to research fields");
 
-    $this->view->etd = $etd;
+    if ($etd->mods->hasChanged()) {
+      $save_result = $etd->save("modified research fields");
+      $this->view->save_result = $save_result;
+      if ($save_result) 
+	$this->_helper->flashMessenger->addMessage("Saved changes to research fields");
+      else	// record changed but save failed for some reason
+      $this->_helper->flashMessenger->addMessage("Could not save changes to research fields");
+    } else {
+      $this->_helper->flashMessenger->addMessage("No changes made to research fields");
+    }
+
+    // return to record (fixme: make this a generic function of this controller? used frequently)
+    $this->_helper->redirector->gotoRoute(array("controller" => "view", "action" => "record",
+    						"pid" => $pid), '', true);
+
   }
 
 
@@ -229,13 +236,28 @@ class EditController extends Zend_Controller_Action {
     // title/abstract/contents - special fields that set values in html, mods and dublin core
     $etd->$mode = $content;
 
-    $save_result = $etd->save("modified $mode");
-    $this->view->save_result = $save_result;
-    $this->_helper->flashMessenger->addMessage("Saved changes to $mode");
+
+    // fixme: make this a generic function? similar throughout controller
+    if ($etd->html->hasChanged()) {
+      $save_result = $etd->save("modified $mode");
+      $this->view->save_result = $save_result;
+      if ($save_result) 
+	$this->_helper->flashMessenger->addMessage("Saved changes to $mode");
+      else	// record changed but save failed for some reason
+      $this->_helper->flashMessenger->addMessage("Could not save changes to $mode");
+    } else {
+      $this->_helper->flashMessenger->addMessage("No changes made to $mode");
+    }
 
     $this->view->pid = $pid;
     $this->view->mode = $mode;
     $this->view->title = "save $mode";
+
+
+    // return to record (fixme: make this a generic function of this controller? used frequently)
+    $this->_helper->redirector->gotoRoute(array("controller" => "view", "action" => "record",
+    						"pid" => $pid), '', true);
+
   }
 
 
@@ -256,14 +278,28 @@ class EditController extends Zend_Controller_Action {
       $this->view->noxml = true;
     } else {
       $etd->mods->updateXML($xml);
-      $this->view->save_result = $etd->save($log_message);
-      $this->_helper->flashMessenger->addMessage("Saved changes");
+      
+      if ($etd->mods->hasChanged()) {
+	$save_result = $etd->save($log_message);
+	$this->view->save_result = $save_result;
+	if ($save_result) 
+	  $this->_helper->flashMessenger->addMessage("Saved changes");	// more info?
+	else	// record changed but save failed for some reason
+	  $this->_helper->flashMessenger->addMessage("Could not save changes");
+      } else {
+	$this->_helper->flashMessenger->addMessage("No changes made");
+      }
     }
 
 
     $this->view->pid = $pid;
     $this->view->xml = $xml;
     $this->view->title = "save mods";
+
+    // return to record (fixme: make this a generic function of this controller? used frequently)
+    $this->_helper->redirector->gotoRoute(array("controller" => "view", "action" => "record",
+    						"pid" => $pid), '', true);
+
    }
 
 
