@@ -18,7 +18,8 @@
 
   <? if ($this->xforms): ?>
        <?= $this->render('xforms_head.phtml'); ?>
-  <? endif ?>       
+  <? endif ?>
+
 </head>
 <body>
 
@@ -55,7 +56,7 @@
 
             <li><a href="<?= $this->url(array("controller" => "browse", "action" => "my"), "", true)  ?>">My ETDs</a></li>
 
-      	    <li><a title="user information" href="<?= $this->url(array("controller" => "user", "action" => "view"), null, true) ?>">Profile</a></li>
+<!--      	    <li><a title="user information" href="<?= $this->url(array("controller" => "user", "action" => "view"), null, true) ?>">Profile</a></li> -->
 
             <li><a href="docs/id/faq#help">Help</a></li>
          </ul>
