@@ -86,12 +86,16 @@ class TestEtdMods extends UnitTestCase {
 
   function testCheckRequirements() {
     $missing = $this->mods->checkRequired();
-    $this->assertTrue(in_array("table of contents", $missing));
+    $this->assertTrue(in_array("table of contents", array_keys($missing)));
     $this->assertFalse($this->mods->readyToSubmit());
-
-
-    //NOTE: this is preliminary; not all fields are tested yet, and this will need to change
     $this->mods->tableOfContents = "1. a chapter -- 2. another chapter";
+
+    $this->assertTrue(in_array("advisor", array_keys($missing)));
+    $this->mods->advisor->id = "wdisney";
+
+    $this->assertTrue(in_array("committee members", array_keys($missing)));
+    $this->mods->committee[0]->id = "dduck";
+    
     $this->assertTrue($this->mods->readyToSubmit());
   }
 
