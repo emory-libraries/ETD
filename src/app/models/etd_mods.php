@@ -379,7 +379,7 @@ class etd_mods extends mods {
     if ($this->tableOfContents == "")  $missing["table of contents"] = "contents";
 
     // keywords
-    if ($this->keywords[0]->topic == "")
+    if (!count($this->keywords) || $this->keywords[0]->topic == "")
       $missing["keywords"] = "record";
     
     // other required fields?
