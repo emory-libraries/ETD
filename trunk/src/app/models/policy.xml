@@ -23,8 +23,13 @@
     </Actions>
   </Target>
 
-  <Rule RuleId="fedoraAdmin" Effect="Permit">
-  <!-- Allow anything to administrator (fedoraAdmin) unconditionally  -->
+  <!-- Allow anything to administrator (fedoraAdmin) unconditionally
+-->
+<!--  
+// shouldn't be needed when permitOverrides is in place
+
+ <Rule RuleId="fedoraAdmin" Effect="Permit">
+
     <Target>
       <Subjects>
         <Subject>
@@ -42,12 +47,15 @@
         <AnyAction/>
       </Actions>
     </Target>
-  </Rule>
+  </Rule> -->
 
-  <Rule RuleId="deny_most" Effect="Deny">
+
   <!--  Deny access to (almost) everything not explicitly granted above :
         allow anyone to get object profile & list datastreams (needed to initialize foxml object) 
 -->
+
+<!-- shouldn't be needed;  covered by repo-wide policy 
+  <Rule RuleId="deny_most" Effect="Deny">
     <Target>
       <Subjects>
         <AnySubject/>
@@ -70,6 +78,8 @@
       </Apply>
    </Condition>
   </Rule>
+
+-->
 
 
 </Policy>
