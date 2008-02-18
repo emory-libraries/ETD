@@ -53,6 +53,8 @@ class SubmissionController extends Zend_Controller_Action {
       $etd->contents = $etd_info['toc'];
 
 
+      // FIXME: should we be using author's "Academic Plan" field from ESD here? (at least as first choice?)
+      
       // attempt to find a match for department from program list
       $xml = new DOMDocument();
       $xml->load("../config/programs.xml"); 
