@@ -47,6 +47,8 @@ class policyTest extends UnitTestCase {
 
     $this->assertEqual($this->policy->view->condition->department, "Chemistry");
 
+    $this->assertEqual($this->policy->published->condition->embargo_end, "2008-01-01");
+
     // single user
     $this->assertEqual($this->policy->draft->condition->user, "author");
   }
@@ -135,7 +137,7 @@ class policyTest extends UnitTestCase {
     $policy = new XacmlPolicy($xml);
 
     // these rules should be included in a new policy
-    $this->assertTrue(isset($policy->fedoraAdmin));
+    //    $this->assertTrue(isset($policy->fedoraAdmin));	// removed
     $this->assertTrue(isset($policy->view));
     $this->assertTrue(isset($policy->etdadmin));
     $this->assertTrue(isset($policy->draft));
