@@ -91,6 +91,21 @@ class etd extends foxml implements etdInterface {
   }
 
 
+  /**
+   *  determine a user's role in relation to this ETD
+   */
+  public function getUserRole(esdPerson $user) {
+    if ($user->netid == $this->rels_ext->author)
+      return "author";
+    elseif ($this->mods->department && ($user->department == $this->mods->department))
+      return "departmental staff";
+    elseif (is_a($this->rels_ext->committee, "DOMElementArray") && $this->rels_ext->committee->includes($user->netid))	
+      return "committee";
+    else
+      return $user->role;
+  }
+
+  
   public function addPdf(etd_file $etdfile) { return $this->addFile($etdfile, "PDF");  }
   public function addOriginal(etd_file $etdfile) { return $this->addFile($etdfile, "Original");  }
   public function addSupplement(etd_file $etdfile) { return $this->addFile($etdfile, "Supplement");  }

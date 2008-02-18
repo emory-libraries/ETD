@@ -1,6 +1,7 @@
 <?php
 
 require_once('models/etd.php');
+require_once('models/esdPerson.php');
 
 class TestEtd extends UnitTestCase {
     private $etd;
@@ -62,6 +63,26 @@ class TestEtd extends UnitTestCase {
     $this->etd->owner = "dduck";
     $this->assertEqual("dduck", $this->etd->policy->view->condition->users[0]);
     $this->assertEqual("dduck", $this->etd->policy->draft->condition->user);
+  }
+
+  function testGetUserRole() {
+    $person = new esdPerson();
+
+    // netid matches the author rel in rels-ext 
+    $person->netid = "mmouse";
+    $this->assertEqual("author", $this->etd->getUserRole($person));
+    // netid matches one of the committee rels 
+    $person->netid = "dduck";
+    $this->assertEqual("committee", $this->etd->getUserRole($person));
+    // department matches author's department
+    $person->netid = "someuser";
+    $person->department = "Disney";
+    $this->assertEqual("departmental staff", $this->etd->getUserRole($person));
+    // nothing matches - user's base role should be returned
+    $person->department = "Warner Brothers";
+    $person->role = "default role";
+    $this->assertEqual("default role", $this->etd->getUserRole($person));
+
   }
   
 
