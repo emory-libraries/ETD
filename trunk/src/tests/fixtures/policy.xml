@@ -294,6 +294,16 @@
         </Action>
       </Actions>
     </Target>
+
+     <Condition FunctionId="urn:oasis:names:tc:xacml:1.0:function:date-greater-than-or-equal">
+       <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:date-one-and-only">
+         <EnvironmentAttributeDesignator 
+	    AttributeId="urn:fedora:names:fedora:2.1:environment:currentDate"
+            DataType="http://www.w3.org/2001/XMLSchema#date" />
+       </Apply>
+       <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#date">2008-01-01</AttributeValue>
+     </Condition>  
+
 </Rule>
 
 
