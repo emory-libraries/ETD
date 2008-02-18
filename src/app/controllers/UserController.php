@@ -95,7 +95,7 @@ class UserController extends Zend_Controller_Action {
     $etd_pid = $this->_getParam("etd", null);
     if ($etd_pid) {
       $etd = new etd($etd_pid);
-      $etd->rels_ext->addRelationToResource("rel:hasAuthor", $user->pid);
+      $etd->rels_ext->addRelationToResource("rel:hasAuthorInfo", $user->pid);
       $save_result = $etd->save("associated user object with etd");
       if ($save_result)
       	$this->_helper->flashMessenger->addMessage("Saved ETD (associated new user object)");
@@ -103,7 +103,7 @@ class UserController extends Zend_Controller_Action {
 	$this->_helper->flashMessenger->addMessage("Could not save ETD (associated new user)");
 
       // FIXME: redundant - should be able to do above...
-      $user->rels_ext->addRelationToResource("rel:isAuthorOf", $etd_pid);
+      $user->rels_ext->addRelationToResource("rel:AuthorInfoFor", $etd_pid);
       $save_result = $etd->save("associated etd with user object");
       if ($save_result)
       	$this->_helper->flashMessenger->addMessage("Saved user (associated etd object)");
