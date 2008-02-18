@@ -32,6 +32,12 @@ class user extends foxml {
     // add mappings for xmlobject
     $this->xmlconfig["mads"] = array("xpath" => "//foxml:datastream[@ID='MADS']/foxml:datastreamVersion/foxml:xmlContent/mads:mads",
 				     "class_name" => "mads", "dsID" => "MADS");
+    
+    // xacml policy
+    $this->addNamespace("x", "urn:oasis:names:tc:xacml:1.0:policy");
+    $this->xmlconfig["policy"] = array("xpath" => "//foxml:xmlContent/x:Policy",
+				       "class_name" => "XacmlPolicy", "dsID" => "POLICY");
+
   }
 
   public function __toString() {

@@ -4,6 +4,8 @@ require_once("XmlObject.class.php");
 require_once("models/foxml.php");
 require_once("api/fedora.php");
 require_once("etd_rels.php");
+require_once("policy.php");
+
 
 class etd_file extends foxml {
 
@@ -58,8 +60,16 @@ class etd_file extends foxml {
     $this->xmlconfig["file"] = array("xpath" => "foxml:datastream[@ID='FILE']",
 				     "class_name" => "file_for_ingest");
 
+    // xacml policy
+    $this->addNamespace("x", "urn:oasis:names:tc:xacml:1.0:policy");
+    $this->xmlconfig["policy"] = array("xpath" => "//foxml:xmlContent/x:Policy",
+				       "class_name" => "XacmlPolicy", "dsID" => "POLICY");
+
+    
     // just override one portion of the rels configuration
     $this->xmlconfig["rels_ext"]["class_name"] = "etd_rels";
+
+    
   }
 
 
