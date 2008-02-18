@@ -35,6 +35,9 @@ class ViewController extends Zend_Controller_Action {
        } catch (FedoraObjectNotFound $e) {
 	 trigger_error("Record not found: $pid", E_USER_WARNING);
 	 $this->_helper->viewRenderer->setNoRender(true);
+	 /*       } catch (FedoraAccessDenied $e) {
+	 trigger_error("Access Denied to record: $pid", E_USER_WARNING);
+	 $this->_helper->viewRenderer->setNoRender(true);*/
        }
      }
 
