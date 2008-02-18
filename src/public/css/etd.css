@@ -696,3 +696,31 @@ div#select_researchfields a.selected {
  background-color:yellow;
 }
 
+div#submission_status { 
+ position:absolute;
+ right:5px;        
+ padding:5px;                
+ width:175px;
+ border:1px solid #f1aa00;
+ background-color: #fffdee; /* very faint yellow */
+}
+
+div#submission_status a { 
+  text-decoration:none;
+}
+
+div#submission_status ul.missing { 
+ background-color:white;
+ font-size:85%;
+ margin:0px;
+ padding:0px;
+ padding-left:25px;
+}
+div#submission { 
+ margin-right:175px !important;
+}
+
+div#messages p { margin:0px; }
+
+div#edit_faculty a.remove { padding-left:20px; font-size:75%;}
+div#edit_faculty span.dept { float:right; font-size:80%;}
