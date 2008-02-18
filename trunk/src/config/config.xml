@@ -10,6 +10,13 @@
 				<dbname></dbname>
 			</params>
 		</database>
+	  <email>
+	    <etd>
+	       <address>etd-admin@listserv.cc.emory.edu</address>
+	       <name>ETD ADMIN</name>
+	    </etd>
+	    <test>rsutton@emory.edu</test>
+	  </email>
 	</development>
 
 	<test extends="development">
