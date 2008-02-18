@@ -39,10 +39,9 @@
 
 
 <div id="login">
- <div class="text">	<!-- FIXME: get rid of extra div (holdover from fez) -->
 
  <? if (isset($this->current_user)): ?>
-   <b>Welcome, <?= $this->current_user ?></b>
+   <b>Welcome, <?= $this->current_user ?></b>  (<?= $this->current_user->role ?>)
 
    <ul class="horizontal">
       <li class="first">
@@ -75,7 +74,6 @@
  </ul>
 
  <? endif ?>
- </div>
 </div>
 
 <div id="navbar">
