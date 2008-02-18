@@ -5,7 +5,9 @@
 
    <? if (isset($user->current)): ?>
  <p><u>current contact information:</u></p>
-    <p><b>address</b> (valid as of <?= $user->current->date ?>)</p>
+    <p><b>address</b>
+    <? if ($user->current->date): ?> (valid as of <?= $user->current->date ?>)<? endif ?>
+    </p>
     <? $this->address = $user->current->address; ?>
     <?= $this->render("user/address.phtml"); ?>
 
