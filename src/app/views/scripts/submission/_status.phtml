@@ -6,20 +6,26 @@
 $unknown = '<font color="blue">?</font>';
 ?>
 <h2>submission status</h2>
- <? if ($this->current_user): ?>
-   <? if ($this->current_user->readyToSubmit()): ?>
-	<?= $ok ?> contact information<br/>
+<? /* FIXME: should not use current_user object anymore - need author info related to etd  */ ?>
+ <? if ($etd->authorInfo): ?>
+   <? $authorInfo_url = $this->url(array("controller" => "user", "action" => "view",
+					 "pid" => $etd->authorInfo->pid), '', true); ?>
+   <? if ($etd->authorInfo->readyToSubmit()): ?>
+	<?= $ok ?> <a href="<?= $authorInfo_url ?>">contact information</a><br/>
    <? else: ?>
-      	<?= $incomplete ?> contact information<br/>
+	      <?= $incomplete ?> <a href="<?= $authorInfo_url ?>">contact information</a><br/>
         <ul id="user_missing" class="missing">
-          <? foreach ($this->current_user->checkRequired() as $missing): ?>
+          <? foreach ($etd->authorInfo->checkRequired() as $missing): ?>
              <li><?= $missing ?></li>
           <? endforeach ?>
         </ul>
    <? endif ?>
  <? else: ?>
-    <?= $unknown ?> contact information<br/>
- <? endif ?>	  
+    <? /* FIXME: this should link to creating a new user object ... */ ?>
+    <?= $unknown ?> <a href="<?= $this->url(array('controller' => 'user', 'action' => 'new',
+			'etd' => $etd->pid), '', true) ?> ">contact information</a><br/>
+ <? endif ?>
+
 
   <? if ($etd->mods->readyToSubmit()): ?>
     <?= $ok ?> thesis information<br/>
@@ -27,25 +33,33 @@ $unknown = '<font color="blue">?</font>';
   <?= $incomplete; ?> thesis information
     <? /* display which required fields are missing, if any */   ?>
    <ul id="mods_missing" class="missing">
-     <? foreach ($etd->mods->checkRequired() as $missing): ?>
-      <li><?= $missing ?></li>
+     <? foreach ($etd->mods->checkRequired() as $missing => $action): ?>
+      <li><a href="<?= $this->url(array('controller' => 'edit', 'action' => $action)) ?>"><?= $missing ?></a>
+      </li>
      <? endforeach ?>
     </ul>
   <? endif ?>       
 
   <?= $etd->hasPDF() ? $ok : $incomplete ?> PDF file<br/>
-  <?= $etd->hasOriginal() ? $ok : $incomplete ?> original file<br/>
+  <?if ($etd->hasOriginal()) : ?>
+   <?= $ok ?> original file
+  <? else : ?>
+    <?= $incomplete ?> <a href="<?= $this->url(array('controller' => 'file', 'action' => 'add',
+			'etd' => $etd->pid), '', true)?>">original file</a>
+  <? endif ?> <br/>
 
 <?/* FIXME: should this be grouped as rights/restrictions since they are edited on the same page? */ ?>
+  <? $rights_url = $this->url(array('controller' => 'edit', 'action' => 'rights')); ?>
   <? $copyright = $etd->mods->hasCopyright(); ?>
-  <?= $copyright ? $ok : $incomplete; ?> copyright
-  <?= $copyright ? "(" . $etd->mods->copyright . ")" : "";	/* display if set */ ?>
+  <?= $copyright ? $ok : $incomplete; ?> <a href="<?= $rights_url ?>">copyright</a>
+  <?= $copyright ? "(" . $etd->mods->copyright . ")" : "";	/* display choice if set */ ?>
   <br/>
   <? $embargo = $etd->mods->hasEmbargoRequest(); ?>
-  <?= $embargo ? $ok : $incomplete; ?> embargo request
+  <?= $embargo ? $ok : $incomplete; ?> <a href="<?= $rights_url ?>">embargo request</a>
   <?= $embargo ? "(" . $etd->mods->embargo_request . ")" : "" ?>
   <br/>
-  <?= $etd->mods->hasSubmissionAgreement() ? $ok : $incomplete; ?> submission agreement<br/>
+  <?= $etd->mods->hasSubmissionAgreement() ? $ok : $incomplete; ?>
+  	<a href="<?= $rights_url ?>">submission agreement</a><br/>
 
 <p><?= $unknown ?> = status unknown / not yet implemented</p>
 
