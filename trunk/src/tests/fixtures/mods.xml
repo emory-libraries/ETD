@@ -2,7 +2,7 @@
   <mods:titleInfo>
     <mods:title>Why I Like Cheese</mods:title>
   </mods:titleInfo>
-  <mods:name type="personal">
+  <mods:name type="personal" ID="mmouse">
     <mods:namePart type="given">Minnie</mods:namePart>
     <mods:namePart type="family">Mouse</mods:namePart>
     <mods:displayForm>Mouse, Minnie</mods:displayForm>
@@ -11,7 +11,16 @@
       <mods:roleTerm authority="marcrelator" type="text">author</mods:roleTerm>
     </mods:role>
   </mods:name>
-  <mods:name type="personal">
+  <mods:name type="personal" ID="">
+    <mods:namePart type="given">Walt</mods:namePart>
+    <mods:namePart type="family">Disney</mods:namePart>
+    <mods:displayForm>Disney, Walt</mods:displayForm>
+    <mods:affiliation>Disneyworld</mods:affiliation>
+    <mods:role>
+      <mods:roleTerm authority="marcrelator" type="text">Thesis Advisor</mods:roleTerm>
+    </mods:role>
+  </mods:name>
+  <mods:name type="personal" ID="">
     <mods:namePart type="given"/>
     <mods:namePart type="family"/>
     <mods:displayForm/> 
