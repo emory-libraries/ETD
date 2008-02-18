@@ -19,8 +19,8 @@
 <xf:bind nodeset="mads:email" type="xforms:email"/>
 
 <xf:submission id="submission" action="<?= $this->url(array('controller' => 'user',
-		'action' => 'save', 'id' => $this->pid))?>"
-		method="post" >
+		'action' => 'save', 'id' => $this->pid, 'etd' => $this->etd_pid))?>"	
+		  method="post" > 	<? /* pass along pid of ETD record should be associated with */ ?>
    <xf:setvalue ref="submit-done" ev:event="xforms-submit-done">true</xf:setvalue>
 </xf:submission>   
    
