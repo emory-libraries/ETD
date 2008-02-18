@@ -22,6 +22,7 @@ class UserController extends Zend_Controller_Action {
       $user = user::find_by_username(strtolower($this->view->current_user->netid));
     }
 
+    $this->view->title = "View User Information";
     $this->view->user = $user;
   }
 
@@ -42,6 +43,10 @@ class UserController extends Zend_Controller_Action {
   public function editAction() {
     // default to null pid - create an empty user object
     $pid = $this->_getParam("pid", null);
+
+    // etd record the user should be added to   (fixme: what happens if this is not set?)
+    $this->view->etd_pid = $this->_getParam("etd");	
+    
     $user = new user($pid);
     $this->view->user = $user;
 
@@ -60,6 +65,7 @@ class UserController extends Zend_Controller_Action {
 
   public function saveAction() {
     $pid = $this->_getParam("pid", null);
+    
     $user = new user($pid);
 
     global $HTTP_RAW_POST_DATA;
@@ -83,6 +89,26 @@ class UserController extends Zend_Controller_Action {
       print "foxml: <br/>\n<pre>" . htmlentities($user->saveXML()) . "</pre>";
       $this->view->save_result = $user->save("edited user information");
       $this->_helper->flashMessenger->addMessage("Saved changes");
+    }
+
+    // should only be set for new records 
+    $etd_pid = $this->_getParam("etd", null);
+    if ($etd_pid) {
+      $etd = new etd($etd_pid);
+      $etd->rels_ext->addRelationToResource("rel:hasAuthor", $user->pid);
+      $save_result = $etd->save("associated user object with etd");
+      if ($save_result)
+      	$this->_helper->flashMessenger->addMessage("Saved ETD (associated new user object)");
+      else	// record changed but save failed for some reason
+	$this->_helper->flashMessenger->addMessage("Could not save ETD (associated new user)");
+
+      // FIXME: redundant - should be able to do above...
+      $user->rels_ext->addRelationToResource("rel:isAuthorOf", $etd_pid);
+      $save_result = $etd->save("associated etd with user object");
+      if ($save_result)
+      	$this->_helper->flashMessenger->addMessage("Saved user (associated etd object)");
+      else	// record changed but save failed for some reason
+	$this->_helper->flashMessenger->addMessage("Could not save user (associated etd)");
     }
 
     $this->view->pid = $user->pid;
