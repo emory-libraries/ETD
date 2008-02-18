@@ -16,12 +16,10 @@ fixme: bindings need to go into header with model... how to get them there?
       
 <h1>edit thesis information</h1>
 
-<!-- fixme: figure out some way to hide this until form is loaded -->
+<? /* fixme: figure out some way to hide this until form is loaded */ ?>
+<?= $this->xformOutput("Title", "mods:titleInfo/mods:title"); ?><br/>
 
-<?//= $this->xformTextarea("Title", "mods:titleInfo/mods:title"); ?>
- <?= $this->xformOutput("Title", "mods:titleInfo/mods:title"); ?>
- <br/>
-
+<? /* FIXME: should author name be editable ? */ ?> 
  <xf:group ref="mods:name[mods:role/mods:roleTerm='author']">
     <xf:label>author</xf:label>
     <?=  $this->render('edit/_mods_name.phtml'); ?>
@@ -30,35 +28,9 @@ fixme: bindings need to go into header with model... how to get them there?
  </xf:group>
  <br/>
 
- <xf:group ref="mods:name[mods:role/mods:roleTerm='Thesis Advisor']">
-    <xf:label>advisor</xf:label>
-     <?=  $this->render('edit/_mods_name.phtml'); ?>
- </xf:group>
+ <? /* note: advisor & committee members are edited on a separate form */ ?>
 
-  <br/>
-
- <p><u>committee members</u></p>
- <xf:repeat id="repeat-committee" nodeset="mods:name[mods:description='Emory Committee Member']">
-    <xf:label>committee members</xf:label>
-     <?=  $this->render('edit/_mods_name.phtml'); ?>
-   <br/>
- </xf:repeat>
- 
-  <xf:trigger>
-        <xf:label>Add</xf:label>
-        <xf:action ev:event="DOMActivate">
-          <xf:insert nodeset="mods:name[mods:description='Emory Committee Member']" at="last()" position="after"/>
-          <xf:setvalue ref="mods:name[mods:description='Emory Committee Member']/mods:namePart[@type='family']" value="''"/>
-             <xf:setvalue ref="mods:name[mods:description='Emory Committee Member']/mods:namePart[@type='given']" value="''"/>
-        </xf:action>
-      </xf:trigger>
-      
-      <xf:trigger>
-        <xf:label>Remove</xf:label>
-        <xf:delete ev:event="DOMActivate" nodeset="mods:name[mods:description='Emory Committee Member']" at="last()"/>
-      </xf:trigger>
-
-  <p><u>non-emory committee members</u></p>
+ <p><u>non-emory committee members</u></p>
 
   <xf:select1 ref="instance('tmp-data')/non-emory-faculty">
    <xf:label>committee includes non-emory faculty?</xf:label>
