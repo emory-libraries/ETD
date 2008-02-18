@@ -28,10 +28,13 @@ class etd extends foxml implements etdInterface {
   
   public function __construct($arg = null) {
     parent::__construct($arg);
+
     
     if ($this->init_mode == "pid") {
       // anything here?
     } elseif ($this->init_mode == "dom") {
+      // anything here?
+    } elseif ($this->init_mode == "template") {
       // anything here?
     } else {
       // new etd objects
@@ -50,17 +53,28 @@ class etd extends foxml implements etdInterface {
       // FIXME: why not just use RELS-EXT ?
       $pids = $this->findFiles($type);
       foreach ($pids as $pid) {
-	if ($pid)
-	  $this->{$var}[] = new etd_file($pid, $this);
+	if ($pid) {
+	  try {
+	    $this->{$var}[] = new etd_file($pid, $this);
+	  } catch (FedoraAccessDenied $e) {
+	    // should this warn or not? regular users won't want to see it...
+	    trigger_error("Access denied to $type file $pid", E_USER_NOTICE);
+	  }
+	}
       }
     }
 
+
+    // fixme: need to handle permissions better - may not have permission to see all related objects
+    
     // FIXME: this only works if user has permissions on rels-ext...
     if (isset($this->rels_ext->hasAuthorInfo)) {
       try {
-	$this->authorInfo = new user($this->rels_ext->hasAuthorInfo);
+	$authorpid = $this->rels_ext->hasAuthorInfo;
+	$this->authorInfo = new user($authorpid);
       } catch (FedoraAccessDenied $e) {
-	// no access to rels-ext - warn about this ?
+	// most users will NOT have access to the author information
+	trigger_error("Access denied to author info $pid", E_USER_NOTICE);
       }
     }
     
@@ -97,12 +111,52 @@ class etd extends foxml implements etdInterface {
   public function getUserRole(esdPerson $user) {
     if ($user->netid == $this->rels_ext->author)
       return "author";
-    elseif (is_a($this->rels_ext->committee, "DOMElementArray") && $this->rels_ext->committee->includes($user->netid))	
+    elseif ($this->rels_ext->committee instanceof DOMElementArray
+	    && $this->rels_ext->committee->includes($user->netid))	
       return "committee";
     elseif ($user->role == "staff" && $this->mods->department && ($user->department == $this->mods->department))
       return "departmental staff";
     else
       return $user->role;
+  }
+
+
+  public function setStatus($new_status) {
+    $old_status = $this->rels_ext->status;
+    if ($new_status == $old_status) return;	// do nothing - no change
+
+    // FIXME: need to propagate certain xacml changes to related objects also
+    
+    // certain policy rules need to change when status changes
+    switch ($new_status) {
+    case "draft":	// add draft rule & allow author to edit
+      if(!isset($this->policy->draft)) {	// should not be the case, but doesn't hurt to check
+	$this->policy->addRule("draft");
+	$this->policy->draft->condition->user = $this->owner;
+      }
+      break;
+    case "submitted":
+      if(isset($this->policy->draft)) {	   // should always be the case
+	$this->policy->removeRule("draft");
+      }
+      break;
+    case "published":
+      if(!isset($this->policy->published)) {	// should not be the case, but doesn't hurt to check
+	$this->policy->addRule("published");
+	// FIXME: by default, set the embargo expiration to today here?
+	$this->policy->draft->condition->date = date("Y-m-d");
+	// fixme: split out embargo rule for etd file objects only ?
+      }
+      break;
+    }
+
+    // leaving published status (e.g., unpublish) - published xacml policy should no longer be active
+    if ($old_status == "unpublished" && isset($this->policy->published)) {
+      $this->policy->removeRule("published");
+    }
+
+    // for all - store the status in rels-ext
+    $this->rels_ext->status = $new_status; 
   }
 
   
