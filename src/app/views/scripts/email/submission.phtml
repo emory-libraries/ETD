@@ -9,9 +9,8 @@ the Dean's review.  To ensure that the Dean will be reviewing the final
 version of your document, click the link below to visit your record in the
 ETD repository, open your PDF file, and print a paper copy.</p>
 
-<? $url = $this->url(array("controller" => "view", "action" => "record", "pid" => $this->etd->pid), '', true); // FIXME: how to make this url absolute ??>
 <p>View your record:
-<a href="<?= $url ?>"><?= $url ?></a></p>
+<a href="<?= $this->etd->mods->ark ?>"><?= $this->etd->mods->ark ?></a></p>
 
 <p>All students must submit the ETD Submission Agreement Form with the
 paper copy of their dissertation. In part 2 of that form, you must
