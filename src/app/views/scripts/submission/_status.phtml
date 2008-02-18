@@ -7,7 +7,7 @@ $unknown = '<font color="blue">?</font>';
 ?>
 <h2>submission status</h2>
 <? /* FIXME: should not use current_user object anymore - need author info related to etd  */ ?>
- <? if ($etd->authorInfo): ?>
+<? if (isset($etd->authorInfo)): ?>
    <? $authorInfo_url = $this->url(array("controller" => "user", "action" => "view",
 					 "pid" => $etd->authorInfo->pid), '', true); ?>
    <? if ($etd->authorInfo->readyToSubmit()): ?>
