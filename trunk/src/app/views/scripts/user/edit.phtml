@@ -12,9 +12,9 @@
 <br/>
 
 <xf:group nodeset="mads:affiliation[mads:position != 'permanent resident' or not(mads:position)]">
-
-   <?//= $this->xformText("degree", "mads:position"); ?>
-<?= $this->xformOutput("department", "mads:organization"); ?><br/>
+   <? /* not showing department or degree since it can't be edited by the user here */ ?>
+<?//= $this->xformText("degree", "mads:position"); ?>
+<?//= $this->xformOutput("department", "mads:organization"); ?><br/>
 
    <xf:label>current address</xf:label>
    <?=  $this->render('user/_mads_address.phtml'); ?>
