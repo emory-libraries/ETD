@@ -74,10 +74,17 @@ class TestEtd extends UnitTestCase {
     // netid matches one of the committee rels 
     $person->netid = "dduck";
     $this->assertEqual("committee", $this->etd->getUserRole($person));
-    // department matches author's department
+
+    // department matches author's department & user is staff
     $person->netid = "someuser";
     $person->department = "Disney";
+    $person->role = "staff";
     $this->assertEqual("departmental staff", $this->etd->getUserRole($person));
+
+    // user is not staff, but department matches
+    $person->role = "student";
+    $this->assertNotEqual("departmental staff", $this->etd->getUserRole($person));
+    
     // nothing matches - user's base role should be returned
     $person->department = "Warner Brothers";
     $person->role = "default role";
