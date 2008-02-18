@@ -23,7 +23,7 @@ class TestMads extends UnitTestCase {
     $this->assertEqual("Mickey", $this->mads->name->first);
     $this->assertEqual("Mouse", $this->mads->name->last);
     $this->assertEqual("1920", $this->mads->name->date);
-    $this->assertEqual("123 Disney Lane", $this->mads->permanent->address->street);
+    $this->assertEqual("123 Disney Lane", $this->mads->permanent->address->street[0]);
     $this->assertEqual("Disney World", $this->mads->permanent->address->city);
     $this->assertEqual("FL", $this->mads->permanent->address->state);
     $this->assertEqual("mickey@disney.com", $this->mads->permanent->email);
