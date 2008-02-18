@@ -171,15 +171,11 @@ div#login {
   min-width:595px;	/* stop sliding at same point where header photo does */
   margin-right:135px;
   color:black;
+  padding:4px;
 }
 
 div#login div.width { 
   width:595px;
-}
-
-div#login div.text { 
-  padding:4px;
-  margin:0px;
 }
 
 div#login form { 
