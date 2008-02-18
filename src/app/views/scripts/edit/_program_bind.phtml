@@ -1,5 +1,6 @@
 <? /* secondary xml instances used for data, choices, etc. */ ?>
-<xf:instance id="programs" xmlns=""><? include('../config/programs.xml'); ?></xf:instance>
+<xf:instance id="programs" xmlns="" src="<?= $this->url(array("controller" => "config", "action" => "view",
+ "id" => "programs"), "", true) ?>"/>
 <xf:instance id="tmp" xmlns="">
    <tmp>
     <program>
