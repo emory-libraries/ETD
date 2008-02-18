@@ -59,8 +59,11 @@ h1, h2, h3 {
 }
 
 
-
 * html .xforms-textarea { width:90%; }
+
+/* modify display for checkbox/radio button layout */
+div.xfselect div span.xforms-label { display:inline; }
+div.xfselect div label { display:inline; font-weight:normal; }
 
 
 
