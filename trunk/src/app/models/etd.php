@@ -97,10 +97,10 @@ class etd extends foxml implements etdInterface {
   public function getUserRole(esdPerson $user) {
     if ($user->netid == $this->rels_ext->author)
       return "author";
-    elseif ($this->mods->department && ($user->department == $this->mods->department))
-      return "departmental staff";
     elseif (is_a($this->rels_ext->committee, "DOMElementArray") && $this->rels_ext->committee->includes($user->netid))	
       return "committee";
+    elseif ($user->role == "staff" && $this->mods->department && ($user->department == $this->mods->department))
+      return "departmental staff";
     else
       return $user->role;
   }
