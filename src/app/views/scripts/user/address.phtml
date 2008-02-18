@@ -1,5 +1,10 @@
-<? $address = $this->address; ?>
-<?= $address->street ?> <br/>
-<?= $address->city ?>, <?= $address->state ?>, <?= $address->postcode ?> <br/>
-<?= $address->country ?> <br/>
+<p><? $address = $this->address; ?>
+  <? foreach ($address->street as $st): ?>
+    <?= $st ?><br/>
+  <? endforeach ?>
+  <? if ($address->city) : ?><?= $address->city ?>, <? endif ?>
+  <? if ($address->state) : ?><?= $address->state ?>, <? endif ?>
+  <? if ($address->postcode) : ?><?= $address->postcode ?>; <? endif ?>
+  <?= $address->country ?> 
+</p>
 
