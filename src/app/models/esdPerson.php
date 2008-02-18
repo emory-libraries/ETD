@@ -12,6 +12,9 @@ class esdPerson {
   private $alias;
   private $_address;
 
+  // base role for ACL
+  public $role;
+
   public function __construct() {
     $this->alias = array("netid" => "LOGN8NTWR_I",
 			 "type" => "PRSN_C_TYPE",
@@ -29,6 +32,44 @@ class esdPerson {
 			 "department" => "DPRT_N",
 			 "academic_plan_id" => "ACPL_I",
 			 "academic_plan" => "ACPL_N");
+
+
+/*  person type codes
+PRSN_C_TYPE PRSN_E_TYPE   
+A           Administrative                
+B           Student/Staff  (usually student employees)               
+C           Staff/Student  (usually staff taking courses)               
+D           Future Hire Effective Date    
+E           Staff                         
+F           Faculty                       
+H           HealthCare Only               
+P           Sponsored                     
+R           Retired                       
+S           Student                       
+U           Unknown                       
+X           Pre-start
+    */
+
+    // set base role for access controls
+    switch ($this->type) {
+    case "B":
+    case "S":
+      $this->role = "student"; break;
+    case "F":
+      $this->role = "faculty"; break;
+    case "E":
+    case "C":
+      $this->role = "staff"; break;
+    default:
+      $this->role = "";		// fixme: what should the default be?
+    }
+
+    // determine roles for special cases
+    if ($this->department == "Graduate School Administration")
+      $this->role = "admin";	// graduate school administrator
+
+    // fixme: etd superuser ? 
+    
     
   }
 
