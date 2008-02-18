@@ -2,7 +2,7 @@
      expects $view->etd to be set with record to display.  */ ?>
 <? $this->acl = new Xml_Acl(); ?>
 <? $this->role = "admin"; ?>
-current role: <?= $this->role ?><br/>
+current role: <?= $this->role ?> (testing)<br/>
 
 <div class="listrecord">
     <? if ($this->acl->isAllowed($this->role, $this->etd, "review")): ?>

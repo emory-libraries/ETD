@@ -1,7 +1,8 @@
 <? /* summary ETD information - displayed in both full and short record views */ ?>
 
 <?= $this->etd->author() ?> 
-     (<?= $this->etd->document_type() ?>)<br/>
+     <? if ($doctype = $this->etd->document_type()): ?>(<?= $doctype ?>)<? endif ?>
+  <br/>
 
 <b>Advisor:</b> <?= $this->etd->advisor() ?><br/>
 
@@ -11,7 +12,9 @@
     <? endforeach ?>
     
     <? // nonemory committee not yet handled in etd interface... ?>
-    <? if (isset($this->etd->mods->nonemory_committee)): ?>
+    <? if (isset($this->etd->mods->nonemory_committee) &&
+	   isset($this->etd->mods->nonemory_committee[0]) && 
+	   $this->etd->mods->nonemory_committee[0]->full): ?>
       <? foreach ($this->etd->mods->nonemory_committee as $cm): ?>
          <?= $cm->full ?> (<?= $cm->affiliation ?>);
       <? endforeach ?> 
@@ -19,12 +22,14 @@
     <? // linebreak only after both sets of committee members ?> <br/>
       
   <b>Research Fields:</b>
-    <? foreach ($this->etd->researchfields() as $field): ?>
-         <?= $field ?>;
+      <? $researchfields = $this->etd->researchfields(); ?>
+    <? foreach ($researchfields as $field): ?>
+    <?= $field ?> <? if ($field != $researchfields[count($researchfields)-1]): ?>; <? endif ?>
     <? endforeach ?><br/>
-  <b>Keywords:</b> 
-    <? foreach ($this->etd->keywords() as $keyword): ?>
-         <?= $keyword ?>;
+  <b>Keywords:</b>
+    <? $keywords = $this->etd->keywords(); ?>
+    <? foreach ($keywords as $keyword): ?>
+         <?= $keyword ?> <? if ($keyword != $keywords[count($keywords)-1]): ?>; <? endif ?>
     <? endforeach ?><br/>
   <b>Program:</b> <?= $this->etd->program() ?>
      <? if ($this->etd->subfield()): ?>(<?= $this->etd->subfield() ?>)<? endif ?>
