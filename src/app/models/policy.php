@@ -56,7 +56,10 @@ class XacmlPolicy extends foxmlDatastreamAbstract {
     $dom->loadXML($xml);
 
     $newrule = $this->dom->importNode($dom->documentElement, true);
-    $this->domnode->insertBefore($newrule, $this->map{"deny_most"}->domnode);
+    if (isset($this->map{"deny_most"})) 
+      $this->domnode->insertBefore($newrule, $this->map{"deny_most"}->domnode);
+    else 
+      $this->domnode->appendChild($newrule);
 
     $this->update();
     // FIXME: what is a good way to do this? how to manage the rules?
@@ -84,7 +87,7 @@ class XacmlPolicy extends foxmlDatastreamAbstract {
     // starts with a bare-bones xacml  (fedoraAdmin rule & deny-most rule)
     // add the appropriate rules for a new etd
     $policy->addRule("view");
-    $policy->addRule("etdadmin");
+    $policy->addRule("etdadmin");	// FIXME: shouldn't be needed (repo-wide rule instead)
     $policy->addRule("draft");
     
     return $policy->saveXML();
@@ -187,6 +190,10 @@ class policyCondition extends XmlObject {
 
 	// department name for departmental staff
 	"department" => array("xpath" => "x:Apply[@FunctionId='urn:oasis:names:tc:xacml:1.0:function:and'][x:Apply[@FunctionId='urn:oasis:names:tc:xacml:1.0:function:string-is-in'][x:AttributeValue='Staff'][x:SubjectAttributeDesignator/@AttributeId='organizationalstatus']]/x:Apply[@FunctionId='urn:oasis:names:tc:xacml:1.0:function:string-is-in'][x:SubjectAttributeDesignator/@AttributeId='ou']/x:AttributeValue"),
+
+
+	// date
+	"embargo_end" => array("xpath" => ".//x:AttributeValue[@DataType='http://www.w3.org/2001/XMLSchema#date'][ancestor::x:*/@FunctionId='urn:oasis:names:tc:xacml:1.0:function:date-greater-than-or-equal']"),
 	
 	);
   }
@@ -487,8 +494,19 @@ const published = '<Rule xmlns="urn:oasis:names:tc:xacml:1.0:policy"  RuleId="pu
         </Action>
       </Actions>
     </Target>
+
+     <Condition FunctionId="urn:oasis:names:tc:xacml:1.0:function:date-greater-than-or-equal">
+       <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:date-one-and-only">
+         <EnvironmentAttributeDesignator 
+	    AttributeId="urn:fedora:names:fedora:2.1:environment:currentDate"
+            DataType="http://www.w3.org/2001/XMLSchema#date" />
+       </Apply>
+       <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#date"/>
+     </Condition>  
+
 </Rule>
 ';
+/* tested date comparison rule manually (2008-02-18) and it works */
   
 
 
