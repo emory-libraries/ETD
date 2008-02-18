@@ -378,11 +378,13 @@ class etd_mods extends mods {
     // table of contents
     if ($this->tableOfContents == "")  $missing["table of contents"] = "contents";
 
-
+    // keywords
+    if ($this->keywords[0]->topic == "")
+      $missing["keywords"] = "record";
+    
     // other required fields?
     // genre/etd type (?)
     // degree
-    // keywords?
     
     return $missing;
   }
