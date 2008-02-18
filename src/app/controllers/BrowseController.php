@@ -221,9 +221,9 @@ class BrowseController extends Zend_Controller_Action {
    public function myAction() {
      $auth = Zend_Auth::getInstance();
      if ($auth->hasIdentity()) {
-       $identity = $auth->getIdentity();
+       $user = $auth->getIdentity();
        // should be expanded to find by role, depending on current user - faculty, dept. staff, etc.
-       $this->view->etds = etd::findbyAuthor($identity);
+       $this->view->etds = etd::findbyAuthor(strtolower($user->netid));
       
      }
      $this->view->title = "My ETDs";
