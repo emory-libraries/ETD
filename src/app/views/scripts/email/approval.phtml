@@ -14,10 +14,15 @@ for graduation.</p>
 <p>Your ETD will now be released to the library where it will be
 processed for inclusion in the Emory ETD Repository. After your
 graduation status has been confirmed, you will receive notice shortly
-that your ETD is either (i) available for immediate access via the
-World Wide Web or (ii) unavailable for a period of time according to
-an embargo the terms to which you, your committee and the Graduate
-School have previously agreed.</p>
+that your ETD is
+<? if ($this->etd->mods->embargo_request == "no"): ?>
+available for immediate access via the World Wide Web.  
+<? else: ?>  
+unavailable for a period of <?= $this->etd->mods->embargo ?> according to
+the terms of the access restriction application to which you, your
+committee and the Graduate School have previously agreed.
+<? endif ?>
+</p>
 
 <p>You will soon receive an email
 invitation to take a Graduate School Exit Survey.  The survey is
