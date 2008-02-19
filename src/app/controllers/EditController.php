@@ -8,18 +8,43 @@ require_once("helpers/FileUpload.php");
 class EditController extends Zend_Controller_Action {
 
 
+   public function init() {
+     $this->_flashMessenger = $this->_helper->getHelper('FlashMessenger');
+     $this->initView();
+
+     
+     $this->acl = Zend_Registry::get("acl");
+     $this->user = $this->view->current_user;
+   }
+
+  
   public function postDispatch() {
     $this->view->messages = $this->_helper->flashMessenger->getCurrentMessages();
 
     $env = Zend_Registry::get('env-config');
     $this->view->site_mode = $env->mode;	// better name for this? (test/dev/prod)
   }
+
+  public function isAllowed($etd, $action = "edit metadata") {
+    // edit metadata action should cover most of this controller
+    $role = $etd->getUserRole($this->user);
+    $allowed = $this->acl->isAllowed($role, $etd, $action);
+    if (!$allowed) {
+      $this->_helper->flashMessenger->addMessage("Error: " . $this->user->netid . " (role=" . $role . 
+						 ") is not authorized to $action on " . $etd->getResourceId());
+      $this->_helper->redirector->gotoRoute(array("controller" => "auth",
+						  "action" => "denied"), "", true);
+    }
+    return $allowed;
+  }
+
   
   // edit main record metadata
   public function recordAction() {
     $pid = $this->_getParam("pid");
     $etd = new etd($pid);
-    
+    if (!$this->isAllowed($etd)) return;
+      
     $this->view->title = "Edit Record Information";
     $this->view->etd = $etd;
     // xforms setting - so layout can include needed code in the header
@@ -38,6 +63,7 @@ class EditController extends Zend_Controller_Action {
   public function programAction() {
     $pid = $this->_getParam("pid");
     $etd = new etd($pid);
+    if (!$this->isAllowed($etd)) return;
     
     $this->view->title = "Edit Program";
     $this->view->etd = $etd;
@@ -69,7 +95,7 @@ class EditController extends Zend_Controller_Action {
   public function facultyAction() {
     $pid = $this->_getParam("pid");
     $etd = new etd($pid);
-
+    if (!$this->isAllowed($etd)) return;
     $this->view->title = "Edit Advisor & Committee Members";
     $this->view->etd = $etd;
   }
@@ -78,6 +104,8 @@ class EditController extends Zend_Controller_Action {
   public function savefacultyAction() {
     $pid = $this->_getParam("pid");
     $etd = new etd($pid);
+    if (!$this->isAllowed($etd)) return;
+    
     $this->view->etd = $etd;
     
     $advisor_id = $this->_getParam("advisor");
@@ -120,6 +148,7 @@ class EditController extends Zend_Controller_Action {
   public function rightsAction() {
     $pid = $this->_getParam("pid");
     $etd = new etd($pid);
+    if (!$this->isAllowed($etd)) return;
 
     $this->view->title = "Edit Author Rights/Access Restrictions";
 
@@ -138,6 +167,7 @@ class EditController extends Zend_Controller_Action {
   public function researchfieldAction() {
     $pid = $this->_getParam("pid");
     $etd = new etd($pid);
+    if (!$this->isAllowed($etd)) return;
     
     $this->view->title = "Edit Research Fields";
     $this->view->etd = $etd;
@@ -151,6 +181,8 @@ class EditController extends Zend_Controller_Action {
   public function saveResearchfieldAction() {
     $pid = $this->_getParam("pid");
     $etd = new etd($pid);
+    if (!$this->isAllowed($etd)) return;
+    
     $this->view->fields = $this->_getParam("fields");
 
     // construct an array of id => text name
@@ -180,8 +212,6 @@ class EditController extends Zend_Controller_Action {
     						"pid" => $pid), '', true);
 
   }
-
-
   
 
   // formatted/html fields - edit one at a time 
@@ -205,6 +235,7 @@ class EditController extends Zend_Controller_Action {
     $pid = $this->_getParam("pid");
     $mode = $this->_getParam("mode", "title");
     $etd = new etd($pid);
+    if (!$this->isAllowed($etd)) return;
 
     $this->view->mode = $mode;
     $this->view->etd_title = $etd->mods->title;
@@ -232,6 +263,9 @@ class EditController extends Zend_Controller_Action {
   // save formatted fields
   public function saveHtmlAction() {
     $pid = $this->_getParam("pid");
+    $etd = new etd($pid);
+    if (!$this->isAllowed($etd)) return;
+
     $mode = $this->_getParam("mode");
     $content = $this->_getParam("edit_content");
 
@@ -242,7 +276,6 @@ class EditController extends Zend_Controller_Action {
       $content = preg_replace("|^\s*<p>\s*(.*)\s*</p>\s*$|", "$1", $content);
     }
     
-    $etd = new etd($pid);
 
     // title/abstract/contents - special fields that set values in html, mods and dublin core
     $etd->$mode = $content;
@@ -276,6 +309,7 @@ class EditController extends Zend_Controller_Action {
     $pid = $this->_getParam("pid");
     $log_message = $this->_getParam("log", "edited record information");
     $etd = new etd($pid);
+    if (!$this->isAllowed($etd)) return;
 
     
      global $HTTP_RAW_POST_DATA;
@@ -310,11 +344,7 @@ class EditController extends Zend_Controller_Action {
     // return to record (fixme: make this a generic function of this controller? used frequently)
     $this->_helper->redirector->gotoRoute(array("controller" => "view", "action" => "record",
     						"pid" => $pid), '', true);
-
    }
-
-
-
 
   
 }
