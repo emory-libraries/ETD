@@ -130,54 +130,6 @@
     </Actions>
   </Target>
 
-  <Rule RuleId="fedoraAdmin" Effect="Permit">
-  <!-- Allow anything to administrator (fedoraAdmin) unconditionally  -->
-    <Target>
-      <Subjects>
-        <Subject>
-          <SubjectMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">administrator</AttributeValue>
-            <SubjectAttributeDesignator AttributeId="fedoraRole" MustBePresent="false" 
-                DataType="http://www.w3.org/2001/XMLSchema#string"/>
-	  </SubjectMatch>
-    	</Subject>
-      </Subjects>
-      <Resources>
-        <AnyResource/>
-      </Resources>
-      <Actions>
-        <AnyAction/>
-      </Actions>
-    </Target>
-  </Rule>
-
-
-  <Rule RuleId="deny_most" Effect="Deny">
-  <!--  Deny access to (almost) everything not explicitly granted above -->
-    <Target>
-      <Subjects>
-        <AnySubject/>
-      </Subjects>
-      <Resources>
-        <AnyResource/>
-      </Resources>
-      <Actions>
-	<AnyAction/>
-      </Actions>
-    </Target>
-
-<!-- allow anyone to get object profile & list datastreams (needed to initialize foxml object) -->
-    <Condition FunctionId="urn:oasis:names:tc:xacml:1.0:function:not">
-      <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-at-least-one-member-of">
-        <ActionAttributeDesignator DataType="http://www.w3.org/2001/XMLSchema#string" AttributeId="urn:fedora:names:fedora:2.1:action:id"/>
-        <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-bag">
-          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">urn:fedora:names:fedora:2.1:action:id-getObjectProfile</AttributeValue>
-          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">urn:fedora:names:fedora:2.1:action:id-listDatastreams</AttributeValue>
-        </Apply>
-      </Apply>
-   </Condition> 
-  </Rule>
-
 </Policy>
       </foxml:xmlContent>
     </foxml:datastreamVersion>
