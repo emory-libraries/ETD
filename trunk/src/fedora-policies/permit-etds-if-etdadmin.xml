@@ -50,6 +50,40 @@ access and modify (with some limitations) etd objects</Description>
   </Target>
 
 
+  <Rule RuleId="user-owner" Effect="Permit">
+   <!-- the owner of a user object can always view and modify it -->
+    <Target>
+      <Subjects>
+        <AnySubject/>
+      </Subjects>
+      <Resources>
+      <Resource>
+        <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+            <AttributeValue 
+		DataType="http://www.w3.org/2001/XMLSchema#string">user</AttributeValue>
+            <ResourceAttributeDesignator 
+		AttributeId="urn:fedora:names:fedora:2.1:resource:object:contentModel" 
+                DataType="http://www.w3.org/2001/XMLSchema#string"/>
+        </ResourceMatch>
+      </Resource>
+      </Resources>
+      <Actions>
+	<AnyAction/>
+      </Actions>
+    </Target>
+
+    <Condition FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-at-least-one-member-of">
+       <SubjectAttributeDesignator 
+	  AttributeId="urn:fedora:names:fedora:2.1:subject:loginId" 
+  	  MustBePresent="false" 
+	  DataType="http://www.w3.org/2001/XMLSchema#string"/>
+	<ResourceAttributeDesignator 
+	  AttributeId="urn:fedora:names:fedora:2.1:resource:object:owner" 
+	  MustBePresent="false" 
+	  DataType="http://www.w3.org/2001/XMLSchema#string"/>
+    </Condition> 
+  </Rule>
+
   <Rule RuleId="etdadmin" Effect="Permit">
     <Target>
       <Subjects>
