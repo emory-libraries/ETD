@@ -50,99 +50,6 @@ access and modify (with some limitations) etd objects</Description>
   </Target>
 
 
-<!-- simplifying to try to figure out where it is wrong -->
-  <Rule RuleId="etdadmin-viewonly" Effect="Permit">
-    <Target>
-      <Subjects>
-        <AnySubject/>
-      </Subjects>
-      <Resources>
-
-        <Resource>
-         <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">DC</AttributeValue>
-             <ResourceAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:resource:datastream:id" 
-                 DataType="http://www.w3.org/2001/XMLSchema#string"/>
-        </ResourceMatch>
-      </Resource>
-        <Resource>
-         <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">MODS</AttributeValue>
-             <ResourceAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:resource:datastream:id" 
-                 DataType="http://www.w3.org/2001/XMLSchema#string"/>
-        </ResourceMatch>
-      </Resource>
-        <Resource>
-         <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">XHTML</AttributeValue>
-             <ResourceAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:resource:datastream:id" 
-                 DataType="http://www.w3.org/2001/XMLSchema#string"/>
-        </ResourceMatch>
-      </Resource>
-    <Resource>
-        <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">PREMIS</AttributeValue>
-            <ResourceAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:resource:datastream:id" 
-                DataType="http://www.w3.org/2001/XMLSchema#string"/>
-        </ResourceMatch>
-      </Resource>
-    <Resource>
-        <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">RELS-EXT</AttributeValue>
-            <ResourceAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:resource:datastream:id" 
-                DataType="http://www.w3.org/2001/XMLSchema#string"/>
-        </ResourceMatch>
-      </Resource>
-    <Resource>
-        <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">POLICY</AttributeValue>
-            <ResourceAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:resource:datastream:id" 
-                DataType="http://www.w3.org/2001/XMLSchema#string"/>
-        </ResourceMatch>
-      </Resource>
-
-      </Resources>
-      <Actions>
-	<AnyAction/>
-      </Actions>
-    </Target>
-
-    <Condition FunctionId="urn:oasis:names:tc:xacml:1.0:function:and">
-
-	<!-- view object or datastreams -->
-      <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-at-least-one-member-of">
-        <ActionAttributeDesignator DataType="http://www.w3.org/2001/XMLSchema#string" AttributeId="urn:fedora:names:fedora:2.1:action:id"/>
-        <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-bag">
-          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">urn:fedora:names:fedora:2.1:action:id-getObjectProfile</AttributeValue>
-          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">urn:fedora:names:fedora:2.1:action:id-getObjectHistory</AttributeValue>
-          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">urn:fedora:names:fedora:2.1:action:id-getObjectProperties</AttributeValue>
-          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">urn:fedora:names:fedora:2.1:action:id-getObjectXML</AttributeValue>
-          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">urn:fedora:names:fedora:2.1:action:id-listDatastreams</AttributeValue>
-          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">urn:fedora:names:fedora:2.1:action:id-getDatastream</AttributeValue>
-          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">urn:fedora:names:fedora:2.1:action:id-getDatastreamHistory</AttributeValue>
-          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">urn:fedora:names:fedora:2.1:action:id-getDatastreams</AttributeValue>
-          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">urn:fedora:names:fedora:2.1:action:id-getDatastreamDissemination</AttributeValue>
-        </Apply>	<!-- end string-bag -->
-      </Apply>  	<!-- end at least one member -->
-
-
-      <!-- usernames for etd admins -->
-      <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-at-least-one-member-of">
-        <SubjectAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:subject:loginId" DataType="http://www.w3.org/2001/XMLSchema#string"/>
-        <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-bag">
-          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">gradqew</AttributeValue>
-          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">pogrady</AttributeValue>
-          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">etdadmin</AttributeValue>
-          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">rsutton</AttributeValue>
-        </Apply>
-      </Apply>
-
-   </Condition>
-
-  </Rule>
-
-
-
   <Rule RuleId="etdadmin" Effect="Permit">
     <Target>
       <Subjects>
@@ -163,7 +70,7 @@ access and modify (with some limitations) etd objects</Description>
 
 	<!-- view object or datastreams -->
       <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-at-least-one-member-of">
-        <ActionAttributeDesignator DataType="http://www.w3.org/2001/XMLSchema#string" AttributeId="urn:fedora:names:fedora:2.1:action:id"/>
+        <ActionAttributeDesignator DataType="http://www.w3.org/2001/XMLSchema#string" AttributeId="urn:fedora:names:fedora:2.1:action:id" MustBePresent="false"/>
         <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-bag">
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">urn:fedora:names:fedora:2.1:action:id-getObjectProfile</AttributeValue>
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">urn:fedora:names:fedora:2.1:action:id-getObjectHistory</AttributeValue>
@@ -171,6 +78,7 @@ access and modify (with some limitations) etd objects</Description>
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">urn:fedora:names:fedora:2.1:action:id-getObjectXML</AttributeValue>
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">urn:fedora:names:fedora:2.1:action:id-listDatastreams</AttributeValue>
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">urn:fedora:names:fedora:2.1:action:id-getDatastream</AttributeValue>
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">urn:fedora:names:fedora:2.1:action:id-getDatastreamDissemination</AttributeValue>
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">urn:fedora:names:fedora:2.1:action:id-getDatastreamHistory</AttributeValue>
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">urn:fedora:names:fedora:2.1:action:id-getDatastreams</AttributeValue>
         </Apply>	<!-- end string-bag -->
@@ -181,7 +89,7 @@ access and modify (with some limitations) etd objects</Description>
       <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:and">
 	<!-- modification actions -->
         <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-at-least-one-member-of">
-          <ActionAttributeDesignator DataType="http://www.w3.org/2001/XMLSchema#string" AttributeId="urn:fedora:names:fedora:2.1:action:id"/>
+          <ActionAttributeDesignator DataType="http://www.w3.org/2001/XMLSchema#string" AttributeId="urn:fedora:names:fedora:2.1:action:id" MustBePresent="false"/>
         <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-bag">
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">urn:fedora:names:fedora:2.1:action:id-modifyDatastreamByValue</AttributeValue>
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">urn:fedora:names:fedora:2.1:action:id-modifyDatastreamByReference</AttributeValue>
@@ -190,7 +98,7 @@ access and modify (with some limitations) etd objects</Description>
 
 	<!-- datastreams etd admins are allowed to modify -->
         <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-at-least-one-member-of">
-          <ActionAttributeDesignator DataType="http://www.w3.org/2001/XMLSchema#string" AttributeId="urn:fedora:names:fedora:2.1:resource:datastream:id"/>
+          <ResourceAttributeDesignator DataType="http://www.w3.org/2001/XMLSchema#string" AttributeId="urn:fedora:names:fedora:2.1:resource:datastream:id" MustBePresent="false"/>
         <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-bag">
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">RELS-EXT</AttributeValue>
 	<!-- rels-ext : change object status -->
@@ -239,9 +147,9 @@ access and modify (with some limitations) etd objects</Description>
     <Condition FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-at-least-one-member-of">
         <SubjectAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:subject:loginId" DataType="http://www.w3.org/2001/XMLSchema#string"/>
         <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-bag">
-          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">Rsutton</AttributeValue>
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">rsutton</AttributeValue>
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">etdsuper</AttributeValue>
-          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">fedorAdmin</AttributeValue>
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">fedoraAdmin</AttributeValue>
         </Apply>
    </Condition>
 
@@ -276,8 +184,6 @@ access and modify (with some limitations) etd objects</Description>
    
   </Rule>
 
-<!--  
-  in default Fedora setup, deny overrides anything else - even (I think) object policy 
-  <Rule RuleId="deny-the-rest" Effect="Deny"/> -->
+  <Rule RuleId="deny-the-rest" Effect="Deny"/> 
 
 </Policy>
