@@ -1,4 +1,9 @@
 <?= $this->javascript("projax/js/prototype.js"); ?>
+<?= $this->javascript("projax/js/scriptaculous.js"); ?>
+<? //php ajax/scriptaculous
+include("projax/projax.php");
+$projax = new Projax(); ?>
+
 <? $blank = ($this->etd->mods->researchfields[0]->id == ""); ?>     
 <script type="text/javascript">
 var field_count = <?= $blank ? 0 : count($this->etd->mods->researchfields); ?>;
@@ -9,39 +14,51 @@ var field_max = 3;
 	field_count--;
 	Element.removeClassName(id, 'selected');
 	Element.remove(id + '_list');
-	Element.remove(id + '_input');
+	updatePrimary(id);
       } else if (field_count < field_max) {
 	field_count++;
 	// select & add to list
-	if (field_count == 1) { var label = " <i>(primary field)</i>"; }
+	if (field_count == 1) { var label = " <i id='primary_field'>(primary field)</i>"; }
 	else { var label = ""; }
-	new Insertion.Bottom('user_fields', '<li id="' + id + '_list">' + text + label + '</li>');
-	new Insertion.Before('save_button',
+	new Insertion.Bottom('user_fields', '<li id="' + id + '_list">' + text + label +
 			     '<input id="' + id + '_input" type="hidden" name="fields[]" value="'
-			     + id + ' ' + text + '"/>');
+			     + id + ' ' + text + '"/>' + '</li>');
 	Element.addClassName(id, 'selected');
+	var opts = new Array();
+	opts["onChange"] = "updatePrimary()";
+	opts["dropOnEmpty"] = "true";
+	Sortable.create("user_fields", opts);
       } else {
 	// alert user, don't select
 	alert("You may choose a maximum of " + field_max + " fields. Save your choices or reselect.");
       }
 }
+function updatePrimary(listitem) {
+  var label =   document.getElementById('primary_field');
+  if (label != null)  Element.remove('primary_field');
+  var list = document.getElementById("user_fields");
+  new Insertion.Bottom(list.firstChild, '<i id="primary_field">(primary field)</i>');  
+}
 </script>     
 
 <p><b>Edit Research Fields</b></p>
 
-<ul id="user_fields">
-  <? if ($this->etd->mods->researchfields[0]->id != ""): ?>     
-     <? foreach ($this->etd->mods->researchfields as $field): ?>
-        <li id="#<?= $field->id ?>_list"><?= $field->topic ?></li>
-     <? endforeach ?>
-  <? endif ?>	  
-</ul>     
-
 <form method="post" id="fields_form"  action="<?= $this->url(array("action" => "saveResearchfield"))?>">
-  <? foreach ($this->etd->mods->researchfields as $field): ?>
-     <input id="#<?= $field->id ?>_input" type="hidden" name="fields[]"
+  <ul id="user_fields">
+  <? if ($this->etd->mods->researchfields[0]->id != ""): ?>
+   <? foreach ($this->etd->mods->researchfields as $field): ?>
+     <li id="#<?= $field->id ?>_list"><?= $field->topic ?>
+       <input type="hidden" name="fields[]"
        value="#<?= $field->id ?> <?= $field->topic ?>"/>
-   <? endforeach ?>
+	<? if ($field->id == $this->etd->mods->researchfields[0]->id): ?>
+	  <i id="primary_field">(primary field)</i>
+	<? endif ?>
+     </li>
+    <? endforeach ?>
+  <? endif ?>	
+  </ul>
+	<?= $projax->sortable_element("user_fields",
+		      array("url" => null, "onChange" => "updatePrimary", "dropOnEmpty" => "true")); ?>     
    <input id="save_button" type="submit" value="save"/>
 </form>
 <br/>
