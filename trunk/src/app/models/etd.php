@@ -43,6 +43,8 @@ class etd extends foxml implements etdInterface {
       $this->rels_ext->addRelation("rel:etdStatus", "draft");
     }
 
+
+    
     // FIXME: this part (at least) should be lazy-init - slows down the browse listing significantly
         $this->pdfs = array();
     $files = array("pdfs" => "PDF",
@@ -63,19 +65,28 @@ class etd extends foxml implements etdInterface {
 	}
       }
     }
-
+    // fixme: better to use risearch or rels-ext for related objects?
 
     // fixme: need to handle permissions better - may not have permission to see all related objects
     
     // FIXME: this only works if user has permissions on rels-ext...
-    if (isset($this->rels_ext->hasAuthorInfo)) {
+    if ($this->init_mode == "pid") {
       try {
-	$authorpid = $this->rels_ext->hasAuthorInfo;
-	$this->authorInfo = new user($authorpid);
-      } catch (FedoraAccessDenied $e) {
-	// most users will NOT have access to the author information
-	trigger_error("Access denied to author info $pid", E_USER_NOTICE);
+	$this->rels_ext != null;
+      } catch  (FedoraAccessDenied $e) {
+	// if the current user doesn't have access to RELS-EXT, they don't have full access to this object
+	throw new FoxmlException("Access Denied to " . $this->pid); 
       }
+      if (isset($this->rels_ext->hasAuthorInfo)) {
+	try {
+	  $authorpid = $this->rels_ext->hasAuthorInfo;
+	  $this->authorInfo = new user($authorpid);
+	} catch (FedoraAccessDenied $e) {
+	  print "Fedora Access Denied: " . $e->getMessage() . "<br>\n";
+	  // most users will NOT have access to the author information
+	  trigger_error("Access denied to author info $pid", E_USER_NOTICE);
+	}
+      }	// end if authorInfo
     }
     
   }
