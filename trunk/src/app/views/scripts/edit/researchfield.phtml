@@ -24,20 +24,18 @@ var field_max = 3;
 			     '<input id="' + id + '_input" type="hidden" name="fields[]" value="'
 			     + id + ' ' + text + '"/>' + '</li>');
 	Element.addClassName(id, 'selected');
-	var opts = new Array();
-	opts["onChange"] = "updatePrimary()";
-	opts["dropOnEmpty"] = "true";
-	Sortable.create("user_fields", opts);
       } else {
 	// alert user, don't select
 	alert("You may choose a maximum of " + field_max + " fields. Save your choices or reselect.");
       }
+      Sortable.create("user_fields", {onChange:updatePrimary});
 }
 function updatePrimary(listitem) {
   var label =   document.getElementById('primary_field');
   if (label != null)  Element.remove('primary_field');
   var list = document.getElementById("user_fields");
-  new Insertion.Bottom(list.firstChild, '<i id="primary_field">(primary field)</i>');  
+  if (list.firstChild)
+    new Insertion.Bottom(list.firstChild, '<i id="primary_field"> (primary field)</i>');  
 }
 </script>     
 
@@ -58,7 +56,8 @@ function updatePrimary(listitem) {
   <? endif ?>	
   </ul>
 	<?= $projax->sortable_element("user_fields",
-		      array("url" => null, "onChange" => "updatePrimary", "dropOnEmpty" => "true")); ?>     
+     		      array("url" => null, "onChange" => "updatePrimary")); ?>     
+
    <input id="save_button" type="submit" value="save"/>
 </form>
 <br/>
