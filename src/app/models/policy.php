@@ -289,6 +289,7 @@ const view = '<Rule xmlns="urn:oasis:names:tc:xacml:1.0:policy" RuleId="view" Ef
             <ActionAttributeDesignator DataType="http://www.w3.org/2001/XMLSchema#string" AttributeId="urn:fedora:names:fedora:2.1:action:id"/>
           </ActionMatch>
         </Action>
+
       </Actions>
     </Target>
 	
@@ -454,18 +455,19 @@ const published = '<Rule xmlns="urn:oasis:names:tc:xacml:1.0:policy"  RuleId="pu
         <AnySubject/>
       </Subjects>
       <Resources>
+
     <Resource>
         <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
             <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">DC</AttributeValue>
             <ResourceAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:resource:datastream:id" 
-                DataType="http://www.w3.org/2001/XMLSchema#string"/>
+                DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="false"/>
         </ResourceMatch>
       </Resource>
     <Resource>
         <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
             <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">XHTML</AttributeValue>
             <ResourceAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:resource:datastream:id" 
-                DataType="http://www.w3.org/2001/XMLSchema#string"/>
+                DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="false"/>
         </ResourceMatch>
       </Resource>
 
@@ -473,7 +475,7 @@ const published = '<Rule xmlns="urn:oasis:names:tc:xacml:1.0:policy"  RuleId="pu
         <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
             <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">MODS</AttributeValue>
             <ResourceAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:resource:datastream:id" 
-                DataType="http://www.w3.org/2001/XMLSchema#string"/>
+                DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="false"/>
         </ResourceMatch>
       </Resource>
 
@@ -481,7 +483,7 @@ const published = '<Rule xmlns="urn:oasis:names:tc:xacml:1.0:policy"  RuleId="pu
         <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
             <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">RELS-EXT</AttributeValue>
             <ResourceAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:resource:datastream:id" 
-                DataType="http://www.w3.org/2001/XMLSchema#string"/>
+                DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="false"/>
         </ResourceMatch>
       </Resource>
       </Resources>
@@ -492,9 +494,11 @@ const published = '<Rule xmlns="urn:oasis:names:tc:xacml:1.0:policy"  RuleId="pu
             <ActionAttributeDesignator DataType="http://www.w3.org/2001/XMLSchema#string" AttributeId="urn:fedora:names:fedora:2.1:action:id"/>
           </ActionMatch>
         </Action>
+
       </Actions>
     </Target>
 
+<!--  FIXME: should this be moved into a separate embargo rule (for etdfiles only)
      <Condition FunctionId="urn:oasis:names:tc:xacml:1.0:function:date-greater-than-or-equal">
        <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:date-one-and-only">
          <EnvironmentAttributeDesignator 
@@ -502,11 +506,43 @@ const published = '<Rule xmlns="urn:oasis:names:tc:xacml:1.0:policy"  RuleId="pu
             DataType="http://www.w3.org/2001/XMLSchema#date" />
        </Apply>
        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#date"/>
-     </Condition>  
+     </Condition>   -->
 
 </Rule>
 ';
-/* tested date comparison rule manually (2008-02-18) and it works */
+ 
+/* Note: tested date comparison rule manually (2008-02-18) and it works */
+
+/* special embargo rule (intended for use on etdfiles)
+   FIXME: how to combine with publish rule?
+   should this be a permit or a deny rule? 
+ */
+
+const embargo = '<Rule xmlns="urn:oasis:names:tc:xacml:1.0:policy"  RuleId="embargo" Effect="Deny">
+ <!-- Don\'t allow access until embargo period is over-->
+    <Target>
+     <Subjects>
+        <AnySubject/>
+      </Subjects>
+      <Resources>
+	<AnyResource/>
+      </Resources>
+      <Actions>
+	<AnyAction/>
+      </Actions>
+    </Target>
+
+     <Condition FunctionId="urn:oasis:names:tc:xacml:1.0:function:date-less-than">
+       <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:date-one-and-only">
+         <EnvironmentAttributeDesignator 
+	    AttributeId="urn:fedora:names:fedora:2.1:environment:currentDate"
+            DataType="http://www.w3.org/2001/XMLSchema#date" />
+       </Apply>
+       <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#date"/>
+     </Condition> 
+</Rule>
+';
+ 
   
 
 
