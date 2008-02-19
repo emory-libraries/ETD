@@ -12,6 +12,16 @@ class SubmissionController extends Zend_Controller_Action {
   public function init() {
     Zend_Controller_Action_HelperBroker::addPath('../library/Emory/Controller/Action/Helper',
 						 'Emory_Controller_Action_Helper');
+    $this->acl = Zend_Registry::get("acl");
+    $this->user = $this->view->current_user;
+
+    // submit action should cover the whole controller
+    if (!$this->acl->isAllowed($this->user->role, "etd", "submit")) {
+      $this->_helper->flashMessenger->addMessage("Error: " . $this->user->netid . " (role=" . $this->user->role . 
+						 ") is not authorized to submit an etd");
+      $this->_helper->redirector->gotoRoute(array("controller" => "auth",
+						  "action" => "denied"), "", true);
+    }
   }
 
   public function indexAction() {
@@ -191,14 +201,14 @@ class SubmissionController extends Zend_Controller_Action {
     
     $etd = new etd($this->_getParam("pid"));
     $newstatus = "submitted";
-    $etd->rels_ext->status = $newstatus;
+    $etd->setStatus($newstatus);
 
     // log event in record history (fixme: better way of getting user?)
     $user = $this->view->current_user;
     $etd->premis->addEvent("status change",
 			   "Submitted for Approval by " .
-			   $user->mads->name->first . " " . $user->mads->name->last,
-			   "success",  array("netid", $user->mads->netid));
+			   $user->firstname . " " . $user->lastname,
+			   "success",  array("netid", $user->netid));
     
     $result = $etd->save("set status to '$newstatus'");
     // fixme: more student-readable message here
