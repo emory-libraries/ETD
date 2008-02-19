@@ -20,11 +20,12 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
   public function process_upload($fileinfo) {
     $this->debug = false;	// set to true to get debugging information as it steps through pages
 
+    $config = Zend_Registry::get('config');
+    $tmpdir = $config->tmpdir;
+    if (!file_exists($tmpdir))			// create temporary directory if it doesn't exist
+      mkdir($tmpdir); 
 
-    // fixme: set this somewhere else... (environment config?)
-    $tmpdir = "/tmp/etd";
-    //mkdir($tmpdir); 	// make only if it doesn't exist
-
+    // filename where the temporary upload file should be moved
     $pdf = $tmpdir . "/" . $fileinfo['name'];
     
     $flashMessenger = $this->_actionController->getHelper('FlashMessenger');
@@ -35,10 +36,10 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
 
       $this->_actionController->view->log = array();
       $html = $tmpdir . "/" . basename($fileinfo['name'], ".pdf") . ".html";
-	
-      $pdftohtml = "/home/rsutton/bin/pdftohtml";
-      //pdftohtml -q -noframes -i -l 10 filename.pdf filename.html
-      // generate a single file (no frames), first 10 pages, ignor images, quiet (no output)
+      
+      $pdftohtml = $config->pdftohtml;
+      // pdftohtml options: -q -noframes -i -l 10 filename.pdf filename.html
+      // generate a single file (no frames), first 10 pages, ignore images, quiet (no output)
       $cmd = "$pdftohtml -q -noframes -i -l 10 $pdf $html";
       $result = system($cmd);
       if ($result === 0) {
