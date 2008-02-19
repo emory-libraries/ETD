@@ -4,7 +4,8 @@ require_once('models/etd.php');
 
 
 /* NOTE: this test depends on having these user accounts defined in the test fedora instance:
- author, committee, etdadmin, guest
+  author, committee, etdadmin, guest
+ - and ETD repository-wide policies must be installed, with unwanted default policies removed
  (and of course xacml must be enabled)
 
  Warning: this is a very slow test
@@ -69,7 +70,7 @@ class TestEtdXacml extends UnitTestCase {
 
   function testGuestPermissionsOnUnpublishedETD() {
     // use guest account to access fedora
-    $this->setFedoraAccount("guest");
+    setFedoraAccount("guest");
 
     // test draft etd - guest shouldn't be able to see anything
     $this->expectException(new FoxmlException("Access Denied to {$this->pid}"));
@@ -79,12 +80,12 @@ class TestEtdXacml extends UnitTestCase {
 
   function testGuestPermissionsOnPublishedETD() {
     // set etd as published using admin account
-    $this->setFedoraAccount("fedoraAdmin");	// NOTE: wasn't working as etdadmin for some reason (but no error...)
+    setFedoraAccount("fedoraAdmin");	// NOTE: wasn't working as etdadmin for some reason (but no error...)
     $etd = new etd($this->pid);
     $etd->policy->addRule("published");
     $result = $etd->save("added published rule to test guest permissions");
 
-    $this->setFedoraAccount("guest");
+    setFedoraAccount("guest");
     $etd = new etd($this->pid);
     // these datastreams should be accessible
     $this->assertIsA($etd->dc, "dublin_core");
@@ -101,7 +102,7 @@ class TestEtdXacml extends UnitTestCase {
  
   function testAuthorPermissions() {
     // set user account to author
-    $this->setFedoraAccount("author");
+    setFedoraAccount("author");
 
     // record starts out as a draft-- author should be able to read and modify
     $etd = new etd($this->pid);
@@ -154,7 +155,6 @@ class TestEtdXacml extends UnitTestCase {
 
     FIXME: there is something weird about these two: get an error
     about attempting to modify DC and expecting it doesn't catch it properly
-    
     $etd->premis->addEvent("test", "testing permissions", "success",
     array("testid", "author"));    	// PREMIS
     $this->expectError("Access Denied to modify datastream PREMIS");
@@ -162,16 +162,17 @@ class TestEtdXacml extends UnitTestCase {
     print "\n<br/><b>DEBUG:</b> end modifying premis<br/>\n";
     
 
-    $etd->policy->removeRule("etdadmin");    // POLICY
+    //    $etd->policy->removeRule("etdadmin");    // POLICY
+    $etd->policy->removeRule("view");    // POLICY
     $this->expectError("Access Denied to modify datastream POLICY"); 
     $this->assertNull($etd->save("test author permissions - modify POLICY on non-draft etd"));
-    */
+    */    
 
   }
 
   function testCommitteePermissions() {
     // set user account to committee
-    $this->setFedoraAccount("committee");
+    setFedoraAccount("committee");
 
     // for committee member, it shouldn't matter if etd is draft, published, etc.
     $etd = new etd($this->pid);
@@ -208,7 +209,7 @@ class TestEtdXacml extends UnitTestCase {
     $etd->rels_ext->calculateChecksum();
 
 
-    /** these two fail - same weird DC error as for author 
+    /** these two fail - same weird DC error as for author  
      $etd->premis->addEvent("test", "testing permissions", "success",
      array("testid", "author"));    	// PREMIS
      $this->expectError("Access Denied to modify datastream PREMIS");
@@ -224,9 +225,9 @@ class TestEtdXacml extends UnitTestCase {
   
 
   
-  function  NOtestEtdAdminViewPermissions() {
+  function  testEtdAdminViewPermissions() {
     // set user account to etd admin
-    $this->setFedoraAccount("etdadmin");
+    setFedoraAccount("etdadmin");
 
     // for etd admin, it shouldn't matter if etd is draft, published, etc.
     $etd = new etd($this->pid);
@@ -242,7 +243,7 @@ class TestEtdXacml extends UnitTestCase {
 
   function testEtdAdminCanModify() {
     // set user account to etd admin
-    $this->setFedoraAccount("etdadmin");
+    setFedoraAccount("etdadmin");
 
     // for etd admin, it shouldn't matter if etd is draft, published, etc.
     $etd = new etd($this->pid);
@@ -264,7 +265,7 @@ class TestEtdXacml extends UnitTestCase {
   
   function testEtdAdminCannotModify() {
     // set user account to etd admin
-    $this->setFedoraAccount("etdadmin");
+    setFedoraAccount("etdadmin");
 
     // for etd admin, it shouldn't matter if etd is draft, published, etc.
     $etd = new etd($this->pid);
@@ -287,15 +288,5 @@ class TestEtdXacml extends UnitTestCase {
   }
  
   
-  function setFedoraAccount($user) {
-    $fedora_cfg = Zend_Registry::get('fedora-config');
-
-    // create a new fedora connection with configured port & server, specified password
-    $fedora = new FedoraConnection($user, $user,	// for test accounts, username = password
-				   $fedora_cfg->server, $fedora_cfg->port);
-
-    // note: needs to be in registry because this is what the etd object will use
-    Zend_Registry::set('fedora', $fedora);
-  }
   
 }
