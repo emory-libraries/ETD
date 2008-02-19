@@ -14,7 +14,7 @@
     <? // nonemory committee not yet handled in etd interface... ?>
     <? if (isset($this->etd->mods->nonemory_committee) &&
 	   isset($this->etd->mods->nonemory_committee[0]) && 
-	   $this->etd->mods->nonemory_committee[0]->full): ?>
+	   isset($this->etd->mods->nonemory_committee[0]->full)): ?>
       <? foreach ($this->etd->mods->nonemory_committee as $cm): ?>
          <?= $cm->full ?> (<?= $cm->affiliation ?>);
       <? endforeach ?> 
