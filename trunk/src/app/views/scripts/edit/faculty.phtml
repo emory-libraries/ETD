@@ -28,6 +28,16 @@ $inputopts = array("size" => "55", "autocomplete" => "off", "id" => "advisor_aut
     text.value = '';	// blank out suggestor for more entries
   }
  function removeAdvisor(id) { Element.remove(id); Element.show("advisor_autocomplete"); }
+
+function addNonemory() {
+  nonemory_count++;	// unique id for remove link
+  new Insertion.Bottom('nonemory_list', "<tr id='nonemory_" + nonemory_count + "'>\n" +
+    "\t<td><input type='text' name='nonemory_firstname[]'></td>\n" +
+    "\t<td><input type='text' name='nonemory_lastname[]' ></td>\n" +
+    "\t<td><input type='text' name='nonemory_affiliation[]' ></td>\n" +
+    "\t<td><a href='#' onClick=\"Element.remove('nonemory_" + nonemory_count + "')\">remove</a>\n" + 
+    "</tr>");
+}
 </script>
 
 
@@ -78,10 +88,36 @@ add non-Emory committee members on record page (link?)</p>
 <?= $projax->text_field_with_auto_complete('faculty', $inputopts, $ajaxopts); ?>
      <span id="cm-loading" style="display:none;">Searching...</span>
 
+ <hr/>
+ <h2>Non-Emory Committee Members</h2>
+<table id="nonemory_list">
+<tbody>						       
+     <? $ne_count = 0; ?>
+     <tr><th>last name</th> <th>first name</th> <th>affiliation</th></tr>
+     <? foreach ($this->etd->mods->nonemory_committee as $ne) : ?>
+       <tr id="nonemory_<?= ++$ne_count; ?>">
+     <td><?= $this->formText("nonemory_lastname[]", $ne->last); ?></td>
+     <td><?= $this->formText("nonemory_firstname[]", $ne->first); ?></td>
+     <td><?= $this->formText("nonemory_affiliation[]", $ne->affiliation); ?></td>
+     <td><a href="#" onClick="Element.remove('nonemory_<?= $ne_count ?>')">remove</a>
+       </tr>
+     <? endforeach ?>
+   <tr id="nonemory_<?= ++$ne_count; ?>">
+     <td><?= $this->formText("nonemory_lastname[]"); ?></td>
+     <td><?= $this->formText("nonemory_firstname[]"); ?></td>
+     <td><?= $this->formText("nonemory_affiliation[]"); ?></td>
+     <td><a href="#" onClick="Element.remove('nonemory_<?= $ne_count ?>')">remove</a>
+   </tr>
+ <tbody>						       
+</table>
+<? /* pass the count to the javascript so inserted nodes can have unique ids for removal */ ?>
+<script type="text/javascript">var nonemory_count = <?= $ne_count ?>; </script>		       
+<a href="#" onClick="javascript:addNonemory()">add another</a>
+     
 <p><input type="submit" value="save"/></p>
 </form>
- <div id="autocomplete"/>
-     
+
+						       
 </div>
 
 

@@ -81,13 +81,23 @@ class EditController extends Zend_Controller_Action {
     $this->view->etd = $etd;
     
     $advisor_id = $this->_getParam("advisor");
-    $committee_ids = $this->_getParam("committee");	//array
+    $committee_ids = $this->_getParam("committee");		// array
     $this->view->committee_ids = $committee_ids;
 
     // set fields
     $etd->mods->setAdvisor($advisor_id);
     $etd->mods->setCommittee($committee_ids);
 
+    // handle non-emory committee members as well
+    $etd->mods->clearNonEmoryCommittee();
+    $nonemory_first = $this->_getParam("nonemory_firstname");
+    $nonemory_last = $this->_getParam("nonemory_lastname");
+    $nonemory_affiliation = $this->_getParam("nonemory_affiliation");
+    for ($i = 0; $i < count($nonemory_first); $i++) {
+      if ($nonemory_last[$i] != '')
+	$etd->mods->addCommitteeMember($nonemory_last[$i], $nonemory_first[$i], false, $nonemory_affiliation[$i]);
+    }
+    
     if ($etd->mods->hasChanged()) {
       $save_result = $etd->save("updated advisor & committee members");
       $this->view->save_result = $save_result;
@@ -98,6 +108,7 @@ class EditController extends Zend_Controller_Action {
     } else {
       $this->_helper->flashMessenger->addMessage("No changes made to advisor & committee");
     }
+
 
     $this->_helper->redirector->gotoRoute(array("controller" => "view", "action" => "record",
     						"pid" => $pid), '', true);
