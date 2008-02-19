@@ -17,6 +17,9 @@
 	    </etd>
 	    <test>rsutton@emory.edu</test>
 	  </email>
+	  <tmpdir>/tmp/etd</tmpdir>
+  	  <!-- executable for pdftohtml; supply full path if necessary -->
+	  <pdftohtml>pdftohtml</pdftohtml>	
 	</development>
 
 	<test extends="development">
