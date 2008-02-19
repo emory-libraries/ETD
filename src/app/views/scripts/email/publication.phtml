@@ -9,7 +9,7 @@
 can now be accessed in the Emory University ETD Repository at
 <a href="<?= $this->etd->mods->ark ?>"><?= $this->etd->mods->ark ?></a>.</p>
 
-<? if ($this->etd->etd_mods->embargo_request == "no"): ?>
+<? if ($this->etd->mods->embargo_request == "no"): ?>
 <p>Upon submission, you agreed to grant open access to your work via the
 web.  We appreciate your contribution to the intellectual output of
 the University, and we hope that making your work as widely accessible
@@ -17,12 +17,12 @@ as possible will be mutually beneficial.</p>
 <? else: ?>
 <p>Upon submission, you chose to restrict access to your work via the
 web.  Access to your thesis or dissertation will be restricted for
-<?= $this->etd->etd_mods->embargo ?>.  Details describing your document will appear in
+<?= $this->etd->mods->embargo ?>.  Details describing your document will appear in
 the repository's index, but the full text of your work will not appear
 until the expiration of the access restriction period.</p>
 
 <p>The access restriction associated with your <?= $this->etd->document_type() ?>
-will expire automatically on <?= $this->etd->etd_mods->embargo_end ?>.  You will receive notice
+will expire automatically on <?= $this->etd->mods->embargo_end ?>.  You will receive notice
 (via e-mail to the permanent e-mail address which you provided) of the
 impending expiration of the access restriction sixty (60) days prior
 to the access restriction's expiration.  You are responsible for
