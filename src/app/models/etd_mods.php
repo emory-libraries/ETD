@@ -200,7 +200,7 @@ class etd_mods extends mods {
     if ($this->advisor->id == $id)   // if id is unchanged, don't lookup/reset
       return;
     $esd = new esdPersonObject();
-    $person = $esd->findByUsername($id);
+    $this->setAdvisorFromPerson($esd->findByUsername($id));
   }
 
   public function setAdvisorFromPerson(esdPerson $person) {
@@ -264,6 +264,7 @@ class etd_mods extends mods {
     $this->update();
   }
 
+  /* remove a committee member by id */
   public function removeCommitteeMember($id) {
     // remove the node from the xml dom
     $nodelist = $this->xpath->query("//mods:name[@ID = '$id']");
@@ -272,6 +273,16 @@ class etd_mods extends mods {
       $node->parentNode->removeChild($node);
     }
     // update in-memory array so it will reflect the change
+    $this->update();
+  }
+
+  // remove all non-Emory committee members  (use before re-adding them)
+  public function clearNonEmoryCommittee() {
+    $nodelist = $this->xpath->query("//mods:name[mods:description='Non-Emory Committee Member']");
+    for ($i = 0; $i < $nodelist->length; $i++) {
+      $node = $nodelist->item($i);
+      $node->parentNode->removeChild($node);
+    }
     $this->update();
   }
 
