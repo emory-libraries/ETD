@@ -3,6 +3,8 @@
 require_once("XmlObject.class.php");
 require_once("models/foxml.php");
 require_once("api/fedora.php");
+
+require_once("etd.php");
 require_once("etd_rels.php");
 require_once("policy.php");
 
@@ -23,29 +25,39 @@ class etd_file extends foxml {
       // new etd objects
       $this->cmodel = "etdFile";
       
-      // assume new etdFile is the first of it's type in a given ETD
+      // assume new etdFile is the first of its type in a given ETD
       $this->rels_ext->addRelation("rel:sequenceNumber", "1");
     }
 
 
-
-    // determine what type of etd file this is
-    if (isset($this->rels_ext->pdfOf)) {
-      $this->type = "pdf";
-    } elseif (isset($this->rels_ext->originalOf)) {
-      $this->type = "original";
-    } elseif (isset($this->rels_ext->supplementOf)) {
-      $this->type = "supplement";
-    } else {
-      trigger_error("etdFile object " . $this->pid . " is not related to an etd object", E_USER_WARNING);
+    try {
+      $this->rels_ext != null;
+    } catch  (FedoraAccessDenied $e) {
+      // if the current user doesn't have access to RELS-EXT, they don't have full access to this object
+      throw new FoxmlException("Access Denied to " . $this->pid); 
     }
 
-    // based on file type, get parent pid and initialize parent object (if not set and if not a new object)
-    if (isset($this->type) && is_null($parent) && !is_null($pid)) {
-      $parent_rel = $this->type . "Of";
-      $this->parent = new etd($this->rels_ext->$parent_rel);
-    } else {
-      $this->parent = $parent;
+    if ($this->rels_ext) {
+      
+      // determine what type of etd file this is
+      if (isset($this->rels_ext->pdfOf)) {
+	$this->type = "pdf";
+      } elseif (isset($this->rels_ext->originalOf)) {
+	$this->type = "original";
+      } elseif (isset($this->rels_ext->supplementOf)) {
+	$this->type = "supplement";
+      } else {
+	trigger_error("etdFile object " . $this->pid . " is not related to an etd object", E_USER_WARNING);
+      }
+      
+      // based on file type, get parent pid and initialize parent object (if not set and if not a new object)
+      if (isset($this->type) && is_null($parent) && !is_null($pid)) {
+	$parent_rel = $this->type . "Of";
+	if ($this->rels_ext->$parent_rel)	// don't try to load if pid is blank
+	  $this->parent = new etd($this->rels_ext->$parent_rel);
+      } else {
+	$this->parent = $parent;
+      }
     }
   }
 
