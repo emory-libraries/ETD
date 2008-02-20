@@ -204,7 +204,10 @@ class etd_mods extends mods {
   }
 
   public function setAdvisorFromPerson(esdPerson $person) {
-    $this->setNameFromPerson($this->advisor, $person);
+    if (isset($this->advisor))
+      $this->setNameFromPerson($this->advisor, $person);
+    else
+      trigger_error("Advisor is not set!", E_USER_WARNING);
   }
   
   public function setCommitteeFromPersons(array $people) {
