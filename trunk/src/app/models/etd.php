@@ -37,8 +37,6 @@ class etd extends foxml implements etdInterface {
     } elseif ($this->init_mode == "dom") {
       // anything here?
     } elseif ($this->init_mode == "template") {
-      // anything here?
-    } else {
       // new etd objects
       $this->cmodel = "etd";
       // all new etds should start out as drafts
