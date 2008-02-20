@@ -47,10 +47,12 @@ class policyTest extends UnitTestCase {
 
     $this->assertEqual($this->policy->view->condition->department, "Chemistry");
 
-    $this->assertEqual($this->policy->published->condition->embargo_end, "2008-01-01");
-
+    $this->assertIsA($this->policy->embargoed->condition, "policyCondition");
+    $this->assertEqual($this->policy->embargoed->condition->embargo_end, "2008-01-01");
+    
     // single user
     $this->assertEqual($this->policy->draft->condition->user, "author");
+
   }
 
   function testValidation() {
