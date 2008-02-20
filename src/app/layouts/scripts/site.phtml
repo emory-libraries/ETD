@@ -41,7 +41,10 @@
 <div id="login">
 
  <? if (isset($this->current_user)): ?>
-   <b>Welcome, <?= $this->current_user ?></b>  (<?= $this->current_user->role ?>)
+   <b>Welcome, <?= $this->current_user ?></b>
+   <? if ($this->site_mode == "development"): ?>
+      (<span id="current_role"><?= $this->current_user->role ?></span>)
+   <? endif ?>
 
    <ul class="horizontal">
       <li class="first">
@@ -58,6 +61,10 @@
 <!--      	    <li><a title="user information" href="<?= $this->url(array("controller" => "user", "action" => "view"), null, true) ?>">Profile</a></li> -->
 
             <li><a href="docs/id/faq#help">Help</a></li>
+
+	    <? if ($this->site_mode == "development"): ?>
+       <?= $this->render('_setrole.phtml'); ?>
+	    <? endif ?>
          </ul>
 
  <? else: ?>

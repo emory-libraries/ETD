@@ -15,7 +15,7 @@ class AuthController extends Zend_Controller_Action {
    }
 
    public function postDispatch() {
-     $this->view->messages = $this->_helper->flashMessenger->getCurrentMessages();
+     $this->view->messages = $this->_helper->flashMessenger->getMessages();
    }
 
 
@@ -67,6 +67,20 @@ class AuthController extends Zend_Controller_Action {
      }
    }
 
+   public function setroleAction() {
+     if ($this->view->site_mode != "development") {
+       $this->_helper->flashMessenger->addMessage("Error: set role can only be used in development");
+       $this->_helper->redirector->gotoRoute(array("controller" => "auth",
+						   "action" => "denied"), "", true);
+     }
+
+     $role = $this->_getParam("role");
+     $this->view->current_user->role = $role;
+     
+     // fixme: how to return to last page?
+     $this->_forward("index", "Index");
+   }
+
 
    // just a test action to get the esd person object working properly
    public function infoAction() {
@@ -87,6 +101,10 @@ class AuthController extends Zend_Controller_Action {
 
      // forward to ... ?
      $this->_forward("index", "Index");
+   }
+
+   public function deniedAction() {
+     $this->view->title = "Access Denied";
    }
    
 }
