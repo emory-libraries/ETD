@@ -30,19 +30,17 @@ class TestEtdXacml extends UnitTestCase {
     $dom = new DOMDocument();
     $dom->load($fname);
     $etd = new etd($dom);
-      
-    // initialize the xacml policy the way it should be set up normally
+
+    // repository-wide policy rules
+    $etd->owner = "author";	// set owner to author username (rely on repository-wide policy for author access)
+    // note: etdadmin access is covered by repository-wide policy
+    
+    // initialize the xacml object policy the way it should be set up normally
     $etd->policy->addRule("view");
-    $etd->policy->view->condition->users[0] = "author";
     $etd->policy->view->condition->addUser("committee");
-    //    $etd->policy->view->condition->addUser("etdadmin");		// FIXME: should be covered by repo-wide policy
     $etd->policy->view->condition->department = "department";
     $etd->policy->addRule("draft");
     $etd->policy->draft->condition->user = "author";
-    /*  - *should* be covered by repo-wide policy 
-     $etd->policy->addRule("etdadmin");
-     $etd->policy->etdadmin->condition->users[0] = "etdadmin"; */
-
     $this->pid =  $etd->pid;
     
     try {

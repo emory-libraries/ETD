@@ -6,8 +6,9 @@ require_once("bootstrap.php");
 class XacmlGroupTest extends GroupTest {
   function XacmlGroupTest() {
     $this->GroupTest('ETD XACML tests');
-    //    $this->addTestFile('xacml/etdXacmlTest.php');
+    $this->addTestFile('xacml/etdXacmlTest.php');
     $this->addTestFile('xacml/userXacmlTest.php');
+    $this->addTestFile('xacml/etdFileXacmlTest.php');
   }
 }
 
