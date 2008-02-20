@@ -8,7 +8,12 @@ class Xml_Acl extends Zend_Acl {
 
     //roles
     foreach ($config->roles->role as $role) {
-      $this->addRole(new Zend_Acl_Role((string)$role{"name"}));
+      $inherits = array();
+      if ($role{"inherits"}) {
+	array_push($inherits, (string)$role{"inherits"});
+      }
+      
+      $this->addRole(new Zend_Acl_Role((string)$role{"name"}), $inherits);
     }
     
     //resources
