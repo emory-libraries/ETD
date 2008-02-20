@@ -90,6 +90,10 @@ if (isset($current_user)) {
   $viewRenderer->view->current_user = $current_user;
 }
 
+// store test/dev/production for use in view scripts
+$viewRenderer->view->site_mode = $env_config->mode;	// better name for this? (test/dev/prod)
+
+
 
 
 
