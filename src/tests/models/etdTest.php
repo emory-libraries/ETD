@@ -153,6 +153,23 @@ class TestEtd extends UnitTestCase {
   }
   
 
+  function testInitbyTemplate() {
+    $etd = new etd();
+    $this->assertIsA($etd, "etd");
+    $this->assertIsA($etd->dc, "dublin_core");
+    $this->assertIsA($etd->rels_ext, "rels_ext");
+    $this->assertIsA($etd->mods, "etd_mods");
+    $this->assertIsA($etd->html, "etd_html");
+    $this->assertIsA($etd->premis, "premis");
+    $this->assertIsA($etd->policy, "XacmlPolicy");
+
+    $this->assertEqual("etd", $etd->cmodel);
+    // check for error found in ticket:150
+    $this->assertEqual("draft", $etd->status());
+  
+  }
+
+  
 
 }
 
