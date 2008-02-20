@@ -63,6 +63,11 @@ class TestEtd extends UnitTestCase {
     $this->etd->owner = "dduck";
     $this->assertEqual("dduck", $this->etd->policy->view->condition->users[0]);
     $this->assertEqual("dduck", $this->etd->policy->draft->condition->user);
+
+    // department - mods & view policy
+    $this->etd->department = "Chemistry";
+    $this->assertEqual("Chemistry", $this->etd->mods->department);
+    $this->assertEqual("Chemistry", $this->etd->policy->view->condition->department);
   }
 
   function testGetUserRole() {
