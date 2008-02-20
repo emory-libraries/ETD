@@ -91,6 +91,66 @@ class TestEtd extends UnitTestCase {
     $this->assertEqual("default role", $this->etd->getUserRole($person));
 
   }
+
+  function testSetStatus() {
+
+    // attach an etd file for testing
+    $fname = 'fixtures/etdfile.xml';
+    $dom = new DOMDocument();
+    $dom->load($fname);
+    $etdfile = new etd_file($dom);
+    $this->etd->pdfs[] = $etdfile;
+    // separate copy - mock original file
+    $dom2 = new DOMDocument();
+    $dom2->load($fname);
+    $etdfile2 = new etd_file($dom2);
+    $etdfile2->pid = "test:etdfile2";
+    $this->etd->originals[] = $etdfile2;
+
+    // run through the various statuses in order, check everything is set correctly
+
+    // draft - draft rule is added, published removed (because object had published status before)
+    $this->etd->setStatus("draft");
+    $this->assertEqual("draft", $this->etd->status());
+    $this->assertIsA($this->etd->policy->draft, "PolicyRule");
+    $this->assertEqual($this->etd->policy->draft->condition->user, "mmouse");	// owner from etd
+    $this->assertFalse(isset($this->etd->policy->published));
+    // draft rule should also be added to related etdfile objects
+    $this->assertIsA($this->etd->pdfs[0]->policy->draft, "PolicyRule");
+    $this->assertFalse(isset($this->etd->pdfs[0]->policy->published));
+    $this->assertIsA($this->etd->originals[0]->policy->draft, "PolicyRule");
+    $this->assertFalse(isset($this->etd->originals[0]->policy->published));
+
+    // submitted - draft rule removed, no new rules
+    $this->etd->setStatus("submitted");
+    $this->assertEqual("submitted", $this->etd->status());
+    $this->assertFalse(isset($this->etd->policy->draft));
+    $this->assertFalse(isset($this->etd->pdfs[0]->policy->draft));
+    $this->assertFalse(isset($this->etd->originals[0]->policy->draft));
+
+    // reviewed - no rules change
+    $etd_rulecount = count($this->etd->policy->rules);
+    $this->etd->setStatus("reviewed");
+    $this->assertEqual("reviewed", $this->etd->status());
+    $this->assertEqual($etd_rulecount, count($this->etd->policy->rules));
+
+    // approved - no rules change
+    $etd_rulecount = count($this->etd->policy->rules);
+    $this->etd->setStatus("approved");
+    $this->assertEqual("approved", $this->etd->status());
+    $this->assertEqual($etd_rulecount, count($this->etd->policy->rules));
+
+    // published - publish rule is added
+    $this->etd->setStatus("published");
+    $this->assertEqual("published", $this->etd->status());
+    $this->assertIsA($this->etd->policy->published, "PolicyRule");
+    $this->assertTrue(isset($this->etd->policy->published));
+    // published rule should also be added to related etdfile objects 
+    $this->assertIsA($this->etd->pdfs[0]->policy->published, "PolicyRule");
+    $this->assertTrue(isset($this->etd->pdfs[0]->policy->published));
+    // but published rule should NOT be added to original
+    $this->assertFalse(isset($this->etd->originals[0]->policy->published));
+  }
   
 
 
