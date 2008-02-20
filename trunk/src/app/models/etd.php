@@ -292,6 +292,11 @@ class etd extends foxml implements etdInterface {
       $this->policy->view->condition->removeUser($this->mods->advisor->id);
     // store in mods    
     $this->mods->setAdvisor($id);
+
+    // store relation in rels-ext
+    if (isset($this->rels_ext->advisor)) $this->rels_ext->advisor = $id;
+    else $this->rels_ext->addRelation("rel:advisor", $id);
+
     // add to 'view' policy rule
     $this->policy->view->condition->addUser($id);
   }
@@ -303,7 +308,10 @@ class etd extends foxml implements etdInterface {
       if ($cm->id)
 	$this->policy->view->condition->removeUser($cm->id);
     }
+
     $this->mods->setCommittee($ids);
+    $this->rels_ext->setCommittee($ids);
+    
     foreach ($ids as $id) 
       $this->policy->view->condition->addUser($id);
   }

@@ -139,11 +139,14 @@ class etd_mods extends mods {
       if (isset($this->map['nonemory_committee'][0])) {
 	$no_nonemory = false;
 	$newnode = $this->map['nonemory_committee'][0]->domnode->cloneNode(true);
-      } else {
+      } elseif (isset($this->map['committee'][0])) {
 	// xml does not include a non-emory committee member - copy emory and change accordingly
 	$no_nonemory = true;
 	$newnode = $this->map['committee'][0]->domnode->cloneNode(true);
 	$newnode->appendChild($this->dom->createElementNS($this->namespaceList["mods"], "mods:affiliation"));
+      } else {
+	trigger_error("No committee nodes to copy! Can't add committee member", E_USER_WARNING);
+	return;
       }
     }
 

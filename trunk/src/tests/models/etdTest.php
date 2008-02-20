@@ -176,14 +176,18 @@ class TestEtd extends UnitTestCase {
 
   function testAddCommitteeAndAdvisor() {
     $this->etd->setAdvisor("mhalber");		// FIXME: if this netid goes out of ESD, this test will fail
-    // should be set in mods and in view policy rule
+    // should be set in mods, rels-ext, and in view policy rule
     $this->assertEqual("mhalber", $this->etd->mods->advisor->id);
     $this->assertEqual("Halbert", $this->etd->mods->advisor->last);
+    $this->assertEqual("mhalber", $this->etd->rels_ext->advisor);
     $this->assertTrue($this->etd->policy->view->condition->users->includes("mhalber"));
+
 
     $this->etd->setCommittee(array("ahickco", "jfenton"));
     $this->assertEqual("ahickco", $this->etd->mods->committee[0]->id);
     $this->assertEqual("jfenton", $this->etd->mods->committee[1]->id);
+    $this->assertEqual("ahickco", $this->etd->rels_ext->committee[0]);
+    $this->assertEqual("jfenton", $this->etd->rels_ext->committee[1]);
     $this->assertTrue($this->etd->policy->view->condition->users->includes("ahickco"));
     $this->assertTrue($this->etd->policy->view->condition->users->includes("jfenton"));
     
