@@ -79,5 +79,26 @@ class etd_rels extends rels_ext {
   }
 
 
+  // set all committee members rels  from an array of ids
+  public function setCommittee(array $ids) {
+    $this->clearCommittee();	// clear the old
+    foreach ($ids as $id) 	// add the new
+      $this->addRelation("rel:committee", $id);
+    $this->update();
+  }
+
+  // remove all committee members rels  (use before re-adding them)
+  public function clearCommittee() {
+    $nodelist = $this->xpath->query("//rel:committee", $this->domnode);
+    for ($i = 0; $i < $nodelist->length; $i++) {
+      $node = $nodelist->item($i);
+      $node->parentNode->removeChild($node);
+    }
+    $this->update();
+  }
+
+
+
+
 
 }
