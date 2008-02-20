@@ -136,16 +136,16 @@ class etd extends foxml implements etdInterface {
     $old_status = $this->rels_ext->status;
     if ($new_status == $old_status) return;	// do nothing - no change
 
-    // leaving published status (e.g., unpublish) - published xacml policy should no longer be active
-    if ($old_status == "published") $this->removePolicyRule("published");
+    // when leaving certain statuses, certain rules need to go away
+    switch ($old_status) {
+    case "published":	$this->removePolicyRule("published"); break;
+    case "draft":	 $this->removePolicyRule("draft");    break;
+    }
     
     // certain policy rules need to change when status changes
     switch ($new_status) {
     case "draft":	// add draft rule & allow author to edit
       $this->addPolicyRule("draft");
-      break;
-    case "submitted":
-      $this->removePolicyRule("draft");
       break;
     case "published":
       $this->addPolicyRule("published");
@@ -226,18 +226,17 @@ class etd extends foxml implements etdInterface {
       // base foxml class also stores pid value in multiple places
       parent::__set($name, $value);
       break;
-
     case "owner":
       // add author's username to the appropriate rules
-      if (isset($this->policy)) {
-	if (isset($this->policy->view)) $this->policy->view->condition->users[0] = $value;
-	if (isset($this->policy->draft)) $this->policy->draft->condition->user = $value;
-      }
+      if (isset($this->policy) && isset($this->policy->draft))
+	$this->policy->draft->condition->user = $value;
+
       // store author's username in rels-ext as author
       if (isset($this->rels_ext)) {
 	if (isset($this->rels_ext->author)) $this->rels_ext->author = $value;
 	else $this->rels_ext->addRelation("rel:author", $value);
       }
+      // set ownerId property
       parent::__set($name, $value);
       break;
       
@@ -272,18 +271,6 @@ class etd extends foxml implements etdInterface {
       $this->html->contents = $value;
       // use the html contents value, since it is already slightly cleaned up
       $this->mods->tableOfContents = etd_html::formattedTOCtoText($this->html->contents);
-      
-      /*      // remove tags, convert breaks to --
-      $toc_text = etd_html::cleanTags($value, true);
-      $unfiltered_toc_lines = split('<br/>', $toc_text);
-      $toc_lines = array();
-      foreach ($unfiltered_toc_lines as $line) {
-	// filter out blank lines
-	if (preg_match("/^\s*$/", $line)) continue;
-	array_push($toc_lines, $line);
-      }
-      $toc_text = implode("--", $toc_lines);
-      $this->mods->tableOfContents = $toc_text;*/
       break;
 
     case "department":
@@ -297,6 +284,29 @@ class etd extends foxml implements etdInterface {
     }
   }
 
+
+  // set advisor in mods metadata but *also* set in view policy
+  public function setAdvisor($id) {
+    // if a different advisor was set before, remove from policy
+    if ($this->mods->advisor->id)
+      $this->policy->view->condition->removeUser($this->mods->advisor->id);
+    // store in mods    
+    $this->mods->setAdvisor($id);
+    // add to 'view' policy rule
+    $this->policy->view->condition->addUser($id);
+  }
+
+  // similar logic to advisor above
+  public function setCommittee(array $ids) {
+    // fixme: clear any old committee members from policy ?
+    foreach ($this->mods->committee as $cm) {
+      if ($cm->id)
+	$this->policy->view->condition->removeUser($cm->id);
+    }
+    $this->mods->setCommittee($ids);
+    foreach ($ids as $id) 
+      $this->policy->view->condition->addUser($id);
+  }
 
 
   // type should be: Original, PDF, Supplement
