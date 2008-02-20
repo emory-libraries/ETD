@@ -3,12 +3,24 @@
     <role name="guest">
       <allow resource="published etd">view metadata</allow>
     </role>
+
+    <!-- base roles determined by person type in ESD; must be defined for ACL -->
+    <role name="staff" inherits="guest"/>
+    <role name="faculty" inherits="guest"/>
+
+    <role name="student">
+      <allow resource="etd">submit</allow>
+    </role>
+
     <role name="author">
       <allow resource="etd">view metadata, view history, view status, download</allow>
       <allow resource="draft etd">edit metadata, add file, submit</allow>
     </role>
     <role name="committee">	
       <allow resource="etd">view metadata, view history, view status, download</allow>
+    </role>
+    <role name="departmental staff">
+      <allow resource="etd">view metadata</allow>
     </role>
 <!-- departmental staff? -->
     <role name="admin">
