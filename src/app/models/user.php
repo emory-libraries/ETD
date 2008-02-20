@@ -4,7 +4,8 @@ require_once("fedora/models/foxml.php");
 require_once("fedora/api/fedora.php");
 require_once("fedora/api/risearch.php");
 
-//require_once("vcard.php");
+require_once("persis.php");
+
 require_once("mads.php");
 
 class user extends foxml {
@@ -105,7 +106,8 @@ class user extends foxml {
   /**  override default foxml ingest function to use arks for object pids
    */
   public function ingest($message ) {
-    $persis = Zend_Registry::get("persis");
+    $persis = new etd_persis();
+
     // FIXME: use view/controller to build this url?
     $ark = $persis->generateArk("http://etd/user/view/pid/emory:{%PID%}", $this->label);
     $pid = $persis->pidfromArk($ark);

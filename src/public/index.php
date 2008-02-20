@@ -62,15 +62,6 @@ $solr = new solr($solr_config->server, $solr_config->port);
 $solr->addFacets(explode(',', $solr_config->facets)); 	// array of default facet terms
 Zend_Registry::set('solr', $solr);
 
-
-require_once("persis.php");
-
-$persis_config = new Zend_Config_Xml("../config/persis.xml", $env_config->mode);
-$persis = new persis($persis_config->url, $persis_config->username,
-		     $persis_config->password, $persis_config->domain);
-Zend_Registry::set('persis', $persis);
-
-
 // set up access controls
 require_once("xml_acl.php");
 $acl = new Xml_Acl();

@@ -4,6 +4,8 @@ require_once("XmlObject.class.php");
 require_once("models/foxml.php");
 require_once("api/fedora.php");
 
+require_once("persis.php");
+
 require_once("etd.php");
 require_once("etd_rels.php");
 require_once("policy.php");
@@ -88,7 +90,8 @@ class etd_file extends foxml {
   /**  override default foxml ingest function to use arks for object pids
    */
   public function ingest($message ) {
-    $persis = Zend_Registry::get("persis");
+    $persis = new etd_persis();
+    
     // FIXME: use view/controller to build this url?
     $ark = $persis->generateArk("http://etd/file/view/pid/emory:{%PID%}", $this->label);
     $pid = $persis->pidfromArk($ark);
