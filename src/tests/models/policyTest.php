@@ -119,6 +119,11 @@ class policyTest extends UnitTestCase {
     // try adding to a policy with a condition but no users
     $this->expectError("Cannot add user 'failure' because this condition has no users");
     $this->policy->deny_most->condition->addUser("failure");
+
+    // add a user that is already present - should not change
+    $usercount = count($this->policy->view->condition->users);
+    $this->policy->view->condition->addUser("newuser");
+    $this->assertEqual($usercount, count($this->policy->view->condition->users));
   }
 
   function testRemoveUser() {
@@ -141,14 +146,17 @@ class policyTest extends UnitTestCase {
     // these rules should be included in a new policy
     //    $this->assertTrue(isset($policy->fedoraAdmin));	// removed
     $this->assertTrue(isset($policy->view));
-    $this->assertTrue(isset($policy->etdadmin));
+    //    $this->assertTrue(isset($policy->etdadmin));	// no longer needed
     $this->assertTrue(isset($policy->draft));
 
     // should not include published rule
     $this->assertFalse(isset($policy->published));
 
     // some kind of problem accessing users from template
+    // 'author' no longer set as default in policies... - store and then check
+    $policy->view->condition->addUser("author");
     $this->assertEqual($policy->view->condition->users[0], "author");
+    $policy->draft->condition->user = "author";
     $this->assertEqual($policy->draft->condition->user, "author");
   }
   

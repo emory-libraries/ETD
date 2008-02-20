@@ -87,7 +87,7 @@ class XacmlPolicy extends foxmlDatastreamAbstract {
     // starts with a bare-bones xacml  (fedoraAdmin rule & deny-most rule)
     // add the appropriate rules for a new etd
     $policy->addRule("view");
-    $policy->addRule("etdadmin");	// FIXME: shouldn't be needed (repo-wide rule instead)
+    //    $policy->addRule("etdadmin");	// FIXME: shouldn't be needed (repo-wide rule instead)
     $policy->addRule("draft");
     
     return $policy->saveXML();
@@ -203,11 +203,16 @@ class policyCondition extends XmlObject {
       trigger_error("Cannot add user '$username' because this condition has no users", E_USER_WARNING);
       return;
     }
-
-    // fixme: what should happen if user is already here ?
+    // user is already present - no need to add
+    if ($this->users->includes($username)) return;
     
-    $this->users->append($username);
-    $this->update(); 
+    // if first user is blank, store the value there
+    if ($this->users[0] == "")
+      $this->users[0] = $username;
+    else {
+      $this->users->append($username);
+      $this->update(); 
+    }
   }
 
   public function removeUser($username) {
@@ -231,8 +236,7 @@ class EtdXacmlRules {
   */
   
 const view = '<Rule xmlns="urn:oasis:names:tc:xacml:1.0:policy" RuleId="view" Effect="Permit">
- <!-- Allow author, committee members, departmental staff, and
-	etd admin to view everything (mods, dc, xhtml, premis, rels-ext)  -->
+ <!-- Allow committee members &  departmental staff to view everything (mods, dc, xhtml, premis, rels-ext)  -->
     <Target>
      <Subjects>
         <AnySubject/>
@@ -295,11 +299,11 @@ const view = '<Rule xmlns="urn:oasis:names:tc:xacml:1.0:policy" RuleId="view" Ef
 	
     <Condition FunctionId="urn:oasis:names:tc:xacml:1.0:function:or">
 
-      <!-- author and committee by username -->
+      <!--  committee by username -->
       <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-at-least-one-member-of">
         <SubjectAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:subject:loginId" DataType="http://www.w3.org/2001/XMLSchema#string"/>
         <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-bag">
-          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">author</AttributeValue>
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string"/>
         </Apply>
       </Apply>
 
