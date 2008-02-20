@@ -28,10 +28,6 @@ class TestEtdFileXacml extends UnitTestCase {
     $dom = new DOMDocument();
     $dom->load($fname);
 
-    // NOTE: this warning will come up every time we initialize this
-    // etdfile object because it is not associated with an etd-- don't want to add etd 
-    
-    // FIXME: how not to hard-code pid? don't have access to it yet
     $etdfile = new etd_file($dom);
       
     // initialize the xacml policy the way it should be set up normally
