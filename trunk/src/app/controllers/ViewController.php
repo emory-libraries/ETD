@@ -71,13 +71,6 @@ class ViewController extends Zend_Controller_Action {
 
      $datastream = $this->_getParam("datastream");
      $mode = $this->_getParam("mode");
-
-     /* xforms needs to have a non-emory committee name present here.
-        If not used, it will not be submitted or saved, but it should be added here
-	for editing in case a new non-emory committee member needs to be added.  */
-     if (($datastream == "mods") && ($mode == "edit") && !$etd->mods->nonemory_committee) {
-       $etd->mods->addCommitteeMember("", "", false, "");
-     }
      
      if (isset($etd->$datastream)) {	// check that it is the correct type, also?
        $xml = $etd->$datastream->saveXML();
