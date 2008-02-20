@@ -35,7 +35,7 @@ class XacmlPolicy extends foxmlDatastreamAbstract {
 	);
 
     // specific etd rules that need to be accessible by name/type
-    $etdrules = array("fedoraAdmin", "view", "etdadmin", "draft", "published", "deny_most");
+    $etdrules = array("fedoraAdmin", "view", "etdadmin", "draft", "published", "deny_most", "embargoed");
     foreach ($etdrules as $ruleid) {
       $this->xmlconfig[$ruleid] = array("xpath" => "x:Rule[@RuleId='$ruleid']", "class_name" => "PolicyRule");
     }
@@ -50,6 +50,7 @@ class XacmlPolicy extends foxmlDatastreamAbstract {
     case "etdadmin":	$xml = EtdXacmlRules::etdadmin; break;
     case "draft":	$xml = EtdXacmlRules::draft; break;
     case "published":	$xml = EtdXacmlRules::published; break;
+    case "embargoed":	$xml = EtdXacmlRules::embargoed; break;
     default:
       trigger_error("Rule '$name' unknown - cannot add to policy", E_USER_WARNING); return;
     }
@@ -498,7 +499,7 @@ const published = '<Rule xmlns="urn:oasis:names:tc:xacml:1.0:policy"  RuleId="pu
       </Actions>
     </Target>
 
-<!--  FIXME: should this be moved into a separate embargo rule (for etdfiles only)
+<!--  FIXME: should this be moved into a separate embargo rule (for etdfiles only)?
      <Condition FunctionId="urn:oasis:names:tc:xacml:1.0:function:date-greater-than-or-equal">
        <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:date-one-and-only">
          <EnvironmentAttributeDesignator 
@@ -518,21 +519,57 @@ const published = '<Rule xmlns="urn:oasis:names:tc:xacml:1.0:policy"  RuleId="pu
    should this be a permit or a deny rule? 
  */
 
-const embargo = '<Rule xmlns="urn:oasis:names:tc:xacml:1.0:policy"  RuleId="embargo" Effect="Deny">
- <!-- Don\'t allow access until embargo period is over-->
+const embargoed = '<Rule xmlns="urn:oasis:names:tc:xacml:1.0:policy"  RuleId="embargoed" Effect="Permit">
+<!-- allow same access as if published, but only after embargo ends -->
     <Target>
      <Subjects>
         <AnySubject/>
       </Subjects>
       <Resources>
-	<AnyResource/>
+
+    <Resource>
+        <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">DC</AttributeValue>
+            <ResourceAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:resource:datastream:id" 
+                DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="false"/>
+        </ResourceMatch>
+      </Resource>
+    <Resource>
+        <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">XHTML</AttributeValue>
+            <ResourceAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:resource:datastream:id" 
+                DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="false"/>
+        </ResourceMatch>
+      </Resource>
+
+    <Resource>
+        <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">MODS</AttributeValue>
+            <ResourceAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:resource:datastream:id" 
+                DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="false"/>
+        </ResourceMatch>
+      </Resource>
+
+    <Resource>
+        <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">RELS-EXT</AttributeValue>
+            <ResourceAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:resource:datastream:id" 
+                DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="false"/>
+        </ResourceMatch>
+      </Resource>
       </Resources>
       <Actions>
-	<AnyAction/>
+        <Action>
+          <ActionMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">urn:fedora:names:fedora:2.1:action:id-getDatastreamDissemination</AttributeValue>
+            <ActionAttributeDesignator DataType="http://www.w3.org/2001/XMLSchema#string" AttributeId="urn:fedora:names:fedora:2.1:action:id"/>
+          </ActionMatch>
+        </Action>
+
       </Actions>
     </Target>
 
-     <Condition FunctionId="urn:oasis:names:tc:xacml:1.0:function:date-less-than">
+     <Condition FunctionId="urn:oasis:names:tc:xacml:1.0:function:date-greater-than-or-equal">
        <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:date-one-and-only">
          <EnvironmentAttributeDesignator 
 	    AttributeId="urn:fedora:names:fedora:2.1:environment:currentDate"
