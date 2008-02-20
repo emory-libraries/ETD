@@ -2,6 +2,20 @@
 
 require_once("Persistent_IdentifierService.php");
 
+// FIXME: where should this (etd_persis) go?
+
+// FIXME: need better error handling here...  maybe a generic "service unavailable" error?
+
+// customized version of persis service  - load etd config directly
+class etd_persis extends persis {
+  public function __construct() {
+    $env_config = Zend_Registry::get('env-config');
+    $config = new Zend_Config_Xml("../config/persis.xml", $env_config->mode);
+    return parent::__construct($config->url, $config->username,
+			       $config->password, $config->domain);
+  }
+}
+
 
 class persis {
   private $username;

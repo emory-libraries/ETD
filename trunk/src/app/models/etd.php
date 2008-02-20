@@ -4,6 +4,8 @@ require_once("api/fedora.php");
 require_once("api/risearch.php");
 require_once("models/foxml.php");
 
+require_once("persis.php");
+
 require_once("etdInterface.php");
 // etd datastreams
 require_once("etd_mods.php");
@@ -343,8 +345,8 @@ class etd extends foxml implements etdInterface {
     /* Note: it would be good to validate the XACML policy here,
        but the policy->isValid can only validate the entire record (since it is all in one DOM)
      */
-
-    $persis = Zend_Registry::get("persis");
+    $persis = new etd_persis();
+    
     // FIXME: use view/controller to build this url?
     $ark = $persis->generateArk("http://etd/view/pid/emory:{%PID%}", $this->label);
     $pid = $persis->pidfromArk($ark);
