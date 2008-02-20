@@ -139,6 +139,19 @@ class TestEtdMods extends UnitTestCase {
 
   }
 
+  function testSetAdvisorCommitteeById() {
+    $this->mods->setAdvisor("mhalber");		// fixme: testing against real ESD, so data could change...
+    $this->assertEqual("mhalber", $this->mods->advisor->id);
+    $this->assertEqual("Halbert", $this->mods->advisor->last);
+
+    $this->mods->setCommittee(array("ahickco", "jfenton"));
+    $this->assertEqual("ahickco", $this->mods->committee[0]->id);
+    $this->assertEqual("Hickcox", $this->mods->committee[0]->last);
+    $this->assertEqual("jfenton", $this->mods->committee[1]->id);
+    $this->assertEqual("Fenton", $this->mods->committee[1]->last);
+
+    
+  }
   
 
 }
