@@ -81,18 +81,6 @@ class AuthController extends Zend_Controller_Action {
      $this->_forward("index", "Index");
    }
 
-
-   // just a test action to get the esd person object working properly
-   public function infoAction() {
-
-     $personObj = new esdPersonObject();
-     $person = $personObj->findByUsername("stoton");
-
-     $this->view->person = $person;
-     
-   }
-
-
    public function logoutAction() {
      $auth = Zend_Auth::getInstance();
      $auth->clearIdentity();
