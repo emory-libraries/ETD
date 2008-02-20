@@ -285,6 +285,13 @@ class etd extends foxml implements etdInterface {
       $toc_text = implode("--", $toc_lines);
       $this->mods->tableOfContents = $toc_text;*/
       break;
+
+    case "department":
+      // set author's department in mods & in view policy
+      $this->mods->department = $value;
+      if (isset($this->policy->view))
+	$this->policy->view->condition->department = $value;
+      break;
     default:
       parent::__set($name, $value);
     }
