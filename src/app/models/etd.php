@@ -46,7 +46,7 @@ class etd extends foxml implements etdInterface {
 
     
     // FIXME: this part (at least) should be lazy-init - slows down the browse listing significantly
-        $this->pdfs = array();
+    $this->pdfs = array();
     $files = array("pdfs" => "PDF",
 		   "originals" => "Original",
 		   "supplements" => "Supplement");
@@ -136,38 +136,52 @@ class etd extends foxml implements etdInterface {
     $old_status = $this->rels_ext->status;
     if ($new_status == $old_status) return;	// do nothing - no change
 
-    // FIXME: need to propagate certain xacml changes to related objects also
+    // leaving published status (e.g., unpublish) - published xacml policy should no longer be active
+    if ($old_status == "published") $this->removePolicyRule("published");
     
     // certain policy rules need to change when status changes
     switch ($new_status) {
     case "draft":	// add draft rule & allow author to edit
-      if(!isset($this->policy->draft)) {	// should not be the case, but doesn't hurt to check
-	$this->policy->addRule("draft");
-	$this->policy->draft->condition->user = $this->owner;
-      }
+      $this->addPolicyRule("draft");
       break;
     case "submitted":
-      if(isset($this->policy->draft)) {	   // should always be the case
-	$this->policy->removeRule("draft");
-      }
+      $this->removePolicyRule("draft");
       break;
     case "published":
-      if(!isset($this->policy->published)) {	// should not be the case, but doesn't hurt to check
-	$this->policy->addRule("published");
-	// FIXME: by default, set the embargo expiration to today here?
-	$this->policy->draft->condition->date = date("Y-m-d");
-	// fixme: split out embargo rule for etd file objects only ?
-      }
+      $this->addPolicyRule("published");
+      // FIXME: how to handle embargos/publication ?
+      // by default, set the embargo expiration to today here?
+      // ... $this->policy->embargoed->condition->date = date("Y-m-d");
+      // fixme: split out embargo rule for etd file objects only ?
       break;
     }
 
-    // leaving published status (e.g., unpublish) - published xacml policy should no longer be active
-    if ($old_status == "unpublished" && isset($this->policy->published)) {
-      $this->policy->removeRule("published");
-    }
 
     // for all - store the status in rels-ext
     $this->rels_ext->status = $new_status; 
+  }
+
+  /* convenience functions to add and remove policies in etd and related objects all at once
+      note: the only rule that may be added and removed to original/archive copy is draft
+   */
+  
+  private function addPolicyRule($name) {
+    $objects = array_merge(array($this), $this->pdfs, $this->supplements);
+    if ($name == "draft") $objects = array_merge($objects, $this->originals);
+    foreach ($objects as $obj) {
+      if (!isset($obj->policy->{$name}))	// should not be the case, but doesn't hurt to check
+	$obj->policy->addRule($name);
+      // special case - owner needs to be specified for draft rule
+      if ($name == "draft") $obj->policy->draft->condition->user = $this->owner;
+    }
+  }
+
+  private function removePolicyRule($name) {
+    $objects = array_merge(array($this), $this->pdfs, $this->supplements);
+    if ($name == "draft") $objects = array_merge($objects, $this->originals);
+    foreach ($objects as $obj) {
+      if (isset($obj->policy->{$name}))	$obj->policy->removeRule($name);
+    }
   }
 
   
