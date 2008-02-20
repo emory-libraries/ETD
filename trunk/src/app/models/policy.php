@@ -68,8 +68,7 @@ class XacmlPolicy extends foxmlDatastreamAbstract {
 
   
   public function removeRule($id) {
-    // fixme: should it not allow removing fedoraAdmin rule?
-    $nodeList = $this->xpath->query("x:Rule[@RuleId='$id']");
+    $nodeList = $this->xpath->query("x:Rule[@RuleId='$id']", $this->domnode);	// relative to policy dom
     if ($nodeList->length == 1) {
       $rule = $nodeList->item(0);
       $this->domnode->removeChild($rule);
