@@ -22,5 +22,15 @@ class FezUserObject extends Emory_Db_Table {
   protected $_name           = 'fez_user';
   protected $_rowsetClass    = 'FezUsers';  
   protected $_rowClass       = 'FezUser';  
-  protected $_primary        = 'usr_id';    
+  protected $_primary        = 'usr_id';
+
+  
+  /**
+   * override the default adapter to get the Fez one
+   */
+  protected function _setupDatabaseAdapter() {
+    if (! $this->_db) 
+      $this->_db = Zend_Registry::get("fez-db");
+  }
+  
 }
