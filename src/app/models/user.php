@@ -39,6 +39,12 @@ class user extends foxml {
     $this->xmlconfig["policy"] = array("xpath" => "//foxml:xmlContent/x:Policy",
 				       "class_name" => "XacmlPolicy", "dsID" => "POLICY");
 
+
+    // use customized versions of a few of the default datastreams
+    $this->xmlconfig["rels_ext"]["class_name"] = "etd_rels";
+    $this->xmlconfig["dc"]["class_name"] = "etd_dc";
+
+
   }
 
   public function __toString() {
@@ -113,6 +119,9 @@ class user extends foxml {
     $pid = $persis->pidfromArk($ark);
 
     $this->pid = $pid;
+    // store the full ark as an additional identifier
+    $this->dc->identifier->append($ark);
+    
     return $this->fedora->ingest($this->saveXML(), $message);
   }
 
