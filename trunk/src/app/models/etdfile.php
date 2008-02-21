@@ -8,6 +8,7 @@ require_once("persis.php");
 
 require_once("etd.php");
 require_once("etd_rels.php");
+require_once("etd_dc.php");
 require_once("policy.php");
 
 
@@ -32,33 +33,35 @@ class etd_file extends foxml {
     }
 
 
-    try {
-      $this->rels_ext != null;
-    } catch  (FedoraAccessDenied $e) {
-      // if the current user doesn't have access to RELS-EXT, they don't have full access to this object
-      throw new FoxmlException("Access Denied to " . $this->pid); 
-    }
-
-    if ($this->rels_ext) {
-      
-      // determine what type of etd file this is
-      if (isset($this->rels_ext->pdfOf)) {
-	$this->type = "pdf";
-      } elseif (isset($this->rels_ext->originalOf)) {
-	$this->type = "original";
-      } elseif (isset($this->rels_ext->supplementOf)) {
-	$this->type = "supplement";
-      } else {
-	trigger_error("etdFile object " . $this->pid . " is not related to an etd object", E_USER_WARNING);
+    if ($this->init_mode == "pid" || $this->init_mode == "dom") {
+      try {
+	$this->rels_ext != null;
+      } catch  (FedoraAccessDenied $e) {
+	// if the current user doesn't have access to RELS-EXT, they don't have full access to this object
+	throw new FoxmlException("Access Denied to " . $this->pid); 
       }
       
-      // based on file type, get parent pid and initialize parent object (if not set and if not a new object)
-      if (isset($this->type) && is_null($parent) && !is_null($pid)) {
-	$parent_rel = $this->type . "Of";
-	if ($this->rels_ext->$parent_rel)	// don't try to load if pid is blank
-	  $this->parent = new etd($this->rels_ext->$parent_rel);
-      } else {
-	$this->parent = $parent;
+      if ($this->rels_ext) {
+	
+	// determine what type of etd file this is
+	if (isset($this->rels_ext->pdfOf)) {
+	  $this->type = "pdf";
+	} elseif (isset($this->rels_ext->originalOf)) {
+	  $this->type = "original";
+	} elseif (isset($this->rels_ext->supplementOf)) {
+	  $this->type = "supplement";
+	} else {
+	  trigger_error("etdFile object " . $this->pid . " is not related to an etd object", E_USER_WARNING);
+	}
+	
+	// based on file type, get parent pid and initialize parent object (if not set and if not a new object)
+	if (isset($this->type) && is_null($parent) && !is_null($pid)) {
+	  $parent_rel = $this->type . "Of";
+	  if ($this->rels_ext->$parent_rel)	// don't try to load if pid is blank
+	    $this->parent = new etd($this->rels_ext->$parent_rel);
+	} else {
+	  $this->parent = $parent;
+	}
       }
     }
   }
@@ -83,6 +86,9 @@ class etd_file extends foxml {
     // just override one portion of the rels configuration
     $this->xmlconfig["rels_ext"]["class_name"] = "etd_rels";
 
+    // use custom DC
+    $this->xmlconfig["dc"]["class_name"] = "etd_dc";
+
     
   }
 
@@ -95,8 +101,11 @@ class etd_file extends foxml {
     // FIXME: use view/controller to build this url?
     $ark = $persis->generateArk("http://etd/file/view/pid/emory:{%PID%}", $this->label);
     $pid = $persis->pidfromArk($ark);
-
     $this->pid = $pid;
+
+    // store the full ark as an additional identifier
+    $this->dc->identifier->append($ark);
+    
     return $this->fedora->ingest($this->saveXML(), $message);
     }
 
