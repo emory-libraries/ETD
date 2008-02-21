@@ -35,7 +35,7 @@ class XacmlPolicy extends foxmlDatastreamAbstract {
 	);
 
     // specific etd rules that need to be accessible by name/type
-    $etdrules = array("fedoraAdmin", "view", "etdadmin", "draft", "published", "deny_most", "embargoed");
+    $etdrules = array("fedoraAdmin", "view", "etdadmin", "draft", "published", "deny_most");
     foreach ($etdrules as $ruleid) {
       $this->xmlconfig[$ruleid] = array("xpath" => "x:Rule[@RuleId='$ruleid']", "class_name" => "PolicyRule");
     }
@@ -50,7 +50,6 @@ class XacmlPolicy extends foxmlDatastreamAbstract {
     case "etdadmin":	$xml = EtdXacmlRules::etdadmin; break;
     case "draft":	$xml = EtdXacmlRules::draft; break;
     case "published":	$xml = EtdXacmlRules::published; break;
-    case "embargoed":	$xml = EtdXacmlRules::embargoed; break;
     default:
       trigger_error("Rule '$name' unknown - cannot add to policy", E_USER_WARNING); return;
     }
@@ -63,6 +62,16 @@ class XacmlPolicy extends foxmlDatastreamAbstract {
       $this->domnode->appendChild($newrule);
 
     $this->update();
+
+    
+    // by default, published stuff is available today
+    if ($name == "published") {
+      $yesterday = time() - (24 * 60 * 60);	// now - 1 day (24 hours; 60 mins; 60 secs)
+      $this->published->condition->embargo_end = date("Y-m-d", $yesterday);
+    // greater than or equal should allow access on the day it is published ... xacml tests say different
+    // FIXME: shouldn't need to set date to yesterday to make it available right away (?)
+    }
+    
     // FIXME: what is a good way to do this? how to manage the rules?
   }
 
@@ -502,7 +511,7 @@ const published = '<Rule xmlns="urn:oasis:names:tc:xacml:1.0:policy"  RuleId="pu
       </Actions>
     </Target>
 
-<!--  FIXME: should this be moved into a separate embargo rule (for etdfiles only)?
+
      <Condition FunctionId="urn:oasis:names:tc:xacml:1.0:function:date-greater-than-or-equal">
        <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:date-one-and-only">
          <EnvironmentAttributeDesignator 
@@ -510,79 +519,13 @@ const published = '<Rule xmlns="urn:oasis:names:tc:xacml:1.0:policy"  RuleId="pu
             DataType="http://www.w3.org/2001/XMLSchema#date" />
        </Apply>
        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#date"/>
-     </Condition>   -->
+     </Condition>  
 
 </Rule>
 ';
  
 /* Note: tested date comparison rule manually (2008-02-18) and it works */
 
-/* special embargo rule (intended for use on etdfiles)
-   FIXME: how to combine with publish rule?
-   should this be a permit or a deny rule? 
- */
-
-const embargoed = '<Rule xmlns="urn:oasis:names:tc:xacml:1.0:policy"  RuleId="embargoed" Effect="Permit">
-<!-- allow same access as if published, but only after embargo ends -->
-    <Target>
-     <Subjects>
-        <AnySubject/>
-      </Subjects>
-      <Resources>
-
-    <Resource>
-        <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">DC</AttributeValue>
-            <ResourceAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:resource:datastream:id" 
-                DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="false"/>
-        </ResourceMatch>
-      </Resource>
-    <Resource>
-        <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">XHTML</AttributeValue>
-            <ResourceAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:resource:datastream:id" 
-                DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="false"/>
-        </ResourceMatch>
-      </Resource>
-
-    <Resource>
-        <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">MODS</AttributeValue>
-            <ResourceAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:resource:datastream:id" 
-                DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="false"/>
-        </ResourceMatch>
-      </Resource>
-
-    <Resource>
-        <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">RELS-EXT</AttributeValue>
-            <ResourceAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:resource:datastream:id" 
-                DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="false"/>
-        </ResourceMatch>
-      </Resource>
-      </Resources>
-      <Actions>
-        <Action>
-          <ActionMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">urn:fedora:names:fedora:2.1:action:id-getDatastreamDissemination</AttributeValue>
-            <ActionAttributeDesignator DataType="http://www.w3.org/2001/XMLSchema#string" AttributeId="urn:fedora:names:fedora:2.1:action:id"/>
-          </ActionMatch>
-        </Action>
-
-      </Actions>
-    </Target>
-
-     <Condition FunctionId="urn:oasis:names:tc:xacml:1.0:function:date-greater-than-or-equal">
-       <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:date-one-and-only">
-         <EnvironmentAttributeDesignator 
-	    AttributeId="urn:fedora:names:fedora:2.1:environment:currentDate"
-            DataType="http://www.w3.org/2001/XMLSchema#date" />
-       </Apply>
-       <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#date"/>
-     </Condition> 
-</Rule>
-';
- 
   
 
 

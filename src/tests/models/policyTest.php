@@ -47,8 +47,8 @@ class policyTest extends UnitTestCase {
 
     $this->assertEqual($this->policy->view->condition->department, "Chemistry");
 
-    $this->assertIsA($this->policy->embargoed->condition, "policyCondition");
-    $this->assertEqual($this->policy->embargoed->condition->embargo_end, "2008-01-01");
+    $this->assertIsA($this->policy->published->condition, "policyCondition");
+    $this->assertEqual($this->policy->published->condition->embargo_end, "2008-01-01");
     
     // single user
     $this->assertEqual($this->policy->draft->condition->user, "author");
@@ -92,6 +92,8 @@ class policyTest extends UnitTestCase {
     $this->policy->removeRule("published");
     $this->policy->addRule("published");
     $this->assertIsA($this->policy->published, "PolicyRule");
+    // published rule is the same as the embargo, but embargo ends today by default
+    $this->assertEqual($this->policy->published->condition->embargo_end, date("Y-m-d"));
 
     // add a non-existent rule
     $this->expectError("Rule 'nonexistent' unknown - cannot add to policy");

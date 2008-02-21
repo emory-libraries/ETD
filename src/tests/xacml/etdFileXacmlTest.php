@@ -29,6 +29,7 @@ class TestEtdFileXacml extends UnitTestCase {
     $dom->load($fname);
 
     $etdfile = new etd_file($dom);
+    $etdfile->owner =  "author";	// set 'author' test account as owner
       
     // initialize the xacml policy the way it should be set up normally
     //  - these mimic the settings for a PDF or supplement
@@ -207,9 +208,9 @@ class TestEtdFileXacml extends UnitTestCase {
   function testEmbargoNotExpired() {
     setFedoraAccount("fedoraAdmin");
     $etdfile = new etd_file($this->pid);
-    $etdfile->policy->addRule("embargoed");
+    $etdfile->policy->addRule("published");
     $tomorrow = time() + (24 * 60 * 60);	// now + 1 day (24 hours; 60 mins; 60 secs)
-    $etdfile->policy->embargoed->condition->embargo_end = date("Y-m-d", $tomorrow);
+    $etdfile->policy->published->condition->embargo_end = date("Y-m-d", $tomorrow);
     $result = $etdfile->save("added embargo rule to test permissions");
 
     // guest shouldn't be able to see anything
@@ -237,9 +238,11 @@ class TestEtdFileXacml extends UnitTestCase {
   function testEmbargoExpired() {
     setFedoraAccount("fedoraAdmin");
     $etdfile = new etd_file($this->pid);
-    $etdfile->policy->addRule("embargoed");
+    $etdfile->policy->addRule("published");
+    // by default, embargo is set to today when published rule is added
+    // FIXME: greater than or equal - should allow access on the day it is published, right?
     $yesterday = time() - (24 * 60 * 60);	// now - 1 day (24 hours; 60 mins; 60 secs)
-    $etdfile->policy->embargoed->condition->embargo_end = date("Y-m-d", $yesterday);
+    $etdfile->policy->published->condition->embargo_end = date("Y-m-d", $yesterday);
     $result = $etdfile->save("added embargo rule to test permissions");
 
     // guest should now be able to see
