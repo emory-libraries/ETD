@@ -82,7 +82,10 @@ class FileController extends Zend_Controller_Action {
        $etdfile = new etd_file();
        $etdfile->owner = $this->view->current_user->netid;
        $etdfile->label = $fileinfo['name'];
-       $etdfile->dc->format[0] = $fileinfo['type'];	// mimetype
+       
+       $filetype = finfo_file($filename);	// don't trust mimetype reported by the browser
+       $etdfile->dc->format[0] = $filetype;	// $fileinfo['type'];	// mimetype
+       $etdfile->file->mimetype = $filetype;
        $etdfile->dc->format->append($fileinfo['size']);	// file size in bytes
 
        $etdfile->setFile($filename);	// upload and set ingest url to upload id
@@ -103,7 +106,7 @@ class FileController extends Zend_Controller_Action {
        case "supplement": $result = $etd->addSupplement($etdfile); break;
        default:
 	 trigger_warning("relation '$relation' not recognized - not adding to etd", E_USER_WARNING);
-       }
+      } type
        if ($result)
 	 $this->_helper->flashMessenger->addMessage("Added file to etd as $relation - updated at $result");
        else 
