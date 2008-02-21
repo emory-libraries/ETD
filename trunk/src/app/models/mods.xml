@@ -51,8 +51,7 @@
   <mods:originInfo>
     <mods:dateIssued keyDate="yes"/>
 	<!-- convert to 4-digit year, set encoding="marc" before handing off to marc transform -->
-    <mods:copyrightDate qualifier="inferred"/>
-    <mods:dateOther type="embargoedUntil"/>
+    <mods:dateOther type="embargoedUntil"/> 
   </mods:originInfo>
   <mods:language>
     <mods:languageTerm authority="iso639-2b" type="text">English</mods:languageTerm>
