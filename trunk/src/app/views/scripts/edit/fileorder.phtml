@@ -1,0 +1,31 @@
+<?//= $this->javascript("projax/js/prototype.js"); ?>
+<?//= $this->javascript("projax/js/scriptaculous.js"); ?>
+
+<? //php ajax/scriptaculous
+require_once("projax/projax.php");
+$projax = new Projax();
+?>
+
+
+<h1>Edit file order</h1>
+<p><?= $this->etd->title() ?> </p>
+
+<p><i>drag files to rearrange the order</i></p>
+
+<form method="post" id="file_order"  action="<?= $this->url(array("action" => "savefileorder"))?>">
+  <? foreach (array("pdfs" => "PDFs", "originals" => "Originals", "supplements" => "Supplements")
+	      as $type => $label) : ?>
+  <h2><?= $label ?></h2>
+   <ul id="<?= $type ?>_list">
+     <? foreach ($this->etd->$type as $file): ?>
+	<li id="<?= $file->pid ?>">
+           <input type="hidden" name="<?= $type ?>[]" value="<?= $file->pid ?>"/>
+	     <?= $file->dc->title ?>
+     <? endforeach ?>	
+   </ul>
+<?= $projax->sortable_element($type ."_list", array("url" => null)); ?>     
+  <? endforeach ?>
+
+  <p><input type="submit" value="save"/></p>
+</form>
+

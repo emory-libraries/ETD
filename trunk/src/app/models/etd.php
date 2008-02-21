@@ -191,6 +191,18 @@ class etd extends foxml implements etdInterface {
   
   // set the relations between this etd and a file object (original, pdf, supplement)
   private function addFile(etd_file $etdfile,  $relation) {
+    switch ($relation) {
+    case "PDF": $count = count($this->pdfs); break;
+    case "Original": $count = count($this->originals); break;
+    case "Supplement": $count = count($this->supplements); break;
+    }
+    // if there is already a file of this type, set the number accordingly
+    if ($count) {
+      $etdfile->rels_ext->sequence = $count + 1;
+      $etdfile->save("setting sequence number");
+    }
+
+
     // etd is related to file
     $this->rels_ext->addRelationToResource("rel:has{$relation}", $etdfile->pid);
 
@@ -324,10 +336,16 @@ class etd extends foxml implements etdInterface {
     if (strpos($pid, "info:fedora/") === false)
       $pid = "info:fedora/$pid";
     
-    $query = 'select $etdfile  from <#ri>
-    	where  <' . $pid . '> <fedora-rels-ext:has' . $type . '> $etdfile';
+    /*    $query = 'select $etdfile  from <#ri>
+     where  <' . $pid . '> <fedora-rels-ext:has' . $type . '> $etdfile';*/
     // fixme: order by sequenceNumber
 
+    // revised query - order files by sequence number
+    $query = 'select $etdfile $num from <#ri>
+    	where  <' . $pid . '> <fedora-rels-ext:has' . $type . '> $etdfile
+	and $etdfile <fedora-rels-ext:sequenceNumber> $num
+	order by $num';
+    
     $filelist = risearch::query($query);
 
     $files = array();
@@ -444,7 +462,12 @@ class etd extends foxml implements etdInterface {
     foreach($etdlist->results->result as $result) {
       $pid = (string)$result->etd["uri"];
       $pid = str_replace("info:fedora/", "", $pid);
-      $etds[] = new etd($pid);
+      try {
+	$etds[] = new etd($pid);
+      } catch (FedoraObjectNotFound $e) {
+	trigger_error("Record not found: $pid", E_USER_WARNING);
+      }
+
     }
     return $etds;
   }
