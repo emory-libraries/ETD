@@ -57,7 +57,8 @@ class FileController extends Zend_Controller_Action {
    public function newAction() {
      $etd_pid = $this->_getParam("etd");	// etd record the file belongs to
      $etd = new etd($etd_pid);		
-
+     $this->view->etd = $etd;
+     
      // how this file is related to the to the etd record
      $file_rel = $this->_getParam("filetype");
      switch($file_rel) {
@@ -79,10 +80,10 @@ class FileController extends Zend_Controller_Action {
      
      if ($uploaded) {
        $etdfile = new etd_file();
+       $etdfile->owner = $this->view->current_user->netid;
        $etdfile->label = $fileinfo['name'];
-       // this is not quite right; both should actually be dc:format
-       $etdfile->dc->type = $fileinfo['type'];
-       $etdfile->dc->format = $fileinfo['size'];
+       $etdfile->dc->format[0] = $fileinfo['type'];	// mimetype
+       $etdfile->dc->format->append($fileinfo['size']);	// file size in bytes
 
        $upload_id = fedora::upload($filename);
        $etdfile->file->url = $upload_id;
@@ -158,7 +159,8 @@ class FileController extends Zend_Controller_Action {
 
      // xforms setting - so layout can include needed code in the header
      $this->view->xforms = true;
-     $this->view->namespaces = array("dc" => "http://purl.org/dc/elements/1.1/");
+     $this->view->namespaces = array("dc" => "http://purl.org/dc/elements/1.1/",
+				     "dcterms" => "http://purl.org/dc/terms/");
 
      $this->view->xforms_bind_script = "file/_dc_bind.phtml";
      
