@@ -295,57 +295,6 @@
       </Actions>
     </Target>
 
-</Rule>
-
-  <Rule RuleId="embargoed" Effect="Permit">
- <!--  (should only be active when etd is published)
-    Allow anyone to view metadata + related objects (mods, dc, xhtml, rels-ext)  -->
-    <Target>
-     <Subjects>
-        <AnySubject/>
-      </Subjects>
-      <Resources>
-    <Resource>
-        <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">DC</AttributeValue>
-            <ResourceAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:resource:datastream:id" 
-                DataType="http://www.w3.org/2001/XMLSchema#string"/>
-        </ResourceMatch>
-      </Resource>
-    <Resource>
-        <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">XHTML</AttributeValue>
-            <ResourceAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:resource:datastream:id" 
-                DataType="http://www.w3.org/2001/XMLSchema#string"/>
-        </ResourceMatch>
-      </Resource>
-
-    <Resource>
-        <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">MODS</AttributeValue>
-            <ResourceAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:resource:datastream:id" 
-                DataType="http://www.w3.org/2001/XMLSchema#string"/>
-        </ResourceMatch>
-      </Resource>
-
-    <Resource>
-        <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">RELS-EXT</AttributeValue>
-            <ResourceAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:resource:datastream:id" 
-                DataType="http://www.w3.org/2001/XMLSchema#string"/>
-        </ResourceMatch>
-      </Resource>
-      </Resources>
-      <Actions>
-        <Action>
-          <ActionMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">urn:fedora:names:fedora:2.1:action:id-getDatastreamDissemination</AttributeValue>
-            <ActionAttributeDesignator DataType="http://www.w3.org/2001/XMLSchema#string" AttributeId="urn:fedora:names:fedora:2.1:action:id"/>
-          </ActionMatch>
-        </Action>
-      </Actions>
-    </Target>
-
      <Condition FunctionId="urn:oasis:names:tc:xacml:1.0:function:date-greater-than-or-equal">
        <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:date-one-and-only">
          <EnvironmentAttributeDesignator 
@@ -355,8 +304,8 @@
        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#date">2008-01-01</AttributeValue>
      </Condition>  
 
-</Rule>
 
+</Rule>
 
   <Rule RuleId="deny_most" Effect="Deny">
   <!--  Deny access to everything not explicitly granted above -->
