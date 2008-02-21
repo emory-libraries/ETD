@@ -21,6 +21,7 @@ class vcard extends XmlObject {
      "zip" => array("xpath" => "v:ADR/v:Pcode"),
      "country" => array("xpath" => "v:ADR/v:Country"),
      "uid" => array("xpath" => "v:UID"),
+     "degree" => array("xpath" => "v:NOTE[@TYPE='degree']"),
       ));
     parent::__construct($dom, $config, $xpath);
   }
