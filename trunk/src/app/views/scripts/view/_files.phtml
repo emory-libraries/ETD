@@ -3,23 +3,20 @@
      <? if ($this->acl->isAllowed($this->role, $this->etd, "add file")): ?>
        <p><a class="action" href="<?= $this->url(array("controller" => "file",
 		"action" => "add", "etd" => $this->etd->pid), null, true)?>">add another file</a></p>
+	  <? /* FIXME: only show this link if at least one category has more than one file */ ?>
+     <p><a class="action" href="<?= $this->url(array("controller" => "edit",
+		"action" => "fileorder", "pid" => $this->etd->pid), null, true)?>">re-order files</a></p>
      <? endif ?>					   
 
 
   <? foreach (array("pdfs", "originals", "supplements") as $filetype): ?>
+	<b><?= $filetype ?></b><br/>
     <? foreach ($this->etd->$filetype as $file) : ?>
       <a href="<?= $this->url(array("controller" => "file", "action" => "view",
  				     "pid" => $file->pid))?>"><?= $file->dc->title ?></a>
   <? if (isset($file->dc->type)): ?> <?= $file->dc->type ?> <? endif ?>
-  <? if (isset($file->dc->format)): ?>
-					   <? if (is_numeric($file->dc->format)): ?>
-	(<?= readable_size($file->dc->format) ?>)
-	  
-    <? else: ?>		  
-	 <?= $file->dc->format ?>
-    <? endif ?>
-  <? endif ?>
-
+  <? if (isset($file->dc->mimetype)): ?><?= $file->dc->mimetype ?> <? endif ?>
+  <? if (isset($file->dc->filesize)): ?>(<?= readable_size($file->dc->filesize) ?>) <?endif ?>
 
   <a href="<?= $this->url(array("controller" => "file", "action" => "edit", "pid" => $file->pid))?>">edit</a>
 
