@@ -134,7 +134,7 @@ class etd extends foxml implements etdInterface {
 
   public function setStatus($new_status) {
     $old_status = $this->rels_ext->status;
-    if ($new_status == $old_status) return;	// do nothing - no change
+    //    if ($new_status == $old_status) return;	// do nothing - no change (?)
 
     // when leaving certain statuses, certain rules need to go away
     switch ($old_status) {
@@ -376,8 +376,7 @@ class etd extends foxml implements etdInterface {
 
     $this->pid = $pid;
     $this->mods->ark = $ark;
-
-    print "<pre>" . htmlentities($this->saveXML()) . "</pre>";
+    
     return $this->fedora->ingest($this->saveXML(), $message);
   }
 
@@ -472,7 +471,10 @@ class etd extends foxml implements etdInterface {
   	// dissertation/thesis/etc
   public function document_type() { return $this->mods->genre; }
   public function language() { return $this->mods->language; }
-  public function year() { return $this->mods->year; }
+  public function year() {
+    if ($date = $this->mods->date)		// if date is set
+      return date("Y", strtotime($date, 0));		// convert date to year only
+  }
   public function _abstract() { return $this->mods->abstract; }
   public function tableOfContents() { return $this->mods->tableOfContents; }
   public function num_pages() { return $this->mods->num_pages; }
