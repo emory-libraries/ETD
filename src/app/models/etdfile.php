@@ -92,6 +92,11 @@ class etd_file extends foxml {
     
   }
 
+  public function setFile($filename) {
+    $upload_id = $this->fedora->upload($filename);
+    $this->file->url = $upload_id;
+  }
+
 
   /**  override default foxml ingest function to use arks for object pids
    */

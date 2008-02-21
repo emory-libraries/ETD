@@ -85,8 +85,7 @@ class FileController extends Zend_Controller_Action {
        $etdfile->dc->format[0] = $fileinfo['type'];	// mimetype
        $etdfile->dc->format->append($fileinfo['size']);	// file size in bytes
 
-       $upload_id = fedora::upload($filename);
-       $etdfile->file->url = $upload_id;
+       $etdfile->setFile($filename);	// upload and set ingest url to upload id
 
        // add relation to etd
        // fixme: this should probably be a function of etdfile or rels
