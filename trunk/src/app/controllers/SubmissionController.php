@@ -20,7 +20,7 @@ class SubmissionController extends Zend_Controller_Action {
       $this->_helper->flashMessenger->addMessage("Error: " . $this->user->netid . " (role=" . $this->user->role . 
 						 ") is not authorized to submit an etd");
       $this->_helper->redirector->gotoRoute(array("controller" => "auth",
-						  "action" => "denied"), "", true);
+      						  "action" => "denied"), "", true);
     }
   }
 
@@ -115,10 +115,13 @@ class SubmissionController extends Zend_Controller_Action {
 	$this->_helper->flashMessenger->addMessage("Saved etd to fedora with pid $pid");
 
 	// only create the etdfile object if etd was successfully created
+	// FIXME: somehow combine this logic with repeated code in FileController ?
 	$etdfile = new etd_file();
 	$etdfile->label = "Dissertation";	// FIXME: what should this be?
-	$etdfile->file->url = fedora::upload($etd_info['pdf']);
-	$etdfile->file->mimetype = $etdfile->dc->type = "application/pdf";
+	$etdfile->file->mimetype = $etdfile->dc->format[0] = "application/pdf";
+	$etdfile->dc->format->append($filesize($filename));	// file size in bytes
+	$etdfile->setFile($filename);	// upload and set ingest url to upload id
+
 	// fixme: any other settings we can/should do?
 	
 	// add relations between objects
@@ -129,7 +132,8 @@ class SubmissionController extends Zend_Controller_Action {
 	
 	
 	// add relation to etd object and save changes
-	$etd->rels_ext->addRelationToResource("rel:hasPDF", $filepid);
+	$result = $etd->addPdf($etdfile);
+	//	$etd->rels_ext->addRelationToResource("rel:hasPDF", $filepid);
 	$etd->save("added relation to uploaded pdf");
 	
 	$this->_helper->redirector->gotoRoute(array("controller" => "view",
