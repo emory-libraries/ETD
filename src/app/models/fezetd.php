@@ -96,6 +96,7 @@ class fez_etd_mods extends etd_mods {
   protected function configure() {
     parent::configure();
     $this->xmlconfig["pages"] = array("xpath" => "mods:part/mods:extent[@unit='pages']/mods:total");
+    $this->xmlconfig["embargo_note"] = array("xpath" => "mods:note[@type='admin'][starts-with(., 'Embargoed for')]");
   }
 }
 
