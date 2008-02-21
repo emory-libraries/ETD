@@ -22,6 +22,10 @@ class etd_rels extends rels_ext {
     
     // etd status
     $this->xmlconfig["status"] = array("xpath" => "rdf:description/rel:etdStatus");
+
+
+    // order within a set
+    $this->xmlconfig["sequence"] = array("xpath" => "rdf:description/rel:sequenceNumber");
     
     // rels from etd to etd files
     $this->xmlconfig["pdf"] = array("xpath" => "rdf:description/rel:hasPDF/@rdf:resource",

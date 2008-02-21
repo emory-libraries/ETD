@@ -20,9 +20,6 @@ class EditController extends Zend_Controller_Action {
   
   public function postDispatch() {
     $this->view->messages = $this->_helper->flashMessenger->getCurrentMessages();
-
-    $env = Zend_Registry::get('env-config');
-    $this->view->site_mode = $env->mode;	// better name for this? (test/dev/prod)
   }
 
   public function isAllowed($etd, $action = "edit metadata") {
@@ -346,5 +343,47 @@ class EditController extends Zend_Controller_Action {
     						"pid" => $pid), '', true);
    }
 
+   
+  public function fileorderAction() {
+    $pid = $this->_getParam("pid");
+    $etd = new etd($pid);
+    if (!$this->isAllowed($etd)) return;
+    $this->view->title = "Edit File order";
+    $this->view->etd = $etd;
+  }
+
+  public function savefileorderAction() {
+    $pid = $this->_getParam("pid");
+    //$etd = new etd($pid);	// don't need ?
+    $order['pdf'] = $this->_getParam("pdfs");
+    $order['orig'] = $this->_getParam("originals");
+    $order['supp'] = $this->_getParam("supplements");
+
+    foreach ($order as $type) {
+      for ($i = 0; $i < count($type); $i++) {
+	$file = new etd_file($type[$i]);
+	$seq = ($i + 1);
+	// only set it if it's changed
+	if ($file->rels_ext->sequence != $seq) {
+	  $file->rels_ext->sequence = $seq;
+	  $result = $file->save("re-ordered in sequence");
+	}
+      }
+    }
+    // error checking ?
+    if ($result)
+      $this->_helper->flashMessenger->addMessage("Saved changes");	// more info?
+    else
+      $this->_helper->flashMessenger->addMessage("No changes made");
+    
+    // return to record (fixme: make this a generic function of this controller? used frequently)
+    $this->_helper->redirector->gotoRoute(array("controller" => "view", "action" => "record",
+    						"pid" => $pid), '', true);
+
+    
+    $this->_helper->viewRenderer->setNoRender(true);
+  }
+
+   
   
 }
