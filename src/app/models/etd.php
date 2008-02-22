@@ -119,7 +119,8 @@ class etd extends foxml implements etdInterface {
   /**
    *  determine a user's role in relation to this ETD
    */
-  public function getUserRole(esdPerson $user) {
+  public function getUserRole(esdPerson $user = null) {
+    if (is_null($user)) return "guest";
     if ($user->netid == $this->rels_ext->author)
       return "author";
     elseif ($this->rels_ext->committee instanceof DOMElementArray
