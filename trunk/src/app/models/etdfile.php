@@ -15,7 +15,7 @@ require_once("policy.php");
 class etd_file extends foxml {
 
   public $parent;
-  protected $type;
+  public $type;
   
   public function __construct($pid = null, etd $parent = null) {
     parent::__construct($pid);
@@ -109,7 +109,7 @@ class etd_file extends foxml {
     $this->pid = $pid;
 
     // store the full ark as an additional identifier
-    $this->dc->identifier->append($ark);
+    $this->dc->setArk($ark);
     
     return $this->fedora->ingest($this->saveXML(), $message);
     }
