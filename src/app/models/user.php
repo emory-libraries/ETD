@@ -33,12 +33,8 @@ class user extends foxml {
     // add mappings for xmlobject
     $this->xmlconfig["mads"] = array("xpath" => "//foxml:datastream[@ID='MADS']/foxml:datastreamVersion/foxml:xmlContent/mads:mads",
 				     "class_name" => "mads", "dsID" => "MADS");
-    
-    // xacml policy
-    $this->addNamespace("x", "urn:oasis:names:tc:xacml:1.0:policy");
-    $this->xmlconfig["policy"] = array("xpath" => "//foxml:xmlContent/x:Policy",
-				       "class_name" => "XacmlPolicy", "dsID" => "POLICY");
 
+    // note: no per-object xacml policy is needed; restrictions handled by a repo-wide policy
 
     // use customized versions of a few of the default datastreams
     $this->xmlconfig["rels_ext"]["class_name"] = "etd_rels";
