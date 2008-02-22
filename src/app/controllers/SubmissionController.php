@@ -5,6 +5,7 @@
 require_once("models/etd.php");
 require_once("models/etd_notifier.php");
 require_once("helpers/ProcessPDF.php");
+require_once("helpers/PdfPageTotal.php");
 
 
 class SubmissionController extends Zend_Controller_Action {
@@ -12,6 +13,7 @@ class SubmissionController extends Zend_Controller_Action {
   public function init() {
     Zend_Controller_Action_HelperBroker::addPath('../library/Emory/Controller/Action/Helper',
 						 'Emory_Controller_Action_Helper');
+    Zend_Controller_Action_HelperBroker::addPrefix('Etd_Controller_Action_Helper');
     $this->acl = Zend_Registry::get("acl");
     $this->user = $this->view->current_user;
 
@@ -38,7 +40,6 @@ class SubmissionController extends Zend_Controller_Action {
   // pulls information from the PDF, creates a new fedora record with associated pdf file,
   // then forwards to the view/master edit page
   public function processPdfAction() {
-    Zend_Controller_Action_HelperBroker::addPrefix('Etd_Controller_Action_Helper');
     $etd_info = $this->_helper->processPDF($_FILES['pdf']);
 
     // as long as title is not blank, create fedora object for user to edit
@@ -119,9 +120,12 @@ class SubmissionController extends Zend_Controller_Action {
 	$etdfile = new etd_file();
 	$etdfile->label = "Dissertation";	// FIXME: what should this be?
 	$etdfile->file->mimetype = $etdfile->dc->format[0] = "application/pdf";
-	$etdfile->dc->format->append($filesize($filename));	// file size in bytes
-	$etdfile->setFile($filename);	// upload and set ingest url to upload id
+	// filename is stored in etd_info array as 'pdf'
+	$etdfile->dc->format->append(filesize($etd_info['pdf']));	// file size in bytes
+	$etdfile->setFile($etd_info['pdf']);	// upload and set ingest url to upload id
 
+	$etdfile->dc->setPages($this->_helper->PdfPageTotal($filename));
+	
 	// fixme: any other settings we can/should do?
 	
 	// add relations between objects
@@ -153,12 +157,11 @@ class SubmissionController extends Zend_Controller_Action {
   }
 
   public function debugPdfAction() {
-    Zend_Controller_Action_HelperBroker::addPrefix('Etd_Controller_Action_Helper');
     
     $this->view->messages = array();
     $env = Zend_Registry::get('env-config');
     $this->view->site_mode = $env->mode;	// better name for this? (test/dev/prod)
-     
+
     $this->view->etd_info = $this->_helper->processPDF($_FILES['pdf']);
 
     $xml = new DOMDocument();
