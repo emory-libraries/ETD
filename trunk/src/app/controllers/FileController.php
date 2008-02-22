@@ -4,9 +4,15 @@
 /* Require models */
 require_once("models/etd.php");
 require_once("helpers/FileUpload.php");
+require_once("helpers/PdfPageTotal.php");
 
 class FileController extends Zend_Controller_Action {
 
+  public function init() {
+    Zend_Controller_Action_HelperBroker::addPrefix('Etd_Controller_Action_Helper');
+  }
+
+  
   public function postDispatch() {
     $this->view->messages = $this->_helper->flashMessenger->getCurrentMessages();
 
@@ -73,7 +79,6 @@ class FileController extends Zend_Controller_Action {
      
      $fileinfo = $_FILES['file'];
 
-     Zend_Controller_Action_HelperBroker::addPrefix('Etd_Controller_Action_Helper');
      $tmpdir = "/tmp/etd";
      $filename = $tmpdir . "/" . $fileinfo['name'];
      $uploaded = $this->_helper->FileUpload($fileinfo, $filename);
@@ -82,10 +87,18 @@ class FileController extends Zend_Controller_Action {
        $etdfile = new etd_file();
        $etdfile->owner = $this->view->current_user->netid;
        $etdfile->label = $fileinfo['name'];
-       
-       $filetype = finfo_file($filename);	// don't trust mimetype reported by the browser
-       $etdfile->dc->format[0] = $filetype;	// $fileinfo['type'];	// mimetype
-       $etdfile->file->mimetype = $filetype;
+
+       $finfo = finfo_open(FILEINFO_MIME);	// fixme: pull out into a helper?
+       if ($finfo) {
+	 $filetype = finfo_file($finfo, $filename);	// don't trust mimetype reported by the browser
+	 $etdfile->dc->format[0] = $filetype;	// $fileinfo['type'];	// mimetype
+	 $etdfile->file->mimetype = $filetype;
+
+	 if ($filetype == "application/pdf")
+	   // get number of pages for pdfs (especially important for pdf, but okay for supplements too)
+	   $etdfile->dc->setPages($this->_helper->PdfPageTotal($filename));
+
+       }
        $etdfile->dc->format->append($fileinfo['size']);	// file size in bytes
 
        $etdfile->setFile($filename);	// upload and set ingest url to upload id
@@ -98,15 +111,16 @@ class FileController extends Zend_Controller_Action {
        $this->view->file_pid = $filepid;
 
 
+
        //FIXME: not working - not getting added to etd
        // add relation to etd object as well
        switch($file_rel) {
-       case "pdf":        $result = $etd->addPdf($etdfile); break;
+       case "pdf": $result = $etd->addPdf($etdfile); break;
        case "original":   $result = $etd->addOriginal($etdfile); break;
        case "supplement": $result = $etd->addSupplement($etdfile); break;
        default:
 	 trigger_warning("relation '$relation' not recognized - not adding to etd", E_USER_WARNING);
-      } type
+      } 
        if ($result)
 	 $this->_helper->flashMessenger->addMessage("Added file to etd as $relation - updated at $result");
        else 
@@ -216,6 +230,7 @@ class FileController extends Zend_Controller_Action {
      $etdfile = new etd_file($pid);
 
      $this->view->etd_pid = $etdfile->parent->pid;
+     $etdfile->parent->removeFile($etdfile);	// remove from parent etd
      
      $result = $etdfile->purge("removed by user");
      $this->_helper->flashMessenger->addMessage("removed file " . $etdfile->label);
