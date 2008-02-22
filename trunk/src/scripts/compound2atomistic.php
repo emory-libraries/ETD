@@ -82,7 +82,7 @@ $user = new user();
 $user->mads->name->first = $fezetd->mods->author->first;	// first & middle - split these out?
 $user->mads->name->last = $fezetd->mods->author->last;
 $user->mads->permanent->email = $fezetd->vcard->permanent_email;
-$user->mads->permanent->address->street = $fezetd->vcard->street;
+$user->mads->permanent->address->street[0] = $fezetd->vcard->street;
 $user->mads->permanent->address->city = $fezetd->vcard->city;
 $user->mads->permanent->address->state = $fezetd->vcard->state;
 $user->mads->permanent->address->postcode = $fezetd->vcard->zip;
@@ -95,15 +95,13 @@ $fezUserObject = new FezUserObject();
 $fezuser = $fezUserObject->findByUsrId($fezetd->vcard->uid);
 if ($fezuser) {  // in case user is not in the Fez DB
   $ownerid = $fezuser->username;
-  print "found fezuser... username is " . $ownerid . "\n";
-  
   $user->mads->netid = $ownerid;
   $user->owner = $ownerid;
 
   // emory email
   $user->mads->current->email = $fezuser->email;
 } else {
-  trigger_error("Cannot find user information in Fez Db for author (fez id=" . $fezetd->vcard->uid . ")", E_USER_WARNING);
+ print "Warning: Cannot find user information in Fez Db for author (fez id=" . $fezetd->vcard->uid . ")\n";
 }
 // set dc:title, and foxml label 
 $user->name = $fezetd->mods->author->full;
@@ -145,8 +143,8 @@ if ($fezAdvisor) {
   $newetd->setAdvisor($fezAdvisor->username);
   // FIXME: possibly need error handling if user is not found in ESD? (unlikely...)
 } else {
-  trigger_error("Cannot find user information in Fez Db for advisor (fez id=" .
-		$fezetd->mods->advisor->id . ")", E_USER_WARNING);
+  print "Warning: Cannot find user information in Fez Db for advisor (fez id=" .
+    $fezetd->mods->advisor->id . ")";
 }
 
 // set committee
@@ -157,8 +155,8 @@ foreach ($fezetd->mods->committee as $cm) {
   if ($fezCommittee) 
     $committee_ids[] = $fezCommittee->username;
   else
-    trigger_error("Cannot find user information in Fez Db for committee (fez id=" .
-		  $cm->id . ")", E_USER_WARNING);
+    print "Warning: Cannot find user information in Fez Db for committee (fez id=" .
+      $cm->id . ")\n";
 }
 if (count($committee_ids)) {	// don't set if none were found
   // set committee in mods & policy with values from ESD
@@ -196,7 +194,7 @@ elseif ($fezetd->mods->originInfo->copyright == "" ||
 if ($copyright)
   $newetd->mods->copyright = $copyright;
 else
-  trigger_error("Cannot determine if copyright was requested", E_USER_WARNING);
+  print "Warning: Cannot determine if copyright was requested";
 
 // in fez etds, yes/no on embargo request was temporarily stored in dateOther
 
@@ -209,7 +207,7 @@ elseif ($fezetd->mods->embargo_end == "Yes" || $embargo_duration != "")
 if ($embargo_request)
   $newetd->mods->embargo_request = $embargo_request;
 else
-  trigger_error("Cannot determine if embargo was requested", E_USER_WARNING);
+  print "Warning: Cannot determine if embargo was requested\n";
 
 // if embargo has already been approved & duration set, store it
 if ($embargo_duration)
@@ -258,7 +256,7 @@ for ($i= 0; $i < count($fezetd->mods->keywords); $i++) {
 if (isset($fezetd->mods->pages))
   $newetd->mods->pages = $fezetd->mods->pages;
 else 
-  trigger_error("Record does not seem to have page count", E_USER_WARNING);
+  print "Warning: Record does not seem to have page count\n";
 
 if ($fezetd->mods->genre == "Dissertation") {
   $newetd->mods->degree->level = "Doctoral";
@@ -266,7 +264,11 @@ if ($fezetd->mods->genre == "Dissertation") {
 } else { // check genre again? should be one or the other
   $newetd->mods->degree->level = "Masters";
   // pull degree name from vcard (value from alumni feed stored on publication)
-  $newetd->mods->degree->name = $fezetd->vcard->degree;
+  if (isset($fezetd->vcard->degree))
+    $newetd->mods->degree->name = $fezetd->vcard->degree;
+  else
+    print "Warning: Record does not have degree name (MA/MS?); please set manually\n";
+    
 }
 // note: discipline is being used for program subfield
 //   - no subfields in pilot departments, so ignoring
@@ -278,7 +280,7 @@ $newetd->setStatus($fezetd->status);
 if ($newetd->status() == "published" &&
     $embargo_requested && $embargo_end) { 
   // set embargo end date as condition in published policy rule
-  $newetd->policy->published->condition->date = $embargo_end;
+  $newetd->policy->published->condition->embargo_end = $embargo_end;
 }
 
 if ($opts->noact) {
@@ -388,8 +390,19 @@ eserv.php?pid={$fezetd->pid}&dsID={$file->ID} 	file/view/pid/{$etdfile->pid}
 
   }
 
-  // add relation to newetd
-  $newetd->rels_ext->addRelationToResource("rel:has" . $reltype, $etdfile->pid);
+  // add relation to new etd
+  if ($opts->noact) {
+    $newetd->rels_ext->addRelationToResource("rel:has" . $reltype, $etdfile->pid);
+  } else {
+    // adds appropriate relation and also sets etdfile sequence numbers 
+    switch($reltype) {
+    case "PDF":        $result = $etd->addPdf($etdfile); break;
+    case "Original":   $result = $etd->addOriginal($etdfile); break;
+    case "Supplement": $result = $etd->addSupplement($etdfile); break;
+    }
+  }
+
+
 }
 
 
