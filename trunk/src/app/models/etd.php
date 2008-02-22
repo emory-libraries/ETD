@@ -185,7 +185,15 @@ class etd extends foxml implements etdInterface {
   }
 
   
-  public function addPdf(etd_file $etdfile) { return $this->addFile($etdfile, "PDF");  }
+  public function addPdf(etd_file $etdfile) {
+    // if value is already set, add to the total (multiple pdfs)
+    if (isset($etdfile->dc->pages) && isset($this->mods->pages)) 
+      $this->mods->pages = $this->mods->pages + $etdfile->dc->pages;
+    else
+      $this->mods->pages = $etdfile->dc->pages;
+    
+    return $this->addFile($etdfile, "PDF");
+  }
   public function addOriginal(etd_file $etdfile) { return $this->addFile($etdfile, "Original");  }
   public function addSupplement(etd_file $etdfile) { return $this->addFile($etdfile, "Supplement");  }
   
@@ -208,6 +216,25 @@ class etd extends foxml implements etdInterface {
 
     // fixme: need better error handling here...
     return $this->save("adding relation to file ($relation) " . $etdfile->pid);
+  }
+
+
+  // remove relation to a file (when file is purged)
+  public function removeFile(etd_file $etdfile) {
+    switch ($etdfile->type) {
+    case "pdf":
+      // remove pdf from the total number of pages
+      if (isset($etdfile->dc->pages) && isset($this->mods->pages)) 
+	$this->mods->pages = $this->mods->pages - $etdfile->dc->pages;
+      $relation = "hasPDF";
+      break;
+    case "original": $relation = "hasOriginal"; break;
+    case "supplement"; $relation = "hasSupplement"; break;
+    }
+
+    $this->rels_ext->removeRelation("rel:$relation", $etdfile->pid);
+
+    
   }
 
   
@@ -500,7 +527,7 @@ class etd extends foxml implements etdInterface {
   }
   public function _abstract() { return $this->mods->abstract; }
   public function tableOfContents() { return $this->mods->tableOfContents; }
-  public function num_pages() { return $this->mods->num_pages; }
+  public function num_pages() { return isset($this->mods->pages) ? $this->mods->pages : ""; }
   
   public function keywords() {
     $keywords = array();
