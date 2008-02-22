@@ -299,7 +299,7 @@ class etd_mods extends mods {
     $i = 0;	// research field array index
     foreach ($values as $id => $text) {
       if (array_key_exists($i, $this->researchfields)) {
-	  $this->researchfields[$i]->id = $id;
+	$this->researchfields[$i]->id = "id" . $id;	// for valid xml - can't start numeric
 	  $this->researchfields[$i]->topic = $text;
       } else {
 	$this->addResearchField($text, $id);
