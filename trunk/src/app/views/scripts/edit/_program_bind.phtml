@@ -3,31 +3,31 @@
  "id" => "programs"), "", true) ?>"/>
 <xf:instance id="tmp" xmlns="">
    <tmp>
+    <none rdf:resource="#none">#none</none>
     <program>
 <? if ($this->program): ?>
       <level1><?= $this->program->parent->parent->id ?></level1>
       <level2><?= $this->program->parent->id ?></level2>
       <department><?= $this->program->id ?></department>
 <? else: ?>
-      <level1/>
-      <level2/>
-      <department/>
+      <level1>#none</level1>
+      <level2>#none</level2>
+      <department>#none</department>
 <? endif ?>
 <? if ($this->program && $this->etd->mods->subfield): ?>
     <subfield><?= $this->program->findIdbyLabel($this->etd->mods->subfield) ?></subfield>
 <? else: ?>
-      <subfield/>
+      <subfield>#none</subfield>
 <? endif ?>
-       <subfield-clear/>
     </program>
    </tmp>
 </xf:instance>
 
-<xf:bind nodeset="instance('tmp')/program/level2" relevant="../level1 != ''"/>
-<xf:bind nodeset="instance('tmp')/program/department" relevant="../level2 != ''"/>
-<xf:bind nodeset="instance('tmp')/program/subfield" relevant="../department != ''
+<xf:bind nodeset="instance('tmp')/program/level2" relevant="../level1 != '' and ../level1 != '#none'"/>
+<xf:bind nodeset="instance('tmp')/program/department" relevant="../level2 != '' and ../level2 != '#none'"/>
+<? /* only relevant if department is set and department has subfields */ ?>
+<xf:bind nodeset="instance('tmp')/program/subfield" relevant="../department != '' and ../department != '#none'
 and instance('programs')/skos:Collection[@rdf:about = instance('tmp')/program/department]/skos:member"/>
-<xf:bind nodeset="instance('tmp')/program/subfield-clear" relevant="../subfield != ''"/>
 <xf:bind nodeset="mods:name[mods:role/mods:roleTerm='author']/mods:affiliation" required="true()"/>
 	 
 <xf:submission id="submission" action="<?= $this->url(array('action' => 'savemods',

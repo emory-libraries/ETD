@@ -1,5 +1,6 @@
 <p>
-  <?= $this->xformOutput("Department", "instance('main')/mods:name[mods:role/mods:roleTerm='author']/mods:affiliation"); ?>
+  <?= $this->xformOutput("Department/Graduate Program",
+			 "instance('main')/mods:name[mods:role/mods:roleTerm='author']/mods:affiliation"); ?>
 </p>
 <p>
   <?= $this->xformOutput("Subfield", "instance('main')/mods:extension/etd:degree/etd:discipline"); ?>
@@ -9,7 +10,7 @@
 <br/>
  <xf:select1 ref="instance('tmp')/program/level1">
    <xf:label>program</xf:label>
-   <xf:itemset nodeset="instance('programs')/skos:Collection[@rdf:about = '#programs']/skos:member">
+   <xf:itemset nodeset="instance('tmp')/none|instance('programs')/skos:Collection[@rdf:about = '#programs']/skos:member">
    <xf:label ref="instance('programs')/skos:Collection[@rdf:about = current()/@rdf:resource]/rdfs:label"/>
    <xf:value ref="@rdf:resource"/>
    </xf:itemset>
@@ -23,7 +24,7 @@
 
  <xf:select1 ref="instance('tmp')/program/level2">
    <xf:label>division</xf:label>
-   <xf:itemset nodeset="instance('programs')/skos:Collection[@rdf:about = instance('tmp')/program/level1]/skos:member">
+   <xf:itemset nodeset="instance('tmp')/none|instance('programs')/skos:Collection[@rdf:about = instance('tmp')/program/level1]/skos:member">
    <xf:label ref="instance('programs')/skos:Collection[@rdf:about = current()/@rdf:resource]/rdfs:label"/>
    <xf:value ref="@rdf:resource"/>
    </xf:itemset>
@@ -37,7 +38,7 @@
   
  <xf:select1 ref="instance('tmp')/program/department">
    <xf:label>department</xf:label>
-   <xf:itemset nodeset="instance('programs')/skos:Collection[@rdf:about = instance('tmp')/program/level2]/skos:member">
+   <xf:itemset nodeset="instance('tmp')/none|instance('programs')/skos:Collection[@rdf:about = instance('tmp')/program/level2]/skos:member">
    <xf:label ref="instance('programs')/skos:Collection[@rdf:about = current()/@rdf:resource]/rdfs:label"/>
    <xf:value ref="@rdf:resource"/>
    </xf:itemset>
@@ -46,8 +47,9 @@
      <xf:setvalue ref="../subfield"/>
      <xf:setvalue nodeset="instance('main')/mods:name[mods:role/mods:roleTerm='author']/mods:affiliation"
       value="instance('programs')/skos:Collection[@rdf:about = instance('tmp')/program/department]/rdfs:label"/>
+   <xf:setvalue nodeset="instance('main')/mods:name[mods:role/mods:roleTerm='author']/mods:affiliation[.='--']" value="''"/>
      <xf:setvalue nodeset="instance('main')/mods:extension/etd:degree/etd:discipline" value="''"/>
-     <xf:rebuild model="model"/> 
+       <xf:rebuild model="model"/> 
    </xf:action>
   </xf:select1>
   <br/>
@@ -56,7 +58,7 @@
   
  <xf:select1 ref=".">
    <xf:label>subfield</xf:label>
-   <xf:itemset nodeset="instance('programs')/skos:Collection[@rdf:about = instance('tmp')/program/department]/skos:member">
+   <xf:itemset nodeset="instance('tmp')/none|instance('programs')/skos:Collection[@rdf:about = instance('tmp')/program/department]/skos:member">
    <xf:label ref="instance('programs')/skos:Collection[@rdf:about = current()/@rdf:resource]/rdfs:label"/>     
    <xf:value ref="@rdf:resource"/>
    </xf:itemset>
@@ -64,18 +66,12 @@
    <xf:action ev:event="xforms-value-changed">
      <xf:setvalue nodeset="instance('main')/mods:extension/etd:degree/etd:discipline"
       value="instance('programs')/skos:Collection[@rdf:about = instance('tmp')/program/subfield]/rdfs:label"/>
+   
+      <xf:setvalue nodeset="instance('main')/mods:extension/etd:degree/etd:discipline[.='--']" value="''"/>
      <xf:rebuild model="model"/> 
    </xf:action>
   </xf:select1>
   
-  <xf:group ref="instance('tmp')/program/subfield-clear">
-    <xf:trigger id="clear-subfield">
-      <xf:label>no subfield</xf:label>
-      <xf:action ev:event="DOMActivate">
-        <xf:setvalue nodeset="instance('main')/mods:extension/etd:degree/etd:discipline" value="''"/>
-      </xf:action>
-    </xf:trigger>
-  </xf:group>
   </xf:group>
 
    
