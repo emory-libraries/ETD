@@ -1,8 +1,9 @@
 <?php
 
 /* database modesl for user information from Emory Shared Data (ESD) view */
+require_once("etd.php");
 
-class esdPerson {
+class esdPerson implements Zend_Acl_Role_Interface {
   /* extends Zend_Db_Table_Row 
     not extending because it causes a weird unknown error
     about __set (php can't find where it's happening)
@@ -14,6 +15,8 @@ class esdPerson {
 
   // base role for ACL
   public $role;
+
+  private $_etds;
 
   public function __construct() {
     $this->alias = array("netid" => "LOGN8NTWR_I",
@@ -69,8 +72,8 @@ X           Pre-start
       $this->role = "admin";	// graduate school administrator
 
     // fixme: etd superuser ? 
-    
-    
+
+    $this->_etds = null;
   }
 
   public function __get($field) {
@@ -115,7 +118,36 @@ X           Pre-start
     return $this->firstname;
   }
 
+  // find any unpublished etds that belong to this user
+  public function getEtds() {
+    if (is_null($this->_etds))	// only initialize once (but will be reset after serialization)
+      $this->_etds = etd::findUnpublishedByAuthor($this->netid);
+    return $this->_etds;
+  }
 
+  // so esdPerson can act as a Zend_Acl_Role
+  public function getRoleId(){
+    if ($this->role == "student") {
+      $etds = $this->getEtds(); 
+      if (count($etds))
+	$this->role = "student with submission";
+    } 
+    return $this->role;
+  }
+
+  public function hasEtd() {
+    if ($this->role != "student" && $this->role != "student with submission") return false;
+    elseif (count($this->getEtds())) return true;
+    else return false;
+  }
+
+  public function __sleep() {
+    $this->_etds = null;	// foxml objects don't recover from serialization, so reset
+    $myfields = array("alias", "_address", "role", "_etds");
+    return array_merge($myfields, array_values($this->alias));
+  }
+
+  
 }
 
 class esdPeople extends Zend_Db_Table_Rowset {}
