@@ -5,7 +5,6 @@
 
 <? /* FIXME: should author name be editable ? */ ?> 
  <xf:group ref="mods:name[mods:role/mods:roleTerm='author']">
-    <xf:label>author</xf:label>
     <?=  $this->render('edit/_mods_name.phtml'); ?>
     <?/* note: department now edited on separate page */ ?>
  </xf:group>
@@ -22,10 +21,8 @@
  <br/>
 
  <?/*  umi/proquest research fields edited separately */ ?>
-
-  <p><u>keywords</u></p>
   <xf:repeat id="repeat-keywords" nodeset="mods:subject[@authority='keyword']">
-   <?= $this->xformText("", "mods:topic"); ?>
+   <?= $this->xformText("keyword", "mods:topic"); ?>
    <br/>
   </xf:repeat>
 
