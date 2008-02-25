@@ -4,12 +4,12 @@
 <?= $this->xformText("title", "dc:title"); ?> <br/>
 <?= $this->xformText("author", "dc:creator"); ?> <br/>
 <?= $this->xformTextarea("description", "dc:description"); ?> <br/>
-<?= $this->xformText("file type", "dc:type"); ?> <br/>
 <? /* FIXME: mime-type should be in dc:format, not dc:type */ ?>
 
 <? /* these are set on upload and should not be editable by the user */ ?>
-<?= $this->xformOutput("file type", "dc:format[1]"); ?> <br/>
-<?= $this->xformOutput("file size", "dc:format[2]"); ?> <br/>
+<?= $this->xformOutput("file type", "dc:format[contains(., '/')]"); ?> <br/>
+<?= $this->xformOutput("pages", "dc:format[contains(., 'p.')]"); ?> <br/>
+<?= $this->xformOutput("file size", "dc:format[not(contains(., '/')) and not(contains(., 'p.'))]"); ?> <br/>
 
 
  <xf:submit submission="submission">
