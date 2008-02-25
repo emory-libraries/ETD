@@ -501,6 +501,31 @@ class etd extends foxml implements etdInterface {
   }
 
 
+  // find records by author with any status *except* for published
+  public static function findUnpublishedByAuthor($username) {
+    $query = 'select $etd from <#ri>
+	      where exclude($etd $rel \'published\')
+	      and $rel <tucana:is> <fedora-rels-ext:etdStatus>
+	      and $etd $rel $o
+	      and $etd <fedora-rels-ext:author> \'' . $username . '\'
+       	      and $etd <fedora-model:contentModel> \'etd\'';
+    $etdlist = risearch::query($query);
+    $etds = array();
+    foreach($etdlist->results->result as $result) {
+      $pid = (string)$result->etd["uri"];
+      $pid = str_replace("info:fedora/", "", $pid);
+      try {
+	$etds[] = new etd($pid);
+      } catch (FedoraObjectNotFound $e) {
+	trigger_error("Record not found: $pid", E_USER_WARNING);
+      }
+
+    }
+    return $etds;
+    
+  }
+
+
   
   public function pid() { return $this->pid; }
   public function status() { return $this->rels_ext->status; }
