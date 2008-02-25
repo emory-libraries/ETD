@@ -10,6 +10,9 @@ class FileController extends Zend_Controller_Action {
 
   public function init() {
     Zend_Controller_Action_HelperBroker::addPrefix('Etd_Controller_Action_Helper');
+
+    $this->acl = Zend_Registry::get("acl");
+    $this->user = $this->view->current_user;
   }
 
   
@@ -21,15 +24,43 @@ class FileController extends Zend_Controller_Action {
   }
 
 
+  // customized allow check for this controller - using etdfile as resource
+  private function isAllowed(etd_file $etdfile, $action) {
+     $role = $etdfile->parent->getUserRole($this->user);	// role on the etd this file belongs to
+     $allowed = $this->acl->isAllowed($role, $etdfile, $action);
+     if (!$allowed) $this->notAllowed($action, $role, $etdfile->getResourceId());
+     return $allowed;
+   }
+
+  // customized allow check for this controller - using etd as resouce
+  private function isAllowedOnEtd(etd $etd, $action) {
+    $role = $etdfile->parent->getUserRole($this->user);	// role on the etd this file belongs to
+    $allowed = $this->acl->isAllowed($role, $etd, $action);
+    if (!$allowed) $this->notAllowed($action, $role, $etd->getResourceId());
+    return $allowed;
+  }
+
+  // redirect to a generic access denied page, with minimal information why
+  private function notAllowed($action, $role, $resource) {
+    $this->_helper->flashMessenger->addMessage("Error: " . $this->user->netid . " (role=" . $role . 
+					       ") is not authorized to $action $resource");
+    $this->_helper->redirector->gotoRoute(array("controller" => "auth",
+						"action" => "denied"), "", true);
+  }
+
+
+
    // serve out a file attached to an ETD record from fedora
    public function viewAction() {
      $pid = $this->_getParam("pid");
      $etdfile = new etd_file($pid);
-
+     
+     if (!$this->isAllowed($etdfile, "view")) return;
+     
      // don't use layout or templates
      $this->getHelper('layoutManager')->disableLayouts();
      $this->_helper->viewRenderer->setNoRender(true);
-
+     
      // set content type, filename, and set datastream content as the body of the response
      $this->getResponse()->setHeader('Content-Type', $etdfile->dc->mimetype);
      $this->getResponse()->setHeader('Content-Disposition',
@@ -45,6 +76,8 @@ class FileController extends Zend_Controller_Action {
      $etd_pid = $this->_getParam("etd");	// etd record the file should be added to
 
      $etd = new etd($etd_pid);
+     if (!$this->isAllowedOnEtd($etd, "add file")) return;
+
      $this->view->pid = $etd_pid;
      $this->view->etd = $etd;
      
@@ -56,6 +89,9 @@ class FileController extends Zend_Controller_Action {
    public function newAction() {
      $etd_pid = $this->_getParam("etd");	// etd record the file belongs to
      $etd = new etd($etd_pid);		
+
+     // creating a new etdfile is part of adding a file to an etd
+     if (!$this->isAllowedOnEtd($etd, "add file")) return;
      $this->view->etd = $etd;
      
      // how this file is related to the to the etd record
@@ -134,6 +170,7 @@ class FileController extends Zend_Controller_Action {
    public function updateAction() {
      $pid = $this->_getParam("pid");
      $etdfile = new etd_file($pid);
+     if (!$this->isAllowed($etdfile, "edit")) return;
 
      // pass on pids for links to etdfile and etd record
      $this->view->file_pid = $pid;
@@ -190,6 +227,7 @@ class FileController extends Zend_Controller_Action {
    public function editAction() {
      $pid = $this->_getParam("pid");
      $etdfile = new etd_file($pid);
+     if (!$this->isAllowed($etdfile, "edit")) return;
 
      $this->view->title = "Edit File Information";
      $this->view->etdfile = $etdfile;
@@ -214,6 +252,7 @@ class FileController extends Zend_Controller_Action {
      $pid = $this->_getParam("pid");
      // FIXME: if pid is not defined, need to error out
      $etdfile = new etd_file($pid);
+     if (!$this->isAllowed($etdfile, "edit")) return;
 
      global $HTTP_RAW_POST_DATA;
      $xml = $HTTP_RAW_POST_DATA;
@@ -246,10 +285,10 @@ class FileController extends Zend_Controller_Action {
    }
 
 
-
    public function removeAction() {
      $pid = $this->_getParam("pid");
      $etdfile = new etd_file($pid);
+     if (!$this->isAllowed($etdfile, "remove")) return;
 
      $this->view->etd_pid = $etdfile->parent->pid;
      $etdfile->parent->removeFile($etdfile);	// remove from parent etd
