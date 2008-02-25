@@ -1,6 +1,15 @@
 <h1>user information</h1>
 <? $user = $this->user->mads; ?>
 
+<? if (count($this->user->etds)): /* link back to related etds */ ?>
+  <p>Author information for:
+  <? foreach ($this->user->etds as $etd): ?>
+    <a href="<?= $this->url(array('controller' => 'view',
+		'action' => 'record', 'pid' => $etd->pid), '', true)?>"><?= $etd->title() ?></a><br/>
+  <? endforeach ?>
+  </p>
+<? endif?>  
+
 <?= $user->name->first ?> <?= $user->name->last ?>
 
    <? if (isset($user->current)): ?>
@@ -29,5 +38,7 @@
 <p><b>netid:</b> <?= $user->netid ?></p>
 
 
+<? if ($this->acl->isAllowed($this->user->getUserRole($this->current_user), "user", "edit")): ?>
 <p><a href="<?= $this->url(array("controller" => "user",
 		 "action" => "edit", "pid" => $this->user->pid), null, true) ?>">edit</a></p>
+<? endif ?>
