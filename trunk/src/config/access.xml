@@ -3,33 +3,34 @@
     <role name="guest">
       <allow resource="published etd">view metadata</allow>
       <allow resource="published file">view, download</allow>
+      <allow resource="embargoed file">view</allow>
     </role>
 
     <!-- base roles determined by person type in ESD; must be defined for ACL -->
     <role name="staff" inherits="guest"/>
     <role name="faculty" inherits="guest"/>
 
-    <role name="student">
+    <role name="student" inherits="guest">
       <allow resource="etd">submit</allow>
     </role>
 
     <!-- a student who already has a submission should not submit another one -->
-    <role name="student with submission"/>
+    <role name="student with submission" inherits="guest"/>
 
 <!-- pseudo-role with view privileges inherited by author, committee, dept. staff -->
-    <role name="view_all">	
+    <role name="view_all" inherits="guest">	
       <allow resource="etd">view metadata, view history, view status</allow>
-      <allow resource="file">view, download</allow>
+      <allow resource="embargoed file">view, download</allow>
     </role>
 
     <role name="author" inherits="view_all">
-      <allow resource="etd">view metadata, view history, view status, download</allow>
-      <allow resource="draft etd">edit metadata, add file, edit file, remove file, submit</allow>
+      <allow resource="file">view, download</allow>		<!-- includes original, embargoed -->
+      <allow resource="draft etd">edit metadata, add file, submit</allow>
+      <allow resource="draft file">edit, remove</allow>
     </role>
     <role name="committee" inherits="view_all"/>	
     <role name="departmental staff" inherits="view_all"/>
 
-<!-- departmental staff? -->
     <role name="admin" inherits="view_all">
        <allow resource="etd">edit history, edit status</allow>
 	<!-- workflow actions according to when they can be done -->
@@ -37,6 +38,8 @@
        <allow resource="reviewed etd">approve</allow>	<!-- request changes? -->
        <allow resource="approved etd">publish</allow>	<!-- not technically done by admin... -->
        <allow resource="published etd">unpublish</allow>
+
+       <allow resource="file">view, download</allow>		<!-- includes original, embargoed -->
     </role>
 
     <role name="superuser">
@@ -55,7 +58,9 @@
 
    <resource name="file">
       <resource name="embargoed file"/>
-      <resource name="published file"/>	<!-- better way to specify? -->
+      <resource name="published file"/>	<!-- better way to specify these? -->
+      <resource name="draft file"/>	
+      <resource name="original file"/>	
    </resource>
 
      <!-- other resources: user, etd file -->
