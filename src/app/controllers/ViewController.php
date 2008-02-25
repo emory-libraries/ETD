@@ -18,6 +18,22 @@ class ViewController extends Zend_Controller_Action {
    }
 
 
+   
+   // note: copied from AdminController - consolidate?
+   private function isAllowed($etd, $action) {
+     $role = $etd->getUserRole($this->user);
+     $allowed = $this->acl->isAllowed($role, $etd, $action);
+     if (!$allowed) {
+       $this->_helper->flashMessenger->addMessage("Error: " . $this->user->netid . " (role=" . $role . 
+						  ") is not authorized to $action " . $etd->getResourceId());
+       $this->_helper->redirector->gotoRoute(array("controller" => "auth",
+						   "action" => "denied"), "", true);
+     }
+     return $allowed;
+   }
+
+
+
    // view a full record
    public function recordAction() {
      // fixme: error handling if pid is not specified?
@@ -27,7 +43,13 @@ class ViewController extends Zend_Controller_Action {
        $this->_helper->viewRenderer->setNoRender(true);
      } else {
        try {
-	 $etd = new etd($this->_getParam("pid"));
+	 $etd = new etd($pid);
+	 if ($etd->cmodel != "etd") {
+	   trigger_error("Wrong type of object - $pid is not an etd", E_USER_WARNING);
+	   $this->_helper->viewRenderer->setNoRender(true);
+	   return;
+	 }
+	 
 	 
 	 $this->view->etd = $etd;
 	 $this->view->title = $etd->label;
@@ -41,6 +63,7 @@ class ViewController extends Zend_Controller_Action {
        }
      }
 
+     if (!$this->isAllowed($etd, "view metadata")) return;
 
      $this->view->messages = $this->_helper->flashMessenger->getMessages();
 
@@ -64,10 +87,13 @@ class ViewController extends Zend_Controller_Action {
      $pid = $this->_getParam("pid");
      $type = $this->_getParam("type", "etd");
 
-     if ($type == "etd")
+     if ($type == "etd") {
        $etd = new etd($pid);
-     elseif ($type == "etdfile")
+       if (!$this->isAllowed($etd, "view metadata")) return;
+     } elseif ($type == "etdfile") {
        $etd = new etd_file($pid);
+       // FIXME: how to check if etd_file can be viewed?
+     }
 
      $datastream = $this->_getParam("datastream");
      $mode = $this->_getParam("mode");
@@ -85,7 +111,6 @@ class ViewController extends Zend_Controller_Action {
        // do something with this message?
      }
    }
-
    
 
 }
