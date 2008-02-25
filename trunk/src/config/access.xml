@@ -12,6 +12,7 @@
 
     <role name="student" inherits="guest">
       <allow resource="etd">submit</allow>
+      <allow resource="user">create</allow>
     </role>
 
     <!-- a student who already has a submission should not submit another one -->
@@ -27,6 +28,7 @@
       <allow resource="file">view, download</allow>		<!-- includes original, embargoed -->
       <allow resource="draft etd">edit metadata, add file, submit</allow>
       <allow resource="draft file">edit, remove</allow>
+      <allow resource="user">view, edit</allow>
     </role>
     <role name="committee" inherits="view_all"/>	
     <role name="departmental staff" inherits="view_all"/>
@@ -40,6 +42,8 @@
        <allow resource="published etd">unpublish</allow>
 
        <allow resource="file">view, download</allow>		<!-- includes original, embargoed -->
+
+       <allow resource="user">view</allow>
     </role>
 
     <role name="superuser">
@@ -63,7 +67,8 @@
       <resource name="original file"/>	
    </resource>
 
-     <!-- other resources: user, etd file -->
+   <resource name="user"/>
+
   </resources>
 
 <!-- fixme: some way to use these as shortcuts? 
