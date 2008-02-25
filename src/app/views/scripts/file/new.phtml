@@ -8,4 +8,5 @@
 	"pid" => $this->file_pid), null, true) ?>">edit file information</a></p>
 
 
-<p><a href="<?= $this->url(array("controller" => "view", "action" => "record")) ?>">return to record</a></p>
+<p><a href="<?= $this->url(array("controller" => "view", "action" => "record",
+"pid" => $this->etd->pid), '', true) ?>">return to record</a></p>
