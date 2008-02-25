@@ -1,11 +1,10 @@
 <?/* left side navigation */?>
 <div id="sidenav">
 
-   <? /* fixme: needs a check if user is authorized to submit */ ?>
-   <p><b><a
-href="<?= $this->url(array("controller" => "submission", "action" => "start"), "", true); ?>">Submit &gt;</a></b>
-<font color="red">(beta)</font>
-</p>
+<? if ($this->acl->isAllowed($this->current_user, "etd", "submit")): ?>
+ <p><b><a
+ 	href="<?= $this->url(array("controller" => "submission", "action" => "start"), "", true); ?>">Submit your Thesis &gt;</a></b></p>
+<? endif ?>	
 
 
 <div class="section">
