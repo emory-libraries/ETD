@@ -720,3 +720,5 @@ div#messages p { margin:0px; }
 
 div#edit_faculty a.remove { padding-left:20px; font-size:75%;}
 div#edit_faculty span.dept { float:right; font-size:80%;}
+
+table#nonemory_list th { font-size:85%; text-align:left; }
