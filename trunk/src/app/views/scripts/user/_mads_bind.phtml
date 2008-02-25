@@ -1,24 +1,19 @@
-<!-- FIXME: formfaces does not actually check that all required fields are filled in before submitting; need to use constraints on all? -->
 <xf:instance id="countries" xmlns="" src="<?= $this->url(array("controller" => "config", "action" => "view",
  "id" => "countries"), "", true) ?>"/>
 
 <xf:bind nodeset="//mads:namePart[@type='family' or @type='given']" type="xsd:string"  constraint=". != ''" required="true()"/>
-<!--   <xf:bind nodeset="//mads:namePart[@type='given']" type="xsd:string"  constraint=". != ''"  required="true()"/> -->
-
 <xf:bind nodeset="//mads:affiliation[mads:position = 'permanent resident']/mads:address/*" type="xsd:string" required="true()"/> 
 <xf:bind nodeset="//mads:affiliation[mads:position = 'permanent resident']/mads:dateValid" type="xsd:date" required="true()"/> 
 
- <xf:bind nodeset="//mads:dateValid" type="xsd:date"/>
+<xf:bind nodeset="//mads:dateValid" type="xsd:date"/>
 
 <? /* require that permanent email not contain emory.edu */ ?>
 <xf:bind nodeset="/mads:mads/mads:affiliation[mads:position = 'permanent resident']/mads:email"
-   constraint="not(contains(., 'emory.edu'))"
-   type="xsd:string"
-   required="true()"/> 
+   constraint="not(contains(., 'emory.edu'))"   type="xsd:string"  required="true()"/> 
 
 <xf:bind nodeset="mads:email" type="xforms:email"/>
 
-<xf:submission id="submission" action="<?= $this->url(array('controller' => 'user',
+ <xf:submission id="submission" action="<?= $this->url(array('controller' => 'user',
 		'action' => 'save', 'id' => $this->pid, 'etd' => $this->etd_pid))?>"	
 		  method="post" > 	<? /* pass along pid of ETD record should be associated with */ ?>
    <xf:setvalue ref="submit-done" ev:event="xforms-submit-done">true</xf:setvalue>
