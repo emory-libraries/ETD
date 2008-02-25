@@ -79,3 +79,18 @@ span.xforms-label { font-weight:bold; }
 	     div.doc {float:right;color:#efefef;border:1px solid green;}
   
 */
+
+
+/* make certain submit buttons look like links */
+span.xforms-trigger input { 
+  border:none;
+  background-color:transparent;
+  text-decoration:underline;
+  color:blue;
+  font-size:smaller;
+  padding:0px;
+  margin:0px;
+  cursor:pointer;
+  cursor:hand;
+}
+
