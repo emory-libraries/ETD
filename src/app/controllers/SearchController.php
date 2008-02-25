@@ -1,6 +1,6 @@
 <?php
 
-require_once("models/solrEtd.php");
+require_once("models/etd.php");
 
 class SearchController extends Zend_Controller_Action {
 
@@ -54,8 +54,9 @@ class SearchController extends Zend_Controller_Action {
      //
      $etds = array();
      foreach ($results['response']['docs'] as $result_doc) {
-       array_push($etds, new solrEtd($result_doc));
+       array_push($etds, new etd($result_doc['PID']));
      }
+
      $this->view->etds = $etds;
    }
 
