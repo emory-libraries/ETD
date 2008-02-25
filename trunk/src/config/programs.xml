@@ -255,4 +255,8 @@
     <rdfs:label>Women's Studies</rdfs:label>
   </skos:Collection>
 
+  <skos:Collection rdf:about="#none">
+    <rdfs:label>--</rdfs:label>
+  </skos:Collection>  
+
 </rdf:RDF>
