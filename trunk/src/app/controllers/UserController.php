@@ -4,6 +4,33 @@ require_once("models/user.php");
 
 class UserController extends Zend_Controller_Action {
 
+  public function init() {
+    $this->initView();
+	 
+    $this->acl = Zend_Registry::get("acl");
+    $this->user = $this->view->current_user;
+  }
+
+
+  private function isAllowed($action, user $user = null) {
+    if (!is_null($user))
+      $role = $user->getUserRole($this->user);
+    else $role = $user->getRoleId();
+    $allowed = $this->acl->isAllowed($role, "user", $action);
+    if (!$allowed) $this->notAllowed($action, $role, "user");
+    return $allowed;
+  }
+
+  // redirect to a generic access denied page, with minimal information why
+  private function notAllowed($action, $role, $resource) {
+    $this->_helper->flashMessenger->addMessage("Error: " . $this->user->netid . " (role=" . $role . 
+					       ") is not authorized to $action $resource");
+    $this->_helper->redirector->gotoRoute(array("controller" => "auth",
+						"action" => "denied"), "", true);
+  }
+
+
+  
   public function postDispatch() {
     if ($this->_helper->flashMessenger->hasMessages())
       $this->view->messages = $this->_helper->flashMessenger->getMessages();
@@ -14,11 +41,15 @@ class UserController extends Zend_Controller_Action {
     $this->view->site_mode = $env->mode;	// better name for this? (test/dev/prod)
   }
 
+  
+
   public function viewAction() {
     if ($this->_hasParam("pid")) {
       $user = new user($this->_getParam("pid"));
+      if (!$this->isAllowed("view", $user)) return;
     } else {
       //default to currently logged in user
+      // FIXME: still needed? may not make sense..
       $user = user::find_by_username(strtolower($this->view->current_user->netid));
     }
 
@@ -29,9 +60,11 @@ class UserController extends Zend_Controller_Action {
   // create a new user record
   public function newAction() {
     $this->_forward("edit");
+    if (!$this->isAllowed("create")) return;
   }
 
   public function findAction() {
+    // FIXME: still needed? may not make sense anymore..
     $user = user::find_by_username($this->_getParam("id"));
     $this->view->user = $user;
     print "user pid is " . $user->pid . "\n";
@@ -48,6 +81,8 @@ class UserController extends Zend_Controller_Action {
     $this->view->etd_pid = $this->_getParam("etd");	
     
     $user = new user($pid);
+    if (!$this->isAllowed("edit", $user)) return;
+    
     $this->view->user = $user;
 
     $this->view->title = "Edit User Information";
@@ -67,6 +102,7 @@ class UserController extends Zend_Controller_Action {
     $pid = $this->_getParam("pid", null);
     
     $user = new user($pid);
+    if (!$this->isAllowed("edit", $user)) return;
 
     global $HTTP_RAW_POST_DATA;
     $xml = $HTTP_RAW_POST_DATA;
@@ -121,15 +157,13 @@ class UserController extends Zend_Controller_Action {
     // if pid is null, display template xml with netid set to id for current user
      $pid = $this->_getParam("pid", null);
      $user = new user($pid);
+     if (!$this->isAllowed("view", $user)) return;
+     
      $this->view->user = $user;
 
      if (is_null($pid)) {
        // empty template - set a few values
-       $auth = Zend_Auth::getInstance();
-       if ($auth->hasIdentity()) {
-	 $current_user = $auth->getIdentity();
-	 $user->mads->initializeFromEsd($current_user);
-       }
+       $user->mads->initializeFromEsd($this->view->current_user);
      }
 
      $xml = $user->mads->saveXML();
