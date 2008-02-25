@@ -97,6 +97,29 @@ class etd_file extends foxml {
     $this->file->url = $upload_id;
   }
 
+  public function getFile() {
+    return $this->fedora->getDatastream($this->pid, "FILE");
+  }
+
+
+  public function prettyFilename() {
+    // build a nice, user-friendly filename
+    $filename = strtolower($this->parent->mods->author->last) . "_";
+    switch ($this->type) {
+    case "pdf":	$filename .= "dissertation"; break;
+    case "original":	$filename .= "original";  break;
+    case "supplement": $filename .= "supplement"; break;
+    }
+
+    // if there is more than one of this type of file, add a number
+    if (count($this->parent->{$this->type . "s"}) > 1) $filename .= $this->rels_ext->sequence;
+
+    // add second half of mime-type as file extension (FIXME: will this always work?
+    $filename .= "." . preg_replace("|^.*/|", "", $this->dc->mimetype);
+
+    return $filename;
+  }
+
 
   /**  override default foxml ingest function to use arks for object pids
    */
