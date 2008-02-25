@@ -23,25 +23,18 @@ class FileController extends Zend_Controller_Action {
 
    // serve out a file attached to an ETD record from fedora
    public function viewAction() {
-
-     // FIXME: write routes or set headers so file will save with original filename
-     
      $pid = $this->_getParam("pid");
      $etdfile = new etd_file($pid);
 
-     //     $this->getResponse()->setHeader('Content-Type', $etdfile->dc->type);
+     // don't use layout or templates
+     $this->getHelper('layoutManager')->disableLayouts();
+     $this->_helper->viewRenderer->setNoRender(true);
+
+     // set content type, filename, and set datastream content as the body of the response
+     $this->getResponse()->setHeader('Content-Type', $etdfile->dc->mimetype);
      $this->getResponse()->setHeader('Content-Disposition',
-				     'attachment; filename="' . $etdfile->dc->description);
-
-     
-     $fedora = Zend_Registry::get('fedora-config');
-     $url = "http://" . $fedora->server . ":" . $fedora->port . "/fedora/get/$pid/FILE";
-
-     // do a redirect so the file doesn't get loaded into memory by php
-     $this->_redirect($url);
-     // for debugging redirect url:
-     //    $this->_helper->viewRenderer->setNoRender(true);
-
+				     'attachment; filename="' . $etdfile->prettyFilename());
+     $this->getResponse()->setBody($etdfile->getFile());
    }
 
 
