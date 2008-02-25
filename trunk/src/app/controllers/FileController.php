@@ -34,7 +34,7 @@ class FileController extends Zend_Controller_Action {
 
   // customized allow check for this controller - using etd as resouce
   private function isAllowedOnEtd(etd $etd, $action) {
-    $role = $etdfile->parent->getUserRole($this->user);	// role on the etd this file belongs to
+    $role = $etd->getUserRole($this->user);	// role on the etd this file belongs to
     $allowed = $this->acl->isAllowed($role, $etd, $action);
     if (!$allowed) $this->notAllowed($action, $role, $etd->getResourceId());
     return $allowed;
