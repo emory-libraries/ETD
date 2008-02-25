@@ -59,100 +59,99 @@ class AdminController extends Zend_Controller_Action {
    public function reviewAction() {
      $etd = new etd($this->_getParam("pid"));
      $this->view->etd = $etd;
-     if ($this->isAllowed($etd, "review")) {
-       $this->view->title = "Review record information";
-       // still needs view script - same basic components as submission review,
-       // links to accept or request changes
-     }
+     if (!$this->isAllowed($etd, "review")) return;
+     
+     $this->view->title = "Review record information";
+     // still needs view script - same basic components as submission review,
+     // links to accept or request changes
    }
 
    public function acceptAction() {
      // change status on etd to reviewed
      $etd = new etd($this->_getParam("pid"));
-     if ($this->isAllowed($etd, "review")) {	// FIXME: separate action? part of review workflow
-       $newstatus = "reviewed";
-       $etd->setStatus($newstatus);
-       
-       // log event in record history 
-       $etd->premis->addEvent("status change", "Record reviewed by Graduate School",
-			      "success",  array("netid", $this->user->netid));
-       
-       $result = $etd->save("set status to '$newstatus'");
+     if (!$this->isAllowed($etd, "review")) return;  // part of review workflow
      
-       // set flash message, forward to ...
-       $this->_helper->flashMessenger->addMessage("Record status changed to <b>$newstatus</b>; record saved at $result");
-       // forward to .. main admin page ?
-       $this->_helper->redirector->gotoRoute(array("controller" => "admin",
-						   "action" => "summary"), "", true);
-     }
+     $newstatus = "reviewed";
+     $etd->setStatus($newstatus);
+     
+     // log event in record history 
+     $etd->premis->addEvent("status change", "Record reviewed by Graduate School",
+			    "success",  array("netid", $this->user->netid));
+     
+     $result = $etd->save("set status to '$newstatus'");
+     
+     // set flash message, forward to ...
+     $this->_helper->flashMessenger->addMessage("Record status changed to <b>$newstatus</b>; record saved at $result");
+     // forward to .. main admin page ?
+     $this->_helper->redirector->gotoRoute(array("controller" => "admin",
+						 "action" => "summary"), "", true);
    }
 
    public function requestchangesAction() {
      $etd = new etd($this->_getParam("pid"));
-     if ($this->isAllowed($etd, "review")) {	// FIXME: separate action? part of review workflow
-       $newstatus = "draft";
-       $etd->setStatus($newstatus);
-       
-       // log event in record history 
-       $etd->premis->addEvent("status change",
-			      "Changes to record requested by Graduate School",
-			      "success",  array("netid", $this->user->netid));
-       
-       $result = $etd->save("set status to 'draft'");
-             
-       $this->_helper->flashMessenger->addMessage("Record status changed to <b>$newstatus</b>; saved at $result");
-       // user information also, for email address ?
-       
-       $this->view->title = "Request changes to record information";
-       $this->view->messages = $this->_helper->flashMessenger->getCurrentMessages();
-     }
+     if (!$this->isAllowed($etd, "review")) return;	// part of review workflow
+     $newstatus = "draft";
+     $etd->setStatus($newstatus);
+     
+     // log event in record history 
+     $etd->premis->addEvent("status change",
+			    "Changes to record requested by Graduate School",
+			    "success",  array("netid", $this->user->netid));
+     
+     $result = $etd->save("set status to 'draft'");
+     
+     $this->_helper->flashMessenger->addMessage("Record status changed to <b>$newstatus</b>; saved at $result");
+     // user information also, for email address ?
+     
+     $this->view->title = "Request changes to record information";
+     $this->view->messages = $this->_helper->flashMessenger->getCurrentMessages();
    }
 
    /* approve workflow  (approve, doapprove) */
 
    public function approveAction() {
      $etd = new etd($this->_getParam("pid"));
-     if ($this->isAllowed($etd, "approve")) {
-       $this->view->etd = $etd;
-       $this->view->title = "Approve ETD";
-     }
+     if (!$this->isAllowed($etd, "approve")) return;
+     
+     $this->view->etd = $etd;
+     $this->view->title = "Approve ETD";
    }
 
    public function doapproveAction() {
      $etd = new etd($this->_getParam("pid"));
-     if ($this->isAllowed($etd, "approve")) {
-       $embargo = $this->_getParam("embargo");	// duration
-       
-       // set status to approved
-       $newstatus = "approved";
-       $etd->setStatus($newstatus);
-       $etd->mods->embargo = $embargo;	// save embargo duration
-       
-       // log event in record history 
-       // log record approval
-       $etd->premis->addEvent("status change",
-			      "Record approved by Graduate School",	// by whom ?
-			      "success",  array("netid", $this->user->netid));
-       // log embargo duration
-       // FIXME: should this not be logged if embargo is 0 days ?
-       $etd->premis->addEvent("admin",
-			      "Access restriction of $embargo approved",	// by whom ?
-			      "success",  array("netid", $this->user->netid));
-       
-       // send approval email & log that it was sent
-       $notify = new etd_notifier($etd);
-       $notify->approval();		// any way to do error checking? (doesn't seem to be)
-       $etd->premis->addEvent("notice",
-			      "Approval Notification sent by ETD system",
-			      "success",  array("software", "etd system"));
-       $result = $etd->save("approved");
-       
-       $this->_helper->flashMessenger->addMessage("Record approved with an embargo of $embargo; saved at $result");
-       $this->_helper->flashMessenger->addMessage("Approval notification email sent");
-       
-       $this->_helper->redirector->gotoRoute(array("controller" => "admin",
-						   "action" => "summary"), "", true); 
-     }
+     if (!$this->isAllowed($etd, "approve")) return;
+     
+     $embargo = $this->_getParam("embargo");	// duration
+     
+     // set status to approved
+     $newstatus = "approved";
+     $etd->setStatus($newstatus);
+     $etd->mods->embargo = $embargo;	// save embargo duration
+     
+     // log event in record history 
+     // log record approval
+     $etd->premis->addEvent("status change",
+			    "Record approved by Graduate School",	// by whom ?
+			    "success",  array("netid", $this->user->netid));
+     // log embargo duration
+     // FIXME: should this not be logged if embargo is 0 days ?
+     $etd->premis->addEvent("admin",
+			    "Access restriction of $embargo approved",	// by whom ?
+			    "success",  array("netid", $this->user->netid));
+     
+     // send approval email & log that it was sent
+     $notify = new etd_notifier($etd);
+     $notify->approval();		// any way to do error checking? (doesn't seem to be)
+     $etd->premis->addEvent("notice",
+			    "Approval Notification sent by ETD system",
+			    "success",  array("software", "etd system"));
+     $result = $etd->save("approved");
+     
+     $this->_helper->flashMessenger->addMessage("Record approved with an embargo of $embargo; saved at $result");
+     $this->_helper->flashMessenger->addMessage("Approval notification email sent");
+     
+     $this->_helper->redirector->gotoRoute(array("controller" => "admin",
+						 "action" => "summary"), "", true); 
    }
    
 
@@ -160,32 +159,31 @@ class AdminController extends Zend_Controller_Action {
    
    public function unpublishAction() {
      $etd = new etd($this->_getParam("pid"));
-     if ($this->isAllowed($etd, "unpublish")) {
-       $this->view->etd = $etd;
-       $this->view->title = "Unpublish ETD";
-     }
+     if (!$this->isAllowed($etd, "unpublish")) return;
+     $this->view->etd = $etd;
+     $this->view->title = "Unpublish ETD";
    }
 
    public function doUnpublishAction() {
      $etd = new etd($this->_getParam("pid"));
-     if ($this->isAllowed($etd, "unpublish")) {
-       $reason = $this->_getParam("reason", "");
-       
-       $newstatus = "draft";
-       $etd->setStatus($newstatus);
-       
-       // log event in record history 
-       $etd->premis->addEvent("status change",
-			      "Unpublished - $reason",	// by whom ?
-			      "success",  array("netid", $this->user->netid));
-       $result = $etd->save("unpublished");
-       
-       $this->_helper->flashMessenger->addMessage("Record unpublished and status changed to <b>$newstatus</b>; saved at $result");
-       // user information also, for email address ?
-       
-       $this->_helper->redirector->gotoRoute(array("controller" => "admin",
-						   "action" => "summary"), "", true); 
-     }
+     if (!$this->isAllowed($etd, "unpublish")) return;
+     
+     $reason = $this->_getParam("reason", "");
+     
+     $newstatus = "draft";
+     $etd->setStatus($newstatus);
+     
+     // log event in record history 
+     $etd->premis->addEvent("status change",
+			    "Unpublished - $reason",	// by whom ?
+			    "success",  array("netid", $this->user->netid));
+     $result = $etd->save("unpublished");
+     
+     $this->_helper->flashMessenger->addMessage("Record unpublished and status changed to <b>$newstatus</b>; saved at $result");
+     // user information also, for email address ?
+     
+     $this->_helper->redirector->gotoRoute(array("controller" => "admin",
+						 "action" => "summary"), "", true); 
    }
    
 }
