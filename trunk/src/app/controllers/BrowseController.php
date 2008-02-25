@@ -2,7 +2,7 @@
 /** Zend_Controller_Action */
 /* Require models */
 
-require_once("models/solrEtd.php");
+require_once("models/etd.php");
 require_once("models/programs.php");
 
 class BrowseController extends Zend_Controller_Action {
@@ -142,7 +142,7 @@ class BrowseController extends Zend_Controller_Action {
      //
      $etds = array();
      foreach ($results['response']['docs'] as $result_doc) {
-       array_push($etds, new solrEtd($result_doc));
+       array_push($etds, new etd($result_doc['PID']));
      }
      //     $this->view->etds = $results['response']['docs'];
      $this->view->etds = $etds;
@@ -178,7 +178,7 @@ class BrowseController extends Zend_Controller_Action {
      
      $etds = array();
      foreach ($results['response']['docs'] as $result_doc) {
-       array_push($etds, new solrEtd($result_doc));
+       array_push($etds, new etd($result_doc['PID']));
      }
 
      $this->view->etds = $etds;
@@ -206,7 +206,7 @@ class BrowseController extends Zend_Controller_Action {
      
      $etds = array();
      foreach ($results['response']['docs'] as $result_doc) {
-       array_push($etds, new solrEtd($result_doc));
+       array_push($etds, new etd($result_doc['PID']));
      }
      $this->view->etds = $etds;
      $this->view->facets = $results['facet_counts']['facet_fields'];
@@ -261,26 +261,10 @@ class BrowseController extends Zend_Controller_Action {
      $this->_helper->viewRenderer->setScriptAction("browse");
    }
 
-   public function indexAction() {	
+   public function indexAction() {
+     // FIXME: do we need a main browse page?
 		$this->view->assign("title", "Welcome to %project%");
-	}
+   }
 
-	public function listAction() {
-	}
-
-	public function createAction() {
-	}
-
-	public function editAction() {
-	}
-
-	public function saveAction() {
-	}
-
-	public function viewAction() {
-	}
-
-	public function deleteAction() {
-	}
 }
 ?>
