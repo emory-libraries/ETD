@@ -12,15 +12,15 @@
 <br/>
 
 <xf:group nodeset="mads:affiliation[mads:position != 'permanent resident' or not(mads:position)]">
-   <? /* not showing department or degree since it can't be edited by the user here */ ?>
+  <? /* not showing department or degree since it can't be edited by the user here */ ?>
 <?//= $this->xformText("degree", "mads:position"); ?>
 <?//= $this->xformOutput("department", "mads:organization"); ?><br/>
 
    <xf:label>current address</xf:label>
    <?=  $this->render('user/_mads_address.phtml'); ?>
+   <?= $this->xformText("phone", "mads:phone"); ?> <br/>
    <?= $this->xformText("email", "mads:email"); ?> <br/>
-   <?= $this->xformText("date valid", "mads:dateValid"); ?> <br/>
-  
+   <? /* suppress date valid for current address (confusing) */ ?>
 </xf:group>
 
 <hr/>
@@ -29,11 +29,10 @@
    <xf:label>permanent address</xf:label>
 
    <?=  $this->render('user/_mads_address.phtml'); ?>
-   <?= $this->xformOutput("phone", "mads:phone"); ?> <br/>
+   <?= $this->xformText("phone", "mads:phone"); ?> <br/>
 
    <?= $this->xformText("non-emory email", "mads:email"); ?> <br/>
-
-  <?= $this->xformText("date valid", "mads:dateValid"); ?> <br/>
+   <?= $this->xformText("date valid", "mads:dateValid"); ?> <br/>
   
 </xf:group>
 <br/>
