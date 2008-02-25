@@ -1,9 +1,9 @@
 <div id="files">
     <h2>Files</h2>
-<? if (strtotime($this->etd->mods->embargo_end) > time()): ?>
+<? if ($this->etd->isEmbargoed()): ?>
     <p>Access restricted until <b><?= $this->etd->mods->embargo_end ?></b></p>
-<? else: ?>
-       <? /* FIXME: not an if/else - display files if user has access to see them */ ?>
+<? endif ?>       
+
      <? if ($this->acl->isAllowed($this->role, $this->etd, "add file")): ?>
        <p><a class="action" href="<?= $this->url(array("controller" => "file",
 		"action" => "add", "etd" => $this->etd->pid), null, true)?>">add another file</a></p>
@@ -16,24 +16,29 @@
 
 
   <? foreach (array("pdfs", "originals", "supplements") as $filetype): ?>
-	<b><?= $filetype ?></b><br/>
+   <b><?= $filetype ?></b><br/>	<? /* FIXME: temporary; need better organization/layout/display here */ ?>
     <? foreach ($this->etd->$filetype as $file) : ?>
-      <a href="<?= $this->url(array("controller" => "file", "action" => "view",
+      <? if ($this->acl->isAllowed($this->role, $file, "view")): ?>
+	     <? if ($this->acl->isAllowed($this->role, $file, "download")): ?>
+		    <a href="<?= $this->url(array("controller" => "file", "action" => "view",
  				     "pid" => $file->pid))?>/<?= $file->prettyFilename() ?>"><?= $file->dc->title ?></a>
-  <? if (isset($file->dc->pages)): ?><?= $file->dc->pages ?> pages<? endif ?>
-  <? if (isset($file->dc->type)): ?> <?= $file->dc->type ?> <? endif ?>
-  <? if (isset($file->dc->mimetype)): ?><?= $file->dc->mimetype ?> <? endif ?>
-  <? if (isset($file->dc->filesize)): ?>(<?= readable_size($file->dc->filesize) ?>) <?endif ?>
-					      
-  <? if ($this->acl->isAllowed($this->role, $this->etd, "edit file")): ?>
-    <a href="<?= $this->url(array("controller" => "file", "action" => "edit", "pid" => $file->pid))?>">edit</a>
-  <? endif ?>
-  <? if ($this->acl->isAllowed($this->role, $this->etd, "remove file")): ?>
-    <a href="<?= $this->url(array("controller" => "file", "action" => "remove", "pid" => $file->pid))?>">remove</a>
-  <? endif ?>
-  <br/>
+      	     <? else: /* view but not download */?>
+		  <?= $file->dc->title ?>
+	     <? endif ?>
+	  <? if (isset($file->dc->pages)): ?><?= $file->dc->pages ?> pages<? endif ?>
+	  <? if (isset($file->dc->type)): ?> <?= $file->dc->type ?> <? endif ?>
+	  <? if (isset($file->dc->mimetype)): ?><?= $file->dc->mimetype ?> <? endif ?>
+	  <? if (isset($file->dc->filesize)): ?>(<?= readable_size($file->dc->filesize) ?>) <?endif ?>
+						      
+	  <? if ($this->acl->isAllowed($this->role, $file, "edit")): ?>
+	    <a href="<?= $this->url(array("controller" => "file", "action" => "edit", "pid" => $file->pid))?>">edit</a>
+	  <? endif ?>
+	  <? if ($this->acl->isAllowed($this->role, $file, "remove")): ?>
+	    <a href="<?= $this->url(array("controller" => "file", "action" => "remove", "pid" => $file->pid))?>">remove</a>
+	  <? endif ?>
+	  <br/>
+       <? endif /* can view file */ ?>
     <? endforeach ?>
   <? endforeach ?>
 
-<? endif ?>
 </div>
