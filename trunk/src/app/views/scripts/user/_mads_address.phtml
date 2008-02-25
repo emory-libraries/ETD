@@ -1,11 +1,10 @@
    <xf:group ref="mads:address">
-     <xf:label>address</xf:label>
      <xf:repeat id="repeat-street" nodeset="mads:street"> 
         <?= $this->xformText("street", "."); ?> <br/>
      </xf:repeat>
 
-     <xf:trigger id="street-add">
-       <xf:label>Add</xf:label>
+     <xf:trigger>
+       <xf:label>add address line</xf:label>
         <xf:action ev:event="DOMActivate">
           <xf:insert ref="mads:street" at="last()" position="after"/> 
           <xf:setvalue ref="mads:street[last()]" value="''"/>
@@ -13,7 +12,7 @@
       </xf:trigger>
       
       <xf:trigger>
-        <xf:label>Remove</xf:label>
+        <xf:label>remove last address line</xf:label>
         <xf:delete ev:event="DOMActivate" nodeset="mads:street" at="last()"/>
       </xf:trigger>
       <br/>
