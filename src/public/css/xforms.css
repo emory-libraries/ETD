@@ -66,6 +66,9 @@ div.xfselect div span.xforms-label { display:inline; }
 div.xfselect div label { display:inline; font-weight:normal; }
 
 
+span.xforms-label { font-weight:bold; }
+.xforms-required span.xforms-label:after { content: " *"; }     
+
 
 /* my attempts...
          span.xforms-input {display:block;}
