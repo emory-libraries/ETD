@@ -15,7 +15,7 @@ class UserController extends Zend_Controller_Action {
   private function isAllowed($action, user $user = null) {
     if (!is_null($user))
       $role = $user->getUserRole($this->user);
-    else $role = $user->getRoleId();
+    else $role = $this->user->role;
     $allowed = $this->acl->isAllowed($role, "user", $action);
     if (!$allowed) $this->notAllowed($action, $role, "user");
     return $allowed;
@@ -59,8 +59,8 @@ class UserController extends Zend_Controller_Action {
 
   // create a new user record
   public function newAction() {
-    $this->_forward("edit");
     if (!$this->isAllowed("create")) return;
+    $this->_forward("edit");
   }
 
   public function findAction() {
@@ -81,8 +81,11 @@ class UserController extends Zend_Controller_Action {
     $this->view->etd_pid = $this->_getParam("etd");	
     
     $user = new user($pid);
-    if (!$this->isAllowed("edit", $user)) return;
-    
+    if (is_null($pid))	{ // if pid is null, action is actually create (user is not author on an object yet)
+      if (!$this->isAllowed("create")) return;
+    } else { 		// if pid is defined, action is editing an existing object
+      if (!$this->isAllowed("edit", $user)) return;
+    }
     $this->view->user = $user;
 
     $this->view->title = "Edit User Information";
@@ -102,7 +105,11 @@ class UserController extends Zend_Controller_Action {
     $pid = $this->_getParam("pid", null);
     
     $user = new user($pid);
-    if (!$this->isAllowed("edit", $user)) return;
+    if (is_null($pid))	{ // if pid is null, action is actually create (user is not author on an object yet)
+      if (!$this->isAllowed("create")) return;
+    } else { 		// if pid is defined, action is editing an existing object
+      if (!$this->isAllowed("edit", $user)) return;
+    }
 
     global $HTTP_RAW_POST_DATA;
     $xml = $HTTP_RAW_POST_DATA;
@@ -119,12 +126,29 @@ class UserController extends Zend_Controller_Action {
 	$mads = new mads($dom);
 	$user->label = $mads->name->first . " " . $mads->name->last;
 	$user->owner = $mads->netid;
+	$user->rels_ext->addRelationToResource("rel:AuthorInfoFor", $etd_pid);
       }
       
       $user->mads->updateXML($xml);
-      print "foxml: <br/>\n<pre>" . htmlentities($user->saveXML()) . "</pre>";
-      $this->view->save_result = $user->save("edited user information");
-      $this->_helper->flashMessenger->addMessage("Saved changes");
+
+      // if no date for current, set to today
+      if (!$user->mads->current->date) $user->mads->current->date = date("Y-m-d");	
+	
+      
+      // normalize date format
+      foreach (array("current", "permanent") as $address) {
+	$user->mads->{$address}->date = date("Y-m-d", strtotime($user->mads->{$address}->date, 0));
+      }
+      
+      $user->mads->
+      $save_result = $user->save("edited user information");
+      $resource = "contact information";
+      if ($save_result)
+	$this->_helper->flashMessenger->addMessage("Saved changes to $resource");
+      elseif ($user->mads->hasChanged())
+	$this->_helper->flashMessenger->addMessage("Error: could not save changes to $resource");
+      else
+	$this->_helper->flashMessenger->addMessage("No changes made to $resource");
     }
 
     // should only be set for new records 
@@ -133,20 +157,16 @@ class UserController extends Zend_Controller_Action {
       $etd = new etd($etd_pid);
       $etd->rels_ext->addRelationToResource("rel:hasAuthorInfo", $user->pid);
       $save_result = $etd->save("associated user object with etd");
-      if ($save_result)
-      	$this->_helper->flashMessenger->addMessage("Saved ETD (associated new user object)");
-      else	// record changed but save failed for some reason
-	$this->_helper->flashMessenger->addMessage("Could not save ETD (associated new user)");
-
-      // FIXME: redundant - should be able to do above...
-      $user->rels_ext->addRelationToResource("rel:AuthorInfoFor", $etd_pid);
-      $save_result = $etd->save("associated etd with user object");
-      if ($save_result)
-      	$this->_helper->flashMessenger->addMessage("Saved user (associated etd object)");
-      else	// record changed but save failed for some reason
-	$this->_helper->flashMessenger->addMessage("Could not save user (associated etd)");
+      // only display a message if there is a problem
+      if (!$save_result)  // record changed but save failed for some reason
+	$this->_helper->flashMessenger->addMessage("Error: problem associating contact information with your ETD record");
     }
 
+    //redirect to user view
+    $this->_helper->redirector->gotoRoute(array("controller" => "user",
+    						"action" => "view", "pid" => $user->pid), "", true);
+
+    
     $this->view->pid = $user->pid;
     $this->view->xml = $xml;
     $this->view->title = "save user information";
@@ -156,9 +176,13 @@ class UserController extends Zend_Controller_Action {
    public function madsAction() {
     // if pid is null, display template xml with netid set to id for current user
      $pid = $this->_getParam("pid", null);
-     $user = new user($pid);
-     if (!$this->isAllowed("view", $user)) return;
      
+     $user = new user($pid);
+     if (is_null($pid))	{ // if pid is null, action is actually create (user is not author on an object yet)
+       if (!$this->isAllowed("create")) return;
+     } else { 		// if pid is defined, action is viewing an existing object
+       if (!$this->isAllowed("view", $user)) return;
+     }
      $this->view->user = $user;
 
      if (is_null($pid)) {
