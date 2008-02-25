@@ -28,7 +28,14 @@ class Xml_Acl extends Zend_Acl {
     //privileges by role
     foreach ($config->roles->role as $role) {
       foreach ($role->allow as $allow) {
-	$this->allow((string)$role{"name"}, (string)$allow{"resource"},
+	if ($allow == "") {
+	  if (isset($allow{"resource"}))
+	    $this->allow((string)$role{"name"}, (string)$allow{"resource"});	// anything on this resource
+	  else
+	    $this->allow((string)$role{"name"});	// anything anywhere
+	}
+	else 
+	  $this->allow((string)$role{"name"}, (string)$allow{"resource"},
 		     explode(", ", (string)$allow));
       }
       // fixme: probably should handle deny also 
