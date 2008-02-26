@@ -15,5 +15,6 @@
 <? if ($this->collection == $this->original):?>
   <b><?= $this->collection->label; ?></b>
 <? else: ?>
-  <a href="<?= $this->url(array('coll' => $link_id))?>"><?= $this->collection->label; ?></a>
+  <a href="<?= $this->url(array('controller' => 'browse', 'action' => $this->action,
+	'coll' => $link_id), '', true)?>"><?= $this->collection->label; ?></a>
 <? endif ?>
