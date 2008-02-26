@@ -1,0 +1,54 @@
+<div class="fullrecord">
+  <div id="access">
+   <h2>Access Restrictions</h2>
+      <? if ($this->acl->isAllowed($this->role, $this->etd, "edit metadata")): ?>
+	<a class="action" href="<?= $this->url(array("controller" => "edit", "action" => "rights")) ?>">edit access restrictions</a>
+      <? endif ?>
+
+   Access restrictions requested? <b><?= $this->etd->mods->embargo_request ?></b>
+
+  </div>
+
+  <div id="proquest">
+   <h2>ProQuest Submission Information</h2>
+    <? if ($this->acl->isAllowed($this->role, $this->etd, "edit metadata")): ?>
+      <a class="action" href="<?= $this->url(array("controller" => "edit", "action" => "rights")) ?>">edit copyright</a>
+    <? endif ?>
+
+   Applying for copyright? <b><?= $this->etd->mods->copyright ?></b>
+  </div>
+
+  <div id="contact">
+    <h2>Contact information</h2>
+   <? if ($this->acl->isAllowed($this->role, "user", "edit")): ?>
+      <a class="action" href="<?= $this->url(array("controller" => "user", "action" => "edit",
+		"pid" => $this->etd->authorInfo->pid), '', true) ?>">edit contact information</a>
+    <? endif ?>
+
+   
+ <? /* fixme: need a shorter version of this; split out user view into partials? */ ?>
+   <?//=  $this->render('user/view.phtml'); ?>
+
+   <? $user =  $this->etd->authorInfo->mads; ?>
+   
+   <? if (isset($user->current)): ?>
+ <p><u>current contact information:</u></p>
+    <p><b>current address</b> (valid as of <?= $user->current->date ?>)</p>
+    <? $this->address = $user->current->address; ?>
+    <?= $this->render("user/address.phtml"); ?>
+
+    <p><b>current phone:</b> <?= $user->current->phone ?></p>
+<p><b>current email:</b> <?= $user->current->email ?>
+<? endif ?>
+
+<? if (isset($user->permanent)): ?>
+  <p><b>permanent:</b></p>
+  <p><b>address</b> (valid as of <?= $user->permanent->date ?>)</p>
+  <? $this->address = $user->permanent->address; ?>
+  <?= $this->render("user/address.phtml"); ?>
+<p><b>phone:</b> <?= $user->permanent->phone ?></p>
+<p><b>email:</b> <?= $user->permanent->email ?></p>
+<? endif ?>
+
+  </div>
+</div>
