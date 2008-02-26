@@ -127,8 +127,10 @@ class BrowseController extends Zend_Controller_Action {
        $query = "$field:$value";
      } else {
        $queryparts = array();
-       foreach (preg_split('/[ +,.-]+/ ', strtolower($_value)) as $part)
-	 array_push($queryparts, "$field:$part");
+       foreach (preg_split('/[ +,.-]+/ ', strtolower($_value), -1, PREG_SPLIT_NO_EMPTY) as $part) {
+	 if ($part != "a")	// stop words that cause solr problem
+	   array_push($queryparts, "$field:$part");
+       }
        $query = join($queryparts, '+AND+');
      }
      //       print "query is $query\n";
