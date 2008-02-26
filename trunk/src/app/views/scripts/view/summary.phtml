@@ -1,36 +1,52 @@
 <? /* summary ETD information - displayed in both full and short record views */ ?>
 
-<?= $this->etd->author() ?> 
-     <? if ($doctype = $this->etd->document_type()): ?>(<?= $doctype ?>)<? endif ?>
+<a href="<?= $this->url(array('controller' => 'browse', 'action' => 'author',
+	'value' => urlencode($this->etd->author())), '', true)?>"><?= $this->etd->author() ?></a>
+
+   <? if ($year = $this->etd->year()): ?>
+   (<a href="<?= $this->url(array('controller' => 'browse', 'action' => 'year',
+	'value' => $year), '', true)?>"><?= $year ?></a>)
+   <? endif ?>
   <br/>
+ <? if ($doctype = $this->etd->document_type()): ?><b><?= $doctype ?></b><? endif ?>
+ <? if ($num_pages = $this->etd->num_pages()): ?>(<?= $num_pages ?> pages)<? endif ?>
+   <br/>
+<b>Advisor:</b> <a href="<?= $this->url(array('controller' => 'browse', 'action' => 'committee',
+	'value' => urlencode($this->etd->advisor())), '', true)?>"><?= $this->etd->advisor() ?></a><br/>
 
-<b>Advisor:</b> <?= $this->etd->advisor() ?><br/>
-
-<b>Committee members:</b> 
-    <? foreach ($this->etd->committee() as $cm): ?>
-	 <?= $cm ?>;
+<b>Committee members:</b> <? $committee = $this->etd->committee(); ?>
+    <? foreach ($committee as $cm): ?>
+	 <a href="<?= $this->url(array('controller' => 'browse', 'action' => 'committee','value' => urlencode($cm)),
+	'', true)?>"><?= $cm ?></a><?
+    if ($cm != $committee[count($committee)-1] || count($this->etd->mods->nonemory_committee)): ?>; <? endif ?>
     <? endforeach ?>
     
-    <? // nonemory committee not yet handled in etd interface... ?>
     <? if (isset($this->etd->mods->nonemory_committee) &&
 	   isset($this->etd->mods->nonemory_committee[0]) && 
 	   isset($this->etd->mods->nonemory_committee[0]->full)): ?>
       <? foreach ($this->etd->mods->nonemory_committee as $cm): ?>
-         <?= $cm->full ?> (<?= $cm->affiliation ?>);
+         <a href="<?= $this->url(array('controller' => 'browse', 'action' => 'committee',
+  	'value' => urlencode($cm->full)),'', true)?>"><?= $cm->full ?></a> (<?= $cm->affiliation ?>);
       <? endforeach ?> 
     <? endif ?>
     <? // linebreak only after both sets of committee members ?> <br/>
       
   <b>Research Fields:</b>
-      <? $researchfields = $this->etd->researchfields(); ?>
-    <? foreach ($researchfields as $field): ?>
-    <?= $field ?> <? if ($field != $researchfields[count($researchfields)-1]): ?>; <? endif ?>
-    <? endforeach ?><br/>
+      <? $field_count = count($this->etd->mods->researchfields); ?>
+    <? for ($i = 0; $i < $field_count; $i++): ?>
+	 <? $field = $this->etd->mods->researchfields[$i]; ?>
+    <a href="<?= $this->url(array('controller' => 'browse', 'action' => 'researchfields', 'coll' => $field->id),
+	'', true)?>"><?= $field->topic ?></a><? if ($i != ($field_count - 1)): ?>; <? endif ?>
+    <? endfor ?><br/>
   <b>Keywords:</b>
     <? $keywords = $this->etd->keywords(); ?>
     <? foreach ($keywords as $keyword): ?>
-         <?= $keyword ?> <? if ($keyword != $keywords[count($keywords)-1]): ?>; <? endif ?>
+         <a href="<?= $this->url(array('controller' => 'search', 'action' => 'results',
+	'keyword' => urlencode(strtolower($keyword))),
+	'', true) ?>"><?= $keyword ?></a><? if ($keyword != $keywords[count($keywords)-1]): ?>; <? endif ?>
     <? endforeach ?><br/>
-  <b>Program:</b> <?= $this->etd->program() ?>
+  <b>Program:</b>
+	<a href="<?= $this->url(array('controller' => 'browse', 'action' => 'programs',
+	'name' => urlencode($this->etd->program())), '', true) ?>"><?= $this->etd->program() ?></a>
      <? if ($this->etd->subfield()): ?>(<?= $this->etd->subfield() ?>)<? endif ?>
      <br/>
