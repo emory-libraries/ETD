@@ -213,6 +213,7 @@ class SubmissionController extends Zend_Controller_Action {
     $etd = new etd($this->_getParam("pid"));
     if (!$this->isAllowed("submit", $etd)) return;
     
+    
     $newstatus = "submitted";
     $etd->setStatus($newstatus);
 
@@ -224,20 +225,20 @@ class SubmissionController extends Zend_Controller_Action {
 			   "success",  array("netid", $user->netid));
     
     $result = $etd->save("set status to '$newstatus'");
-    // fixme: more student-readable message here
-    $this->_helper->flashMessenger->addMessage("Record status changed to <b>$newstatus</b>; record saved at $result");
-
-    // ?
+    if ($result)
+      $this->_helper->flashMessenger->addMessage("Record status changed to <b>$newstatus</b>");
+    else 
+      $this->_helper->flashMessenger->addMessage("Error: could not submit record");
 
     $notify = new etd_notifier($etd);
-    $notify->submission();
+    $to = $notify->submission();
 
     $etd->premis->addEvent("notice",
-			   "Submission Notification sent by ETD system",
-			   "success",  array("software", "etd system"));
+				 "Submission Notification sent by ETD system",
+				 "success",  array("software", "etd system"));
     $result = $etd->save("notification event");
     
-    $this->_helper->flashMessenger->addMessage("Submission notification email sent");
+    $this->_helper->flashMessenger->addMessage("Submission notification email sent to " . implode(', ', array_keys($to)));
 
     
     // forward to .. my etds page ?
