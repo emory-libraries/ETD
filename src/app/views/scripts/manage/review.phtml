@@ -1,10 +1,7 @@
 <?/* FIXME: lots of duplication with submission/review */ ?>
-
-<? $this->acl = new Xml_Acl(); ?>
-<? $this->role = "admin"; /* fixme: where should these be set? */ ?>
-<? /* FIXME: there must be a better way to do this; split out to more partials? */ ?>
+<? $this->role = $this->etd->getUserRole($this->current_user);  ?>
 <style type="text/css">
-   p.note, a.action, #submission_status, #history {display:none; }
+   p.note, #submission_status, #history {display:none; }
 </style>
 <?=  $this->render('view/fullrecord.phtml'); ?>
 
