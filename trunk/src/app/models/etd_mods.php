@@ -144,6 +144,8 @@ class etd_mods extends mods {
 	$no_nonemory = true;
 	$newnode = $this->map['committee'][0]->domnode->cloneNode(true);
 	$newnode->appendChild($this->dom->createElementNS($this->namespaceList["mods"], "mods:affiliation"));
+	// ID attribute not used for non-emory, and duplicate IDs will make the xml invalid
+	$newnode->removeAttribute("ID");
       } else {
 	trigger_error("No committee nodes to copy! Can't add committee member", E_USER_WARNING);
 	return;
