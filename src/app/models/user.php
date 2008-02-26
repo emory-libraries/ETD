@@ -142,7 +142,8 @@ class user extends foxml {
   // user's role in relation to this object
   public function getUserRole(esdPerson $user = null) {
     if (is_null($user)) return "guest";
-    if ($user->netid == $this->rels_ext->author) return "author";
+    if (isset($this->rels_ext) && isset($this->rels_ext->author)
+	&& ($user->netid == $this->rels_ext->author)) return "author";
     else return $user->role;
   }
 
