@@ -6,7 +6,8 @@
 <? foreach ($this->collection->members as $member): ?>
    <? $link_id = str_replace("#", '', $member->id);?>
 
-  <p><a href="<?= $this->url(array('coll' => $link_id)) ?>"><?= $member->label ?></a>
+  <p><a href="<?= $this->url(array('controller' => 'browse', 'action' => $this->action,
+		'coll' => $link_id), '', true) ?>"><?= $member->label ?></a>
    <?/* category totals: only display if non-zero */?>
   <? if ($member->count): ?>
     (<?= $member->count ?>)
