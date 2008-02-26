@@ -722,3 +722,20 @@ div#edit_faculty a.remove { padding-left:20px; font-size:75%;}
 div#edit_faculty span.dept { float:right; font-size:80%;}
 
 table#nonemory_list th { font-size:85%; text-align:left; }
+
+
+p#submit_warning { 
+  border: 2px solid #d70d0d;  /* darkish red */
+  padding: 4px;
+  background-color: #efefef; /* light grey */
+}
+
+span#exclamation { 
+  color:#d70d0d;
+ font-size:40pt;
+ font-family:Times;
+ font-weight:bold;
+ width:15px;
+ float:left;
+ padding-left:2px; padding-right:2px;
+}
