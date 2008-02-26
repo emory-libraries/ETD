@@ -164,10 +164,18 @@ class BrowseController extends Zend_Controller_Action {
    public function programsAction() {
      $skos = new DOMDocument();
      $skos->load("../config/programs.xml");   // better place, better way to initialize?
-     $request = $this->getRequest();
-     $coll = $request->getParam("coll", "programs");
 
-     $programs = new programs($skos, "#$coll");
+     // optional name parameter - find id by full name
+     $name = $this->_getParam("name", null);
+     if (is_null($name)) {
+       $coll = $this->_getParam("coll", "programs");
+       $coll = "#$coll";
+     } else {
+       $prog = new programs($skos);
+       $coll = $prog->findIdbyLabel($name);
+     }
+
+     $programs = new programs($skos, $coll);
      $this->view->collection = $programs;
 
      $this->view->browse_mode = "program"; // fixme: singular or plural?
@@ -187,6 +195,7 @@ class BrowseController extends Zend_Controller_Action {
      $this->view->facets = $results['facet_counts']['facet_fields'];
      
      // shared view script for programs & researchfields
+     $this->view->action = "programs";
      $this->_helper->viewRenderer->setScriptAction("collection");
    }
 
@@ -197,6 +206,7 @@ class BrowseController extends Zend_Controller_Action {
      $coll = $request->getParam("coll", "researchfields");
 
      $fields = new researchfields($skos, "#$coll");
+
      $this->view->collection = $fields;
 
      $results = $fields->findEtds();
@@ -214,6 +224,7 @@ class BrowseController extends Zend_Controller_Action {
      $this->view->facets = $results['facet_counts']['facet_fields'];
 
      // shared view script for programs & researchfields
+     $this->view->action = "researchfields";
      $this->_helper->viewRenderer->setScriptAction("collection");
    }
 
