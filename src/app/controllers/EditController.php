@@ -304,15 +304,13 @@ class EditController extends Zend_Controller_Action {
 
    public function savemodsAction() {
     $pid = $this->_getParam("pid");
-    $log_message = $this->_getParam("log", "edited record information");
+    $component = $this->_getParam("component", "record information");	// what just changed
+    $log_message = "edited $component";
     $etd = new etd($pid);
     if (!$this->isAllowed($etd)) return;
 
-    
-     global $HTTP_RAW_POST_DATA;
-     $xml = $HTTP_RAW_POST_DATA;
-
-     print_r($xml);
+    global $HTTP_RAW_POST_DATA;
+    $xml = $HTTP_RAW_POST_DATA;
 
     if ($xml == "") {
       // if no xml is submitted, don't modify 
@@ -325,11 +323,11 @@ class EditController extends Zend_Controller_Action {
 	$save_result = $etd->save($log_message);
 	$this->view->save_result = $save_result;
 	if ($save_result) 
-	  $this->_helper->flashMessenger->addMessage("Saved changes");	// more info?
+	  $this->_helper->flashMessenger->addMessage("Saved changes to $component");	// more info?
 	else	// record changed but save failed for some reason
-	  $this->_helper->flashMessenger->addMessage("Could not save changes");
+	  $this->_helper->flashMessenger->addMessage("Could not save changes to $component");
       } else {
-	$this->_helper->flashMessenger->addMessage("No changes made");
+	$this->_helper->flashMessenger->addMessage("No changes made to $component");
       }
     }
 
