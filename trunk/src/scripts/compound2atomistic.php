@@ -8,6 +8,7 @@ include 'Zend/Loader.php';
 Zend_Loader::registerAutoload();
 
 require_once("api/FedoraConnection.php");
+require_once("controllers/helpers/PdfPageTotal.php");
 
 $opts = new Zend_Console_Getopt(
   array(
@@ -24,6 +25,10 @@ try {
   exit;
 }
 $pid = $opts->pid;
+if (!$pid) {
+  print "Error: please supply pid of record to convert\n";
+  exit;
+}
 $rewrite_file = $opts->urls;
 $rewrite = "";
 
@@ -72,6 +77,7 @@ require_once("etdfile.php");
 /** convert a compound (fez) emory etd object into new atomist model  */
 
 $fezetd = new FezEtd($pid);
+
 
 // map vcard to new user object
 
@@ -234,7 +240,9 @@ $newetd->mods->recordInfo->modified = $fezetd->mods->originInfo->modified;
 //  researchfields
 $fields = array();	// construct an array of id => text name
 for ($i= 0; $i < count($fezetd->mods->researchfields); $i++) {
-  $fields[$fezetd->mods->researchfields[$i]->id] = $fezetd->mods->researchfields[$i]->topic;
+  // ProQuest ids lost their leading zeroes in Fez - restore them here; should be 4 digits
+  $id = sprintf("%04u", $fezetd->mods->researchfields[$i]->id);
+  $fields[$id] = $fezetd->mods->researchfields[$i]->topic;
  }
 // set all the fields at once
 $newetd->mods->setResearchFields($fields);
@@ -351,6 +359,9 @@ foreach ($fezetd->files as $file) {
   $etdfile->file->label = $file->label;
   $etdfile->file->mimetype = $etdfile->dc->type = $file->MIMEType;
   $etdfile->dc->description = $file->ID;
+
+  // for pdf/original - set author, basic description (need same in controllers)
+
   // fixme: any other settings we can do?
 
   // add relations between objects
@@ -368,7 +379,20 @@ foreach ($fezetd->files as $file) {
     // should access as fedoraAdmin so the file can be retrieved, then re-upload
     $filename = "/tmp/" . $file->ID;
     file_put_contents($filename, $fedora->getDatastream($fezetd->pid, $file->ID));
+    if (filesize($filename) === 0) {
+      print "Error: file $filename downloaed from fedora is zero size\n";
+      // exit? skip this file?
+    }
+    
+    // while the file is locally accessible, get some information about it
+    $etdfile->setFileInfo($filename);	// set mimetype, filesize, and pages if appropriate
+    
     $etdfile->file->url = $fedora->upload($filename);
+    if ($reltype == "PDF") {
+      $pagecalc = new Etd_Controller_Action_Helper_PdfPageTotal();
+      // get page total
+      $etdfile->dc->setPages($pagecalc->pagetotal($filename));
+    }
     
     $fileid = $etdfile->save("migrating to atomistic content model from $pid");
     print "etd file object saved as $fileid\n";
@@ -377,16 +401,15 @@ foreach ($fezetd->files as $file) {
   if ($reltype != "Original") {		// no redirects for archive copy
     // print out old and new urls to be used in creating rewrite rules
     
-    /*	fixme: identifier not currently stored in etdfile object
-     if (isset($etdfile->mods->ark) && $newetd->mods->ark != "")
-      $newurl = $newetd->mods->ark;		// should be set if not in noact mode
-      else*/
-      $newurl = "view/record/pid/" . $newetd->pid;
+    if (isset($etdfile->dc->ark) && $etdfile->dc->ark != "")
+      $newurl = $etdfile->dc->ark;		// should be set if not in noact mode
+    else
+      $newurl = "file/view/pid/" . $etdfile->pid;
+    // FIXME: is this a good file url? will this change?
     
     $rewrite .= "# etd file ($reltype) 
-eserv.php?pid={$fezetd->pid}&dsID={$file->ID} 	file/view/pid/{$etdfile->pid}
+eserv.php?pid={$fezetd->pid}&dsID={$file->ID} 	$newurl
 ";
-// FIXME: new file url? will this change?
 
   }
 
@@ -396,9 +419,9 @@ eserv.php?pid={$fezetd->pid}&dsID={$file->ID} 	file/view/pid/{$etdfile->pid}
   } else {
     // adds appropriate relation and also sets etdfile sequence numbers 
     switch($reltype) {
-    case "PDF":        $result = $etd->addPdf($etdfile); break;
-    case "Original":   $result = $etd->addOriginal($etdfile); break;
-    case "Supplement": $result = $etd->addSupplement($etdfile); break;
+    case "PDF":        $result = $newetd->addPdf($etdfile); break;
+    case "Original":   $result = $newetd->addOriginal($etdfile); break;
+    case "Supplement": $result = $newetd->addSupplement($etdfile); break;
     }
   }
 
