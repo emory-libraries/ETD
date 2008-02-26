@@ -62,7 +62,8 @@ class etd_rels extends rels_ext {
     $this->xmlconfig["supplementOf"] = array("xpath" => "rdf:description/rel:isSupplementOf/@rdf:resource");
 
     // rels from user to etd
-    $this->xmlconfig["authorInfoFor"] = array("xpath" => "rdf:description/rel:isAuthorInfofor/@rdf:resource");
+    $this->xmlconfig["authorInfoFor"] = array("xpath" => "rdf:description/rel:authorInfoFor/@rdf:resource",
+					      "is_series" => true);
   }
 
     // handle special values
