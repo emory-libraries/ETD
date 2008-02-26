@@ -1,4 +1,5 @@
 <div class="fullrecord" >
+    <?=  $this->render('manage/_actions.phtml'); ?>
     <? if ($this->etd->status() != "published"): ?>
      <p class="note">This record is not published. Current status: <b><?= $this->etd->status() ?></b></p>
     <? endif ?>
@@ -19,10 +20,9 @@
   <?=  $this->render('view/summary.phtml'); ?>
 
   <h2>Abstract</h2>
-  <? // FIXME: edit links for convenience; need to check if user has permission ?>
-   	<? if ($this->acl->isAllowed($this->role, $this->etd, "edit metadata")): ?>
-  <a class="action" href="<?= $this->url(array("controller" => "edit", "action" => "abstract")) ?>">edit</a>
-     <? endif ?>
+   <? if ($this->acl->isAllowed($this->role, $this->etd, "edit metadata")): ?>
+     <a class="action" href="<?= $this->url(array("controller" => "edit", "action" => "abstract")) ?>">edit</a>
+   <? endif ?>
   <div id="abstract">
      <?= $this->etd->html->abstract ?>
   </div>
