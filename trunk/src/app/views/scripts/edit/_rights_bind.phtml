@@ -17,7 +17,7 @@
 <xf:bind nodeset="mods:note[@ID='copyright']" type="xsd:string" calculate="concat('applying for copyright? ', instance('tmp')/copyright)"/> 
 
 <xf:submission id="submission" action="<?= $this->url(array('action' => 'savemods',
-	'id' => $this->pid, "log" => "modified copyright, embargo, access rights"))?>"
+	'id' => $this->pid, "component" => "copyright, embargo, and access rights"))?>"
    method="post" />
 
 

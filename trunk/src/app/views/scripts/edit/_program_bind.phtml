@@ -31,6 +31,6 @@ and instance('programs')/skos:Collection[@rdf:about = instance('tmp')/program/de
 <xf:bind nodeset="mods:name[mods:role/mods:roleTerm='author']/mods:affiliation" required="true()"/>
 	 
 <xf:submission id="submission" action="<?= $this->url(array('action' => 'savemods',
-		'id' => $this->pid, "log" => "modified author affiliation - program"))?>"
+		'id' => $this->pid, "component" => "program"))?>"
 		method="post" />
 	 
