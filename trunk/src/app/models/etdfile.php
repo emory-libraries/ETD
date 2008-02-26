@@ -11,8 +11,10 @@ require_once("etd_rels.php");
 require_once("etd_dc.php");
 require_once("policy.php");
 
+// helper for number of pages in a pdf
+require_once("controllers/helpers/PdfPageTotal.php");
 
-class etd_file extends foxml {
+class etd_file extends foxml implements Zend_Acl_Resource_Interface {
 
   public $parent;
   public $type;
@@ -92,6 +94,27 @@ class etd_file extends foxml {
     
   }
 
+  public function setFileInfo($filename) {
+    // note: using fileinfo because mimetype reported by the browser is unreliable
+    $finfo = finfo_open(FILEINFO_MIME);	
+    $filetype = finfo_file($finfo, $filename);	
+    $this->dc->mimetype = $filetype;	// mimetype
+    if (isset($this->file))	// new record, not yet ingested into Fedora
+      $this->file->mimetype = $filetype;
+
+    /* if this is a PDF, we can get the number of pages
+       - this is especially important for pdf of dissertation,
+       but doesn't hurt for any pdf supplements
+    */
+    if ($filetype == "application/pdf") {
+      $pagecalc = new Etd_Controller_Action_Helper_PdfPageTotal();
+      $this->dc->setPages($pagecalc->pagetotal($filename));
+    }
+    
+    // since mimetype from upload info is not reliable, don't rely on that for size either
+    $this->dc->setFilesize(filesize($filename));	// file size in bytes
+  }
+
   public function setFile($filename) {
     $upload_id = $this->fedora->upload($filename);
     $this->file->url = $upload_id;
@@ -158,6 +181,27 @@ class etd_file extends foxml {
     $upload_id = $this->fedora->upload($filename);
     return $this->fedora->modifyBinaryDatastream($this->pid, "FILE", "Binary File", $mimetype, $upload_id, $message);
   }
+
+
+
+  // for Zend ACL Resource
+  public function getResourceId() {
+    // check for various types
+    
+    if ($this->parent->status() == "draft")
+      return "draft file";
+
+    if ($this->type == "original")
+      return "original file";
+    if ($this->parent->isEmbargoed())
+      return "embargoed file";
+    
+    // these are the only statuses that are relevant
+    if ($this->parent->status() == "published")
+      return "published file";
+    return "file";
+  }
+
 
 }  
 
