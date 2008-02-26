@@ -356,6 +356,13 @@ class etd extends foxml implements etdInterface {
       $this->policy->view->condition->addUser($id);
   }
 
+  // is this record embargoed?
+  public function isEmbargoed() {
+    return (strtotime($this->mods->embargo_end) > time());
+  }
+
+
+  
 
   // type should be: Original, PDF, Supplement
   protected function findFiles($type) {
@@ -572,7 +579,6 @@ class etd extends foxml implements etdInterface {
 
 
   // for Zend ACL Resource
-
   public function getResourceId() {
     if ($this->status() != "") {
       return $this->status() . " etd";
