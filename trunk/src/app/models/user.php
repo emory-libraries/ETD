@@ -10,7 +10,8 @@ require_once("mads.php");
 
 class user extends foxml {
 
-
+  public $etds;	// related etd objects
+  
   public function __construct($arg = null) {
     parent::__construct($arg);
 
@@ -22,6 +23,31 @@ class user extends foxml {
     } else {
       $this->cmodel = "user";
     }
+
+    $this->etds = array();
+
+        // FIXME: this only works if user has permissions on rels-ext...
+    if ($this->init_mode == "pid") {
+      try {
+	$this->rels_ext != null;
+      } catch  (FedoraAccessDenied $e) {
+	// if the current user doesn't have access to RELS-EXT, they don't have full access to this object
+	throw new FoxmlException("Access Denied to " . $this->pid); 
+      }
+      if (isset($this->rels_ext->authorInfoFor)) {
+	foreach ($this->rels_ext->authorInfoFor as $etd_pid) {
+	  print "pid etd_pid<br/>\n";
+	  try {
+	    $this->etds[] = new etd($etd_pid);
+	  } catch (FedoraAccessDenied $e) {
+	    print "Fedora Access Denied: " . $e->getMessage() . "<br>\n";
+	    // most users will NOT have access to the author information
+	    trigger_error("Access denied to etd $pid", E_USER_NOTICE);
+	  }
+	}
+      }
+    }
+
   }
 
   // configure additional datastreams here 
@@ -52,7 +78,17 @@ class user extends foxml {
     switch ($name) {
     case "name":
       $this->label = $this->dc->title = $value;
-      break; 
+      break;
+    case "owner":
+      // since owner attribute cannot be retrieved from Fedora via APIs, 
+      // store author's username in rels-ext as author
+      if (isset($this->rels_ext)) {
+	if (isset($this->rels_ext->author)) $this->rels_ext->author = $value;
+	else $this->rels_ext->addRelation("rel:author", $value);
+      }
+      // set ownerId property
+      parent::__set($name, $value);
+      break;
     default:
       parent::__set($name, $value); 
     }
@@ -103,7 +139,14 @@ class user extends foxml {
   }
 
 
+  // user's role in relation to this object
+  public function getUserRole(esdPerson $user = null) {
+    if (is_null($user)) return "guest";
+    if ($user->netid == $this->rels_ext->author) return "author";
+    else return $user->role;
+  }
 
+  
   
   /**  override default foxml ingest function to use arks for object pids
    */
