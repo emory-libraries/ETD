@@ -11,12 +11,13 @@
     <role name="faculty" inherits="guest"/>
 
     <role name="student" inherits="guest">
-      <allow resource="etd">submit</allow>
-      <allow resource="user">create</allow>
+      <allow resource="etd">create</allow>
     </role>
 
     <!-- a student who already has a submission should not submit another one -->
-    <role name="student with submission" inherits="guest"/>
+    <role name="student with submission" inherits="guest">
+      <allow resource="user">create</allow>
+    </role>
 
 <!-- pseudo-role with view privileges inherited by author, committee, dept. staff -->
     <role name="view_all" inherits="guest">	
