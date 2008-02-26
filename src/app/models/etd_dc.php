@@ -19,8 +19,9 @@ class etd_dc extends dublin_core {
     $this->xmlconfig["fedora_pid"] = array("xpath" => "dc:identifier[contains(., 'info:fedora')]");
 
     // fixme: will these xpaths work?
-    $this->xmlconfig["mimetype"] = array("xpath" => "dc:format[contains(., '/')]");	
-    $this->xmlconfig["filesize"] = array("xpath" => "dc:format[not(contains(., '/'))]");
+    $this->xmlconfig["mimetype"] = array("xpath" => "dc:format[contains(., '/')]");
+    // fixme: better xpath for filesize?
+    $this->xmlconfig["filesize"] = array("xpath" => "dc:format[not(contains(., '/')) and not(contains(., 'p.'))]");
     $this->xmlconfig["pages"] = array("xpath" => "dc:format[contains(., ' p.')]");
 
     
@@ -36,6 +37,7 @@ class etd_dc extends dublin_core {
 
 
   public function setArk($ark) {
+    $this->update();
     if (isset($this->ark)) {
       // is this an error? ark shouldn't change
       $this->ark = $ark;
@@ -46,10 +48,21 @@ class etd_dc extends dublin_core {
   }
 
   public function setPages($num) {
+    $this->update();
     if (isset($this->pages)) {
       $this->pages = "$num p.";
     } else {
       $this->format->append("$num p.");
+      $this->update();
+    }
+  }
+
+  public function setFilesize($num) {
+    $this->update();
+    if (isset($this->filesize)) {
+      $this->filesize = $num;
+    } else {
+      $this->format->append($num);
       $this->update();
     }
   }
