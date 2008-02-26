@@ -21,10 +21,10 @@ class ViewController extends Zend_Controller_Action {
    
    // note: copied from AdminController - consolidate?
    private function isAllowed($etd, $action) {
-     $role = $etd->getUserRole($this->user);
-     $allowed = $this->acl->isAllowed($role, $etd, $action);
+     $role = $etd->getUserRole($this->view->current_user);
+     $allowed = $this->view->acl->isAllowed($role, $etd, $action);
      if (!$allowed) {
-       $this->_helper->flashMessenger->addMessage("Error: " . $this->user->netid . " (role=" . $role . 
+       $this->_helper->flashMessenger->addMessage("Error: " . $this->view->current_user->netid . " (role=" . $role . 
 						  ") is not authorized to $action " . $etd->getResourceId());
        $this->_helper->redirector->gotoRoute(array("controller" => "auth",
 						   "action" => "denied"), "", true);
