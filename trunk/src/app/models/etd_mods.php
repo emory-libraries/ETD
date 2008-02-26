@@ -356,6 +356,11 @@ class etd_mods extends mods {
 
     // don't attempt to validate until all required fields are filled
     // (missing research fields is invalid because of the ID attribute)
+
+    $env_config = Zend_Registry::get('env-config');
+    // hide any validation errors in production
+    if ($env_config->mode == "production") libxml_use_internal_errors(true);
+    // FIXME: how should validation errors be handled properly?
     if (! $this->isValid()) {	    // xml should be valid MODS
       // error message?
       return false;
