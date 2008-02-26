@@ -35,7 +35,7 @@
     <role name="departmental staff" inherits="view_all"/>
 
     <role name="admin" inherits="view_all">
-       <allow resource="etd">edit history, edit status</allow>
+       <allow resource="etd">edit history, edit status, manage</allow>
 	<!-- workflow actions according to when they can be done -->
        <allow resource="submitted etd">review</allow>
        <allow resource="reviewed etd">approve</allow>	<!-- request changes? -->
