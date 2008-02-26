@@ -1,11 +1,10 @@
 <? /* full record view for an etd */ ?>
-    <?// $acl = Zend_Registry::get('acl'); ?>
-<? $this->acl = new Xml_Acl(); ?>
-<?// $role =  (isset($this->view->current_user)) ? $this->view->current_user->netid : "guest"; ?>
-<? $this->role = "author"; ?>
-current role: <?= $this->role ?><br/>
-resource: <?= $this->etd->getResourceId() ?><br/>
-<!-- FIXME: how to get role with regard to etd ? -->
+<? $this->role = $this->etd->getUserRole($this->current_user); ?>
+<? if (isset($this->etd->authorInfo) &&
+       $this->acl->isAllowed($this->etd->authorInfo->getUserRole($this->current_user), "user", "view")): ?>
+  <a href="<?= $this->url(array('controller' => 'user', 'action' => 'view',
+	'pid' => $this->etd->authorInfo->pid), '', true) ?>">view user info</a>
+<? endif ?>     
 
 <? if ($this->etd->status() == "draft"): ?>
   <? /* if record is still a draft, show submission progress */ ?>
