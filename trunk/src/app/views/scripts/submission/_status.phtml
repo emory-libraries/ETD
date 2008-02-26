@@ -3,10 +3,8 @@
  $etd = $this->etd; 
  $ok = "<span style='color:green'>&#x2714;</span>"; // green check mark 
  $incomplete = "<span style='color:red'>&#x2717;</span>"; // red x
-$unknown = '<font color="blue">?</font>';
 ?>
 <h2>submission status</h2>
-<? /* FIXME: should not use current_user object anymore - need author info related to etd  */ ?>
 <? if (isset($etd->authorInfo)): ?>
    <? $authorInfo_url = $this->url(array("controller" => "user", "action" => "view",
 					 "pid" => $etd->authorInfo->pid), '', true); ?>
@@ -21,11 +19,9 @@ $unknown = '<font color="blue">?</font>';
         </ul>
    <? endif ?>
  <? else: ?>
-    <? /* FIXME: this should link to creating a new user object ... */ ?>
-    <?= $unknown ?> <a href="<?= $this->url(array('controller' => 'user', 'action' => 'new',
+    <?= $incomplete ?> <a href="<?= $this->url(array('controller' => 'user', 'action' => 'new',
 			'etd' => $etd->pid), '', true) ?> ">contact information</a><br/>
  <? endif ?>
-
 
   <? if ($etd->mods->readyToSubmit()): ?>
     <?= $ok ?> thesis information<br/>
@@ -60,8 +56,6 @@ $unknown = '<font color="blue">?</font>';
   <br/>
   <?= $etd->mods->hasSubmissionAgreement() ? $ok : $incomplete; ?>
   	<a href="<?= $rights_url ?>">submission agreement</a><br/>
-
-<p><?= $unknown ?> = status unknown / not yet implemented</p>
 
    <? if ($this->acl->isAllowed($this->role, $this->etd, "submit")
 	  && $etd->readyToSubmit()): ?>
