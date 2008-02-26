@@ -30,15 +30,14 @@ class etd_notifier extends notifier {
       $this->mailaddBcc($config->email->etd->address, $config->email->etd->name);
     }
     $this->view->etd = $etd;
-
   }
 
 
   private function getEmailAddresses(etd $etd) {
     // author - send to both currnet & permanent addresses
     $name = $etd->author->mads->name->first . " " . $etd->author->mads->name->last;
-    $this->to[$etd->author->mads->current->email] = $name;
-    $this->to[$etd->author->mads->permanent->email] = $name;
+    $this->to[$etd->authorInfo->mads->current->email] = $name;
+    $this->to[$etd->authorInfo->mads->permanent->email] = $name;
 
     // advisor & committee  - look up in ESD
     $esd = new esdPersonObject();
@@ -52,17 +51,19 @@ class etd_notifier extends notifier {
       $this->cc[$person->email] = $person->fullname;
     }
 
-    // store in the view for debugging output
+    // store in the view for debugging output when in development mode
     $this->view->to = $this->to;
     $this->view->cc = $this->cc;
   }
-  
+
+  /* Note: returning "to" addresses so flash message can display more information to user */
 
   public function submission() {
     // default recipients ?
     $this->mail->setSubject("Your ETD Has Been Successfully Submitted");
     $this->setBodyHtml($this->view->render("email/submission.phtml"));
     $this->send();
+    return $this->to;
   }
 
   public function approval() {
@@ -70,6 +71,7 @@ class etd_notifier extends notifier {
     $this->mail->setSubject("Your ETD Has Been Approved By the Graduate School");
     $this->setBodyHtml($this->view->render("email/approval.phtml"));
     $this->send();
+    return $this->to;
   }
 
   public function publication() {
@@ -77,18 +79,7 @@ class etd_notifier extends notifier {
     $this->mail->setSubject("Your ETD Has Been Published in the Emory Repository");
     $this->setBodyHtml($this->view->render("email/publication.phtml"));
     $this->send();
-    
+    return $this->to;
   }
 }
 
-/* notes
-   make this an etd_notifier
-  
-   add functions for the different emails that need to get sent-- they
-   would set subject, template
-
-   $notify = new etd_notifier();
-   $notify->send_submission();
-   
-
- */
