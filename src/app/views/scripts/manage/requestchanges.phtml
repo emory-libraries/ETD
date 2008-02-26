@@ -2,6 +2,7 @@
 
 <p>A review of this record indicates that the record data should be reviewed and updated by the author. Please contact the author to inform him/her that changes need to be made before the submission process can be successfully completed.</p>
 
-<p>Author name: <i>(author's name here)</i><br/>
-email address: <i>(email address here)</i></p>
+<p><b>Author name:</b> <i><?= $this->etd->author() ?></i></p>
+<p><b>Email addresses:</b> <i><?= $this->etd->authorInfo->mads->current->email ?>,
+   	<?= $this->etd->authorInfo->mads->permanent->email ?></i></p>
 
