@@ -1,7 +1,7 @@
 <?/* left side navigation */?>
 <div id="sidenav">
 
-<? if ($this->acl->isAllowed($this->current_user, "etd", "submit")): ?>
+<? if ($this->acl->isAllowed($this->current_user, "etd", "create")): ?>
  <p><b><a
  	href="<?= $this->url(array("controller" => "submission", "action" => "start"), "", true); ?>">Submit your Thesis &gt;</a></b></p>
 <? endif ?>	
