@@ -65,7 +65,7 @@ class Etd_Controller_Action_Helper_FileUpload extends Zend_Controller_Action_Hel
 
     // file type & size are ok, no error - so handle file
     if (move_uploaded_file($fileinfo['tmp_name'], $newname)) {
-      $flashMessenger->addMessage("Successfully uploaded file.");
+      $flashMessenger->addMessage("Successfully uploaded file <b>" . $fileinfo['name'] . "</b>");
       return true;
     }
   }
