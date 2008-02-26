@@ -1,21 +1,8 @@
-<h1>Processing PDF</h1>
+process pdf... shouldn't come to this page unless there's an error...
 
-<p>information extracted from pdf</p>
-
-<? if($this->etd_info): ?>
-<div>
-<b>Title:</b> <?= $this->etd_info['title'] ?><br/>
-<b>Department:</b> <?= $this->etd_info['department'] ?> <br/>
-<b>Advisor:</b> <?= $this->etd_info['advisor'] ?> <br/>
-<b>Committee Members:</b> <?=  implode("; ", $this->etd_info['committee']) ?><br/>
-<b>Keywords:</b> <?= implode("; ", $this->etd_info['keywords']) ?><br/>
-<b>Abstract:</b> <div><?= $this->etd_info['abstract'] ?></div> 
-<b>Table of Contents:</b> <div><?= $this->etd_info['toc'] ?></div>
-<? endif ?>
-
-<hr>
-<p>raw content pulled from pdf</p>
 <pre>
-<? print_r($this->etd_info); ?>
+<?//= htmlentities($this->foxml) ?>
 </pre>
+
+
 
