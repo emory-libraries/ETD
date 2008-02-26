@@ -16,15 +16,24 @@ class SubmissionController extends Zend_Controller_Action {
     Zend_Controller_Action_HelperBroker::addPrefix('Etd_Controller_Action_Helper');
     $this->acl = Zend_Registry::get("acl");
     $this->user = $this->view->current_user;
-
-    // submit action should cover the whole controller
-    if (!$this->acl->isAllowed($this->user->role, "etd", "submit")) {
-      $this->_helper->flashMessenger->addMessage("Error: " . $this->user->netid . " (role=" . $this->user->role . 
-						 ") is not authorized to submit an etd");
-      $this->_helper->redirector->gotoRoute(array("controller" => "auth",
-      						  "action" => "denied"), "", true);
-    }
   }
+
+  // fixme: copied from admin controller
+  private function isAllowed($action, $etd = "etd") {
+    if ($etd instanceof etd)
+      $role = $etd->getUserRole($this->user);
+    else $role = $etd->role;
+    
+    $allowed = $this->acl->isAllowed($role, $etd, $action);
+     if (!$allowed) {
+       $this->_helper->flashMessenger->addMessage("Error: " . $this->user->netid . " (role=" . $role . 
+						  ") is not authorized to submit " . $etd->getResourceId());
+       $this->_helper->redirector->gotoRoute(array("controller" => "auth",
+						   "action" => "denied"), "", true);
+     }
+     return $allowed;
+   }
+
 
   public function indexAction() {
     $this->_forward("start");
@@ -32,6 +41,7 @@ class SubmissionController extends Zend_Controller_Action {
   }
    
   public function startAction() {
+    if (!$this->isAllowed("submit")) return;
     // any other info needed here?
     $this->view->title = "Begin Submission";
   }
@@ -40,6 +50,8 @@ class SubmissionController extends Zend_Controller_Action {
   // pulls information from the PDF, creates a new fedora record with associated pdf file,
   // then forwards to the view/master edit page
   public function processPdfAction() {
+    if (!$this->isAllowed("submit")) return;
+    
     $etd_info = $this->_helper->processPDF($_FILES['pdf']);
 
     // as long as title is not blank, create fedora object for user to edit
@@ -113,8 +125,6 @@ class SubmissionController extends Zend_Controller_Action {
 			       array("netid", $identity));
 	$etd->save();
 
-	$this->_helper->flashMessenger->addMessage("Saved etd to fedora with pid $pid");
-
 	// only create the etdfile object if etd was successfully created
 	// FIXME: somehow combine this logic with repeated code in FileController ?
 	$etdfile = new etd_file();
@@ -132,8 +142,6 @@ class SubmissionController extends Zend_Controller_Action {
 	//      $etdfile->rels_ext->addRelationToResource("rel:owner", $user->pid);
 	$etdfile->rels_ext->addRelationToResource("rel:isPDFOf", $etd->pid);
 	$filepid = $etdfile->save("creating record from uploaded pdf");	// save and get pid
-	$this->_helper->flashMessenger->addMessage("Saved etdfile to fedora with pid $filepid");
-	
 	
 	// add relation to etd object and save changes
 	$result = $etd->addPdf($etdfile);
@@ -192,21 +200,19 @@ class SubmissionController extends Zend_Controller_Action {
 
   public function reviewAction() {
     // double-check that etd is ready to submit?
-    $this->view->etd = new etd($this->_getParam("pid"));	// fixme: error handling if pid is not specified?
-    // probably also need user record...
-
-    $this->view->title = "final review";
+    $etd = new etd($this->_getParam("pid"));	// fixme: error handling if pid is not specified?
+    if (!$this->isAllowed("submit", $etd)) return;
     
-    if ($this->view->current_user) {
-      // don't retrieve from Fedora again if we already have it 
-      $this->view->user = $this->view->current_user;
-    }
+    $this->view->etd = $etd;
+    $this->view->title = "final review";
   }
 
   public function submitAction() {
     // fixme: double-check that etd is ready to submit
     
     $etd = new etd($this->_getParam("pid"));
+    if (!$this->isAllowed("submit", $etd)) return;
+    
     $newstatus = "submitted";
     $etd->setStatus($newstatus);
 
