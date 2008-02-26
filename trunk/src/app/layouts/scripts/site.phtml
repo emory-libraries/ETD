@@ -53,8 +53,9 @@
 
 	    </li>
 
-            <? /* if $isAdministrator */ ?>
-            <li><a href="<?= $this->url(array("controller" => "admin"), "", true)?>">Admin</a></li>
+          <? if ($this->acl->isAllowed($this->current_user, "etd", "manage")): ?>
+            <li><a href="<?= $this->url(array("controller" => "admin"), "", true)?>">Manage</a></li>
+   	  <? endif ?>
 
             <li><a href="<?= $this->url(array("controller" => "browse", "action" => "my"), "", true)  ?>">My ETDs</a></li>
 
@@ -63,7 +64,7 @@
             <li><a href="docs/id/faq#help">Help</a></li>
 
 	    <? if ($this->site_mode == "development"): ?>
-       <?= $this->render('_setrole.phtml'); ?>
+	       <?= $this->render("_setrole.phtml"); ?>
 	    <? endif ?>
          </ul>
 
