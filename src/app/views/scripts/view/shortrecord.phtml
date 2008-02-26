@@ -3,16 +3,8 @@
 <? $this->role = $this->etd->getUserRole($this->current_user); ?>
 
 <div class="listrecord">
-    <? if ($this->acl->isAllowed($this->role, $this->etd, "review")): ?>
-<a class="action" href="<?= $this->url(array('controller' => 'manage',
-		'action' => 'review', 'pid' => $this->etd->pid), '', true) ?>">review</a> <? endif ?>
-    <? if ($this->acl->isAllowed($this->role, $this->etd, "approve")): ?>
-<a class="action" href="<?= $this->url(array('controller' => 'manage',
-		'action' => 'approve', 'pid' => $this->etd->pid), '', true) ?>">approve</a> <? endif ?>
-    <? if ($this->acl->isAllowed($this->role, $this->etd, "unpublish")): ?>
-<a class="action" href="<?= $this->url(array('controller' => 'manage',
-		'action' => 'unpublish', 'pid' => $this->etd->pid), '', true) ?>">unpublish</a> <? endif ?>
-  <b><a href="<?= $this->url(array("controller" => "view",
+    <b><a href="<?= $this->url(array("controller" => "view",
     "action" => "record", "pid" => $this->etd->pid()), "", true)?>"><?= $this->etd->title() ?></a></b> <br/>
+  <?=  $this->render('manage/_actions.phtml'); ?>
   <?=  $this->render('view/summary.phtml'); ?>
 </div>
