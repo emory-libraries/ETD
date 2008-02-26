@@ -137,7 +137,6 @@ class FileController extends Zend_Controller_Action {
        // fixme: this should probably be a function of etdfile or rels
        $etdfile->rels_ext->addRelationToResource("rel:is{$relation}Of", $etd->pid);
        $filepid = $etdfile->save("adding new file");
-       $this->_helper->flashMessenger->addMessage("Saved etd file object as $filepid");
        $this->view->file_pid = $filepid;
 
 
@@ -148,21 +147,19 @@ class FileController extends Zend_Controller_Action {
        case "pdf": $result = $etd->addPdf($etdfile); break;
        case "original":   $result = $etd->addOriginal($etdfile); break;
        case "supplement": $result = $etd->addSupplement($etdfile); break;
-       default:
+       default:	
 	 trigger_warning("relation '$relation' not recognized - not adding to etd", E_USER_WARNING);
       } 
-       if ($result)
-	 $this->_helper->flashMessenger->addMessage("Added file to etd as $relation - updated at $result");
-       else 
-	 $this->_helper->flashMessenger->addMessage("Error: could not add file to etd as $relation");
+       if (!$result)	// only warn if there is a problem
+	 $this->_helper->flashMessenger->addMessage("Error: problem  associating new $relation file with your ETD record");
 
        // direct user to edit file info
-       //       $this->_helper->redirector->gotoRoute(array("controller" => "file", "action" => "edit",
-       //						   "pid" => $etdfile->pid, 'etd' => $etd->pid), '', true);
+       $this->_helper->redirector->gotoRoute(array("controller" => "file", "action" => "edit",
+       						   "pid" => $etdfile->pid, 'etd' => $etd->pid), '', true);
        
      } else {
        // upload failed (what should happen here?)  - there should be error messages from file upload failure
-       $this->_forward("addfile");
+       $this->_forward("add");
      }
    }
 
@@ -215,6 +212,7 @@ class FileController extends Zend_Controller_Action {
        } else {
 	 $this->view->save_result = $fileresult;
        }
+
        $this->_helper->viewRenderer->setScriptAction("new");
      } else {
        // problem with file - redirect somewhere?
@@ -269,9 +267,9 @@ class FileController extends Zend_Controller_Action {
        $save_result = $etdfile->save("edited file information");
        $this->view->save_result = $save_result;
        if ($save_result)
-	 $this->_helper->flashMessenger->addMessage("Saved changes");
+	 $this->_helper->flashMessenger->addMessage("Saved changes to file information");
        else 
-	 $this->_helper->flashMessenger->addMessage("No changes made");
+	 $this->_helper->flashMessenger->addMessage("No changes made to file information");
     }
 
 
@@ -281,7 +279,9 @@ class FileController extends Zend_Controller_Action {
     $this->view->xml = $etdfile->dc->saveXML();
     $this->view->title = "save file information";
 
-    // redirect to etd record... (?) or to view file record ?
+    // redirect to etd record
+    $this->_helper->redirector->gotoRoute(array("controller" => "view", "action" => "record",
+						"pid" => $etdfile->parent->pid), '', true);
    }
 
 
