@@ -54,7 +54,7 @@
 	    </li>
 
           <? if ($this->acl->isAllowed($this->current_user, "etd", "manage")): ?>
-            <li><a href="<?= $this->url(array("controller" => "admin"), "", true)?>">Manage</a></li>
+            <li><a href="<?= $this->url(array("controller" => "manage"), "", true)?>">Manage</a></li>
    	  <? endif ?>
 
             <li><a href="<?= $this->url(array("controller" => "browse", "action" => "my"), "", true)  ?>">My ETDs</a></li>
