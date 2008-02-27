@@ -53,7 +53,8 @@ class AuthController extends Zend_Controller_Action {
        $this->_flashMessenger->addMessage($message);
 
        // forward to .. ?
-       $this->_forward("index", "Index");
+       $this->_helper->redirector->gotoRoute(array("controller" => "index",
+						   "action" => "index"), "", true);
      } else {	
        $this->_flashMessenger->addMessage("Login successful");
        // find this user in ESD and save their user information
@@ -63,7 +64,8 @@ class AuthController extends Zend_Controller_Action {
        $this->view->current_user = $current_user;
        
        // fixme: where should this forward to ... ?
-       $this->_forward("index", "Index");
+       $this->_helper->redirector->gotoRoute(array("controller" => "index",
+						   "action" => "index"), "", true);
      }
    }
 
@@ -88,7 +90,9 @@ class AuthController extends Zend_Controller_Action {
      $this->_flashMessenger->addMessage("Logout successful");
 
      // forward to ... ?
-     $this->_forward("index", "Index");
+     $this->_helper->redirector->gotoRoute(array("controller" => "index",
+						 "action" => "index"), "", true);
+
    }
 
    public function deniedAction() {
