@@ -70,8 +70,10 @@ Zend_Db_Table_Abstract::setDefaultAdapter($esd);
 
 require_once("fezetd.php");
 require_once("fezuser.php");
+require_once("FezStatistics.php");
 require_once("etd.php");
 require_once("etdfile.php");
+require_once("models/stats.php"); 	// etd08 stats
 
 
 /** convert a compound (fez) emory etd object into new atomist model  */
@@ -286,9 +288,12 @@ if ($fezetd->mods->genre == "Dissertation") {
 // set status & load appropriate policies
 $newetd->setStatus($fezetd->status);
 if ($newetd->status() == "published" &&
-    $embargo_requested && $embargo_end) { 
+    $embargo_requested && $embargo_end) {
+  $embargoed = true;
   // set embargo end date as condition in published policy rule
   $newetd->policy->published->condition->embargo_end = $embargo_end;
+} else {
+  $embargoed = false;
 }
 
 if ($opts->noact) {
@@ -333,6 +338,7 @@ if ($opts->noact) {
 $newetd->rels_ext->addRelationToResource("rel:hasAuthorInfo", $user->pid);
 
 
+$filepids = array();
 
 $filecount = 0;
 // generate etdFile objects based on these
@@ -357,7 +363,7 @@ foreach ($fezetd->files as $file) {
   if (isset($ownerid)) $etdfile->owner = $ownerid;
 
   $etdfile->file->label = $file->label;
-  $etdfile->file->mimetype = $etdfile->dc->type = $file->MIMEType;
+  //  $etdfile->file->mimetype = $etdfile->dc->type = $file->MIMEType;
   $etdfile->dc->description = $file->ID;
 
   // for pdf/original - set author, basic description (need same in controllers)
@@ -366,7 +372,24 @@ foreach ($fezetd->files as $file) {
 
   // add relations between objects
   $etdfile->rels_ext->addRelationToResource("rel:is" . $reltype . "Of", $newetd->pid);
+
+  // FIXME: filename should probably be stored somewhere in the dublin core...
+
+  // get the binary file from the current object
+  //if we just refer to the files at the public url, they may be inaccessible/embargoed
   
+  // should access as fedoraAdmin so the file can be retrieved, then re-upload
+  $filename = "/tmp/" . $file->ID;
+
+  // this script should run as FedoraAdmin so it can pull inactive (embargoed) datastreams without a problem
+  file_put_contents($filename, $fedora->getDatastream($fezetd->pid, $file->ID));
+  if (filesize($filename) === 0) {
+    print "Error: file $filename downloaded from fedora is zero size\n";
+    // exit? skip this file?
+  } 
+  
+  // while the file is locally accessible, get some information about it
+  $etdfile->setFileInfo($filename);	// set mimetype, filesize, and pages if appropriate
   
   // ingest into fedora
   if ($opts->noact) {
@@ -374,29 +397,19 @@ foreach ($fezetd->files as $file) {
     $etdfile->pid = "test:etdfile" . ++$filecount;   
     $etdfile->saveXMLtoFile("tmp/" . $file->ID . ".xml");
   } else {
-    //if we just refer to the files at the public url, they may be inaccessible/embargoed
-
-    // should access as fedoraAdmin so the file can be retrieved, then re-upload
-    $filename = "/tmp/" . $file->ID;
-    file_put_contents($filename, $fedora->getDatastream($fezetd->pid, $file->ID));
-    if (filesize($filename) === 0) {
-      print "Error: file $filename downloaed from fedora is zero size\n";
-      // exit? skip this file?
-    }
-    
-    // while the file is locally accessible, get some information about it
-    $etdfile->setFileInfo($filename);	// set mimetype, filesize, and pages if appropriate
     
     $etdfile->file->url = $fedora->upload($filename);
-    if ($reltype == "PDF") {
+    /*  // included in setFileInfo
+     if ($reltype == "PDF") {
       $pagecalc = new Etd_Controller_Action_Helper_PdfPageTotal();
       // get page total
       $etdfile->dc->setPages($pagecalc->pagetotal($filename));
-    }
+      }*/
     
     $fileid = $etdfile->save("migrating to atomistic content model from $pid");
     print "etd file object saved as $fileid\n";
   }
+  $filepids[$file->ID] = $etdfile->pid;	// old filename -> new pid
 
   if ($reltype != "Original") {		// no redirects for archive copy
     // print out old and new urls to be used in creating rewrite rules
@@ -427,6 +440,15 @@ eserv.php?pid={$fezetd->pid}&dsID={$file->ID} 	$newurl
 
 
 }
+
+
+/* Need to make sure all the file objects get their policies update.
+   The easiest way is through the etd (which etd file objects have all been added to)
+*/
+ print "updating policy rules for etd files according to etd status\n";
+// etd files start out with draft policies; setting to draft so they will be removed if necessary
+$newetd->setStatus("draft");
+$newetd->setStatus($fezetd->status);
 
 
 // copy premis events, updating to new format
@@ -472,6 +494,9 @@ foreach (array_reverse($fezetd->premis->event) as $event) {
     $event_type = "unknown";
   }
 
+  // store publication date  -  needed to filter access statistics
+  if ($action == "Published")  $publish_date = $event->date;
+
   // agent - handle non-user actions
   switch($agent) {
   case "ETD System":
@@ -503,6 +528,38 @@ if ($rewrite_file) {
   file_put_contents($rewrite_file, $rewrite, FILE_APPEND);
 }
 
+// sqlite db for statistics data
+$config = new Zend_Config_Xml('../config/statistics.xml', $env_config->mode);
+$db = Zend_Db::factory($config);
+Zend_Registry::set('stat-db', $db);	
+
+$statDB = new StatObject();
+
+// migrate access statistics for record
+// only include accesses after a record is published
+if (isset($publish_date)) {
+  print "migrating access statistics\n";
+  $fezStatsObject = new FezStatisticsObject();
+  $fezStats = $fezStatsObject->findAllByPid($pid, $publish_date);
+  foreach ($fezStats as $stat) {
+    if ($stat->dsid) {
+      $type = "file";
+      $statpid = $filepids[$stat->dsid];	// get new etd file pid based on old filename
+    } else {
+      $type = "abstract";
+      $statpid = $newetd->pid;			// new etd record
+    }
+
+    // FIXME: date format?
+    $data = array("ip" => $stat->ip, "date" => $stat->request_date, "pid" => $statpid,
+		  "type" => $type, "country" => $stat->country_code);
+    if ($opts->noact)  print "Not inserting {$stat->ip} into db - $type view of $pid ({$stat->country_code})\n"; 
+    else $statDB->insert($data);
+    }
+  
+} else {
+  print "record is not published - not migrating access statistics\n";
+}
 
 
 ?>
