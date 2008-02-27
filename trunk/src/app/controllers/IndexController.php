@@ -8,6 +8,7 @@ class IndexController extends Zend_Controller_Action {
 
    public function init() {
      $this->_flashMessenger = $this->_helper->getHelper('FlashMessenger');
+     $this->view->messages = $this->_helper->flashMessenger->getMessages();
      $this->initView();
    }
 	public function indexAction() {	
