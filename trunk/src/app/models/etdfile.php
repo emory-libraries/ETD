@@ -98,7 +98,7 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
     // note: using fileinfo because mimetype reported by the browser is unreliable
     $finfo = finfo_open(FILEINFO_MIME);	
     $filetype = finfo_file($finfo, $filename);	
-    $this->dc->mimetype = $filetype;	// mimetype
+    $this->dc->setMimetype($filetype);	// mimetype
     if (isset($this->file))	// new record, not yet ingested into Fedora
       $this->file->mimetype = $filetype;
 
@@ -137,8 +137,16 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
     // if there is more than one of this type of file, add a number
     if (count($this->parent->{$this->type . "s"}) > 1) $filename .= $this->rels_ext->sequence;
 
-    // add second half of mime-type as file extension (FIXME: will this always work?
-    $filename .= "." . preg_replace("|^.*/|", "", $this->dc->mimetype);
+    // determine file extension based on mimetype  (FIXME: incomplete list?)
+    
+    switch ($this->dc->mimetype) {
+    case "application/pdf":  $ext = ".pdf"; break;
+    case "application/msword":  $ext = ".doc"; break;
+      
+    default:
+      $ext = "";
+    }
+    $filename .= $ext;
 
     return $filename;
   }
