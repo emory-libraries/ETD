@@ -158,6 +158,13 @@ class etd extends foxml implements etdInterface {
     }
 
 
+    // save files (if changed), since they may not get saved otherwise
+    $files = array_merge($this->pdfs, $this->supplements, $this->originals);
+    foreach ($files as $file) {
+      $file->save("policies modified when setting etd status to $new_status");
+    }
+
+
     // for all - store the status in rels-ext
     $this->rels_ext->status = $new_status; 
   }
@@ -165,15 +172,19 @@ class etd extends foxml implements etdInterface {
   /* convenience functions to add and remove policies in etd and related objects all at once
       note: the only rule that may be added and removed to original/archive copy is draft
    */
-  
   private function addPolicyRule($name) {
     $objects = array_merge(array($this), $this->pdfs, $this->supplements);
     if ($name == "draft") $objects = array_merge($objects, $this->originals);
     foreach ($objects as $obj) {
       if (!isset($obj->policy->{$name}))	// should not be the case, but doesn't hurt to check
 	$obj->policy->addRule($name);
+
       // special case - owner needs to be specified for draft rule
       if ($name == "draft") $obj->policy->draft->condition->user = $this->owner;
+
+      // another special case: if embargo end is already set, put that date in publish policy as well
+      if ($name == "published" && $this->mods->embargo_end) 
+	$obj->policy->published->condition->embargo_end = $this->mods->embargo_end;
     }
   }
 
@@ -192,7 +203,7 @@ class etd extends foxml implements etdInterface {
       $this->mods->pages = $this->mods->pages + $etdfile->dc->pages;
     else
       $this->mods->pages = $etdfile->dc->pages;
-    
+
     return $this->addFile($etdfile, "PDF");
   }
   public function addOriginal(etd_file $etdfile) { return $this->addFile($etdfile, "Original");  }
@@ -201,19 +212,25 @@ class etd extends foxml implements etdInterface {
   // set the relations between this etd and a file object (original, pdf, supplement)
   private function addFile(etd_file $etdfile,  $relation) {
     switch ($relation) {
-    case "PDF": $count = count($this->pdfs); break;
-    case "Original": $count = count($this->originals); break;
-    case "Supplement": $count = count($this->supplements); break;
+    case "PDF": 
+    case "Original":
+    case "Supplement":
+      $array_name = strtolower($relation) . "s";	//pdfs, originals, supplements
+      break;
     }
+    $count = count($this->{$array_name});
+    
     // if there is already a file of this type, set the number accordingly
     if ($count) {
       $etdfile->rels_ext->sequence = $count + 1;
       $etdfile->save("setting sequence number");
     }
 
-
     // etd is related to file
     $this->rels_ext->addRelationToResource("rel:has{$relation}", $etdfile->pid);
+
+    // add the etd file to the appropriate array in this object
+    $this->{$array_name}[] = new etd_file ($etdfile->pid);
 
     // fixme: need better error handling here...
     return $this->save("adding relation to file ($relation) " . $etdfile->pid);
@@ -233,7 +250,9 @@ class etd extends foxml implements etdInterface {
     case "supplement"; $relation = "hasSupplement"; break;
     }
 
-    $this->rels_ext->removeRelation("rel:$relation", $etdfile->pid);
+    //  NOTE: this doesn't seem to be necessary, and generates a notice about not finding relation
+    //  - perhaps Fedora removes relations when purging objects?
+    //    $this->rels_ext->removeRelation("rel:$relation", $etdfile->pid);
 
     
   }
