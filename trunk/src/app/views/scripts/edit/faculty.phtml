@@ -42,13 +42,17 @@ function addNonemory() {
 
 
 <h1>Edit Advisor & Committee Members</h1>
-<p><?= $this->etd->title() ?> </p>
+<p><b><?= $this->etd->title() ?></b></p>
 
 
-<p><i>need instructions here...</i><br/>
-begin typing and select from the list;<br/>
-drag committee members to re-arrange order<br/>
-add non-Emory committee members on record page (link?)</p>
+<p>Your PDF submission indicates that the following faculty members
+comprise your advisor and committee.  If any of the selections are
+incorrect, click on remove and reenter the name in the box provided.
+The name should appear from the suggestor, but if you cannot find the
+correct name on the list, enter the name in Non-Emory Committee
+Members below.  You may rearrange the order of your committee by
+clicking on and dragging the names.</p>
+
 
 <div id="edit_faculty">
 <? $advisor = $this->etd->mods->advisor; ?>

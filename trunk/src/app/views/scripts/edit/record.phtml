@@ -3,6 +3,7 @@
 <? /* fixme: figure out some way to hide this until form is loaded */ ?>
 <?= $this->xformOutput("Title", "mods:titleInfo/mods:title"); ?><br/>
 
+<p>You may change the way your name is displayed by the ETD system here.</p>
 <? /* FIXME: should author name be editable ? */ ?> 
  <xf:group ref="mods:name[mods:role/mods:roleTerm='author']">
     <?=  $this->render('edit/_mods_name.phtml'); ?>
@@ -12,6 +13,7 @@
  <? /* note: advisor & committee members are edited on a separate form */ ?>
  <? /* note: title, abstract, & table of contents are edited on a separate form */ ?>
 
+ <p>Please enter the language in which your thesis or dissertation is written.</p>
   <xf:select1 ref="mods:language/mods:languageTerm[@type='text']">
    <xf:label>language</xf:label>
    <xf:itemset nodeset="instance('languages')/language">
@@ -21,6 +23,8 @@
  <br/>
 
  <?/*  umi/proquest research fields edited separately */ ?>
+
+  <p>Please enter keywords to describe your work to assist researchers in locating your document.  You may add as many keywords as you wish.</p>
   <xf:repeat id="repeat-keywords" nodeset="mods:subject[@authority='keyword']">
    <?= $this->xformText("keyword", "mods:topic"); ?>
    <br/>
@@ -40,6 +44,7 @@
     </xf:trigger>
 <br/>
 
+    <p>Please enter the degree you will be receiving this submission period.</p>
   <xf:select1 ref="mods:extension/etd:degree/etd:name">
    <xf:label>degree</xf:label>
    <xf:itemset nodeset="instance('degrees')/level/degree">
