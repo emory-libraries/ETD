@@ -39,7 +39,15 @@ function updatePrimary(listitem) {
 }
 </script>     
 
-<p><b>Edit Research Fields</b></p>
+<h1>Edit Research Fields</h1>
+<p><b><?= $this->etd->title() ?></b></p>
+
+<p>Proquest requests that you supply at least one and up to a maximum
+of three research fields which describe the field for your work.
+Choose each (numbered) field below by clicking on it. Your primary
+field should be chosen first but you can rearrange the order of the
+fields by dragging and dropping your choices listed at the top of the
+page.</p>
 
 <form method="post" id="fields_form"  action="<?= $this->url(array("action" => "saveResearchfield"))?>">
   <ul id="user_fields">

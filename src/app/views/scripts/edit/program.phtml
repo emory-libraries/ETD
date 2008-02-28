@@ -1,4 +1,13 @@
-<p>
+
+<p>Your Emory record indicates that you are currently enrolled in the
+following Graduate Program (or undergraduate department)</p>
+
+<p>If this information is incorrect, reenter your program or
+department below.  Choose Graduate or Undergraduate, then Humanities,
+Natural/Health Sciences or Social Sciences, and then your particular
+program/department.</p>
+
+<p>  
   <?= $this->xformOutput("Department/Graduate Program",
 			 "instance('main')/mods:name[mods:role/mods:roleTerm='author']/mods:affiliation"); ?>
 </p>
@@ -9,7 +18,7 @@
 
 <br/>
  <xf:select1 ref="instance('tmp')/program/level1">
-   <xf:label>program</xf:label>
+   <xf:label>Division</xf:label>
    <xf:itemset nodeset="instance('tmp')/none|instance('programs')/skos:Collection[@rdf:about = '#programs']/skos:member">
    <xf:label ref="instance('programs')/skos:Collection[@rdf:about = current()/@rdf:resource]/rdfs:label"/>
    <xf:value ref="@rdf:resource"/>
@@ -23,7 +32,7 @@
   <br/>
 
  <xf:select1 ref="instance('tmp')/program/level2">
-   <xf:label>division</xf:label>
+   <xf:label>Discipline</xf:label>
    <xf:itemset nodeset="instance('tmp')/none|instance('programs')/skos:Collection[@rdf:about = instance('tmp')/program/level1]/skos:member">
    <xf:label ref="instance('programs')/skos:Collection[@rdf:about = current()/@rdf:resource]/rdfs:label"/>
    <xf:value ref="@rdf:resource"/>
@@ -37,7 +46,7 @@
   <br/>
   
  <xf:select1 ref="instance('tmp')/program/department">
-   <xf:label>department</xf:label>
+   <xf:label>Program/Department</xf:label>
    <xf:itemset nodeset="instance('tmp')/none|instance('programs')/skos:Collection[@rdf:about = instance('tmp')/program/level2]/skos:member">
    <xf:label ref="instance('programs')/skos:Collection[@rdf:about = current()/@rdf:resource]/rdfs:label"/>
    <xf:value ref="@rdf:resource"/>
@@ -57,7 +66,7 @@
   <xf:group ref="instance('tmp')/program/subfield">
   
  <xf:select1 ref=".">
-   <xf:label>subfield</xf:label>
+   <xf:label>Subfield</xf:label>
    <xf:itemset nodeset="instance('tmp')/none|instance('programs')/skos:Collection[@rdf:about = instance('tmp')/program/department]/skos:member">
    <xf:label ref="instance('programs')/skos:Collection[@rdf:about = current()/@rdf:resource]/rdfs:label"/>     
    <xf:value ref="@rdf:resource"/>
