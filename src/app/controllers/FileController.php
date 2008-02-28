@@ -116,8 +116,11 @@ class FileController extends Zend_Controller_Action {
        $etdfile = new etd_file();
        $etdfile->owner = $this->view->current_user->netid;
        $etdfile->label = $fileinfo['name'];
+       // FIXME: if pdf or original, set reasonable defaults for author, description
+       
+       $etdfile->setFileInfo($filename);	// set mimetype, filesize, and pages if appropriate       
 
-       $finfo = finfo_open(FILEINFO_MIME);	// fixme: pull out into a helper?
+       /*       $finfo = finfo_open(FILEINFO_MIME);	// fixme: pull out into a helper?
        if ($finfo) {
 	 $filetype = finfo_file($finfo, $filename);	// don't trust mimetype reported by the browser
 	 $etdfile->dc->format[0] = $filetype;	// $fileinfo['type'];	// mimetype
@@ -130,7 +133,7 @@ class FileController extends Zend_Controller_Action {
        }
        // since mimetype from upload info is not reliable, don't rely on that for size either
        $etdfile->dc->setFilesize(filesize($filename));	// file size in bytes
-
+       */
        $etdfile->setFile($filename);	// upload and set ingest url to upload id
 
        // add relation to etd
@@ -138,7 +141,6 @@ class FileController extends Zend_Controller_Action {
        $etdfile->rels_ext->addRelationToResource("rel:is{$relation}Of", $etd->pid);
        $filepid = $etdfile->save("adding new file");
        $this->view->file_pid = $filepid;
-
 
 
        //FIXME: not working - not getting added to etd
@@ -181,8 +183,9 @@ class FileController extends Zend_Controller_Action {
      $filename = $tmpdir . "/" . $fileinfo['name'];
      $uploaded = $this->_helper->FileUpload($fileinfo, $filename);
      if ($uploaded) {
+       $etdfile->setFileInfo($filename);	// set mimetype, filesize, and pages if appropriate       
 
-       $finfo = finfo_open(FILEINFO_MIME);	// fixme: pull out into a helper?
+       /*       $finfo = finfo_open(FILEINFO_MIME);	// fixme: pull out into a helper?
        if ($finfo) {
 	 $filetype = finfo_file($finfo, $filename);	// don't trust mimetype reported by the browser
 	 $etdfile->dc->mimetype = $filetype;		 // mimetype 
@@ -201,9 +204,10 @@ class FileController extends Zend_Controller_Action {
 
 	 }
 
-       }
+	 }
        // since mimetype from upload info is not reliable, don't rely on that for size either
        $etdfile->dc->setFilesize(filesize($filename));	// file size in bytes
+       */
        
        $fileresult = $etdfile->updateFile($filename, $filetype, "new version of file");
        $xmlresult = $etdfile->save("modified metadata for new version of file");
@@ -290,13 +294,22 @@ class FileController extends Zend_Controller_Action {
      $etdfile = new etd_file($pid);
      if (!$this->isAllowed($etdfile, "remove")) return;
 
-     $this->view->etd_pid = $etdfile->parent->pid;
+     $etd_pid = $etdfile->parent->pid;
      $etdfile->parent->removeFile($etdfile);	// remove from parent etd
      
      $result = $etdfile->purge("removed by user");
-     $this->_helper->flashMessenger->addMessage("removed file " . $etdfile->label);
-     
+     if ($result) {	// fixme: filename?
+       $this->_helper->flashMessenger->addMessage("successfully removed file <b>" . $etdfile->label . "</b>");
+     } else {
+       $this->_helper->flashMessenger->addMessage("Error: could not remove file <b>" . $etdfile->label . "</b>");
+     }
 
+     // redirect to etd record
+     $this->_helper->redirector->gotoRoute(array("controller" => "view", "action" => "record",
+						 "pid" => $etd_pid), '', true);
+
+     // shouldn't be necessary ...
+     $this->view->etd_pid = $etd_pid;
      $this->view->title = "remove file";
      $this->view->result = $result;
    }

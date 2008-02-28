@@ -129,12 +129,16 @@ class SubmissionController extends Zend_Controller_Action {
 	// FIXME: somehow combine this logic with repeated code in FileController ?
 	$etdfile = new etd_file();
 	$etdfile->label = "Dissertation";	// FIXME: what should this be?
-	$etdfile->file->mimetype = $etdfile->dc->format[0] = "application/pdf";
+	// FIXME: set reasonable defaults for author, description
+	$etdfile->setFileInfo($etd_info['pdf']);	// set mimetype, filesize, and pages if appropriate
+	
+	//	$etdfile->file->mimetype = $etdfile->dc->format[0] = "application/pdf";
 	// filename is stored in etd_info array as 'pdf'
-	$etdfile->dc->setFilesize(filesize($etd_info['pdf']));	// file size in bytes
+	//	$etdfile->dc->setFilesize(filesize($etd_info['pdf']));	// file size in bytes
+	//	$etdfile->dc->setPages($this->_helper->PdfPageTotal($etd_info['pdf']));
+
 	$etdfile->setFile($etd_info['pdf']);	// upload and set ingest url to upload id
 
-	$etdfile->dc->setPages($this->_helper->PdfPageTotal($etd_info['pdf']));
 	
 	// fixme: any other settings we can/should do?
 	
