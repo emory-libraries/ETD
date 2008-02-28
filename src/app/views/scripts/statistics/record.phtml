@@ -1,0 +1,64 @@
+<h1>Access Statistics</h1>
+
+<p>
+<a href="<?= $this->url(array('controller' => 'view', 'action' => 'record',
+	'pid' => $this->etd->pid), '', true) ?>"><?= $this->etd->title() ?></a>,
+   <?= $this->etd->author() ?> (<?= $this->etd->year() ?>)
+</p>
+
+<table class="statistics">
+ <tr>
+   <td class="label"></td>
+    <th class="abstract">Abstracts</th>
+    <th class="download">Downloads</th>
+ </tr>
+<? if ($this->total['abstract'] == 0 && $this->total['file'] == 0): ?>
+  <tr><td colspan="4">This record has not been viewed during this period.</td></tr>
+<? else: ?>  
+  <tr>
+     <td class="caption" colspan="4">Abstract views and document downloads <? /* fixme: duration */ ?></td>
+  </tr>
+  <tr>
+	   <th>Views</th>
+	   <td class="count abstract"><?= $this->total['abstract'] ?></td>
+	   <td class="count download"><?= $this->total['file'] ?></td>
+	   <td>
+  	       <div class="abstractviews" style="width:<?= $this->total['abstract'] ?>px"><?= $this->total['abstract'] ?></div> 
+  	       <div class="downloads"
+	    style="width:<?= $this->total['file'] ?>px"><?= $this->total['file'] ?></div>
+	   </td>
+        </tr>
+
+<? endif ?>
+
+ <? /* country list  */ ?>
+    <tr>
+    <td colspan="4" class="caption">Views by country <? /* $date? */?></td>
+    </tr>
+    <? if (count($this->country) == 0): ?>
+     <tr>
+      <td colspan="4">No views during this period</td>
+     </tr>
+    <? else: ?>
+	<? foreach ($this->country as $country): ?>
+	<tr>
+	  <td>
+	     <img src="<?= $this->linkTo("images/flags/" . $country['country'] . ".gif") ?>" style="border:1px solid black"/>
+	     <?/* FIXME: should be image helper, but it thinks these images don't exist */ ?>
+	     
+	     <?= $this->countries->$country['country'] /* FIXME: country name instead of code */ ?>
+ 	  </td>
+	  <td class="count abstract"><?= $country['abstract'] ?></td>
+	  <td class="count download"><?= $country['file'] ?></td>
+	  <td>
+  	       <div class="abstractviews" style="width:<?= $country['abstract'] ?>px">
+		<?= $country['abstract'] ?></div> 
+  	       <div class="downloads"
+	    style="width:<?= $country['file'] ?>px">
+	     <?= ($country['file']) ? $country['file'] : 0 ?></div>
+	  </td>
+	</tr>								
+       <? endforeach ?>
+   <? endif ?>
+	     <? /* end country */ ?>
+</table>
