@@ -1,19 +1,32 @@
+<p>Welcome!</p>
+
+<p>To begin the submission process, please upload the PDF of your
+dissertation.  Click on "Browse" to locate your document and then
+"Begin" to start the process.</p>
+
+
+<p>Please note that the system will be scanning your PDF document and
+extracting certain information from it.  As a result, it is important
+that your PDF document follow the format for theses and dissertations
+given by the Graduate School so that the pages are in the proper order
+(i.e., Circulation Agreement, Approval Sheet, Dissertation/Thesis
+Abstract Cover Sheet, Abstract, etc.). </p>
+
+<p>Any information automatically extracted from the PDF can be edited
+later in the process, if necessary.</p>
+
 <form name="submission" method="post" enctype="multipart/form-data"
     action="<?= $this->url(array("action" => "processPdf"))?>">
 
-  <p>Please upload the PDF of your dissertation.</p>
-
 <?//= $this->formHidden("MAX_FILE_SIZE", "3000000"); ?> 
-  <p><?= $this->formFile("pdf"); ?></p>
+  <p><b>PDF</b> <?= $this->formFile("pdf"); ?></p>
   <?= $this->formSubmit("Begin", "Begin"); ?>
 
 </form>
 
-<p><b>(instructions/notes/help should go here)</b></p>
-<p>document should be in order/format specified by graduate school....  (circulation agreement, etc.)</p>
-<p>note about multiple pdfs - upload first only here... </p>
 
 
+<? if ($this->site_mode == "development"): ?>
 <hr/>
 
 <form name="submission" method="post" enctype="multipart/form-data"
@@ -26,3 +39,4 @@
   <?= $this->formSubmit("Submit", "Submit"); ?>
 
 </form>
+<? endif ?>
