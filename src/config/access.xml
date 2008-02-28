@@ -38,7 +38,7 @@
        <allow resource="etd">edit history, edit status, manage</allow>
 	<!-- workflow actions according to when they can be done -->
        <allow resource="submitted etd">review</allow>
-       <allow resource="reviewed etd">approve</allow>	<!-- request changes? -->
+       <allow resource="reviewed etd">approve, request changes</allow>
        <allow resource="approved etd">publish</allow>	<!-- not technically done by admin... -->
        <allow resource="published etd">unpublish</allow>
 
