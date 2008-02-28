@@ -35,6 +35,16 @@ class etd_dc extends dublin_core {
     return (in_array($name, $this->fields) || in_array($name, $this->additional_fields));
   }
 
+  public function setMimetype($type) {
+    $this->update();
+    if (isset($this->mimetype)) {
+      $this->mimetype = $type;
+    } else {
+      $this->format->append($type);
+      $this->update();
+    }
+  }
+
 
   public function setArk($ark) {
     $this->update();
