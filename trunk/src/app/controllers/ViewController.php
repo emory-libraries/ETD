@@ -3,6 +3,7 @@
 /* Require models */
 require_once("models/etd.php");
 require_once("helpers/ProcessPDF.php");
+require_once("models/stats.php");
 
 class ViewController extends Zend_Controller_Action {
 
