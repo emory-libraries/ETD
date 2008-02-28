@@ -22,7 +22,7 @@ class SubmissionController extends Zend_Controller_Action {
   private function isAllowed($action, $etd = "etd") {
     if ($etd instanceof etd)
       $role = $etd->getUserRole($this->user);
-    else $role = $etd->role;
+    else $role = $this->user->role;
     
     $allowed = $this->acl->isAllowed($role, $etd, $action);
      if (!$allowed) {
@@ -60,17 +60,12 @@ class SubmissionController extends Zend_Controller_Action {
       $etd = new etd();
       $etd->title = $etd_info['title'];
 
-      // fixme: can we rely on current_user stored in view object?
-      // user must be logged in to run this action anyway
-      $auth = Zend_Auth::getInstance();
-      if ($auth->hasIdentity()) {
-	$identity = $auth->getIdentity();
-	// use netid for object ownership and author relation
-	$etd->owner = $identity->netid;
-	$etd->rels_ext->addRelation("rel:author", $identity->netid);
-      }
+      $current_user = $this->view->current_user;
+      // use netid for object ownership and author relation
+      $etd->owner = $current_user->netid;
+      $etd->rels_ext->addRelation("rel:author", $current_user->netid);
       // set author info
-      $etd->mods->setAuthorFromPerson($identity);
+      $etd->mods->setAuthorFromPerson($current_user);
       
       $etd->abstract = $etd_info['abstract'];
       $etd->contents = $etd_info['toc'];
@@ -82,9 +77,18 @@ class SubmissionController extends Zend_Controller_Action {
       $xml = new DOMDocument();
       $xml->load("../config/programs.xml"); 
       $programs = new programs($xml);
-      $department = $programs->findLabel($this->view->etd_info['department']);
-      if ($department)
-	$etd->mods->department = $department;
+
+      // first try to use "academic plan" from ESD to set department
+      if ($current_user->academic_plan) {
+	$department = $programs->findLabel($current_user->academic_plan);
+	if ($department)
+	  $etd->mods->department = $department;
+      } elseif (isset($this->view->etd_info['department'])) {
+	// otherwise, use department picked up from the PDF (if any)
+	$department = $programs->findLabel($this->view->etd_info['department']);
+	if ($department)
+	  $etd->mods->department = $department;
+      }
 
       // match faculty names found in the PDF to persons in ESD
       $esd = new esdPersonObject();
