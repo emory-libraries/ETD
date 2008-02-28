@@ -9,7 +9,7 @@
 <? if ($this->etd->status() == "draft"): ?>
   <? /* if record is still a draft, show submission progress */ ?>
 <div id="submission_status">
-  <?=  $this->render('submission/_status.phtml'); ?>
+  <?=  $this->render('submission/_status.phtml') ?>
 </div>
 
  <div id="submission">
@@ -17,6 +17,7 @@
 
   <?=  $this->render('view/fullrecord.phtml'); ?>
 <div class="fullrecord">
+    <?=  $this->render('view/_statistics.phtml'); ?>
   <?=  $this->render('view/_history.phtml'); ?>
 </div>
 
