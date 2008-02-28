@@ -614,6 +614,18 @@ table.statistics td.count, table.statistics th {
  text-align:right;
 }
 
+table.statistics td.caption {  
+ text-align:left;
+ border-bottom: 1px solid #f1aa00;
+ border-top: 1px solid #f1aa00;
+}
+
+table.statistics td.count, table.statistics th { 
+ text-align:right;
+}
+td.count { width:30px }
+td.label { width:200px }
+
 td.abstract, th.abstract { 
  background-color: #e8eeff/*#bac2d9*/;
 }
