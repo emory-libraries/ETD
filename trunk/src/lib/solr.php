@@ -16,20 +16,27 @@ class solr {
     $this->facet_limit = 5;	// is this reasonable?
   }
 
-  function query($queryString, $start = null, $max = null) {	// solr defaults to 1, 10
+  function query($queryString, $start = null, $max = null, $facet_limit = null) {	// solr defaults to 1, 10
+    // allow a facet count override for this query only 
+    if (is_null($facet_limit)) {
+      $facet_limit = $this->facet_limit;
+    }
+    //    print "DEBUG: query=$queryString";
     $url = $this->baseurl . "?q=$queryString";
     if ($start !== null) $url .= "&start=$start";
     if ($max !== null) 	$url .= "&rows=$max";
     if(count($this->facet_fields)) {
-      $url .= "&facet=true&facet.mincount=1&facet.limit=" . $this->facet_limit;	// sane defaults?
+      $url .= "&facet=true&facet.mincount=1&facet.limit=" . $facet_limit;	// sane defaults?
       foreach ($this->facet_fields as $field) {
 	$url .= "&facet.field=$field";
       }
     }
-    $url .= "&wt=phps";
-    $val = file_get_contents($url);
-    //    print $val;
-    print "<pre>"; print_r(unserialize($val)); print "</pre>";
+    $url .= "&wt=phps&fq=status:published";
+    //    print "DEBUG: <a href='$url'>solr query</a><br/>\n";
+    //    $val = file_get_contents($url);
+    $val = file_post_contents($url);			// switched to post for long queries
+    //print "DEBUG: solr response: $val";
+    //print "<pre>"; print_r(unserialize($val)); print "</pre>";
     return unserialize($val);
   }
 
@@ -65,6 +72,44 @@ function solrQuery($query) {
 
 
 // fixme: could do date faceting... might be cool
+
+
+// copied from php.net comments
+function file_post_contents($url,$headers=false) {
+    $url = parse_url($url);
+
+    if (!isset($url['port'])) {
+      if ($url['scheme'] == 'http') { $url['port']=80; }
+      elseif ($url['scheme'] == 'https') { $url['port']=443; }
+    }
+    $url['query']=isset($url['query'])?$url['query']:'';
+
+    $url['protocol']=$url['scheme'].'://';
+    $eol="\r\n";
+
+    $headers =  "POST ".$url['protocol'].$url['host'].$url['path']." HTTP/1.0".$eol.
+                "Host: ".$url['host'].$eol.
+                "Referer: ".$url['protocol'].$url['host'].$url['path'].$eol.
+                "Content-Type: application/x-www-form-urlencoded".$eol.
+                "Content-Length: ".strlen($url['query']).$eol.
+                $eol.$url['query'];
+    $fp = fsockopen($url['host'], $url['port'], $errno, $errstr, 30);
+    if($fp) {
+      fputs($fp, $headers);
+      $result = '';
+      while(!feof($fp)) { $result .= fgets($fp, 128); }
+      fclose($fp);
+      if (!$headers) {
+        //removes headers
+	$pattern="/^.*\r\n\r\n/s";
+        $result=preg_replace($pattern,'',$result);
+      }
+      $pattern="/^.*\r\n\r\n/s";
+      $result=preg_replace($pattern,'',$result);
+
+      return $result;
+    }
+}
 
 ?>
 
