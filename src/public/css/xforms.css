@@ -61,13 +61,15 @@ h1, h2, h3 {
 
 * html .xforms-textarea { width:90%; }
 
-/* modify display for checkbox/radio button layout */
-div.xfselect div span.xforms-label { display:inline; }
-div.xfselect div label { display:inline; font-weight:normal; }
-
 
 span.xforms-label { font-weight:bold; }
 .xforms-required span.xforms-label:after { content: " *"; }     
+
+/* modify display for checkbox/radio button layout */
+div.xfselect div span.xforms-label { display:inline; }
+div.xfselect div label { display:inline; font-weight:normal; }
+/* override asterisk for required fields (shows on each option otherwise) */
+div.xfselect div span.xforms-label:after { content: ""; }
 
 
 /* my attempts...
