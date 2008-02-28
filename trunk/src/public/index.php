@@ -62,11 +62,10 @@ $solr = new solr($solr_config->server, $solr_config->port);
 $solr->addFacets(explode(',', $solr_config->facets)); 	// array of default facet terms
 Zend_Registry::set('solr', $solr);
 
-// set up access controls
-require_once("xml_acl.php");
-$acl = new Xml_Acl();
-Zend_Registry::set('acl', $acl);
-
+// sqlite db for statistics data
+$config = new Zend_Config_Xml('../config/statistics.xml', $env_config->mode);
+$db = Zend_Db::factory($config);
+Zend_Registry::set('stat-db', $db);	
 
 
 //Setup Controller
@@ -89,6 +88,15 @@ if (isset($current_user)) {
   // fedora connection  needs to be defined before instantiating user
   $viewRenderer->view->current_user = $current_user;
 }
+
+
+// set up access controls
+require_once("xml_acl.php");
+$acl = new Xml_Acl();
+Zend_Registry::set('acl', $acl);
+// store acl for use within view also
+$viewRenderer->view->acl = $acl;
+
 
 // store test/dev/production for use in view scripts
 $viewRenderer->view->site_mode = $env_config->mode;	// better name for this? (test/dev/prod)
