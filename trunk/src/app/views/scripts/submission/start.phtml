@@ -19,24 +19,31 @@ later in the process, if necessary.</p>
     action="<?= $this->url(array("action" => "processPdf"))?>">
 
 <?//= $this->formHidden("MAX_FILE_SIZE", "3000000"); ?> 
-  <p><b>PDF</b> <?= $this->formFile("pdf"); ?></p>
-  <?= $this->formSubmit("Begin", "Begin"); ?>
-
+  <p><b>Your PDF</b> <?= $this->formFile("pdf"); ?>
+<?= $this->formSubmit("Begin", "Begin >", array("class" => "submitlink", "style" => "padding-left:10px")); ?>
+</p>
 </form>
 
+<? $ok = "<span style='color:green'>&#x2714;</span>"; // green check mark 
+ $incomplete = "<span style='color:red'>&#x2717;</span>"; // red x
+?>
+
+ <hr/>
+
+ <p>After submitting your PDF above, the submission page (pictured below) will appear.  On this page you will be able to edit the information harvested from your PDF, and you will be able to enter the remainder of the required data for your submission by using the various "edit" links on the page.  As you progress through the submission process, green check marks <?= $ok ?> will appear in the Submission Status box next to each completed section (with red <?= $incomplete?>'s next to incomplete sections).  Once you have completed all the sections, a "Review and Submit" link will appear below the submission status box, allowing you to proceed to the final steps in the process.</p> 
+
+<img src="<?= $this->linkTo("images/submit_preview.jpg") ?>"/>
 
 
 <? if ($this->site_mode == "development"): ?>
-<hr/>
 
 <form name="submission" method="post" enctype="multipart/form-data"
     action="<?= $this->url(array("action" => "debugPdf"))?>">
 
-   <p><b>For debugging purposes only</b>: test information extracted from a PDF.</p>
+   <p>Test information extracted from a PDF (development only)</p>
 
 <?//= $this->formHidden("MAX_FILE_SIZE", "3000000"); ?> 
-  <p><?= $this->formFile("pdf"); ?></p>
-  <?= $this->formSubmit("Submit", "Submit"); ?>
+  <p><?= $this->formFile("pdf"); ?> <?= $this->formSubmit("Debug", "Debug >", array("class" => "submitlink", "style" => "padding-left:10px")); ?></p>
 
 </form>
 <? endif ?>
