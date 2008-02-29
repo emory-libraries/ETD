@@ -94,9 +94,6 @@ class policyTest extends UnitTestCase {
     $this->assertIsA($this->policy->published, "PolicyRule");
     // published rule for ETDs does *NOT* have condition or embargo date
     $this->assertFalse(isset($this->policy->published->condition));
-    // published rule is the same as the embargo, but embargo ends today by default
-    // FIXME: use this to test etdfile xacml policy
-    //    $this->assertEqual($this->policy->published->condition->embargo_end, date("Y-m-d"));
 
     // add a non-existent rule
     $this->expectError("Rule 'nonexistent' unknown - cannot add to policy");
