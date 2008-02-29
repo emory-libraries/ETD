@@ -70,12 +70,10 @@ class etd_mods extends mods {
       $value = str_replace(" p.", "", $value);	// return just the number
       break;
     case "copyright":
-      $value = str_replace("applying for copyright? ", "", $value);
-      $value = str_replace("applying for copyright?", "", $value);
+      $value = str_replace("registering copyright? ", "", $value);
       break;
     case "embargo_request":
       $value = str_replace("embargo requested? ", "", $value);
-      $value = str_replace("embargo requested?", "", $value);
       break;
     case "embargo":
       $value = str_replace("Embargoed for ", "", $value);
