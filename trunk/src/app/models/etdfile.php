@@ -40,8 +40,8 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
 	$this->rels_ext != null;
       } catch  (FedoraAccessDenied $e) {
 	// if the current user doesn't have access to RELS-EXT, they don't have full access to this object
-	//	throw new FoxmlException("Access Denied to " . $this->pid);
-	trigger_error("Access Denied to rels-ext for " . $this->pid, E_USER_WARNING);
+	throw new FoxmlException("Access Denied to " . $this->pid);
+	//	trigger_error("Access Denied to rels-ext for " . $this->pid, E_USER_WARNING);
       }
       
       if ($this->rels_ext) {
