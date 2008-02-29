@@ -159,10 +159,10 @@ class etd extends foxml implements etdInterface {
 
 
     // save files (if changed), since they may not get saved otherwise
-    $files = array_merge($this->pdfs, $this->supplements, $this->originals);
+    /*    $files = array_merge($this->pdfs, $this->supplements, $this->originals);
     foreach ($files as $file) {
       $file->save("policies modified when setting etd status to $new_status");
-    }
+      }*/
 
 
     // for all - store the status in rels-ext
@@ -183,7 +183,9 @@ class etd extends foxml implements etdInterface {
       if ($name == "draft") $obj->policy->draft->condition->user = $this->owner;
 
       // another special case: if embargo end is already set, put that date in publish policy as well
-      if ($name == "published" && $this->mods->embargo_end) 
+      if ($name == "published" && isset($this->mods->embargo_end) && $this->mods->embargo_end
+	  && isset($obj->policy->published->condition) && isset($obj->policy->published->condition->embargo_end))
+	// (only in etd files)
 	$obj->policy->published->condition->embargo_end = $this->mods->embargo_end;
     }
   }
@@ -377,7 +379,8 @@ class etd extends foxml implements etdInterface {
 
   // is this record embargoed?
   public function isEmbargoed() {
-    return (strtotime($this->mods->embargo_end) > time());
+    // FIXME: check if embargo_end is not set or is blank?
+      return (strtotime($this->mods->embargo_end, 0) > time());
   }
 
 

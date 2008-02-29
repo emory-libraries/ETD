@@ -9,7 +9,7 @@ require_once("persis.php");
 require_once("etd.php");
 require_once("etd_rels.php");
 require_once("etd_dc.php");
-require_once("policy.php");
+require_once("file_policy.php");
 
 // helper for number of pages in a pdf
 require_once("controllers/helpers/PdfPageTotal.php");
@@ -40,7 +40,8 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
 	$this->rels_ext != null;
       } catch  (FedoraAccessDenied $e) {
 	// if the current user doesn't have access to RELS-EXT, they don't have full access to this object
-	throw new FoxmlException("Access Denied to " . $this->pid); 
+	//	throw new FoxmlException("Access Denied to " . $this->pid);
+	trigger_error("Access Denied to rels-ext for " . $this->pid, E_USER_WARNING);
       }
       
       if ($this->rels_ext) {
@@ -82,7 +83,7 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
     // xacml policy
     $this->addNamespace("x", "urn:oasis:names:tc:xacml:1.0:policy");
     $this->xmlconfig["policy"] = array("xpath" => "//foxml:xmlContent/x:Policy",
-				       "class_name" => "XacmlPolicy", "dsID" => "POLICY");
+				       "class_name" => "EtdFileXacmlPolicy", "dsID" => "POLICY");
 
     
     // just override one portion of the rels configuration
@@ -201,7 +202,8 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
 
     if ($this->type == "original")
       return "original file";
-    if ($this->parent->isEmbargoed())
+    
+    if ($this->parent->isEmbargoed()) 
       return "embargoed file";
     
     // these are the only statuses that are relevant
