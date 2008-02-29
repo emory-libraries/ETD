@@ -7,6 +7,8 @@ require_once("fedora/api/risearch.php");
 require_once("persis.php");
 
 require_once("mads.php");
+require_once("etd_rels.php");
+require_once("etd_dc.php");
 
 class user extends foxml {
 
@@ -32,11 +34,13 @@ class user extends foxml {
 	$this->rels_ext != null;
       } catch  (FedoraAccessDenied $e) {
 	// if the current user doesn't have access to RELS-EXT, they don't have full access to this object
+	//	trigger_error("Access Denied to rels-ext for " . $this->pid, E_USER_WARNING);
 	throw new FoxmlException("Access Denied to " . $this->pid); 
       }
       if (isset($this->rels_ext->authorInfoFor)) {
 	foreach ($this->rels_ext->authorInfoFor as $etd_pid) {
-	  print "pid etd_pid<br/>\n";
+
+	  // FIXME: simplify this; anyone who has access to authorinfo should have access to the etd (author, etdadmin)
 	  try {
 	    $this->etds[] = new etd($etd_pid);
 	  } catch (FedoraAccessDenied $e) {
