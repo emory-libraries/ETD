@@ -150,12 +150,26 @@ class TestEtd extends UnitTestCase {
     $this->assertEqual("published", $this->etd->status());
     $this->assertIsA($this->etd->policy->published, "PolicyRule");
     $this->assertTrue(isset($this->etd->policy->published));
-    // published rule should also be added to related etdfile objects 
+    // etd object publish rule should have no condition
+    $this->assertFalse(isset($this->etd->policy->published->condition));
+    
+    // etdfile published rule should also be added to related etdfile objects 
     $this->assertIsA($this->etd->pdfs[0]->policy->published, "PolicyRule");
     $this->assertTrue(isset($this->etd->pdfs[0]->policy->published));
-    // but published rule should NOT be added to original
+    $this->assertTrue(isset($this->etd->pdfs[0]->policy->published->condition));
+    // embargo end should be set to today by default
+    $this->assertTrue(isset($this->etd->pdfs[0]->policy->published->condition->embargo_end));
+    $this->assertEqual($this->etd->pdfs[0]->policy->published->condition->embargo_end, date("Y-m-d"));
+    // published rule should NOT be added to original
     $this->assertFalse(isset($this->etd->originals[0]->policy->published));
+
+    // publish with embargo
+    $this->etd->mods->embargo_end = "2010-01-01";
+    $this->etd->setStatus("published");
+    $this->assertEqual($this->etd->pdfs[0]->policy->published->condition->embargo_end, "2010-01-01");
+    
   }
+
   
 
   function testInitbyTemplate() {

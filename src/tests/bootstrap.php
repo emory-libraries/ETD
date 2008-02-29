@@ -11,7 +11,8 @@ Zend_Loader::registerAutoload();
 require_once("api/FedoraConnection.php");
 
 $mode = "test";
-
+$env = new Zend_Config(array('mode' => $mode));
+Zend_Registry::set('env-config', $env);
 $fedora_cfg = new Zend_Config_Xml("../config/fedora.xml", $mode);
 Zend_Registry::set('fedora-config', $fedora_cfg);
 
