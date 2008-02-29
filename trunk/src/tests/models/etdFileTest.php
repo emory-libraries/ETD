@@ -24,7 +24,7 @@ class TestEtdFile extends UnitTestCase {
     $this->assertIsA($this->etdfile, "etd_file");
     $this->assertIsA($this->etdfile->dc, "dublin_core");
     $this->assertIsA($this->etdfile->rels_ext, "rels_ext");
-    $this->assertIsA($this->etdfile->policy, "XacmlPolicy");
+    $this->assertIsA($this->etdfile->policy, "EtdFileXacmlPolicy");
     
     $this->assertEqual("test:etdfile1", $this->etdfile->pid);
     $this->assertEqual("etdFile", $this->etdfile->cmodel);
