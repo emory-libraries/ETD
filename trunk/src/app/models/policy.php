@@ -46,31 +46,21 @@ class XacmlPolicy extends foxmlDatastreamAbstract {
   public function addRule($name) {
     $dom = new DOMDocument();
     switch ($name) {
-    case "view": 	$xml = EtdXacmlRules::view; break;
-    case "etdadmin":	$xml = EtdXacmlRules::etdadmin; break;
-    case "draft":	$xml = EtdXacmlRules::draft; break;
-    case "published":	$xml = EtdXacmlRules::published; break;
+    case "view": 		$xml = EtdXacmlRules::view; break;
+    case "etdadmin":		$xml = EtdXacmlRules::etdadmin; break;
+    case "draft":		$xml = EtdXacmlRules::draft; break;
+    case "published":		$xml = EtdXacmlRules::published; break;
     default:
       trigger_error("Rule '$name' unknown - cannot add to policy", E_USER_WARNING); return;
     }
     $dom->loadXML($xml);
 
     $newrule = $this->dom->importNode($dom->documentElement, true);
-    if (isset($this->map{"deny_most"})) 
-      $this->domnode->insertBefore($newrule, $this->map{"deny_most"}->domnode);
-    else 
-      $this->domnode->appendChild($newrule);
+    // append to the end of the policy
+    //  - note that this means rules should be added in the correct order (if they are order dependent)
+    $this->domnode->appendChild($newrule);
 
     $this->update();
-
-    
-    // by default, published stuff is available today
-    if ($name == "published") {
-      $yesterday = time() - (24 * 60 * 60);	// now - 1 day (24 hours; 60 mins; 60 secs)
-      $this->published->condition->embargo_end = date("Y-m-d", $yesterday);
-    // greater than or equal should allow access on the day it is published ... xacml tests say different
-    // FIXME: shouldn't need to set date to yesterday to make it available right away (?)
-    }
     
     // FIXME: what is a good way to do this? how to manage the rules?
   }
@@ -251,7 +241,7 @@ const view = '<Rule xmlns="urn:oasis:names:tc:xacml:1.0:policy" RuleId="view" Ef
         <AnySubject/>
       </Subjects>
       <Resources>
-
+	<!-- common datastreams (etd and etdfile) -->
         <Resource>
          <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
             <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">DC</AttributeValue>
@@ -259,6 +249,22 @@ const view = '<Rule xmlns="urn:oasis:names:tc:xacml:1.0:policy" RuleId="view" Ef
                  DataType="http://www.w3.org/2001/XMLSchema#string"/>
         </ResourceMatch>
       </Resource>
+    <Resource>
+        <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">RELS-EXT</AttributeValue>
+            <ResourceAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:resource:datastream:id" 
+                DataType="http://www.w3.org/2001/XMLSchema#string"/>
+        </ResourceMatch>
+      </Resource>
+    <Resource>
+        <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">POLICY</AttributeValue>
+            <ResourceAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:resource:datastream:id" 
+                DataType="http://www.w3.org/2001/XMLSchema#string"/>
+        </ResourceMatch>
+      </Resource>
+
+ 	<!-- etd-only datastreams -->
         <Resource>
          <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
             <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">MODS</AttributeValue>
@@ -280,20 +286,16 @@ const view = '<Rule xmlns="urn:oasis:names:tc:xacml:1.0:policy" RuleId="view" Ef
                 DataType="http://www.w3.org/2001/XMLSchema#string"/>
         </ResourceMatch>
       </Resource>
-    <Resource>
-        <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">RELS-EXT</AttributeValue>
-            <ResourceAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:resource:datastream:id" 
-                DataType="http://www.w3.org/2001/XMLSchema#string"/>
+
+ 	<!-- etdFile-only datastreams -->
+        <Resource>
+         <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">FILE</AttributeValue>
+             <ResourceAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:resource:datastream:id" 
+                 DataType="http://www.w3.org/2001/XMLSchema#string"/>
         </ResourceMatch>
       </Resource>
-    <Resource>
-        <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">POLICY</AttributeValue>
-            <ResourceAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:resource:datastream:id" 
-                DataType="http://www.w3.org/2001/XMLSchema#string"/>
-        </ResourceMatch>
-      </Resource>
+
       </Resources>
       <Actions>
         <Action>
@@ -511,16 +513,6 @@ const published = '<Rule xmlns="urn:oasis:names:tc:xacml:1.0:policy"  RuleId="pu
       </Actions>
     </Target>
 
-
-     <Condition FunctionId="urn:oasis:names:tc:xacml:1.0:function:date-greater-than-or-equal">
-       <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:date-one-and-only">
-         <EnvironmentAttributeDesignator 
-	    AttributeId="urn:fedora:names:fedora:2.1:environment:currentDate"
-            DataType="http://www.w3.org/2001/XMLSchema#date" />
-       </Apply>
-       <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#date"/>
-     </Condition>  
-
 </Rule>
 ';
  
@@ -530,3 +522,6 @@ const published = '<Rule xmlns="urn:oasis:names:tc:xacml:1.0:policy"  RuleId="pu
 
 
 }
+
+
+
