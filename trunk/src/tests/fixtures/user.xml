@@ -52,4 +52,18 @@
     </foxml:datastreamVersion>
    </foxml:datastream>
 
+  <foxml:datastream CONTROL_GROUP='X' ID='RELS-EXT' STATE='A' VERSIONABLE='true'>
+    <foxml:datastreamVersion ID='RELS-EXT.0' LABEL='relations' MIMETYPE='text/xml'>
+      <foxml:xmlContent>
+  	<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rel="info:fedora/fedora-system:def/relations-external#">
+	  <rdf:description rdf:about="info:fedora/test:user1">
+		<!-- NOTE: just adding a dummy relation here to avoid
+		     errors about not belonging to  an etd  -->
+	      <rel:isPDFOf rdf:resource=""/>
+	  </rdf:description>
+	</rdf:RDF>
+      </foxml:xmlContent>
+    </foxml:datastreamVersion>
+  </foxml:datastream>
+
 </foxml:digitalObject>

@@ -60,6 +60,7 @@ class TestUserXacml extends UnitTestCase {
     setFedoraAccount("guest");
 
     // guest shouldn't be able to see anything
+    $this->expectException(new FoxmlException("Access Denied to test:user1"));
     $user = new user($this->pid);
     // these datastreams should be accessible
     $this->expectException(new FedoraAccessDenied("getDatastream for {$this->pid}/DC"));
