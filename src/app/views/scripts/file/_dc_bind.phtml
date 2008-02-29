@@ -4,3 +4,6 @@
 
 <xf:submission id="submission" action="<?= $this->url(array('action' => 'save', 'pid' => $this->etdfile->pid))?>"
 		method="post" />
+
+<xf:message level="modal"
+   ev:event="xforms-submit-error">Error: check that all required fields are filled in correctly</xf:message>

@@ -33,4 +33,6 @@ and instance('programs')/skos:Collection[@rdf:about = instance('tmp')/program/de
 <xf:submission id="submission" action="<?= $this->url(array('action' => 'savemods',
 		'id' => $this->pid, "component" => "program"))?>"
 		method="post" />
-	 
+
+ <xf:message level="modal"
+   ev:event="xforms-submit-error">Error: check that all required fields are filled in correctly</xf:message>

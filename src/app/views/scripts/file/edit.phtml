@@ -1,10 +1,9 @@
-<h1>edit file information</h1>
-
+<h1>Edit File Information</h1>
+<?=  $this->render('edit/_xforms_key.phtml'); ?>
 
 <?= $this->xformText("title", "dc:title"); ?> <br/>
 <?= $this->xformText("author", "dc:creator"); ?> <br/>
 <?= $this->xformTextarea("description", "dc:description"); ?> <br/>
-<? /* FIXME: mime-type should be in dc:format, not dc:type */ ?>
 
 <? /* these are set on upload and should not be editable by the user */ ?>
 <?= $this->xformOutput("file type", "dc:format[contains(., '/')]"); ?> <br/>
