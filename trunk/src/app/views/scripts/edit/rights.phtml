@@ -1,6 +1,8 @@
 <h1>Author Rights and Access Restrictions</h1>
 <p><b><?= $this->etd->title() ?></b></p>
 
+<?=  $this->render('edit/_xforms_key.phtml'); ?>
+
 <? $yesno = array(" " => "--", "no" => "no", "yes" => "yes"); ?>
 
 <? $embargo_opts = array("yes" => "Yes, I want an access restriction.",
@@ -17,7 +19,7 @@ paper ETD Submission Agreement Form which you will present to the
 Graduate School for approval.</p>
 
 <div class="xfselect">
-  <?= $this->xformSelect("Access Restriction (embargo)", "instance('tmp')/embargo", $embargo_opts, $opts); ?>
+  <?= $this->xformSelect("Access Restriction (Embargo)", "instance('tmp')/embargo", $embargo_opts, $opts); ?>
 </div>
 
 <hr/>
@@ -28,7 +30,7 @@ register copyright on my behalf. (See Proquest/UMI Publishing
 Agreement, page 5.)",
 			   "no" => "No");  ?>
 <div class="xfselect">  
-  <?= $this->xformSelect("registering copyright?", "instance('tmp')/copyright", $copyright_opts, $opts); ?>
+  <?= $this->xformSelect("Registering Copyright?", "instance('tmp')/copyright", $copyright_opts, $opts); ?>
 </div>
 
 <hr/>
@@ -38,7 +40,7 @@ supplements the paper form signed by you and your advisor.)</p>
 
 <div class="xfselect">
   <xf:select ref="instance('tmp')/agreement" appearance="full">
-    <xf:label>submission agreement</xf:label>
+    <xf:label>Submission Agreement</xf:label>
       <xf:item>
       <xf:label>I hereby grant to Emory University and its agents the non-exclusive license to archive, make accessible, and display, (subject to the conditions agreed upon in the separate written agreement I have submitted to the graduate school,) my thesis or dissertation in whole or in part in all forms of media, now or hereafter known, including the display of the thesis or dissertation on the world wide web. I retain all ownership rights to the copyright of the thesis or dissertation. I also retain the right to use in future works (such as articles or books) all or part of this thesis or dissertation. I certify that my electronic submission is the version of my thesis/dissertation that was approved by my committee.</xf:label>
       <xf:value>yes</xf:value>
