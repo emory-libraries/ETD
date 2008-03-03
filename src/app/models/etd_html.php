@@ -84,13 +84,14 @@ class etd_html extends foxmlDatastreamAbstract {
     $search = array("&alpha;", "&beta;", "&gamma;", "&Gamma;","&delta;","&Delta;","&zeta;","&eta;",
 		    "&iota;","&kappa;", "&lambda;","&Lambda;","&mu;","&nu;","&xi;","&Xi;","&pi;","&Pi;",
 		    "&rho;","&sigma;","&Sigma;","&tau;","&Phi;","&chi;","&psi;","&Psi;","&omega;","&Omega;",
-		    "&szlig;",);
+		    "&szlig;","&ccedil;",);
+    	 
     
     $replace = array("&#x03b1;", "&#x03b2;", "&#x03B3;", "&#x0393;", "&#x03B4;","&#x0394;","&#x03B6;",
 		     "&#x03B7;","&#x03B9;","&#x03BA;","&#x03BB;","&#x039B;","&#x03BC;","&#x03BD;","&#x03BE;",
 		     "&#x039E;","&#x03C0;","&#x03A0;","&#x03C1;","&#x03C3;","&#x03A3;","&#x03C4;",
 		     "&#x03A6;","&#x03C7;","&#x03C8;","&#x03A8;","&#x03C9;","&#x03A9;",
-		     "&#x00DF;",);
+		     "&#x00DF;","&#x00E7;",);
     
     $string = str_replace($search, $replace, $string);
 
