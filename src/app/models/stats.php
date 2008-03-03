@@ -51,12 +51,12 @@ class StatObject extends Stats_Db_Table {
   }
 
   // Fez code is getting two counts and then merging the arrays... there must be a better way!?!
-  public function countByCountry(array $pids) {
+  public function countByCountry(array $pids = null) {
     $abs_sel = $this->selectTypeByCountry($pids, "abstract");
     $file_sel = $this->selectTypeByCountry($pids, "file");
     $sql = "SELECT a.c as country, abstract, file FROM (" . $abs_sel->__toString() . ") as a
 	    LEFT OUTER JOIN (" . $file_sel->__toString() . ") AS f ON a.c = f.c
-    	    ORDER BY (a.abstract + f.file) DESC;";
+    	    ORDER BY a.abstract DESC;";
 
     //        print "<pre>" . $sql . "</pre>";
     $stmt = $this->_db->query($sql);
@@ -77,19 +77,24 @@ class StatObject extends Stats_Db_Table {
   }
 
   // build a select statement to be used as a subselect
-  private function selectTypeByCountry(array $pids, $type) {
+  private function selectTypeByCountry(array $pids = null, $type) {
     $select = $this->_db->select();
     $select->from($this->_name, array("COUNT(*) as $type", "country as c"));
     		// note: have to rename country because field wasn't being found on the join
 
-    $pid_filter = array();
-    //          $sql .= $this->getAdapter()->quoteInto($where_sql, $uname);
-    for ($i = 0;  $i < count($pids); $i++) {
-      $pid_filter[] = $this->getAdapter()->quoteInto("pid = ?", $pids[$i]);
+    // FIXME: pull into sub function - duplicate logic in select type by month
+    if (!is_null($pids)) {
+      $pid_filter = array();
+      //          $sql .= $this->getAdapter()->quoteInto($where_sql, $uname);
+      for ($i = 0;  $i < count($pids); $i++) {
+	$pid_filter[] = $this->getAdapter()->quoteInto("pid = ?", $pids[$i]);
+      }
+      
+      // need to group (pid1 or pid2) and type, NOT pid1 or pid2 and type
+      $where = "(" . implode(" OR ", $pid_filter) . ") AND type = '$type' ";
+    } else {
+      $where = " type = '$type'";
     }
-
-    // need to group (pid1 or pid2) and type, NOT pid1 or pid2 and type
-    $where = "(" . implode(" OR ", $pid_filter) . ") AND type = '$type' ";
     
     $select->where($where);
     $select->group("country");
@@ -98,7 +103,7 @@ class StatObject extends Stats_Db_Table {
   }
 
 
-  public function countByMonthYear(array $pids) {
+  public function countByMonthYear(array $pids = null) {
     $abs_sel = $this->selectTypeByMonthYear($pids, "abstract");
     $file_sel = $this->selectTypeByMonthYear($pids, "file");
     $sql = "SELECT a.month as month, abstract, file FROM (" . $abs_sel->__toString() . ") as a
@@ -108,6 +113,7 @@ class StatObject extends Stats_Db_Table {
     //        print "<pre>" . $sql . "</pre>";
     $stmt = $this->_db->query($sql);
     $result = $stmt->fetchAll();
+    //    print "<pre>" . print_r($result, true) . "</pre>";
 
     // convert nulls to zeroes to simplify display logic
     for ($i = 0; $i < count($result); $i++){
@@ -119,20 +125,24 @@ class StatObject extends Stats_Db_Table {
   }
 
     // build a select statement to be used as a subselect
-  private function selectTypeByMonthYear(array $pids, $type) {
+  private function selectTypeByMonthYear(array $pids = null, $type) {
     $select = $this->_db->select();
     $select->from($this->_name, array("COUNT(*) as $type", "strftime('%m-%Y', date) as month"));
     // in mysql: date_format(date, '%b %Y')
     		// note: have to rename country because field wasn't being found on the join
 
-    $pid_filter = array();
-    //          $sql .= $this->getAdapter()->quoteInto($where_sql, $uname);
-    for ($i = 0;  $i < count($pids); $i++) {
-      $pid_filter[] = $this->getAdapter()->quoteInto("pid = ?", $pids[$i]);
+    if (!is_null($pids)) {
+      $pid_filter = array();
+      //          $sql .= $this->getAdapter()->quoteInto($where_sql, $uname);
+      for ($i = 0;  $i < count($pids); $i++) {
+	$pid_filter[] = $this->getAdapter()->quoteInto("pid = ?", $pids[$i]);
+      }
+      
+      // need to group (pid1 or pid2) and type, NOT pid1 or pid2 and type
+      $where = "(" . implode(" OR ", $pid_filter) . ") AND type = '$type' ";
+    } else {
+      $where = " type = '$type'";
     }
-
-    // need to group (pid1 or pid2) and type, NOT pid1 or pid2 and type
-    $where = "(" . implode(" OR ", $pid_filter) . ") AND type = '$type' ";
     
     $select->where($where);
     $select->group("month");
