@@ -46,7 +46,7 @@ if (!$pid) {
 }
 $tmpdir = $opts->tmpdir;
 if (!$tmpdir) $tmpdir = "/tmp";
-
+ 
 $rewrite_file = $opts->urls;
 $rewrite = "";
 
@@ -305,7 +305,9 @@ if ($fezetd->mods->genre == "Dissertation") {
 
 
 // set status & load appropriate policies
-$newetd->setStatus($fezetd->status);
+if ($fezetd->status == "unpublished") $newstatus = "draft";	// unpublished status no longer used
+else $newstatus = $fezetd->status;
+$newetd->setStatus($newstatus);
 // NOTE: policies need to be configured on etd files separately, after they are created
 
 if ($opts->noact) {
