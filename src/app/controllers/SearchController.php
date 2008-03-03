@@ -56,8 +56,17 @@ class SearchController extends Zend_Controller_Action {
      foreach ($results['response']['docs'] as $result_doc) {
        array_push($etds, new etd($result_doc['PID']));
      }
-
      $this->view->etds = $etds;
+
+
+
+     // if there's only one match found, forward directly to full record view
+     if ($this->view->count == 1) {
+       $this->_helper->flashMessenger->addMessage("Only one match found for search; displaying full record");
+       $this->_helper->redirector->gotoRoute(array("controller" => "view",
+						   "action" => "record", "pid" => $etds[0]->pid), "", true);
+     } 
+
    }
 
 
