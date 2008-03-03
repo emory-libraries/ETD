@@ -29,7 +29,7 @@ class etd_html extends foxmlDatastreamAbstract {
   }
 
   public static function getFedoraTemplate(){
-    return foxml::xmlDatastreamTemplate("XHTML", td_html::dslabel, self::getTemplate());
+    return foxml::xmlDatastreamTemplate("XHTML", etd_html::dslabel, self::getTemplate());
   }
 
   public function datastream_label() {
