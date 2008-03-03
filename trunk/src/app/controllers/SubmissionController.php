@@ -45,7 +45,7 @@ class SubmissionController extends Zend_Controller_Action {
   }
    
   public function startAction() {
-    if (!$this->isAllowed("submit")) return;
+    if (!$this->isAllowed("create")) return;
     // any other info needed here?
     $this->view->title = "Begin Submission";
   }
