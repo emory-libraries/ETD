@@ -20,14 +20,18 @@ class SubmissionController extends Zend_Controller_Action {
 
   // fixme: copied from admin controller
   private function isAllowed($action, $etd = "etd") {
-    if ($etd instanceof etd)
+    if ($etd instanceof etd) {
       $role = $etd->getUserRole($this->user);
-    else $role = $this->user->role;
+      $resource = $etd->getResourceId();
+    } else {
+      $role = $this->user->role;
+      $resource = $etd;
+    }
     
     $allowed = $this->acl->isAllowed($role, $etd, $action);
      if (!$allowed) {
        $this->_helper->flashMessenger->addMessage("Error: " . $this->user->netid . " (role=" . $role . 
-						  ") is not authorized to submit " . $etd->getResourceId());
+						  ") is not authorized to submit " . $resource);
        $this->_helper->redirector->gotoRoute(array("controller" => "auth",
 						   "action" => "denied"), "", true);
      }
@@ -82,12 +86,12 @@ class SubmissionController extends Zend_Controller_Action {
       if ($current_user->academic_plan) {
 	$department = $programs->findLabel($current_user->academic_plan);
 	if ($department)
-	  $etd->mods->department = $department;
+	  $etd->department = $department;
       } elseif (isset($this->view->etd_info['department'])) {
 	// otherwise, use department picked up from the PDF (if any)
 	$department = $programs->findLabel($this->view->etd_info['department']);
 	if ($department)
-	  $etd->mods->department = $department;
+	  $etd->department = $department;
       }
 
       // match faculty names found in the PDF to persons in ESD
