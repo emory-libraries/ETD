@@ -103,6 +103,8 @@ class UserController extends Zend_Controller_Action {
 
   public function saveAction() {
     $pid = $this->_getParam("pid", null);
+    // should only be set for new records 
+    $etd_pid = $this->_getParam("etd", null);
     
     $user = new user($pid);
     if (is_null($pid))	{ // if pid is null, action is actually create (user is not author on an object yet)
@@ -126,7 +128,7 @@ class UserController extends Zend_Controller_Action {
 	$mads = new mads($dom);
 	$user->label = $mads->name->first . " " . $mads->name->last;
 	$user->owner = $mads->netid;
-	$user->rels_ext->addRelationToResource("rel:AuthorInfoFor", $etd_pid);
+	$user->rels_ext->addRelationToResource("rel:authorInfoFor", $etd_pid);
       }
       
       $user->mads->updateXML($xml);
@@ -140,19 +142,19 @@ class UserController extends Zend_Controller_Action {
 	$user->mads->{$address}->date = date("Y-m-d", strtotime($user->mads->{$address}->date, 0));
       }
       
-      $user->mads->
-      $save_result = $user->save("edited user information");
       $resource = "contact information";
-      if ($save_result)
-	$this->_helper->flashMessenger->addMessage("Saved changes to $resource");
-      elseif ($user->mads->hasChanged())
-	$this->_helper->flashMessenger->addMessage("Error: could not save changes to $resource");
-      else
+      if ($user->mads->hasChanged()) {
+	$save_result = $user->save("edited user information");
+	if ($save_result)
+	  $this->_helper->flashMessenger->addMessage("Saved changes to $resource");
+	else
+	  $this->_helper->flashMessenger->addMessage("Error: could not save changes to $resource");
+      } else {
 	$this->_helper->flashMessenger->addMessage("No changes made to $resource");
+      }
+
     }
 
-    // should only be set for new records 
-    $etd_pid = $this->_getParam("etd", null);
     if ($etd_pid) {
       $etd = new etd($etd_pid);
       $etd->rels_ext->addRelationToResource("rel:hasAuthorInfo", $user->pid);
