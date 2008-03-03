@@ -114,11 +114,22 @@ class collectionHierarchy extends XmlObject {
      
      // construct a query that will find any of these
      $queryparts = array();
-     foreach ($all_fields as $field)
-       array_push($queryparts, $this->index_field .":(" . urlencode($field) . ")");
+     foreach ($all_fields as $field) {
+       if (strpos($field, '&')) $field = urlencode($field);
+       if (strpos($field, ' ')) $searchfield = '"' . $field . '"';
+       else $searchfield = $field;
+       array_push($queryparts, $this->index_field .':' . $searchfield);
+     }
 
-     $query = join($queryparts, "+OR+");
-     $results = $solr->query($query, null, null, -1);
+     $query = join($queryparts, " OR ");
+
+     //     print "query is: " . $query . "<br/>\n";
+
+
+     /* don't retrieve etd records at top level of hierarchy */ 
+     if (isset($this->parent)) $return_num = null;		// use defaults
+     else $return_num = 0;	     // NOTE: setting to no returns speeds things up substantially
+     $results = $solr->query($query, $return_num, null, -1);
      $totals = $results['facet_counts']['facet_fields'][$this->index_field];
 
      // sum up totals recursively
