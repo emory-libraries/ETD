@@ -14,6 +14,12 @@ class BrowseController extends Zend_Controller_Action {
    public function init() {
      $this->_flashMessenger = $this->_helper->getHelper('FlashMessenger');
      $this->initView();
+
+          $params =  $this->_getAllParams();
+     
+     $this->view->controller = $params['controller'];
+     $this->view->action = $params['action'];
+
    }
 
    public function postDispatch() {
@@ -111,13 +117,15 @@ class BrowseController extends Zend_Controller_Action {
    public function browseAction() {
      $request = $this->getRequest();
      $field = $request->getParam("field");
-     $_value = $request->getParam("value");	// store original form
+     $_value = urldecode($request->getParam("value"));	// store original form
      $value = $_value;
-     $exact = $request->getParam("exact");
-     if (! $exact) 
+     $value = urldecode($value);
+     $exact = $request->getParam("exact", false);
+     if (! $exact) {
        $value = strtolower($value);
+       $value = str_replace(",", "", $value);	// remove commas from names
+     }
      
-     $value = urlencode($value);
      $solr = Zend_Registry::get('solr');
 
      // note - solr default set to OR (seems to work best)
@@ -127,14 +135,14 @@ class BrowseController extends Zend_Controller_Action {
        $query = "$field:$value";
      } else {
        $queryparts = array();
-       foreach (preg_split('/[ +,.-]+/ ', strtolower($_value), -1, PREG_SPLIT_NO_EMPTY) as $part) {
+       foreach (preg_split('/[ +,.-]+/ ', strtolower($value), -1, PREG_SPLIT_NO_EMPTY) as $part) {
 	 if ($part != "a")	// stop words that cause solr problem
 	   array_push($queryparts, "$field:$part");
        }
        $query = join($queryparts, '+AND+');
      }
-     //       print "query is $query\n";
-     //     $results = $solr->query("$field:($value)");
+     //     print "query is $query\n";
+     //$results = $solr->query("$field:($value)");
      $results = $solr->query($query);
      
      /*       $results = solrQuery("$mode:$value"); */
@@ -150,6 +158,14 @@ class BrowseController extends Zend_Controller_Action {
      $this->view->etds = $etds;
      $this->view->facets = $results['facet_counts']['facet_fields'];
 
+     // if there's only one match found, forward directly to full record view
+     if ($this->view->count == 1) {
+       $this->_helper->flashMessenger->addMessage("Only one match found; displaying full record");
+       $this->_helper->redirector->gotoRoute(array("controller" => "view",
+						   "action" => "record", "pid" => $etds[0]->pid), "", true);
+     } 
+
+     
      $this->view->value = $_value;
      $this->view->results = $results;
      
