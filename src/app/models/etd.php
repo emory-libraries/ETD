@@ -233,11 +233,6 @@ class etd extends foxml implements etdInterface {
       $etdfile->save("setting sequence number");
     }
 
-    // make sure etdfile gets username properties - owner, draft author
-    $etdfile->owner = $this->owner;
-    if (isset($etdfile->policy->draft)) $etdfile->policy->draft->user = $this->owner;
-    
-
     // etd is related to file
     $this->rels_ext->addRelationToResource("rel:has{$relation}", $etdfile->pid);
 

@@ -136,6 +136,8 @@ class SubmissionController extends Zend_Controller_Action {
 	// only create the etdfile object if etd was successfully created
 	// FIXME: somehow combine this logic with repeated code in FileController ?
 	$etdfile = new etd_file();
+	$etdfile->owner = $this->view->current_user->netid;	// set current user to object owner
+	
 	$etdfile->label = "Dissertation";	// FIXME: what should this be?
 	// FIXME: set reasonable defaults for author, description
 	$etdfile->setFileInfo($etd_info['pdf']);	// set mimetype, filesize, and pages if appropriate

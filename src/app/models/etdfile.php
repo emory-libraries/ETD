@@ -95,6 +95,25 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
     
   }
 
+  // handle special values
+  public function __set($name, $value) {
+    switch ($name) {
+
+    case "owner":
+      // add author's username to the appropriate rules
+      if (isset($this->policy) && isset($this->policy->draft))
+	$this->policy->draft->condition->user = $value;
+
+      // set ownerId property
+      parent::__set($name, $value);
+      break;
+    default:
+      parent::__set($name, $value);
+    }
+  }
+      
+
+
   public function setFileInfo($filename) {
     // note: using fileinfo because mimetype reported by the browser is unreliable
     $finfo = finfo_open(FILEINFO_MIME);	
