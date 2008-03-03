@@ -29,7 +29,7 @@ class etd_html extends foxmlDatastreamAbstract {
   }
 
   public static function getFedoraTemplate(){
-    return foxml::xmlDatastreamTemplate("XHTML", etd_html::dslabel, self::getTemplate());
+    return foxml::xmlDatastreamTemplate("XHTML", td_html::dslabel, self::getTemplate());
   }
 
   public function datastream_label() {
@@ -62,7 +62,7 @@ class etd_html extends foxmlDatastreamAbstract {
     case "abstract":
     case "contents":
       $div = $this->map{$name}->ownerDocument->saveXML($this->map{$name});
-      $div = preg_replace("|<div[^>]+>(.*)</div>$|", "$1", $div);
+      $div = preg_replace("|<div[^>]*>(.*)</div>$|s", "$1", $div);	// treat as a single line
       return $div;
     default:
       return parent::__get($name);
