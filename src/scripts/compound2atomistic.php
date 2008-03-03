@@ -7,7 +7,20 @@ set_include_path('.:../lib:../lib/ZendFramework:../lib/fedora:../lib/xml-utiliti
 include 'Zend/Loader.php';
 Zend_Loader::registerAutoload();
 
+// services
 require_once("api/FedoraConnection.php");
+require_once("persis.php");
+
+// fez models
+require_once("fezetd.php");
+require_once("fezuser.php");
+require_once("FezStatistics.php");
+
+// new etd models
+require_once("etd.php");
+require_once("etdfile.php");
+require_once("models/stats.php"); 	// etd08 stats
+
 require_once("controllers/helpers/PdfPageTotal.php");
 
 $opts = new Zend_Console_Getopt(
@@ -15,6 +28,8 @@ $opts = new Zend_Console_Getopt(
 	'noact|n'	=> "no action: don't save to fedora",
 	'pid|p=s'	=> "fedora pid of the fez etd to convert",
 	'urls|u=s'	=> "filename where old and new urls should go",
+	'tmpdir|t=s'	=> "tmp directory for downloaded files (defaults to /tmp)",
+	'keepfiles|k'	=> "don't delete temporary files from fedora",
   )
 );
 
@@ -29,6 +44,9 @@ if (!$pid) {
   print "Error: please supply pid of record to convert\n";
   exit;
 }
+$tmpdir = $opts->tmpdir;
+if (!$tmpdir) $tmpdir = "/tmp";
+
 $rewrite_file = $opts->urls;
 $rewrite = "";
 
@@ -36,18 +54,6 @@ $rewrite = "";
 $env_config = new Zend_Config_Xml("../config/environment.xml", "environment");
 Zend_Registry::set('env-config', $env_config);
 
-$config = new Zend_Config_Xml('../config/fedora.xml', $env_config->mode);
-Zend_Registry::set('fedora-config', $config);
-
-
-$fedora_cfg = new Zend_Config_Xml("../config/fedora.xml", $env_config->mode);
-$fedora = new FedoraConnection($fedora_cfg->user, $fedora_cfg->password,
-				 $fedora_cfg->server, $fedora_cfg->port);
-Zend_Registry::set('fedora', $fedora);
-
-
-//persistent id service -- needs to be configured for generating new fedora pids
-require_once("persis.php");
 
 $persis_config = new Zend_Config_Xml("../config/persis.xml", $env_config->mode);
 $persis = new persis($persis_config->url, $persis_config->username,
@@ -61,6 +67,17 @@ $db = Zend_Db::factory($fezconfig->database->adapter, $fezconfig->database->para
 // NOT setting as default - fezuser model will grab from the registry
 Zend_Registry::set('fez-db', $db);
 
+// this script uses its own fedora configurations in fez.xml
+$fedora_src = new FedoraConnection($fezconfig->fedora_src->user, $fezconfig->fedora_src->password,
+				 $fezconfig->fedora_src->server, $fezconfig->fedora_src->port);
+// this script uses its own fedora configurations in fez.xml
+$fedora_dest = new FedoraConnection($fezconfig->fedora_dest->user, $fezconfig->fedora_dest->password,
+				 $fezconfig->fedora_dest->server, $fezconfig->fedora_dest->port);
+
+// required by risearch (FIXME)
+Zend_Registry::set('fedora-config', $fezconfig->fedora_dest);
+// 	- risearch only used for new etds, should be safe to use fedora_dest configuration here
+
 // create DB object for access to Emory Shared Data
 $esdconfig = new Zend_Config_Xml('../config/esd.xml', $env_config->mode);
 $esd = Zend_Db::factory($esdconfig);
@@ -68,17 +85,14 @@ Zend_Registry::set('esd-db', $esd);
 Zend_Db_Table_Abstract::setDefaultAdapter($esd);
 
 
-require_once("fezetd.php");
-require_once("fezuser.php");
-require_once("FezStatistics.php");
-require_once("etd.php");
-require_once("etdfile.php");
-require_once("models/stats.php"); 	// etd08 stats
 
 
 /** convert a compound (fez) emory etd object into new atomist model  */
 
+Zend_Registry::set('fedora', $fedora_src);	// set src fedora for fez etd
 $fezetd = new FezEtd($pid);
+
+Zend_Registry::set('fedora', $fedora_dest);	// use destination fedora for everything else
 
 
 // map vcard to new user object
@@ -212,6 +226,9 @@ if ($fezetd->mods->embargo_end == "No" || $embargo_duration == "0 days")
   $embargo_request = "no";
 elseif ($fezetd->mods->embargo_end == "Yes" || $embargo_duration != "")
   $embargo_request = "yes";
+elseif (!isset($fezetd->mods->embargo_note) && isset($fezetd->mods->embargo_end))
+  $embargo_request = "yes";	// a few records from the first submission period do not have an embargo note
+
 if ($embargo_request)
   $newetd->mods->embargo_request = $embargo_request;
 else
@@ -262,11 +279,13 @@ for ($i= 0; $i < count($fezetd->mods->keywords); $i++) {
     $newetd->mods->addKeyword($fezetd->mods->keywords[$i]->topic);
 }
 
-// copy number of pages
-if (isset($fezetd->mods->pages))
+// don't copy number of pages from the metadata
+// page total will be calculated as pdfs are added to the record
+//
+/*if (isset($fezetd->mods->pages))
   $newetd->mods->pages = $fezetd->mods->pages;
 else 
-  print "Warning: Record does not seem to have page count\n";
+print "Warning: Record does not seem to have page count\n";*/
 
 if ($fezetd->mods->genre == "Dissertation") {
   $newetd->mods->degree->level = "Doctoral";
@@ -287,19 +306,12 @@ if ($fezetd->mods->genre == "Dissertation") {
 
 // set status & load appropriate policies
 $newetd->setStatus($fezetd->status);
-if ($newetd->status() == "published" &&
-    $embargo_requested && $embargo_end) {
-  $embargoed = true;
-  // set embargo end date as condition in published policy rule
-  $newetd->policy->published->condition->embargo_end = $embargo_end;
-} else {
-  $embargoed = false;
-}
+// NOTE: policies need to be configured on etd files separately, after they are created
 
 if ($opts->noact) {
-  print "saving etd foxml to tmp file: tmp/etd.xml\n";
+  print "saving etd foxml to tmp file: {$tmpdir}/etd.xml\n";
   $newetd->pid = "test:etd1";	// set test pid in order to simulate setting rels, premis, etc
-  $newetd->saveXMLtoFile("tmp/etd.xml");
+  $newetd->saveXMLtoFile($tmpdir . "/etd.xml");
 } else {
   $newid = $newetd->save("migrating to atomistic content model from $pid");
   print "etd object saved as $newid\n";
@@ -325,9 +337,9 @@ view.php?pid={$fezetd->pid}	$newurl
 $user->rels_ext->addRelationToResource("rel:authorInfoFor", $newetd->pid);
 
 if ($opts->noact) {
-  print "saving user xml to tmp file: tmp/user.xml\n";
+  print "saving user xml to tmp file: {$tmpdir}/user.xml\n";
   $user->pid = "test:user1";	// set test pid in order to simulate setting rels
-  $user->saveXMLtoFile("tmp/user.xml");
+  $user->saveXMLtoFile("{$tmpdir}/user.xml");
 } else {
   $user_pid = $user->save("migrating to atomistic content model from $pid");
   print "user object saved as $user_pid\n";
@@ -339,6 +351,7 @@ $newetd->rels_ext->addRelationToResource("rel:hasAuthorInfo", $user->pid);
 
 
 $filepids = array();
+$etdfiles = array();
 
 $filecount = 0;
 // generate etdFile objects based on these
@@ -361,6 +374,7 @@ foreach ($fezetd->files as $file) {
   // let etdfile handle getting new pids (using arks)
   $etdfile->label = $file->label;
   if (isset($ownerid)) $etdfile->owner = $ownerid;
+  $etdfile->type = strtolower($reltype);	// setting so we can set policies correctly later
 
   $etdfile->file->label = $file->label;
   //  $etdfile->file->mimetype = $etdfile->dc->type = $file->MIMEType;
@@ -379,10 +393,11 @@ foreach ($fezetd->files as $file) {
   //if we just refer to the files at the public url, they may be inaccessible/embargoed
   
   // should access as fedoraAdmin so the file can be retrieved, then re-upload
-  $filename = "/tmp/" . $file->ID;
+  $filename = $tmpdir . "/" . $file->ID;
 
   // this script should run as FedoraAdmin so it can pull inactive (embargoed) datastreams without a problem
-  file_put_contents($filename, $fedora->getDatastream($fezetd->pid, $file->ID));
+  //  file_put_contents($filename, $fedora_src->getDatastream($fezetd->pid, $file->ID));
+  file_put_contents($filename, $fezetd->getFile($file->ID));
   if (filesize($filename) === 0) {
     print "Error: file $filename downloaded from fedora is zero size\n";
     // exit? skip this file?
@@ -393,23 +408,19 @@ foreach ($fezetd->files as $file) {
   
   // ingest into fedora
   if ($opts->noact) {
-    print "saving etdfile " . $file->label . " to tmp file: tmp/" . $file->ID . ".xml\n";
+    print "saving etdfile " . $file->label . " to tmp file: {$tmpdir}/" . $file->ID . ".xml\n";
     $etdfile->pid = "test:etdfile" . ++$filecount;   
-    $etdfile->saveXMLtoFile("tmp/" . $file->ID . ".xml");
+    $etdfile->saveXMLtoFile($tmpdir . "/" . $file->ID . ".xml");
   } else {
-    
-    $etdfile->file->url = $fedora->upload($filename);
-    /*  // included in setFileInfo
-     if ($reltype == "PDF") {
-      $pagecalc = new Etd_Controller_Action_Helper_PdfPageTotal();
-      // get page total
-      $etdfile->dc->setPages($pagecalc->pagetotal($filename));
-      }*/
-    
+
+    $etdfile->setFile($filename);	// upload and set ingest url to upload id
     $fileid = $etdfile->save("migrating to atomistic content model from $pid");
     print "etd file object saved as $fileid\n";
   }
   $filepids[$file->ID] = $etdfile->pid;	// old filename -> new pid
+
+  // store for policy processing
+  $etdfiles[] = $etdfile;
 
   if ($reltype != "Original") {		// no redirects for archive copy
     // print out old and new urls to be used in creating rewrite rules
@@ -438,17 +449,49 @@ eserv.php?pid={$fezetd->pid}&dsID={$file->ID} 	$newurl
     }
   }
 
+  // clean up temporary files, unless requested not to
+  if (!$opts->keepfiles) unlink($filename);
 
 }
-
 
 /* Need to make sure all the file objects get their policies update.
    The easiest way is through the etd (which etd file objects have all been added to)
 */
- print "updating policy rules for etd files according to etd status\n";
-// etd files start out with draft policies; setting to draft so they will be removed if necessary
-$newetd->setStatus("draft");
-$newetd->setStatus($fezetd->status);
+print "updating policy rules for etd files according to etd status\n";
+foreach ($etdfiles as $file) {
+  if ($file->type == "original") {
+    $file->policy->removeRule("view");	// keep original files very locked down
+  } else {	// pdfs and supplements
+    // set department on view rule
+    $file->policy->view->condition->department = $newetd->mods->department;
+    // add to advisor & committee members to view policy rule
+    foreach (array_merge(array($newetd->mods->advisor), $newetd->mods->committee) as $faculty) {
+      $file->policy->view->condition->addUser($faculty->id);
+    }
+
+    if ($newetd->status() == "published") {
+      $file->policy->addRule("published");
+      if ($newetd->isEmbargoed()) {	// if there is an embargo, put the date in the policy rule
+	$file->policy->published->condition->embargo_end = $newetd->mods->embargo_end;
+      }
+    }
+  }
+
+  // draft rule is applicable to all files
+  // - depending on etd status, remove draft rule or set user as author
+  if ($newetd->status() != "draft") $file->policy->removeRule("draft");
+  else $file->policy->draft->condition->user = $newetd->owner;
+
+  // save etdfile object with updated policy
+  if ($opts->noact) {
+    $file->saveXMLtoFile($tmpdir . "/" . $file->dc->description . ".xml");
+  } else {
+    $result = $file->save("updated xacml policy rules");
+    if (!$result) print "Error: problem saving " . $file->pid . " with updated xacml policy\n";
+  }
+
+  
+}
 
 
 // copy premis events, updating to new format
@@ -513,8 +556,8 @@ foreach (array_reverse($fezetd->premis->event) as $event) {
 }
 
 if ($opts->noact) {
-  print "updating etd foxml in tmp file with rels & premis: tmp/etd.xml\n";
-  $newetd->saveXMLtoFile("tmp/etd.xml");
+  print "updating etd foxml in tmp file with rels & premis: {$tmpdir}/etd.xml\n";
+  $newetd->saveXMLtoFile($tmpdir . "/etd.xml");
 } else {
   $result = $newetd->save("migrated record history");
   print "updated etd with rels & premis actions; saved at $result\n";
