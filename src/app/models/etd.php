@@ -52,12 +52,14 @@ class etd extends foxml implements etdInterface {
 		   "supplements" => "Supplement");
     foreach ($files as $var => $type) {
       $this->$var = array();
-      // FIXME: why not just use RELS-EXT ?
       $pids = $this->findFiles($type);
       foreach ($pids as $pid) {
 	if ($pid) {
 	  try {
 	    $this->{$var}[] = new etd_file($pid, $this);
+	  } catch (FoxmlException $e) {
+	    // should this warn or not? regular users should NOT see it
+	    trigger_error("Access denied to $type file $pid", E_USER_NOTICE);
 	  } catch (FedoraAccessDenied $e) {
 	    // should this warn or not? regular users won't want to see it...
 	    trigger_error("Access denied to $type file $pid", E_USER_NOTICE);
@@ -81,6 +83,9 @@ class etd extends foxml implements etdInterface {
 	try {
 	  $authorpid = $this->rels_ext->hasAuthorInfo;
 	  $this->authorInfo = new user($authorpid);
+	} catch (FoxmlException $e) {
+	    // should this warn or not? regular users should NOT see it
+	    trigger_error("Access denied to authorInfo file $authorpid", E_USER_NOTICE);
 	} catch (FedoraAccessDenied $e) {
 	  print "Fedora Access Denied: " . $e->getMessage() . "<br>\n";
 	  // most users will NOT have access to the author information
@@ -228,6 +233,11 @@ class etd extends foxml implements etdInterface {
       $etdfile->save("setting sequence number");
     }
 
+    // make sure etdfile gets username properties - owner, draft author
+    $etdfile->owner = $this->owner;
+    if (isset($etdfile->policy->draft)) $etdfile->policy->draft->user = $this->owner;
+    
+
     // etd is related to file
     $this->rels_ext->addRelationToResource("rel:has{$relation}", $etdfile->pid);
 
@@ -278,11 +288,6 @@ class etd extends foxml implements etdInterface {
 	$this->premis->object->identifier->value = $value;
       }
 
-      // set pid in policy - used to set what resource policy applies to
-      if ($this->policy) {
-	$this->policy->pid = $value;
-	$this->policy->policyid = str_replace(":", "-", $value);
-      }
       
       // base foxml class also stores pid value in multiple places
       parent::__set($name, $value);
@@ -379,8 +384,10 @@ class etd extends foxml implements etdInterface {
 
   // is this record embargoed?
   public function isEmbargoed() {
-    // FIXME: check if embargo_end is not set or is blank?
+    if ($this->mods->embargo_end)
       return (strtotime($this->mods->embargo_end, 0) > time());
+    else	// no embargo date defined - not (yet) embargoed
+      return false;
   }
 
 
