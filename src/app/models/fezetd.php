@@ -45,6 +45,11 @@ class FezEtd extends foxml {
 
   }
 
+  public function getFile($dsID) {
+    return $this->fedora->getDatastream($this->pid, $dsID);
+  }
+
+
 
   public function __get($name) {
     switch ($name) {
