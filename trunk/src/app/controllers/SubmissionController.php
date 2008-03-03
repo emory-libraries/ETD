@@ -54,7 +54,7 @@ class SubmissionController extends Zend_Controller_Action {
   // pulls information from the PDF, creates a new fedora record with associated pdf file,
   // then forwards to the view/master edit page
   public function processPdfAction() {
-    if (!$this->isAllowed("submit")) return;
+    if (!$this->isAllowed("create")) return;
     
     $etd_info = $this->_helper->processPDF($_FILES['pdf']);
 
