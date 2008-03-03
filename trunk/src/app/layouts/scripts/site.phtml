@@ -11,6 +11,7 @@
  <? endif ?>    	 
   xml:lang="en">
 <head>
+
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
    <title>ETD08 : <?= $this->escape($this->title) ?></title>
   <?= $this->css('etd.css'); ?>
@@ -21,6 +22,7 @@
   <? endif ?>
 <link rel="Bookmark" href="<?= $this->linkTo('favicon.ico') ?>"/>
 <link rel="SHORTCUT ICON" href="<?= $this->linkTo('favicon.ico') ?>" />
+ <?= $this->javascript("projax/js/prototype.js"); ?>
 </head>
 <body>
 
@@ -70,18 +72,7 @@
          </ul>
 
  <? else: ?>
-  Emory Login: 
-  <form name="login" method="post"
-    action="<?= $this->url(array("controller" => "auth", "action" => "login"), "", true)?>">
-  <?= $this->formText("login[username]", ""); ?>
-  <?= $this->formPassword("login[password]", "", array("size" => 32)); ?>
-  <?= $this->formSubmit("Submit", "Login >", array("class" => "button submitlink")); ?>
-</form>	
-
- <ul class="horizontal">
-   <li><a href="" class="help">Why Login?</a></li>
- </ul>
-
+  <?= $this->render('_loginform.phtml'); ?>
  <? endif ?>
 </div>
 
