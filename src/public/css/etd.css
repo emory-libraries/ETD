@@ -624,7 +624,7 @@ table.statistics td.count, table.statistics th {
  text-align:right;
 }
 td.count { width:30px }
-td.label { width:200px }
+td.label { width:250px }
 
 td.abstract, th.abstract { 
  background-color: #e8eeff/*#bac2d9*/;
@@ -751,3 +751,21 @@ span#exclamation {
  float:left;
  padding-left:2px; padding-right:2px;
 }
+
+div#whylogin { 
+ margin:5px;
+ margin-left:350px;
+ width:350px;
+ background-color:white;
+ border: 1px solid black;
+ padding:3px;
+}
+
+div#whylogin a.close { 
+  float:right; 
+  text-decoration:none;
+  font-weight:bold;
+  color:black;
+}
+
+   <div id="whylogin" style="margin:5px;margin-left:350px;display:inline;width:350px;background-color:white;border:1px solid black;padding:3px;display:none"><a style="float:right" href="#" onClick="Element.hide('whylogin')">X</a>
