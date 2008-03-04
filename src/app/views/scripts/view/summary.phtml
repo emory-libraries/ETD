@@ -30,7 +30,7 @@
     
     <? if (isset($this->etd->mods->nonemory_committee) &&
 	   isset($this->etd->mods->nonemory_committee[0]) && 
-	   isset($this->etd->mods->nonemory_committee[0]->full)): ?>
+	   $this->etd->mods->nonemory_committee[0]->full): ?>
       <? foreach ($this->etd->mods->nonemory_committee as $cm): ?>
          <a href="<?= $this->url(array('controller' => 'browse', 'action' => 'committee',
   	'value' => urlencode($cm->full)),'', true)?>"><?= $cm->full ?></a> (<?= $cm->affiliation ?>);
