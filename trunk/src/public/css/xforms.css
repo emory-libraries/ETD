@@ -98,6 +98,11 @@ span.xforms-trigger input {
 
 /* key for required, invalid fields */
 div#xforms-key { 
+  font-size:90%;
+  border: 2px solid #565656; /* medium grey */
   background-color: #efefef; /* light grey */
+  width:35%;
+  padding:3px;
 }
 div#xforms-key .xforms-label { display: inline;  font-size: normal;}
+div#xforms-key p { margin:0px; text-indent:10px;}
