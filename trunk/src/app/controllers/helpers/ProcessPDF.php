@@ -47,6 +47,10 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
       } else {
 	$this->getInformation($html);
 	$this->fields['pdf'] = $pdf;
+
+	// remove temporary html file after we have pulled the information from it
+	unlink($html);
+	
 	return $this->fields;
       }
     }
