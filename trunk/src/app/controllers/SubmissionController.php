@@ -1,22 +1,10 @@
 <?php
-/** Zend_Controller_Action */
 
-/* Require models */
 require_once("models/etd.php");
 require_once("models/etd_notifier.php");
-require_once("helpers/ProcessPDF.php");
-require_once("helpers/PdfPageTotal.php");
 
 
-class SubmissionController extends Zend_Controller_Action {
-
-  public function init() {
-    Zend_Controller_Action_HelperBroker::addPath('../library/Emory/Controller/Action/Helper',
-						 'Emory_Controller_Action_Helper');
-    Zend_Controller_Action_HelperBroker::addPrefix('Etd_Controller_Action_Helper');
-    $this->acl = Zend_Registry::get("acl");
-    $this->user = $this->view->current_user;
-  }
+class SubmissionController extends Etd_Controller_Action {
 
   // fixme: copied from admin controller
   private function isAllowed($action, $etd = "etd") {

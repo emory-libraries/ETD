@@ -1,28 +1,9 @@
 <?php
-/** Zend_Controller_Action */
 
-/* Require models */
 require_once("models/etd.php");
-require_once("helpers/FileUpload.php");
-require_once("helpers/PdfPageTotal.php");
+require_once("models/etdfile.php");
 
-class FileController extends Zend_Controller_Action {
-
-  public function init() {
-    Zend_Controller_Action_HelperBroker::addPrefix('Etd_Controller_Action_Helper');
-
-    $this->acl = Zend_Registry::get("acl");
-    $this->user = $this->view->current_user;
-  }
-
-  
-  public function postDispatch() {
-    $this->view->messages = $this->_helper->flashMessenger->getCurrentMessages();
-
-    $env = Zend_Registry::get('env-config');
-    $this->view->site_mode = $env->mode;	// better name for this? (test/dev/prod)
-  }
-
+class FileController extends Etd_Controller_Action {
 
   // customized allow check for this controller - using etdfile as resource
   private function isAllowed(etd_file $etdfile, $action) {
@@ -47,7 +28,6 @@ class FileController extends Zend_Controller_Action {
     $this->_helper->redirector->gotoRoute(array("controller" => "auth",
 						"action" => "denied"), "", true);
   }
-
 
 
    // serve out a file attached to an ETD record from fedora

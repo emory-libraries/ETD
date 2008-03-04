@@ -1,6 +1,6 @@
 <?php
 
-class DocsController extends Zend_Controller_Action {
+class DocsController extends Etd_Controller_Action {
 
   public function aboutAction() {}
   public function faqAction() {}

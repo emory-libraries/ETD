@@ -1,21 +1,9 @@
 <?php
-/** Zend_Controller_Action */
-/* Require models */
+
 require_once("models/etd.php");
 require_once("models/etd_notifier.php");
 
-class ManageController extends Zend_Controller_Action {
-
-  protected $_flashMessenger = null;
-
-   public function init() {
-     $this->_flashMessenger = $this->_helper->getHelper('FlashMessenger');
-     $this->initView();
-
-     
-     $this->acl = Zend_Registry::get("acl");
-     $this->user = $this->view->current_user;
-   }
+class ManageController extends Etd_Controller_Action {
 
    // FIXME: how to share this among controllers? make it a helper?
    private function isAllowed($action, $etd = "etd") {

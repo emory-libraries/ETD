@@ -1,26 +1,9 @@
 <?php
-/** Zend_Controller_Action */
 
 require_once("models/stats.php");
 require_once("countries.php");
 
-class StatisticsController extends Zend_Controller_Action {
-
-  protected $_flashMessenger = null;
-
-   public function init() {
-     $this->_flashMessenger = $this->_helper->getHelper('FlashMessenger');
-     $this->initView();
-
-     $params =  $this->_getAllParams();
-     
-     $this->view->controller = $params['controller'];
-     $this->view->action = $params['action'];
-   }
-
-   public function postDispatch() {
-     $this->view->messages = $this->_helper->flashMessenger->getMessages();
-   }
+class StatisticsController extends Etd_Controller_Action {
 
    // stats for all etds, broken down by month/year
    public function countryAction() {
@@ -59,8 +42,6 @@ class StatisticsController extends Zend_Controller_Action {
      
      $this->view->etd = $etd;
      $this->view->title = "Access Statistics for " . $etd->label;
-
-
      
    }
 
