@@ -3,7 +3,7 @@
     <role name="guest">
       <allow resource="published etd">view metadata</allow>
       <allow resource="published file">view, download</allow>
-      <allow resource="embargoed file">view</allow>
+      <!-- no privileges on embargoed files (not even to view metadata) -->
     </role>
 
     <!-- base roles determined by person type in ESD; must be defined for ACL -->
