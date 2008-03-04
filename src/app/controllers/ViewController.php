@@ -8,21 +8,6 @@ class ViewController extends Etd_Controller_Action {
    public function indexAction() {	
      $this->view->assign("title", "Welcome to %project%");
    }
-   
-   // note: copied from AdminController - consolidate?
-   private function isAllowed($etd, $action) {
-     $role = $etd->getUserRole($this->view->current_user);
-     $allowed = $this->view->acl->isAllowed($role, $etd, $action);
-     if (!$allowed) {
-       $this->_helper->flashMessenger->addMessage("Error: " . $this->view->current_user->netid . " (role=" . $role . 
-						  ") is not authorized to $action " . $etd->getResourceId());
-       $this->_helper->redirector->gotoRoute(array("controller" => "auth",
-						   "action" => "denied"), "", true);
-     }
-     return $allowed;
-   }
-
-
 
    // view a full record
    public function recordAction() {
@@ -53,7 +38,7 @@ class ViewController extends Etd_Controller_Action {
        }
      }
 
-     if (!$this->isAllowed($etd, "view metadata")) return;
+     if (!$this->_helper->access->allowedOnEtd("view metadata", $etd)) return;
 
      $this->view->messages = $this->_helper->flashMessenger->getMessages();
 
@@ -79,7 +64,7 @@ class ViewController extends Etd_Controller_Action {
 
      if ($type == "etd") {
        $etd = new etd($pid);
-       if (!$this->isAllowed($etd, "view metadata")) return;
+       if (!$this->_helper->access->allowedOnEtd("view metadata", $etd)) return;
      } elseif ($type == "etdfile") {
        $etd = new etd_file($pid);
        // FIXME: how to check if etd_file can be viewed?
