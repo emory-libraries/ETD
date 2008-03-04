@@ -31,7 +31,7 @@
     </mods:role>
     <mods:description>Emory Committee Member</mods:description>
    </mods:name>
-  <mods:name ID="" type="personal">
+  <mods:name type="personal">
     <mods:namePart type="given"/>
     <mods:namePart type="family"/>
     <mods:displayForm/>
