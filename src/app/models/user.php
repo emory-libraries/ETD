@@ -12,8 +12,6 @@ require_once("etd_dc.php");
 
 class user extends foxml {
 
-  public $etds;	// related etd objects
-  
   public function __construct($arg = null) {
     parent::__construct($arg);
 
@@ -26,10 +24,9 @@ class user extends foxml {
       $this->cmodel = "user";
     }
 
-    $this->etds = array();
 
         // FIXME: this only works if user has permissions on rels-ext...
-    if ($this->init_mode == "pid") {
+    /*    if ($this->init_mode == "pid") {
       try {
 	$this->rels_ext != null;
       } catch  (FedoraAccessDenied $e) {
@@ -37,20 +34,21 @@ class user extends foxml {
 	//	trigger_error("Access Denied to rels-ext for " . $this->pid, E_USER_WARNING);
 	throw new FoxmlException("Access Denied to " . $this->pid); 
       }
-      if (isset($this->rels_ext->authorInfoFor)) {
-	foreach ($this->rels_ext->authorInfoFor as $etd_pid) {
 
-	  // FIXME: simplify this; anyone who has access to authorinfo should have access to the etd (author, etdadmin)
+      if (isset($this->rels_ext->etd)) {
+	// FIXME: simplify this; anyone who has access to authorinfo should have access to the etd (author, etdadmin)
 	  try {
-	    $this->etds[] = new etd($etd_pid);
+	    $this->etd = new etd($this->rels_ext->etd);
 	  } catch (FedoraAccessDenied $e) {
 	    print "Fedora Access Denied: " . $e->getMessage() . "<br>\n";
 	    // most users will NOT have access to the author information
 	    trigger_error("Access denied to etd $pid", E_USER_NOTICE);
 	  }
 	}
+      } else {
+	$this->etd = $etd;
       }
-    }
+      }*/
 
   }
 
