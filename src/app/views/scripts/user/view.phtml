@@ -1,14 +1,7 @@
 <h1>user information</h1>
 <? $user = $this->user->mads; ?>
 
-<? if (count($this->user->etds)): /* link back to related etds */ ?>
-  <p>Author information for:
-  <? foreach ($this->user->etds as $etd): ?>
-    <a href="<?= $this->url(array('controller' => 'view',
-		'action' => 'record', 'pid' => $etd->pid), '', true)?>"><?= $etd->title() ?></a><br/>
-  <? endforeach ?>
-  </p>
-<? endif?>  
+<a  style="float:right" href="<?= $this->url(array('controller' => 'view', 'action' => 'record', 'pid' => $this->user->rels_ext->etd), '', true)?>">return to ETD record</a><br/>
 
 <?= $user->name->first ?> <?= $user->name->last ?>
 
