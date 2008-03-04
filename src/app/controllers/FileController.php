@@ -7,8 +7,7 @@ class FileController extends Etd_Controller_Action {
 
    // serve out a file attached to an ETD record from fedora
    public function viewAction() {
-     $pid = $this->_getParam("pid");
-     $etdfile = new etd_file($pid);
+     $etdfile = $this->_helper->getFromFedora("pid", "etd_file");
      
      if (!$this->_helper->access->allowedOnEtdFile("view", $etdfile)) return;
      
@@ -26,14 +25,12 @@ class FileController extends Etd_Controller_Action {
 
   
   // add file to an etd record
-
    public function addAction() {
-     $etd_pid = $this->_getParam("etd");	// etd record the file should be added to
-
-     $etd = new etd($etd_pid);
+     // etd record the file should be added to
+     $etd = $this->_helper->getFromFedora("etd", "etd");
      if (!$this->_helper->access->allowedOnEtd("add file", $etd)) return;
 
-     $this->view->pid = $etd_pid;
+     $this->view->pid = $etd->pid;
      $this->view->etd = $etd;
      
     //upload file first, then edit metadata
@@ -42,8 +39,7 @@ class FileController extends Etd_Controller_Action {
 
    // upload a file and create a new etdfile
    public function newAction() {
-     $etd_pid = $this->_getParam("etd");	// etd record the file belongs to
-     $etd = new etd($etd_pid);		
+     $etd = $this->_helper->getFromFedora("etd", "etd");     // etd record the file belongs to
 
      // creating a new etdfile is part of adding a file to an etd
      if (!$this->_helper->access->allowedOnEtd("add file", $etd)) return;
@@ -111,12 +107,11 @@ class FileController extends Etd_Controller_Action {
 
    // upload and save a new version of the binary file
    public function updateAction() {
-     $pid = $this->_getParam("pid");
-     $etdfile = new etd_file($pid);
+     $etdfile = $this->_helper->getFromFedora("pid", "etd_file");
      if (!$this->_helper->access->allowedOnEtdFile("edit", $etdfile)) return;
 
      // pass on pids for links to etdfile and etd record
-     $this->view->file_pid = $pid;
+     $this->view->file_pid = $etdfile->pid;
      $this->view->etd_pid = $etdfile->parent->pid;
      $this->view->etd = $etdfile->parent;
 
@@ -153,14 +148,13 @@ class FileController extends Etd_Controller_Action {
    
    // edit file metadata
    public function editAction() {
-     $pid = $this->_getParam("pid");
-     $etdfile = new etd_file($pid);
+     $etdfile = $this->_helper->getFromFedora("pid", "etd_file");
      
      if (!$this->_helper->access->allowedOnEtdFile("edit", $etdfile)) return;
 
      $this->view->title = "Edit File Information";
      $this->view->etdfile = $etdfile;
-     $this->view->pid = $pid;
+     $this->view->pid = $etdfile->pid;
 
      // xforms setting - so layout can include needed code in the header
      $this->view->xforms = true;
@@ -172,15 +166,14 @@ class FileController extends Etd_Controller_Action {
      //    $this->view->xforms_model_xml = $etd->mods->saveXML();
      // link to xml rather than embedding directly in the page
      $this->view->xforms_model_uri = $this->view->url(array("controller" => "view",
-							    "action" => "dc", "pid" => $pid, "type" => "etdfile"));
+							    "action" => "dc", "pid" => $etdfile->pid,
+							    "type" => "etdfile"));
    }
 
 
    // save file metadata 
    public function saveAction() {
-     $pid = $this->_getParam("pid");
-     // FIXME: if pid is not defined, need to error out
-     $etdfile = new etd_file($pid);
+     $etdfile = $this->_helper->getFromFedora("pid", "etd_file");
      if (!$this->_helper->access->allowedOnEtdFile("edit", $etdfile)) return;
 
      global $HTTP_RAW_POST_DATA;
@@ -222,8 +215,7 @@ class FileController extends Etd_Controller_Action {
 
 
    public function removeAction() {
-     $pid = $this->_getParam("pid");
-     $etdfile = new etd_file($pid);
+     $etdfile = $this->_helper->getFromFedora("pid", "etd_file");
      if (!$this->_helper->access->allowedOnEtdFile("remove", $etdfile)) return;
 
      $etd_pid = $etdfile->parent->pid;

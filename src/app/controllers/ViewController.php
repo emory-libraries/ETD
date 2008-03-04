@@ -5,43 +5,13 @@ require_once("models/stats.php");
 
 class ViewController extends Etd_Controller_Action {
 
-   public function indexAction() {	
-     $this->view->assign("title", "Welcome to %project%");
-   }
-
    // view a full record
    public function recordAction() {
-     // fixme: error handling if pid is not specified?
-     $pid = $this->_getParam("pid", null);
-     if (is_null($pid)) {
-       trigger_error("No record specified", E_USER_WARNING);
-       $this->_helper->viewRenderer->setNoRender(true);
-     } else {
-       try {
-	 $etd = new etd($pid);
-	 if ($etd->cmodel != "etd") {
-	   trigger_error("Wrong type of object - $pid is not an etd", E_USER_WARNING);
-	   $this->_helper->viewRenderer->setNoRender(true);
-	   return;
-	 }
-	 
-	 
-	 $this->view->etd = $etd;
-	 $this->view->title = $etd->label;
-	 $this->view->dc = $etd->dc;
-       } catch (FedoraObjectNotFound $e) {
-	 trigger_error("Record not found: $pid", E_USER_WARNING);
-	 $this->_helper->viewRenderer->setNoRender(true);
-	 /*       } catch (FedoraAccessDenied $e) {
-	 trigger_error("Access Denied to record: $pid", E_USER_WARNING);
-	 $this->_helper->viewRenderer->setNoRender(true);*/
-       }
-     }
-
+     $etd = $this->_helper->getFromFedora("pid", "etd");
+     
      if (!$this->_helper->access->allowedOnEtd("view metadata", $etd)) return;
-
+     $this->view->etd = $etd;
      $this->view->messages = $this->_helper->flashMessenger->getMessages();
-
    }
 
    // show mods xml - referenced as model for xform
@@ -57,24 +27,23 @@ class ViewController extends Etd_Controller_Action {
    }
    
 
-   // show etd xml datastream
+   // show an xml datastream from etd or etdFile object
    public function xmlAction() {
-     $pid = $this->_getParam("pid");
      $type = $this->_getParam("type", "etd");
 
+     $object = $this->_helper->getFromFedora("pid", $type);
+
      if ($type == "etd") {
-       $etd = new etd($pid);
-       if (!$this->_helper->access->allowedOnEtd("view metadata", $etd)) return;
+       if (!$this->_helper->access->allowedOnEtd("view metadata", $object)) return;
      } elseif ($type == "etdfile") {
-       $etd = new etd_file($pid);
-       // FIXME: how to check if etd_file can be viewed?
+       if (!$this->_helper->access->allowedOnEtdFile("view", $object)) return;
      }
 
      $datastream = $this->_getParam("datastream");
      $mode = $this->_getParam("mode");
      
-     if (isset($etd->$datastream)) {	// check that it is the correct type, also?
-       $xml = $etd->$datastream->saveXML();
+     if (isset($object->$datastream)) {	// check that it is the correct type, also?
+       $xml = $object->$datastream->saveXML();
 
        // disable layouts and view script rendering in order to set content-type header as xml
        $this->getHelper('layoutManager')->disableLayouts();

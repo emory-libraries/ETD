@@ -92,7 +92,7 @@ class SubmissionController extends Etd_Controller_Action {
       $pid = $etd->save("creating preliminary record from uploaded pdf");
       if ($pid) {
 	// need to retrieve record from fedora so datastreams can be saved, etc.
-	$etd = new etd($pid);
+	$etd = $this->_helper->getFromFedora("pid", "etd");
 	
 	// could use fullname as agent id, but netid seems more userful
 	//FIXME: use full/display name here for user identity
@@ -184,7 +184,7 @@ class SubmissionController extends Etd_Controller_Action {
 
   public function reviewAction() {
     // double-check that etd is ready to submit?
-    $etd = new etd($this->_getParam("pid"));	// fixme: error handling if pid is not specified?
+    $etd = $this->_helper->getFromFedora("pid", "etd");
     if (!$this->_helper->access->allowedOnEtd("submit", $etd)) return;
     
     $this->view->etd = $etd;
@@ -194,7 +194,7 @@ class SubmissionController extends Etd_Controller_Action {
   public function submitAction() {
     // fixme: double-check that etd is ready to submit
     
-    $etd = new etd($this->_getParam("pid"));
+    $etd = $this->_helper->getFromFedora("pid", "etd");
     if (!$this->_helper->access->allowedOnEtd("submit", $etd)) return;
     
     

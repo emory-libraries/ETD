@@ -6,8 +6,7 @@ class EditController extends Etd_Controller_Action {
 
   // edit main record metadata
   public function recordAction() {
-    $pid = $this->_getParam("pid");
-    $etd = new etd($pid);
+    $etd = $this->_helper->getFromFedora("pid", "etd");
     if (!$this->_helper->access->allowedOnEtd("edit metadata", $etd)) return;
       
     $this->view->title = "Edit Record Information";
@@ -21,13 +20,12 @@ class EditController extends Etd_Controller_Action {
     //    $this->view->xforms_model_xml = $etd->mods->saveXML();
     // link to xml rather than embedding directly in the page
     $this->view->xforms_model_uri = $this->view->url(array("controller" => "view",
-							   "action" => "mods", "pid" => $pid,
+							   "action" => "mods", "pid" => $etd->pid,
 							   "mode" => "edit"));
   }
 
   public function programAction() {
-    $pid = $this->_getParam("pid");
-    $etd = new etd($pid);
+    $etd = $this->_helper->getFromFedora("pid", "etd");
     if (!$this->_helper->access->allowedOnEtd("edit metadata", $etd)) return;
     
     $this->view->title = "Edit Program";
@@ -53,13 +51,12 @@ class EditController extends Etd_Controller_Action {
 				    );
     // link to xml rather than embedding directly in the page
     $this->view->xforms_model_uri = $this->view->url(array("controller" => "view",
-							   "action" => "mods", "pid" => $pid));
+							   "action" => "mods", "pid" => $etd->pid));
   }
 
 
   public function facultyAction() {
-    $pid = $this->_getParam("pid");
-    $etd = new etd($pid);
+    $etd = $this->_helper->getFromFedora("pid", "etd");
     if (!$this->_helper->access->allowedOnEtd("edit metadata", $etd)) return;
     $this->view->title = "Edit Advisor & Committee Members";
     $this->view->etd = $etd;
@@ -67,8 +64,7 @@ class EditController extends Etd_Controller_Action {
 
   
   public function savefacultyAction() {
-    $pid = $this->_getParam("pid");
-    $etd = new etd($pid);
+    $etd = $this->_helper->getFromFedora("pid", "etd");
     if (!$this->_helper->access->allowedOnEtd("edit metadata", $etd)) return;
     
     $this->view->etd = $etd;
@@ -104,15 +100,14 @@ class EditController extends Etd_Controller_Action {
 
 
     $this->_helper->redirector->gotoRoute(array("controller" => "view", "action" => "record",
-    						"pid" => $pid), '', true);
+    						"pid" => $etd->pid), '', true);
   }
 
 
 
 
   public function rightsAction() {
-    $pid = $this->_getParam("pid");
-    $etd = new etd($pid);
+    $etd = $this->_helper->getFromFedora("pid", "etd");
     if (!$this->_helper->access->allowedOnEtd("edit metadata", $etd)) return;
 
     $this->view->title = "Edit Author Rights/Access Restrictions";
@@ -125,13 +120,12 @@ class EditController extends Etd_Controller_Action {
     $this->view->namespaces = array("mods" => "http://www.loc.gov/mods/v3");
     // link to xml rather than embedding directly in the page
     $this->view->xforms_model_uri = $this->view->url(array("controller" => "view",
-							   "action" => "mods", "pid" => $pid));
+							   "action" => "mods", "pid" => $etd->pid));
   }
 
 
   public function researchfieldAction() {
-    $pid = $this->_getParam("pid");
-    $etd = new etd($pid);
+    $etd = $this->_helper->getFromFedora("pid", "etd");
     if (!$this->_helper->access->allowedOnEtd("edit metadata", $etd)) return;
     
     $this->view->title = "Edit Research Fields";
@@ -144,8 +138,7 @@ class EditController extends Etd_Controller_Action {
   }
 
   public function saveResearchfieldAction() {
-    $pid = $this->_getParam("pid");
-    $etd = new etd($pid);
+    $etd = $this->_helper->getFromFedora("pid", "etd");
     if (!$this->_helper->access->allowedOnEtd("edit metadata", $etd)) return;
     
     $this->view->fields = $this->_getParam("fields");
@@ -174,7 +167,7 @@ class EditController extends Etd_Controller_Action {
 
     // return to record (fixme: make this a generic function of this controller? used frequently)
     $this->_helper->redirector->gotoRoute(array("controller" => "view", "action" => "record",
-    						"pid" => $pid), '', true);
+    						"pid" => $etd->pid), '', true);
 
   }
   
@@ -197,9 +190,9 @@ class EditController extends Etd_Controller_Action {
 
   // edit formatted fields
   public function htmlAction() {
-    $pid = $this->_getParam("pid");
+    $etd = $this->_helper->getFromFedora("pid", "etd");
     $mode = $this->_getParam("mode", "title");
-    $etd = new etd($pid);
+
     if (!$this->_helper->access->allowedOnEtd("edit metadata", $etd)) return;
 
     $this->view->mode = $mode;
@@ -227,8 +220,8 @@ class EditController extends Etd_Controller_Action {
   
   // save formatted fields
   public function saveHtmlAction() {
-    $pid = $this->_getParam("pid");
-    $etd = new etd($pid);
+    $etd = $this->_helper->getFromFedora("pid", "etd");
+
     if (!$this->_helper->access->allowedOnEtd("edit metadata", $etd)) return;
 
     $mode = $this->_getParam("mode");
@@ -258,24 +251,24 @@ class EditController extends Etd_Controller_Action {
       $this->_helper->flashMessenger->addMessage("No changes made to $mode");
     }
 
-    $this->view->pid = $pid;
+    $this->view->pid = $etd->pid;
     $this->view->mode = $mode;
     $this->view->title = "save $mode";
 
 
     // return to record (fixme: make this a generic function of this controller? used frequently)
     $this->_helper->redirector->gotoRoute(array("controller" => "view", "action" => "record",
-    						"pid" => $pid), '', true);
+    						"pid" => $etd->pid), '', true);
 
   }
 
 
    public function savemodsAction() {
-    $pid = $this->_getParam("pid");
+    $etd = $this->_helper->getFromFedora("pid", "etd");
+    if (!$this->_helper->access->allowedOnEtd("edit metadata", $etd)) return;
+
     $component = $this->_getParam("component", "record information");	// what just changed
     $log_message = "edited $component";
-    $etd = new etd($pid);
-    if (!$this->_helper->access->allowedOnEtd("edit metadata", $etd)) return;
 
     global $HTTP_RAW_POST_DATA;
     $xml = $HTTP_RAW_POST_DATA;
@@ -300,29 +293,29 @@ class EditController extends Etd_Controller_Action {
     }
 
 
-    $this->view->pid = $pid;
+    $this->view->pid = $etd->pid;
     $this->view->xml = $xml;
     $this->view->title = "save mods";
 
     // return to record (fixme: make this a generic function of this controller? used frequently)
     $this->_helper->redirector->gotoRoute(array("controller" => "view", "action" => "record",
-						"pid" => $pid), '', true);
+						"pid" => $etd->pid), '', true);
    }
 
 
    /* FIXME: should these two actions have a different action in the ACL, or is this sufficient? */
    
   public function fileorderAction() {
-    $pid = $this->_getParam("pid");
-    $etd = new etd($pid);
+    $etd = $this->_helper->getFromFedora("pid", "etd");
+
     if (!$this->_helper->access->allowedOnEtd("edit metadata", $etd)) return;
     $this->view->title = "Edit File order";
     $this->view->etd = $etd;
   }
 
   public function savefileorderAction() {
-    $pid = $this->_getParam("pid");
-    $etd = new etd($pid);      
+    $etd = $this->_helper->getFromFedora("pid", "etd");
+
     if (!$this->_helper->access->allowedOnEtd("edit metadata", $etd)) return;
     
     $order['pdf'] = $this->_getParam("pdfs");
@@ -348,7 +341,7 @@ class EditController extends Etd_Controller_Action {
     
     // return to record (fixme: make this a generic function of this controller? used frequently)
     $this->_helper->redirector->gotoRoute(array("controller" => "view", "action" => "record",
-    						"pid" => $pid), '', true);
+    						"pid" => $etd->pid), '', true);
 
     
     $this->_helper->viewRenderer->setNoRender(true);
