@@ -17,7 +17,9 @@
 
   <?=  $this->render('view/fullrecord.phtml'); ?>
 <div class="fullrecord">
-    <?=  $this->render('view/_statistics.phtml'); ?>
+    <? if ($this->etd->status() == "published"):   /* only published records should have stats */ ?>
+      <?=  $this->render('view/_statistics.phtml'); ?>
+    <? endif ?>
   <?=  $this->render('view/_history.phtml'); ?>
 </div>
 
