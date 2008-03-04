@@ -23,8 +23,8 @@ to your document.</p>
 
    <p><b>Type of file to add:</b></p>
   <p><?= $this->formSelect("filetype", "", null,
-			   array("pdf" => "Thesis/Dissertation in PDF format",
-				 "original" => "Thesis/Dissertation in original format ",
+			   array("original" => "Thesis/Dissertation in original format ",
+				 "pdf" => "Thesis/Dissertation in PDF format",	
 				 "supplement" => "Supplemental file")); ?> </p>
    
   <p><?= $this->formFile("file"); ?></p>
