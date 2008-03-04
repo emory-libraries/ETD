@@ -267,13 +267,18 @@ class FileController extends Zend_Controller_Action {
      } else {
        $etdfile->dc->updateXML($xml);
 
-       // fixme: needs better error checking (like in EditController)
-       $save_result = $etdfile->save("edited file information");
-       $this->view->save_result = $save_result;
-       if ($save_result)
-	 $this->_helper->flashMessenger->addMessage("Saved changes to file information");
-       else 
-	 $this->_helper->flashMessenger->addMessage("No changes made to file information");
+       if ($etdfile->dc->hasChanged()) {
+	 // fixme: needs better error checking (like in EditController)
+	 $save_result = $etdfile->save("edited file information");
+	 $this->view->save_result = $save_result;
+	 if ($save_result)
+	   $this->_helper->flashMessenger->addMessage("Saved changes to file information");
+	 else
+	   $this->_helper->flashMessenger->addMessage("Error: could not save changes to file information");
+       } else {
+       	 $this->_helper->flashMessenger->addMessage("No changes made to file information");
+       }
+
     }
 
 
