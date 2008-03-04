@@ -1,6 +1,6 @@
 <?php
 
-class ConfigController extends Zend_Controller_Action {
+class ConfigController extends Etd_Controller_Action {
 
 
   // display config xml -- used in various xforms
@@ -14,7 +14,7 @@ class ConfigController extends Zend_Controller_Action {
     case "programs":
     case "languages":
       $xml = file_get_contents("../config/" . $id . ".xml");
-      // FIXME: move logic into a controller helper?
+      // FIXME: move logic to display xml into a controller helper?
       $this->getHelper('layoutManager')->disableLayouts();
       $this->_helper->viewRenderer->setNoRender(true);
       $this->getResponse()->setHeader('Content-Type', "text/xml")->setBody($xml);

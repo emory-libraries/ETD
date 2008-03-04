@@ -1,24 +1,13 @@
 <?php
-/** Zend_Controller_Action */
-/* Require models */
+
 require_once("models/etd.php");
-require_once("helpers/ProcessPDF.php");
 require_once("models/stats.php");
 
-class ViewController extends Zend_Controller_Action {
+class ViewController extends Etd_Controller_Action {
 
-  protected $_flashMessenger = null;
-
-   public function init() {
-     $this->_flashMessenger = $this->_helper->getHelper('FlashMessenger');
-     $this->initView();
-   }
-   
    public function indexAction() {	
      $this->view->assign("title", "Welcome to %project%");
    }
-
-
    
    // note: copied from AdminController - consolidate?
    private function isAllowed($etd, $action) {

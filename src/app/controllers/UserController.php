@@ -2,15 +2,7 @@
 
 require_once("models/user.php");
 
-class UserController extends Zend_Controller_Action {
-
-  public function init() {
-    $this->initView();
-	 
-    $this->acl = Zend_Registry::get("acl");
-    $this->user = $this->view->current_user;
-  }
-
+class UserController extends Etd_Controller_Action {
 
   private function isAllowed($action, user $user = null) {
     if (!is_null($user))
@@ -29,19 +21,6 @@ class UserController extends Zend_Controller_Action {
 						"action" => "denied"), "", true);
   }
 
-
-  
-  public function postDispatch() {
-    if ($this->_helper->flashMessenger->hasMessages())
-      $this->view->messages = $this->_helper->flashMessenger->getMessages();
-    elseif ($this->_helper->flashMessenger->hasCurrentMessages())
-      $this->view->messages = $this->_helper->flashMessenger->getCurrentMessages();
-    
-    $env = Zend_Registry::get('env-config');
-    $this->view->site_mode = $env->mode;	// better name for this? (test/dev/prod)
-  }
-
-  
 
   public function viewAction() {
     if ($this->_hasParam("pid")) {

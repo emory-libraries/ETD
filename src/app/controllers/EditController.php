@@ -1,26 +1,8 @@
 <?php
-/** Zend_Controller_Action */
 
-/* Require models */
 require_once("models/etd.php");
-require_once("helpers/FileUpload.php");
 
-class EditController extends Zend_Controller_Action {
-
-
-   public function init() {
-     $this->_flashMessenger = $this->_helper->getHelper('FlashMessenger');
-     $this->initView();
-
-     
-     $this->acl = Zend_Registry::get("acl");
-     $this->user = $this->view->current_user;
-   }
-
-  
-  public function postDispatch() {
-    $this->view->messages = $this->_helper->flashMessenger->getCurrentMessages();
-  }
+class EditController extends Etd_Controller_Action {
 
   public function isAllowed($etd, $action = "edit metadata") {
     // edit metadata action should cover most of this controller
@@ -337,8 +319,8 @@ class EditController extends Zend_Controller_Action {
     $this->view->title = "save mods";
 
     // return to record (fixme: make this a generic function of this controller? used frequently)
-    $this->_helper->redirector->gotoRoute(array("controller" => "view", "action" => "record",
-    						"pid" => $pid), '', true);
+    //    $this->_helper->redirector->gotoRoute(array("controller" => "view", "action" => "record",
+    //					"pid" => $pid), '', true);
    }
 
    
