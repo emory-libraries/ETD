@@ -5,7 +5,7 @@
 require_once("models/user.php");
 require_once("models/esdPerson.php");
 
-class AuthController extends Zend_Controller_Action {
+class AuthController extends Etd_Controller_Action {
 
   protected $_flashMessenger = null;
 
@@ -20,11 +20,16 @@ class AuthController extends Zend_Controller_Action {
 
 
    public function loginAction() {
-     $login = $this->_getParam('login');
+     $login = $this->_getParam('login', null);
      $username = $login['username'];
      $password = $login['password'];
 
      // make sure both are set before attempting to authenticate...
+     if ($username == '' || $password == '') {
+       $this->_helper->flashMessenger->addMessage("Error: please supply username and password");
+       $this->_helper->redirector->gotoRoute(array("controller" => "index",
+						   "action" => "index"), "", true);
+     }
      
      $env = Zend_Registry::get('env-config');
      $ldap_config = new Zend_Config_Xml("../config/ldap.xml", $env->mode);
@@ -55,6 +60,7 @@ class AuthController extends Zend_Controller_Action {
        // forward to .. ?
        $this->_helper->redirector->gotoRoute(array("controller" => "index",
 						   "action" => "index"), "", true);
+						   
      } else {	
        $this->_flashMessenger->addMessage("Login successful");
        // find this user in ESD and save their user information
