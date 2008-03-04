@@ -205,9 +205,11 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
     return parent::purge($message);
   }
 
-  public function updateFile($filename, $mimetype, $message) {
+  public function updateFile($filename, $message) {
+    $this->setFileInfo($filename);   // update mimetype, filesize, and pages if appropriate       
     $upload_id = $this->fedora->upload($filename);
-    return $this->fedora->modifyBinaryDatastream($this->pid, "FILE", "Binary File", $mimetype, $upload_id, $message);
+    return $this->fedora->modifyBinaryDatastream($this->pid, "FILE", "Binary File", $this->dc->mimetype,
+						 $upload_id, $message);
   }
 
 
