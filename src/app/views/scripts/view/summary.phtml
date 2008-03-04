@@ -7,6 +7,13 @@
    (<a href="<?= $this->url(array('controller' => 'browse', 'action' => 'year',
 	'value' => $year), '', true)?>"><?= $year ?></a>)
    <? endif ?>
+
+     <? if (isset($this->etd->authorInfo) &&
+       $this->acl->isAllowed($this->etd->authorInfo->getUserRole($this->current_user), "user", "view")): ?>
+  <span class="userinfo">[<a href="<?= $this->url(array('controller' => 'user', 'action' => 'view',
+	'pid' => $this->etd->authorInfo->pid), '', true) ?>">contact info</a>]</span>
+<? endif ?>     
+
   <br/>
  <? if ($doctype = $this->etd->document_type()): ?><b><?= $doctype ?></b><? endif ?>
  <? if ($num_pages = $this->etd->num_pages()): ?>(<?= $num_pages ?> pages)<? endif ?>

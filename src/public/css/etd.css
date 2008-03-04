@@ -752,6 +752,9 @@ span#exclamation {
  padding-left:2px; padding-right:2px;
 }
 
+span.userinfo { padding-left:10px; font-size:90%; }
+span.userinfo, span.userinfo a { color:#565656; }
+
 div#whylogin { 
  margin:5px;
  margin-left:350px;
