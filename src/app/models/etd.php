@@ -256,12 +256,6 @@ class etd extends foxml implements etdInterface {
     case "original": $relation = "hasOriginal"; break;
     case "supplement"; $relation = "hasSupplement"; break;
     }
-
-    //  NOTE: this doesn't seem to be necessary, and generates a notice about not finding relation
-    //  - perhaps Fedora removes relations when purging objects?
-    //    $this->rels_ext->removeRelation("rel:$relation", $etdfile->pid);
-
-    
   }
 
   
