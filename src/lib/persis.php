@@ -40,7 +40,7 @@ class persis {
 					 $url, $title, "", $this->domain_id, "", "", "");
     } catch (SoapFault $e) {
       print "Error accessing persistent id server: " . $e->faultstring . "\n";
-      print "response: \n" . $persis->__getLastResponse();
+      print "response: \n" . $this->service->__getLastResponse();
       return null;
     }
     return $ark;
