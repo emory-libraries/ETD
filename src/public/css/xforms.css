@@ -96,3 +96,8 @@ span.xforms-trigger input {
   cursor:hand;
 }
 
+/* key for required, invalid fields */
+div#xforms-key { 
+  background-color: #efefef; /* light grey */
+}
+div#xforms-key .xforms-label { display: inline;  font-size: normal;}
