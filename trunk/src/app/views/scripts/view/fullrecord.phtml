@@ -9,7 +9,7 @@
    <? endif ?>
   <h1><?= $this->etd->html->title ?></a></h1>
  	<? if ($this->acl->isAllowed($this->role, $this->etd, "edit metadata")): ?>
-<a class="action" href="<?= $this->url(array("controller" => "edit", "action" => "record")) ?>">edit record</a>
+<a class="action" href="<?= $this->url(array("controller" => "edit", "action" => "record")) ?>">edit thesis information</a>
    <a class="action" href="<?= $this->url(array("controller" => "edit", "action" => "faculty")) ?>">edit advisor & committee</a>
 
    <a class="action" href="<?= $this->url(array("controller" => "edit", "action" => "rights")) ?>">edit rights/restrictions</a>
