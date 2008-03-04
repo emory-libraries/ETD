@@ -43,13 +43,7 @@ class ViewController extends Etd_Controller_Action {
      $mode = $this->_getParam("mode");
      
      if (isset($object->$datastream)) {	// check that it is the correct type, also?
-       $xml = $object->$datastream->saveXML();
-
-       // disable layouts and view script rendering in order to set content-type header as xml
-       $this->getHelper('layoutManager')->disableLayouts();
-       $this->_helper->viewRenderer->setNoRender(true);
-       
-       $this->getResponse()->setHeader('Content-Type', "text/xml")->setBody($xml);
+       $this->_helper->displayXml($object->$datastream->saveXML());
      } else {
        $this->_helper->flashMessenger("Error: invalid xml datastream");
        // do something with this message?
