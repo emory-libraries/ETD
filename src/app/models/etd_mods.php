@@ -388,7 +388,7 @@ class etd_mods extends mods {
     // at least one research field (filled out, not blank)
     if (!count($this->researchfields) ||
 	$this->researchfields[0]->id == "" || $this->researchfields[0]->topic == "") {
-      $missing["proquest research fields"] = "researchfield";
+      $missing["ProQuest research fields"] = "researchfield";
     }
     // fixme: check if there are too many? app should not let them set too many
 
