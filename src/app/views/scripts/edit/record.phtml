@@ -24,7 +24,7 @@
 
  <?/*  umi/proquest research fields edited separately */ ?>
 
-  <p>Please enter keywords to describe your work to assist researchers in locating your document.  You may add as many keywords as you wish.</p>
+  <p>Please enter keywords to describe your work. Enter words or phrases one at a time in the box. For each addition word or phrase, click on "add another keyword." You may add as many keywords/phrases as you wish.</p>
   <xf:repeat id="repeat-keywords" nodeset="mods:subject[@authority='keyword']">
    <?= $this->xformText("Keyword", "mods:topic"); ?>
    <br/>
