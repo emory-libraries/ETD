@@ -1,4 +1,4 @@
-<? include "fckeditor/fckeditor.php"; ?>
+<? include "js/FCKeditor/fckeditor.php"; ?>
 
 <h1><?= $this->etd_title ?></h1>
 
@@ -9,9 +9,8 @@
 
 <?php
 $oFCKeditor = new FCKeditor("edit_content");
-$oFCKeditor->BasePath = "/~rsutton/fckeditor/";
+$oFCKeditor->BasePath = (string)$this->linkTo("js/FCKeditor/");
 $oFCKeditor->Value = (string)$this->edit_content;
-//$oFCKeditor->Config["CustomConfigurationsPath"] = "/myconfig.js"  ;
 
 $oFCKeditor->Config["CustomConfigurationsPath"] = (string)$this->linkTo("js/FCKconfig.js");
 $oFCKeditor->ToolbarSet = 'Basic';
