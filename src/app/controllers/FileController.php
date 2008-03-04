@@ -120,20 +120,6 @@ class FileController extends Zend_Controller_Action {
        
        $etdfile->setFileInfo($filename);	// set mimetype, filesize, and pages if appropriate       
 
-       /*       $finfo = finfo_open(FILEINFO_MIME);	// fixme: pull out into a helper?
-       if ($finfo) {
-	 $filetype = finfo_file($finfo, $filename);	// don't trust mimetype reported by the browser
-	 $etdfile->dc->format[0] = $filetype;	// $fileinfo['type'];	// mimetype
-	 $etdfile->file->mimetype = $filetype;
-
-	 if ($filetype == "application/pdf")
-	   // get number of pages for pdfs (especially important for pdf, but okay for supplements too)
-	   $etdfile->dc->setPages($this->_helper->PdfPageTotal($filename));
-
-       }
-       // since mimetype from upload info is not reliable, don't rely on that for size either
-       $etdfile->dc->setFilesize(filesize($filename));	// file size in bytes
-       */
        $etdfile->setFile($filename);	// upload and set ingest url to upload id
 
        // add relation to etd
@@ -142,6 +128,9 @@ class FileController extends Zend_Controller_Action {
        $filepid = $etdfile->save("adding new file");
        $this->view->file_pid = $filepid;
 
+
+       // delete temporary file now that we are done with it
+       unlink($filename);
 
        //FIXME: not working - not getting added to etd
        // add relation to etd object as well
@@ -183,33 +172,7 @@ class FileController extends Zend_Controller_Action {
      $filename = $tmpdir . "/" . $fileinfo['name'];
      $uploaded = $this->_helper->FileUpload($fileinfo, $filename);
      if ($uploaded) {
-       $etdfile->setFileInfo($filename);	// set mimetype, filesize, and pages if appropriate       
-
-       /*       $finfo = finfo_open(FILEINFO_MIME);	// fixme: pull out into a helper?
-       if ($finfo) {
-	 $filetype = finfo_file($finfo, $filename);	// don't trust mimetype reported by the browser
-	 $etdfile->dc->mimetype = $filetype;		 // mimetype 
-
-	 if ($filetype == "application/pdf") {
-	   // get number of pages for pdfs (especially important for pdf, but okay for supplements too)
-	   $pages = $this->_helper->PdfPageTotal($filename);
-
-	   // if a pdf of the dissertation & page total changed, adjust page number total for the etd record
-	   if ($etdfile->type == "pdf" && $pages != $etdfile->dc->pages) {
-	     $pagediff = $pages - $etdfile->dc->pages;
-	     $etdfile->parent->mods->pages += $pagediff;	// adjust page # for parent etd record
-	     $etdfile->parent->save("updated page total");
-	   }
-	   $etdfile->dc->setPages($pages);
-
-	 }
-
-	 }
-       // since mimetype from upload info is not reliable, don't rely on that for size either
-       $etdfile->dc->setFilesize(filesize($filename));	// file size in bytes
-       */
-       
-       $fileresult = $etdfile->updateFile($filename, $filetype, "new version of file");
+       $fileresult = $etdfile->updateFile($filename, "new version of file");	// update file info, upload new file
        $xmlresult = $etdfile->save("modified metadata for new version of file");
        if ($fileresult === false || $xmlresult === false) {	// how to determine which failed?
 	 $this->_helper->flashMessenger->addMessage("Error: there was a problem saving the record.");
@@ -217,9 +180,12 @@ class FileController extends Zend_Controller_Action {
 	 $this->view->save_result = $fileresult;
        }
 
+       // delete temporary file now that we are done with it
+       unlink($filename);
+
        $this->_helper->viewRenderer->setScriptAction("new");
      } else {
-       // problem with file - redirect somewhere?
+       // FIXME: problem with file upload - redirect somewhere? error message?
      }
      
    }

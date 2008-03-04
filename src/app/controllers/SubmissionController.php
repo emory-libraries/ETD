@@ -156,6 +156,9 @@ class SubmissionController extends Zend_Controller_Action {
 	//      $etdfile->rels_ext->addRelationToResource("rel:owner", $user->pid);
 	$etdfile->rels_ext->addRelationToResource("rel:isPDFOf", $etd->pid);
 	$filepid = $etdfile->save("creating record from uploaded pdf");	// save and get pid
+
+       // delete temporary file now that we are done with it
+	unlink($etd_info['pdf']);
 	
 	// add relation to etd object and save changes
 	$result = $etd->addPdf($etdfile);
