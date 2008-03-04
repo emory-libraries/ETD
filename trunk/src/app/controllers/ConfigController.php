@@ -14,10 +14,8 @@ class ConfigController extends Etd_Controller_Action {
     case "programs":
     case "languages":
       $xml = file_get_contents("../config/" . $id . ".xml");
-      // FIXME: move logic to display xml into a controller helper?
-      $this->getHelper('layoutManager')->disableLayouts();
-      $this->_helper->viewRenderer->setNoRender(true);
-      $this->getResponse()->setHeader('Content-Type', "text/xml")->setBody($xml);
+
+      $this->_helper->displayXml($xml);
       break;
     default:
       // should generate error message here- invalid config id 
