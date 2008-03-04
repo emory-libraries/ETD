@@ -4,28 +4,10 @@ require_once("models/user.php");
 
 class UserController extends Etd_Controller_Action {
 
-  private function isAllowed($action, user $user = null) {
-    if (!is_null($user))
-      $role = $user->getUserRole($this->user);
-    else $role = $this->user->role;
-    $allowed = $this->acl->isAllowed($role, "user", $action);
-    if (!$allowed) $this->notAllowed($action, $role, "user");
-    return $allowed;
-  }
-
-  // redirect to a generic access denied page, with minimal information why
-  private function notAllowed($action, $role, $resource) {
-    $this->_helper->flashMessenger->addMessage("Error: " . $this->user->netid . " (role=" . $role . 
-					       ") is not authorized to $action $resource");
-    $this->_helper->redirector->gotoRoute(array("controller" => "auth",
-						"action" => "denied"), "", true);
-  }
-
-
   public function viewAction() {
     if ($this->_hasParam("pid")) {
       $user = new user($this->_getParam("pid"));
-      if (!$this->isAllowed("view", $user)) return;
+      if (!$this->_helper->access->allowedOnUser("view", $user)) return;
     } else {
       //default to currently logged in user
       // FIXME: still needed? may not make sense..
@@ -38,7 +20,7 @@ class UserController extends Etd_Controller_Action {
 
   // create a new user record
   public function newAction() {
-    if (!$this->isAllowed("create")) return;
+    if (!$this->_helper->access->allowedOnUser("create")) return;
     $this->_forward("edit");
   }
 
@@ -61,9 +43,9 @@ class UserController extends Etd_Controller_Action {
     
     $user = new user($pid);
     if (is_null($pid))	{ // if pid is null, action is actually create (user is not author on an object yet)
-      if (!$this->isAllowed("create")) return;
+      if (!$this->_helper->access->allowedOnUser("create")) return;
     } else { 		// if pid is defined, action is editing an existing object
-      if (!$this->isAllowed("edit", $user)) return;
+      if (!$this->_helper->access->allowedOnUser("edit", $user)) return;
     }
     $this->view->user = $user;
 
@@ -87,9 +69,9 @@ class UserController extends Etd_Controller_Action {
     
     $user = new user($pid);
     if (is_null($pid))	{ // if pid is null, action is actually create (user is not author on an object yet)
-      if (!$this->isAllowed("create")) return;
+      if (!$this->_helper->access->allowedOnUser("create")) return;
     } else { 		// if pid is defined, action is editing an existing object
-      if (!$this->isAllowed("edit", $user)) return;
+      if (!$this->_helper->access->allowedOnUser("edit", $user)) return;
     }
 
     global $HTTP_RAW_POST_DATA;
@@ -160,9 +142,9 @@ class UserController extends Etd_Controller_Action {
      
      $user = new user($pid);
      if (is_null($pid))	{ // if pid is null, action is actually create (user is not author on an object yet)
-       if (!$this->isAllowed("create")) return;
+       if (!$this->_helper->access->allowedOnUser("create")) return;
      } else { 		// if pid is defined, action is viewing an existing object
-       if (!$this->isAllowed("view", $user)) return;
+       if (!$this->_helper->access->allowedOnUser("view", $user)) return;
      }
      $this->view->user = $user;
 

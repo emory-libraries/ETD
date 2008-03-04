@@ -6,34 +6,13 @@ require_once("models/etd_notifier.php");
 
 class SubmissionController extends Etd_Controller_Action {
 
-  // fixme: copied from admin controller
-  private function isAllowed($action, $etd = "etd") {
-    if ($etd instanceof etd) {
-      $role = $etd->getUserRole($this->user);
-      $resource = $etd->getResourceId();
-    } else {
-      $role = $this->user->role;
-      $resource = $etd;
-    }
-    
-    $allowed = $this->acl->isAllowed($role, $etd, $action);
-     if (!$allowed) {
-       $this->_helper->flashMessenger->addMessage("Error: " . $this->user->netid . " (role=" . $role . 
-						  ") is not authorized to submit " . $resource);
-       $this->_helper->redirector->gotoRoute(array("controller" => "auth",
-						   "action" => "denied"), "", true);
-     }
-     return $allowed;
-   }
-
-
   public function indexAction() {
     $this->_forward("start");
     // maybe this should be a summary/status page to check on the submission...
   }
    
   public function startAction() {
-    if (!$this->isAllowed("create")) return;
+    if (!$this->_helper->access->allowedOnEtd("create")) return;
     // any other info needed here?
     $this->view->title = "Begin Submission";
   }
@@ -42,7 +21,7 @@ class SubmissionController extends Etd_Controller_Action {
   // pulls information from the PDF, creates a new fedora record with associated pdf file,
   // then forwards to the view/master edit page
   public function processPdfAction() {
-    if (!$this->isAllowed("create")) return;
+    if (!$this->_helper->access->allowedOnEtd("create")) return;
     
     $etd_info = $this->_helper->processPDF($_FILES['pdf']);
 
@@ -206,7 +185,7 @@ class SubmissionController extends Etd_Controller_Action {
   public function reviewAction() {
     // double-check that etd is ready to submit?
     $etd = new etd($this->_getParam("pid"));	// fixme: error handling if pid is not specified?
-    if (!$this->isAllowed("submit", $etd)) return;
+    if (!$this->_helper->access->allowedOnEtd("submit", $etd)) return;
     
     $this->view->etd = $etd;
     $this->view->title = "final review";
@@ -216,7 +195,7 @@ class SubmissionController extends Etd_Controller_Action {
     // fixme: double-check that etd is ready to submit
     
     $etd = new etd($this->_getParam("pid"));
-    if (!$this->isAllowed("submit", $etd)) return;
+    if (!$this->_helper->access->allowedOnEtd("submit", $etd)) return;
     
     
     $newstatus = "submitted";
@@ -253,9 +232,4 @@ class SubmissionController extends Etd_Controller_Action {
 
   }
 
-  
-  //  other actions:
-  // review, submit, addfile (upload/enter info)
-  // check required fields/files/etc
-   
 }
