@@ -184,6 +184,11 @@ class FileController extends Zend_Controller_Action {
        unlink($filename);
 
        $this->_helper->viewRenderer->setScriptAction("new");
+
+       // direct user to edit file info
+       $this->_helper->redirector->gotoRoute(array("controller" => "file", "action" => "edit",
+       						   "pid" => $etdfile->pid, 'etd' => $etd->pid), '', true);
+       
      } else {
        // FIXME: problem with file upload - redirect somewhere? error message?
      }
