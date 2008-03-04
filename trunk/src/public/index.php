@@ -105,10 +105,8 @@ $viewRenderer->view->site_mode = $env_config->mode;	// better name for this? (te
 
 
 
-
 Zend_Controller_Action_HelperBroker::addPath('Emory/Controller/Action/Helper',
 					     'Emory_Controller_Action_Helper');
-
 
 //set internal error handler
 $front->throwExceptions((boolean)$env_config->display_exception);
@@ -119,5 +117,5 @@ $front->throwExceptions((boolean)$env_config->display_exception);
 //$router->addConfig($routecfg, "routes");
 
 $front->dispatch();
-?>
+
 
