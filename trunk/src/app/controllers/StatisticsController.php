@@ -11,6 +11,11 @@ class StatisticsController extends Zend_Controller_Action {
    public function init() {
      $this->_flashMessenger = $this->_helper->getHelper('FlashMessenger');
      $this->initView();
+
+     $params =  $this->_getAllParams();
+     
+     $this->view->controller = $params['controller'];
+     $this->view->action = $params['action'];
    }
 
    public function postDispatch() {
@@ -31,6 +36,8 @@ class StatisticsController extends Zend_Controller_Action {
      $stats = new StatObject();
      $this->view->month = $stats->countByMonthYear();
      $this->view->title = "Access Statistics by Month";
+     
+     $this->view->params =  $this->_getAllParams();
    }
 
    // statistics for a single record
