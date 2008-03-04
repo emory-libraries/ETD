@@ -90,13 +90,14 @@ class SubmissionController extends Etd_Controller_Action {
           
       // create an etd file object for uploaded PDF and associate with etd record
       $pid = $etd->save("creating preliminary record from uploaded pdf");
+      if ($this->debug) $this->_helper->flashMessenger->addMessage("Saved etd as $pid");
       if ($pid) {
 	// need to retrieve record from fedora so datastreams can be saved, etc.
-	$etd = $this->_helper->getFromFedora("pid", "etd");
+	$etd = $this->_helper->getFromFedora->findById($pid, "etd");
 	
 	// could use fullname as agent id, but netid seems more userful
 	//FIXME: use full/display name here for user identity
-	$etd->premis->addEvent("ingest", "Record created by " . $identity->fullname, "success",
+	$etd->premis->addEvent("ingest", "Record created by " . $current_user->fullname, "success",
 			       array("netid", $identity));
 	$etd->save();
 
@@ -131,10 +132,11 @@ class SubmissionController extends Etd_Controller_Action {
 	$result = $etd->addPdf($etdfile);
 	//	$etd->rels_ext->addRelationToResource("rel:hasPDF", $filepid);
 	$etd->save("added relation to uploaded pdf");
+	if ($this->debug) $this->_helper->flashMessenger->addMessage("Saved etd file as $filepid");
 	
 	$this->_helper->redirector->gotoRoute(array("controller" => "view",
 						    "action" => "record",
-						    "pid" => $pid));
+						    "pid" => $etd->pid));
 	
       } else {
 	$this->_helper->flashMessenger->addMessage("Error saving etd to fedora");
