@@ -192,7 +192,7 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
 
   // remove from parent etd record, THEN purge from fedora
   public function purge($message) {
-    $rel = "rel:has" . ucfirst($this->type);	// FIXME: won't work for pdf...
+    $rel = "rel:has" . ucfirst($this->type);	
     if ($this->type == "pdf")
       $rel = "rel:hasPDF";
     // maybe add removePdf, removeSupplement, etc. functions for etd_rels ?
