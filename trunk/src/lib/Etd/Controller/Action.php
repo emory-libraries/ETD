@@ -4,6 +4,7 @@ require_once("xml_acl.php");
 abstract class Etd_Controller_Action extends Zend_Controller_Action {
 
   protected $debug;
+  protected $env;
   
   public function init() {
     $this->initView();
@@ -20,10 +21,14 @@ abstract class Etd_Controller_Action extends Zend_Controller_Action {
     $this->acl = Zend_Registry::get('acl');
     if (Zend_Registry::isRegistered('current_user'))
       $this->current_user = Zend_Registry::get('current_user');
-    else $this->current_user = null;	// no user currently logged in (guest?)
-    // both acl and current user are also needed in view
+    else $this->current_user = "guest";		// no user currently logged in (guest?)
+    $this->env = Zend_Registry::get('environment');
+
+    
+    // these variables are also needed in the view
     $this->view->acl = $this->acl;
     $this->view->current_user = $this->current_user;
+    $this->view->env = $this->env;
 
     // store controller/action  name in view (needed for certain pages)
     $params =  $this->_getAllParams();
