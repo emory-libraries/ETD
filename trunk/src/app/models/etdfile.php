@@ -12,7 +12,7 @@ require_once("etd_dc.php");
 require_once("file_policy.php");
 
 // helper for number of pages in a pdf
-require_once("controllers/helpers/PdfPageTotal.php");
+require_once("Etd/Controller/Action/Helper/PdfPageTotal.php");
 
 class etd_file extends foxml implements Zend_Acl_Resource_Interface {
 
