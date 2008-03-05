@@ -23,6 +23,7 @@ require_once("api/FedoraConnection.php");
 //Load Configuration
 $env_config = new Zend_Config_Xml("../config/environment.xml", "environment");
 Zend_Registry::set('env-config', $env_config);
+Zend_Registry::set('environment', $env_config->mode);
 $config = new Zend_Config_Xml("../config/config.xml", $env_config->mode);
 Zend_Registry::set('config', $config);
 
@@ -99,14 +100,6 @@ if (isset($current_user)) {
 require_once("xml_acl.php");
 $acl = new Xml_Acl();
 Zend_Registry::set('acl', $acl);
-// store acl for use within view also
-//$viewRenderer->view->acl = $acl;
-
-
-// store test/dev/production for use in view scripts
-$viewRenderer->view->site_mode = $env_config->mode;	// better name for this? (test/dev/prod)
-
-
 
 
 
