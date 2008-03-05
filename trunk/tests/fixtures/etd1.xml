@@ -46,6 +46,7 @@
 	    <mods:dateOther type="embargoedUntil"/> 
 	  </mods:originInfo>
 	  <mods:accessCondition type="restrictionOnAccess">Embargoed for </mods:accessCondition>
+	  <mods:note type="admin" ID="embargo">embargo requested? </mods:note>
 	</mods:mods>
       </foxml:xmlContent>
     </foxml:datastreamVersion>

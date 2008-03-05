@@ -21,11 +21,45 @@
 	      <mods:roleTerm authority="marcrelator" type="text">author</mods:roleTerm>
 	    </mods:role>
 	  </mods:name>
+ 	  <mods:name ID="nobody" type="personal">
+	    <mods:namePart type="given">Advisor</mods:namePart>
+	    <mods:namePart type="family">Person</mods:namePart>
+	    <mods:displayForm>Person, Advisor</mods:displayForm>
+	    <mods:role>
+	      <mods:roleTerm authority="marcrelator" type="text">Thesis Advisor</mods:roleTerm>
+	    </mods:role>
+	  </mods:name>
+	  <mods:name ID="nobodytoo" type="personal">
+	    <mods:namePart type="given">Committee</mods:namePart>
+	    <mods:namePart type="family">Person</mods:namePart>
+	    <mods:displayForm>Person, Committee</mods:displayForm>
+	    <mods:role>
+	      <mods:roleTerm type="text">Committee Member</mods:roleTerm>
+	    </mods:role>
+	    <mods:description>Emory Committee Member</mods:description>
+	   </mods:name>
 	  <mods:abstract>milk curdles and goes sour</mods:abstract>
+	  <mods:genre authority="aat">Dissertation</mods:genre>
+	  <mods:identifier type="ark">http://purl.bogus.com/ark:123/etd2</mods:identifier>
+	  <mods:accessCondition type="restrictionOnAccess">Embargoed for </mods:accessCondition>
+	  <mods:note type="admin" ID="embargo">embargo requested? no</mods:note>
 	</mods:mods>
       </foxml:xmlContent>
     </foxml:datastreamVersion>
   </foxml:datastream>
+
+  <foxml:datastream CONTROL_GROUP='X' ID='XHTML' STATE='A'	VERSIONABLE='true'>
+    <foxml:datastreamVersion ID='XHTMl.0' LABEL='formatted text' MIMETYPE='text/xml'>
+      <foxml:xmlContent>
+	<html>
+	    <div id="title">Why I hate <i>milk</i></div>
+	    <div id="abstract">milk <i>curdles</i> and goes <em>sour</em></div>
+            <div id="contents">Chapter 1: Gouda<br/> Chapter 2: Brie</div>
+	</html>
+      </foxml:xmlContent>
+    </foxml:datastreamVersion>
+  </foxml:datastream>
+
 
   <foxml:datastream CONTROL_GROUP='X' ID='RELS-EXT' STATE='A' VERSIONABLE='true'>
     <foxml:datastreamVersion ID='RELS-EXT.0' LABEL='relations' MIMETYPE='text/xml'>
@@ -34,6 +68,7 @@
 	  <rdf:description rdf:about="info:fedora/test:etd2">
 	    <rel:etdStatus>reviewed</rel:etdStatus>
   	    <rel:author>author</rel:author>
+	    <rel:hasAuthorInfo rdf:resource="test:user1"/>
 	  </rdf:description>
 	</rdf:RDF>
       </foxml:xmlContent>
@@ -85,5 +120,34 @@
     </foxml:datastreamVersion>
    </foxml:datastream>
 
+<foxml:datastream CONTROL_GROUP="X" ID="POLICY" STATE="A" VERSIONABLE="false">
+    <foxml:datastreamVersion ID="POLICY.0" LABEL="Policy" MIMETYPE="text/xml">
+      <foxml:xmlContent>
+	<Policy xmlns="urn:oasis:names:tc:xacml:1.0:policy" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" PolicyId="test-etd1" RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:first-applicable">
+
+  <Description>object-specific policy for etd records</Description>
+  <Target>
+    <Subjects>
+      <AnySubject/>
+    </Subjects>
+
+    <Resources>
+      <Resource>
+        <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">test:etd1</AttributeValue>
+          <ResourceAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:resource:object:pid" DataType="http://www.w3.org/2001/XMLSchema#string"/>
+        </ResourceMatch>
+      </Resource>
+    </Resources>
+
+    <Actions>
+      <AnyAction/>
+    </Actions>
+  </Target>
+
+</Policy>
+      </foxml:xmlContent>
+    </foxml:datastreamVersion>
+   </foxml:datastream>
 
 </foxml:digitalObject>
