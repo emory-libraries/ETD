@@ -11,6 +11,7 @@ class ViewController extends Etd_Controller_Action {
      
      if (!$this->_helper->access->allowedOnEtd("view metadata", $etd)) return;
      $this->view->etd = $etd;
+     $this->view->title = $etd->label;
      $this->view->messages = $this->_helper->flashMessenger->getMessages();
    }
 
@@ -31,11 +32,11 @@ class ViewController extends Etd_Controller_Action {
    public function xmlAction() {
      $type = $this->_getParam("type", "etd");
 
-     $object = $this->_helper->getFromFedora("pid", $type);
-
      if ($type == "etd") {
+       $object = $this->_helper->getFromFedora("pid", $type);
        if (!$this->_helper->access->allowedOnEtd("view metadata", $object)) return;
      } elseif ($type == "etdfile") {
+       $object = $this->_helper->getFromFedora("pid", "etd_file");
        if (!$this->_helper->access->allowedOnEtdFile("view", $object)) return;
      }
 
@@ -45,7 +46,7 @@ class ViewController extends Etd_Controller_Action {
      if (isset($object->$datastream)) {	// check that it is the correct type, also?
        $this->_helper->displayXml($object->$datastream->saveXML());
      } else {
-       $this->_helper->flashMessenger("Error: invalid xml datastream");
+       $this->_helper->flashMessenger->addMessage("Error: invalid xml datastream");
        // do something with this message?
      }
    }
