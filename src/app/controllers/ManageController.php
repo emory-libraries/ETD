@@ -112,12 +112,12 @@ class ManageController extends Etd_Controller_Action {
      // log record approval
      $etd->premis->addEvent("status change",
 			    "Record approved by Graduate School",	// by whom ?
-			    "success",  array("netid", $this->user->netid));
+			    "success",  array("netid", $this->current_user->netid));
      // log embargo duration
      // FIXME: should this not be logged if embargo is 0 days ?
      $etd->premis->addEvent("admin",
 			    "Access restriction of $embargo approved",	// by whom ?
-			    "success",  array("netid", $this->user->netid));
+			    "success",  array("netid", $this->current_user->netid));
      
      // send approval email & log that it was sent
      $notify = new etd_notifier($etd);
