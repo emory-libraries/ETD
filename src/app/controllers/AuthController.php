@@ -7,18 +7,6 @@ require_once("models/esdPerson.php");
 
 class AuthController extends Etd_Controller_Action {
 
-  protected $_flashMessenger = null;
-
-   public function init() {
-     $this->_flashMessenger = $this->_helper->getHelper('FlashMessenger');
-     $this->initView();
-   }
-
-   public function postDispatch() {
-     $this->view->messages = $this->_helper->flashMessenger->getMessages();
-   }
-
-
    public function loginAction() {
      $login = $this->_getParam('login', null);
      $username = $login['username'];
@@ -55,14 +43,14 @@ class AuthController extends Etd_Controller_Action {
        }
 
        // display information about failed login / reason
-       $this->_flashMessenger->addMessage($message);
+       $this->_helper->flashMessenger->addMessage($message);
 
        // forward to .. ?
        $this->_helper->redirector->gotoRoute(array("controller" => "index",
 						   "action" => "index"), "", true);
 						   
      } else {	
-       $this->_flashMessenger->addMessage("Login successful");
+       $this->_helper->flashMessenger->addMessage("Login successful");
        // find this user in ESD and save their user information
        $esd = new esdPersonObject();
        $current_user = $esd->findByUsername($username);
@@ -75,25 +63,20 @@ class AuthController extends Etd_Controller_Action {
      }
    }
 
+   // only expects to be called via ajax
    public function setroleAction() {
-     if ($this->view->site_mode != "development") {
-       $this->_helper->flashMessenger->addMessage("Error: set role can only be used in development");
-       $this->_helper->redirector->gotoRoute(array("controller" => "auth",
-						   "action" => "denied"), "", true);
-     }
+     if ($this->env != "development") return;
+     $this->_helper->viewRenderer->setNoRender(true);
 
      $role = $this->_getParam("role");
-     $this->view->current_user->role = $role;
-     
-     // fixme: how to return to last page?
-     $this->_forward("index", "Index");
+     $this->current_user->role = $role;
    }
 
    public function logoutAction() {
      $auth = Zend_Auth::getInstance();
      $auth->clearIdentity();
      unset($this->view->current_user);
-     $this->_flashMessenger->addMessage("Logout successful");
+     $this->_helper->flashMessenger->addMessage("Logout successful");
 
      // forward to ... ?
      $this->_helper->redirector->gotoRoute(array("controller" => "index",
