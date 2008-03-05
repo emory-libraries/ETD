@@ -2,17 +2,15 @@
   <production>
      <server>domokun</server>
      <port>8080</port>
-     <user>fedoraAdmin</user>
-     <password>-</password>
+     <user>guest</user>
+     <password>guest<password>
+     <protocol>https</protocol>
      <resourceindex>risearch</resourceindex>
   </production>
   <development extends="production">
      <server>wilson.library.emory.edu</server>
      <port>6080</port>
-     <user>fedoraAdmin</user>
-     <password>fedoraAdmin</password> 
-<!-- <user>fez</user>
-     <password>f3z1sL4m3</password> -->
+     <protocol>http</protocol>
   </development>
   <test extends="development">
      <port>7080</port>
