@@ -145,17 +145,12 @@ class SubmissionController extends Etd_Controller_Action {
 
     } else {
       // error finding title; ask user if pdf is in correct format...
-
-      $this->view->messages = $this->_helper->flashMessenger->getCurrentMessages();
     }
   }
 
   public function debugPdfAction() {
     
     $this->view->messages = array();
-    $env = Zend_Registry::get('env-config');
-    $this->view->site_mode = $env->mode;	// better name for this? (test/dev/prod)
-
     $this->view->etd_info = $this->_helper->processPDF($_FILES['pdf']);
 
     $xml = new DOMDocument();
@@ -178,10 +173,6 @@ class SubmissionController extends Etd_Controller_Action {
       else 
 	$this->_helper->flashMessenger->addMessage("Couldn't find directory match for " . $cm . "; please enter manually");
     }
-
-
-    $this->view->messages = $this->_helper->flashMessenger->getCurrentMessages();
-    
   }
 
   public function reviewAction() {
@@ -203,12 +194,10 @@ class SubmissionController extends Etd_Controller_Action {
     $newstatus = "submitted";
     $etd->setStatus($newstatus);
 
-    // log event in record history (fixme: better way of getting user?)
-    $user = $this->view->current_user;
+    // log event in record history 
     $etd->premis->addEvent("status change",
-			   "Submitted for Approval by " .
-			   $user->firstname . " " . $user->lastname,
-			   "success",  array("netid", $user->netid));
+			   "Submitted for Approval by " . $this->current_user->fullname,
+			   "success",  array("netid", $this->current_user->netid));
     
     $result = $etd->save("set status to '$newstatus'");
     if ($result)
