@@ -10,7 +10,7 @@ error_reporting(E_ALL|E_STRICT);
 ini_set("display_errors", "on");
 
 // ZendFramework, etc.
-ini_set("include_path", "../app/::../app/models:../app/modules/:../lib:../lib/ZendFramework:../lib/fedora:../lib/xml-utilities:js/:/home/rsutton/public_html:" . ini_get("include_path")); // use local copies first (e.g., Zend)
+ini_set("include_path", "../app/::../app/models:../app/modules/:../lib:../lib/ZendFramework:../lib/fedora:../lib/xml-utilities:js/:" . ini_get("include_path")); // use local copies first (e.g., Zend)
 // NOTE: local models should come before fedora models so that correct
 // xml template files will be found first
 
@@ -26,6 +26,8 @@ Zend_Registry::set('env-config', $env_config);
 $config = new Zend_Config_Xml("../config/config.xml", $env_config->mode);
 Zend_Registry::set('config', $config);
 
+Zend_Registry::set('debug', (boolean)$env_config->debug);
+
 $fedora_cfg = new Zend_Config_Xml("../config/fedora.xml", $env_config->mode);
 Zend_Registry::set('fedora-config',
 	  new Zend_Config_Xml("../config/fedora.xml", $env_config->mode));
@@ -36,11 +38,13 @@ if ($auth->hasIdentity()) {
   $current_user = $auth->getIdentity();
   $password = strtoupper($current_user->netid);	// because of the way fedora ldap config is hacked right now
   $fedora = new FedoraConnection($current_user->netid, $password,
-				 $fedora_cfg->server, $fedora_cfg->port);
+				 $fedora_cfg->server, $fedora_cfg->port,
+				 $fedora_cfg->protocol, $fedora_cfg->resourceindex);
 
 } else {
   $fedora = new FedoraConnection($fedora_cfg->user, $fedora_cfg->password,
-				 $fedora_cfg->server, $fedora_cfg->port);
+				 $fedora_cfg->server, $fedora_cfg->port,
+				 $fedora_cfg->protocol, $fedora_cfg->resourceindex);
 }
 Zend_Registry::set('fedora', $fedora);
 
@@ -85,8 +89,9 @@ $viewRenderer = Zend_Controller_Action_HelperBroker::getStaticHelper('ViewRender
 $viewRenderer->initView();
 $viewRenderer->view->addHelperPath('Emory/View/Helper', 'Emory_View_Helper');
 if (isset($current_user)) {
+  Zend_Registry::set('current_user', $current_user);
   // fedora connection  needs to be defined before instantiating user
-  $viewRenderer->view->current_user = $current_user;
+  //  $viewRenderer->view->current_user = $current_user;
 }
 
 
@@ -95,7 +100,7 @@ require_once("xml_acl.php");
 $acl = new Xml_Acl();
 Zend_Registry::set('acl', $acl);
 // store acl for use within view also
-$viewRenderer->view->acl = $acl;
+//$viewRenderer->view->acl = $acl;
 
 
 // store test/dev/production for use in view scripts
