@@ -3,7 +3,7 @@
      <server>domokun</server>
      <port>8080</port>
      <user>guest</user>
-     <password>guest<password>
+     <password>guest</password>
      <protocol>https</protocol>
      <resourceindex>risearch</resourceindex>
   </production>
