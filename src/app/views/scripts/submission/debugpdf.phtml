@@ -21,7 +21,7 @@
 <b>Table of Contents:</b> <div><?= $this->etd_info['toc'] ?></div>
 <? endif ?>
 
-<? if ($this->site_mode == 'development'): ?>
+<? if ($this->env == 'development'): ?>
   <p id="log">
      <? foreach ($this->log as $logline): ?>
        <?= $logline ?><br/>
