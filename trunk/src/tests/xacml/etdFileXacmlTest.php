@@ -56,9 +56,12 @@ class TestEtdFileXacml extends UnitTestCase {
   }
 
   function purgeTestObject() {
+    setFedoraAccount("fedoraAdmin");
+    $etdfile = new etd_file($this->pid);
+    $etfile->purge('removing test object');
     // FIXME: not sure why purge is getting an access denied error..
-    $this->expectException(new FedoraAccessDenied("purge {$this->pid}"));
-    $this->fedoraAdmin->purge($this->pid, "removing test object");
+    //    $this->expectException(new FedoraAccessDenied("purge {$this->pid}"));
+    //$this->fedoraAdmin->purge($this->pid, "removing test object");
   }
 
 
@@ -97,7 +100,7 @@ class TestEtdFileXacml extends UnitTestCase {
   }
 
 
-  function testAuthorPermissions() {
+  function testAuthorPermissionsOnDraft() {
     // set user account to author
     setFedoraAccount("author");
 
@@ -112,6 +115,23 @@ class TestEtdFileXacml extends UnitTestCase {
     // should be able to modify these datastreams
     $etdfile->dc->title = "new file title";    	//   DC
     $this->assertNotNull($etdfile->save("test author permissions - modify DC on draft etdfile"));
+
+    $etdfile->policy->removeRule("view");    // POLICY
+    $this->assertNotNull($etdfile->save("test author permissions - modify POLICY on draft etdfile"));
+
+    $this->assertNull($etdfile->purge("testing author permissions - purge draft etdfile"));
+    
+  }
+
+
+  function testAuthorPermissionsOnNonDraft() {
+    // set user account to author
+    setFedoraAccount("author");
+
+    // record starts out as a draft-- author should be able to read and modify
+    $etdfile = new etd_file($this->pid);
+
+    // remove draft rule for remainder of test
     $etdfile->policy->removeRule("draft");    // POLICY
     $this->assertNotNull($etdfile->save("test author permissions - modify POLICY on draft etdfile"));
 
@@ -130,9 +150,12 @@ class TestEtdFileXacml extends UnitTestCase {
     $this->expectError("Access Denied to modify datastream POLICY"); 
     $this->assertNull($etdfile->save("test author permissions - modify POLICY on non-draft etdfile"));
 
+    $this->assertNull($etdfile->purge("testing author permissions - purge non-draft etdfile"));
+
   }
 
 
+  
   function testCommitteePermissions() {
     // set user account to committee
     setFedoraAccount("committee");
