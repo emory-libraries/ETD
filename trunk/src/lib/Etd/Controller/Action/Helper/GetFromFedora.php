@@ -6,13 +6,22 @@ class Etd_Controller_Action_Helper_GetFromFedora extends Zend_Controller_Action_
     return $this->find_or_error($param, $type);
   }
 
-  
-  public function find_or_error($param, $type) {
-    $flashMessenger = $this->_actionController->getHelper("FlashMessenger");
-    $redirector = $this->_actionController->getHelper("Redirector");
+  // find by a specified id
+  public function findById($id, $type) { 
+   return $this->handle_errors($id, $type);
+  }
 
+  // find by an id stored in a controller parameter
+  public function find_or_error($param, $type) {
     $request = $this->_actionController->getRequest();
     $id = $request->getParam($param, null);
+    
+    return $this->handle_errors($id, $type);
+  }
+
+  private function handle_errors($id, $type) {
+    $flashMessenger = $this->_actionController->getHelper("FlashMessenger");
+    $redirector = $this->_actionController->getHelper("Redirector");
 
     if (is_null($id)) {
       $flashMessenger->addMessage("Error: No record specified for $type");
@@ -47,7 +56,6 @@ class Etd_Controller_Action_Helper_GetFromFedora extends Zend_Controller_Action_
 
     // success
     return $object;
-
   }
   
 }
