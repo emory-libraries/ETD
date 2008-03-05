@@ -52,7 +52,7 @@ class ManageController extends Etd_Controller_Action {
      
      // log event in record history 
      $etd->premis->addEvent("status change", "Record reviewed by Graduate School",
-			    "success",  array("netid", $this->user->netid));
+			    "success",  array("netid", $this->current_user->netid));
      
      $result = $etd->save("set status to '$newstatus'");
      
@@ -73,7 +73,7 @@ class ManageController extends Etd_Controller_Action {
      // log event in record history 
      $etd->premis->addEvent("status change",
 			    "Changes to record requested by Graduate School",
-			    "success",  array("netid", $this->user->netid));
+			    "success",  array("netid", $this->current_user->netid));
      
      $result = $etd->save("set status to 'draft'");
 
@@ -85,7 +85,6 @@ class ManageController extends Etd_Controller_Action {
      
      $this->view->title = "Manage : Request changes to record information";
      $this->view->etd = $etd;
-     $this->view->messages = $this->_helper->flashMessenger->getCurrentMessages();
    }
 
    /* approve workflow  (approve, doapprove) */
@@ -159,7 +158,7 @@ class ManageController extends Etd_Controller_Action {
      // log event in record history 
      $etd->premis->addEvent("status change",
 			    "Unpublished - $reason",	// by whom ?
-			    "success",  array("netid", $this->user->netid));
+			    "success",  array("netid", $this->current_user->netid));
      $result = $etd->save("unpublished");
      
      $this->_helper->flashMessenger->addMessage("Record unpublished and status changed to <b>$newstatus</b>; saved at $result");
