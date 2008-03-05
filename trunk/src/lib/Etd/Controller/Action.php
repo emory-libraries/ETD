@@ -18,7 +18,9 @@ abstract class Etd_Controller_Action extends Zend_Controller_Action {
 
     //        $this->acl = $this->view->acl;	// FIXME: which is better? Zend_Registry::get("acl");
     $this->acl = Zend_Registry::get('acl');
-    $this->current_user = Zend_Registry::get('current_user');	// $this->view->current_user;
+    if (Zend_Registry::isRegistered('current_user'))
+      $this->current_user = Zend_Registry::get('current_user');
+    else $this->current_user = null;	// no user currently logged in (guest?)
     // both acl and current user are also needed in view
     $this->view->acl = $this->acl;
     $this->view->current_user = $this->current_user;
