@@ -1,7 +1,8 @@
 <?
 
 error_reporting(E_ALL);
-ini_set("include_path", ini_get("include_path") . ":../app/:../app/modules/:../lib:../lib/ZendFramework:../lib/fedora:../lib/xml-utilities");
+ini_set("include_path", "../src/app/:../src/app/modules/:../src/lib:../src/lib/ZendFramework:../src/lib/fedora:../src/lib/xml-utilities:"
+	. ini_get("include_path"));
 
 require_once('simpletest/unit_tester.php');
 require_once('simpletest/reporter.php');
@@ -13,7 +14,9 @@ require_once("api/FedoraConnection.php");
 $mode = "test";
 $env = new Zend_Config(array('mode' => $mode));
 Zend_Registry::set('env-config', $env);
-$fedora_cfg = new Zend_Config_Xml("../config/fedora.xml", $mode);
+Zend_Registry::set('debug', false);
+
+$fedora_cfg = new Zend_Config_Xml("../src/config/fedora.xml", $mode);
 Zend_Registry::set('fedora-config', $fedora_cfg);
 
 $fedora = new FedoraConnection($fedora_cfg->user, $fedora_cfg->password,
@@ -21,10 +24,18 @@ $fedora = new FedoraConnection($fedora_cfg->user, $fedora_cfg->password,
 Zend_Registry::set('fedora', $fedora);
 
 // create DB object for access to Emory Shared Data - needed to test setting advisor/committee fields
-$esdconfig = new Zend_Config_Xml('../config/esd.xml', $mode);
+$esdconfig = new Zend_Config_Xml('../src/config/esd.xml', $mode);
 $esd = Zend_Db::factory($esdconfig->adapter, $esdconfig->params->toArray());
 Zend_Registry::set('esd-db', $esd);
 Zend_Db_Table_Abstract::setDefaultAdapter($esd);
+
+// set up access controls
+require_once("xml_acl.php");
+$acl = new Xml_Acl("../src/config/access.xml");
+Zend_Registry::set('acl', $acl);
+// store acl for use within view also
+//$viewRenderer->view->acl = $acl;
+
 
 // required - zend complains without this
 Zend_Session::start();
