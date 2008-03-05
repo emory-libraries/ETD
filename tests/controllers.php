@@ -4,9 +4,10 @@ require_once("bootstrap.php");
 
 class ControllerGroupTest extends GroupTest {
   function ControllerGroupTest() {
-    $this->GroupTest('Controller tests');
-    $this->addTestFile('controllers/TestAdminController.php');
-    $this->addTestFile('controllers/TestEtdController.php');
+    $this->GroupTest('ETD Controller tests');
+    $this->addTestFile('controllers/TestManageController.php');
+    //    $this->addTestFile('controllers/TestAuthController.php');
+    //    $this->addTestFile('controllers/TestEtdController.php');
   }
 }
 
