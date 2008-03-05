@@ -21,7 +21,8 @@ class ManageControllerTest extends ControllerTestCase {
     $this->request  = $this->makeRequest();
 
     $this->etdxml = array("etd1" => "test:etd1",
-		    "etd2" => "test:etd2",
+			  "etd2" => "test:etd2",
+			  "user" => "test:user1",
 			  //"etd3" => "test:etd3",	// not working for some reason
 			  );
     
@@ -206,11 +207,11 @@ class ManageControllerTest extends ControllerTestCase {
     $this->assertEqual("published", $etd->status());	// status unchanged 
 
     
-    /*
-     FIXME: cannot test an actual approval because it sends an email....
-     $this->setUpGet(array('pid' => 'test:etd2', 'embargo' => '3 months'));	   // reviewed etd
+    $this->setUpGet(array('pid' => 'test:etd2', 'embargo' => '3 months'));	   // reviewed etd
+    // notices for non-existent users in metadata
+    $this->expectError("Advisor (nobody) not found in ESD");
+    $this->expectError("Committee member (nobodytoo) not found in ESD");
     $ManageController->doapproveAction();
-
     $etd = new etd("test:etd2");
     $this->assertEqual("approved", $etd->status(), "status set correctly");
     $this->assertEqual("3 months", $etd->mods->embargo);
@@ -221,7 +222,7 @@ class ManageControllerTest extends ControllerTestCase {
     $this->assertEqual("Record approved by Graduate School", $etd->premis->event[1]->detail);
     $this->assertEqual("test_user", $etd->premis->event[1]->agent->value);
     $this->assertEqual("Access restriction of 3 months approved", $etd->premis->event[2]->detail);
-    */
+
   }
 
   public function testUnpublishAction() {

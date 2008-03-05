@@ -14,7 +14,13 @@ require_once("api/FedoraConnection.php");
 $mode = "test";
 $env = new Zend_Config(array('mode' => $mode));
 Zend_Registry::set('env-config', $env);
+Zend_Registry::set('environment', $mode);
 Zend_Registry::set('debug', false);
+
+// needed for notifier
+$config = new Zend_Config_Xml("../src/config/config.xml", $mode);
+Zend_Registry::set('config', $config);
+
 
 $fedora_cfg = new Zend_Config_Xml("../src/config/fedora.xml", $mode);
 Zend_Registry::set('fedora-config', $fedora_cfg);

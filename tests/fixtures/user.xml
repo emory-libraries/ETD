@@ -24,6 +24,11 @@
             </mads:name>
           </mads:authority>
           <mads:affiliation>
+	    <mads:position>degree candidate</mads:position> 
+            <mads:email>mmouse@emory.edu</mads:email>
+          </mads:affiliation>
+          <mads:affiliation>
+	    <mads:position>permanent resident</mads:position>
             <mads:address>
               <mads:street>123 Disney Lane</mads:street>
               <mads:city>Miami</mads:city>
