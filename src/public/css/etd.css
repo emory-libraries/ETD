@@ -752,6 +752,17 @@ span#exclamation {
  padding-left:2px; padding-right:2px;
 }
 
+span#processing { 
+ padding-left: 25px;
+ font-size:115%;
+ font-weight: bold;
+ color: green;
+}
+span#processing span.note { 
+ font-size:80%;
+ font-weight: normal;
+}
+
 span.userinfo { padding-left:10px; font-size:90%; }
 span.userinfo, span.userinfo a { color:#565656; }
 

@@ -20,7 +20,10 @@ later in the process, if necessary.</p>
 
 <?//= $this->formHidden("MAX_FILE_SIZE", "3000000"); ?> 
   <p><b>Your PDF</b> <?= $this->formFile("pdf"); ?>
-<?= $this->formSubmit("Begin", "Begin >", array("class" => "submitlink", "style" => "padding-left:10px")); ?>
+<?= $this->formSubmit("Begin", "Begin >", array("class" => "submitlink", "style" => "padding-left:10px",
+						"onClick" => "Element.show('processing')")); ?>
+
+<span id="processing" style="display:none">Processing ... <span class="note">(this may take a moment)</span></span>
 </p>
 </form>
 
