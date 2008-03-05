@@ -3,14 +3,14 @@
 class Etd_Controller_Action_Helper_Access extends Zend_Controller_Action_Helper_Abstract {
 
   public function allowedOnEtd($action, etd $etd = null) {
-    $user = $this->_actionController->current_user;
+    $current_user = $this->_actionController->current_user;
     $acl = $this->_actionController->acl;
     
     if ($etd) {		// a specific etd object
-      $role = $etd->getUserRole($user);	//  - user may have a different role on this etd
+      $role = $etd->getUserRole($current_user);	//  - user may have a different role on this etd
       $resource = $etd->getResourceId();
     } else {				// generic etd
-      $role = $user->role;
+      $role = $current_user->role;
       $resource = "etd";
     }
     
@@ -20,14 +20,14 @@ class Etd_Controller_Action_Helper_Access extends Zend_Controller_Action_Helper_
   }
 
   public function allowedOnEtdFile($action, etd_file $etdfile = null) {
-    $user = $this->_actionController->current_user;
+    $current_user = $this->_actionController->current_user;
     $acl = $this->_actionController->acl;
     
     if ($etdfile) {		// a specific etd object
-      $role = $etdfile->parent->getUserRole($user);	//  - user may have a different role on this etd
+      $role = $etdfile->parent->getUserRole($current_user);	//  - user may have a different role on this etd
       $resource = $etdfile->getResourceId();
     } else {				// generic etd file
-      $role = $user->role;
+      $role = $current_user->role;
       $resource = "file";
     }
     
@@ -37,18 +37,21 @@ class Etd_Controller_Action_Helper_Access extends Zend_Controller_Action_Helper_
   }
 
 
-  private function allowedOnUser($action, user $user = null) {
-    $user = $this->_actionController->current_user;
+  public function allowedOnUser($action, user $user = null) {
+    $current_user = $this->_actionController->current_user;
     $acl = $this->_actionController->acl;
 
+    // logged in user may have specific role on user object
     if ($user) {
-      $role = $user->getUserRole($user);
-      $resource = $user->getResourceId();
+      $role = $user->getUserRole($current_user);
     } else {
-      $role = $user->role;
-      $resource = "user";
+      $role = $current_user->role;
     }
-    $allowed = $this->acl->isAllowed($role, $resource, $action);
+
+    // but there are no subclasses of user resources
+    $resource = "user";
+
+    $allowed = $acl->isAllowed($role, $resource, $action);
     if (!$allowed) $this->notAllowed($action, $role, $resource);
     return $allowed;
   }
