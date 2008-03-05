@@ -45,7 +45,7 @@
 
  <? if (isset($this->current_user)): ?>
    <b>Welcome, <?= $this->current_user ?></b>
-   <? if ($this->site_mode == "development"): ?>
+   <? if ($this->env == "development"): ?>
       (<span id="current_role"><?= $this->current_user->role ?></span>)
    <? endif ?>
 
@@ -66,7 +66,7 @@
 
             <li><a href="docs/id/faq#help">Help</a></li>
 
-	    <? if ($this->site_mode == "development"): ?>
+	    <? if ($this->env == "development"): ?>
 	       <?= $this->render("_setrole.phtml"); ?>
 	    <? endif ?>
          </ul>
