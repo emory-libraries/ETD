@@ -35,7 +35,7 @@ later in the process, if necessary.</p>
 <img src="<?= $this->linkTo("images/submit_preview.jpg") ?>"/>
 
 
-<? if ($this->site_mode == "development"): ?>
+<? if ($this->env == "development"): ?>
 
 <form name="submission" method="post" enctype="multipart/form-data"
     action="<?= $this->url(array("action" => "debugPdf"))?>">
