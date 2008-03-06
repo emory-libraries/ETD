@@ -1,6 +1,8 @@
 <?php
 
 require_once("models/etd.php");
+require_once("models/programs.php");
+require_once("models/researchfields.php");
 
 class EditController extends Etd_Controller_Action {
 
@@ -19,9 +21,8 @@ class EditController extends Etd_Controller_Action {
 				    );
     //    $this->view->xforms_model_xml = $etd->mods->saveXML();
     // link to xml rather than embedding directly in the page
-    $this->view->xforms_model_uri = $this->view->url(array("controller" => "view",
-							   "action" => "mods", "pid" => $etd->pid,
-							   "mode" => "edit"));
+    $this->view->xforms_model_uri = $this->_helper->url->url(array("controller" => "view", "action" => "mods",
+								   "pid" => $etd->pid, "mode" => "edit"));
   }
 
   public function programAction() {
@@ -33,10 +34,11 @@ class EditController extends Etd_Controller_Action {
 
     // necessary?
     $xml = new DOMDocument();
-    $xml->load("../config/programs.xml"); 
+    $xmlcontent = file_get_contents("programs.xml", FILE_USE_INCLUDE_PATH);
+    $xml->loadXML($xmlcontent); 
     $programs = new programs($xml);
     $id = $programs->findIdbyLabel(trim($etd->mods->department));
-    if ($id)
+    if ($id)	// FIXME: what if id is not found ?
       $this->view->program = new programs($xml, $id);
 
     
@@ -50,8 +52,8 @@ class EditController extends Etd_Controller_Action {
 				    "rdfs" => "http://www.w3.org/2000/01/rdf-schema#",
 				    );
     // link to xml rather than embedding directly in the page
-    $this->view->xforms_model_uri = $this->view->url(array("controller" => "view",
-							   "action" => "mods", "pid" => $etd->pid));
+    $this->view->xforms_model_uri = $this->_helper->url->url(array("controller" => "view", "action" => "mods",
+								   "pid" => $etd->pid));
   }
 
 
@@ -119,8 +121,8 @@ class EditController extends Etd_Controller_Action {
     $this->view->xforms_bind_script = "edit/_rights_bind.phtml";
     $this->view->namespaces = array("mods" => "http://www.loc.gov/mods/v3");
     // link to xml rather than embedding directly in the page
-    $this->view->xforms_model_uri = $this->view->url(array("controller" => "view",
-							   "action" => "mods", "pid" => $etd->pid));
+    $this->view->xforms_model_uri = $this->_helper->url->url(array("controller" => "view", "action" => "mods",
+								   "pid" => $etd->pid));
   }
 
 
@@ -131,9 +133,10 @@ class EditController extends Etd_Controller_Action {
     $this->view->title = "Edit Research Fields";
     $this->view->etd = $etd;
 
-    // necessary?
+    // necessary? better way to do this?
     $xml = new DOMDocument();
-    $xml->load("../config/umi-researchfields.xml"); 
+    $xmlcontent = file_get_contents("umi-researchfields.xml", FILE_USE_INCLUDE_PATH);
+    $xml->loadXML($xmlcontent); 
     $this->view->fields = new researchfields($xml); 
   }
 
