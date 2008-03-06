@@ -316,24 +316,23 @@ class etd extends foxml implements etdInterface {
       // store formatted version in html, plain-text version in mods
     case "title":
       // remove tags that are not wanted even in html 
-      $value = etd_html::cleanTags($value);
       $this->html->title = $value;
 
       // clean entities & remove all tags before saving to mods/dc
+      $value = etd_html::cleanTags($value);
       $value = etd_html::removeTags($value); // necessary?
       // set title in multiple places (record label, dublin core, mods)
       $this->label = $this->dc->title = $this->mods->title = $value;
       break;
     case "abstract":
       // remove unwanted tags
-      $value = etd_html::cleanTags($value);
       $this->html->abstract = $value;
       // clean & remove all tags
+      $value = etd_html::cleanTags($value);
       $value = etd_html::removeTags($value);
       $this->dc->description = $this->mods->abstract = $value;
       break;
     case "contents":
-      $value = etd_html::cleanTags($value);
       $this->html->contents = $value;
       // use the html contents value, since it is already slightly cleaned up
       $this->mods->tableOfContents = etd_html::formattedTOCtoText($this->html->contents);
