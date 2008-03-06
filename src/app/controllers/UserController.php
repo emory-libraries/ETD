@@ -100,7 +100,8 @@ class UserController extends Etd_Controller_Action {
       
       // normalize date format
       foreach (array("current", "permanent") as $address) {
-	$user->mads->{$address}->date = date("Y-m-d", strtotime($user->mads->{$address}->date, 0));
+	if ($user->mads->{$address}->date != "")
+	  $user->mads->{$address}->date = date("Y-m-d", strtotime($user->mads->{$address}->date, 0));
       }
       
       $resource = "contact information";
