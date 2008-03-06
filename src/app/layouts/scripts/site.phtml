@@ -66,7 +66,7 @@
 
             <li><a href="docs/id/faq#help">Help</a></li>
 
-	    <? if ($this->env == "development"): ?>
+	    <? if ($this->env == "development" && !($this->xforms && $this->browserInfo->browser == "IE")): ?>
 	       <?= $this->render("_setrole.phtml"); ?>
 	    <? endif ?>
          </ul>
