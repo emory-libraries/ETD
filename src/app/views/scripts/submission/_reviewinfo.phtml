@@ -24,31 +24,8 @@
       <a class="action" href="<?= $this->url(array("controller" => "user", "action" => "edit",
 		"pid" => $this->etd->authorInfo->pid), '', true) ?>">edit contact information</a>
     <? endif ?>
-
-   
- <? /* fixme: need a shorter version of this; split out user view into partials? */ ?>
-   <?//=  $this->render('user/view.phtml'); ?>
-
-   <? $user =  $this->etd->authorInfo->mads; ?>
-   
-   <? if (isset($user->current)): ?>
- <p><u>current contact information:</u></p>
-    <p><b>current address</b> (valid as of <?= $user->current->date ?>)</p>
-    <? $this->address = $user->current->address; ?>
-    <?= $this->render("user/address.phtml"); ?>
-
-    <p><b>current phone:</b> <?= $user->current->phone ?></p>
-<p><b>current email:</b> <?= $user->current->email ?>
-<? endif ?>
-
-<? if (isset($user->permanent)): ?>
-  <p><b>permanent:</b></p>
-  <p><b>address</b> (valid as of <?= $user->permanent->date ?>)</p>
-  <? $this->address = $user->permanent->address; ?>
-  <?= $this->render("user/address.phtml"); ?>
-<p><b>phone:</b> <?= $user->permanent->phone ?></p>
-<p><b>email:</b> <?= $user->permanent->email ?></p>
-<? endif ?>
+    <? $this->user = $this->etd->authorInfo; ?>
+    <?=  $this->render('user/_view.phtml'); ?>
 
   </div>
 </div>
