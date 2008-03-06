@@ -499,6 +499,13 @@ div.listrecord p.status {
   font-size:125%;
  }
 
+div.listrecord div.record_status { 
+  margin-top:5px;
+  padding:4px;
+  background-color:#efefef;
+  border: 1px solid #565656;
+}
+
 h2.history { 
   margin-top:15px;
 }
