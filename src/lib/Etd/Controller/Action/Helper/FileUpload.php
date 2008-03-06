@@ -55,7 +55,7 @@ class Etd_Controller_Action_Helper_FileUpload extends Zend_Controller_Action_Hel
       $filetype = finfo_file($finfo, $fileinfo['tmp_name']);	
       if(! in_array($filetype, $mimetype)) {
 	// fixme: more information here? list the types expected/allowed?
-	$flashMessenger->addMessage("Error: file is not correct type.");
+	$flashMessenger->addMessage("Error: file type <b>$filetype</b> is not allowed.");
       }
     }
 
