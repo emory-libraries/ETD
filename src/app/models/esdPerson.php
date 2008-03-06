@@ -260,8 +260,7 @@ class esdPersonObject extends Emory_Db_Table {
     }
 
     // shouldn't need to sort or limit - we only want one match
-
-    $sql = $this->getAdapter()->quoteInto($sql, $uname);
+    //    $sql = $this->getAdapter()->quoteInto($sql, $uname);
     // NOTE: Zend OCI quote class doesn't quote apostrophes correctly - fix them here
     $sql = str_replace("\'", "''", $sql);
     $stmt = $this->_db->query($sql);
