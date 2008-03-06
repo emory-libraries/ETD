@@ -1,9 +1,7 @@
 <? include "js/FCKeditor/fckeditor.php"; ?>
 
-<div class="fullrecord">
-  <h1><?= $this->etd->title() ?></h1>
-  <p>Edit <?= $this->mode ?></p>
-</div>
+<h1>Edit <?= $this->mode_label ?></h1>
+<p><b><?= $this->etd->title() ?></b></p>
 
 
 <form name="edit" method="post"
