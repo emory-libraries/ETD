@@ -37,14 +37,13 @@ class etd_html extends foxmlDatastreamAbstract {
   }
 
 
-
-
-
   public function __set($name, $value) {
     //    print "DEBUG: setting $name to <pre>$value</pre>";      
 
     switch ($name) {
     case "title":
+      /* don't wrap title in a paragraph tag (added by FCKeditor) */
+      $value = preg_replace("|^\s*<p>\s*(.*)\s*</p>\s*$|", "$1", $value);
     case "abstract":
     case "contents":
       parent::__set($name, $value);
@@ -97,12 +96,16 @@ class etd_html extends foxmlDatastreamAbstract {
 
     // remove classnames (MSONORMAL, etc.) or any other formatting inside of tags
     $string = preg_replace("|<([a-z]+)\s+[^>/]+>|", "<$1>", $string);	// (don't mess up empty tags)
-  
+
+    
     // remove extra spaces, unused tags, clean up break tags
     $search = array("|\s+|", "|<br\s+/?>|", "|</?i>|", "|</?b>|", "|</?em>|", "|</?strong>|",
 		    "|</?sup>|", "|</?sub>|", "|</?span>|", "|</?st1:[^>]+>|", "|</?o:p>|", "|</?p>|");
     $replace = array(" ", "<br/>");  // standardize break tags to simplify split pattern later
     $string = preg_replace($search, $replace, $string);
+
+    // FIXME: remove any empty tags other than <br/>
+
 
     if ($keep_breaks)
       return $string;
