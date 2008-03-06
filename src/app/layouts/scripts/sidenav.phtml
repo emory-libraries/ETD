@@ -16,15 +16,17 @@
 </div>
 
 
-<? /* fixme: how to tell if we are not on the index page? */ ?>
+<? if (!($this->controller == "index" && $this->action == "index")): ?>
+<? /* don't show this content when we are on the home page (redundant) */ ?>
 <div class="section">
-<a href="<?= $this->url(array("controller" => "search"), '', true)?>">Search Repository</a>
-
- <form name="search" method="post" action="<?= $this->url(array("controller" => "search",
+   <? if (!($this->controller == "search" && $this->action == "index")): ?>
+     <a href="<?= $this->url(array("controller" => "search"), '', true)?>">Search Repository</a>
+      <form name="search" method="post" action="<?= $this->url(array("controller" => "search",
 			"action" => "results"))?>">
-   <?= $this->formText("query"); ?>
-   <?= $this->formSubmit("Search", "Go >", array("class" => "submitlink")); ?>
-</form>
+        <?= $this->formText("query"); ?>
+        <?= $this->formSubmit("Search", "Go >", array("class" => "submitlink")); ?>
+      </form>
+   <? endif ?>   
 
 Browse by:
 <? $this->browse_class = 'browse'; ?>
@@ -32,7 +34,7 @@ Browse by:
 
 <?=  $this->render('_proquest.phtml'); ?>
 </div>
-
+<? endif ?>
 
 <div class="section">
 <p><a href="http://www.emory.edu/GSOAS/">Emory Graduate School</a></p>
