@@ -9,6 +9,8 @@ class etd_notifier extends notifier {
   
   public function __construct(etd $etd) {
     parent::__construct();
+    $this->to = array();
+    $this->cc = array();
 
     $environment = Zend_Registry::get('env-config');
     $this->view->environment = $environment->mode;
@@ -35,7 +37,7 @@ class etd_notifier extends notifier {
 
   private function getEmailAddresses(etd $etd) {
     // author - send to both currnet & permanent addresses
-    $name = $etd->author->mads->name->first . " " . $etd->author->mads->name->last;
+    $name = $etd->authorInfo->mads->name->first . " " . $etd->authorInfo->mads->name->last;
     $this->to[$etd->authorInfo->mads->current->email] = $name;
     $this->to[$etd->authorInfo->mads->permanent->email] = $name;
 
@@ -44,11 +46,17 @@ class etd_notifier extends notifier {
 
     // advisor
     $person = $esd->findByUsername($etd->mods->advisor->id);
-    $this->cc[$person->email] = $person->fullname;
+    if ($person)
+      $this->cc[$person->email] = $person->fullname;
+    else
+    	trigger_error("Advisor (" . $etd->mods->advisor->id . ") not found in ESD", E_USER_NOTICE);
     // committee members
     foreach ($etd->mods->committee as $cm) {
       $person = $esd->findByUsername($cm->id);
-      $this->cc[$person->email] = $person->fullname;
+      if ($person)
+	$this->cc[$person->email] = $person->fullname;
+      else
+	trigger_error("Committee member (" . $cm->id . ") not found in ESD", E_USER_NOTICE);
     }
 
     // store in the view for debugging output when in development mode
