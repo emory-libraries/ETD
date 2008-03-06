@@ -249,29 +249,6 @@ class BrowseController extends Etd_Controller_Action {
   }
 
 
-
-  // FIXME: this doesn't really belong here... where should it go?
-  public function searchAction() {
-    $request = $this->getRequest();
-    $query = $request->getParam("q");
-
-    $solr = Zend_Registry::get('solr');
-    $results = $solr->query(urlencode($query));
-     
-    $this->view->count = $results['response']['numFound'];
-    $this->view->etds = $results['response']['docs'];
-     
-    $this->view->facets = $results['facet_counts']['facet_fields'];
-     
-    /*       $this->view->count = $results->response->numFound;
-     $this->view->etds = $results->response->docs;
-     $this->view->facets = $results->facet_counts->facet_fields;*/
-     
-    $this->view->results = $results;
-    $this->view->title = "Search"; 
-    $this->_helper->viewRenderer->setScriptAction("browse");
-  }
-
   public function indexAction() {
     // FIXME: do we need a main browse page?
     $this->view->assign("title", "Welcome to %project%");
