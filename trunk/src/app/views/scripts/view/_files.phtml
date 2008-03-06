@@ -18,7 +18,10 @@
 
 
   <? foreach (array("pdfs", "originals", "supplements") as $filetype): ?>
-    <? if ($filetype == "supplements" && count($this->etd->$filetype)): ?> <b>Supplemental Files</b><br/><? endif ?>
+     <?	 /* display a label for supplemental files, if appropriate */
+       if ($filetype == "supplements" && count($this->etd->$filetype)
+	   && $this->acl->isAllowed($this->role, $this->etd->{$filetype}[0], "view")): ?>
+	    <b>Supplemental Files</b><br/><? endif ?>
     <? foreach ($this->etd->$filetype as $file) : ?>
       <? if ($this->acl->isAllowed($this->role, $file, "view")): ?>
 	    <? if (isset($file->dc->mimetype)): ?>
