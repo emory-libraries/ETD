@@ -1,8 +1,10 @@
 <? include "js/FCKeditor/fckeditor.php"; ?>
 
-<h1><?= $this->etd_title ?></h1>
+<div class="fullrecord">
+  <h1><?= $this->etd->title() ?></h1>
+  <p>Edit <?= $this->mode ?></p>
+</div>
 
-<p>edit <?= $this->mode ?></p>
 
 <form name="edit" method="post"
     action="<?= $this->url(array("action" => "save" . ucfirst($this->mode), "mode" => $this->mode))?>">
@@ -26,13 +28,3 @@ $oFCKeditor->Create();
 
   <?= $this->formSubmit("Save", "Save"); ?>
 </form>
-
-<? /* preview doesn't really work - to be useful it needs to be updated/dynamic 
-<h2>Preview:</h2>
-<div class="fullrecord">
-  <!-- <h1><?//= $this->edit_content ?></h1> -->
-  <div id="<?= $this->mode ?>">
-    <?= $this->edit_content ?>
-  </div> 
-</div>
-*/ ?>
