@@ -114,6 +114,42 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
       
 
 
+  public function initializeFromFile($filename, $reltype, esdPerson $author) {
+    $this->type = $reltype;
+    $this->label = basename($filename);
+    $this->owner = $author->netid;
+
+    // set reasonable defaults for author, description
+    $this->dc->creator = $author->fullname;	// most likely the case...
+    $this->dc->type = "Text";			// most likely; can be overridden based on mimetype below
+    
+    $this->setFileInfo($filename);	// set mimetype, filesize, and pages if appropriate       
+
+    $doctype = "Dissertation/Thesis";
+    if (isset($this->parent)) $doctype = $this->parent->document_type();
+
+    if ($this->type == "pdf") {
+      $this->dc->title = $doctype;
+      $this->dc->description = "Access copy of " . $doctype;
+    } elseif ($this->type == "original") {
+      $this->dc->title = "Original Document";
+      $this->dc->description = "Archival copy of " . $doctype;
+    } else {	// supplemental files
+      // make a "best guess" at the type of content based on mimetype  (other than text)
+      list($major, $minor) = split('/', $this->dc->mimetype);
+      switch ($major) { 
+      case "image": $this->dc->type = "StillImage"; break;
+      case "audio": $this->dc->type = "Sound"; break;
+      case "video": $this->dc->type = "MovingImage"; break;
+      }
+    }
+
+    // now actually upload the file and set ingest url to upload id
+    $this->setFile($filename);
+  }
+
+
+  
   public function setFileInfo($filename) {
     // note: using fileinfo because mimetype reported by the browser is unreliable
     $finfo = finfo_open(FILEINFO_MIME);	
