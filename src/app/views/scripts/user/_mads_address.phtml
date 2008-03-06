@@ -18,13 +18,13 @@
       <br/>
 
      <?= $this->xformText("city", "mads:city"); ?> <br/>
-     <?= $this->xformText("state", "mads:state"); ?>
+     <?= $this->xformText("state", "mads:state"); ?><br/>
        <xf:select1 ref="mads:country">
        <xf:label>country</xf:label>
        <xf:itemset nodeset="instance('countries')/country">
          <xf:label ref="."/><xf:value ref="."/>
        </xf:itemset>
-    </xf:select1>
+    </xf:select1><br/>
 
      <?= $this->xformText("postcode", "mads:postcode"); ?>
   </xf:group>
