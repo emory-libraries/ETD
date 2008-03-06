@@ -31,7 +31,7 @@ class SubmissionController extends Etd_Controller_Action {
       $etd = new etd();
       $etd->title = $etd_info['title'];
 
-      $current_user = $this->view->current_user;
+      $current_user = $this->current_user;
       // use netid for object ownership and author relation
       $etd->owner = $current_user->netid;
       $etd->rels_ext->addRelation("rel:author", $current_user->netid);
@@ -96,32 +96,15 @@ class SubmissionController extends Etd_Controller_Action {
 	$etd = $this->_helper->getFromFedora->findById($pid, "etd");
 	
 	// could use fullname as agent id, but netid seems more userful
-	//FIXME: use full/display name here for user identity
 	$etd->premis->addEvent("ingest", "Record created by " . $current_user->fullname, "success",
 			       array("netid", $identity));
 	$etd->save();
 
 	// only create the etdfile object if etd was successfully created
-	// FIXME: somehow combine this logic with repeated code in FileController ?
-	$etdfile = new etd_file();
-	$etdfile->owner = $this->view->current_user->netid;	// set current user to object owner
-	
-	$etdfile->label = "Dissertation";	// FIXME: what should this be?
-	// FIXME: set reasonable defaults for author, description
-	$etdfile->setFileInfo($etd_info['pdf']);	// set mimetype, filesize, and pages if appropriate
-	
-	//	$etdfile->file->mimetype = $etdfile->dc->format[0] = "application/pdf";
-	// filename is stored in etd_info array as 'pdf'
-	//	$etdfile->dc->setFilesize(filesize($etd_info['pdf']));	// file size in bytes
-	//	$etdfile->dc->setPages($this->_helper->PdfPageTotal($etd_info['pdf']));
-
-	$etdfile->setFile($etd_info['pdf']);	// upload and set ingest url to upload id
-
-	
-	// fixme: any other settings we can/should do?
+	$etdfile = new etd_file(null, $etd);	// initialize from template, but associate with parent etd
+	$etdfile->initializeFromFile($etd_info['pdf'], "pdf", $current_user);
 	
 	// add relations between objects
-	//      $etdfile->rels_ext->addRelationToResource("rel:owner", $user->pid);
 	$etdfile->rels_ext->addRelationToResource("rel:isPDFOf", $etd->pid);
 	$filepid = $etdfile->save("creating record from uploaded pdf");	// save and get pid
 
@@ -130,7 +113,6 @@ class SubmissionController extends Etd_Controller_Action {
 	
 	// add relation to etd object and save changes
 	$result = $etd->addPdf($etdfile);
-	//	$etd->rels_ext->addRelationToResource("rel:hasPDF", $filepid);
 	$etd->save("added relation to uploaded pdf");
 	if ($this->debug) $this->_helper->flashMessenger->addMessage("Saved etd file as $filepid");
 	

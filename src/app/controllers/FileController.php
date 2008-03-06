@@ -64,21 +64,14 @@ class FileController extends Etd_Controller_Action {
      $uploaded = $this->_helper->FileUpload($fileinfo, $filename);
      
      if ($uploaded) {
-       $etdfile = new etd_file();
-       $etdfile->owner = $this->view->current_user->netid;
-       $etdfile->label = $fileinfo['name'];
-       // FIXME: if pdf or original, set reasonable defaults for author, description
-       
-       $etdfile->setFileInfo($filename);	// set mimetype, filesize, and pages if appropriate       
-
-       $etdfile->setFile($filename);	// upload and set ingest url to upload id
+       $etdfile = new etd_file(null, $etd);	// initialize from template, but associate with parent etd
+       $etdfile->initializeFromFile($filename, $file_rel, $this->current_user);
 
        // add relation to etd
        // fixme: this should probably be a function of etdfile or rels
        $etdfile->rels_ext->addRelationToResource("rel:is{$relation}Of", $etd->pid);
        $filepid = $etdfile->save("adding new file");
        $this->view->file_pid = $filepid;
-
 
        // delete temporary file now that we are done with it
        unlink($filename);
@@ -223,7 +216,7 @@ class FileController extends Etd_Controller_Action {
      
      $result = $etdfile->purge("removed by user");
      if ($result) {	// fixme: filename?
-       $this->_helper->flashMessenger->addMessage("successfully removed file <b>" . $etdfile->label . "</b>");
+       $this->_helper->flashMessenger->addMessage("Successfully removed file <b>" . $etdfile->label . "</b>");
      } else {
        $this->_helper->flashMessenger->addMessage("Error: could not remove file <b>" . $etdfile->label . "</b>");
      }
