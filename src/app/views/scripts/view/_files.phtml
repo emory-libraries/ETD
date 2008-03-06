@@ -34,8 +34,11 @@
 		  <?= $file->dc->title ?>
 	     <? endif ?>
 	  <? if (isset($file->dc->pages)): ?><?= $file->dc->pages ?> pages<? endif ?>
-	  <? if (isset($file->dc->filesize)): ?>(<?= $this->readableSize($file->dc->filesize) ?>) <?endif ?>
-						      
+	  <? if (isset($file->dc->filesize)): ?>(<?= $this->readableSize($file->dc->filesize) ?>) <?endif ?>						      
+	   <? if ($file->dc->description): ?>
+	    <span class="description">[<?= $file->dc->description ?>]</span>
+          <?endif ?>
+	      
 	  <? if ($this->acl->isAllowed($this->role, $file, "edit")): ?>
 	    <a href="<?= $this->url(array("controller" => "file", "action" => "edit", "pid" => $file->pid))?>">edit</a>
 	  <? endif ?>

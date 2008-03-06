@@ -530,12 +530,9 @@ table div.fullrecord {
   padding:0.5in;
 }
 
-table.files { 
-
- }
-
-table.files th { 
-  text-align:left;
+div#files span.description { 
+ font-size:90%;
+ color: #787878;
 }
 
 div#preview { 
