@@ -59,17 +59,16 @@ input.submitlink {
   cursor:pointer;
   cursor:hand;
 }
+input.submitlink * { 
+  padding:0px;
+  margin:0px;
+}
+
 
 /* correctly position 'submit thesis' link for IE */
 div#sidenav input { 
   text-align:left;
   width:155px;	
-}
-
-
-input.submitlink * { 
-  padding:0px;
-  margin:0px;
 }
 
 
@@ -488,6 +487,13 @@ div.fullrecord h2 {
   clear:both;
 }
 
+div.contact_info h2 { 
+  margin:2px;
+  border:none;
+}
+
+
+
 div.listrecord p.status { 
   margin-top:8px;
   font-size:125%;
@@ -782,4 +788,4 @@ div#whylogin a.close {
   color:black;
 }
 
-   <div id="whylogin" style="margin:5px;margin-left:350px;display:inline;width:350px;background-color:white;border:1px solid black;padding:3px;display:none"><a style="float:right" href="#" onClick="Element.hide('whylogin')">X</a>
+div.indent { margin-left:25px; }
