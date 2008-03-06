@@ -181,7 +181,7 @@ class SubmissionController extends Etd_Controller_Action {
     if (!$this->_helper->access->allowedOnEtd("submit", $etd)) return;
     
     $this->view->etd = $etd;
-    $this->view->title = "final review";
+    $this->view->title = "Final Review";
   }
 
   public function submitAction() {
@@ -216,11 +216,12 @@ class SubmissionController extends Etd_Controller_Action {
     $this->_helper->flashMessenger->addMessage("Submission notification email sent to " . implode(', ', array_keys($to)));
 
     
-    // forward to .. my etds page ?
-    $this->_helper->redirector->gotoRoute(array("controller" => "browse",
-						 "action" => "my"), "", true); 
-
-
+    // forward to congratulations message
+    $this->_helper->redirector->gotoRoute(array("controller" => "submission",
+						 "action" => "success"), "", true); 
   }
+
+  // display success message with more information
+  public function successAction() {}
 
 }
