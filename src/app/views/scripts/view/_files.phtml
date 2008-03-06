@@ -34,7 +34,6 @@
 		  <?= $file->dc->title ?>
 	     <? endif ?>
 	  <? if (isset($file->dc->pages)): ?><?= $file->dc->pages ?> pages<? endif ?>
-	  <? if (isset($file->dc->type)): ?> <?= $file->dc->type ?> <? endif ?>
 	  <? if (isset($file->dc->filesize)): ?>(<?= $this->readableSize($file->dc->filesize) ?>) <?endif ?>
 						      
 	  <? if ($this->acl->isAllowed($this->role, $file, "edit")): ?>
