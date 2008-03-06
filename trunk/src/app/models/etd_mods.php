@@ -203,7 +203,11 @@ class etd_mods extends mods {
     if ($this->advisor->id == $id)   // if id is unchanged, don't lookup/reset
       return;
     $esd = new esdPersonObject();
-    $this->setAdvisorFromPerson($esd->findByUsername($id));
+    if ($person = $esd->findByUsername($id))
+      $this->setAdvisorFromPerson($person);
+    else
+	trigger_error("Could not find person information for '$id' in Emory Shared Data", E_USER_WARNING);
+      
   }
 
   public function setAdvisorFromPerson(esdPerson $person) {
