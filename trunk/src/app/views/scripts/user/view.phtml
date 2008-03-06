@@ -1,37 +1,10 @@
-<h1>user information</h1>
-<? $user = $this->user->mads; ?>
-
-<a  style="float:right" href="<?= $this->url(array('controller' => 'view', 'action' => 'record', 'pid' => $this->user->rels_ext->etd), '', true)?>">return to ETD record</a><br/>
-
-<?= $user->name->first ?> <?= $user->name->last ?>
-
-   <? if (isset($user->current)): ?>
- <p><u>current contact information:</u></p>
-    <p><b>address</b>
-    <? if ($user->current->date): ?> (valid as of <?= $user->current->date ?>)<? endif ?>
-    </p>
-    <? $this->address = $user->current->address; ?>
-    <?= $this->render("user/address.phtml"); ?>
-
-    <p><b>phone:</b> <?= $user->current->phone ?></p>
-<p><b>email:</b> <?= $user->current->email ?>
-<? endif ?>
-
-<? if (isset($user->permanent)): ?>
-  <p><u>permanent contact information</u></p>
-  <p><b>address</b> (valid as of <?= $user->permanent->date ?>)</p>
-  <? $this->address = $user->permanent->address; ?>
-  <?= $this->render("user/address.phtml"); ?>
-
-<p><b>email:</b> <?= $user->permanent->email ?>
-</p>
-<p><b>phone:</b> <?= $user->permanent->phone ?></p>
-<? endif ?>
-
-<p><b>netid:</b> <?= $user->netid ?></p>
-
+<h1>Contact Information for <?= $this->user->mads->name->first ?> <?= $this->user->mads->name->last ?></h1>
+<?=  $this->render('user/_view.phtml'); ?>
 
 <? if ($this->acl->isAllowed($this->user->getUserRole($this->current_user), "user", "edit")): ?>
-<p><a href="<?= $this->url(array("controller" => "user",
-		 "action" => "edit", "pid" => $this->user->pid), null, true) ?>">edit</a></p>
+<p><a style="font-weight:bold;" href="<?= $this->url(array("controller" => "user",
+		 "action" => "edit", "pid" => $this->user->pid), null, true) ?>">edit &gt;</a></p>
 <? endif ?>
+
+		 
+<a href="<?= $this->url(array('controller' => 'view', 'action' => 'record', 'pid' => $this->user->rels_ext->etd), '', true)?>">return to ETD record</a><br/>
