@@ -70,8 +70,8 @@ div.xfselect div span.xforms-label { display:inline; }
 div.xfselect div label { display:inline; font-weight:normal; }
 /* override asterisk for required fields (shows on each option otherwise) */
 div.xfselect div span.xforms-label:after { content: ""; }
-
-
+div.xfselect input { border:0px; } /* for IE */
+ 
 /* my attempts...
          span.xforms-input {display:block;}
         span.xforms-input input {width:350px;}
