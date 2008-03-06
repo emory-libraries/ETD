@@ -56,14 +56,15 @@ class Zend_View_Helper_FiletypeIcon
 	  $icon = "oo-write"; break;
 	case "vnd.oasis.opendocument.spreadsheet":
 	  $icon = "oo-calc"; break;
-	  
 	}
 	break;
-      default:	// no match - don't know what icon to use
-	return;
       }
+
       
-      return "<img src='" . $img_path . $icon . ".gif' alt='$mimetype'/>";
+      if (isset($icon))
+	return "<img src='" . $img_path . $icon . ".gif' alt='$mimetype'/>";
+      else
+	return;		// can't determine appropriate icon
     }
 }
 ?>
