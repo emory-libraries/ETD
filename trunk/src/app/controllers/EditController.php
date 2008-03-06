@@ -199,7 +199,7 @@ class EditController extends Etd_Controller_Action {
     if (!$this->_helper->access->allowedOnEtd("edit metadata", $etd)) return;
 
     $this->view->mode = $mode;
-    $this->view->etd_title = $etd->mods->title;
+    $this->view->etd = $etd;
     $this->view->edit_content = $etd->html->{$mode};
     $this->view->title = "edit $mode";
   }
@@ -229,15 +229,6 @@ class EditController extends Etd_Controller_Action {
 
     $mode = $this->_getParam("mode");
     $content = $this->_getParam("edit_content");
-
-    // FIXME: FCKeditor is adding divs around the edges, sometimes paragraphs...
-    // this clean-up should probably be in etd_html class, not here
-    $content = preg_replace("|^\s*<div>\s*(.*)\s*</div>\s*$|", "$1", $content);
-    if ($mode == "title") {
-      $content = preg_replace("|^\s*<p>\s*(.*)\s*</p>\s*$|", "$1", $content);
-    }
-    
-
     // title/abstract/contents - special fields that set values in html, mods and dublin core
     $etd->$mode = $content;
 
