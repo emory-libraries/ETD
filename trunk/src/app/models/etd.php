@@ -181,6 +181,7 @@ class etd extends foxml implements etdInterface {
     $objects = array_merge(array($this), $this->pdfs, $this->supplements);
     if ($name == "draft") $objects = array_merge($objects, $this->originals);
     foreach ($objects as $obj) {
+      if (!isset($obj->policy)) continue;	// should only be the case for test objects; give notice/warn ?
       if (!isset($obj->policy->{$name}))	// should not be the case, but doesn't hurt to check
 	$obj->policy->addRule($name);
 
@@ -240,7 +241,13 @@ class etd extends foxml implements etdInterface {
     $this->{$array_name}[] = new etd_file ($etdfile->pid);
 
     // fixme: need better error handling here...
-    return $this->save("adding relation to file ($relation) " . $etdfile->pid);
+
+    $result = $this->save("adding relation to file ($relation) " . $etdfile->pid);
+    //    risearch::flush($this->pid);
+    $this->fedora->risearch->flush_next();
+    
+    return $result;
+    
   }
 
 
@@ -256,6 +263,9 @@ class etd extends foxml implements etdInterface {
     case "original": $relation = "hasOriginal"; break;
     case "supplement"; $relation = "hasSupplement"; break;
     }
+
+    //    risearch::flush($this->pid);
+    $this->fedora->risearch->flush_next();
   }
 
   
@@ -306,23 +316,24 @@ class etd extends foxml implements etdInterface {
       // store formatted version in html, plain-text version in mods
     case "title":
       // remove tags that are not wanted even in html 
+      $value = etd_html::cleanTags($value);
       $this->html->title = $value;
 
       // clean entities & remove all tags before saving to mods/dc
-      $value = etd_html::cleanTags($value);
       $value = etd_html::removeTags($value); // necessary?
       // set title in multiple places (record label, dublin core, mods)
       $this->label = $this->dc->title = $this->mods->title = $value;
       break;
     case "abstract":
       // remove unwanted tags
+      $value = etd_html::cleanTags($value);
       $this->html->abstract = $value;
       // clean & remove all tags
-      $value = etd_html::cleanTags($value);
       $value = etd_html::removeTags($value);
       $this->dc->description = $this->mods->abstract = $value;
       break;
     case "contents":
+      $value = etd_html::cleanTags($value);
       $this->html->contents = $value;
       // use the html contents value, since it is already slightly cleaned up
       $this->mods->tableOfContents = etd_html::formattedTOCtoText($this->html->contents);
@@ -399,7 +410,8 @@ class etd extends foxml implements etdInterface {
 	and $etdfile <fedora-rels-ext:sequenceNumber> $num
 	order by $num';
     
-    $filelist = risearch::query($query);
+    //    $filelist = risearch::query($query);
+    $filelist = $this->fedora->risearch($query);
 
     $files = array();
     foreach ($filelist->results->result as $result ) {
