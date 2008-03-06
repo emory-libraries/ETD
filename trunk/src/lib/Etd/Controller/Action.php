@@ -31,6 +31,7 @@ abstract class Etd_Controller_Action extends Zend_Controller_Action {
     $this->view->acl = $this->acl;
     if (isset($this->current_user)) $this->view->current_user = $this->current_user;
     $this->view->env = $this->env;
+    $this->view->browserInfo = get_browser();
 
     // store controller/action  name in view (needed for certain pages)
     $params =  $this->_getAllParams();
