@@ -12,44 +12,19 @@ require_once("etd_dc.php");
 
 class user extends foxml {
 
-  public function __construct($arg = null) {
+  public function __construct($arg = null, etd $parent = null) {
     parent::__construct($arg);
 
     if ($this->init_mode == "pid") {
-      /*      // initialize mads datastream...
-      $dom = new DOMDocument();
-      $dom->loadXML($this->fedora->getDatastream($arg, "MADS"));
-      $this->map{"mads"} = new mads($dom);*/
+      // no special actions required
     } else {
       $this->cmodel = "user";
     }
 
-
-        // FIXME: this only works if user has permissions on rels-ext...
-    /*    if ($this->init_mode == "pid") {
-      try {
-	$this->rels_ext != null;
-      } catch  (FedoraAccessDenied $e) {
-	// if the current user doesn't have access to RELS-EXT, they don't have full access to this object
-	//	trigger_error("Access Denied to rels-ext for " . $this->pid, E_USER_WARNING);
-	throw new FoxmlException("Access Denied to " . $this->pid); 
-      }
-
-      if (isset($this->rels_ext->etd)) {
-	// FIXME: simplify this; anyone who has access to authorinfo should have access to the etd (author, etdadmin)
-	  try {
-	    $this->etd = new etd($this->rels_ext->etd);
-	  } catch (FedoraAccessDenied $e) {
-	    print "Fedora Access Denied: " . $e->getMessage() . "<br>\n";
-	    // most users will NOT have access to the author information
-	    trigger_error("Access denied to etd $pid", E_USER_NOTICE);
-	  }
-	}
-      } else {
-	$this->etd = $etd;
-      }
-      }*/
-
+    // if initialized by etd, that object is passed in - store for convenience
+    if (!is_null($parent)) {
+      $this->related_objects["etd"] = $parent;
+    }
   }
 
   // configure additional datastreams here 
@@ -62,13 +37,14 @@ class user extends foxml {
     $this->xmlconfig["mads"] = array("xpath" => "//foxml:datastream[@ID='MADS']/foxml:datastreamVersion/foxml:xmlContent/mads:mads",
 				     "class_name" => "mads", "dsID" => "MADS");
 
-    // note: no per-object xacml policy is needed; restrictions handled by a repo-wide policy
+    // Note: no per-object xacml policy is needed here; restrictions handled by a repo-wide policy
 
     // use customized versions of a few of the default datastreams
     $this->xmlconfig["rels_ext"]["class_name"] = "etd_rels";
     $this->xmlconfig["dc"]["class_name"] = "etd_dc";
 
-
+    // relation to etd
+    $this->relconfig["etd"] = array("relation" => "authorInfoFor", "class_name" => "etd");
   }
 
   public function __toString() {
