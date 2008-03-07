@@ -3,7 +3,8 @@
 require_once("models/etd.php");
 
 class SearchController extends Etd_Controller_Action {
-
+  protected $requires_fedora = true;
+  
   public function indexAction() {
     $this->view->title = "Search"; 
   }

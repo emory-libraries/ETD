@@ -5,6 +5,8 @@ require_once("models/stats.php");
 
 class ViewController extends Etd_Controller_Action {
 
+  protected $requires_fedora = true;
+  
    // view a full record
    public function recordAction() {
      $etd = $this->_helper->getFromFedora("pid", "etd");

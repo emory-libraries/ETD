@@ -4,7 +4,8 @@ require_once("models/etd.php");
 require_once("models/etd_notifier.php");
 
 class ManageController extends Etd_Controller_Action {
-
+  protected $requires_fedora = true;
+  
    public function indexAction() {
      // forward to appropriate action based on user's role
 

@@ -4,7 +4,8 @@ require_once("models/etd.php");
 require_once("models/programs.php");
 
 class BrowseController extends Etd_Controller_Action {
-
+  protected $requires_fedora = true;
+  
   protected $browse_field;
 
   /* browse by author */

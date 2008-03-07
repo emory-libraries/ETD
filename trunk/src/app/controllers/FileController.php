@@ -5,6 +5,8 @@ require_once("models/etdfile.php");
 
 class FileController extends Etd_Controller_Action {
 
+  protected $requires_fedora = true;
+  
    // serve out a file attached to an ETD record from fedora
    public function viewAction() {
      $etdfile = $this->_helper->getFromFedora("pid", "etd_file");
