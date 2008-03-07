@@ -140,7 +140,7 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
     $this->setFileInfo($filename);	// set mimetype, filesize, and pages if appropriate       
 
     $doctype = "Dissertation/Thesis";
-    if (isset($this->parent)) $doctype = $this->parent->document_type();
+    if (isset($this->etd)) $doctype = $this->etd->document_type();
 
     if ($this->type == "pdf") {
       $this->dc->title = $doctype;
@@ -197,7 +197,7 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
 
   public function prettyFilename() {
     // build a nice, user-friendly filename
-    $filename = strtolower($this->parent->mods->author->last) . "_";
+    $filename = strtolower($this->etd->mods->author->last) . "_";
     switch ($this->type) {
     case "pdf":	$filename .= "dissertation"; break;
     case "original":	$filename .= "original";  break;
@@ -205,7 +205,7 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
     }
 
     // if there is more than one of this type of file, add a number
-    if (count($this->parent->{$this->type . "s"}) > 1) $filename .= $this->rels_ext->sequence;
+    if (count($this->etd->{$this->type . "s"}) > 1) $filename .= $this->rels_ext->sequence;
 
     // determine file extension based on mimetype  (FIXME: incomplete list?)
     
@@ -248,8 +248,8 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
     // maybe add removePdf, removeSupplement, etc. functions for etd_rels ?
 
     // remove relation stored in parent etd record, save parent etd
-    $this->parent->rels_ext->removeRelation($rel, $this->pid);
-    $this->parent->save("removed relation $rel to " . $this->pid);
+    $this->etd->rels_ext->removeRelation($rel, $this->pid);
+    $this->etd->save("removed relation $rel to " . $this->pid);
 
     // run default foxml purge
     return parent::purge($message);
@@ -274,11 +274,11 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
     if ($this->type == "original")
       return "original file";
     
-    if ($this->parent->isEmbargoed()) 
+    if ($this->etd->isEmbargoed()) 
       return "embargoed file";
     
     // these are the only statuses that are relevant
-    if ($this->parent->status() == "published")
+    if ($this->etd->status() == "published")
       return "published file";
     return "file";
   }
