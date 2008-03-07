@@ -93,19 +93,31 @@
   </div>
 <? endif ?>
 
-
   <?= $this->content ?>
 
-
-</div> <!-- end content div -->
+</div> <? /* end content div */ ?>
 
 <div id="footer">
  <a
-    href="http://www.emory.edu/copyright.cfm">&copy; 2007 Emory
+    href="http://www.emory.edu/copyright.cfm">&copy; 2008 Emory
     University.</a> 
-   Version Zend-0.1 updated 8/07. 
+   Version 0.9.1 updated 3/07. 
  <a href="<?= $this->url(array("controller" => "docs", "action" => "ip")); ?>">Rights and Privileges</a>
 </div>
+
+
+<? if ($this->env == "production"): 	/* Google Analytics */ ?>
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-3821577-1");
+pageTracker._initData();
+pageTracker._trackPageview();
+</script>
+<? endif ?>
+
 
 </body>
 </html>
