@@ -105,8 +105,8 @@ class FileController extends Etd_Controller_Action {
 
      // pass on pids for links to etdfile and etd record
      $this->view->file_pid = $etdfile->pid;
-     $this->view->etd_pid = $etdfile->parent->pid;
-     $this->view->etd = $etdfile->parent;
+     $this->view->etd_pid = $etdfile->etd->pid;
+     $this->view->etd = $etdfile->etd;
 
      $fileinfo = $_FILES['file'];
 
@@ -195,7 +195,7 @@ class FileController extends Etd_Controller_Action {
     }
 
 
-     $this->view->etd_pid = $etdfile->parent->pid;
+     $this->view->etd_pid = $etdfile->etd->pid;
     $this->view->pid = $pid;
     //    $this->view->xml = $xml;
     $this->view->xml = $etdfile->dc->saveXML();
@@ -203,7 +203,7 @@ class FileController extends Etd_Controller_Action {
 
     // redirect to etd record
     $this->_helper->redirector->gotoRoute(array("controller" => "view", "action" => "record",
-						"pid" => $etdfile->parent->pid), '', true);
+						"pid" => $etdfile->etd->pid), '', true);
    }
 
 
@@ -211,8 +211,8 @@ class FileController extends Etd_Controller_Action {
      $etdfile = $this->_helper->getFromFedora("pid", "etd_file");
      if (!$this->_helper->access->allowedOnEtdFile("remove", $etdfile)) return;
 
-     $etd_pid = $etdfile->parent->pid;
-     $etdfile->parent->removeFile($etdfile);	// remove from parent etd
+     $etd_pid = $etdfile->etd->pid;
+     $etdfile->etd->removeFile($etdfile);	// remove from the etd it belongs to
      
      $result = $etdfile->purge("removed by user");
      if ($result) {	// fixme: filename?
