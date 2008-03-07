@@ -21,19 +21,20 @@ require_once("user.php");
 class etd extends foxml implements etdInterface {
 
   // associated files
-  public $pdfs;
+  /*  public $pdfs;
   public $originals;
   public $supplements;
   public $authorInfo;	// user object
-
+  */
   
   
   public function __construct($arg = null) {
     parent::__construct($arg);
 
-    
     if ($this->init_mode == "pid") {
-      // anything here?
+      // anything else here?
+      if ($this->cmodel != "etd")
+	throw new FoxmlBadContentModel("$arg is not an etd");
     } elseif ($this->init_mode == "dom") {
       // anything here?
     } elseif ($this->init_mode == "template") {
@@ -42,58 +43,6 @@ class etd extends foxml implements etdInterface {
       // all new etds should start out as drafts
       $this->rels_ext->addRelation("rel:etdStatus", "draft");
     }
-
-
-    
-    // FIXME: this part (at least) should be lazy-init - slows down the browse listing significantly
-    $this->pdfs = array();
-    $files = array("pdfs" => "PDF",
-		   "originals" => "Original",
-		   "supplements" => "Supplement");
-    foreach ($files as $var => $type) {
-      $this->$var = array();
-      $pids = $this->findFiles($type);
-      foreach ($pids as $pid) {
-	if ($pid) {
-	  try {
-	    $this->{$var}[] = new etd_file($pid, $this);
-	  } catch (FoxmlException $e) {
-	    // should this warn or not? regular users should NOT see it
-	    trigger_error("Access denied to $type file $pid", E_USER_NOTICE);
-	  } catch (FedoraAccessDenied $e) {
-	    // should this warn or not? regular users won't want to see it...
-	    trigger_error("Access denied to $type file $pid", E_USER_NOTICE);
-	  }
-	}
-      }
-    }
-    // fixme: better to use risearch or rels-ext for related objects?
-
-    // fixme: need to handle permissions better - may not have permission to see all related objects
-    
-    // FIXME: this only works if user has permissions on rels-ext...
-    if ($this->init_mode == "pid") {
-      try {
-	$this->rels_ext != null;
-      } catch  (FedoraAccessDenied $e) {
-	// if the current user doesn't have access to RELS-EXT, they don't have full access to this object
-	throw new FoxmlException("Access Denied to " . $this->pid); 
-      }
-      if (isset($this->rels_ext->hasAuthorInfo)) {
-	try {
-	  $authorpid = $this->rels_ext->hasAuthorInfo;
-	  $this->authorInfo = new user($authorpid);
-	} catch (FoxmlException $e) {
-	    // should this warn or not? regular users should NOT see it
-	    trigger_error("Access denied to authorInfo file $authorpid", E_USER_NOTICE);
-	} catch (FedoraAccessDenied $e) {
-	  print "Fedora Access Denied: " . $e->getMessage() . "<br>\n";
-	  // most users will NOT have access to the author information
-	  trigger_error("Access denied to author info $pid", E_USER_NOTICE);
-	}
-      }	// end if authorInfo
-    }
-    
   }
 
 
@@ -118,11 +67,27 @@ class etd extends foxml implements etdInterface {
     $this->addNamespace("x", "urn:oasis:names:tc:xacml:1.0:policy");
     $this->xmlconfig["policy"] = array("xpath" => "//foxml:xmlContent/x:Policy",
 				       "class_name" => "XacmlPolicy", "dsID" => "POLICY");
+
+    // relations to other objects
+    $this->relconfig["pdfs"] = array("relation" => "hasPDF", "is_series" => true, "class_name" => "etd_file",
+				     "sort" => "etd::sort_files");
+    $this->relconfig["originals"] = array("relation" => "hasOriginal", "is_series" => true,
+					  "class_name" => "etd_file", "sort" => "etd::sort_files");
+    $this->relconfig["supplements"] = array("relation" => "hasSupplement", "is_series" => true,
+					    "class_name" => "etd_file", "sort" => "etd::sort_files");
+    $this->relconfig["authorInfo"] = array("relation" => "hasAuthorInfo", "class_name" => "user");
+  }
+
+  
+  // simple function to sort etdfiles based on sequence number  (used when foxml class initializes them)
+  public static function sort_files(etd_file $a, etd_file $b) {
+    if ($a->rels_ext->sequence == $b->rels_ext->sequence) return 0;
+    return ($a->rels_ext->sequence < $b->rels_ext->sequence) ? -1 : 1;
   }
 
 
   /**
-   *  determine a user's role in relation to this ETD
+   *  determine a user's role in relation to this ETD (for access controls)
    */
   public function getUserRole(esdPerson $user = null) {
     if (is_null($user)) return "guest";
@@ -136,7 +101,6 @@ class etd extends foxml implements etdInterface {
     else
       return $user->role;
   }
-
 
   public function setStatus($new_status) {
     $old_status = $this->rels_ext->status;
@@ -161,14 +125,6 @@ class etd extends foxml implements etdInterface {
       // fixme: split out embargo rule for etd file objects only ?
       break;
     }
-
-
-    // save files (if changed), since they may not get saved otherwise
-    /*    $files = array_merge($this->pdfs, $this->supplements, $this->originals);
-    foreach ($files as $file) {
-      $file->save("policies modified when setting etd status to $new_status");
-      }*/
-
 
     // for all - store the status in rels-ext
     $this->rels_ext->status = $new_status; 
@@ -389,41 +345,6 @@ class etd extends foxml implements etdInterface {
       return false;
   }
 
-
-  
-
-  // type should be: Original, PDF, Supplement
-  protected function findFiles($type) {
-    // prefix pid with info:fedora/ (required format for risearch)
-    $pid = $this->pid;
-    if (strpos($pid, "info:fedora/") === false)
-      $pid = "info:fedora/$pid";
-    
-    /*    $query = 'select $etdfile  from <#ri>
-     where  <' . $pid . '> <fedora-rels-ext:has' . $type . '> $etdfile';*/
-    // fixme: order by sequenceNumber
-
-    // revised query - order files by sequence number
-    $query = 'select $etdfile $num from <#ri>
-    	where  <' . $pid . '> <fedora-rels-ext:has' . $type . '> $etdfile
-	and $etdfile <fedora-rels-ext:sequenceNumber> $num
-	order by $num';
-    
-    //    $filelist = risearch::query($query);
-    $filelist = $this->fedora->risearch($query);
-
-    $files = array();
-    foreach ($filelist->results->result as $result ) {
-      $pid = $result->etdfile["uri"];
-      $pid = str_replace("info:fedora/", "", $pid);
-      $files[] = $pid;
-    }
-
-    return $files;
-  }
-
-
-  
   public function readyToSubmit() {
     if (! $this->mods->readyToSubmit()) return false;
     if (! $this->hasPDF()) return false;
@@ -466,46 +387,34 @@ class etd extends foxml implements etdInterface {
   
   
   public static function totals_by_status() {
-
-    $countquery = 'select $status count( select $etd from <#ri>
-		   where  $etd <fedora-rels-ext:etdStatus> $status ) 
-		   from <#ri>
-		   where $etd <fedora-rels-ext:etdStatus> $status';
-
-    $countlist = risearch::query($countquery);
+    $fedora = Zend_Registry::get('fedora');
+    $totals = array();
     
-    // fixme: use config variables, itql/risearch class?
-    //    $countlist = simplexml_load_file("http://wilson:6080/fedora/risearch?type=tuples&lang=iTQL&format=Sparql&query=" . urlencode($countquery));
-    
-    // If there are no records of a particular status, no count will
-    // be returned-- so initialize all to zero
-    $status = array('published' => 0,
-		    'approved'  => 0,
-		    'reviewed'  => 0,
-		    'submitted' => 0,
-		    'draft' 	=> 0);
-    foreach ($countlist->results->result as $result) {
-      $status[(string)$result->status] = (int)$result->k0;
+    // foreach status, do a triple-query and then count the number of matches
+    foreach (array('published', 'approved', 'reviewed', 'submitted', 'draft') as $status) {
+      $query = '* <fedora-rels-ext:etdStatus> \'' . $status . '\'';
+      $rdf = $fedora->risearch->triples($query);
+      $ns = $rdf->getNamespaces();
+      $totals[$status] = count($rdf->children($ns['rdf']));
     }
-
-    return $status;
+    
+    return $totals;
   }
-
 
 
   // find etds by status
   public static function findbyStatus($status) {
-
-    $query = 'select $etd  from <#ri>
-	      where  $etd <fedora-rels-ext:etdStatus> \'' . $status . '\'';
-    // note: MUST use single quotes and not double on status string here
-    $etdlist = risearch::query($query);
+    $fedora = Zend_Registry::get('fedora');
     
-    //    $etdlist = simplexml_load_file("http://wilson:6080/fedora/risearch?type=tuples&lang=iTQL&format=Sparql&query=" . urlencode($query));
-
+    // can only use triple query with MPTstore
+    $query = '* <fedora-rels-ext:etdStatus> \'' . $status . '\'';
+    $rdf = $fedora->risearch->triples($query);
+    
     $etds = array();
-    foreach($etdlist->results->result as $result) {
-      $pid = (string)$result->etd["uri"];
+    $ns = $rdf->getNamespaces();
+    $descriptions = $rdf->children($ns['rdf']);
+    foreach ($descriptions as $desc) {
+      $pid = $desc->attributes($ns['rdf']);	// rdf:about
       $pid = str_replace("info:fedora/", "", $pid);
       try {
 	$etds[] = new etd($pid);
@@ -517,21 +426,30 @@ class etd extends foxml implements etdInterface {
   }
 
   public static function findbyAuthor($username) {
-    // FIXME: need sanity checking on username
-    $query = 'select $etd from <#ri>
-	      where $etd <fedora-rels-ext:author> \'' . $username . '\'
-	      and $etd <fedora-model:contentModel> \'etd\'';
-    $etdlist = risearch::query($query);
+    $fedora = Zend_Registry::get('fedora');
+    
+    // can only use triple query with MPTstore
+    $query = '* <fedora-rels-ext:author> \'' . $username . '\'';
+    $rdf = $fedora->risearch->triples($query);
+
+    // Note: this query will match records that are not etds, and they need to be filtered somehow...
+    //	(can't filter in the query itself because MPTstore only supports querying by triples)
+    // 	FIXME-- would it be better to filter with another RIsearch query ? write a getContentModel function ?
+    // 		(would have to be done one at a time)
     $etds = array();
-    foreach($etdlist->results->result as $result) {
-      $pid = (string)$result->etd["uri"];
+    $ns = $rdf->getNamespaces();
+    $descriptions = $rdf->children($ns['rdf']);
+    foreach ($descriptions as $desc) {
+      $pid = $desc->attributes($ns['rdf']);	// rdf:about
       $pid = str_replace("info:fedora/", "", $pid);
       try {
 	$etds[] = new etd($pid);
       } catch (FedoraObjectNotFound $e) {
 	trigger_error("Record not found: $pid", E_USER_WARNING);
+      } catch (FoxmlBadContentModel $e) {      // filtering out non-etds here
+	// shouldn't need to do anything... 
+	// trigger_error("Found $pid as belonging to $username, but it is not an etd", E_USER_NOTICE);
       }
-
     }
     return $etds;
   }
@@ -539,32 +457,19 @@ class etd extends foxml implements etdInterface {
 
   // find records by author with any status *except* for published
   public static function findUnpublishedByAuthor($username) {
-    $query = 'select $etd from <#ri>
-	      where exclude($etd $rel \'published\')
-	      and $rel <tucana:is> <fedora-rels-ext:etdStatus>
-	      and $etd $rel $o
-	      and $etd <fedora-rels-ext:author> \'' . $username . '\'
-       	      and $etd <fedora-model:contentModel> \'etd\'';
-    $etdlist = risearch::query($query);
-    $etds = array();
-    foreach($etdlist->results->result as $result) {
-      $pid = (string)$result->etd["uri"];
-      $pid = str_replace("info:fedora/", "", $pid);
-      try {
-	$etds[] = new etd($pid);
-      } catch (FedoraObjectNotFound $e) {
-	trigger_error("Record not found: $pid", E_USER_WARNING);
-      }
+    $etds = etd::findByAuthor($username);
+    $unpublished = array();
 
+    foreach ($etds as $etd) {		// have to filter here since MPTstore only supports SPO
+      if ($etd->status() != 'published')
+	$unpublished[] = $etd;
     }
-    return $etds;
-    
+    return $unpublished;
   }
-
 
   
   public function pid() { return $this->pid; }
-  public function status() { return $this->rels_ext->status; }
+  public function status() { return isset($this->rels_ext->status) ? $this->rels_ext->status : ""; }
   public function title() { return $this->html->title; }	// how to know which?
   public function author() { return $this->mods->author->full; }
   public function program() { return $this->mods->department; }
@@ -615,6 +520,7 @@ class etd extends foxml implements etdInterface {
       return "etd";
     }
   }
+
   
 }
 
