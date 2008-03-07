@@ -38,12 +38,14 @@ class BrowseController extends Etd_Controller_Action {
 
     if (!isset($this->view->browse_mode))
       $this->view->browse_mode = $type;
+    
+    $request->setParam("field", $type . "_lastnamefirst");
 
     if (is_null($value)) {
-      $request->setParam("field", $type . "_lastnamefirst");
       $this->_forward("browseField");
     } else {
-      $request->setParam("field", $type);
+      // note: using exact match so we don't get confusing results where names partially match
+      $request->setParam("exact", true);
       $this->_forward("browse");
     }
   }
@@ -113,7 +115,7 @@ class BrowseController extends Etd_Controller_Action {
     //splitting out name parts to get an accurate match here (e.g.,
     //not matching committee members with a common first name)
     if ($exact) {
-      $query = "$field:$value";
+      $query = $field . ':"' . $value . '"';
     } else {
       $queryparts = array();
       foreach (preg_split('/[ +,.-]+/ ', strtolower($value), -1, PREG_SPLIT_NO_EMPTY) as $part) {
