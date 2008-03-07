@@ -59,7 +59,7 @@ class ManageController extends Etd_Controller_Action {
      // set flash message, forward to ...
      $this->_helper->flashMessenger->addMessage("Record status changed to <b>$newstatus</b>; record saved at $result");
      // forward to .. main admin page ?
-     $this->_helper->redirector->gotoRoute(array("controller" => "admin",
+     $this->_helper->redirector->gotoRoute(array("controller" => "manage",
 						 "action" => "summary"), "", true);
    }
 
