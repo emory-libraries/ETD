@@ -162,20 +162,17 @@ class BrowseController extends Etd_Controller_Action {
 
   /* browse by program */
   public function programsAction() {
-    $skos = new DOMDocument();
-    $skos->load("../config/programs.xml");   // better place, better way to initialize?
-
     // optional name parameter - find id by full name
     $name = $this->_getParam("name", null);
     if (is_null($name)) {
       $coll = $this->_getParam("coll", "programs");
       $coll = "#$coll";
     } else {
-      $prog = new programs($skos);
+      $prog = new programs();
       $coll = $prog->findIdbyLabel($name);
     }
 
-    $programs = new programs($skos, $coll);
+    $programs = new programs($coll);
     $this->view->collection = $programs;
 
     $this->view->browse_mode = "program"; // fixme: singular or plural?
@@ -200,12 +197,8 @@ class BrowseController extends Etd_Controller_Action {
   }
 
   public function researchfieldsAction() {
-    $skos = new DOMDocument();
-    $skos->load("../config/umi-researchfields.xml");   // better place?
-    $request = $this->getRequest();
-    $coll = $request->getParam("coll", "researchfields");
-
-    $fields = new researchfields($skos, "#$coll");
+    $coll = $this->_getParam("coll", "researchfields");
+    $fields = new researchfields("#$coll");
 
     $this->view->collection = $fields;
 
