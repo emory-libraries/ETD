@@ -24,7 +24,7 @@ class Etd_Controller_Action_Helper_Access extends Zend_Controller_Action_Helper_
     $acl = $this->_actionController->acl;
     
     if ($etdfile) {		// a specific etd object
-      $role = $etdfile->parent->getUserRole($current_user);	//  - user may have a different role on this etd
+      $role = $etdfile->etd->getUserRole($current_user);	//  - user may have a different role on this etd
       $resource = $etdfile->getResourceId();
     } else {				// generic etd file
       $role = $current_user->role;
