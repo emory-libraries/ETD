@@ -97,13 +97,8 @@ class UserController extends Etd_Controller_Action {
 
       // if no date for current, set to today
       if (!$user->mads->current->date) $user->mads->current->date = date("Y-m-d");	
-	
-      
       // normalize date format
-      foreach (array("current", "permanent") as $address) {
-	if ($user->mads->{$address}->date != "")
-	  $user->mads->{$address}->date = date("Y-m-d", strtotime($user->mads->{$address}->date, 0));
-      }
+      $user->normalizeDates();
       
       $resource = "contact information";
       if ($user->mads->hasChanged()) {
