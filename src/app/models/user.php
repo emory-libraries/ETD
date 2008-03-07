@@ -72,6 +72,14 @@ class user extends foxml {
     }
   }
 
+  public function normalizeDates() {
+    // normalize date format
+    foreach (array("current", "permanent") as $address) {
+      if (isset($this->mads->{$address}->date) && $this->mads->{$address}->date)
+	$this->mads->{$address}->date = date("Y-m-d", strtotime($this->mads->{$address}->date, 0));
+    }
+  }
+
 
   public function readyToSubmit() {
     // if anything is missing, record is not ready to submit
