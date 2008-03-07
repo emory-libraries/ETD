@@ -201,7 +201,9 @@ class EditController extends Etd_Controller_Action {
     $this->view->mode = $mode;
     $this->view->etd = $etd;
     $this->view->edit_content = $etd->html->{$mode};
-    $this->view->title = "edit $mode";
+    $label = ($mode == "contents") ? "Table of Contents" : ucfirst($mode);
+    $this->view->mode_label =  $label;
+    $this->view->title = "Edit $label";
   }
 
 
