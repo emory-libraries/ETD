@@ -135,11 +135,7 @@ class EditController extends Etd_Controller_Action {
     $this->view->title = "Edit Research Fields";
     $this->view->etd = $etd;
 
-    // necessary? better way to do this?
-    $xml = new DOMDocument();
-    $xmlcontent = file_get_contents("umi-researchfields.xml", FILE_USE_INCLUDE_PATH);
-    $xml->loadXML($xmlcontent); 
-    $this->view->fields = new researchfields($xml); 
+    $this->view->fields = new researchfields(); 
   }
 
   public function saveResearchfieldAction() {
