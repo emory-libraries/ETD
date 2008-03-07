@@ -97,7 +97,7 @@ clicking on and dragging the names.</p>
 <table id="nonemory_list">
 <tbody>						       
      <? $ne_count = 0; ?>
-     <tr><th>last name</th> <th>first name</th> <th>affiliation</th></tr>
+     <tr><th>Last name</th> <th>First name</th> <th>Affiliation</th></tr>
      <? foreach ($this->etd->mods->nonemory_committee as $ne) : ?>
        <tr id="nonemory_<?= ++$ne_count; ?>">
      <td><?= $this->formText("nonemory_lastname[]", $ne->last); ?></td>
@@ -118,7 +118,7 @@ clicking on and dragging the names.</p>
 <script type="text/javascript">var nonemory_count = <?= $ne_count ?>; </script>		       
 <a href="#" onClick="javascript:addNonemory()">add another</a>
      
-<p><input type="submit" value="save"/></p>
+<p><input class="button" type="submit" value="save"/></p>
 </form>
 
 						       

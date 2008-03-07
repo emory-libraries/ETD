@@ -2,11 +2,11 @@
 <?=  $this->render('user/_view.phtml'); ?>
 
 <? if ($this->acl->isAllowed($this->user->getUserRole($this->current_user), "user", "edit")): ?>
-<p><a style="font-weight:bold;" href="<?= $this->url(array("controller" => "user",
-		 "action" => "edit", "pid" => $this->user->pid), null, true) ?>">edit &gt;</a></p>
+<p><a class="button" href="<?= $this->url(array("controller" => "user",
+		 "action" => "edit", "pid" => $this->user->pid), null, true) ?>">edit</a></p>
 <? endif ?>
 
 <? $this->user->etd ?>
 		 
-<a href="<?= $this->url(array('controller' => 'view', 'action' => 'record',
-	'pid' => $this->user->etd->pid), '', true, false)?>">return to ETD record</a><br/>
+<a class="button" href="<?= $this->url(array('controller' => 'view', 'action' => 'record',
+	'pid' => $this->user->etd->pid), '', true, false)?>">return to record &gt;</a><br/>

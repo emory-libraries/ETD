@@ -59,8 +59,8 @@
 
    <? if ($this->acl->isAllowed($this->role, $this->etd, "submit")
 	  && $etd->readyToSubmit()): ?>
-      <p style="font-weight:bold;font-size:125%"><a href="<?= $this->url(array('controller' => 'submission',
-				'action' => 'review')) ?>">review &amp; submit&gt;</a></p>
+      <p><a class="button" href="<?= $this->url(array('controller' => 'submission',
+				'action' => 'review')) ?>">review &amp; submit &gt;</a></p>
   <? endif ?>								     
 
 </p>

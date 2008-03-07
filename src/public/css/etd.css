@@ -9,11 +9,6 @@ body {
   background-color:#ffffff;
 }
 
-/* FIXME: temporary hack to make submit form readable */
-table { 
-  font-size:115%;
-}
-
 td { 
   vertical-align:top; 
 }
@@ -793,3 +788,16 @@ div#whylogin a.close {
 }
 
 div.indent { margin-left:25px; }
+
+/* consistent look for workflow links and buttons */
+.button, .xforms-submit input { 
+ background-color:#efefef;
+ border:1px solid black;
+ font-weight:bold;
+ font-size:125%;
+ padding:3px;
+ text-decoration:none;
+}
+.button:hover, .xforms-submit input:hover { 
+  color:#881725; 
+}
