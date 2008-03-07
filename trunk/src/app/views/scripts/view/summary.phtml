@@ -8,11 +8,11 @@
 	'value' => $year), '', true)?>"><?= $year ?></a>)
    <? endif ?>
 
-     <? if (isset($this->etd->authorInfo) &&
-       $this->acl->isAllowed($this->etd->authorInfo->getUserRole($this->current_user), "user", "view")): ?>
-  <span class="userinfo">[<a href="<?= $this->url(array('controller' => 'user', 'action' => 'view',
-	'pid' => $this->etd->authorInfo->pid), '', true) ?>">contact info</a>]</span>
-<? endif ?>     
+     <? if ($this->acl->isAllowed($this->etd->getUserRole($this->current_user), "user", "view") && 
+	    isset($this->etd->authorInfo)): /* check acl first so we don't initialize unnecessarily  */?>
+      <span class="userinfo">[<a href="<?= $this->url(array('controller' => 'user', 'action' => 'view',
+		'pid' => $this->etd->authorInfo->pid), '', true) ?>">contact info</a>]</span>
+     <? endif ?>     
 
   <br/>
  <? if ($doctype = $this->etd->document_type()): ?><b><?= $doctype ?></b><? endif ?>
