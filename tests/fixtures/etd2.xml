@@ -16,7 +16,7 @@
 	    <mods:namePart type="given">Daffy</mods:namePart>
 	    <mods:namePart type="family">Duck</mods:namePart>
 	    <mods:displayForm>Duck, Daffy</mods:displayForm>
-	    <mods:affiliation>Disney</mods:affiliation>
+	    <mods:affiliation>Art History</mods:affiliation>
 	    <mods:role>
 	      <mods:roleTerm authority="marcrelator" type="text">author</mods:roleTerm>
 	    </mods:role>
@@ -39,6 +39,9 @@
 	    <mods:description>Emory Committee Member</mods:description>
 	   </mods:name>
 	  <mods:abstract>milk curdles and goes sour</mods:abstract>
+	  <mods:subject ID="" authority="proquestresearchfield">
+	    <mods:topic/>
+	  </mods:subject>
 	  <mods:genre authority="aat">Dissertation</mods:genre>
 	  <mods:identifier type="ark">http://purl.bogus.com/ark:123/etd2</mods:identifier>
 	  <mods:accessCondition type="restrictionOnAccess">Embargoed for </mods:accessCondition>
