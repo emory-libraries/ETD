@@ -16,7 +16,6 @@ require_once("Etd/Controller/Action/Helper/PdfPageTotal.php");
 
 class etd_file extends foxml implements Zend_Acl_Resource_Interface {
 
-  public $parent;
   public $type;
   
   public function __construct($pid = null, etd $parent = null) {
@@ -24,8 +23,10 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
 
     if ($this->init_mode == "pid") {
       // anything here?
+      $this->getRelType();
     } elseif ($this->init_mode == "dom") {
       // anything here?
+      $this->getRelType();
     } else {
       // new etd objects
       $this->cmodel = "etdFile";
@@ -34,39 +35,19 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
       $this->rels_ext->addRelation("rel:sequenceNumber", "1");
     }
 
-
-    if ($this->init_mode == "pid" || $this->init_mode == "dom") {
-      try {
-	$this->rels_ext != null;
-      } catch  (FedoraAccessDenied $e) {
-	// if the current user doesn't have access to RELS-EXT, they don't have full access to this object
-	throw new FoxmlException("Access Denied to " . $this->pid);
-	//	trigger_error("Access Denied to rels-ext for " . $this->pid, E_USER_WARNING);
-      }
-      
-      if ($this->rels_ext) {
-	
-	// determine what type of etd file this is
-	if (isset($this->rels_ext->pdfOf)) {
-	  $this->type = "pdf";
-	} elseif (isset($this->rels_ext->originalOf)) {
-	  $this->type = "original";
-	} elseif (isset($this->rels_ext->supplementOf)) {
-	  $this->type = "supplement";
-	} else {
-	  trigger_error("etdFile object " . $this->pid . " is not related to an etd object", E_USER_WARNING);
-	}
-	
-	// based on file type, get parent pid and initialize parent object (if not set and if not a new object)
-	if (isset($this->type) && is_null($parent) && !is_null($pid)) {
-	  $parent_rel = $this->type . "Of";
-	  if ($this->rels_ext->$parent_rel)	// don't try to load if pid is blank
-	    $this->parent = new etd($this->rels_ext->$parent_rel);
-	} else {
-	  $this->parent = $parent;
-	}
-      }
+    // if initialized by etd, that object is passed in - store for convenience
+    if (!is_null($parent)) {
+      $this->related_objects["etd"] = $parent;
     }
+
+    // configure relations to other objects - parent etd
+    // NOTE: because the relation depends on the file type, this has to be configured here and not earlier
+    if ($relation = $this->getRelType()) {
+      $this->relconfig["etd"] = array("relation" => $relation, "class_name" => "etd");
+    } else {
+      trigger_error("Could not determine relation to etd for " . $this->pid, E_USER_WARNING);
+    }
+
   }
 
 
@@ -86,13 +67,46 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
 				       "class_name" => "EtdFileXacmlPolicy", "dsID" => "POLICY");
 
     
-    // just override one portion of the rels configuration
+    // use custom rels-ext class
     $this->xmlconfig["rels_ext"]["class_name"] = "etd_rels";
-
-    // use custom DC
+    // use custom DC class
     $this->xmlconfig["dc"]["class_name"] = "etd_dc";
+  }
 
+
+  // set the type of this object (if not already set), and return the relation to the parent etd
+  private function getRelType() {
+    if ($this->init_mode != "pid" && $this->init_mode != "dom") {
+      return false;		// not applicable if not in one of these modes
+    }
+
+    if (!isset($this->type)) {		// if not set, configure
+      try {
+	$this->rels_ext != null;
+      } catch  (FedoraAccessDenied $e) {
+	// if the current user doesn't have access to RELS-EXT, they don't have full access to this object
+	throw new FoxmlException("Access Denied to " . $this->pid);
+	//	trigger_error("Access Denied to rels-ext for " . $this->pid, E_USER_WARNING);
+      }
+      
+      if ($this->rels_ext) {
+	// determine what type of etd file this is based on what is in the rels-ext
+	if (isset($this->rels_ext->pdfOf)) {
+	  $this->type = "pdf";
+	} elseif (isset($this->rels_ext->originalOf)) {
+	  $this->type = "original";
+	} elseif (isset($this->rels_ext->supplementOf)) {
+	  $this->type = "supplement";
+	} else {
+	  trigger_error("etdFile object " . $this->pid . " is not related to an etd object", E_USER_WARNING);
+	}
+      }
+    }
+
+    if ($this->type == "pdf") $reltype = "isPDFOf";
+    else $reltype = "is" . ucfirst($this->type) . "Of";
     
+    return $reltype;
   }
 
   // handle special values
@@ -254,7 +268,7 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
   public function getResourceId() {
     // check for various types
     
-    if ($this->parent->status() == "draft")
+    if ($this->etd->status() == "draft")
       return "draft file";
 
     if ($this->type == "original")
