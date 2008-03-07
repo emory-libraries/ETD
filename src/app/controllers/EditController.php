@@ -6,6 +6,8 @@ require_once("models/researchfields.php");
 
 class EditController extends Etd_Controller_Action {
 
+  protected $requires_fedora = true;
+  
   // edit main record metadata
   public function recordAction() {
     $etd = $this->_helper->getFromFedora("pid", "etd");

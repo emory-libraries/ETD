@@ -10,7 +10,7 @@ error_reporting(E_ALL|E_STRICT);
 ini_set("display_errors", "on");
 
 // ZendFramework, etc.
-ini_set("include_path", "../app/::../app/models:../app/modules/:../lib:../lib/ZendFramework:../lib/fedora:../lib/xml-utilities:js/:" . ini_get("include_path")); // use local copies first (e.g., Zend)
+ini_set("include_path", "../app/:../config:../app/models:../app/modules/:../lib:../lib/ZendFramework:../lib/fedora:../lib/xml-utilities:js/:" . ini_get("include_path")); // use local copies first (e.g., Zend)
 // NOTE: local models should come before fedora models so that correct
 // xml template files will be found first
 
@@ -33,21 +33,25 @@ $fedora_cfg = new Zend_Config_Xml("../config/fedora.xml", $env_config->mode);
 Zend_Registry::set('fedora-config',
 	  new Zend_Config_Xml("../config/fedora.xml", $env_config->mode));
 
-// if there is a logged in user, retrieve their information from fedora so it is available everywhere
-$auth = Zend_Auth::getInstance();
-if ($auth->hasIdentity()) {
-  $current_user = $auth->getIdentity();
-  $password = strtoupper($current_user->netid);	// because of the way fedora ldap config is hacked right now
-  $fedora = new FedoraConnection($current_user->netid, $password,
-				 $fedora_cfg->server, $fedora_cfg->port,
-				 $fedora_cfg->protocol, $fedora_cfg->resourceindex);
+try {
+  // if there is a logged in user, retrieve their information from fedora so it is available everywhere
+  $auth = Zend_Auth::getInstance();
+  if ($auth->hasIdentity()) {
+    $current_user = $auth->getIdentity();
+    $password = strtoupper($current_user->netid);	// because of the way fedora ldap config is hacked right now
+    $fedora = new FedoraConnection($current_user->netid, $password,
+				   $fedora_cfg->server, $fedora_cfg->port,
+				   $fedora_cfg->protocol, $fedora_cfg->resourceindex);
+    
+  } else {
+    $fedora = new FedoraConnection($fedora_cfg->user, $fedora_cfg->password,
+				   $fedora_cfg->server, $fedora_cfg->port,
+				   $fedora_cfg->protocol, $fedora_cfg->resourceindex);
+  }
+  Zend_Registry::set('fedora', $fedora);
+} catch (FedoraNotAvailable $e) {
 
-} else {
-  $fedora = new FedoraConnection($fedora_cfg->user, $fedora_cfg->password,
-				 $fedora_cfg->server, $fedora_cfg->port,
-				 $fedora_cfg->protocol, $fedora_cfg->resourceindex);
 }
-Zend_Registry::set('fedora', $fedora);
 
 // create DB object for access to Emory Shared Data
 $esdconfig = new Zend_Config_Xml('../config/esd.xml', $env_config->mode);
@@ -113,6 +117,7 @@ $front->throwExceptions((boolean)$env_config->display_exception);
 //$routecfg = new Zend_Config_Xml("../config/routes.xml", $env_config->mode);
 //$router = $front->getRouter();
 //$router->addConfig($routecfg, "routes");
+
 
 $front->dispatch();
 

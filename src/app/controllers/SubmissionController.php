@@ -5,7 +5,8 @@ require_once("models/etd_notifier.php");
 
 
 class SubmissionController extends Etd_Controller_Action {
-
+  protected $requires_fedora = true;
+  
   public function indexAction() {
     $this->_forward("start");
     // maybe this should be a summary/status page to check on the submission...

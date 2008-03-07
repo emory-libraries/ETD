@@ -3,7 +3,8 @@
 require_once("models/user.php");
 
 class UserController extends Etd_Controller_Action {
-
+  protected $requires_fedora = true;
+  
   public function viewAction() {
     if ($this->_hasParam("pid")) {
       $user = new user($this->_getParam("pid"));
