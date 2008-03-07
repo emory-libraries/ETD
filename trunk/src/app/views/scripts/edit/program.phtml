@@ -6,11 +6,6 @@
 <p>Your Emory record indicates that you are currently enrolled in the
 following Graduate Program (or undergraduate department).</p>
 
-<p>If this information is incorrect, reenter your program or
-department below.  Choose Graduate or Undergraduate, then Humanities,
-Natural/Health Sciences or Social Sciences, and then your particular
-program/department.</p>
-
 <p>  
   <?= $this->xformOutput("Department/Graduate Program",
 			 "instance('main')/mods:name[mods:role/mods:roleTerm='author']/mods:affiliation"); ?>
@@ -19,7 +14,10 @@ program/department.</p>
   <?= $this->xformOutput("Subfield", "instance('main')/mods:extension/etd:degree/etd:discipline"); ?>
 </p>
 
-
+<p>If this information is incorrect, reenter your program or
+department below.  Choose Graduate or Undergraduate, then Humanities,
+Natural/Health Sciences or Social Sciences, and then your particular
+program/department.</p>
 
 <br/>
  <xf:select1 ref="instance('tmp')/program/level1">
