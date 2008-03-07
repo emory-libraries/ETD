@@ -6,5 +6,7 @@
 		 "action" => "edit", "pid" => $this->user->pid), null, true) ?>">edit &gt;</a></p>
 <? endif ?>
 
+<? $this->user->etd ?>
 		 
-<a href="<?= $this->url(array('controller' => 'view', 'action' => 'record', 'pid' => $this->user->rels_ext->etd), '', true)?>">return to ETD record</a><br/>
+<a href="<?= $this->url(array('controller' => 'view', 'action' => 'record',
+	'pid' => $this->user->etd->pid), '', true, false)?>">return to ETD record</a><br/>
