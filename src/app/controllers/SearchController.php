@@ -1,6 +1,7 @@
 <?php
 
 require_once("models/etd.php");
+require_once("Pager/Pager.php");
 
 class SearchController extends Etd_Controller_Action {
   protected $requires_fedora = true;
@@ -11,32 +12,57 @@ class SearchController extends Etd_Controller_Action {
 
   public function resultsAction() {
     $request = $this->getRequest();
-     $query = $request->getParam("query");
+    $query = $request->getParam("query");	// basic keyword/anywhere query
+    $start = $request->getParam("start", 1);
+    $max = $request->getParam("max", 20);	
+
 
      /* fixme: maybe get all params at once and then loop through them ? */
-     
+    $this->view->query = array();
+    
      $title = $request->getParam("title");
-     if ($title) $query .= " title:($title)";
+     if ($title) {
+       $query .= " title:($title)";
+       $this->view->query['title'] = $title;
+     }
      $author = $request->getParam("author");
-     if ($author) $query .= " author:($author)";
+     if ($author) {
+       $query .= " author:($author)";
+       $this->view->query['author'] = $author;
+     }
      $abstract = $request->getParam("abstract");
-     if ($abstract) $query .= " abstract:($abstract)";
+     if ($abstract) {
+       $query .= " abstract:($abstract)";
+       $this->view->query['abstract'] = $abstract;
+     }
      $committee = $request->getParam("committee");
-     if ($committee) $query .= " committee:($committee)";
+     if ($committee) {
+       $query .= " committee:($committee)";
+       $this->view->query['comittee'] = $committee;
+     }
      $toc = $request->getParam("toc");
-     if ($toc) $query .= " tableOfContents:($toc)";
+     if ($toc) {
+       $query .= " tableOfContents:($toc)";
+       $this->view->query['comittee'] = $committee;
+     }
      $keyword = $request->getParam("keyword");
-     if ($keyword) $query .= " keyword:($keyword)";
+     if ($keyword) {
+       $query .= " keyword:($keyword)";
+       $this->view->query['keyword'] = $keyword;
+     }
      $subject = $request->getParam("subject");
-     if ($subject) $query .= " subject:($subject)";
+     if ($subject) {
+       $query .= " subject:($subject)";
+       $this->view->query['subject'] = $subject;
+     }
      $program = $request->getParam("program");
-     if ($program) $query .= " program:($program)";
+     if ($program) {
+       $query .= " program:($program)";
+       $this->view->query['program'] = $program;
+     }
 
-     //     print "DEBUG: query is $query\n";
-
-     
      $solr = Zend_Registry::get('solr');
-     $results = $solr->query(urlencode($query));
+     $results = $solr->query(urlencode($query), $start, $max);
      
      $this->view->count = $results['response']['numFound'];
      $this->view->etds = $results['response']['docs'];
@@ -51,6 +77,10 @@ class SearchController extends Etd_Controller_Action {
      $this->view->title = "Search Results"; 
 
      $this->view->count = $results['response']['numFound'];
+     $this->view->start = $start;
+     $this->view->max = $max;
+     $this->view->post = true;
+
 
      //
      $etds = array();

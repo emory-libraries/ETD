@@ -99,12 +99,18 @@ class BrowseController extends Etd_Controller_Action {
    
   // list of records by field + value
   public function browseAction() {
-    $request = $this->getRequest();
-    $field = $request->getParam("field");
-    $_value = urldecode($request->getParam("value"));	// store original form
+    $field = $this->_getParam("field");
+    $_value = urldecode($this->_getParam("value"));	// store original form
     $value = $_value;
     $value = urldecode($value);
-    $exact = $request->getParam("exact", false);
+
+
+    $start = $this->_getParam("start", 1);
+    $max = $this->_getParam("max", 20);	
+
+
+    
+    $exact = $this->_getParam("exact", false);
     if (! $exact) {
       $value = strtolower($value);
       $value = str_replace(",", "", $value);	// remove commas from names
@@ -127,7 +133,7 @@ class BrowseController extends Etd_Controller_Action {
     }
     //     print "query is $query\n";
     //$results = $solr->query("$field:($value)");
-    $results = $solr->query($query);
+    $results = $solr->query($query, $start, $max);
      
     /*       $results = solrQuery("$mode:$value"); */
      
@@ -147,13 +153,16 @@ class BrowseController extends Etd_Controller_Action {
       $this->_helper->flashMessenger->addMessage("Only one match found; displaying full record");
       $this->_helper->redirector->gotoRoute(array("controller" => "view",
 						  "action" => "record", "pid" => $etds[0]->pid), "", true);
-    } 
+    }
+
+    $this->view->start = $start;
+    $this->view->max = $max;
 
      
     $this->view->value = $_value;
     $this->view->results = $results;
      
-    $this->view->title = "Browse by " . $field . " : " . $_value;
+    $this->view->title = "Browse by " . $this->view->browse_mode . " : " . $_value;
   }
 
 
@@ -162,6 +171,9 @@ class BrowseController extends Etd_Controller_Action {
 
   /* browse by program */
   public function programsAction() {
+    $start = $this->_getParam("start", 1);
+    $max = $this->_getParam("max", 20);	
+    
     // optional name parameter - find id by full name
     $name = $this->_getParam("name", null);
     if (is_null($name)) {
@@ -178,7 +190,7 @@ class BrowseController extends Etd_Controller_Action {
     $this->view->browse_mode = "program"; // fixme: singular or plural?
 
 
-    $results = $programs->findEtds();
+    $results = $programs->findEtds($start, $max);
 
     $this->view->count = $results['response']['numFound'];
     $this->view->results = $results;
@@ -190,6 +202,11 @@ class BrowseController extends Etd_Controller_Action {
 
     $this->view->etds = $etds;
     $this->view->facets = $results['facet_counts']['facet_fields'];
+
+
+    $this->view->count = $results['response']['numFound'];
+    $this->view->start = $start;
+    $this->view->max = $max;
      
     // shared view script for programs & researchfields
     $this->view->action = "programs";
@@ -197,12 +214,15 @@ class BrowseController extends Etd_Controller_Action {
   }
 
   public function researchfieldsAction() {
+    $start = $this->_getParam("start", 1);
+    $max = $this->_getParam("max", 20);	
+
     $coll = $this->_getParam("coll", "researchfields");
     $fields = new researchfields("#$coll");
 
     $this->view->collection = $fields;
 
-    $results = $fields->findEtds();
+    $results = $fields->findEtds($start, $max);
 
     $this->view->browse_mode = "researchfield"; 
 
@@ -215,6 +235,10 @@ class BrowseController extends Etd_Controller_Action {
     }
     $this->view->etds = $etds;
     $this->view->facets = $results['facet_counts']['facet_fields'];
+    $this->view->count = $results['response']['numFound'];
+    $this->view->start = $start;
+    $this->view->max = $max;
+    
 
     // shared view script for programs & researchfields
     $this->view->action = "researchfields";
