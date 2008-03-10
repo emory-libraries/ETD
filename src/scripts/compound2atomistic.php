@@ -28,6 +28,7 @@ $opts = new Zend_Console_Getopt(
 	'urls|u=s'	=> "filename where old and new urls should go",
 	'tmpdir|t=s'	=> "tmp directory for downloaded files (defaults to /tmp)",
 	'keepfiles|k'	=> "don't delete temporary files from fedora",
+	'whitespace|w'  => "preserve whitespace in the table of contents",
   )
 );
 
@@ -140,6 +141,9 @@ if (isset($ownerid)) {
 $newetd->title = $fezetd->mods->title;
 $newetd->abstract = $fezetd->mods->abstract;
 $newetd->contents = $fezetd->mods->tableOfContents;
+if ($opts->whitespace) {	// preserve whitespace for formatting
+  $newetd->html->setContentsWithWhitespace($fezetd->mods->tableOfContents);
+}
 
 // set other dublin core fields
 $newetd->dc->creator = $fezetd->mods->author->full;
