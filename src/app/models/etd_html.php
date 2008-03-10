@@ -43,13 +43,24 @@ class etd_html extends foxmlDatastreamAbstract {
       /* don't wrap title in a paragraph tag (added by FCKeditor) */
       $value = preg_replace("|^\s*<p>\s*(.*)\s*</p>\s*$|", "$1", $value);
     case "abstract":
-      //      print "DEBUG: value is:$value\n";
     case "contents":
       parent::__set($name, etd_html::cleanEntities($value));
       return $this->map{$name} = etd_html::tags_to_nodes($this->map{$name});
     default:
       return parent::__set($name, $value);
     }
+  }
+
+
+  /**
+   * function for conversion from Fez - certain table of contents should have whitespace preserved
+   * for formatting reasons
+   */
+  public function setContentsWithWhitespace($value) {
+    // kind of a hack? convert &nbsp to numeric entity, which is not currently being replaced
+   $value = str_replace("&amp;", "&", $value);
+   $value = str_replace("&nbsp;", "&#xA0;", $value);
+   return $this->contents = $value;
   }
 
 
@@ -69,7 +80,7 @@ class etd_html extends foxmlDatastreamAbstract {
 
   // utility functions for handling html-related of tasks
   
-  public static function cleanEntities($string) {
+  public static function cleanEntities($string, $clean_whitespace = true) {
     // convert tags to a more easily matchable form, remove unneeded formatting
 
     /* FIXME: make better use of htmlentities ?
@@ -82,10 +93,14 @@ class etd_html extends foxmlDatastreamAbstract {
     
     $string = str_replace("&amp;", "&", $string);
     
-    $search = array("&lt;", "&gt;", "&rsquo;", "&ldquo;", "&rdquo;", "&quot;", "&ndash;", "&mdash;",  "&nbsp;",
-		    "&shy;");
-    $replace = array("<", ">", "'", '"', '"', '"', '-', '--', ' ', '-',);
+    $search = array("&lt;", "&gt;", "&rsquo;", "&ldquo;", "&rdquo;", "&quot;", "&ndash;", "&mdash;", "&shy;");
+    $replace = array("<", ">", "'", '"', '"', '"', '-', '--','-',);
     $string = str_replace($search, $replace, $string);
+
+    if ($clean_whitespace) {
+      $string = str_replace("&nbsp;", " ", $string);
+    }
+    
 
     // replace unicode characters 
     $search = array("&alpha;", "&beta;", "&gamma;", "&Gamma;","&delta;","&Delta;","&zeta;","&eta;",
@@ -116,12 +131,10 @@ class etd_html extends foxmlDatastreamAbstract {
     $string = etd_html::cleanEntities($string);
     
     // remove extra spaces, unused tags, clean up break tags; also remove empty tags
-    $search = array("|\s+|", "|<br\s+/?>|", "|</?i/?>|", "|</?b/?>|", "|</?em/?>|", "|</?strong/?>|",
+    $search = array("|<br\s+/?>|", "|</?i/?>|", "|</?b/?>|", "|</?em/?>|", "|</?strong/?>|",
 		    "|</?sup/?>|", "|</?sub/?>|", "|</?span/?>|", "|</?st1:[^>]+/?>|", "|</?o:p/?>|", "|</?p>|");
-    $replace = array(" ", "<br/>");  // standardize break tags to simplify split pattern later
+    $replace = array("<br/>");  // standardize break tags to simplify split pattern later
     $string = preg_replace($search, $replace, $string);
-
-    
 
     if ($keep_breaks)
       return $string;
