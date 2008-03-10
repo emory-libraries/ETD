@@ -438,6 +438,10 @@ div.fullrecord {
   width:100%;
 }
 
+div#abstract p { 
+ margin: 1em 0;
+}
+
 /* workflow action links */
 div.actions { 
   float:right;              
@@ -478,13 +482,14 @@ div.fullrecord h2 {
   margin-top:10px;
   border-top:1px solid #f1aa00;
   border-bottom:1px solid #f1aa00;
-  background:#fffdee;	/* very faint yellow */
+  background-color:#fffdee;	/* very faint yellow */
   clear:both;
 }
 
 div.contact_info h2 { 
   margin:2px;
   border:none;
+  background-color:white;
 }
 
 
@@ -748,12 +753,14 @@ p#submit_warning {
 }
 
 span#exclamation { 
-  color:#d70d0d;
- font-size:40pt;
+ color:#d70d0d;
+ font-size:25pt;
  font-family:Times;
  font-weight:bold;
  width:15px;
  float:left;
+ margin:0px;
+ padding:0px;
  padding-left:2px; padding-right:2px;
 }
 
@@ -794,7 +801,7 @@ div.indent { margin-left:25px; }
  background-color:#efefef;
  border:1px solid black;
  font-weight:bold;
- font-size:125%;
+ font-size:11pt;
  padding:3px;
  text-decoration:none;
 }
