@@ -7,6 +7,7 @@ class DocsController extends Etd_Controller_Action {
   public function ipAction() {}
   public function policiesAction() {}
   public function boundcopiesAction() {}
+  public function instructionsAction() {}
      
 
 }
