@@ -183,17 +183,19 @@ class etd_html extends foxmlDatastreamAbstract {
     // remove classnames (MSONORMAL, etc.) or any other formatting inside of tags
     $nodetext = preg_replace("|<([a-z]+)\s+[^>/]+>|", "<$1>", $nodetext);
     	// (don't mess up empty tags)
-
-    // remove unwanted empty tags
-    $search = array("<i/>", "<b/>", "<em/>", "<strong/>", "<sup/>",
-		    "<sub/>", "<span/>", "<p/>");
-    $nodetext = str_replace($search, array(), $nodetext);
-
   
     // remove unwanted tags
     $search = array("|</?span>|", "|</?st1:[^>]+>|", "|</?o:p>|");
-    $replace = array();  // standardize break tags to simplify split pattern later  
+    $replace = array();  // standardize break tags to simplify split pattern later
     $nodetext = preg_replace($search, $replace, $nodetext);
+   
+    // remove unwanted empty tags
+    $search = array("|<i/>|", "|<i>\s*</i>|", "|<b/>|", "|<b>\s*</b>|",
+		    "|<em/>|", "|<em>\s*</em>|", "|<strong/>|", "|<strong>\s*</strong>|",
+		    "|<sup/>|","|<sup>\s*</sup>|", "|<sub/>|", "|<sub>\s*</sub>|",
+		    "|<span/>|", "|<span>\s*</span>|", "|<p/>|", "|<p>\s*</p>|",);
+    $nodetext = preg_replace($search, array(), $nodetext);
+
 
     // stack of nodes so new elements & text nodes can be added at the appropriate level
     $current_node = array();
