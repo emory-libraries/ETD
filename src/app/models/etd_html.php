@@ -114,11 +114,13 @@ class etd_html extends foxmlDatastreamAbstract {
     // convert tags to a more easily matchable form, remove unneeded formatting
     $string = etd_html::cleanEntities($string);
     
-    // remove extra spaces, unused tags, clean up break tags
-    $search = array("|\s+|", "|<br\s+/?>|", "|</?i>|", "|</?b>|", "|</?em>|", "|</?strong>|",
-		    "|</?sup>|", "|</?sub>|", "|</?span>|", "|</?st1:[^>]+>|", "|</?o:p>|", "|</?p>|");
+    // remove extra spaces, unused tags, clean up break tags; also remove empty tags
+    $search = array("|\s+|", "|<br\s+/?>|", "|</?i/?>|", "|</?b/?>|", "|</?em/?>|", "|</?strong/?>|",
+		    "|</?sup/?>|", "|</?sub/?>|", "|</?span/?>|", "|</?st1:[^>]+/?>|", "|</?o:p/?>|", "|</?p>|");
     $replace = array(" ", "<br/>");  // standardize break tags to simplify split pattern later
     $string = preg_replace($search, $replace, $string);
+
+    
 
     if ($keep_breaks)
       return $string;
@@ -181,6 +183,12 @@ class etd_html extends foxmlDatastreamAbstract {
     // remove classnames (MSONORMAL, etc.) or any other formatting inside of tags
     $nodetext = preg_replace("|<([a-z]+)\s+[^>/]+>|", "<$1>", $nodetext);
     	// (don't mess up empty tags)
+
+    // remove unwanted empty tags
+    $search = array("<i/>", "<b/>", "<em/>", "<strong/>", "<sup/>",
+		    "<sub/>", "<span/>", "<p/>");
+    $nodetext = str_replace($search, array(), $nodetext);
+
   
     // remove unwanted tags
     $search = array("|</?span>|", "|</?st1:[^>]+>|", "|</?o:p>|");
