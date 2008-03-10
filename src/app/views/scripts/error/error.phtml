@@ -1,5 +1,7 @@
-<p><?= $this->last_error ?></p>
+<p><b>Error: <?= $this->error ?></b></p>
 
-<pre style="font-size:xx-small;font-family:fixed-width;font-weight:bold;border: medium double rgb(250,0,255)">
-<?php print_r($this->backtrace); ?>
-</pre>
+<? if ($this->env == "development"): ?>
+<?= $this->exception->getMessage() ?><br/>
+Line <b><?= $this->exception->getLine() ?></b> in <b><?= $this->exception->getFile() ?></b><br/>
+<?= $this->exception->getTraceAsString() ?>
+<? endif ?>
