@@ -64,7 +64,7 @@
 
 <!--      	    <li><a title="user information" href="<?= $this->url(array("controller" => "user", "action" => "view"), null, true) ?>">Profile</a></li> -->
 
-            <li><a href="docs/id/faq#help">Help</a></li>
+            <li><a href="<?= $this->url(array("controller" => "docs", "action" => "faq"), '', true); ?>#help">Help</a></li>
 
 	    <? if ($this->env == "development" && !($this->xforms && $this->browserInfo->browser == "IE")): ?>
 	       <?= $this->render("_setrole.phtml"); ?>
