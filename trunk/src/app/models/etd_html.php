@@ -38,10 +38,8 @@ class etd_html extends foxmlDatastreamAbstract {
 
 
   public function __set($name, $value) {
-    //    print "DEBUG: setting $name to <pre>$value</pre>";      
-
     switch ($name) {
-    case "title":
+    case "title":	
       /* don't wrap title in a paragraph tag (added by FCKeditor) */
       $value = preg_replace("|^\s*<p>\s*(.*)\s*</p>\s*$|", "$1", $value);
     case "abstract":
@@ -68,15 +66,19 @@ class etd_html extends foxmlDatastreamAbstract {
     }
   }
 
-
   // utility functions for handling html-related of tasks
-  public static function cleanTags($string, $keep_breaks = false) {
+  
+  public static function cleanEntities($string) {
     // convert tags to a more easily matchable form, remove unneeded formatting
 
+    // convert any non-entities into entities so they can be cleaned up
+    $string = htmlentities($string);	 // is this needed?
+    
     $string = str_replace("&amp;", "&", $string);
     
-    $search = array("&lt;", "&gt;", "&rsquo;", "&ldquo;", "&rdquo;", "&quot;", "&ndash;", "&mdash;", "&nbsp;",);
-    $replace = array("<", ">", "'", '"', '"', '"', '-', '--', ' ');
+    $search = array("&lt;", "&gt;", "&rsquo;", "&ldquo;", "&rdquo;", "&quot;", "&ndash;", "&mdash;",  "&nbsp;",
+		    "&shy;");
+    $replace = array("<", ">", "'", '"', '"', '"', '-', '--', ' ', '-',);
     $string = str_replace($search, $replace, $string);
 
     // replace unicode characters 
@@ -97,15 +99,21 @@ class etd_html extends foxmlDatastreamAbstract {
     // remove classnames (MSONORMAL, etc.) or any other formatting inside of tags
     $string = preg_replace("|<([a-z]+)\s+[^>/]+>|", "<$1>", $string);	// (don't mess up empty tags)
 
+    return $string;
+  }
+
+
+  
+  // utility functions for handling html-related of tasks
+  public static function cleanTags($string, $keep_breaks = false) {
+    // convert tags to a more easily matchable form, remove unneeded formatting
+    $string = etd_html::cleanEntities($string);
     
     // remove extra spaces, unused tags, clean up break tags
     $search = array("|\s+|", "|<br\s+/?>|", "|</?i>|", "|</?b>|", "|</?em>|", "|</?strong>|",
 		    "|</?sup>|", "|</?sub>|", "|</?span>|", "|</?st1:[^>]+>|", "|</?o:p>|", "|</?p>|");
     $replace = array(" ", "<br/>");  // standardize break tags to simplify split pattern later
     $string = preg_replace($search, $replace, $string);
-
-    // FIXME: remove any empty tags other than <br/>
-
 
     if ($keep_breaks)
       return $string;
@@ -117,7 +125,7 @@ class etd_html extends foxmlDatastreamAbstract {
     $search = array("&lt;", "&gt;");
     $replace = array("<", ">");
     $string = str_replace($search, $replace, $string);
-    return preg_replace("|</?[a-z]+>|", "", $string);
+    return preg_replace("|</?[a-z]+/?>|", "", $string);		// also remove empty tags
   }
 
 
@@ -157,6 +165,8 @@ class etd_html extends foxmlDatastreamAbstract {
     if (! $node instanceof DOMNode)
       print "Error! tags_to_nodes argument should be a DOMNode\n";
     $nodetext = $node->nodeValue;
+
+    $nodetext = etd_html::cleanEntities($nodetext);
 
     // blank out current text so it can be replaced with text & new nodes
     $node->nodeValue = "";	
