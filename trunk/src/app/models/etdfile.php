@@ -172,6 +172,8 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
     if (isset($this->file))	// new record, not yet ingested into Fedora
       $this->file->mimetype = $filetype;
 
+    $this->dc->setFilename($filename);
+
     /* if this is a PDF, we can get the number of pages
        - this is especially important for pdf of dissertation,
        but doesn't hurt for any pdf supplements
@@ -207,16 +209,17 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
     // if there is more than one of this type of file, add a number
     if (count($this->etd->{$this->type . "s"}) > 1) $filename .= $this->rels_ext->sequence;
 
-    // determine file extension based on mimetype  (FIXME: incomplete list?)
-    
+    // determine file extension based on mimetype for common/expected files
     switch ($this->dc->mimetype) {
-    case "application/pdf":  $ext = ".pdf"; break;
-    case "application/msword":  $ext = ".doc"; break;
-      
+    case "application/pdf":  $ext = "pdf"; break;
+    case "application/msword":  $ext = "doc"; break;
     default:
-      $ext = "";
+      if (isset($this->dc->filename)) {		// stored original filename
+	$parts = explode(".", $this->dc->filename);
+	$ext = $parts[count($parts)-1];	// trust user's extension from original file
+      }
     }
-    $filename .= $ext;
+    $filename .= "." . $ext;
 
     return $filename;
   }
