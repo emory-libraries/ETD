@@ -71,6 +71,11 @@ class etd_html extends foxmlDatastreamAbstract {
   public static function cleanEntities($string) {
     // convert tags to a more easily matchable form, remove unneeded formatting
 
+    /* FIXME: make better use of htmlentities ?
+     * can specify quote_style, character set (UTF-8), double_encode...
+     */
+
+    
     // convert any non-entities into entities so they can be cleaned up
     $string = htmlentities($string);	 // is this needed?
     
@@ -97,7 +102,7 @@ class etd_html extends foxmlDatastreamAbstract {
     $string = str_replace($search, $replace, $string);
 
     // remove classnames (MSONORMAL, etc.) or any other formatting inside of tags
-    $string = preg_replace("|<([a-z]+)\s+[^>/]+>|", "<$1>", $string);	// (don't mess up empty tags)
+    $string = preg_replace("|<([a-z]+)\s+[^>/]+(/?)>|", "<$1$2>", $string);	// (don't mess up empty tags)
 
     return $string;
   }
