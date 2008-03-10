@@ -1,3 +1,29 @@
+<? if (isset($this->count) && isset($this->start) && isset($this->max)): ?>
+  <? $this->end = min($this->start + $this->max - 1, $this->count); ?>
+  <? if (!$this->post && $this->max < $this->count): ?>
+   <ul style="float:right" class="horizontal">
+      <li class="first">More results:
+     <? for ($i = 1; $i <= $this->count; $i += $this->max): ?>
+     <? $cur_end = min($i + $this->max - 1, $this->count);
+        $range = $i;  if ($cur_end != $i) $range .= "-" . $cur_end ; ?>
+	<? if ($i != 1): ?><li><? endif ?>
+       <? if ($i != $this->start): ?>
+          <a href="<?= $this->url(array('start' => $i, 'max' => $this->max)) ?>"><?= $range ?></a>
+       <? else: ?>
+	   <?= $range ?>
+       <? endif ?>
+	</li>	 
+     <? endfor ?>
+     </ul>		  
+  <? endif ?>
+
+  <p><?= $this->count ?> match<? if ($this->count != 1): ?>es<? endif ?> found;
+  displaying <?= $this->start ?> - <?= $this->end ?></p>
+
+<? endif ?>
+	       
+
+
 <? foreach ($this->etds as $etd): ?>
   <?  $this->etd = $etd; ?>
   <?=  $this->render('view/shortrecord.phtml'); ?>

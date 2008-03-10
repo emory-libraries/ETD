@@ -17,12 +17,15 @@
 <? if (count($this->etds) && count($this->collection->members)) : ?>
      <hr/> <? /* divider if there are both records and categories listed */ ?>
 <? endif ?>
+	
        
 <? /* don't show etd records at top level */ ?>
 <? if ($this->collection->parent): ?>
-  <?=  $this->render('browse/_facets.phtml'); ?>
+	<?//=  $this->render('browse/_facets.phtml'); ?>
 
   <? if (count($this->etds)): ?>
+
+       
    <?=  $this->render('browse/list.phtml'); ?>
   <? endif ?>
 	 
