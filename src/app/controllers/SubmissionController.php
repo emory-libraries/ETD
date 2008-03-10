@@ -88,9 +88,16 @@ class SubmissionController extends Etd_Controller_Action {
 	else 
 	  $etd->mods->addKeyword($keyword);
       }
-          
-      // create an etd file object for uploaded PDF and associate with etd record
-      $pid = $etd->save("creating preliminary record from uploaded pdf");
+
+      try {
+	// create an etd file object for uploaded PDF and associate with etd record
+	$pid = $etd->save("creating preliminary record from uploaded pdf");
+      } catch (FedoraObjectNotValid $e) {
+	print $e->getMessage() . "<br/>\n";
+	$this->view->error = "Could not create record.";
+	$this->view->xml = $etd->saveXML();
+	return;
+      }
       if ($this->debug) $this->_helper->flashMessenger->addMessage("Saved etd as $pid");
       if ($pid) {
 	// need to retrieve record from fedora so datastreams can be saved, etc.
@@ -122,7 +129,7 @@ class SubmissionController extends Etd_Controller_Action {
 						    "pid" => $etd->pid));
 	
       } else {
-	$this->_helper->flashMessenger->addMessage("Error saving etd to fedora");
+	$this->_helper->flashMessenger->addMessage("Error saving record");
 	$this->view->foxml = $etd->saveXML();
       }
 
