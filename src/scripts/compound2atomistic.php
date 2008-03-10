@@ -408,7 +408,19 @@ foreach ($fezetd->files as $file) {
   if (filesize($filename) === 0) {
     print "Error: file $filename downloaded from fedora is zero size\n";
     // exit? skip this file?
-  } 
+  } else {
+    // clean  up the file - Fez added newlines at beginning / end in certain cases
+    $filecontent = file_get_contents($filename);
+    $filecontent = ltrim($filecontent, "\n");		// remove newlines at the beginning of the file
+	
+    $finfo = finfo_open(FILEINFO_MIME);	
+    $filetype = finfo_file($finfo, $filename);
+    if ($filetype == "application/pdf" || $filetype == "application/msword") {
+      // these files (at least) should not have newlines at the end
+      $filecontent = rtrim($filecontent, "\n");		// remove newlines at the end of the file
+    }
+    file_put_contents($filename, $filecontent);
+  }
   
   // while the file is locally accessible, get some information about it
   $etdfile->setFileInfo($filename);	// set mimetype, filesize, and pages if appropriate
