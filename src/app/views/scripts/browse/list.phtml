@@ -17,8 +17,9 @@
      </ul>		  
   <? endif ?>
 
-  <p><?= $this->count ?> match<? if ($this->count != 1): ?>es<? endif ?> found;
-  displaying <?= $this->start ?> - <?= $this->end ?></p>
+ <p><?= $this->count ?> match<? if ($this->count != 1): ?>es<? endif ?> found<? if ($this->count): ?>;
+  displaying <?= $this->start ?> - <?= $this->end ?><? endif ?>
+ </p>
 
 <? endif ?>
 	       
