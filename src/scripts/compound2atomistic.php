@@ -21,8 +21,6 @@ require_once("etd.php");
 require_once("etdfile.php");
 require_once("models/stats.php"); 	// etd08 stats
 
-require_once("controllers/helpers/PdfPageTotal.php");
-
 $opts = new Zend_Console_Getopt(
   array(
 	'noact|n'	=> "no action: don't save to fedora",
@@ -375,6 +373,9 @@ foreach ($fezetd->files as $file) {
   $etdfile = new etd_file();
   // let etdfile handle getting new pids (using arks)
   $etdfile->label = $file->label;
+  if ($fezetd->mods->genre != "Dissertation" && $reltype == "PDF") {
+    $etdfile->label = "Masters Thesis";
+  }
   if (isset($ownerid)) $etdfile->owner = $ownerid;
   $etdfile->type = strtolower($reltype);	// setting so we can set policies correctly later
 
