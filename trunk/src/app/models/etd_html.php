@@ -43,8 +43,9 @@ class etd_html extends foxmlDatastreamAbstract {
       /* don't wrap title in a paragraph tag (added by FCKeditor) */
       $value = preg_replace("|^\s*<p>\s*(.*)\s*</p>\s*$|", "$1", $value);
     case "abstract":
+      //      print "DEBUG: value is:$value\n";
     case "contents":
-      parent::__set($name, $value);
+      parent::__set($name, etd_html::cleanEntities($value));
       return $this->map{$name} = etd_html::tags_to_nodes($this->map{$name});
     default:
       return parent::__set($name, $value);
@@ -77,7 +78,7 @@ class etd_html extends foxmlDatastreamAbstract {
 
     
     // convert any non-entities into entities so they can be cleaned up
-    $string = htmlentities($string);	 // is this needed?
+    //  $string = htmlentities($string);	 // is this needed?
     
     $string = str_replace("&amp;", "&", $string);
     
@@ -172,13 +173,10 @@ class etd_html extends foxmlDatastreamAbstract {
     if (! $node instanceof DOMNode)
       print "Error! tags_to_nodes argument should be a DOMNode\n";
     $nodetext = $node->nodeValue;
-
-    $nodetext = etd_html::cleanEntities($nodetext);
-
     // blank out current text so it can be replaced with text & new nodes
     $node->nodeValue = "";	
 
-    //* minimal clean-up to remove formatting that shouldn't be even in the HTML
+    //* do some minimal clean-up to remove formatting that shouldn't be even in the HTML
 
     // remove classnames (MSONORMAL, etc.) or any other formatting inside of tags
     $nodetext = preg_replace("|<([a-z]+)\s+[^>/]+>|", "<$1>", $nodetext);
@@ -189,7 +187,7 @@ class etd_html extends foxmlDatastreamAbstract {
     $replace = array();  // standardize break tags to simplify split pattern later
     $nodetext = preg_replace($search, $replace, $nodetext);
    
-    // remove unwanted empty tags
+    // remove unwanted empty tags (sometimes made empty by removing unwanted tags)
     $search = array("|<i/>|", "|<i>\s*</i>|", "|<b/>|", "|<b>\s*</b>|",
 		    "|<em/>|", "|<em>\s*</em>|", "|<strong/>|", "|<strong>\s*</strong>|",
 		    "|<sup/>|","|<sup>\s*</sup>|", "|<sub/>|", "|<sub>\s*</sub>|",
