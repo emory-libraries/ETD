@@ -23,10 +23,11 @@ class etd_dc extends dublin_core {
     // fixme: better xpath for filesize?
     $this->xmlconfig["filesize"] = array("xpath" => "dc:format[not(contains(., '/')) and not(contains(., 'p.'))]");
     $this->xmlconfig["pages"] = array("xpath" => "dc:format[contains(., ' p.')]");
+    $this->xmlconfig["filename"] = array("xpath" => "dc:source[contains(., 'filename:')]");
 
     
 
-    $this->additional_fields = array("ark", "mimetype", "filesize", "pages");
+    $this->additional_fields = array("ark", "mimetype", "filesize", "pages", "filename");
   }
 
   // simple check - should only be dc terms
@@ -77,12 +78,24 @@ class etd_dc extends dublin_core {
     }
   }
 
+  public function setFilename($name) {
+    $this->update();
+    if (isset($this->filename)) {
+      $this->filename = $name;
+    } else {
+      $this->source = "filename:$name";		// not currently using source for anything else 
+      $this->update();
+    }
+  }
 
   public function __get($name) {
     $value = parent::__get($name);
     switch ($name) {
     case "pages":
       $value = str_replace(" p.", "", $value);	// return just the number
+      break;
+    case "filename":
+      $value = str_replace("filename:", "", $value);	// return just the name
       break;
     }
     return $value;
