@@ -106,7 +106,7 @@ class collectionHierarchy extends XmlObject {
 
 
   
-  public function findEtds() {
+  public function findEtds($start = 1, $max = null) {
 
      $solr = Zend_Registry::get('solr');
      // get all fields of this collection and its members (all the way down)
@@ -127,9 +127,9 @@ class collectionHierarchy extends XmlObject {
 
 
      /* don't retrieve etd records at top level of hierarchy */ 
-     if (isset($this->parent)) $return_num = null;		// use defaults
+     if (isset($this->parent)) $return_num = $max;		// use defaults
      else $return_num = 0;	     // NOTE: setting to no returns speeds things up substantially
-     $results = $solr->query($query, $return_num, null, -1);
+     $results = $solr->query($query, $start, $return_num, -1);
      $totals = $results['facet_counts']['facet_fields'][$this->index_field];
 
      // sum up totals recursively
