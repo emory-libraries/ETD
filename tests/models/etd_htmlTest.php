@@ -23,6 +23,8 @@ class TestEtdHtml extends UnitTestCase {
     $this->assertEqual("Why <i>I</i> like cheese", $this->etd_html->title);
     $this->assertEqual("<b>gouda</b> or <i>cheddar</i>?", $this->etd_html->abstract);
     $this->assertEqual("Chapter 1: Gouda<br/> Chapter 2: Brie", $this->etd_html->contents);
+
+
   }
 
   function testCleanTags() {
@@ -36,6 +38,14 @@ class TestEtdHtml extends UnitTestCase {
 		       etd_html::cleanTags("first line<br/> second line"));
     $this->assertEqual("first line<br/> second line",
 		       etd_html::cleanTags("first line<br/> second line", true));
+
+    $this->assertEqual("first line<br/> second line",
+		       etd_html::cleanTags("first line<br clear='all'/> second line", true));
+
+    
+    $this->assertEqual("some text",
+		       etd_html::cleanTags("<strong/>some text", true));
+    
   }
 
   function testRemoveTags() {
@@ -95,9 +105,23 @@ class TestEtdHtml extends UnitTestCase {
     $this->etd_html->abstract = 'I have some &quot;text&quot; in quotes.';
     $this->assertEqual('I have some "text" in quotes.', $this->etd_html->abstract);
  
-  
+    // remove unwanted empty tags
+    $this->etd_html->abstract = '<strong/>runaway bold';
+    $this->assertEqual('runaway bold', $this->etd_html->abstract);
+
+    // unwanted tag generates empty tag
+    $this->etd_html->abstract = '<strong><o:p></o:p></strong>runaway bold';
+    $this->assertEqual('runaway bold', $this->etd_html->abstract);
 
 
+    // losing Greek characters
+    $this->etd_html->abstract = 'character &beta; mid-sentence';
+    $this->assertEqual('character &#x3B2; mid-sentence', $this->etd_html->abstract);
+  }
+
+  public function testSetContentsWithWhitespace() {
+    $this->etd_html->setContentsWithWhitespace("Here is some text &nbsp;&nbsp; and some more");
+    $this->assertEqual("Here is some text &#xA0;&#xA0; and some more", $this->etd_html->contents);
   }
   
 }
