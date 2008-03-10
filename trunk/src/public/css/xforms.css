@@ -106,3 +106,4 @@ div#xforms-key {
 }
 div#xforms-key .xforms-label { display: inline;  font-size: normal;}
 div#xforms-key p { margin:0px; text-indent:10px;}
+div#xforms-key .invalid { color:red; font-weight:bold; }
