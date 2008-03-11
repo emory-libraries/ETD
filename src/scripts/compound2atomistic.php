@@ -445,7 +445,7 @@ foreach ($fezetd->files as $file) {
   $filepids[$file->ID] = $etdfile->pid;	// old filename -> new pid
 
   // store for policy processing
-  $etdfiles[] = $etdfile;
+  $etdfiles[] = new etd_file($etdfile->pid);   //re-initialize so policies can be validated
 
   if ($reltype != "Original") {		// no redirects for archive copy
     // print out old and new urls to be used in creating rewrite rules
