@@ -45,7 +45,8 @@ class StatObject extends Stats_Db_Table {
 
     $total = array("abstract" => 0, "file" => 0);
     foreach ($result as $row) {
-      $total[$row['type']] = $row['count'];
+      if (isset($row['type']))
+        $total[$row['type']] = $row['count'];
     }
     return $total;
   }
