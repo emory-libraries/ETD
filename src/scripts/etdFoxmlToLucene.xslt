@@ -451,7 +451,13 @@
 
       <!-- departmental subfield; part of program facet -->
       <xsl:template match="mods:extension/etd:degree/etd:discipline">
-        <IndexField index="UN_TOKENIZED" store="YES" termVector="YES" IFname="program">
+        <!-- index but as program, but don't return -->
+        <IndexField index="UN_TOKENIZED" store="NO" termVector="YES" IFname="program">
+          <xsl:apply-templates/>
+        </IndexField>
+
+        <!-- return as subfield -->
+        <IndexField index="UN_TOKENIZED" store="YES" termVector="YES" IFname="subfield">
           <xsl:apply-templates/>
         </IndexField>
       </xsl:template>
