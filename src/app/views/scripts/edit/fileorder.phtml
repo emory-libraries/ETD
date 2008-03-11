@@ -12,6 +12,7 @@ $projax = new Projax();
 
 <p><i>drag files to rearrange the order</i></p>
 
+<div id="files">
 <form method="post" id="file_order"  action="<?= $this->url(array("action" => "savefileorder"))?>">
   <? foreach (array("pdfs" => "PDFs", "originals" => "Originals", "supplements" => "Supplements")
 	      as $type => $label) : ?>
@@ -21,11 +22,14 @@ $projax = new Projax();
 	<li id="<?= $file->pid ?>">
            <input type="hidden" name="<?= $type ?>[]" value="<?= $file->pid ?>"/>
 	     <?= $file->dc->title ?>
+  	     <? if ($file->dc->description): ?>
+	       <span class="description">[<?= $file->dc->description ?>]</span>
+             <?endif ?>
      <? endforeach ?>	
    </ul>
 <?= $projax->sortable_element($type ."_list", array("url" => null)); ?>     
   <? endforeach ?>
-
   <p><input type="submit" value="save"/></p>
 </form>
+</div>
 
