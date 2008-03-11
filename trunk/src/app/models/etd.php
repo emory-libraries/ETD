@@ -70,20 +70,14 @@ class etd extends foxml implements etdInterface {
 
     // relations to other objects
     $this->relconfig["pdfs"] = array("relation" => "hasPDF", "is_series" => true, "class_name" => "etd_file",
-				     "sort" => "etd::sort_files");
+				     "sort" => "sort_etdfiles");
     $this->relconfig["originals"] = array("relation" => "hasOriginal", "is_series" => true,
-					  "class_name" => "etd_file", "sort" => "etd::sort_files");
+					  "class_name" => "etd_file", "sort" => "sort_etdfiles");
     $this->relconfig["supplements"] = array("relation" => "hasSupplement", "is_series" => true,
-					    "class_name" => "etd_file", "sort" => "etd::sort_files");
+					    "class_name" => "etd_file", "sort" => "sort_etdfiles");
     $this->relconfig["authorInfo"] = array("relation" => "hasAuthorInfo", "class_name" => "user");
   }
-
   
-  // simple function to sort etdfiles based on sequence number  (used when foxml class initializes them)
-  public static function sort_files(etd_file $a, etd_file $b) {
-    if ($a->rels_ext->sequence == $b->rels_ext->sequence) return 0;
-    return ($a->rels_ext->sequence < $b->rels_ext->sequence) ? -1 : 1;
-  }
 
 
   /**
@@ -529,3 +523,8 @@ class etd extends foxml implements etdInterface {
 
 
 
+  // simple function to sort etdfiles based on sequence number  (used when foxml class initializes them)
+ function sort_etdfiles(etd_file $a, etd_file $b) {
+    if ($a->rels_ext->sequence == $b->rels_ext->sequence) return 0;
+    return ($a->rels_ext->sequence < $b->rels_ext->sequence) ? -1 : 1;
+  }
