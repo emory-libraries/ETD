@@ -3,16 +3,23 @@
 class Etd_Controller_Action_Helper_Access extends Zend_Controller_Action_Helper_Abstract {
 
   public function allowedOnEtd($action, etd $etd = null) {
-    $current_user = $this->_actionController->current_user;
     $acl = $this->_actionController->acl;
-    
+
+    if (isset($this->_actionController->current_user)) 
+      $current_user = $this->_actionController->current_user;
+    else
+      $role = "guest";
+
     if ($etd) {		// a specific etd object
-      $role = $etd->getUserRole($current_user);	//  - user may have a different role on this etd
+      if (isset($current_user))
+	$role = $etd->getUserRole($current_user);	//  - user may have a different role on this etd
       $resource = $etd->getResourceId();
     } else {				// generic etd
-      $role = $current_user->role;
+      if (isset($current_user))
+	$role = $current_user->role;
       $resource = "etd";
     }
+
     
     $allowed = $acl->isAllowed($role, $resource, $action);
     if (!$allowed) $this->notAllowed($action, $role, $resource);
