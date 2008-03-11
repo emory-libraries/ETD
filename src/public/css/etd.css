@@ -746,7 +746,7 @@ div#edit_faculty span.dept { float:right; font-size:80%;}
 table#nonemory_list th { font-size:85%; text-align:left; }
 
 
-p#submit_warning { 
+p.warning { 
   border: 2px solid #d70d0d;  /* darkish red */
   padding: 4px;
   background-color: #efefef; /* light grey */

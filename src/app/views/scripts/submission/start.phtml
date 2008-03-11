@@ -1,3 +1,11 @@
+<? if (!in_array($this->browserInfo->browser, $this->supported_browsers)): ?>
+<p class="warning">
+   <span id="exclamation">!</span>
+   Your browser (<?= $this->browserInfo->browser ?>) is currently not supported for the submission process.  <br/>
+   Please use Internet Explorer or Mozilla Firefox.
+</p>
+<? endif ?>
+
 <p>Welcome!</p>
 
 <p>To begin the submission process, please upload the PDF of your
