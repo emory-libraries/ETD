@@ -5,6 +5,10 @@ require_once("countries.php");
 
 class StatisticsController extends Etd_Controller_Action {
 
+  public function indexAction() {
+    $this->view->title = "Access Statistics";
+  }
+  
    // stats for all etds, broken down by month/year
    public function countryAction() {
      $stats = new StatObject();
