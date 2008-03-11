@@ -20,8 +20,9 @@
 	  <tmpdir>/tmp/etd</tmpdir>
   	  <!-- executable for pdftohtml; supply full path if necessary -->
 	  <pdftohtml>/usr/local/bin/pdftohtml</pdftohtml>	
-	   <!-- browsers supported for submission process  -->
- 	  <supported_browsers>IE,Firefox,Iceweasel</supported_browsers>
+	   <!-- browsers supported for submission process  
+		Note: this should match the "parent" field returned by get_browser() -->
+ 	  <supported_browsers>IE 7.0,Firefox 2.0,Iceweasel</supported_browsers>
 	</development>
 
 	<test extends="development">

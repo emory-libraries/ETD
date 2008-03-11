@@ -1,8 +1,11 @@
-<? if (!in_array($this->browserInfo->browser, $this->supported_browsers)): ?>
+<? if (! in_array($this->browserInfo->parent, $this->supported_browsers)): ?>
 <p class="warning">
    <span id="exclamation">!</span>
-   Your browser (<?= $this->browserInfo->browser ?>) is currently not supported for the submission process.  <br/>
-   Please use Internet Explorer or Mozilla Firefox.
+   Your browser (<?= $this->browserInfo->browser ?> <?= $this->browserInfo->majorver ?>)
+   is currently not supported for the submission process.  <br/>
+   Please use one of the following:
+   <?= implode(', ', array_diff($this->supported_browsers, array("Iceweasel"))) ?>
+   <? /* Note: hiding Iceweasel to avoid confusion */ ?>
 </p>
 <? endif ?>
 
