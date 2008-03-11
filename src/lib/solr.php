@@ -23,7 +23,8 @@ class solr {
     }
     //    print "DEBUG: query=$queryString";
     $url = $this->baseurl . "?q=$queryString";
-    if ($start !== null) $url .= "&start=$start";
+    if ($start == 1) $url .= "&start=0";		// if you start with 1, you miss the first record
+    elseif ($start !== null) $url .= "&start=$start";
     if ($max !== null) 	$url .= "&rows=$max";
     if(count($this->facet_fields)) {
       $url .= "&facet=true&facet.mincount=1&facet.limit=" . $facet_limit;	// sane defaults?
@@ -32,11 +33,11 @@ class solr {
       }
     }
     $url .= "&wt=phps&fq=status:published";
-    //    print "DEBUG: <a href='$url'>solr query</a><br/>\n";
+    //    print "DEBUG: <a href='$url'>solr query</a> (query = $queryString)<br/>\n";
     //    $val = file_get_contents($url);
     $val = file_post_contents($url);			// switched to post for long queries
     //print "DEBUG: solr response: $val";
-    //print "<pre>"; print_r(unserialize($val)); print "</pre>";
+    //    print "<pre>"; print_r(unserialize($val)); print "</pre>";
     return unserialize($val);
   }
 
