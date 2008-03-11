@@ -318,7 +318,13 @@ if ($opts->noact) {
   $newetd->saveXMLtoFile($tmpdir . "/etd.xml");
 } else {
   $newid = $newetd->save("migrating to atomistic content model from $pid");
-  print "etd object saved as $newid\n";
+  if ($newid)
+    print "etd object saved as $newid\n";
+  else {
+    $newetd->saveXMLtoFile($tmpdir . "/etd.xml");
+    print "Error saving etd object; saved xml in $tmpdir/etd.xml\n";
+    exit;
+  }
   
   // need to reinitialize from fedora so datastreams can be saved separately
   $newetd = new etd($newid);
