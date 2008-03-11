@@ -19,7 +19,9 @@
 	  </email>
 	  <tmpdir>/tmp/etd</tmpdir>
   	  <!-- executable for pdftohtml; supply full path if necessary -->
-	  <pdftohtml>pdftohtml</pdftohtml>	
+	  <pdftohtml>/usr/local/bin/pdftohtml</pdftohtml>	
+	   <!-- browsers supported for submission process  -->
+ 	  <supported_browsers>IE,Firefox,Iceweasel</supported_browsers>
 	</development>
 
 	<test extends="development">

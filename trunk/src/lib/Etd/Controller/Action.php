@@ -18,6 +18,7 @@ abstract class Etd_Controller_Action extends Zend_Controller_Action {
 
     
     $this->debug = Zend_Registry::get('debug');
+    $this->view->debug = $this->debug;
 
     //        $this->acl = $this->view->acl;	// FIXME: which is better? Zend_Registry::get("acl");
     $this->acl = Zend_Registry::get('acl');
@@ -34,6 +35,8 @@ abstract class Etd_Controller_Action extends Zend_Controller_Action {
     if (isset($this->current_user)) $this->view->current_user = $this->current_user;
     $this->view->env = $this->env;
     $this->view->browserInfo = get_browser();
+    $config = Zend_Registry::get('config');
+    $this->view->supported_browsers = explode(',', $config->supported_browsers);
 
     // store controller/action  name in view (needed for certain pages)
     $params =  $this->_getAllParams();
@@ -45,7 +48,7 @@ abstract class Etd_Controller_Action extends Zend_Controller_Action {
     /* if this controller requires fedora and it is not configured (unavailable), redirect to an error page */
     if ($this->requires_fedora && !Zend_Registry::isRegistered('fedora'))
       $this->_helper->redirector->gotoRouteAndExit(array("controller" => "error",
-							 "action" => "fedoraUnavailable"), "", true);
+      							 "action" => "fedoraUnavailable"), "", true);
   }
 
   public function postDispatch() {
