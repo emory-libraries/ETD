@@ -369,13 +369,15 @@ class etd extends foxml implements etdInterface {
    */
   public function ingest($message ) {
     /* Note: it would be good to validate the XACML policy here,
-       but the policy->isValid can only validate the entire record (since it is all in one DOM)
+       but the policy->isValid can only validate the entire record (since it is all in one DO)Md.
      */
     $persis = new etd_persis();
     
     // FIXME: use view/controller to build this url?
     $ark = $persis->generateArk("http://etd/view/pid/emory:{%PID%}", $this->label);
     $pid = $persis->pidfromArk($ark);
+
+    // FIXME: error handling? make sure pid is successfully generated?
 
     $this->pid = $pid;
     $this->mods->ark = $ark;
