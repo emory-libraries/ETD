@@ -40,7 +40,7 @@
           <?endif ?>
 	      
 	  <? if ($this->acl->isAllowed($this->role, $file, "edit")): ?>
-	    <a href="<?= $this->url(array("controller" => "file", "action" => "edit", "pid" => $file->pid))?>">edit</a>
+	    <a href="<?= $this->url(array("controller" => "file", "action" => "edit", "pid" => $file->pid))?>">edit/replace</a>
 	  <? endif ?>
 	  <? if ($this->acl->isAllowed($this->role, $file, "remove")): ?>
 	    <a href="<?= $this->url(array("controller" => "file", "action" => "remove", "pid" => $file->pid))?>">remove</a>
