@@ -6,9 +6,27 @@
 	<host>localhost</host>
 	<username>feztest</username>
 	<password>f3zt3st!</password>
-	<dbname>fez_rebecca</dbname>
+	<dbname>fez_cmr</dbname>
       </params>
    </database>
+<!-- fedora repository with the records to be converted
+     NOTE: script needs admin access in order to get embargoed files
+   -->
+  <fedora_src>
+     <server>domokun.library.emory.edu</server>
+     <port>8080</port>
+     <user>fedoraAdmin</user>  
+     <password></password>   
+     <resourceindex>risearch</resourceindex>
+  </fedora_src>
+<!-- fedora repository where new records should be created -->
+  <fedora_dest>
+     <server>wilson.library.emory.edu</server>
+     <port>6080</port>
+     <user>fedoraAdmin</user>  
+     <password>fedoraAdmin</password>   
+     <resourceindex>risearch</resourceindex>
+  </fedora_dest>
   </development>
   <test extends="development">
   </test>
