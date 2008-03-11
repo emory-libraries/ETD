@@ -232,7 +232,7 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
     $persis = new etd_persis();
     
     // FIXME: use view/controller to build this url?
-    $ark = $persis->generateArk("http://etd/file/view/pid/emory:{%PID%}", $this->label);
+    $ark = $persis->generateArk("http://etd.library.emory.edu/file/view/pid/emory:{%PID%}", $this->label);
     $pid = $persis->pidfromArk($ark);
     $this->pid = $pid;
 

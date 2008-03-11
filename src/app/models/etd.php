@@ -374,7 +374,7 @@ class etd extends foxml implements etdInterface {
     $persis = new etd_persis();
     
     // FIXME: use view/controller to build this url?
-    $ark = $persis->generateArk("http://etd/view/pid/emory:{%PID%}", $this->label);
+    $ark = $persis->generateArk("http://etd.library.emory.edu/view/pid/emory:{%PID%}", $this->label);
     $pid = $persis->pidfromArk($ark);
 
     // FIXME: error handling? make sure pid is successfully generated?

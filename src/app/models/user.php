@@ -141,7 +141,7 @@ class user extends foxml {
     $persis = new etd_persis();
 
     // FIXME: use view/controller to build this url?
-    $ark = $persis->generateArk("http://etd/user/view/pid/emory:{%PID%}", $this->label);
+    $ark = $persis->generateArk("http://etd.library.emory.edu/user/view/pid/emory:{%PID%}", $this->label);
     $pid = $persis->pidfromArk($ark);
 
     $this->pid = $pid;
