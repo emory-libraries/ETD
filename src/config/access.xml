@@ -27,8 +27,8 @@
 
     <role name="author" inherits="view_all">
       <allow resource="file">view, download</allow>		<!-- includes original, embargoed -->
-      <allow resource="draft etd">edit metadata, add file, submit</allow>
-      <allow resource="draft file">edit, remove</allow>
+      <allow resource="draft etd">edit metadata, add file, order files, submit</allow>
+      <allow resource="draft file">edit</allow>
       <allow resource="user">view, edit</allow>
     </role>
     <role name="committee" inherits="view_all"/>	
