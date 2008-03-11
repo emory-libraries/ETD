@@ -44,7 +44,8 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
     // NOTE: because the relation depends on the file type, this has to be configured here and not earlier
     if ($relation = $this->getRelType()) {
       $this->relconfig["etd"] = array("relation" => $relation, "class_name" => "etd");
-    } else {
+    } elseif ($this->init_mode == "pid") {
+      // not an error if it is a new document
       trigger_error("Could not determine relation to etd for " . $this->pid, E_USER_WARNING);
     }
 
@@ -172,7 +173,7 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
     if (isset($this->file))	// new record, not yet ingested into Fedora
       $this->file->mimetype = $filetype;
 
-    $this->dc->setFilename($filename);
+    $this->dc->setFilename(basename($filename));	// temporary file, so directory doesn't matter
 
     /* if this is a PDF, we can get the number of pages
        - this is especially important for pdf of dissertation,
