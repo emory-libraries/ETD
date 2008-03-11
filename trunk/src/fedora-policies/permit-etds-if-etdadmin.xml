@@ -165,22 +165,21 @@ access and modify (with some limitations) etd objects (etd, etdfile, user)</Desc
         <AnyResource/>
       </Resources>
       <Actions>
-	<AnyAction/>
+ 	<Action>
+          <ActionMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">urn:fedora:names:fedora:2.1:action:id-getObjectProfile</AttributeValue>
+            <ActionAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:action:id" DataType="http://www.w3.org/2001/XMLSchema#string"/>
+          </ActionMatch>
+        </Action>
+        <Action>
+          <ActionMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">urn:fedora:names:fedora:2.1:action:id-listDatastreams</AttributeValue>
+            <ActionAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:action:id" DataType="http://www.w3.org/2001/XMLSchema#string"/>
+          </ActionMatch>
+        </Action>
       </Actions>
     </Target>
 
-<!-- allow anyone to get minimal information : object profile & list datastreams 
-     (needed to initialize foxml object) -->
-    <Condition FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-at-least-one-member-of">
-      <ActionAttributeDesignator DataType="http://www.w3.org/2001/XMLSchema#string" 
-	     AttributeId="urn:fedora:names:fedora:2.1:action:id"/>
-      <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-bag">
-          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">urn:fedora:names:fedora:2.1:action:id-getObjectProfile</AttributeValue>
-          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">urn:fedora:names:fedora:2.1:action:id-listDatastreams</AttributeValue>
-      </Apply>
-   </Condition>
-
-   
   </Rule>
 
   <Rule RuleId="deny-the-rest" Effect="Deny"/> 
