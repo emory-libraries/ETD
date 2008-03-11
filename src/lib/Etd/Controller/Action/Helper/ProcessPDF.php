@@ -27,6 +27,8 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
 
     // filename where the temporary upload file should be moved
     $pdf = $tmpdir . "/" . $fileinfo['name'];
+    // if user is so silly as to include spaces in their filename, get rid of them
+    $pdf = str_replace(" ", "_", $pdf);
     
     $flashMessenger = $this->_actionController->getHelper('FlashMessenger');
 
@@ -35,7 +37,7 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
     if($fileUpload->direct($fileinfo, $pdf, array("application/pdf"))) {
 
       $this->_actionController->view->log = array();
-      $html = $tmpdir . "/" . basename($fileinfo['name'], ".pdf") . ".html";
+      $html = $tmpdir . "/" . basename(str_replace(" ", "_", $fileinfo['name']), ".pdf") . ".html";
       
       $pdftohtml = $config->pdftohtml;
       // pdftohtml options: -q -noframes -i -l 10 filename.pdf filename.html
