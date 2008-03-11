@@ -23,6 +23,10 @@
 	   <!-- browsers supported for submission process  
 		Note: this should match the "parent" field returned by get_browser() -->
  	  <supported_browsers>IE 7.0,Firefox 2.0,Iceweasel</supported_browsers>
+
+	<!-- override default role for superusers only here:
+	     note that these people must also be listed permit-etds-to-etdadmins policy -->
+	  <superusers>rsutton,pogrady,croddy</superusers>
 	</development>
 
 	<test extends="development">
