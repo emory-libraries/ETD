@@ -54,6 +54,6 @@
     <? endforeach ?><br/>
   <b>Program:</b>
 	<a href="<?= $this->url(array('controller' => 'browse', 'action' => 'programs',
-	'name' => urlencode($this->etd->program())), '', true) ?>"><?= $this->etd->program() ?></a>
+	'name' => $this->etd->program()), '', true) ?>"><?= $this->etd->program() ?></a>
      <? if ($this->etd->subfield()): ?>(<?= $this->etd->subfield() ?>)<? endif ?>
      <br/>
