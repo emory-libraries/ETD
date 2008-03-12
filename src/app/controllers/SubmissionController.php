@@ -199,8 +199,8 @@ class SubmissionController extends Etd_Controller_Action {
     $to = $notify->submission();
 
     $etd->premis->addEvent("notice",
-				 "Submission Notification sent by ETD system",
-				 "success",  array("software", "etd system"));
+			   "Submission Notification sent by ETD system",
+			   "success",  array("software", "etd system"));
     $result = $etd->save("notification event");
     
     $this->_helper->flashMessenger->addMessage("Submission notification email sent to " . implode(', ', array_keys($to)));
@@ -212,6 +212,8 @@ class SubmissionController extends Etd_Controller_Action {
   }
 
   // display success message with more information
-  public function successAction() {}
+  public function successAction() {
+    $this->view->title = "Submission successful";
+  }
 
 }
