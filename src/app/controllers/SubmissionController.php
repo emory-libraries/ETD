@@ -189,22 +189,25 @@ class SubmissionController extends Etd_Controller_Action {
 			   "Submitted for Approval by " . $this->current_user->fullname,
 			   "success",  array("netid", $this->current_user->netid));
     
-    $result = $etd->save("set status to '$newstatus'");
-    if ($result)
-      $this->_helper->flashMessenger->addMessage("Record status changed to <b>$newstatus</b>");
-    else 
-      $this->_helper->flashMessenger->addMessage("Error: could not submit record");
-
     $notify = new etd_notifier($etd);
     $to = $notify->submission();
 
     $etd->premis->addEvent("notice",
 			   "Submission Notification sent by ETD system",
 			   "success",  array("software", "etd system"));
-    $result = $etd->save("notification event");
     
     $this->_helper->flashMessenger->addMessage("Submission notification email sent to " . implode(', ', array_keys($to)));
 
+
+    /** NOTE: the record should not be saved until after the submission event is added.
+        Otherwise the record will no longer be a draft and the author will not
+	be allowed to make changes.
+    */
+    $result = $etd->save("set status to '$newstatus'; notification event");
+    if ($result)
+      $this->_helper->flashMessenger->addMessage("Record status changed to <b>$newstatus</b>");
+    else 
+      $this->_helper->flashMessenger->addMessage("Error: there was a problem submitting your record");
     
     // forward to congratulations message
     $this->_helper->redirector->gotoRoute(array("controller" => "submission",
