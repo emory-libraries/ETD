@@ -21,7 +21,6 @@ h1, h2, h3 {
 
 .xforms-label {
   display: block;
-  font-size: smaller;
 }
 
 .xforms-disabled {
@@ -36,7 +35,7 @@ h1, h2, h3 {
   color: red;
 }
 
-.xforms-required label {
+.xforms-required .xforms-label {
   font-weight: bold;
 }                          
 
@@ -61,9 +60,7 @@ h1, h2, h3 {
 
 * html .xforms-textarea { width:90%; }
 
-
-span.xforms-label { font-weight:bold; }
-.xforms-required span.xforms-label:after { content: " *"; }     
+.xforms-required .xforms-label:after { content: " *"; }     
 
 /* modify display for checkbox/radio button layout */
 div.xfselect div span.xforms-label { display:inline; }
@@ -103,6 +100,6 @@ div#xforms-key {
   width:35%;
   padding:3px;
 }
-div#xforms-key .xforms-label { display: inline;  font-size: medium;}
+div#xforms-key .xforms-label { display: inline; }
 div#xforms-key p { margin:0px; text-indent:10px;}
 div#xforms-key .invalid { color:red; font-weight:bold; }
