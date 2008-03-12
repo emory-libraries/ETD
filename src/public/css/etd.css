@@ -437,6 +437,14 @@ div.fullrecord {
   width:100%;
 }
 
+div.record_title { 
+ font-weight:bold;
+}
+
+div.record_title p { 
+  margin: 0px;
+}
+
 div#abstract p { 
  margin: 1em 0;
 }

@@ -3,8 +3,10 @@
 <? $this->role = $this->etd->getUserRole($this->current_user); ?>
 
 <div class="listrecord">
-    <b><a href="<?= $this->url(array("controller" => "view",
-    "action" => "record", "pid" => $this->etd->pid()), "", true)?>"><?= $this->etd->title() ?></a></b> <br/>
+    <div class="record_title">
+      <a href="<?= $this->url(array("controller" => "view",
+    "action" => "record", "pid" => $this->etd->pid()), "", true)?>"><?= $this->etd->title() ?></a>
+   </div>
   <?=  $this->render('manage/_actions.phtml'); ?>
   <?=  $this->render('view/summary.phtml'); ?>
   <? if ($this->show_status || $this->show_lastaction) : ?>
