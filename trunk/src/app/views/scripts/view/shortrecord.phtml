@@ -15,7 +15,7 @@
      <? if ($this->show_lastaction): ?> 
        <? $last_event = $this->etd->premis->event[count($this->etd->premis->event) - 1]; ?>
        Last action: <?= $last_event->detail ?>
-      (<?= date("Y-m-d", strtotime($last_event->date, 0))?>)<br/>
+      (<?= date(DATE_RFC850, strtotime($last_event->date, 0))?>)<br/>
      <? endif ?>
    </div>
   <? endif ?>      
