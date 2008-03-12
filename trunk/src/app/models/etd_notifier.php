@@ -29,7 +29,7 @@ class etd_notifier extends notifier {
       $this->getEmailAddresses($etd);
       foreach ($this->to as $email => $name) $this->mail->addTo($email, $name);
       foreach ($this->cc as $email => $name) $this->mail->addCc($email, $name);
-      $this->mailaddBcc($config->email->etd->address, $config->email->etd->name);
+      $this->mail->addBcc($config->email->etd->address, $config->email->etd->name);
     }
     $this->view->etd = $etd;
   }
