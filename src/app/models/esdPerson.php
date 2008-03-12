@@ -217,6 +217,7 @@ class esdPersonObject extends Emory_Db_Table {
   public function match_faculty($name) {
     $sql = "SELECT * FROM ESDV.v_etd_prsn WHERE PRSN_C_TYPE='F' ";
 
+    $name = str_replace(",", "", $name);	// ignore commas
     $name = strtolower($name);	// convert to lower case for case-insensitive comparison
     // FIXME: handle multiple names - split on spaces and search for both names
     $names = split(' ', $name);
