@@ -52,7 +52,6 @@ input.submitlink {
   padding:0px;
   margin:0px;
   cursor:pointer;
-  cursor:hand;
 }
 input.submitlink * { 
   padding:0px;
@@ -707,7 +706,7 @@ div.abstract p {
 div#select_researchfields { 
   height:300px;
   overflow:auto;
-  border:1px solid grey;
+  border:1px solid gray;
 }
 
 div#select_researchfields a.selected { 

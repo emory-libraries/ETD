@@ -93,7 +93,6 @@ span.xforms-trigger input {
   padding:0px;
   margin:0px;
   cursor:pointer;
-  cursor:hand;
 }
 
 /* key for required, invalid fields */
@@ -104,6 +103,6 @@ div#xforms-key {
   width:35%;
   padding:3px;
 }
-div#xforms-key .xforms-label { display: inline;  font-size: normal;}
+div#xforms-key .xforms-label { display: inline;  font-size: medium;}
 div#xforms-key p { margin:0px; text-indent:10px;}
 div#xforms-key .invalid { color:red; font-weight:bold; }
