@@ -16,11 +16,14 @@ class FileController extends Etd_Controller_Action {
      // don't use layout or templates
      $this->getHelper('layoutManager')->disableLayouts();
      $this->_helper->viewRenderer->setNoRender(true);
-     
+
+     // fix for IE (otherwise doewnload doesn't work over https)
+     $this->getResponse()->setHeader('Cache-Control', "public", true);	// replace any other cache-control headers
+     $this->getResponse()->setHeader('Pragma', "public", true);
      // set content type, filename, and set datastream content as the body of the response
      $this->getResponse()->setHeader('Content-Type', $etdfile->dc->mimetype);
      $this->getResponse()->setHeader('Content-Disposition',
-				     'attachment; filename="' . $etdfile->prettyFilename());
+				     'attachment; filename="' . $etdfile->prettyFilename() . '"');
      $this->getResponse()->setBody($etdfile->getFile());
    }
 
