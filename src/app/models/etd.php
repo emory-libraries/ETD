@@ -136,7 +136,12 @@ class etd extends foxml implements etdInterface {
 	$obj->policy->addRule($name);
 
       // special case - owner needs to be specified for draft rule
-      if ($name == "draft") $obj->policy->draft->condition->user = $this->owner;
+      if ($name == "draft") {
+	if (isset($this->owner)) $owner = $this->owner;	// not retrieved from Fedora when initializing by pid
+	else $owner = $this->rels_ext->author;		// fall-back / alternate way to get netid
+	
+	$obj->policy->draft->condition->user = $owner;
+      }
 
       // another special case: if embargo end is already set, put that date in publish policy as well
       if ($name == "published" && isset($this->mods->embargo_end) && $this->mods->embargo_end
