@@ -18,8 +18,6 @@ class esdPerson implements Zend_Acl_Role_Interface {
 
   private $_etds;
 
-  private $superusers;
-
   public function __construct() {
     $this->alias = array("netid" => "LOGN8NTWR_I",
 			 "type" => "PRSN_C_TYPE",
@@ -73,12 +71,15 @@ X           Pre-start
     if ($this->department == "Graduate School Administration")
       $this->role = "admin";	// graduate school administrator
 
-    $config = Zend_Registry::get('config');
-    $this->superusers = explode(',', $config->superusers);
-    if (in_array($this->netid, $this->superusers)) $this->role = "superuser";
+
+    // etd superuser - override role for users listed in config file, if set
+    if (Zend_Registry::isRegistered('config')) {
+      $config = Zend_Registry::get('config');
+      $superusers = explode(',', $config->superusers);
+      if (in_array($this->netid, $superusers)) $this->role = "superuser";
+    }
     
 
-    // fixme: etd superuser ? 
 
     $this->_etds = null;
   }
