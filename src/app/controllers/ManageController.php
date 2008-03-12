@@ -29,6 +29,7 @@ class ManageController extends Etd_Controller_Action {
      $this->view->title = "Manage : $status";
      $this->view->status = $status;
      $this->view->etds = etd::findbyStatus($status);
+     $this->view->show_lastaction = true;
    }
 
    /* review workflow (review, accept, requestChanges) */
