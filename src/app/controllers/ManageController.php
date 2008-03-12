@@ -26,7 +26,7 @@ class ManageController extends Etd_Controller_Action {
    public function listAction() {
      if (!$this->_helper->access->allowedOnEtd("manage")) return;
      $status = $this->_getParam("status");
-     $this->view->title = "Manage : $status";
+     $this->view->title = "Manage : " . ucfirst($status);
      $this->view->status = $status;
      $this->view->etds = etd::findbyStatus($status);
      $this->view->show_lastaction = true;
@@ -65,28 +65,30 @@ class ManageController extends Etd_Controller_Action {
 						 "action" => "summary"), "", true);
    }
 
+   // request changes to metadata (submitted etd) or document (reviewed etd)
    public function requestchangesAction() {
      $etd = $this->_helper->getFromFedora("pid", "etd");
-     if (!$this->_helper->access->allowedOnEtd("review", $etd)) return;  // still part of review workflow
+     $changetype = $this->_getParam("type", "record");	  // could also be document (record=metadata)
+     if (!$this->_helper->access->allowedOnEtd("request $changetype changes", $etd)) return;  
 
      $newstatus = "draft";
      $etd->setStatus($newstatus);
+
+     $this->view->title = "Manage : Request changes to $changetype";
+     $this->view->etd = $etd;
+     $this->view->changetype = $changetype;
      
      // log event in record history 
      $etd->premis->addEvent("status change",
-			    "Changes to record requested by Graduate School",
+			    "Changes to $changetype requested by Graduate School",
 			    "success",  array("netid", $this->current_user->netid));
      
-     $result = $etd->save("set status to 'draft'");
+     $result = $etd->save("set status to '$newstatus'");
 
      if ($result)
        $this->_helper->flashMessenger->addMessage("Changes requested; record status changed to <b>$newstatus</b>");
      else
        $this->_helper->flashMessenger->addMessage("Error: could not update record status");
-     // user information also, for email address ?
-     
-     $this->view->title = "Manage : Request changes to record information";
-     $this->view->etd = $etd;
    }
 
    /* approve workflow  (approve, doapprove) */
