@@ -5,10 +5,6 @@
 *
 */
 
-//Error Reporting
-error_reporting(E_ALL|E_STRICT);
-ini_set("display_errors", "on");
-
 // ZendFramework, etc.
 ini_set("include_path", "../app/:../config:../app/models:../app/modules/:../lib:../lib/ZendFramework:../lib/fedora:../lib/xml-utilities:js/:" . ini_get("include_path")); // use local copies first (e.g., Zend)
 // NOTE: local models should come before fedora models so that correct
