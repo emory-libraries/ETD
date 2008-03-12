@@ -78,8 +78,6 @@ X           Pre-start
       $superusers = explode(',', $config->superusers);
       if (in_array($this->netid, $superusers)) $this->role = "superuser";
     }
-    
-
 
     $this->_etds = null;
   }
@@ -115,7 +113,7 @@ X           Pre-start
     case "netid":	// netid is stored in all caps, but we will always use it lower case
       return strtolower($this->{$this->alias["netid"]});
     default:
-      if (isset($this->{$this->alias[$field]}))
+      if (isset($this->alias[$field]) && isset($this->{$this->alias[$field]}))
 	return $this->{$this->alias[$field]};
       else
 	return null;
