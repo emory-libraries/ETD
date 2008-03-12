@@ -8,9 +8,10 @@
   <a class="action" href="<?= $this->url(array('controller' => 'manage',
 		'action' => 'approve', 'pid' => $this->etd->pid), '', true) ?>">approve</a>
 <? endif ?>
-       <? if ($this->acl->isAllowed($this->role, $this->etd, "request changes")): ?>
+       <? if ($this->acl->isAllowed($this->role, $this->etd, "request document changes")): ?>
 <a class="action" href="<?= $this->url(array('controller' => 'manage',
-	'action' => 'requestchanges', 'pid' => $this->etd->pid), '', true) ?>">request changes</a> <? endif ?>
+	'action' => 'requestchanges', 'pid' => $this->etd->pid,
+	'type' => 'document'), '', true) ?>">request changes</a> <? endif ?>
 
     <? if ($this->acl->isAllowed($this->role, $this->etd, "unpublish")): ?>
 <a class="action" href="<?= $this->url(array('controller' => 'manage',
