@@ -452,6 +452,11 @@ a.action {
   float:right;
   color:blue;
   clear:right;
+  text-decoration:none;
+}
+a.action img { 
+ border:0px;
+ vertical-align:middle; 
 }
 
 div.info { 
