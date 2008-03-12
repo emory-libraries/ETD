@@ -259,6 +259,7 @@ class BrowseController extends Etd_Controller_Action {
     $this->view->title = "My ETDs";
     $this->_helper->viewRenderer->setScriptAction("list");
     $this->view->show_status = true;
+    $this->view->show_lastaction = true;
   }
 
    
