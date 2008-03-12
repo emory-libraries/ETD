@@ -37,8 +37,8 @@
     <role name="admin" inherits="view_all">
        <allow resource="etd">edit history, edit status, manage</allow>
 	<!-- workflow actions according to when they can be done -->
-       <allow resource="submitted etd">review</allow>
-       <allow resource="reviewed etd">approve, request changes</allow>
+       <allow resource="submitted etd">review, request record changes</allow>	<!-- record=metadata -->
+       <allow resource="reviewed etd">approve, request document changes</allow>
        <allow resource="approved etd">publish</allow>	<!-- not technically done by admin... -->
        <allow resource="published etd">unpublish</allow>
 
