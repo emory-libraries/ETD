@@ -21,24 +21,35 @@ class solr {
     if (is_null($facet_limit)) {
       $facet_limit = $this->facet_limit;
     }
-    //    print "DEBUG: query=$queryString";
-    $url = $this->baseurl . "?q=$queryString";
-    if ($start == 1) $url .= "&start=0";		// if you start with 1, you miss the first record
-    elseif ($start !== null) $url .= "&start=$start";
-    if ($max !== null) 	$url .= "&rows=$max";
+
+    // main query with default settings
+    $params = array("q" => $queryString,
+		    "wt" => "phps",			// return as serialized phps
+		    "fq" => "status:published",		// filter query - restrict to published records
+		    );
+    
+    if ($start == 1) $params["start"] = 0;
+    elseif ($start !== null) $params["start"] = $start;
+    if ($max !== null) 	$params["rows"] = $max;
     if(count($this->facet_fields)) {
-      $url .= "&facet=true&facet.mincount=1&facet.limit=" . $facet_limit;	// sane defaults?
+      $params["facet"] = "true";
+      $params["facet.mincount"] = "1";
+      if ($facet_limit)  $params["facet.limit"] = $facet_limit;
+      $params["facet.field"] = array();
       foreach ($this->facet_fields as $field) {
-	$url .= "&facet.field=$field";
+	$params["facet.field"][] = $field;
       }
     }
-    $url .= "&wt=phps&fq=status:published";
-    //    print "DEBUG: <a href='$url'>solr query</a> (query = $queryString)<br/>\n";
-    //    $val = file_get_contents($url);
-    $val = file_post_contents($url);			// switched to post for long queries
-    //print "DEBUG: solr response: $val";
-    //    print "<pre>"; print_r(unserialize($val)); print "</pre>";
-    return unserialize($val);
+
+
+    $val = $this->post($this->baseurl, $params);
+    if ($val) {
+      //      print "DEBUG: solr response: $val";
+      //       print "<pre>"; print_r(unserialize($val)); print "</pre>";
+      return unserialize($val);
+    } else {
+      trigger_error("No response from Solr", E_USER_WARNING);
+    }
   }
 
   function addFacets(array $field) {
@@ -59,7 +70,23 @@ class solr {
     // probably need to add sort option...
     return $this->query("*:*", 0, 0);	// find facets on all records, return none
   }
-  
+
+
+  // Note: using post because get was insufficient for long queries
+  function post($url, $params) {
+    $client = new Emory_Http_Client($url,
+				   array('timeout' => 60)	// set timeout to 60 seconds (default is 10)
+				   );
+    $client->setParameterPost($params);
+    $client->setEncType(Zend_Http_Client::ENC_FORMDATA);
+    $client->setMethod(Zend_Http_Client::POST);
+    $response = $client->request();
+    if ($response->isSuccessful()) 
+      return $response->getRawBody();	// don't do any decoding, etc
+    else
+      return null;
+  }
+
 }
 
 function solrQuery($query) {
@@ -111,5 +138,6 @@ function file_post_contents($url,$headers=false) {
       return $result;
     }
 }
+
 
 ?>
