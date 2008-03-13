@@ -135,7 +135,7 @@
 
                   <!-- foxml top-level properties (state, label, cmodel) -->
                   <xsl:template match="foxml:objectProperties/foxml:property">
-                    <IndexField index="UN_TOKENIZED" store="YES" termVector="NO">
+                    <IndexField index="UN_TOKENIZED" store="NO" termVector="NO">
                       <xsl:attribute name="IFname"> 
                       <xsl:value-of select="concat('fgs.', substring-after(@NAME,'#'))"/>
                     </xsl:attribute>
@@ -297,7 +297,7 @@
                 </xsl:choose>
               </xsl:variable>
 
-              <IndexField index="TOKENIZED" store="YES" termVector="YES">
+              <IndexField index="TOKENIZED" store="NO" termVector="YES">
                 <xsl:attribute name="IFname"><xsl:value-of select="$person-type"/></xsl:attribute>
                 <xsl:value-of select="mods:displayForm"/>
               </IndexField>
@@ -307,10 +307,15 @@
                 <IndexField index="TOKENIZED" store="NO" termVector="YES" IFname="committee">
                   <xsl:value-of select="mods:displayForm"/>
                 </IndexField>
+
+                <!-- advisor should also be indexed in committee member facet -->
+                <IndexField index="UN_TOKENIZED" store="YES" termVector="YES" IFname="committee_lastnamefirst">
+                  <xsl:value-of select="mods:displayForm"/>
+                </IndexField>
               </xsl:if>
 
               <xsl:if test="mods:namePart[@type='family']  and mods:namePart[@type='given']">
-                <!-- untokenized version (lastname, first) for sorting and browsing -->
+                <!-- untokenized version (lastname, first) for sorting and browsing / facets -->
                 <IndexField store="YES" termVector="YES" index="UN_TOKENIZED">
                   <xsl:attribute name="IFname">
                     <xsl:value-of select="concat($person-type, '_lastnamefirst')"/>
@@ -329,6 +334,7 @@
               <xsl:if test="$person-type = 'author'">
                 <xsl:apply-templates select="mods:affiliation"/>
               </xsl:if>
+              <!-- FIXME: do we care about indexing non-emory committee member affiliations? -->
               
             </xsl:if>
           </xsl:template>
@@ -365,13 +371,18 @@
 
           <!-- author affiliation = department/program -->
           <xsl:template match="mods:name[mods:role/mods:roleTerm = 'author']/mods:affiliation">
-            <IndexField index="UN_TOKENIZED" store="YES" termVector="YES" IFname="program">
+            <IndexField index="UN_TOKENIZED" store="YES" termVector="YES" IFname="program_facet">
               <xsl:apply-templates/>
             </IndexField>
 
-            <!-- include author in default search ? -->
+            <!-- untokenized version for user search -->
+            <IndexField index="TOKENIZED" store="NO" termVector="YES" IFname="program">
+              <xsl:apply-templates/>
+            </IndexField>
+
+            <!-- include in default search -->
             <xsl:call-template name="full-text">
-              <xsl:with-param name="txt" select="text()"/>
+              <xsl:with-param name="txt" select="."/>
             </xsl:call-template>
           </xsl:template>
 
@@ -385,7 +396,7 @@
           <xsl:template match="mods:subject">
             <xsl:if test="mods:topic != ''">          <!-- skip empty terms? -->
             <!-- FIXME: how to pick up / store proquest terms vs. keywords? -->
-            <IndexField index="TOKENIZED" store="YES" termVector="YES">
+            <IndexField index="TOKENIZED" store="NO" termVector="YES">
               <xsl:attribute name="IFname">
                 <xsl:choose>
                   <xsl:when test="@authority = 'proquestresearchfield'">subject</xsl:when>
