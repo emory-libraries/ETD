@@ -56,6 +56,15 @@ class Zend_View_Helper_FiletypeIcon
 	  $icon = "oo-write"; break;
 	case "vnd.oasis.opendocument.spreadsheet":
 	  $icon = "oo-calc"; break;
+	case "vnd.oasis.opendocument.presentation":
+	  $icon = "oo-impress"; break;
+	  // Microsoft Office 2007 formats
+	case "vnd.openxmlformats-officedocument.wordprocessingml.document":
+	  $icon = "word2007"; break;	// docx
+	case "vnd.openxmlformats-officedocument.spreadsheetml.sheet":
+	  $icon = "excel2007"; break;
+	case "vnd.openxmlformats-officedocument.presentationml.presentation":
+	  $icon = "powerpoint2007"; break;
 	}
 	break;
       }
