@@ -126,20 +126,27 @@ class etd_mods extends mods {
 
   public function addCommitteeMember($lastname, $firstname, $emory = true, $affiliation = null) {
     // fixme: need a way to set netid -- set from netid if emory ?
+
+    $set_description = false;
     
     if ($emory)  {
       $type = "Emory Committee Member";
-      $newnode = $this->map['committee'][0]->domnode->cloneNode(true);
-    } else {
-      // fixme: what if there are no nonemory_committee nodes?
-      // could easily clone emory committee and set description
+      if (isset($this->map['committee'][0])) {
+	$newnode = $this->map['committee'][0]->domnode->cloneNode(true);
+      } else {
+	// all committee members have been removed; copy advisor and set flag to set description
+	$newnode = $this->map["advisor"]->domnode->cloneNode(true);
+	$newnode->appendChild($this->dom->createElementNS($this->namespaceList["mods"], "mods:description"));
+	$set_description = true;
+      }
+    } else {  
       $type = "Non-Emory Committee Member";
       if (isset($this->map['nonemory_committee'][0])) {
-	$no_nonemory = false;
+	// if there is an existing non-emory committee node, clone that
 	$newnode = $this->map['nonemory_committee'][0]->domnode->cloneNode(true);
       } elseif (isset($this->map['committee'][0])) {
 	// xml does not include a non-emory committee member - copy emory and change accordingly
-	$no_nonemory = true;
+	$set_description = true;
 	$newnode = $this->map['committee'][0]->domnode->cloneNode(true);
 	$newnode->appendChild($this->dom->createElementNS($this->namespaceList["mods"], "mods:affiliation"));
 	// ID attribute not used for non-emory, and duplicate IDs will make the xml invalid
@@ -148,6 +155,9 @@ class etd_mods extends mods {
 	trigger_error("No committee nodes to copy! Can't add committee member", E_USER_WARNING);
 	return;
       }
+
+      // may be redundant, but needs to be updated if called separately
+      $this->update();
     }
 
     // map new domnode to xml object
@@ -157,8 +167,9 @@ class etd_mods extends mods {
     $name->full = "$lastname, $firstname";
     if (!$emory && !is_null($affiliation)) {
       $name->affiliation = $affiliation;
-      if ($no_nonemory) $name->description = $type;
     }
+    if ($set_description) $name->description = $type;
+	  
     
     // find first node following current type of subjects and append before
     $nodeList = $this->xpath->query("//mods:name[mods:description='$type'][last()]/following-sibling::*");
@@ -166,18 +177,25 @@ class etd_mods extends mods {
     // if a context node was found, insert the new node before it
     if ($nodeList->length) {
       $contextnode = $nodeList->item(0);
-      $newnode = $contextnode->parentNode->insertBefore($newnode, $contextnode);
+    } elseif ($emory) {		// currently no emory committee members in xml - insert after advisor
+      $contextnode = $this->map["advisor"]->domnode;
     } elseif (!$emory) {
       // if adding a non-emory committee member and there are none in the xml,
-      // then add after last emory committee membe
-      $nodeList = $this->xpath->query("//mods:name[mods:description='Emory Committee Member'][last()]/following-sibling::*");
-      if ($nodeList->length) {
-	$contextnode = $nodeList->item(0);
-	$newnode = $contextnode->parentNode->insertBefore($newnode, $contextnode);
-      }
-    }else {
-      print "error: couldn't find context node...<br/>\n";	// this shouldn't happen.... ?
-    }
+      // then add after last emory committee member
+      if (isset($this->map['committee']))
+	$contextnode = $this->map['committee'][0]->domnode;
+      else
+	$contextnode = $this->map["advisor"]->domnode;
+    } else {
+      // this shouldn't happen unless there is something wrong with the xml.... 
+      trigger_error("Couldn't find context node to insert new committee member", E_USER_NOTICE);
+    } 
+
+    if (isset($contextnode))
+      $newnode = $contextnode->parentNode->insertBefore($newnode, $contextnode);
+    else	// if no context is found, just add at the end
+      $newnode = $contextnode->parentNode->appendChild($newnode);
+    
 
     $this->update();
   }
