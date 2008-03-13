@@ -177,6 +177,9 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
     // note: using fileinfo because mimetype reported by the browser is unreliable
     $finfo = finfo_open(FILEINFO_MIME);	
     $filetype = finfo_file($finfo, $filename);
+
+    // FIXME: this logic should be pulled out into a helper or library...
+    
     // several things get reported as zip that we want to recognize
     if ($filetype == "application/zip" || $filetype == "application/x-zip") {
       $parts = explode(".", $filename);
