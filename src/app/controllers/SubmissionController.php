@@ -35,7 +35,6 @@ class SubmissionController extends Etd_Controller_Action {
       $current_user = $this->current_user;
       // use netid for object ownership and author relation
       $etd->owner = $current_user->netid;
-      $etd->rels_ext->addRelation("rel:author", $current_user->netid);
       // set author info
       $etd->mods->setAuthorFromPerson($current_user);
       
