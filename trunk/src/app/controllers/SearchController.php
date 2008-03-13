@@ -16,7 +16,6 @@ class SearchController extends Etd_Controller_Action {
     $start = $request->getParam("start", 1);
     $max = $request->getParam("max", 20);	
 
-
      /* fixme: maybe get all params at once and then loop through them ? */
     $this->view->query = array();
     
@@ -67,6 +66,13 @@ class SearchController extends Etd_Controller_Action {
      }
 
      $solr = Zend_Registry::get('solr');
+     if ($query == "") {
+       $this->_helper->flashMessenger->addMessage("Error: no search terms specified");
+       // where to redirect?
+       $this->_helper->redirector->gotoRoute(array("controller" => "search",
+						   "action" => "index"), "", true);
+       exit;
+     }
      $results = $solr->query(urlencode($query), $start, $max);
      
      $this->view->count = $results['response']['numFound'];
