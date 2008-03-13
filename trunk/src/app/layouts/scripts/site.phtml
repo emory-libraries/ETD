@@ -15,7 +15,11 @@
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
    <title>Emory ETDs : <?= $this->escape($this->title) ?></title>
   <?= $this->css('etd.css'); ?>
-  <?= $this->render('dc_header.phtml'); ?>
+  <? if ($this->dc): ?>
+    <?= $this->render('dc_header.phtml'); ?>
+  <? elseif ($this->etd): ?>
+    <?= $this->render('view/etd_dcheader.phtml'); ?>
+  <? endif ?>
 
   <? if ($this->xforms): ?>
        <?= $this->render('xforms_head.phtml'); ?>
