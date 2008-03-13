@@ -207,6 +207,9 @@ class BrowseController extends Etd_Controller_Action {
     $this->view->count = $results['response']['numFound'];
     $this->view->start = $start;
     $this->view->max = $max;
+
+    $this->view->title = "Browse Programs";
+    if ($coll != "#programs") $this->view->title .= " : " . $programs->label;
      
     // shared view script for programs & researchfields
     $this->view->action = "programs";
@@ -243,6 +246,10 @@ class BrowseController extends Etd_Controller_Action {
     // shared view script for programs & researchfields
     $this->view->action = "researchfields";
     $this->_helper->viewRenderer->setScriptAction("collection");
+
+    $this->view->title = "Browse Research Fields";
+    if ($coll != "researchfields") $this->view->title .= " : " . $fields->label;
+
   }
 
 
