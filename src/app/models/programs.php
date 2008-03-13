@@ -12,6 +12,6 @@ class programs extends collectionHierarchy  {
     
     parent::__construct($dom, $id);
 
-    $this->index_field = "program";
+    $this->index_field = "program_facet";
   }
 }
