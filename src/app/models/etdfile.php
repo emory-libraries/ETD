@@ -156,6 +156,14 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
       case "image": $this->dc->type = "StillImage"; break;
       case "audio": $this->dc->type = "Sound"; break;
       case "video": $this->dc->type = "MovingImage"; break;
+      case "application":
+	switch ($minor) {
+	case "vnc.ms-excel":
+	case "vnd.openxmlformats-officedocument.spreadsheetml.sheet":
+	case "vnd.oasis.opendocument.spreadsheet":
+	  $this->dc->type = "Dataset"; break;	// spreadsheets
+	  
+	}
       }
     }
 
@@ -168,7 +176,27 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
   public function setFileInfo($filename) {
     // note: using fileinfo because mimetype reported by the browser is unreliable
     $finfo = finfo_open(FILEINFO_MIME);	
-    $filetype = finfo_file($finfo, $filename);	
+    $filetype = finfo_file($finfo, $filename);
+    // several things get reported as zip that we want to recognize
+    if ($filetype == "application/zip" || $filetype == "application/x-zip") {
+      $parts = explode(".", $filename);
+      $ext = $parts[count($parts)-1];
+      switch ($ext) {
+	// Microsoft Office 2007 formats
+      case "docx":
+	$filetype = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"; break;
+      case "xslx":
+	$filetype = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"; break;
+      case "pptx":
+	$filetype = "application/vnd.openxmlformats-officedocument.presentationml.presentation"; break;
+
+	// OpenOffice.org formats
+      case "odt":    $filetype = "application/vnd.oasis.opendocument.text"; break;
+      case "ods":    $filetype = "application/vnd.oasis.opendocument.spreadsheet"; break;
+      case "odp":    $filetype = "application/vnd.oasis.opendocument.presentation"; break;
+      }
+    }
+    
     $this->dc->setMimetype($filetype);	// mimetype
     if (isset($this->file))	// new record, not yet ingested into Fedora
       $this->file->mimetype = $filetype;
