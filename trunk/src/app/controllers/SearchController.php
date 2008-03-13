@@ -60,6 +60,11 @@ class SearchController extends Etd_Controller_Action {
        $query .= " program:($program)";
        $this->view->query['program'] = $program;
      }
+     $year = $request->getParam("year");
+     if ($year) {
+       $query .= " year:($year)";
+       $this->view->query['year'] = $year;
+     }
 
      $solr = Zend_Registry::get('solr');
      $results = $solr->query(urlencode($query), $start, $max);
