@@ -382,7 +382,7 @@
 
             <!-- include in default search -->
             <xsl:call-template name="full-text">
-              <xsl:with-param name="txt" select="."/>
+              <xsl:with-param name="txt" select="text()"/>
             </xsl:call-template>
           </xsl:template>
 
@@ -463,7 +463,7 @@
       <!-- departmental subfield; part of program facet -->
       <xsl:template match="mods:extension/etd:degree/etd:discipline">
         <!-- index but as program, but don't return -->
-        <IndexField index="UN_TOKENIZED" store="NO" termVector="YES" IFname="program">
+        <IndexField index="UN_TOKENIZED" store="NO" termVector="YES" IFname="program_facet">
           <xsl:apply-templates/>
         </IndexField>
 
@@ -471,6 +471,12 @@
         <IndexField index="UN_TOKENIZED" store="YES" termVector="YES" IFname="subfield">
           <xsl:apply-templates/>
         </IndexField>
+
+        <!-- include in default search -->
+        <xsl:call-template name="full-text">
+          <xsl:with-param name="txt" select="text()"/>
+        </xsl:call-template>
+
       </xsl:template>
 
 
