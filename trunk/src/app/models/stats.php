@@ -32,7 +32,9 @@ class StatObject extends Stats_Db_Table {
 
   public function count(array $pids) {
     $select = $this->_db->select();	// newer versions of Zend?   $select = $this->select();
-    $select->from($this->_name, array('COUNT(*) as count', 'type'));	// type ?
+    $select->from($this->_name, array('COUNT(*) as count', 'type as stat_type'));	// type ?
+    //  Note: explicitly setting type name to handle variances in sqlite3 installs--
+    //   on wilson it comes back as type, but on domokun it comes back as "stats"."type"
 
     for ($i = 0;  $i < count($pids); $i++) {
       if ($i == 0) $select->where('pid = ?', $pids[$i]);
@@ -45,10 +47,7 @@ class StatObject extends Stats_Db_Table {
 
     $total = array("abstract" => 0, "file" => 0);
     foreach ($result as $row) {
-      if (isset($row['type'])) $type = $row['type'];
-      elseif (isset($row['type'])) $type = $row['"stats"."type"'];	// in production we get this
-      if (isset($type))
-        $total[$type] = $row['count'];
+      $total[$row['stat_type']] = $row['count'];
     }
     return $total;
   }
