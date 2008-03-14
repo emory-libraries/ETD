@@ -32,6 +32,10 @@ class etd extends foxml implements etdInterface {
     parent::__construct($arg);
 
     if ($this->init_mode == "pid") {
+      // make sure user has access to this object by accessing RELS datastream
+      // - if not, this will throw error on initialization, when it is easier to catch
+      $this->rels_ext;		
+            
       // anything else here?
       if ($this->cmodel != "etd")
 	throw new FoxmlBadContentModel("$arg is not an etd");
@@ -466,6 +470,28 @@ class etd extends foxml implements etdInterface {
 	$unpublished[] = $etd;
     }
     return $unpublished;
+
+    // could switch to Solr - simple query like this: 
+    // fgs.ownerId:rsutton NOT status:published
+  }
+
+
+  // find recently published for goldbar
+  // solr query just needs this added: sort=dateIssued%20desc
+
+
+  // find by department... - similar to manage view or just find all unpublished ?
+  //  program_facet:Chemistry NOT status:published
+  public static function findUnpublishedByDepartment($dept) {
+    $solr = Zend_Registry::get('solr');
+    $results = $solr->query($query); 	// ... paging? .. , $start, $max);
+     
+    $etds = array();
+    foreach ($results['response']['docs'] as $result_doc) {
+      array_push($etds, new etd($result_doc['PID']));
+    }
+    return $etds;
+
   }
 
   
