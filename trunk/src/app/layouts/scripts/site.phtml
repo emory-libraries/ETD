@@ -46,11 +46,13 @@
 
 
 <div id="login">
-
+ <a style="float:right" target="_new" href="<?= $this->url(array('layout' => 'printable')) ?>">print view</a>
  <? if (isset($this->current_user)): ?>
    <b>Welcome, <?= $this->current_user ?></b>
    <? if ($this->env == "development"): ?>
-      (<span id="current_role"><?= $this->current_user->role ?></span>)
+      (<span id="current_role"><?= $this->current_user->role ?>
+      <? if ($this->current_user->role == "staff"): ?>- <?= $this->current_user->department ?> <? endif ?>
+     </span>)
    <? endif ?>
 
    <ul class="horizontal">

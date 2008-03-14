@@ -44,6 +44,8 @@ abstract class Etd_Controller_Action extends Zend_Controller_Action {
     if (isset($params['controller'])) $this->view->controller = $params['controller'];
     if (isset($params['action']))  $this->view->action = $params['action'];
 
+    if (isset($params['layout']) && $params['layout'] == "printable")
+      Xend_Layout::setDefaultLayoutName('printable');
 
     /* if this controller requires fedora and it is not configured (unavailable), redirect to an error page */
     if ($this->requires_fedora && !Zend_Registry::isRegistered('fedora'))
