@@ -23,6 +23,8 @@ class Etd_Controller_Action_Helper_GetFromFedora extends Zend_Controller_Action_
     $flashMessenger = $this->_actionController->getHelper("FlashMessenger");
     $redirector = $this->_actionController->getHelper("Redirector");
 
+    $denied = false;
+    
     if (is_null($id)) {
       $flashMessenger->addMessage("Error: No record specified for $type");
       $redirector->gotoRoute(array("controller" => "error"), "", true);
@@ -35,24 +37,31 @@ class Etd_Controller_Action_Helper_GetFromFedora extends Zend_Controller_Action_
       $message = "Error: Record not found";
       if ($this->_actionController->view->site_mode != "production")
 	$message .= " (message from Fedora: <b>" . $e->getMessage() . "</b>)";
-
       $flashMessenger->addMessage($message);
       $redirector->gotoRoute(array("controller" => "error"), "", true);
       return null;
     } catch (FedoraAccessDenied $e) {
+      $denied = true;
       $message = "Error: access denied to $id";
       if ($this->_actionController->view->site_mode != "production")
 	$message .= " (message from Fedora: <b>" . $e->getMessage() . "</b>)";
-      $flashMessenger->addMessage($message);
-      $redirector->gotoRoute(array("controller" => "auth", "action" => "denied"), "", true);
-	      
-      return null;
     } catch (FoxmlException $e) {
       // another access denied, but at a different level ...
-      $flashMessenger->addMessage("Error: " . $e->getMessage());
-      $redirector->gotoRoute(array("controller" => "auth", "action" => "denied"), "", true);
+      $denied = true;
+      $message = "Error: " . $e->getMessage();
+    }
+
+    // if resources is denied, NOT redirecting - that way logging in can reload
+    // the denied page and user may have access
+    if ($denied) {
+      $viewRenderer = $this->_actionController->getHelper("viewRenderer");
+      $viewRenderer->setNoRender();		// don't render normally
+      // instead display an access denied page - still at the denied url
+      $viewRenderer->view->title = "Access Denied";
+      $viewRenderer->view->deny_message = $message;
+      print $viewRenderer->renderScript("auth/denied.phtml");
       return null;
-    } 
+    }
 
     // success
     return $object;

@@ -1,2 +1,8 @@
 <? /* FIXME: any content here? */ ?> 
 <p><b>Permission Denied</b></p>
+
+<p style="color:red"><?= $this->deny_message ?></p>
+
+<? if (!isset($this->current_user)): ?>
+   <p>Please log in to access this resource.</p>
+<? endif ?>      
