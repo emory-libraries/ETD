@@ -10,12 +10,13 @@ class ViewController extends Etd_Controller_Action {
    // view a full record
    public function recordAction() {
      $etd = $this->_helper->getFromFedora("pid", "etd");
-     
-     if (!$this->_helper->access->allowedOnEtd("view metadata", $etd)) return;
-     $this->view->etd = $etd;
-     $this->view->title = $etd->label;
-     //$this->view->dc = $etd->dc;		/* DC not as detailed as MODS; using etd DC header template */
-     $this->view->messages = $this->_helper->flashMessenger->getMessages();
+     if ($etd) {
+       if (!$this->_helper->access->allowedOnEtd("view metadata", $etd)) return;
+       $this->view->etd = $etd;
+       $this->view->title = $etd->label;
+       //$this->view->dc = $etd->dc;		/* DC not as detailed as MODS; using etd DC header template */
+       $this->view->messages = $this->_helper->flashMessenger->getMessages();
+     }
    }
 
    // show mods xml - referenced as model for xform
