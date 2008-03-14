@@ -300,6 +300,9 @@ ul.horizontal li.first {
   border:none;
 }
 
+div.print_content { 
+ margin:0.5in;
+}
 
 div.content { 
   position:relative;
@@ -703,7 +706,6 @@ div#roadmap div.state {
 div#roadmap div.current { 
  background-color:#0dac1c;
 }
-
 
 table.advanced_search th { 
  text-align:right;
