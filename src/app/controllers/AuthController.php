@@ -11,6 +11,7 @@ class AuthController extends Etd_Controller_Action {
      $login = $this->_getParam('login', null);
      $username = $login['username'];
      $password = $login['password'];
+     $url = $login['url'];
 
      // make sure both are set before attempting to authenticate...
      if ($username == '' || $password == '') {
@@ -45,10 +46,8 @@ class AuthController extends Etd_Controller_Action {
        // display information about failed login / reason
        $this->_helper->flashMessenger->addMessage($message);
 
-       // forward to .. ?
-       $this->_helper->redirector->gotoRoute(array("controller" => "index",
-						   "action" => "index"), "", true);
-						   
+       // reload the last page
+       $this->_helper->redirector->gotoUrl($url, array("prependBase" => false));
      } else {	
        $this->_helper->flashMessenger->addMessage("Login successful");
        // find this user in ESD and save their user information
@@ -56,10 +55,9 @@ class AuthController extends Etd_Controller_Action {
        $current_user = $esd->findByUsername($username);
        $auth->getStorage()->write($current_user);
        $this->view->current_user = $current_user;
-       
-       // fixme: where should this forward to ... ?
-       $this->_helper->redirector->gotoRoute(array("controller" => "index",
-						   "action" => "index"), "", true);
+
+       // reload the last page
+       $this->_helper->redirector->gotoUrl($url, array("prependBase" => false));
      }
    }
 
@@ -69,7 +67,15 @@ class AuthController extends Etd_Controller_Action {
      $this->_helper->viewRenderer->setNoRender(true);
 
      $role = $this->_getParam("role");
-     $this->current_user->role = $role;
+     
+     if (strstr($role, "department")) {
+       $dept = str_replace("department:", "", $role);
+       $this->current_user->role = "staff";
+       $this->current_user->DPRT_N = $dept;	// department
+       //$this->current_user->DPRT_N = "Chemistry";	// department
+     } else {
+       $this->current_user->role = $role;
+     }
    }
 
    public function logoutAction() {
