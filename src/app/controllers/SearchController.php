@@ -73,7 +73,7 @@ class SearchController extends Etd_Controller_Action {
 						   "action" => "index"), "", true);
        exit;
      }
-     $results = $solr->query(urlencode($query), $start, $max);
+     $results = $solr->query($query, $start, $max);
      
      $this->view->count = $results['response']['numFound'];
      $this->view->etds = $results['response']['docs'];
