@@ -8,6 +8,9 @@ require("Zend/Loader.php");
 Zend_Loader::registerAutoload();
 
 require_once("models/stats.php");
+require_once("models/etd.php");
+require_once("models/etdfile.php");
+require_once("api/FedoraConnection.php");
 
   /* what parameters are needed?
      - base url?
@@ -20,6 +23,7 @@ $opts = new Zend_Console_Getopt(
 	'noact|n'	=> "no action: don't insert anything into db",
 	'url|u=s'	=> "relative url (without hostname) for site",
 	'logfile|l=s'	=> "path to access log file",
+	'verbose|v'	=> "verbose information",
   )
 );
 
@@ -48,93 +52,155 @@ $config = new Zend_Config_Xml('../config/statistics.xml', $env_config->mode);
 $db = Zend_Db::factory($config);
 Zend_Registry::set('stat-db', $db);	
 
+$fedora_cfg = new Zend_Config_Xml("../config/fedora.xml", $env_config->mode);
+$fedora = new FedoraConnection($fedora_cfg->user, $fedora_cfg->password,
+			       $fedora_cfg->server, $fedora_cfg->port,
+			       $fedora_cfg->protocol, $fedora_cfg->resourceindex);
+Zend_Registry::set('fedora', $fedora);
+
 
 $start_time = date('Y-m-d H:i:s');
 $count = 0;
 
+$dns_cache;
+$etd_published;
+
 $botDB = new BotObject();
 $statDB = new StatObject();
+$lastrunDB = new LastRunObject();
+$lastrun = $lastrunDB->findLast();
+if ($lastrun) {
+  $lastruntime = strtotime($lastrun->start_time, 0);
+  $new = false;		// no new content until we get past what was processed last time
+  $lastline = $lastrun->lastentry;
+} else {
+  // no information about the last run - everything is new
+  if ($opts->verbose) print "No information about last run - will include any hits found\n";
+  $new = true;
+  $lastline = "";
+}
 
 
 $ip_reg = "(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})";
 $date_reg = "\[(.*?)\]";
-$pid_reg = "([a-zA-Z]+:[0-9a-z]+)";
-// fez view url
-//$view = preg_quote($url,'/')."\/?view\.php\?.*pid=([a-zA-Z]*:[0-9]+)";
-// etd08 view url
+$pid_reg = "([a-zA-Z]+(:|%3A)[0-9a-z]+)";	// colon may be urlencoded
+$referrer = '("[^"]+")';
+// view url for an etd record page 
 $view = $url . "/?view/record/pid/$pid_reg";
-print "DEBUG: view reg is $view\n";
-// fez download url
-//$download = preg_quote($url,'/')."\/?eserv\.php\?.*pid=([a-zA-Z]*:[0-9]+)&dsID=(\S*).*";
-// etd08 download url
-$download = $url . "/?file/view/pid/$pid_reg";
-print "DEBUG: download reg is $download\n";
+// download url for an etd file
+$download = $url . "/?file/view/pid/$pid_reg/[^\s]+";	// added filename onto url
 $bot_reg = "\/robots\.txt";
-$ok = "HTTP\/1..\" (200|302)";	// FIXME: temporary? because of way files are handled right now
+$ok = "HTTP/1..\" (200|302)";	// FIXME: temporary? because of way files are handled right now
 $agent_reg = '("[^"]*")';
 
 $file = fopen($logfile, "r");
+if (!$file) {
+  print "Error: could not open $logfile\n";
+  exit;
+}
+
+
 while (!feof($file)) {
   $buffer = fgets($file, 4096);
- if (preg_match("{^$ip_reg - - $date_reg \"GET $bot_reg $ok.* \"-\" $agent_reg}i",$buffer,$matches)) {
+  if (!$new && preg_match("{^$ip_reg - - $date_reg .*i}i",$buffer,$matches)) {
+    $date = $matches[2];
+
+    if ($buffer == $lastrun->lastentry) {
+      $new = true;	// everything after this line should be new
+      continue;
+    } elseif (strtotime($date, 0) < $lastruntime) {
+	continue;	// included in the last run
+    }
+  }
+  
+ if (preg_match("{^$ip_reg - - $date_reg \"GET $bot_reg $ok.* $referrer $agent_reg}i",$buffer,$matches)) {
   // robot
    $ip = $matches[1];
    $agent  = $matches[3];
    if (knownRobot($ip, $agent)) continue;	// already a known robot
    else {	// save as a known robot	FIXME: better to save agent string and check against that?
-     $data = array("ip" => $ip);
-     if ($opts->noact) { print "Not inserting $ip into db as robot\n"; }
-     else $botDB->insert($data);
+     $data = array("id" => null, "ip" => $ip);
+     if ($opts->verbose) print "Found robot $ip\n"; 
+     if (!$opts->noact)  $botDB->insert($data);
    }
- } elseif (preg_match("{^$ip_reg - - $date_reg \"GET $view $ok .* \"-\" $agent_reg}i",$buffer,$matches)) {
+ } elseif (preg_match("{^$ip_reg - - $date_reg \"GET $view $ok .* $referrer $agent_reg}i",$buffer,$matches)) {
  // abstract view
-   continue;	// tmp
    $ip = $matches[1];
    $date = $matches[2];
+   // FIXME: check this - date needs to be formatted so sqlite can handle it
+   $date = date('Y-m-d H:i:s', strtotime($date, 0));
+
    $pid = $matches[3];
-   $agent = $matches[4];
+   $pid = urldecode($pid);	// if pid was urlencoded, convert back to normal pid format
+   $agent = $matches[7];  
    $type = "abstract";
 
    // if it's a robot, ignore it
    if (knownRobot($ip, $agent)) continue;
 
-   // fixme: need to install geoip pecl
-   //   $country = geoip_country_code_by_name($ip);
+   if ($pubdate = etdPublishedDate($pid)) {
+     // if the view was before the record was published, don't include it
+     if (strtotime($date, 0) < $pubdate)   continue;
+   } else {
+     continue;	   // if the record is not published, don't record access
+   }
+
+   $country = geoip_country_code_by_name($ip);
    
-   $data = array("ip" => $ip, "date" => $date, "pid" => $pid, "type" => $type, "country" => $country);
-   if ($opts->noact)  print "Not inserting $ip into db - abstract view of $pid\n"; 
-   else $statDB->insert($data);
- } elseif (preg_match("{^$ip_reg - - $date_reg \"GET $download $ok .* \"-\" $agent_reg}i",$buffer,$matches)) {
+   $data = array("id" => null, "ip" => $ip, "date" => $date, "pid" => $pid, "type" => $type, "country" => $country);
+   if (!$opts->noact)  $statDB->insert($data);
+   if ($opts->verbose) print "Abstract view: $ip $date $country $pid\n";
+   
+   $count++;
+   
+ } elseif (preg_match("{^$ip_reg - - $date_reg \"GET $download $ok .* $referrer $agent_reg}i",$buffer,$matches)) {
    // file download
    $ip = $matches[1];
    $date = $matches[2];
+   // FIXME: check this - date needs to be formatted so sqlite can handle it
+   $date = date('Y-m-d H:i:s', strtotime($date, 0));
+
    $pid = $matches[3];
-   $agent = $matches[4];
+   $pid = urldecode($pid);
+   $agent = $matches[7]; 
    $type = "file";
 
    // if it's a robot, ignore it
    if (knownRobot($ip, $agent)) continue;
 
-   //$country = geoip_country_code_by_name($ip);
-   if ($opts->noact) print  "Not inserting $ip into db - file download\n"; 
-   else $data = array("ip" => $ip, "date" => $date, "pid" => $pid, "type" => $type);
-   $statDB->insert($data);
+   if ($pubdate = etdfilePublishedDate($pid)) {
+     // if the view was before the record was published or before embargo ends, don't include it
+     if (strtotime($date, 0) < $pubdate) continue;
+   } else {
+     continue;	   // if the record is not published, don't record access
+   }
+
+
+   $country = geoip_country_code_by_name($ip);
+   if (!$opts->noact) {
+     $data = array("id" => null, "ip" => $ip, "date" => $date, "pid" => $pid, "type" => $type, "country" => $country);
+     $statDB->insert($data);
+   }
+   if ($opts->verbose) print "File download: $ip $date $country $pid\n";
+
+   $count++;
  }
 
-
+ if ($buffer != "") $lastline = $buffer;	// save last line for last run information
 } // end looping through file
 
 
-			  /*
-$stats = new StatObject();
-$data = array(
-	      "ip" => $ip,
-	      "date" => $date,
-	      "country" => $country,
-	      "pid" => $pid,
-	      "type" => $type);	// abstract/file
-$stats->insert($data);
-			  */
+
+$end_time = date('Y-m-d H:i:s');
+
+print "Found $count hits in " . (strtotime($end_time,0) - strtotime($start_time,0)) . " seconds.\n";
+
+if (!$opts->noact) {
+  $rundata = array("id" => null, "lastentry" => $lastline, "date" => date("Y-m-d"), "inserted" => $count,
+		   "start_time" => $start_time, "end_time" => $end_time);
+  $lastrunDB->insert($rundata);
+}
+
 
 function knownRobot($ip, $agent) {
 
@@ -161,13 +227,57 @@ function knownRobot($ip, $agent) {
   else return false;
 }
 
-	function gethostname($ip) {
-	  global $dns_cache;
-	  if (isset($dns_cache[$ip])) return $dns_cache[$ip];
-	  else {
-	    $dns_cache[$ip] = gethostbyaddr($ip);
-	    return $dns_cache[$ip];
-	  }
-	}
+
+function etdPublishedDate($pid) {
+  global $etd_published;
+  if (!isset($etd_published[$pid])) {	// if publication status/date not already found, retrieve and cache
+    try {
+      $etd = new etd($pid);
+    } catch (FedoraObjectNotFound $e) {
+      return $etd_published[$pid] = false;	// object no longer exists - we don't care about it
+    } catch (FedoraAccessDenied $e) {
+      return $etd_published[$pid] = false;	// object is not publicly available -- not published
+    } catch (FoxmlException $e) {
+      return $etd_published[$pid] = false;	// not publicly available = not published
+    }
+    if ($etd->status() == "published") $etd_published[$pid] = strtotime($etd->mods->originInfo->issued, 0);
+    else $etd_published[$pid] = false;
+  }
+  return  $etd_published[$pid];
+}
+
+function etdfilePublishedDate($pid) {
+  global $etd_published;
+  if (!isset($etd_published[$pid])) {	// if publication status/date not already found, retrieve and cache
+    try {
+      $etdfile = new etd_file($pid);
+    } catch (FedoraObjectNotFound $e) {
+      return $etd_published[$pid] = false;	// object no longer exists - we don't care about it
+    } catch (FedoraAccessDenied $e) {
+      return $etd_published[$pid] = false;	// object is not publicly available -- embargoed
+    } catch (FoxmlException $e) {
+      return $etd_published[$pid] = false;	// object is not publicly available -- not published
+    }
+    if ($etdfile->etd->status() == "published") {
+      if ($embargo = $etdfile->etd->mods->embargo_end)	// if there is an embargo, use embargo end as pub date
+	$etd_published[$pid] = strtotime($embargo, 0);
+      else			// otherwise, use main record pub date
+	$etd_published[$pid] = strtotime($etdfile->etd->mods->originInfo->issued, 0);
+    } else {
+      $etd_published[$pid] = false;
+    }
+  }
+  return  $etd_published[$pid];
+}
+
+
+function gethostname($ip) {
+  global $dns_cache;
+  if (isset($dns_cache[$ip])) return $dns_cache[$ip];
+  else {
+    $dns_cache[$ip] = gethostbyaddr($ip);
+    return $dns_cache[$ip];
+  }
+}
 
 ?>
