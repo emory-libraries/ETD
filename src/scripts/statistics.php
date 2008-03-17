@@ -21,7 +21,7 @@ require_once("api/FedoraConnection.php");
 $opts = new Zend_Console_Getopt(
   array(
 	'noact|n'	=> "no action: don't insert anything into db",
-	'url|u=s'	=> "relative url (without hostname) for site",
+	'url|u=s'	=> "relative url (without hostname) for site (defaults to /)",
 	'logfile|l=s'	=> "path to access log file",
 	'verbose|v'	=> "verbose information",
   )
@@ -36,12 +36,12 @@ try {
 $url = $opts->url;
 
 if (!$url) {
-  print "Error: base url param required\n";
-  exit;
+  $url = "/";
+  if ($opts->verbose) print "No parameter specified for url; assuming /\n";
 }
 $logfile = $opts->logfile;
 if (!$logfile) {
-  print "Error: logfile param required\n";
+  print "Error: logfile parameter required\n";
   exit;
 }
 
