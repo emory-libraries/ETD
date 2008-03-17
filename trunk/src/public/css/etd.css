@@ -264,10 +264,10 @@ div#calendar {
   float:left;
   width:185px;
   margin:0px;
-  margin-right:25px;
 }
 div#news { 
   margin:0px;
+  margin-left:205px;
   padding:0px;
  }
 
