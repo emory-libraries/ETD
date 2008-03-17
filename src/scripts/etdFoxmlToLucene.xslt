@@ -128,12 +128,29 @@
 
                   <!-- foxml top-level properties (state, label, cmodel) -->
                   <xsl:template match="foxml:objectProperties/foxml:property">
+                    <xsl:variable name="property">
+                      <xsl:value-of select="substring-after(@NAME,'#')"/>                      
+                    </xsl:variable>
+
                     <IndexField index="UN_TOKENIZED" store="NO" termVector="NO">
                       <xsl:attribute name="IFname"> 
-                      <xsl:value-of select="concat('fgs.', substring-after(@NAME,'#'))"/>
+                      <xsl:value-of select="$property"/>
                     </xsl:attribute>
                     <xsl:value-of select="@VALUE"/>
                   </IndexField>
+
+                  <!-- for date-time properties, also index as date -->
+                  <xsl:if test="contains($property, 'Date')">	<!-- created, modified -->
+                    <IndexField index="UN_TOKENIZED" store="NO" termVector="NO">
+                      <xsl:attribute name="IFname"> 
+                      <xsl:value-of select="concat($property, '_YYYYMMDD')"/>
+                    </xsl:attribute>
+                    <xsl:call-template name="date-to-YYYYMMDD">
+                      <xsl:with-param name="date"><xsl:value-of select="@VALUE"/></xsl:with-param>
+                    </xsl:call-template>
+                  </IndexField>
+                    
+                  </xsl:if>
                   
                 </xsl:template>
 
@@ -183,32 +200,32 @@
 
 
                 <!-- fields to be included in main search box -->
-                <IndexField IFname="text" index="TOKENIZED" store="NO" termVector="YES">
+                <IndexField IFname="text" index="TOKENIZED" store="NO">
                   <xsl:apply-templates select="mods:titleInfo/mods:title | mods:abstract | mods:tableOfContents |
-                       mods:name[@type='personal']/mods:displayForm | mods:subject/mods:topic |
-                       mods:extension/etd:degree/etd:discipline | mods:originInfo/mods:dateIssued" 
-                    mode="text"/>
+                       mods:name[@type='personal']/mods:namePart | mods:subject/mods:topic |
+                       mods:extension/etd:degree/etd:discipline" 
+                    mode="textfield"/>
                 </IndexField>
 
               </xsl:template>
 
               <!-- just display the text - for main text index -->
-              <xsl:template match="*" mode="text">
-                <xsl:text> </xsl:text>	<!-- add spaces so words from different fields don't run together -->
+              <xsl:template match="node()" mode="textfield">
+                <xsl:text> </xsl:text>	<!-- force a space between fields -->
                 <xsl:apply-templates/>
-                <xsl:text> </xsl:text>
               </xsl:template>
 
 
-              <!-- generic mods field : use index name is xml name -->
+              <!-- generic mods field : use xml name as index name -->
               <xsl:template match="mods:titleInfo/mods:title | mods:abstract | mods:tableOfContents">
                 <IndexField index="TOKENIZED" store="NO" termVector="YES">
                   <xsl:attribute name="IFname"><xsl:value-of select="local-name()"/></xsl:attribute>
                   <xsl:value-of select="text()"/>
                 </IndexField>
 
+                <!-- include un-tokenized version of title for sorting purposes -->
                 <xsl:if test="local-name() = 'title'">
-                  <IndexField IFname="title" index="TOKENIZED" store="YES" termVector="YES">
+                  <IndexField IFname="title_sort" index="UN_TOKENIZED" store="YES" termVector="YES">
                     <xsl:value-of select="text()"/>
                   </IndexField>
                 </xsl:if>
@@ -227,64 +244,84 @@
 
                  <!-- date fields -->
                  <xsl:template match="mods:originInfo/*">
+                   <xsl:if test=". != ''">	<!-- only include if set -->
+
                    <!-- date format is YYYY-MM-DDT00:00:00Z 
                         (if data is not in this format, date string will be empty)
                         -->
 
                    <!-- convert date to YYYMMDD (lucene recommended form)-->
                    <!-- FIXME: is time important? -->
-
-                   <xsl:variable name="year">
-                     <xsl:value-of select="substring-before(., '-')"/>
-                   </xsl:variable>
-                   <xsl:variable name="afteryear">
-                     <xsl:value-of select="substring-after(., '-')"/>
+                   <xsl:variable name="date">
+                     <xsl:call-template name="date-to-YYYYMMDD">
+                       <xsl:with-param name="date"><xsl:value-of select="."/></xsl:with-param>
+                     </xsl:call-template>
                    </xsl:variable>
 
-                   <xsl:variable name="month">
-                     <xsl:value-of select="substring-before($afteryear, '-')"/>
-                   </xsl:variable>
-                   <xsl:variable name="aftermonth">
-                     <xsl:value-of select="substring-after($afteryear, '-')"/>
-                   </xsl:variable>
-
-                   <xsl:variable name="day">
+                   <xsl:variable name="fieldname">
                      <xsl:choose>
-                       <xsl:when test="contains(., 'T')">	<!-- if includes time -->
-                       <xsl:value-of select="substring-before($aftermonth, 'T')"/>                
-                     </xsl:when>
-                     <xsl:otherwise>
-                       <xsl:value-of select="$aftermonth"/>
-                     </xsl:otherwise>
-                   </xsl:choose>
-                 </xsl:variable>
+                       <xsl:when test="local-name() = 'dateOther'">
+                         <xsl:value-of select="concat('date_', @type)"/>
+                       </xsl:when>
+                       <xsl:otherwise>
+                         <!-- dateIssued, dateCreated, dateModified, copyrightDate -->
+                         <xsl:value-of select="local-name()"/>
+                       </xsl:otherwise>
+                     </xsl:choose>
+                   </xsl:variable>
 
-                 <xsl:variable name="fieldname">
-                   <xsl:choose>
-                     <xsl:when test="local-name() = 'dateOther'">
-                       <xsl:value-of select="concat('date_', @type)"/>
-                     </xsl:when>
-                     <xsl:otherwise>
-                       <!-- dateIssued, dateCreated, dateModified, copyrightDate -->
-                       <xsl:value-of select="local-name()"/>
-                     </xsl:otherwise>
-                   </xsl:choose>
-                 </xsl:variable>
-
-                 <IndexField index="UN_TOKENIZED" store="YES" termVector="YES">
-                   <xsl:attribute name="IFname">
-                     <xsl:value-of select="$fieldname"/>
-                   </xsl:attribute>
-                   <xsl:value-of select="concat($year, $month, $day)"/>
-                 </IndexField>
-                 
-                 <!-- key on date issued for pubyear -->
-                 <xsl:if test="$fieldname = 'dateIssued'">
-                   <IndexField IFname="year" index="UN_TOKENIZED" store="YES" termVector="YES">
-                     <xsl:value-of select="$year"/>
+                   <IndexField index="UN_TOKENIZED" store="YES" termVector="YES">
+                     <xsl:attribute name="IFname">
+                       <xsl:value-of select="$fieldname"/>
+                     </xsl:attribute>
+                     <xsl:value-of select="$date"/>
                    </IndexField>
+                   
+                   <!-- key on date issued for pubyear -->
+                   <xsl:if test="$fieldname = 'dateIssued'">
+                     <IndexField IFname="year" index="UN_TOKENIZED" store="YES" termVector="YES">
+                       <xsl:value-of select="substring($date, 1, 4)"/>	<!-- first four digits -->
+                     </IndexField>
+                   </xsl:if>
+                   
                  </xsl:if>
                </xsl:template>
+
+
+
+
+               <!-- template to convert date from YYYY-MM-DDT00:00:00Z or YYYY-MM-DD to 
+                    YYYMMDD (Lucene recommended date form)	-->
+               <xsl:template name="date-to-YYYYMMDD">
+                 <xsl:param name="date"/>
+
+                 <xsl:variable name="year">
+                   <xsl:value-of select="substring-before($date, '-')"/>
+                 </xsl:variable>
+                 <xsl:variable name="afteryear">
+                   <xsl:value-of select="substring-after($date, '-')"/>
+                 </xsl:variable>
+                 
+                 <xsl:variable name="month">
+                   <xsl:value-of select="substring-before($afteryear, '-')"/>
+                 </xsl:variable>
+                 <xsl:variable name="aftermonth">
+                   <xsl:value-of select="substring-after($afteryear, '-')"/>
+                 </xsl:variable>
+                 
+                 <xsl:variable name="day">
+                   <xsl:choose>
+                     <xsl:when test="contains($date, 'T')">	<!-- if includes time -->
+                     <xsl:value-of select="substring-before($aftermonth, 'T')"/>                
+                   </xsl:when>
+                   <xsl:otherwise>
+                     <xsl:value-of select="$aftermonth"/>
+                   </xsl:otherwise>
+                 </xsl:choose>
+               </xsl:variable>
+               
+               <xsl:value-of select="concat($year, $month, $day)"/>
+             </xsl:template>
 
 
                   <xsl:template match="mods:name[@type='personal']">
@@ -299,7 +336,7 @@
 
                     <IndexField index="TOKENIZED" store="NO" termVector="YES">
                       <xsl:attribute name="IFname"><xsl:value-of select="$person-type"/></xsl:attribute>
-                      <xsl:value-of select="mods:displayForm"/>
+                      <xsl:apply-templates select="mods:namePart"/>
                     </IndexField>
 
                     <!-- advisor should additionally be indexed as generic committee member -->
@@ -309,21 +346,18 @@
                       </IndexField>
 
                       <!-- advisor should also be indexed in committee member facet -->
-                      <IndexField index="UN_TOKENIZED" store="YES" termVector="YES" IFname="committee_lastnamefirst">
+                      <IndexField index="UN_TOKENIZED" store="NO" termVector="YES" IFname="committee_lastnamefirst">
                         <xsl:value-of select="mods:displayForm"/>
                       </IndexField>
                     </xsl:if>
 
-                    <xsl:if test="mods:namePart[@type='family']  and mods:namePart[@type='given']">
-                      <!-- untokenized version (lastname, first) for sorting and browsing / facets -->
-                      <IndexField store="YES" termVector="YES" index="UN_TOKENIZED">
+                    <!-- untokenized version (lastname, first) for sorting and browsing / facets -->
+                    <IndexField index="UN_TOKENIZED" store="NO" termVector="YES">
                         <xsl:attribute name="IFname">
                           <xsl:value-of select="concat($person-type, '_lastnamefirst')"/>
                         </xsl:attribute>
-                        <xsl:value-of select="concat(mods:namePart[@type='family'], ', ', mods:namePart[@type='given'])"/>
-                      </IndexField>
-
-                    </xsl:if>
+                        <xsl:value-of select="mods:displayForm"/>
+                    </IndexField>
                     
                     <xsl:if test="$person-type = 'author'">
                       <xsl:apply-templates select="mods:affiliation"/>
@@ -333,35 +367,11 @@
                   </xsl:if>
                 </xsl:template>
 
-                <xsl:template match="mods:name[@type='personal']/mods:namePart">
-                  <xsl:param name="role" select="'name'"/>
-                  
-                  <xsl:variable name="nametype">
-                    <xsl:choose>
-                      <xsl:when test="@type = 'family'">lastname</xsl:when>
-                      <xsl:when test="@type = 'given'">firstname</xsl:when>
-                    </xsl:choose>
-                  </xsl:variable>
-                  
-                  <IndexField store="YES" termVector="YES">
-                    <xsl:choose>
-                      <xsl:when test="$nametype = 'lastname'">
-                        <!-- index lastname as untokenized so it can be a sort field -->
-                        <xsl:attribute name="index">UN_TOKENIZED</xsl:attribute>
-                      </xsl:when>
-                      <xsl:otherwise>
-                        <xsl:attribute name="index">TOKENIZED</xsl:attribute>
-                      </xsl:otherwise>
-                    </xsl:choose>
-                    
-                    <xsl:attribute name="IFname">
-                      <xsl:value-of select="concat($role, '_', $nametype)"/>
-                    </xsl:attribute>
-                    <xsl:value-of select="."/>
-                  </IndexField>
-                  
+                <xsl:template match="mods:namePart">
+                  <xsl:apply-templates/>
+                  <xsl:text> </xsl:text>	<!-- force a space between first & last names -->
                 </xsl:template>
-                
+
                 <!-- author affiliation = department/program -->
                 <xsl:template match="mods:name[mods:role/mods:roleTerm = 'author']/mods:affiliation">
                   <IndexField index="UN_TOKENIZED" store="YES" termVector="YES" IFname="program_facet">
@@ -408,29 +418,42 @@
                      
                    </xsl:template>
 
-                   <!-- no longer used ? -->
-                   <xsl:template match="mods:note">
-                     <xsl:if test=". != ''">
-                       <IndexField index="UN_TOKENIZED" store="YES" termVector="YES">
-                         <xsl:attribute name="IFname">
-                           <xsl:value-of select="concat('note_', @type)"/>
-                         </xsl:attribute>
-                         <xsl:value-of select="text()"/>
+                   <!-- asking PQ to register copyright : yes/no -->
+                   <xsl:template match="mods:note[@ID='copyright']">
+                     <xsl:variable name="yesno">
+                       <xsl:value-of select="substring-after(., 'registering copyright? ')"/>
+                     </xsl:variable>
+
+                     <xsl:if test="$yesno != ''">
+                       <IndexField index="UN_TOKENIZED" store="NO" IFname="registering_copyright">
+                         <xsl:value-of select="$yesno"/>
                        </IndexField>
                      </xsl:if>
                    </xsl:template>
                    
+                   <!-- embargo requested : yes/no -->
+                   <xsl:template match="mods:note[@ID='copyright']">
+                     <xsl:variable name="yesno">
+                       <xsl:value-of select="substring-after(., 'embargo requested? ')"/>
+                     </xsl:variable>
 
-                       <!-- OLD place where page count was stored -->
-                       <xsl:template match="mods:extent[@unit = 'pages']">
-                         <xsl:if test=". != ''">	<!-- ignore when blank -->
-                         <IndexField index="UN_TOKENIZED" store="YES" termVector="YES">
-                           <xsl:attribute name="IFname">num_pages</xsl:attribute>
-                           <!-- format with leading zeroes so a range-search will work -->
-                           <xsl:value-of select="format-number(mods:total, '00000')"/>
-                         </IndexField>
-                       </xsl:if>
-                     </xsl:template>
+                     <xsl:if test="$yesno != ''">
+                       <IndexField index="UN_TOKENIZED" store="NO" IFname="embargo_requested">
+                         <xsl:value-of select="$yesno"/>
+                       </IndexField>
+                     </xsl:if>
+                   </xsl:template>
+
+                   <!-- OLD place where page count was stored -->
+                   <xsl:template match="mods:extent[@unit = 'pages']">
+                     <xsl:if test=". != ''">	<!-- ignore when blank -->
+                     <IndexField index="UN_TOKENIZED" store="YES" termVector="YES">
+                       <xsl:attribute name="IFname">num_pages</xsl:attribute>
+                       <!-- format with leading zeroes so a range-search will work -->
+                       <xsl:value-of select="format-number(mods:total, '00000')"/>
+                     </IndexField>
+                   </xsl:if>
+                 </xsl:template>
 
                      <!-- NEW page count location -->
                      <xsl:template match="mods:physicalDescription/mods:extent">
@@ -446,16 +469,17 @@
 
                    <!-- departmental subfield; part of program facet -->
                    <xsl:template match="mods:extension/etd:degree/etd:discipline">
-                     <!-- index but as program, but don't return -->
-                     <IndexField index="UN_TOKENIZED" store="NO" termVector="YES" IFname="program_facet">
-                       <xsl:apply-templates/>
-                     </IndexField>
-
-                     <!-- return as subfield -->
-                     <IndexField index="UN_TOKENIZED" store="YES" termVector="YES" IFname="subfield">
-                       <xsl:apply-templates/>
-                     </IndexField>
-
+                     <xsl:if test=". != ''">                     <!-- only include if not empty -->
+                       <!-- index but as program, but don't return -->
+                       <IndexField index="UN_TOKENIZED" store="NO" termVector="YES" IFname="program_facet">
+                         <xsl:apply-templates/>
+                       </IndexField>
+                       
+                       <!-- return as subfield -->
+                       <IndexField index="UN_TOKENIZED" store="YES" termVector="YES" IFname="subfield">
+                         <xsl:apply-templates/>
+                       </IndexField>
+                     </xsl:if>
                    </xsl:template>
 
 
@@ -465,12 +489,13 @@
                      <xsl:text>
                        
                      </xsl:text>
-                     <xsl:apply-templates select="rdf:description"/>
+                     <xsl:apply-templates select="rdf:description/rel:etdStatus"/>
+                     <!-- currently not including any rels besides status -->
                    </xsl:template>
                    
                    
                    <xsl:template match="rel:etdStatus">
-                     <IndexField IFname="status" index="UN_TOKENIZED" store="YES">
+                     <IndexField IFname="status" index="UN_TOKENIZED" store="NO">
                        <xsl:value-of select="."/>
                      </IndexField>
                    </xsl:template>
