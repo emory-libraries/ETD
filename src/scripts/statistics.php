@@ -110,6 +110,8 @@ while (!feof($file)) {
       continue;
     } elseif (strtotime($date, 0) < $lastruntime) {
 	continue;	// included in the last run
+    } elseif (strtotime($date, 0) > $lastruntime) {
+      $new = true;      // we are now past the date/time of the last run -- any hits should be new
     }
   }
   
