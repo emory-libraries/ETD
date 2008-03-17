@@ -16,6 +16,9 @@ class ViewController extends Etd_Controller_Action {
        $this->view->title = $etd->label;
        //$this->view->dc = $etd->dc;		/* DC not as detailed as MODS; using etd DC header template */
        $this->view->messages = $this->_helper->flashMessenger->getMessages();
+
+       // ETD abstract page should have print view link
+       $this->view->printable = true;
      }
    }
 

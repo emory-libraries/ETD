@@ -46,7 +46,9 @@
 
 
 <div id="login">
- <a style="float:right" target="_new" href="<?= $this->url(array('layout' => 'printable')) ?>">print view</a>
+ <? if ($this->printable): ?>
+   <a style="float:right" target="_new" href="<?= $this->url(array('layout' => 'printable')) ?>">print view</a>
+ <? endif ?>
  <? if (isset($this->current_user)): ?>
    <b>Welcome, <?= $this->current_user ?></b>
    <? if ($this->env == "development"): ?>
