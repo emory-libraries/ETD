@@ -7,6 +7,11 @@ class StatisticsController extends Etd_Controller_Action {
 
   public function indexAction() {
     $this->view->title = "Access Statistics";
+
+    
+    $lastrun = new LastRunObject();
+    $this->view->lastrun = $lastrun->findLast();
+    
   }
   
    // stats for all etds, broken down by month/year
