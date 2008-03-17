@@ -110,7 +110,7 @@ class StatObject extends Stats_Db_Table {
     $file_sel = $this->selectTypeByMonthYear($pids, "file");
     $sql = "SELECT a.month as month, abstract, file FROM (" . $abs_sel->__toString() . ") as a
 	    LEFT OUTER JOIN (" . $file_sel->__toString() . ") AS f ON a.month = f.month
-    	    ORDER BY a.month;";
+    	    ORDER BY a.month DESC;";
 
     //        print "<pre>" . $sql . "</pre>";
     $stmt = $this->_db->query($sql);
@@ -129,7 +129,7 @@ class StatObject extends Stats_Db_Table {
     // build a select statement to be used as a subselect
   private function selectTypeByMonthYear(array $pids = null, $type) {
     $select = $this->_db->select();
-    $select->from($this->_name, array("COUNT(*) as $type", "strftime('%m-%Y', date) as month"));
+    $select->from($this->_name, array("COUNT(*) as $type", "strftime('%Y-%m', date) as month"));
     // in mysql: date_format(date, '%b %Y')
     		// note: have to rename country because field wasn't being found on the join
 
@@ -183,11 +183,20 @@ class LastRunObject extends Stats_Db_Table {
   protected $_rowsetClass    = 'LastRuns';  
   protected $_rowClass       = 'LastRun';  
   protected $_primary        = 'id';
+
+
+  function findLast() {
+    $select = $this->_db->select();
+    $select->from($this->_name);
+    $select->order("start_time DESC");
+
+    $stmt = $this->_db->query($select);
+    $result = $stmt->fetchObject();
+    // $result = $stmt->fetchObject("LastRun");
+    return $result;
+  }
+  
 }
-
-
-
-
 
 
 ?>
