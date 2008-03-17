@@ -45,7 +45,7 @@ class solr {
     $val = $this->post($this->baseurl, $params);
     if ($val) {
       //      print "DEBUG: solr response: $val";
-      //       print "<pre>"; print_r(unserialize($val)); print "</pre>";
+      //      print "<pre>"; print_r(unserialize($val)); print "</pre>";
       return unserialize($val);
     } else {
       trigger_error("No response from Solr", E_USER_WARNING);
