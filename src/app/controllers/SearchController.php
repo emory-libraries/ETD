@@ -73,6 +73,7 @@ class SearchController extends Etd_Controller_Action {
 						   "action" => "index"), "", true);
        exit;
      }
+     $query = strtolower($query);	// FIXME: any cases where this won't work?
      $results = $solr->query($query, $start, $max);
      
      $this->view->count = $results['response']['numFound'];
