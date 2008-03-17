@@ -2,6 +2,13 @@
 
 class DocsController extends Etd_Controller_Action {
 
+  public function init() {
+    parent::init();
+
+    // all pages in this section should have the print view link
+    $this->view->printable = true;
+  }
+  
   public function aboutAction() {
     $this->view->title = "About Emory's ETD Repository";
   }
