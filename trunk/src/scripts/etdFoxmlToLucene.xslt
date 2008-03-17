@@ -199,11 +199,13 @@
 
 
 
-                <!-- fields to be included in main search box -->
+                <!-- fields to be included in main search box (simple search) -->
                 <IndexField IFname="text" index="TOKENIZED" store="NO">
-                  <xsl:apply-templates select="mods:titleInfo/mods:title | mods:abstract | mods:tableOfContents |
-                       mods:name[@type='personal']/mods:namePart | mods:subject/mods:topic |
-                       mods:extension/etd:degree/etd:discipline" 
+                  <xsl:apply-templates select="mods:titleInfo/mods:title |
+                       mods:name[@type='personal']/mods:namePart |
+                       mods:name[mods:role/mods:roleTerm = 'author']/mods:affiliation |
+                       mods:extension/etd:degree/etd:discipline |
+                       mods:subject/mods:topic | mods:abstract | mods:tableOfContents " 
                     mode="textfield"/>
                 </IndexField>
 
