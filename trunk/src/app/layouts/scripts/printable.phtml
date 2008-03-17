@@ -4,12 +4,17 @@
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
    <title>Emory ETDs : <?= $this->escape($this->title) ?></title>
   <?= $this->css('etd.css'); ?>
+  <?= $this->css('print.css'); ?>
   <link rel="Bookmark" href="<?= $this->linkTo('favicon.ico') ?>"/>
   <link rel="SHORTCUT ICON" href="<?= $this->linkTo('favicon.ico') ?>" />
 </head>
 <body>
-  <div class="print_content">
-     <?= $this->content ?>
-   </div>
+
+  <p>Emory University's Electronic Thesis and Dissertation Repository |
+	<a href="http://etd.library.emory.edu/">http://etd.library.emory.edu/</a></p>
+  <hr/>
+
+   <?= $this->content ?>
+
 </body>
 </html>  
