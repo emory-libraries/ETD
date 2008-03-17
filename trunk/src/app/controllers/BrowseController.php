@@ -256,11 +256,9 @@ class BrowseController extends Etd_Controller_Action {
 
   // list a user's ETDs
   public function myAction() {
-    $auth = Zend_Auth::getInstance();
-    if ($auth->hasIdentity()) {
-      $user = $auth->getIdentity();
+    if (isset($this->current_user)) {
       // should be expanded to find by role, depending on current user - faculty, dept. staff, etc.
-      $this->view->etds = etd::findbyAuthor(strtolower($user->netid));
+      $this->view->etds = etd::findbyAuthor(strtolower($this->current_user->netid));
       
     }
     $this->view->title = "My ETDs";
