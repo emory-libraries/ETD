@@ -316,7 +316,9 @@
    
    <!-- catchall field, containing all other searchable text fields (implemented
         via copyField further on in this schema  -->
-   <field name="text" type="text" indexed="true" stored="false" multiValued="true"/>
+<!--   <field name="text" type="text" indexed="true" stored="false"
+multiValued="true"/> -->
+   <field name="text" type="text_ws" indexed="true" stored="false" multiValued="true"/>
 
    <!-- non-tokenized version of manufacturer to make it easier to sort or group
         results by manufacturer.  copied from "manu" via copyField -->
