@@ -18,7 +18,9 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
 
 
   public function process_upload($fileinfo) {
-    $this->debug = false;	// set to true to get debugging information as it steps through pages
+    if (Zend_Registry::isRegistered('debug'))	// set in environment config file
+      $this->debug = Zend_Registry::get('debug');
+    else  $this->debug = false;			// if not set, default to debugging off
 
     $config = Zend_Registry::get('config');
     $tmpdir = $config->tmpdir;
