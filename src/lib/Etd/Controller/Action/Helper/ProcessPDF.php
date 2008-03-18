@@ -83,7 +83,7 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
       while (! feof($handle)) {
 	$buffer = fgets($handle);
 	if (preg_match("/<A name=(\d+)/", $buffer, $matches)) {
-	  // found a new page
+	  // found a new page	(matches name anchors pdftohtml inserts at beginning of each page)
 	  if ($page) {	// process the last one
 	    $this->process_page($curpage, $page);
 	  }
@@ -91,7 +91,8 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
 	  $curpage = $buffer;	// start saving the content of the new page
 
 	} elseif (preg_match("{<META +name=\"(keywords|subject)\" +content=\"(.*)\">}", $buffer, $matches)) {
-	  // depending on how pdf was created, there may be meta tags 
+	  // match any keyword or subject meta tags in the header
+	  // 	(depending on how pdf was created, there may be meta tags)
 	  $keywords = preg_split("/, ?/", $matches[2]);
 	  $this->fields['keywords'] = array_merge($this->fields['keywords'], $keywords);
 	} else {
@@ -106,7 +107,7 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
 
     // minor cleaning on fields that need it
     $this->fields['toc'] = preg_replace("|<hr/?>|", "",  $this->fields['toc']);
-    $this->fields['toc'] = preg_replace("|^\s*(<b>)?Table of Contents\s*(</b>)?\s*(<br/>)\s*?|i", "",
+    $this->fields['toc'] = preg_replace("|^\s*(<b>)?Table of Contents\s*(</b>)?\s*(<br/>)?\s*|i", "",
 					     $this->fields['toc']);
     $this->fields['toc'] = preg_replace("|</?html>|i", "", $this->fields['toc']);
 
