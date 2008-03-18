@@ -254,7 +254,7 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
     
       // advisor
       if (preg_match("/Advis[eo]r:(.+)/", $line, $matches) ||
-	  preg_match("/([^_ ]+)Advis[eor]/", $line, $matches)) {
+	  preg_match("/([^_ ]+)Advis[eo]r/", $line, $matches)) {
 	$this->fields['advisor'] = $this->clean_name($matches[1]);
 	if ($this->debug) print "DEBUG: found advisor: (1)<pre>$advisor</pre> ";
       } elseif (preg_match("/^ *Advis[eo]r/", $line)) {
