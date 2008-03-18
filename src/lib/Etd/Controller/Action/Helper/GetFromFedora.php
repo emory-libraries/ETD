@@ -35,7 +35,7 @@ class Etd_Controller_Action_Helper_GetFromFedora extends Zend_Controller_Action_
       $object = new $type($id);
     } catch (FedoraObjectNotFound $e) {
       $message = "Error: Record not found";
-      if ($this->_actionController->view->site_mode != "production")
+      if ($this->_actionController->view->env != "production")
 	$message .= " (message from Fedora: <b>" . $e->getMessage() . "</b>)";
       $flashMessenger->addMessage($message);
       $redirector->gotoRoute(array("controller" => "error"), "", true);
@@ -43,7 +43,7 @@ class Etd_Controller_Action_Helper_GetFromFedora extends Zend_Controller_Action_
     } catch (FedoraAccessDenied $e) {
       $denied = true;
       $message = "Error: access denied to $id";
-      if ($this->_actionController->view->site_mode != "production")
+      if ($this->_actionController->view->env != "production")
 	$message .= " (message from Fedora: <b>" . $e->getMessage() . "</b>)";
     } catch (FoxmlException $e) {
       // another access denied, but at a different level ...
