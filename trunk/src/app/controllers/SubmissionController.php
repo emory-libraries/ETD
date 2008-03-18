@@ -41,13 +41,8 @@ class SubmissionController extends Etd_Controller_Action {
       $etd->abstract = $etd_info['abstract'];
       $etd->contents = $etd_info['toc'];
 
-
-      // FIXME: should we be using author's "Academic Plan" field from ESD here? (at least as first choice?)
-      
       // attempt to find a match for department from program list
-      $xml = new DOMDocument();
-      $xml->load("../config/programs.xml"); 
-      $programs = new programs($xml);
+      $programs = new programs();
 
       // first try to use "academic plan" from ESD to set department
       if ($current_user->academic_plan) {
@@ -142,10 +137,7 @@ class SubmissionController extends Etd_Controller_Action {
     $this->view->messages = array();
     $this->view->etd_info = $this->_helper->processPDF($_FILES['pdf']);
 
-    $xml = new DOMDocument();
-    $xml->load("../config/programs.xml"); 
-    $programs = new programs($xml);
-
+    $programs = new programs();
     $this->view->department =  $programs->findLabel($this->view->etd_info['department']);
     
 
