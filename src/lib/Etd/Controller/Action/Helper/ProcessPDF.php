@@ -5,7 +5,6 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
   // run pdftohtml on pdf
   // process resulting file to pull out metadata
 
-  //        return $this->_actionController;
 
   private $next;
   private $fields;
@@ -123,10 +122,6 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
 
   // loop through the pages, determining which content to look for
   private function process_page($content, $number) {
-    //    global $next, $title, $department, $advisor, $committee, $abstract, $toc;
-
-    $_content = $content;	// preserve the original version of the page
-
 
     // remove break tags 
     $content = str_replace("<br>", " ", $_content);
@@ -201,7 +196,7 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
       } elseif (preg_match("/Table of Contents/i", $content)) {
 	if ($this->debug) print "* found table of contents - page $number<br>\n";
 	$this->_actionController->view->log[] = "found table of contents on page $number";
-	//	$toc = "";
+
 	foreach ($lines as $line) {
 	  // remove link and bold tags
 	  $_line = preg_replace("|</?[ab][^<>]*>|i", "", $line);
@@ -230,7 +225,6 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
 
 
   private function processSignaturePage($content, $lines) {
-    global $title, $department, $advisor, $committee;
     // pick up the title  (could be multiline)
     if (preg_match("|<A name=\d><\/a>(.+)[Bb]y|D", $content, $matches)) {
       $this->fields['title'] = $matches[1];
@@ -245,8 +239,6 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
 	  || preg_match("/(.+) Department/m", $line, $matches)) {
 	$this->fields['department'] = $matches[1];
 	if ($this->debug) print "DEBUG: found department:<pre>$department</pre>";
-	// FIXME: if department not here, look on title page
-
 	// match any specially named departments here
       } elseif (preg_match("/Graduate Institute of the Liberal Arts/", $line)) {
 	$this->fields['department'] = "Graduate Institute of the Liberal Arts";
