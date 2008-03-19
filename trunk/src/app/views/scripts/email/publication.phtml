@@ -1,7 +1,4 @@
 <?=  $this->render('email/_debug.phtml'); ?>
-<? $etdlink = $this->url(array('controller' => 'view',
-			       'action' => 'record', 'pid' => $this->etd->pid()), '', true);
-/* FIXME: how to make this url absolute? */ ?>
 <p>Dear <?= $this->etd->mods->author->first ?>,</p>
 
 <p>This is to inform you that your <?= $this->etd->document_type() ?> entitled:
@@ -16,7 +13,7 @@ the University, and we hope that making your work as widely accessible
 as possible will be mutually beneficial.</p>
 <? else: ?>
 <p>Upon submission, you chose to restrict access to your work via the
-web.  Access to your thesis or dissertation will be restricted for
+web.  Access to your <?= $this->etd->document_type() ?> will be restricted for
 <?= $this->etd->mods->embargo ?>.  Details describing your document will appear in
 the repository's index, but the full text of your work will not appear
 until the expiration of the access restriction period.</p>
@@ -28,7 +25,6 @@ impending expiration of the access restriction sixty (60) days prior
 to the access restriction's expiration.  You are responsible for
 contacting the Emory library if you need to extend that access
 restriction for any reason.</p>
-
 
 <? endif ?>
 
@@ -42,9 +38,6 @@ vendors</a> who you may wish to contact, and their contact information
 is listed on the ETD website.  (Paper copies of your dissertation will
 also be available through UMI/Proquest once your thesis or
 dissertation has been processed by them.)</p>
-
-<p>You can expect your dissertation to appear in Emory's EUCLID library catalog in
-the near future.</p>
 
 <p>Congratulations!</p>
 
