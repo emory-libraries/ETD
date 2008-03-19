@@ -4,7 +4,7 @@ class IndexController extends Etd_Controller_Action {
 
   
   public function indexAction() {	
-		$this->view->assign("title", "Welcome to etd");
+		$this->view->assign("title", "Welcome");
 	}
 
 	public function listAction() {
