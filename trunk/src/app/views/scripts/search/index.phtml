@@ -13,3 +13,15 @@
 </table>
   <?= $this->formSubmit("Search", "Search >", array("class" => "button")); ?>
 </form>
+
+
+<hr/>
+<p><b>Search tips:</b></p>
+<ul>
+ <li>If you enter multiple terms in different fields, only documents that match all of your terms will appear.</li>
+ <li>Multiple words are allowed.</li>
+ <li>Searches are <i>not</i> case-sensitive.</li>
+ <li>To match part of a word, add an asterisk, e.g., <b>chem*</b> would match <b>chemistry</b>, <b>chemical</b>, etc.
+     <br/>Do not use an asterisk at the beginning of your search term.</li>
+ <li>If you're not sure how to spell something, try the fuzzy search: e.g. <b>Gbadgsn~</b> would match <b>Gbadegesin</b>.</li>
+</ul>
