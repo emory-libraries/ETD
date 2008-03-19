@@ -3,12 +3,14 @@
     <foxml:property NAME="http://www.w3.org/1999/02/22-rdf-syntax-ns#type" VALUE="FedoraObject"/>
     <foxml:property NAME="info:fedora/fedora-system:def/model#state" VALUE="Active"/>
     <foxml:property NAME="info:fedora/fedora-system:def/model#label" VALUE="Why I Hate Milk"/>
+    <foxml:property NAME="info:fedora/fedora-system:def/model#contentModel" VALUE="etd"/>
   </foxml:objectProperties>
 
   <foxml:datastream CONTROL_GROUP='X' ID='MODS' STATE='A'	VERSIONABLE='true'>
     <foxml:datastreamVersion ID='MODS.0' LABEL='MODS' MIMETYPE='text/xml'>
       <foxml:xmlContent>
-	<mods:mods xmlns:mods="http://www.loc.gov/mods/v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema">
+	<mods:mods xmlns:mods="http://www.loc.gov/mods/v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema"
+		  xmlns:etd="http://www.ndltd.org/standards/metadata/etdms/1.0/">
 	  <mods:titleInfo>
 	    <mods:title>Why I Hate Milk</mods:title>
 	  </mods:titleInfo>
@@ -39,13 +41,31 @@
 	    <mods:description>Emory Committee Member</mods:description>
 	   </mods:name>
 	  <mods:abstract>milk curdles and goes sour</mods:abstract>
-	  <mods:subject ID="" authority="proquestresearchfield">
-	    <mods:topic/>
+	  <mods:subject ID="id0123" authority="proquestresearchfield">
+	    <mods:topic>Disney Studies</mods:topic>
 	  </mods:subject>
+	  <mods:subject authority="keyword">
+	    <mods:topic>sour milk</mods:topic>
+	  </mods:subject>
+	  <mods:originInfo>
+	    <mods:dateIssued keyDate="yes">2007-12-30</mods:dateIssued>
+	  </mods:originInfo>
+	  <mods:physicalDescription>
+	    <mods:extent>203 p.</mods:extent>
+	  </mods:physicalDescription>
 	  <mods:genre authority="aat">Dissertation</mods:genre>
 	  <mods:identifier type="ark">http://purl.bogus.com/ark:123/etd2</mods:identifier>
-	  <mods:accessCondition type="restrictionOnAccess">Embargoed for </mods:accessCondition>
+	  <mods:accessCondition type="restrictionOnAccess">Embargoed for 0 days</mods:accessCondition>
+	  <mods:language>
+	    <mods:languageTerm authority="iso639-2b" type="text">English</mods:languageTerm>
+	  </mods:language>
+	  <mods:extension>
+	    <etd:degree>
+	      <etd:name>PHD</etd:name>
+	    </etd:degree>
+	  </mods:extension>
 	  <mods:note type="admin" ID="embargo">embargo requested? no</mods:note>
+	  <mods:note type="admin" ID="copyright">registering copyright? yes</mods:note>
 	</mods:mods>
       </foxml:xmlContent>
     </foxml:datastreamVersion>
