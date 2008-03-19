@@ -10,11 +10,12 @@ class ProQuestSubmission extends XmlObject {
 
   private $etd;
   
-  public function __construct() {
-    $xml = file_get_contents("PQ_Submission.xml", FILE_USE_INCLUDE_PATH); 
-    $dom = new DOMDocument();
-    $dom->loadXML($xml);
-
+  public function __construct($dom = null) {
+    if (is_null($dom)) {	// by default, initialize from template xml with Emory defaults
+      $xml = file_get_contents("PQ_Submission.xml", FILE_USE_INCLUDE_PATH); 
+      $dom = new DOMDocument();
+      $dom->loadXML($xml);
+    }
     $this->configure();
     $config = $this->config($this->xmlconfig);
 
@@ -26,21 +27,20 @@ class ProQuestSubmission extends XmlObject {
 
     $this->xmlconfig =  array(
 	"pub_option" => array("xpath" => "@publishing_option"),
-	"embargo_code" => array("xpath" => "@embargo-code"),
+	"embargo_code" => array("xpath" => "@embargo_code"),
 	"third_party_search" => array("xpath" => "@third_part_search"),
 
 	"author_info"  => array("xpath" => "DISS_authorship", "class_name" => "DISS_authorship"),
 	"description"  => array("xpath" => "DISS_description", "class_name" => "DISS_description"),
 
 	// content sections
-	"abstract"  => array("xpath" => "DISS_content", "class_name" => "DISS_content/DISS_abstract"
-			     "class_name" => "DISS_abstract"),
+	"abstract"  => array("xpath" => "DISS_content/DISS_abstract", "class_name" => "DISS_abstract"),
 	"pdfs" => array("xpath" => "DISS_content/DISS_binary[@type='PDF']", "is_series" => true),
 	"supplements" => array("xpath" => "DISS_content/DISS_attachment", "class_name" => "DISS_attachment",
 			      "is_series" => true),
 	
-	// do we want to use this? (weren't using before)
-	"restriction"  => array("xpath" => "DISS_restriction", "class_name" => "DISS_restriction"),
+	// do we want to use this? (weren't using it before)
+	//	"restriction"  => array("xpath" => "DISS_restriction", "class_name" => "DISS_restriction"),
 	);
   }
 
@@ -64,8 +64,10 @@ class ProQuestSubmission extends XmlObject {
     // author information
     $this->author_info->name->set_from_modsName($this->etd->mods->author);
     // 	set current and permanent contact information
-    $this->author_info->current_contact->set_from_madsAffiliation($this->etd->authorInfo->mads->current);
-    $this->author_info->permanent_contact->set_from_madsAffiliation($this->etd->authorInfo->mads->permanent);
+    if (isset($this->etd->authorInfo->mads->current))
+      $this->author_info->current_contact->set_from_madsAffiliation($this->etd->authorInfo->mads->current);
+    if (isset($this->etd->authorInfo->mads->permanent))
+      $this->author_info->permanent_contact->set_from_madsAffiliation($this->etd->authorInfo->mads->permanent);
 
 
     // description
@@ -173,10 +175,9 @@ class ProQuestSubmission extends XmlObject {
     $new_supplement = $this->supplements[count($this->supplements) - 1];
     $new_supplement->filename = $filename;
     $new_supplement->description = $description;
-    }
   }
-
 }
+
 
 
 class DISS_authorship extends XmlObject {
@@ -209,7 +210,7 @@ class DISS_name extends XmlObject {
     $this->last = $name->last;
     $names = split(' ', $name->first);	// given name in mods is first + middle
     $this->first = $names[0];
-    if ($names[1]) $this->middle = $names[1];
+    if (isset($names[1])) $this->middle = $names[1];
     if (isset($name->affiliation)) $this->affiliation = $name->affiliation;
   }
 }
@@ -226,11 +227,11 @@ class DISS_contact extends XmlObject {
     parent::__construct($xml, $config, $xpath);
   }
 
-  public function set_from_madsAffiliation(mads_affilation $mads) {
-    $this->date =  $mads->date;
+  public function set_from_madsAffiliation(mads_affiliation $mads) {
+    $this->date =  $mads->date;		// FIXME: date format?
     $this->email = $mads->email;
-    $this->address->set_from_madsAddress($mads->address);
-    $this->phone->set($mads->phone);
+    if (isset($mads->address)) $this->address->set_from_madsAddress($mads->address);
+    if (isset($mads->phone))   $this->phone->set($mads->phone);
     
   }
     
@@ -261,7 +262,7 @@ class DISS_address extends XmlObject {
 }
 
 class DISS_phone extends XmlObject {
-    public function __construct($xml, $xpath) {
+  public function __construct($xml, $xpath) {
     $config = $this->config(array(
         "country_code" => array("xpath" => "DISS_country_cd"),
 	"area_code" => array("xpath" => "DISS_area_code"),
@@ -269,6 +270,11 @@ class DISS_phone extends XmlObject {
 	"extension" => array("xpath" => "DISS_phone_ext"),
 	));
     parent::__construct($xml, $config, $xpath);
+  }
+
+  public function set($number) {
+    // parse number into parts and store
+    $this->number = $number;
   }
 }
 
@@ -283,7 +289,7 @@ class DISS_description extends XmlObject {
 	"date_completed" => array("xpath" => "DISS_dates/DISS_comp_date"),
 	"date_accepted" => array("xpath" => "DISS_dates/DISS_accept_date"),
 	"degree" => array("xpath" => "DISS_degree"),
-	"institution" => array("xpath" => "DISS_institution", "class_name" => "DISS_institution"),
+	//	"institution" => array("xpath" => "DISS_institution", "class_name" => "DISS_institution"),
 	"advisor" => array("xpath" => "DISS_advisor/DISS_name", "class_name" => "DISS_name"),
 	"committee" => array("xpath" => "DISS_cmte_member/DISS_name", "class_name" => "DISS_name",
 			     "is_series" => true),
