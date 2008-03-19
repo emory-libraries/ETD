@@ -43,10 +43,13 @@
 	  <mods:abstract>Gouda or Cheddar?</mods:abstract>
           <mods:tableOfContents/>
 	  <mods:originInfo>
+	    <mods:dateIssued keyDate="yes"/>
 	    <mods:dateOther type="embargoedUntil"/> 
 	  </mods:originInfo>
+	  <mods:genre authority="aat">Dissertation</mods:genre>
+	  <mods:identifier type="ark">http://purl.bogus.com/ark:123/etd2</mods:identifier>
 	  <mods:accessCondition type="restrictionOnAccess">Embargoed for </mods:accessCondition>
-	  <mods:note type="admin" ID="embargo">embargo requested? </mods:note>
+	  <mods:note type="admin" ID="embargo">embargo requested? no</mods:note>
 	</mods:mods>
       </foxml:xmlContent>
     </foxml:datastreamVersion>
