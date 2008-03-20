@@ -1,25 +1,33 @@
 <?php
 
 require_once("xml-utilities/XmlObject.class.php");
+require_once("models/countries.php");
+require_once("models/languages.php");
+require_once("models/degrees.php");
+
 
 class ProQuestSubmission extends XmlObject {
-  
-  protected $schema = "";
+
+  // FIXME: temporary, just until we can get this into a better place & generate a purl for it
+  protected $schema = "http://wilson.library.emory.edu/~rsutton/etd/schemas/proquest.xsd";
 
   protected $xmlconfig;
 
   private $etd;
-  
+
   public function __construct($dom = null) {
     if (is_null($dom)) {	// by default, initialize from template xml with Emory defaults
       $xml = file_get_contents("PQ_Submission.xml", FILE_USE_INCLUDE_PATH); 
-      $dom = new DOMDocument();
-      $dom->loadXML($xml);
+      $this->dom = new DOMDocument();
+      $this->dom->loadXML($xml);
+    } else {
+      $this->dom = $dom;
     }
     $this->configure();
     $config = $this->config($this->xmlconfig);
 
-    parent::__construct($dom, $config);
+    parent::__construct($this->dom, $config);
+
   }
 
   // define xml mappings
@@ -62,12 +70,12 @@ class ProQuestSubmission extends XmlObject {
     }
 
     // author information
-    $this->author_info->name->set_from_modsName($this->etd->mods->author);
+    $this->author_info->name->set($this->etd->mods->author);
     // 	set current and permanent contact information
     if (isset($this->etd->authorInfo->mads->current))
-      $this->author_info->current_contact->set_from_madsAffiliation($this->etd->authorInfo->mads->current);
+      $this->author_info->current_contact->set($this->etd->authorInfo->mads->current);
     if (isset($this->etd->authorInfo->mads->permanent))
-      $this->author_info->permanent_contact->set_from_madsAffiliation($this->etd->authorInfo->mads->permanent);
+      $this->author_info->permanent_contact->set($this->etd->authorInfo->mads->permanent);
 
 
     // description
@@ -93,7 +101,7 @@ class ProQuestSubmission extends XmlObject {
     // *except* for "institutional contact", which ProQuest uses for department
     $this->description->department = $this->etd->mods->department;
 
-    $this->description->advisor->set_from_modsName($this->etd->mods->advisor);
+    $this->description->advisor->set($this->etd->mods->advisor);
     $this->setCommittee();
     $this->setCategories();
     for ($i = 0; $i < count($this->etd->mods->keywords); $i++) {
@@ -109,9 +117,11 @@ class ProQuestSubmission extends XmlObject {
 
 
     // content
-    $this->setAbstract();
+    $this->abstract->set($this->etd->html->abstract);
     $this->setFiles($this->etd->pdfs, $this->etd->supplements); 
 
+
+    //    $this->prune();
   }
 
 
@@ -119,7 +129,7 @@ class ProQuestSubmission extends XmlObject {
     $committee = array_merge($this->etd->mods->committee, $this->etd->mods->nonemory_committee);
     for ($i = 0; $i < count($committee); $i++) {
       if (isset($this->description->committee[$i]))
-	$this->description->committee[$i]->set_from_modsName($committee[$i]);
+	$this->description->committee[$i]->set($committee[$i]);
       else
 	$this->description->addComitteeMember($committee[$i]);
     }
@@ -129,24 +139,13 @@ class ProQuestSubmission extends XmlObject {
     $fields = $this->etd->mods->researchfields;
     for ($i = 0; $i < count($fields); $i++) {
       if (isset($this->description->categories[$i]))
-	$this->description->categories[$i]->set_from_modsSubject($fields[$i]);
+	$this->description->categories[$i]->set($fields[$i]);
       else
 	$this->description->addCategory($fields[$i]);
     }
   }
 
 
-  
-  public function setAbstract() {
-    /**
-     ProQuest online submission form allows minimal html formatting:
-	     -   strong, em, sub, sup
-     Mike Visser says: use basic html formatting and they will convert to their own SGML format
-    */
-
-    // split $this->etd->html->abstract on divs and/or paragraphs, put into diss_paras
-    // ? how to do this? import node from etd_html ? may need cleaning...
-  }
 
   public function setFiles(array $pdfs, array $supplements) {	// pass as parameter for easier unit testing
     // pdf(s) of the dissertation
@@ -183,7 +182,61 @@ class ProQuestSubmission extends XmlObject {
     $new_supplement->filename = $filename;
     $new_supplement->description = $description;
   }
+
+
+  public function prune() {
+    $prunelist = $this->xpath->query("//DISS_citizenship[. = ''] 
+		| //DISS_phone_fax[DISS_area_code = '' and DISS_phone_num = '']
+		| //DISS_middle[. = ''] | //DISS_suffix[. = ''] | //DISS_affiliation[. = '']");
+    for ($i = 0; $i < $prunelist->length; $i++) {
+      $node = $prunelist->item($i);
+      $node->parentNode->removeChild($node);
+    }
+    
+    /*    $prunelist = $this->xpath->query("//DISS_citizenship[. = '']");
+    for ($i = 0; $i < $prunelist->length; $i++) {
+      $node = $prunelist->item($i);
+      $node->parentNode->removeChild($node);
+    }
+
+    // special cases
+
+    // if all components were removed from the phone number node, remove the parent node as well
+    $prunelist = $this->xpath->query("//DISS_phone_fax[not(./DISS_area_code) and not(./DISS_phone_num)]");
+    for ($i = 0; $i < $prunelist->length; $i++) {
+      $node = $prunelist->item($i);
+      $node->parentNode->removeChild($node);
+      }*/
+    
+  }
+  
+
+  public function isValid() {
+    // validate against PQ DTD
+    $dtd_valid = $this->dom->validate();
+    
+    // also validate against customized & stricter schema, which should
+    // be a better indication that this is the data PQ actually wants
+    if (isset($this->schema) && $this->schema != '')
+     $schema_valid = $this->dom->schemaValidate($this->schema);
+
+    // is only valid if both of the validations pass
+    return ($dtd_valid && $schema_valid);
+  }
+
+
+    
+
 }
+
+
+  // note for when we save the xml---
+      // ProQuest doesn't want the Doctype line included - export starting at root element instead
+	//    $this->dom->formatOutput = true;
+    //    $submission->save("$tmpdir/${filebase}_DATA.xml");
+  /*    file_put_contents("$tmpdir/${filebase}_DATA.xml",
+	   $submission->saveXML($submission->documentElement));*/
+
 
 
 
@@ -213,7 +266,7 @@ class DISS_name extends XmlObject {
     parent::__construct($xml, $config, $xpath);
   }
   
-  public function set_from_modsName(mods_name $name) {
+  public function set(mods_name $name) {
     $this->last = $name->last;
     $names = split(' ', $name->first);	// given name in mods is first + middle
     $this->first = $names[0];
@@ -234,10 +287,19 @@ class DISS_contact extends XmlObject {
     parent::__construct($xml, $config, $xpath);
   }
 
-  public function set_from_madsAffiliation(mads_affiliation $mads) {
+  public function __set($name, $value) {
+    switch ($name) {
+    case "date":	// no matter input date format, save in PQ desired date form
+      $value = date("m/d/Y", strtotime($value, 0));  break;
+    }
+    
+    return parent::__set($name, $value);
+  }
+  
+  public function set(mads_affiliation $mads) {
     $this->date =  $mads->date;		// FIXME: date format?
     $this->email = $mads->email;
-    if (isset($mads->address)) $this->address->set_from_madsAddress($mads->address);
+    if (isset($mads->address)) $this->address->set($mads->address);
     if (isset($mads->phone))   $this->phone->set($mads->phone);
     
   }
@@ -256,7 +318,7 @@ class DISS_address extends XmlObject {
     parent::__construct($xml, $config, $xpath);
   }
   
-  public function set_from_madsAddress(mads_address $address) {
+  public function set(mads_address $address) {
     for ($i = 0; $i < isset($address->street[$i]); $i++) {
       if (isset($this->street[$i])) $this->street[$i] = $address->street[$i];
       else $this->street->append($this->street[$i]);
@@ -264,14 +326,16 @@ class DISS_address extends XmlObject {
     $this->city = $address->city;
     $this->state = $address->state;
     $this->zipcode = $address->postcode;
-    $this->country = $address->country;		// FIXME: need to translate to two-letter code? 
+    // translate country name to PQ two-letter code
+    $countrylist = new countries();
+    $this->country = $countrylist->codeByName($address->country);
   }
 }
 
 class DISS_phone extends XmlObject {
   public function __construct($xml, $xpath) {
     $config = $this->config(array(
-        "country_code" => array("xpath" => "DISS_country_cd"),
+        "country_code" => array("xpath" => "DISS_cntry_cd"),
 	"area_code" => array("xpath" => "DISS_area_code"),
 	"number" => array("xpath" => "DISS_phone_num"),
 	"extension" => array("xpath" => "DISS_phone_ext"),
@@ -280,8 +344,18 @@ class DISS_phone extends XmlObject {
   }
 
   public function set($number) {
-    // parse number into parts and store
-    $this->number = $number;
+    // this should work for most US phone numbers and possibly some international ones 
+    if (preg_match("/^((\+\d{1,3}[- ]?\(?\d\)?[- ]?\d{1,5})|\(?(\d{2,6})\)?)[- ]?(\d{3,4})[- ]?(\d{4})( x| ext)?(\d{1,5})?$/", $number,  $matches)) {
+      // parse number into parts and save in the correct fields
+      $this->country_code = $matches[2];
+      $this->area_code = $matches[3];
+      $this->number = $matches[4] . "-" . $matches[5];
+      if (isset($matches[7])) $this->extension = $matches[7];
+    } else {
+      trigger_error("Cannot parse phone number $number", E_USER_WARNING);
+      // pass along to ProQuest as is (?)
+      $this->number =  $number;
+    }
   }
 }
 
@@ -310,6 +384,24 @@ class DISS_description extends XmlObject {
     parent::__construct($xml, $config, $xpath);
   }
 
+  public function __set($name, $value) {
+    switch ($name) {
+    case "degree":
+      // FIXME: create a degree object like countries and lookup that way?
+      // would be better to have these values in a config file than in code...
+      // translate our degrees to PQ desired format
+      $degrees = new degrees();
+      $value = $degrees->codeByAbbreviation($value);
+      break;
+    case "language":
+      $langlist = new languages();	
+      $value = $langlist->codeByName($value);	// translate into PQ 2-letter language code
+      break;
+      
+    }
+    return parent::__set($name, $value);
+  }
+
   // need functions: addCommitteeMember, addCategory
 
   // add a new committee member node and optionally initialize values from a mods_name instance
@@ -324,7 +416,7 @@ class DISS_description extends XmlObject {
 
     // if a mods_name was passed in, initialize the newly added node
     if (!is_null($name)) {
-      $this->committee[count($this->committee) - 1]->set_from_modsName($name);
+      $this->committee[count($this->committee) - 1]->set($name);
     }
   }
 
@@ -346,7 +438,7 @@ class DISS_description extends XmlObject {
 
     // if a mods subject was passed in, initialize the newly added node
     if (!is_null($category)) {
-      $this->categories[count($this->categories) - 1]->set_from_modsSubject($category);
+      $this->categories[count($this->categories) - 1]->set($category);
     }
   }
 }
@@ -360,7 +452,7 @@ class DISS_category extends XmlObject {
     parent::__construct($xml, $config, $xpath);
   }
 
-  public function set_from_modsSubject(mods_subject $category) {
+  public function set(mods_subject $category) {
     $this->code = $category->id;
     $this->text = $category->topic;
   }
@@ -368,12 +460,102 @@ class DISS_category extends XmlObject {
 
 
 class DISS_abstract extends XmlObject {
-    public function __construct($xml, $xpath) {
+  public function __construct($xml, $xpath) {
     $config = $this->config(array(
         "p" => array("xpath" => "DISS_para", "is_series" => true),
 	));
     parent::__construct($xml, $config, $xpath);
   }
+
+
+
+  /**
+   * takes html text and parses it into one or more DISS_para tags
+   */
+  public function set($html) {
+    /**
+     ProQuest online submission form allows minimal html formatting:
+	     -   strong, em, sub, sup
+     Mike Visser said: use basic html formatting and they will convert to their own SGML format
+    */
+
+    // note: most of this cleaning should be shifted to the etd_html class
+    $tidy = new tidy();
+    $config = array(
+	   'bare'	    => true,		//strip MS html, convert non-breaking spaces to regular spaces
+           'clean'         => true,		// strip out / convert unneeded tags
+	   'drop-empty-paras' => true,
+	   'drop-font-tags'   => true,
+	   'drop-proprietary-attributes' => true,
+	   'output-xml'		=> true,
+	   //	   'preserve-entities'  => true,	// not supported (version of tidy?)
+	   'ascii-chars'	=> true,
+	   'char-encoding'	=> 'utf8',
+	   
+	   );
+    $tidy->parseString($html, $config, 'utf8');
+    $tidy->cleanRepair();
+    $body = tidy_get_body($tidy);	// should be able to do $tidy->body but it doesn't work
+
+    $text = $body->value;
+    // replace i and b tags with em and strong respectively
+    $text = preg_replace(array("|<(/)?[iu]>|","|<(/)?b>|"),	// replace both italic and underline with em
+		 array("<$1em>", "<$1strong>"), "$text");
+    // strip out any tags that are not allowed
+    $text = strip_tags($text, "<p><div><strong><em><sub><sup><body>");
+    						// leave body tag-- it is the parent tag that holds all the others
+
+    // NOTE: ignoring <br/> tags; currently not handling <p>s inside <divs>
+    
+    $dom = new DOMDocument();
+    $dom->loadXML($text);
+    for ($i = 0; $i < $dom->documentElement->childNodes->length; $i++) {
+      $node = $dom->documentElement->childNodes->item($i);
+      if ($node instanceof DOMText) {
+	if (trim($node->data) == "") continue;		// blank text node
+	$this->appendToCurrentParagraph($node);
+      } else {
+	switch ($node->tagName) {
+	  // effectively converting divs and ps to DISS_para
+	case "div":
+	case "p":
+	  $this->addAsParagraph($node);
+	  break;
+	default:
+	  // any other node - append to current paragraph
+	  $this->appendToCurrentParagraph($node);
+	}
+      }
+    }
+
+    $this->update();
+  }
+
+
+  // add all the contents of a p or div node to the next DISS_para element
+  public function addAsParagraph(DOMNode $node) {
+    if ($this->p[0] == "") {		// still on the first paragraph
+      // do nothing - this is the current paragraph
+    } else {
+      $this->p->append('');	// create a new empty paragraph node to append to
+    }
+
+    foreach ($node->childNodes as $n) 
+      $this->appendToCurrentParagraph($n);
+  }
+
+  // add a node or text to the current (last) DISS_para
+  public function appendToCurrentParagraph($content) {
+    // add the content to the last paragraph
+    $current_node = $this->domnode->childNodes->item($this->domnode->childNodes->length - 1);
+    if ($content instanceof DOMText) {
+      $current_node->appendChild($this->dom->createTextNode($content->data));
+    } elseif ($content instanceof DOMElement) {
+      $node = $this->dom->importNode($content, true);
+      $current_node->appendChild($node);
+    }
+  }
+
 }
 
 class DISS_attachment extends XmlObject {
