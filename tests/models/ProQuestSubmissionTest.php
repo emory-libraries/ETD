@@ -53,14 +53,15 @@ class TestPQSubmission extends UnitTestCase {
     $etd = new etd('test:etd2');
 
     $this->pq->initializeFromEtd($etd);
+    //    print "<pre>" . htmlentities($this->pq->saveXML()) . "</pre>";
     $this->assertEqual("0", $this->pq->embargo_code);
     // author name & contact information
     $this->assertEqual($etd->mods->author->last, $this->pq->author_info->name->last);
     $this->assertEqual($etd->mods->author->first, $this->pq->author_info->name->first);
     $this->assertEqual($etd->authorInfo->mads->current->email, $this->pq->author_info->current_contact->email);
-    $this->assertEqual($etd->authorInfo->mads->current->date, $this->pq->author_info->current_contact->date);
+    $this->assertEqual("01/01/2001", $this->pq->author_info->current_contact->date);
     $this->assertEqual($etd->authorInfo->mads->permanent->email, $this->pq->author_info->permanent_contact->email);
-    $this->assertEqual($etd->authorInfo->mads->permanent->date, $this->pq->author_info->permanent_contact->date);
+    $this->assertEqual("12/15/2009", $this->pq->author_info->permanent_contact->date);
     $this->assertEqual($etd->authorInfo->mads->permanent->address->street[0],
 		       $this->pq->author_info->permanent_contact->address->street[0]);
     $this->assertEqual($etd->authorInfo->mads->permanent->address->city,
@@ -69,8 +70,8 @@ class TestPQSubmission extends UnitTestCase {
 		       $this->pq->author_info->permanent_contact->address->state);
     $this->assertEqual($etd->authorInfo->mads->permanent->address->postcode,
 		       $this->pq->author_info->permanent_contact->address->zipcode);
-    $this->assertEqual($etd->authorInfo->mads->permanent->address->country,
-		       $this->pq->author_info->permanent_contact->address->country);
+    // country code
+    $this->assertEqual("US", $this->pq->author_info->permanent_contact->address->country);
 
     $this->assertEqual($etd->mods->pages, $this->pq->description->page_count);
     $this->assertEqual("test:etd2", $this->pq->description->external_id);
@@ -80,7 +81,7 @@ class TestPQSubmission extends UnitTestCase {
     $this->assertPattern("/[0-9]{4}/", $this->pq->description->date_completed);
     $this->assertEqual("12/30/2007", $this->pq->description->date_accepted);
     $this->assertPattern("|[0-1][0-9]/[0-3][0-9]/[0-9]{4}|", $this->pq->description->date_accepted);
-    $this->assertEqual("PHD", $this->pq->description->degree);	// check format on degree
+    $this->assertEqual("Ph.D.", $this->pq->description->degree);	// PQ format for degree
     $this->assertEqual($etd->mods->department, $this->pq->description->department);
 
     // advisor & committee
@@ -93,12 +94,82 @@ class TestPQSubmission extends UnitTestCase {
     $this->assertEqual($etd->mods->researchfields[0]->id, $this->pq->description->categories[0]->code);
     $this->assertEqual($etd->mods->researchfields[0]->topic, $this->pq->description->categories[0]->text);
     $this->assertEqual($etd->mods->keywords[0]->topic, $this->pq->description->keywords[0]);
-    $this->assertEqual($etd->mods->language->text, $this->pq->description->language); 	// check format/code
+    $this->assertEqual("EN", $this->pq->description->language); 	// PQ 2-letter code
 
 
-    // abstract
+    // abstract tested more thoroughly separately
+    $this->assertPattern("|<DISS_para>milk\s+<em>curdles</em> and goes\s+<em>sour</em></DISS_para>|",
+			 $this->pq->abstract->saveXML());
 
     // files tested separately
+
+    // test validation
+    $this->assertTrue($this->pq->isValid());
+  }
+
+  function testSetAbstract() {
+    // note: need a new submission object so abstract starts blank
+    $pq = new ProQuestSubmission();
+    $nopara = "The sessile nature of plants...";
+    $pq->abstract->set($nopara);
+    $this->assertEqual(1, count($pq->abstract->p));
+    $this->assertEqual($nopara, $pq->abstract->p[0]);
+    
+    $singlepara = "<p>The discovery of the peptide nanotube has...</p>";
+    $pq = new ProQuestSubmission();
+    $pq->abstract->set($singlepara);
+    $this->assertEqual("The discovery of the peptide nanotube has...", $pq->abstract->p[0]);    
+
+    $multipara = "<p>Diola villagers in Guinea-Bissau...</p>
+		<p>Based on two years of ethnographic research...</p>
+		<p>First, I consider</p>";
+    $pq = new ProQuestSubmission();
+    $pq->abstract->set($multipara);
+    $this->assertEqual(3, count($pq->abstract->p));
+    $this->assertEqual("Diola villagers in Guinea-Bissau...", $pq->abstract->p[0]);
+    $this->assertEqual("Based on two years of ethnographic research...", $pq->abstract->p[1]);
+    $this->assertEqual("First, I consider", $pq->abstract->p[2]);
+
+    $multidiv = "<div>Understanding the structural...</div>
+		<div>In the first part of my thesis...</div>";
+    $pq = new ProQuestSubmission();
+    $pq->abstract->set($multidiv);
+    $this->assertEqual(2, count($pq->abstract->p));
+    $this->assertEqual("Understanding the structural...", $pq->abstract->p[0]);
+    $this->assertEqual("In the first part of my thesis...", $pq->abstract->p[1]);
+
+    $emptydiv = "<div>Understanding the structural...</div>
+		<div/>
+		<div>In the first part of my thesis...</div>";
+    $pq = new ProQuestSubmission();
+    $pq->abstract->set($emptydiv);
+    $this->assertEqual(2, count($pq->abstract->p));
+    $this->assertEqual("Understanding the structural...", $pq->abstract->p[0]);
+    $this->assertEqual("In the first part of my thesis...", $pq->abstract->p[1]);
+
+    // test empty divs?
+    
+    $fonts = "<p> <font>  Produced in the scriptorium... </font></p>";
+    $pq = new ProQuestSubmission();
+    $pq->abstract->set($fonts);
+    $this->assertEqual(1, count($pq->abstract->p));
+    $this->assertEqual("Produced in the scriptorium...", $pq->abstract->p[0]);
+
+    
+    $formatting = "<p><i>Chapter 1.</i> Biomimetic ... and <u>ent</u>-Abudinol  <b>B</b></p>";
+    $pq = new ProQuestSubmission();
+    $pq->abstract->set($formatting);
+    $this->assertEqual(1, count($pq->abstract->p));
+    // need to use regexp to check tags
+    $this->assertPattern("|<DISS_para>\s+<em>Chapter 1.</em>\s+Biomimetic ... and\s+<em>ent</em>-Abudinol\s+<strong>B</strong></DISS_para>|",
+			 $pq->abstract->saveXML());
+    
+    $badtags = "Here is a list <ul><li>item 1</li><li>item 2</li></ul> in the middle of my text";
+    $pq = new ProQuestSubmission();
+    $pq->abstract->set($badtags);
+    $this->assertEqual(1, count($pq->abstract->p));
+    $this->assertPattern("/Here is a list\s+item 1\s+item 2\s+in the middle of my text/", $pq->abstract->p[0]);
+    
   }
 
   function testSetFiles() {
@@ -124,7 +195,6 @@ class TestPQSubmission extends UnitTestCase {
     $this->assertEqual($supplements[1]->description(), $this->pq->supplements[1]->description);
 
   }
-
 
   function testAddSupplement() {
     $count = count($this->pq->supplements);
@@ -176,4 +246,42 @@ class TestPQSubmission extends UnitTestCase {
     $this->assertEqual("Unit Testing", $this->pq->description->categories[$count]->text);
   }
 
+  public function testPhoneParsing() {
+    $phonexml = '<DISS_phone_fax type="P">
+	  <DISS_cntry_cd/><DISS_area_code/><DISS_phone_num/><DISS_phone_ext/>
+	</DISS_phone_fax>';
+    $dom = new DOMDocument();
+    $dom->loadXML($phonexml);
+    $xpath = new DOMXpath($dom);
+    $phone = new DISS_phone($dom, $xpath);
+
+
+    $phone->set("404-123-4567");
+    $this->assertEqual("404", $phone->area_code);
+    $this->assertEqual("123-4567", $phone->number);
+
+    $phone->set("(981) 565-4267 x293");
+    $this->assertEqual("981", $phone->area_code);
+    $this->assertEqual("565-4267", $phone->number);
+    $this->assertEqual("293", $phone->extension);
+
+    $phone->set("+61 (0) 20 1234 5678");	// international # from website where I got the initial regexp
+    // no idea if this is actually being parsed correctly
+    $this->assertEqual("+61 (0) 20", $phone->country_code);
+    $this->assertEqual("1234-5678", $phone->number);
+
+
+    // can only definitely parse US numbers for now
+    // here are a couple of international ones that don't work
+    
+    $this->expectError("Cannot parse phone number 86-21-50902078");
+    // Chinese phone number from an actual student
+    $phone->set("86-21-50902078");
+    $this->assertEqual("86-21-50902078", $phone->number);
+
+    // Korean phone # from an actual student
+    //$phone->set("82-10-7227-40904");
+  }
+
+ 
 }

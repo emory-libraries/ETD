@@ -34,11 +34,11 @@
               <mads:street>123 Disney Lane</mads:street>
               <mads:city>Miami</mads:city>
               <mads:state>FL</mads:state>
-              <mads:country>USA</mads:country>
+              <mads:country>UNITED STATES</mads:country>
               <mads:postcode>12345</mads:postcode>
             </mads:address>
             <mads:email>mmouse@disney.com</mads:email>
-            <mads:phone/>
+            <mads:phone>404-324-3039</mads:phone>
             <mads:dateValid>2009-12-15</mads:dateValid>
           </mads:affiliation>
           <mads:identifier type="netid">mmouse</mads:identifier>
