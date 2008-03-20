@@ -36,11 +36,12 @@ class etd_notifier extends notifier {
 
 
   private function getEmailAddresses(etd $etd) {
-    // author - send to both currnet & permanent addresses
-    $name = $etd->authorInfo->mads->name->first . " " . $etd->authorInfo->mads->name->last;
-    $this->to[$etd->authorInfo->mads->current->email] = $name;
-    $this->to[$etd->authorInfo->mads->permanent->email] = $name;
-
+    // author - send to both current & permanent addresses
+    if (isset($etd->authorInfo)) {
+      $name = $etd->authorInfo->mads->name->first . " " . $etd->authorInfo->mads->name->last;
+      $this->to[$etd->authorInfo->mads->current->email] = $name;
+      $this->to[$etd->authorInfo->mads->permanent->email] = $name;
+    }
     // advisor & committee  - look up in ESD
     $esd = new esdPersonObject();
 
