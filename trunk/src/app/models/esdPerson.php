@@ -57,11 +57,11 @@ X           Pre-start
     switch ($this->type) {
     case "B":
     case "S":
+    case "C":
       $this->role = "student"; break;
     case "F":
       $this->role = "faculty"; break;
     case "E":
-    case "C":
       $this->role = "staff"; break;
     default:
       $this->role = "";		// fixme: what should the default be?
