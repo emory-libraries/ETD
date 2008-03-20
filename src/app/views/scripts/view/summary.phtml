@@ -1,11 +1,16 @@
 <? /* summary ETD information - displayed in both full and short record views */ ?>
+<? $published = ($this->etd->status() == "published"); ?>
 
+<? if ($published): ?>
 <a href="<?= $this->url(array('controller' => 'browse', 'action' => 'author',
 	'value' => urlencode($this->etd->author())), '', true)?>"><?= $this->etd->author() ?></a>
+<? else: ?>   <?= $this->etd->author() ?> <? endif ?>
 
    <? if ($year = $this->etd->year()): ?>
+     <? if ($published): ?>		    
    (<a href="<?= $this->url(array('controller' => 'browse', 'action' => 'year',
 	'value' => $year), '', true)?>"><?= $year ?></a>)
+     <? else: ?>   <?= $year ?> <? endif ?>
    <? endif ?>
 
      <? if ($this->acl->isAllowed($this->etd->getUserRole($this->current_user), "user", "view") && 
@@ -18,13 +23,18 @@
  <? if ($doctype = $this->etd->document_type()): ?><b><?= $doctype ?></b><? endif ?>
  <? if ($num_pages = $this->etd->num_pages()): ?>(<?= $num_pages ?> pages)<? endif ?>
    <br/>
-<b>Advisor:</b> <a href="<?= $this->url(array('controller' => 'browse', 'action' => 'committee',
-	'value' => urlencode($this->etd->advisor())), '', true)?>"><?= $this->etd->advisor() ?></a><br/>
-
+<b>Advisor:</b>
+ <? if ($published): ?>
+  <a href="<?= $this->url(array('controller' => 'browse', 'action' => 'committee',
+	'value' => urlencode($this->etd->advisor())), '', true)?>"><?= $this->etd->advisor() ?></a>
+ <? else: ?>   <?= $this->etd->advisor() ?> <? endif ?>     
+<br/>
+     
 <b>Committee members:</b> <? $committee = $this->etd->committee(); ?>
     <? foreach ($committee as $cm): ?>
+        <? if ($published): ?>
 	 <a href="<?= $this->url(array('controller' => 'browse', 'action' => 'committee','value' => urlencode($cm)),
-	'', true)?>"><?= $cm ?></a><?
+	'', true)?>"><?= $cm ?></a><? else: ?><?= $cm ?><? endif ?><?
     if ($cm != $committee[count($committee)-1] || count($this->etd->mods->nonemory_committee)): ?>; <? endif ?>
     <? endforeach ?>
     
@@ -32,8 +42,10 @@
 	   isset($this->etd->mods->nonemory_committee[0]) && 
 	   $this->etd->mods->nonemory_committee[0]->full): ?>
       <? foreach ($this->etd->mods->nonemory_committee as $cm): ?>
+        <? if ($published): ?>  
          <a href="<?= $this->url(array('controller' => 'browse', 'action' => 'committee',
   	'value' => urlencode($cm->full)),'', true)?>"><?= $cm->full ?></a> (<?= $cm->affiliation ?>);
+	 <? else: ?><?= $cm->full ?> (<?= $cm->affiliation ?>);<? endif ?>     
       <? endforeach ?> 
     <? endif ?>
     <? // linebreak only after both sets of committee members ?> <br/>
@@ -41,19 +53,24 @@
   <b>Research Fields:</b>
       <? $field_count = count($this->etd->mods->researchfields); ?>
     <? for ($i = 0; $i < $field_count; $i++): ?>
-	 <? $field = $this->etd->mods->researchfields[$i]; ?>
-    <a href="<?= $this->url(array('controller' => 'browse', 'action' => 'researchfields', 'coll' => $field->id),
-	'', true)?>"><?= $field->topic ?></a><? if ($i != ($field_count - 1)): ?>; <? endif ?>
+       <? $field = $this->etd->mods->researchfields[$i]; ?>
+       <? if ($published): ?>  
+	 <a href="<?= $this->url(array('controller' => 'browse', 'action' => 'researchfields', 'coll' => $field->id),
+	'', true)?>"><?= $field->topic ?></a><? else: ?><?= $field->topic ?><? endif ?><? if ($i != ($field_count - 1)): ?>; <? endif ?>
     <? endfor ?><br/>
   <b>Keywords:</b>
     <? $keywords = $this->etd->keywords(); ?>
     <? foreach ($keywords as $keyword): ?>
+      <? if ($published): ?>  
          <a href="<?= $this->url(array('controller' => 'search', 'action' => 'results',
 	'keyword' => urlencode(strtolower($keyword))),
-	'', true) ?>"><?= $keyword ?></a><? if ($keyword != $keywords[count($keywords)-1]): ?>; <? endif ?>
+	'', true) ?>"><?= $keyword ?></a><? else: ?><?= $keyword ?><? endif ?><? if ($keyword != $keywords[count($keywords)-1]): ?>; <? endif ?>
     <? endforeach ?><br/>
   <b>Program:</b>
+      <? if ($published): ?>  
 	<a href="<?= $this->url(array('controller' => 'browse', 'action' => 'programs',
 	'name' => $this->etd->program()), '', true) ?>"><?= $this->etd->program() ?></a>
+	   <? else: ?><?= $this->etd->program() ?><? endif ?>
      <? if ($this->etd->subfield()): ?>(<?= $this->etd->subfield() ?>)<? endif ?>
+        <? /* in published mode, subfield should link to program browse */ ?>
      <br/>
