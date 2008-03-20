@@ -17,6 +17,9 @@ require_once("policy.php");
 require_once("etdfile.php");
 require_once("user.php");
 
+// email notifier
+require_once("etd_notifier.php");
+
 // etd object for etd08
 class etd extends foxml implements etdInterface {
 
@@ -150,7 +153,7 @@ class etd extends foxml implements etdInterface {
       // another special case: if embargo end is already set, put that date in publish policy as well
       if ($name == "published" && isset($this->mods->embargo_end) && $this->mods->embargo_end
 	  && isset($obj->policy->published->condition) && isset($obj->policy->published->condition->embargo_end))
-	// (only in etd files)
+	// (only in etdfile objects)
 	$obj->policy->published->condition->embargo_end = $this->mods->embargo_end;
     }
   }
@@ -197,16 +200,15 @@ class etd extends foxml implements etdInterface {
     $this->rels_ext->addRelationToResource("rel:has{$relation}", $etdfile->pid);
 
     // add the etd file to the appropriate array in this object
-    $this->{$array_name}[] = new etd_file ($etdfile->pid);
+    // FIXME: don't think this works with the new dynamic related objects set/get in foxml class
+    if (!isset($this->related_objects[$array_name])) $this->related_objects[$array_name] = array();
+    $this->related_objects[$array_name][] = new etd_file ($etdfile->pid);
 
     // fixme: need better error handling here...
 
     $result = $this->save("adding relation to file ($relation) " . $etdfile->pid);
-    //    risearch::flush($this->pid);
-    $this->fedora->risearch->flush_next();
     
     return $result;
-    
   }
 
 
@@ -389,7 +391,49 @@ class etd extends foxml implements etdInterface {
   }
 
 
+  /* make a note in record history that graduation has been confirmed */
+  public function confirm_graduation() {
+    $this->premis->addEvent("administrative",
+			   "Graduation Confirmed by ETD system",
+			   "success",  array("software", "etd system"));
+  }
   
+
+  /* publish a record - does several things:
+   *  - set publication date (mods:dateIssued)
+   *  - calculate embargo end date (if there is an embargo)
+   *  - set status to published, and load appropriate policies
+   *  - send publication notification email
+   */
+  public function publish($pubdate = null) {
+    // set publication date (date issued)
+    if (is_null($pubdate)) $pubdate = date("Y-m-d");	// default to today
+    $this->mods->originInfo->issued = $pubdate;
+
+    // calculate embargo end date
+    $end_date = strtotime($this->mods->embargo, strtotime($pubdate, 0));
+    // calculate based on duration in reference to publication date, e.g. today + 6 months
+    $this->mods->embargo_end = date("Y-m-d", $end_date);
+    // FIXME: calculate relative to today or relative to "pub date" ?
+    // if using pub date, add special handling for 0 days / no embargo (set embargo end to or yesterday)
+    
+    // sets status, add appropriate policies to etd & related files, and puts embargo end date in policies
+    $this->setStatus("published");
+    // record publication in history
+    $this->premis->addEvent("status change",
+			    "Published by ETD system",
+			   "success",  array("software", "etd system"));
+
+    // send an email to notify author, record in history
+    $notify = new etd_notifier($this);
+    $notify->publication();
+    $this->premis->addEvent("notice",
+			   "Publication Notification sent by ETD system",
+			   "success",  array("software", "etd system"));
+  }
+
+
+  /** static functions for finding (or counting) ETDs by various criteria **/
   
   public static function totals_by_status() {
     $fedora = Zend_Registry::get('fedora');
@@ -484,8 +528,9 @@ class etd extends foxml implements etdInterface {
   //  program_facet:Chemistry NOT status:published
   public static function findUnpublishedByDepartment($dept) {
     $solr = Zend_Registry::get('solr');
-    $results = $solr->query($query); 	// ... paging? .. , $start, $max);
-     
+    $query = "program_facet:$dept NOT status:published";
+    $results = $solr->query($query, null, null, null, null); 	// ... paging? .. , $start, $max);
+
     $etds = array();
     foreach ($results['response']['docs'] as $result_doc) {
       array_push($etds, new etd($result_doc['PID']));
