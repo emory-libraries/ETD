@@ -90,6 +90,9 @@ class ProQuestSubmission extends XmlObject {
     */
     $this->description->degree = $this->etd->mods->degree->name;
     // institution information for Emory set in template
+    // *except* for "institutional contact", which ProQuest uses for department
+    $this->description->department = $this->etd->mods->department;
+
     $this->description->advisor->set_from_modsName($this->etd->mods->advisor);
     $this->setCommittee();
     $this->setCategories();
@@ -107,7 +110,7 @@ class ProQuestSubmission extends XmlObject {
 
     // content
     $this->setAbstract();
-    $this->setFiles(); 
+    $this->setFiles($this->etd->pdfs, $this->etd->supplements); 
 
   }
 
@@ -145,20 +148,24 @@ class ProQuestSubmission extends XmlObject {
     // ? how to do this? import node from etd_html ? may need cleaning...
   }
 
-  public function setFiles() {
-    for ($i = 0; $i < count($this->etd->pdfs); $i++) {
-      if (isset($this->pdfs[$i])) $this->pdfs[$i] = $this->etd->pdfs[$i]->prettyFilename();
-      else
-	$this->pdfs->append($this->etd->pdfs[$i]->prettyFilename());
+  public function setFiles(array $pdfs, array $supplements) {	// pass as parameter for easier unit testing
+    // pdf(s) of the dissertation
+    for ($i = 0; $i < count($pdfs); $i++) {
+      if (isset($this->pdfs[$i])) {
+	$this->pdfs[$i] = $pdfs[$i]->prettyFilename();
+      } else {
+	$this->pdfs->append($pdfs[$i]->prettyFilename());
+      }
     }
 
-    for ($i = 0; $i < count($this->etd->supplements); $i++) {
+    // information for supplemental files, if there are any
+    for ($i = 0; $i < count($supplements); $i++) {
       if (isset($this->supplements[$i])) {
-	$this->supplements[$i]->filename = $this->etd->supplements[$i]->prettyFilename();
-	$this->supplements[$i]->description = $this->etd->supplements[$i]->dc->description;
+	$this->supplements[$i]->filename = $supplements[$i]->prettyFilename();
+	$this->supplements[$i]->description = $supplements[$i]->description();
       } else {
-	$this->addSupplement($this->etd->supplements[$i]->prettyFilename(),
-			     $this->etd->supplements[$i]->dc->description);
+	$this->addSupplement($supplements[$i]->prettyFilename(),
+			     $supplements[$i]->description());
       }
     }
       
@@ -200,7 +207,7 @@ class DISS_name extends XmlObject {
     $config = $this->config(array(
         "last" => array("xpath" => "DISS_surname"),
 	"first" => array("xpath" => "DISS_fname"),
-	"middle" => array("xpath" => "DISS_mdidle"),
+	"middle" => array("xpath" => "DISS_middle"),
 	"affiliation" => array("xpath" => "DISS_affiliation"),
 	));
     parent::__construct($xml, $config, $xpath);
@@ -289,7 +296,8 @@ class DISS_description extends XmlObject {
 	"date_completed" => array("xpath" => "DISS_dates/DISS_comp_date"),
 	"date_accepted" => array("xpath" => "DISS_dates/DISS_accept_date"),
 	"degree" => array("xpath" => "DISS_degree"),
-	//	"institution" => array("xpath" => "DISS_institution", "class_name" => "DISS_institution"),
+	// for institutional contact PQ wants department name
+	"department" => array("xpath" => "DISS_institution/DISS_inst_contact"),
 	"advisor" => array("xpath" => "DISS_advisor/DISS_name", "class_name" => "DISS_name"),
 	"committee" => array("xpath" => "DISS_cmte_member/DISS_name", "class_name" => "DISS_name",
 			     "is_series" => true),
@@ -310,7 +318,7 @@ class DISS_description extends XmlObject {
     // note: using parentNode to clone DISS_cmte_member node; object mapping is on DISS_cmte_member/DISS_name
     $newnode = $this->map["committee"][0]->domnode->parentNode->cloneNode(true);	
     // insert before DISS_categorization 
-    $newnode = $this->domnode->insertBefore($newnode, $this->map["categories"]->domnode->parentNode);
+    $newnode = $this->domnode->insertBefore($newnode, $this->map["categories"][0]->domnode->parentNode);
 
     $this->update();
 
@@ -324,7 +332,15 @@ class DISS_description extends XmlObject {
     // deep clone first committee member
     $newnode = $this->map["categories"][0]->domnode->cloneNode(true);
     // insert before first DISS_keyword
-    $newnode = $this->domnode->insertBefore($newnode, $this->map["keywords"][0]->domnode);
+    $nodeList = $this->xpath->query("//DISS_keyword");
+    // if a context node was found, insert the new node before it
+    if ($nodeList->length) {
+      $contextnode = $nodeList->item(0);
+      $newnode = $this->map["categories"][0]->domnode->parentNode->insertBefore($newnode, $contextnode);
+    } else {
+      // otherwise, append inside DISS_categorization (shouldn't happen - keyword should always be present)
+      $newnode = $this->map["categories"][0]->domnode->parentNode->appendChild($newnode);
+    }
 
     $this->update();
 
