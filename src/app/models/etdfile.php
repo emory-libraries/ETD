@@ -228,7 +228,11 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
     return $this->fedora->getDatastream($this->pid, "FILE");
   }
 
-
+  // wrapper to description - to simplify unit testing
+  public function description() {
+    return $this->dc->description;
+  }
+  
   public function prettyFilename() {
     // build a nice, user-friendly filename
     $filename = strtolower($this->etd->mods->author->last) . "_";
