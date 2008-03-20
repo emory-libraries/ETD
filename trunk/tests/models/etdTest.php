@@ -204,10 +204,45 @@ class TestEtd extends UnitTestCase {
     $this->assertEqual("jfenton", $this->etd->rels_ext->committee[1]);
     $this->assertTrue($this->etd->policy->view->condition->users->includes("ahickco"));
     $this->assertTrue($this->etd->policy->view->condition->users->includes("jfenton"));
-    
+  }
+
+
+  function testConfirmGraduation() {
+    $this->etd->confirm_graduation();
+    $this->assertEqual("Graduation Confirmed by ETD system",
+		       $this->etd->premis->event[count($this->etd->premis->event) - 1]->detail);
+  }
+
+  function testPublish() {
+    $pubdate = "2008-01-01";
+    $this->etd->mods->embargo = "6 months";	// specify an embargo duration
+    $this->etd->mods->advisor->id = "nobody";	// set ids for error messages
+    $this->etd->mods->committee[0]->id = "nobodytoo";
+
+    // notices for non-existent users in metadata (looked up when sending notification)
+    $this->expectError("Advisor (nobody) not found in ESD");
+    $this->expectError("Committee member (nobodytoo) not found in ESD");
+
+    $this->etd->publish($pubdate);		// if not specified, date defaults to today
+
+    $fname = 'fixtures/user.xml';
+    $dom = new DOMDocument();
+    $dom->loadXML(file_get_contents($fname));
+    $authorinfo = new user($dom);
+    $this->etd->related_objects['authorInfo'] = $authorinfo;
+	
+    $this->assertEqual($pubdate, $this->etd->mods->originInfo->issued);
+    $this->assertEqual("2008-07-01", $this->etd->mods->embargo_end);
+    $this->assertEqual("published", $this->etd->status());
+    $this->assertEqual("Published by ETD system",
+		       $this->etd->premis->event[count($this->etd->premis->event) - 2]->detail);
+    $this->assertEqual("Publication Notification sent by ETD system",
+		       $this->etd->premis->event[count($this->etd->premis->event) - 1]->detail);
   }
   
 
 }
+
+
 
 ?>
