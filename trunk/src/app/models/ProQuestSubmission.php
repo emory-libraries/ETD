@@ -13,7 +13,12 @@ class ProQuestSubmission extends XmlObject {
 
   protected $xmlconfig;
 
-  private $etd;
+  /* reference to the etd object used to initialize this submission record */
+  public $etd;
+
+  // variables for ProQuest submission
+  public $zipfile;
+  public $ftped;
 
   public function __construct($dom = null) {
     if (is_null($dom)) {	// by default, initialize from template xml with Emory defaults
@@ -57,16 +62,25 @@ class ProQuestSubmission extends XmlObject {
     $this->etd = $etd;		// store reference (will be needed for file export)
 
     // set PQ embargo code according to what Grad School has approved
+    /* from the proquest DTD:
+     *Embargo code can be 0 corresponding to no embargo OR 
+     1 - 6 months embargo
+     2 - 1 year embargo
+     3 - 2 year embargo
+     4 - Reserved for future use
+    */
     switch ($this->etd->mods->embargo) {
     case "0 days":
       $this->embargo_code = 0; break;
     case "6 months":
-      $this->embargo_code = 1; break;
+      $this->embargo_code = 1; break;	
+    case "1 year":
+      $this->embargo_code = 2; break;	
     case "2 years":
     case "6 years":
-      $this->embargo_code = 2; break;		// PQ only offers 2 year embargoes
+      $this->embargo_code = 3; break;		// PQ only offers 2 year embargoes
     default:
-      // don't set code - will get caught at validation  time
+      // don't set code - error will get caught at validation  time
     }
 
     // author information
@@ -131,7 +145,7 @@ class ProQuestSubmission extends XmlObject {
       if (isset($this->description->committee[$i]))
 	$this->description->committee[$i]->set($committee[$i]);
       else
-	$this->description->addComitteeMember($committee[$i]);
+	$this->description->addCommitteeMember($committee[$i]);
     }
   }
 
@@ -225,18 +239,62 @@ class ProQuestSubmission extends XmlObject {
   }
 
 
+  /**
+   * create a zip file in the format requested by ProQuest
+   * includes metadata, pdf, and any supplemental files
+   */
+  public function create_zip($tmpdir) {
+    // all filenames start with (or include) authorlastname_authorfirstname
+    $filebase = strtolower($this->author_info->name->last . "_" . $this->author_info->name->first);
+    $nonfilechars = array("'", ",");	// what other characters are likely to occur in names?
+    $replace = array();	// replace all with empty strings 
+    $filebase =  str_replace($nonfilechars, $replace, $filebase);
+
+
+    $this->zipfile = $tmpdir . "/upload_" . $filebase . ".zip";
+    
+    $zip = new ZipArchive();
+    if ($zip->open($this->zipfile, ZIPARCHIVE::CREATE | ZIPARCHIVE::OVERWRITE | ZIPARCHIVE::CHECKCONS) != true) {
+      trigger_error("Could not initialize zip file", E_USER_WARNING);
+      return false; // ??
+    }
+    // add data directly from a string instead of saving to files first
+
+    // add metadata to the zip file as lastname_firstname_DATA.xml
+    // 	  - ProQuest doesn't want the Doctype line included - export starting at root element
+    $zip->addFromString($filebase . "_DATA.xml", $this->saveXML($this->dom->documentElement));
+
+    // add PDF(s) to the zip file as lastname_firstname.pdf  (adding #s if multiple)
+    for ($i = 0; $i < count($this->etd->pdfs); $i++) {
+      $pdf = $this->etd->pdfs[$i];
+      $filename = $filebase;
+      if ($i > 0) $filename .= ($i + 1);	// use numbers to distinguish after the first pdf
+      $filename .= ".pdf";
+      $zip->addFromString($filename, $pdf->getFile()); 
+    }
+
+    // if there are any supplemental files, they should be placed in a subfolder: lastname_firstname_media
+    if (count($this->etd->supplements)) {
+      if (!$zip->addEmptyDir($filebase . "_media")) {
+	trigger_error("Could not create supplemental file directory in zipfile " . $this->zipfile, E_USER_WARNING);
+      }
+      foreach ($this->etd->supplements as $supplement) {
+	$filename = $filebase . "_media/" . $supplement->prettyFilename();
+	$zip->addFromString($filename, $supplement->getFile()); 
+      }
+    }
+
+    if (!$zip->close()) {
+      trigger_error("Could not save zip file $this->zipfile", E_USER_WARNING);
+    }
+
+    // return name of the zipfile
+    return $this->zipfile;	
+  }
+  
     
 
 }
-
-
-  // note for when we save the xml---
-      // ProQuest doesn't want the Doctype line included - export starting at root element instead
-	//    $this->dom->formatOutput = true;
-    //    $submission->save("$tmpdir/${filebase}_DATA.xml");
-  /*    file_put_contents("$tmpdir/${filebase}_DATA.xml",
-	   $submission->saveXML($submission->documentElement));*/
-
 
 
 
@@ -344,6 +402,7 @@ class DISS_phone extends XmlObject {
   }
 
   public function set($number) {
+    if (trim($number) == "") return;	// no value - don't attempt to parse
     // this should work for most US phone numbers and possibly some international ones 
     if (preg_match("/^((\+\d{1,3}[- ]?\(?\d\)?[- ]?\d{1,5})|\(?(\d{2,6})\)?)[- ]?(\d{3,4})[- ]?(\d{4})( x| ext)?(\d{1,5})?$/", $number,  $matches)) {
       // parse number into parts and save in the correct fields
