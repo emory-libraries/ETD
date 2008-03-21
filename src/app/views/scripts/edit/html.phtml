@@ -21,6 +21,7 @@ if ($this->mode == "title") {
   $oFCKeditor->Height = '400';
   $oFCKeditor->ToolbarSet = "etd";
 }
+if ($this->current_user->role == "superuser")  $oFCKeditor->ToolbarSet = "etd-admin";
 $oFCKeditor->Create();
 ?>
 

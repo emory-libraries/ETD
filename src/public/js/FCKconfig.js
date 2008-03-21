@@ -2,7 +2,7 @@
 
 FCKConfig.ToolbarSets["etd-title"] = [
       ['Preview','-', 'Bold','Italic','Underline','-','Subscript','Superscript','-','Link','Unlink',
-	   '-', 'SpecialChar', '-', 'SpellCheck', 'About']
+       '-', 'SpecialChar', '-', 'SpellCheck', 'About']
 ];
 
 FCKConfig.ToolbarSets["etd"] = [
@@ -11,4 +11,10 @@ FCKConfig.ToolbarSets["etd"] = [
 	  '/',
 	  ['OrderedList','UnorderedList','-','Outdent','Indent','Blockquote']
   ];
-
+/* same as etd + view source */
+FCKConfig.ToolbarSets["etd-admin"] = [
+	['Preview','-', 'Bold','Italic','Underline','-','Subscript','Superscript','-','Link','Unlink',
+	   '-', 'SpecialChar', '-', 'SpellCheck', 'About', '-', 'Source'],
+	  '/',
+	  ['OrderedList','UnorderedList','-','Outdent','Indent','Blockquote']
+  ];
