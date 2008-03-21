@@ -105,6 +105,8 @@ access and modify (with some limitations) etd objects (etd, etdfile, user)</Desc
 	<!-- history : add events to log -->
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">POLICY</AttributeValue>
 	<!-- xacml : add/remove rules associated with changed status -->
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">MODS</AttributeValue>
+	<!-- mods : embargo duration; publication date (publish script/etdmaint account) -->
         </Apply> 	<!-- end string bag -->
       </Apply>		<!-- end at least one member -->
 
