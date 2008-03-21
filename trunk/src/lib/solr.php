@@ -16,7 +16,8 @@ class solr {
     $this->facet_limit = 5;	// is this reasonable?
   }
 
-  function query($queryString, $start = null, $max = null, $facet_limit = null) {	// solr defaults to 1, 10
+  function query($queryString, $start = null, $max = null, $facet_limit = null,	
+		 $fq = "status:published", $sort = null) {   // solr defaults to 1, 10 for start/max
     // allow a facet count override for this query only 
     if (is_null($facet_limit)) {
       $facet_limit = $this->facet_limit;
@@ -25,12 +26,14 @@ class solr {
     // main query with default settings
     $params = array("q" => $queryString,
 		    "wt" => "phps",			// return as serialized phps
-		    "fq" => "status:published",		// filter query - restrict to published records
 		    );
+    if ($fq)
+      $params["fq"] = $fq;		// filter query - by default, restrict to published records
     
     if ($start == 1) $params["start"] = 0;
     elseif ($start !== null) $params["start"] = $start;
     if ($max !== null) 	$params["rows"] = $max;
+    if ($sort !== null)	$params["sort"] = $sort;
     if(count($this->facet_fields)) {
       $params["facet"] = "true";
       $params["facet.mincount"] = "1";
@@ -45,7 +48,7 @@ class solr {
     $val = $this->post($this->baseurl, $params);
     if ($val) {
       //      print "DEBUG: solr response: $val";
-      //      print "<pre>"; print_r(unserialize($val)); print "</pre>";
+      //print "<pre>"; print_r(unserialize($val)); print "</pre>";
       return unserialize($val);
     } else {
       trigger_error("No response from Solr", E_USER_WARNING);
