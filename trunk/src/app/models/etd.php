@@ -432,6 +432,17 @@ class etd extends foxml implements etdInterface {
 			   "success",  array("software", "etd system"));
   }
 
+  
+  /* make a note in record history that record has been sent to ProQuest */
+  public function sent_to_proquest() {
+    $this->premis->addEvent("administrative",
+			   "Submitted to Proquest by ETD system",
+			   "success",  array("software", "etd system"));
+  }
+  
+
+
+
 
   /** static functions for finding (or counting) ETDs by various criteria **/
   
@@ -530,6 +541,21 @@ class etd extends foxml implements etdInterface {
     $solr = Zend_Registry::get('solr');
     $query = "program_facet:$dept NOT status:published";
     $results = $solr->query($query, null, null, null, null); 	// ... paging? .. , $start, $max);
+
+    $etds = array();
+    foreach ($results['response']['docs'] as $result_doc) {
+      array_push($etds, new etd($result_doc['PID']));
+    }
+    return $etds;
+
+  }
+
+
+  public static function findRecentlyPublished($max = 10) {
+    $solr = Zend_Registry::get('solr');
+    $query = "status:published";
+    $solr->clearFacets();
+    $results = $solr->query($query, 0, $max, null, null, "dateIssued desc");
 
     $etds = array();
     foreach ($results['response']['docs'] as $result_doc) {
