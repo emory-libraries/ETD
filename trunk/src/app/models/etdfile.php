@@ -236,6 +236,10 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
   public function prettyFilename() {
     // build a nice, user-friendly filename
     $filename = strtolower($this->etd->mods->author->last) . "_";
+    $nonfilechars = array("'", ",");	// what other characters are likely to occur in names?
+    $replace = array();	// replace all with empty strings 
+    $filename =  str_replace($nonfilechars, $replace, $filename);
+
     switch ($this->type) {
     case "pdf":	$filename .= "dissertation"; break;
     case "original":	$filename .= "original";  break;
