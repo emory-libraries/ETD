@@ -1,6 +1,7 @@
 <?php
 
 require_once("models/etd.php");
+require_once("models/etd_feed.php");
 require_once("models/programs.php");
 
 class BrowseController extends Etd_Controller_Action {
@@ -257,16 +258,63 @@ class BrowseController extends Etd_Controller_Action {
   // list a user's ETDs
   public function myAction() {
     if (isset($this->current_user)) {
-      // should be expanded to find by role, depending on current user - faculty, dept. staff, etc.
-      $this->view->etds = etd::findbyAuthor(strtolower($this->current_user->netid));
-      
+      // expand to find by role, depending on current user - faculty, dept. staff, etc.
+      switch ($this->current_user->role) {
+      case "student":
+      case "student with submission":
+	$etds = etd::findbyAuthor(strtolower($this->current_user->netid));
+	break;
+      case "staff":
+	$this->view->etds = etd::findUnpublishedByDepartment($this->current_user->department);
+	break;
+      default:
+	$etds = array();
+      }
     }
+
+    $this->view->etds = $etds;
+      
+    // FIXME: need to add paging - count/start/max 
     $this->view->title = "My ETDs";
     $this->_helper->viewRenderer->setScriptAction("list");
     $this->view->show_status = true;
     $this->view->show_lastaction = true;
   }
 
+
+  public function recentAction() {
+    $this->view->title = "Browse Recently Published";
+    $this->view->etds = etd::findRecentlyPublished();
+    $this->_helper->viewRenderer->setScriptAction("list");
+  }
+
+  public function recentFeedAction() {
+    $etds = etd::findRecentlyPublished();
+    /*    $efb = new Etd_Feed_Builder("Emory ETDs: Recently published",
+				// FIXME: url syntax not quite right; need absolute url
+			 $this->_helper->url('recentFeed'),
+			 $etds);
+			 $feed = Zend_Feed::importBuilder($efb);*/
+    $feed = new Etd_Feed("Emory ETDs: Recently published",
+				// FIXME: url syntax not quite right; need absolute url
+			 $this->_helper->url('recentFeed'),
+			 $etds);
+    $this->_helper->displayXml($feed->saveXml());
+  }
+
+
+  // list ETDs by department
+  public function mydeptAction() {
+
+    $this->view->etds = etd::findUnpublishedByDepartment("English");
+      
+    $this->view->title = "English ETDs";
+    $this->_helper->viewRenderer->setScriptAction("list");
+    $this->view->show_status = true;
+    $this->view->show_lastaction = true;
+  }
+
+  
    
   // nice readable url - redirect to proquest listings for emory
   public function proquestAction() {
