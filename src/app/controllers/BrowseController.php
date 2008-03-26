@@ -288,20 +288,6 @@ class BrowseController extends Etd_Controller_Action {
     $this->_helper->viewRenderer->setScriptAction("list");
   }
 
-  public function recentFeedAction() {
-    $etds = etd::findRecentlyPublished();
-    /*    $efb = new Etd_Feed_Builder("Emory ETDs: Recently published",
-				// FIXME: url syntax not quite right; need absolute url
-			 $this->_helper->url('recentFeed'),
-			 $etds);
-			 $feed = Zend_Feed::importBuilder($efb);*/
-    $feed = new Etd_Feed("Emory ETDs: Recently published",
-				// FIXME: url syntax not quite right; need absolute url
-			 $this->_helper->url('recentFeed'),
-			 $etds);
-    $this->_helper->displayXml($feed->saveXml());
-  }
-
 
   // list ETDs by department
   public function mydeptAction() {
