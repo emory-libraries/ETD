@@ -5,7 +5,6 @@
  <div class="c2 c"></div>
  <div class="c1 c"></div>
 </div>' ?>
-
 <?= $this->css('topten.css'); ?>
 <div id="topten-bar">
 </div>
@@ -28,13 +27,13 @@
 <?= $leftcorner ?>
 
 <div class="types"> 
-Recently Published
+<a class="current">Recently Published</a>
 </div>
 
 <ol>
 <? foreach ($this->feed as $entry): ?>
-  <li><a href="<?= $entry->url() ?>"><span class="etdtitle"><?= $entry->title() ?></span>
-<?= $entry->url() ?>
+<li><a href="<?= $entry->link() ?>"><span class="etdtitle"><?= $entry->title() ?></span>
+      <br/><?= $entry->author() ?>
 </a></li>
 <? endforeach ?>
 </ol>
