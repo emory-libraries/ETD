@@ -1,6 +1,7 @@
 
 /* add extra padding to content div so it will not overlap top-ten section */
 div.content { 
+  margin-top:0px;
   padding-right:205px;
 }
 
@@ -33,7 +34,12 @@ div#topten li a:hover {
   text-decoration:underline;
 }
 
-
+span.etdtitle { 
+  color:#14214d;
+  text-decoration:underline;
+  word-wrap:break-word;
+  white-space: -moz-pre-wrap !important;
+}
 
 
 div#topten ol { 
