@@ -27,7 +27,14 @@ copies.</p>
 <tr><th valign="top">Title:</th><td><?= $this->etd->title() ?></td></tr>
 <tr><th valign="top">Author:</th><td><?= $this->etd->author() ?></td></tr>
 <tr><th valign="top">Advisor:</th><td><?= $this->etd->advisor() ?></td></tr>
-<tr><th valign="top">Committee:</th><td><?= implode("; ", $this->etd->committee()) ?></td></tr>
+<tr><th valign="top">Committee:</th><td><?= implode("; ", $this->etd->committee()) ?>
+<? if (isset($this->etd->mods->nonemory_committee) && isset($this->etd->mods->nonemory_committee[0]) && 
+       $this->etd->mods->nonemory_committee[0]->full): ?>
+  <? foreach ($this->etd->mods->nonemory_committee as $cm): ?>
+     <?= $cm->full ?> (<?= $cm->affiliation ?>);
+  <? endforeach ?> 
+<? endif ?>
+</td></tr>
 <tr><th valign="top">Abstract:</th><td><?= $this->etd->html->abstract ?></td></tr>
 </table>
 
