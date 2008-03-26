@@ -91,7 +91,13 @@
 
 <?=  $this->render('sidenav.phtml'); ?>
 
+
 <div class="content">
+
+<? if ($this->feed): ?>
+ <?=  $this->render("index/topten.phtml"); ?>
+<? endif ?>
+
 
 <? if (isset($this->messages)):?>
   <div id="messages" style="color:green;">
