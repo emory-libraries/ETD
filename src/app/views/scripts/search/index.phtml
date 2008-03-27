@@ -1,6 +1,8 @@
 <form name="search" method="post" action="<?= $this->url(array("action" => "results"))?>">
 <table class="advanced_search">
 <? /* doesn't make sense/redundant(?)  <tr><th>anywhere</th> <td><?= $this->formText("query", ""); ?></td></tr> */ ?>
+  <tr><th>All Fields</th><td><?= $this->formText("query"); ?></td></tr>
+  <tr><td colspan="2"><hr/></td></tr>
   <tr><th>Title</th> <td><?= $this->formText("title", ""); ?></td></tr>
   <tr><th>Author</th> <td><?= $this->formText("author", ""); ?></td></tr>
   <tr><th>Committee Member</th> <td><?= $this->formText("committee", ""); ?></td></tr>
@@ -18,7 +20,7 @@
 <hr/>
 <p><b>Search tips:</b></p>
 <ul>
- <li>If you enter multiple terms in different fields, only documents that match all of your terms will appear.</li>
+ <li>If you enter multiple terms in different fields, only documents that match all of your search terms will appear.</li>
  <li>Multiple words are allowed.</li>
  <li>Searches are <i>not</i> case-sensitive.</li>
  <li>To match part of a word, add an asterisk, e.g., <b>chem*</b> would match <b>chemistry</b>, <b>chemical</b>, etc.
