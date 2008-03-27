@@ -11,10 +11,10 @@ College.</p>
 
 <h2>Search Emory University Repository</h2>
 
- <form name="search" method="post" action="<?= $this->url(array("controller" => "search",
+ <form name="search" method="get" action="<?= $this->url(array("controller" => "search",
 			"action" => "results"))?>"
    <?= $this->formText("query", "", array("size" => 40)); ?>
-   <?= $this->formSubmit("Search", "Go >", array("class" => "submitlink")); ?>
+   <?= $this->formSubmit("search", "Go >", array("class" => "submitlink")); ?>
 </form>
  <a href="<?= $this->url(array("controller" => "search"))?>">Advanced Search</a>
 
