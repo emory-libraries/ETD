@@ -171,6 +171,17 @@ class ManageController extends Etd_Controller_Action {
      $this->_helper->redirector->gotoRoute(array("controller" => "manage",
 						 "action" => "summary"), "", true); 
    }
+
+   public function exportEmailsAction() {
+     if (!$this->_helper->access->allowedOnEtd("manage")) return;
+     $this->view->etds = etd::findbyStatus('approved');
+
+     $this->getHelper('layoutManager')->disableLayouts();
+     $this->getResponse()->setHeader('Content-Type', "text/csv");
+     $this->getResponse()->setHeader('Content-Disposition',
+				     'attachment; filename="ETD_approved_emails.csv"');
+     // FIXME: include date generated in filename? better filename?
+   }
    
 }
 ?>
