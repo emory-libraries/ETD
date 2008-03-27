@@ -59,7 +59,7 @@ class UserController extends Etd_Controller_Action {
     // link to xml rather than embedding directly in the page
 
     $this->view->xforms_model_uri = $this->view->url(array("controller" => "user",
-							   "action" => "mads", "pid" => $pid), '', true);
+							   "action" => "mads", "pid" => $pid), '', true, false);
   }
 
 

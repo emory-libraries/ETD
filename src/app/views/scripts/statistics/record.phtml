@@ -3,7 +3,7 @@
 
 <p>
 <a href="<?= $this->url(array('controller' => 'view', 'action' => 'record',
-	'pid' => $this->etd->pid), '', true) ?>"><?= $this->etd->title() ?></a>,
+	'pid' => $this->etd->pid), '', true, false) ?>"><?= $this->etd->title() ?></a>,
    <?= $this->etd->author() ?> (<?= $this->etd->year() ?>)
 </p>
 

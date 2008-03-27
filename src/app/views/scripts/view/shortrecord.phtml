@@ -5,7 +5,7 @@
 <div class="listrecord">
     <div class="record_title">
       <a href="<?= $this->url(array("controller" => "view",
-    "action" => "record", "pid" => $this->etd->pid()), "", true)?>"><?= $this->etd->title() ?></a>
+    "action" => "record", "pid" => $this->etd->pid()), "", true, false)?>"><?= $this->etd->title() ?></a>
    </div>
   <?=  $this->render('manage/_actions.phtml'); ?>
   <?=  $this->render('view/summary.phtml'); ?>
