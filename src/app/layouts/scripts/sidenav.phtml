@@ -18,16 +18,18 @@
 
 <? if (!($this->controller == "index" && $this->action == "index")): ?>
 <? /* don't show this content when we are on the home page (redundant) */ ?>
-<div class="section">
    <? if (!($this->controller == "search" && $this->action == "index")): ?>
-     <a href="<?= $this->url(array("controller" => "search"), '', true)?>">Search Repository</a>
-      <form name="search" method="post" action="<?= $this->url(array("controller" => "search",
+  <div class="section">
+   Search ETDs:
+      <form name="search" method="get" action="<?= $this->url(array("controller" => "search",
 			"action" => "results"))?>">
         <?= $this->formText("query"); ?>
         <?= $this->formSubmit("Search", "Go >", array("class" => "submitlink")); ?>
       </form>
-   <? endif ?>   
-
+     <a href="<?= $this->url(array("controller" => "search"), '', true)?>">Advanced Search</a>
+      </div>
+   <? endif ?>
+<div class="section">
 Browse by:
 <? $this->browse_class = 'browse'; ?>
 <?=  $this->render('browse/_categories.phtml'); ?>
