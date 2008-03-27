@@ -14,11 +14,23 @@ class ErrorController extends Etd_Controller_Action {
     switch ($errorHandler->type) {
     case "EXCEPTION_NO_ACTION":
     case "EXCEPTION_NO_CONTROLLER":
-      $this->view->error = "Document not Found"; break;
+      $this->notfound();
+      break;
     case "EXCEPTION_OTHER":
     default:
-      $this->view->error = "Unknown Error"; break;
+      $this->view->error = "Unknown Error"; 
     }
+  }
+
+  public function notfoundAction() {
+    $this->notfound();
+    $this->_helper->viewRenderer->setScriptAction("error");
+  }
+
+  // common logic for action/controller not found or redirect to notfoundAction
+  private function notfound() {
+    $this->view->error = "Document not Found";
+    $this->_response->setHttpResponseCode(404);	// 404 Not Found
   }
 
 
