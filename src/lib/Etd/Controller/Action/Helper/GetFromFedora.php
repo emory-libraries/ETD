@@ -38,7 +38,8 @@ class Etd_Controller_Action_Helper_GetFromFedora extends Zend_Controller_Action_
       if ($this->_actionController->view->env != "production")
 	$message .= " (message from Fedora: <b>" . $e->getMessage() . "</b>)";
       $flashMessenger->addMessage($message);
-      $redirector->gotoRoute(array("controller" => "error"), "", true);
+      $redirector->gotoRoute(array("controller" => "error", "action" => "notfound"), "", true);
+      
       return null;
     } catch (FedoraAccessDenied $e) {
       $denied = true;
@@ -54,6 +55,10 @@ class Etd_Controller_Action_Helper_GetFromFedora extends Zend_Controller_Action_
     // if resources is denied, NOT redirecting - that way logging in can reload
     // the denied page and user may have access
     if ($denied) {
+      // set HTTP response code correctly
+      $response = $this->_actionController->getResponse();
+      $response->setHttpResponseCode(403);	// Forbidden
+
       $viewRenderer = $this->_actionController->getHelper("viewRenderer");
       $viewRenderer->setNoRender();		// don't render normally
       // instead display an access denied page - still at the denied url

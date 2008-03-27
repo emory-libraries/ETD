@@ -76,6 +76,9 @@ class Etd_Controller_Action_Helper_Access extends Zend_Controller_Action_Helper_
     // the denied page and user may have access
     $viewRenderer = $this->_actionController->getHelper("viewRenderer");
     $viewRenderer->setNoRender();		// don't render normally
+
+    $response = $this->_actionController->getResponse();
+    $response->setHttpResponseCode(403);	// Forbidden
     $viewRenderer->view->title = "Not Authorized";
     $viewRenderer->view->deny_message = $message;
     print $viewRenderer->renderScript("auth/denied.phtml");
