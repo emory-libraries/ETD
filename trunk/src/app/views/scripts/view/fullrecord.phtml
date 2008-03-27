@@ -7,10 +7,10 @@
 <? if ($this->acl->isAllowed($this->role, "user", "edit")): ?>
  <? if (isset($this->etd->authorInfo)): ?>
    <a class="action" href="<?= $this->url(array("controller" => "user", "action" => "edit",
-				 "pid" => $this->etd->authorInfo->pid), '', true); ?>">edit contact information</a>
+				 "pid" => $this->etd->authorInfo->pid), '', true, false); ?>">edit contact information</a>
  <? else: ?>
    <a class="action" href="<?= $this->url(array('controller' => 'user', 'action' => 'new',
-			'etd' => $this->etd->pid), '', true) ?> ">enter contact information</a>
+			'etd' => $this->etd->pid), '', true, false) ?> ">enter contact information</a>
  <? endif ?>
 <? endif ?>      
 

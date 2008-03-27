@@ -6,7 +6,7 @@
 <? endforeach ?>
 
 <p><a href="<?= $this->url(array("controller" => "view", "action" => "record",
-	"pid" => $this->etd->pid), null, true) ?>">return to record</a></p>
+	"pid" => $this->etd->pid), null, true, false) ?>">return to record</a></p>
 
 <pre>
   <?= htmlentities($this->etd->mods->saveXML()) ?>

@@ -7,7 +7,7 @@
 <h2>submission status</h2>
 <? if (isset($etd->authorInfo)): ?>
    <? $authorInfo_url = $this->url(array("controller" => "user", "action" => "view",
-					 "pid" => $etd->authorInfo->pid), '', true); ?>
+					 "pid" => $etd->authorInfo->pid), '', true, false); ?>
    <? if ($etd->authorInfo->readyToSubmit()): ?>
 	<?= $ok ?> <a href="<?= $authorInfo_url ?>">contact information</a><br/>
    <? else: ?>
@@ -20,7 +20,7 @@
    <? endif ?>
  <? else: ?>
     <?= $incomplete ?> <a href="<?= $this->url(array('controller' => 'user', 'action' => 'new',
-			'etd' => $etd->pid), '', true) ?> ">contact information</a><br/>
+			'etd' => $etd->pid), '', true, false) ?> ">contact information</a><br/>
  <? endif ?>
 
   <? if ($etd->mods->readyToSubmit()): ?>
@@ -41,7 +41,7 @@
    <?= $ok ?> original file
   <? else : ?>
     <?= $incomplete ?> <a href="<?= $this->url(array('controller' => 'file', 'action' => 'add',
-			'etd' => $etd->pid), '', true)?>">original file</a>
+			'etd' => $etd->pid), '', true, false)?>">original file</a>
   <? endif ?> <br/>
 
 <?/* FIXME: should this be grouped as rights/restrictions since they are edited on the same page? */ ?>

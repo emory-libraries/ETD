@@ -6,13 +6,13 @@
 
      <? if ($this->acl->isAllowed($this->role, $this->etd, "add file")): ?>
        <p><a class="action" href="<?= $this->url(array("controller" => "file",
-		"action" => "add", "etd" => $this->etd->pid), null, true)?>">add another file</a></p>
+		"action" => "add", "etd" => $this->etd->pid), null, true, false)?>">add another file</a></p>
 	  <? /* FIXME: only show this link if at least one category has more than one file */ ?>
 	  <? if ($this->acl->isAllowed($this->role, $this->etd, "order files")
 		 && (count($this->etd->pdfs) > 1 || count($this->etd->originals) > 1
 		     || count($this->etd->supplements) > 1)): ?>
          <p><a class="action" href="<?= $this->url(array("controller" => "edit",
-		"action" => "fileorder", "pid" => $this->etd->pid), null, true)?>">re-order files</a></p>
+		"action" => "fileorder", "pid" => $this->etd->pid), null, true, false)?>">re-order files</a></p>
        <? endif ?>
      <? endif ?>					   
 
@@ -29,7 +29,7 @@
 	     <? endif ?>
 	     <? if ($this->acl->isAllowed($this->role, $file, "download")): ?>
 		    <a href="<?= $this->url(array("controller" => "file", "action" => "view",
- 				     "pid" => $file->pid))?>/<?= $file->prettyFilename() ?>"><?= $file->dc->title ?></a>
+ 				     "pid" => $file->pid), '', true, false)?>/<?= $file->prettyFilename() ?>"><?= $file->dc->title ?></a>
       	     <? else: /* view but not download */?>
 		  <?= $file->dc->title ?>
 	     <? endif ?>
@@ -40,10 +40,10 @@
           <?endif ?>
 	      
 	  <? if ($this->acl->isAllowed($this->role, $file, "edit")): ?>
-	    <a href="<?= $this->url(array("controller" => "file", "action" => "edit", "pid" => $file->pid))?>">edit/replace</a>
+	    <a href="<?= $this->url(array("controller" => "file", "action" => "edit", "pid" => $file->pid), '', true, false)?>">edit/replace</a>
 	  <? endif ?>
 	  <? if ($this->acl->isAllowed($this->role, $file, "remove")): ?>
-	    <a href="<?= $this->url(array("controller" => "file", "action" => "remove", "pid" => $file->pid))?>">remove</a>
+	    <a href="<?= $this->url(array("controller" => "file", "action" => "remove", "pid" => $file->pid), '', true, false)?>">remove</a>
 	  <? endif ?>
 	  <br/>
        <? endif /* can view file */ ?>
