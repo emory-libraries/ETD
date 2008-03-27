@@ -294,8 +294,10 @@ class etd_mods extends mods {
 
   /* remove a committee member by id */
   public function removeCommitteeMember($id) {
+    if ($id == "") return;	// don't remove empty nodes (part of template)
+    
     // remove the node from the xml dom
-    $nodelist = $this->xpath->query("//mods:name[@ID = '$id']");
+    $nodelist = $this->xpath->query("//mods:name[@ID = '$id'][mods:role/mods:roleTerm = 'Committee Member']");
     for ($i = 0; $i < $nodelist->length; $i++) {
       $node = $nodelist->item($i);      
       $node->parentNode->removeChild($node);
