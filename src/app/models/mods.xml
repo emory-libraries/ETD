@@ -56,7 +56,7 @@
   <mods:language>
     <mods:languageTerm authority="iso639-2b" type="text">English</mods:languageTerm>
 <!-- FIXME: use appropriate language code here (in record or add before converting to MARC?) -->
-    <mods:languageTerm authority="iso639-2b" type="code">ENG</mods:languageTerm>
+    <mods:languageTerm authority="iso639-2b" type="code">eng</mods:languageTerm>
   </mods:language>
   <mods:physicalDescription>
     <mods:form authority="marcform">electronic</mods:form>
