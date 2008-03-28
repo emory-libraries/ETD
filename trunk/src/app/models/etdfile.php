@@ -259,8 +259,7 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
 	$ext = $parts[count($parts)-1];	// trust user's extension from original file
       }
     }
-    $filename .= "." . $ext;
-
+    if (isset($ext)) $filename .= "." . $ext;
     return $filename;
   }
 
