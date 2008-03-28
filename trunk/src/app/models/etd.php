@@ -17,6 +17,8 @@ require_once("policy.php");
 require_once("etdfile.php");
 require_once("user.php");
 
+require_once("solrEtd.php");
+
 // email notifier
 require_once("etd_notifier.php");
 
@@ -404,32 +406,28 @@ class etd extends foxml implements etdInterface {
    *  - calculate embargo end date (if there is an embargo)
    *  - set status to published, and load appropriate policies
    *  - send publication notification email
+   *
+   * @param string $publish_date official publish date for the record; should be in YYYY-MM-DD format
+   * @param string $date optional 'real' publish date (defaults to today)- used for embargo calculations, etc
    */
-  public function publish($pubdate = null) {
+  public function publish($publish_date, $date = null) {
     // set publication date (date issued)
-    if (is_null($pubdate)) $pubdate = date("Y-m-d");	// default to today
-    $this->mods->originInfo->issued = $pubdate;
+    $this->mods->originInfo->issued = $publish_date;
+
+    // set date if not specified
+    if (!$date) $date = date("Y-m-d");	// default to today
 
     // calculate embargo end date
-    $end_date = strtotime($this->mods->embargo, strtotime($pubdate, 0));
-    // calculate based on duration in reference to publication date, e.g. today + 6 months
+    $end_date = strtotime($this->mods->embargo, strtotime($date, 0));
+    // calculate based on duration in reference to 'real' publication date, e.g. today + 6 months
     $this->mods->embargo_end = date("Y-m-d", $end_date);
-    // FIXME: calculate relative to today or relative to "pub date" ?
-    // if using pub date, add special handling for 0 days / no embargo (set embargo end to or yesterday)
     
     // sets status, add appropriate policies to etd & related files, and puts embargo end date in policies
     $this->setStatus("published");
     // record publication in history
     $this->premis->addEvent("status change",
 			    "Published by ETD system",
-			   "success",  array("software", "etd system"));
-
-    // send an email to notify author, record in history
-    $notify = new etd_notifier($this);
-    $notify->publication();
-    $this->premis->addEvent("notice",
-			   "Publication Notification sent by ETD system",
-			   "success",  array("software", "etd system"));
+			    "success",  array("software", "etd system"));
   }
 
   
@@ -517,6 +515,18 @@ class etd extends foxml implements etdInterface {
 
   // find records by author with any status *except* for published
   public static function findUnpublishedByAuthor($username) {
+    $username = strtolower($username);
+    /*    $solr = Zend_Registry::get('solr');
+    $query = "ownerId:$username NOT status:published";
+    $results = $solr->query($query, null, null, null, null); 	// ... paging? .. , $start, $max - no filter query);
+
+    $etds = array();
+    foreach ($results['response']['docs'] as $result_doc) {
+      array_push($etds, new etd($result_doc['PID']));
+    }
+    return $etds;
+    */
+        
     $etds = etd::findByAuthor($username);
     $unpublished = array();
 
@@ -525,14 +535,10 @@ class etd extends foxml implements etdInterface {
 	$unpublished[] = $etd;
     }
     return $unpublished;
-
+    
     // could switch to Solr - simple query like this: 
     // fgs.ownerId:rsutton NOT status:published
   }
-
-
-  // find recently published for goldbar
-  // solr query just needs this added: sort=dateIssued%20desc
 
 
   // find by department... - similar to manage view or just find all unpublished ?
@@ -550,16 +556,35 @@ class etd extends foxml implements etdInterface {
 
   }
 
-
-  public static function findRecentlyPublished($max = 10) {
+  // find recently published for goldbar
+  // solr query just needs this added: sort=dateIssued%20desc
+  public static function findRecentlyPublished($max = 10, $opts = null, $type = "etd") {
     $solr = Zend_Registry::get('solr');
     $query = "status:published";
     $solr->clearFacets();
-    $results = $solr->query($query, 0, $max, null, null, "dateIssued desc");
+
+    if (!is_null($opts)) {
+      $filter = "";
+      foreach ($opts as $key => $value) {
+	switch ($key) {
+	case "program":
+	  $filter .= " program:($value)";
+	}
+      }
+    } else {
+      $filter = null;
+    }
+
+    
+
+    $results = $solr->query($query, 0, $max, null, $filter, "dateIssued desc");
 
     $etds = array();
     foreach ($results['response']['docs'] as $result_doc) {
-      array_push($etds, new etd($result_doc['PID']));
+      if ($type == "etd")
+	array_push($etds, new etd($result_doc['PID']));
+      elseif ($type == "solrEtd")
+	array_push($etds, new solrEtd($result_doc));
     }
     return $etds;
 
@@ -590,6 +615,7 @@ class etd extends foxml implements etdInterface {
     if ($date = $this->mods->date)		// if date is set
       return date("Y", strtotime($date, 0));		// convert date to year only
   }
+  public function pubdate() { return $this->mods->originInfo->issued; }
   public function _abstract() { return $this->mods->abstract; }
   public function tableOfContents() { return $this->mods->tableOfContents; }
   public function num_pages() { return isset($this->mods->pages) ? $this->mods->pages : ""; }
