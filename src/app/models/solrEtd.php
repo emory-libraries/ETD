@@ -29,6 +29,7 @@ class solrEtd implements etdInterface {
   public function document_type() { return $this->getField("document_type"); }
   public function language() { return $this->getField("language"); }
   public function year() { return $this->getField("year"); }
+  public function pubdate() { return $this->getField("dateIssued"); }
   public function _abstract() { return $this->getField("abstract"); }
   public function tableOfContents() { return $this->getField("tableOfContents"); }
   public function num_pages() { return $this->getField("num_pages"); }
@@ -40,6 +41,8 @@ class solrEtd implements etdInterface {
   private function getField($name, $array = false) {
     if (isset($this->$name))
       return $this->$name;
+    elseif (isset($this->{$name . "_facet"}))	// program, keyword, subject
+      return $this->{$name . "_facet"};
     else if ($array)
       return array();
     else

@@ -15,6 +15,7 @@ interface etdInterface extends Zend_Acl_Resource_Interface{
   public function document_type();	// dissertation/thesis/etc
   public function language();
   public function year();
+  public function pubdate();
   public function _abstract();
   public function tableOfContents();
   public function num_pages();
