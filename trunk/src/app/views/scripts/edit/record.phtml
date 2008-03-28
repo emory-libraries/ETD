@@ -17,8 +17,14 @@
   <xf:select1 ref="mods:language/mods:languageTerm[@type='text']">
    <xf:label>Language</xf:label>
    <xf:itemset nodeset="instance('languages')/language">
-     <xf:label ref="@display"/><xf:value ref="@text"/>
+     <xf:label ref="@display"/><xf:value ref="@display"/>
    </xf:itemset>
+   <? /* language 'text' is set above; when it changes, set the 3-letter code for the same language */ ?>
+   <xf:action ev:event="xforms-value-changed">
+     <xf:setvalue ref="../mods:languageTerm[@type='code']"
+      value="instance('languages')/language[@display = instance('main')/mods:language/mods:languageTerm[@type='text']]/@code"/>
+   </xf:action>
+
   </xf:select1>
  <br/>
 
