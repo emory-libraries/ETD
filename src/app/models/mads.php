@@ -118,7 +118,7 @@ class mads_name extends XmlObject {
 
   // full name is default display content
   public function __toString() {
-    return $this->full;
+    return $this->first . " " . $this->last;
   }
 }
 
