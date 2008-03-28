@@ -112,6 +112,13 @@ if ($do_all) {
   exit;
 }
 
+// global publish date as it should be set on record (relative to current semester)
+$publish_date;
+// if not doing all steps *but* publishing, need to calculate publish date
+if (!$do_all && $opts->publish) {
+  last_term($opts->date); 
+}
+
 
 // find graduates and get etd records from fedora
 if ($do_all) {	
@@ -157,7 +164,6 @@ if ($do_all || $opts->orphan) 		find_orphans();
 
 
 
-
 /**
  * find etd pids for recent graduates in the registrar feed
  *
@@ -187,20 +193,13 @@ function get_graduate_etds($filename, $refdate = null) {
   $degree		= 11;
   $honors		= 12;
   
-
-  if ($refdate) { 	  // calculate year-month relative to date specified
-    $date = date("Y-m", strtotime($refdate, 0));
-  } else { 	  // if no date is specified, use today's date
-    $date = date("Y-m");
-  }
-
-  // calculate the term most recently *completed* (or about to end) relative to the specified date
-
-  list($year, $month) = split('-', $date);
-  $last_term =  last_semester($year, $month);
+  // determine the term most recently *completed* (or about to end) relative to the specified date
+  $last_term =  last_term($refdate);
 
   if ($opts->verbose) {
-    print "   Finding graduates for most recently completed term relative to $date (semester code $last_term)\n\n";
+    print "   Finding graduates for most recently completed term ";
+    if ($refdate) print "relative to $refdate ";
+    print "(semester code $last_term)\n\n";
   }
 
   //open alumni feed
@@ -231,8 +230,12 @@ function get_graduate_etds($filename, $refdate = null) {
 	 */
 	if ($opts->verbose)  print "\tWarning: no ETD found for $name_degree\n";
       } elseif ($count == 1) {			// what we expect 
-	if ($opts->verbose)  print "\tFound etd record $etdpid for $name\n";
-	$etds[] = $etd;
+	if ($opts->verbose)  print "\tFound etd record " . $etd[0]->pid . " for $name_degree\n";
+	if ($etd[0]->status() != "approved") {
+	  if ($opts->verbose)  print "\tRecord is not yet approved, skipping\n";
+	  continue;
+	}
+	$etds[] = $etd[0];
       } else {		      // should never happen (except maybe in development)
 	if ($opts->verbose)  print "\tWarning: found more than one record for $name_degree (shouldn't happen)\n";
       }
@@ -247,6 +250,25 @@ function get_graduate_etds($filename, $refdate = null) {
   return $etds;
 }
 
+/**
+ * calculate last semester code based on current or specified date
+ * wrapper function for last_semester with date handling
+ *
+ * @param $refdate date (in any format strtotime can handle)
+ * @return string 4-digit registrar semester code calculated by last semester
+ */
+function last_term($refdate = null) {
+  if ($refdate) { 	  // calculate year-month relative to date specified
+    $date = date("Y-m", strtotime($refdate, 0));
+  } else { 	  // if no date is specified, use today's date
+    $date = date("Y-m");
+  }
+
+  // calculate the term most recently *completed* (or about to end) relative to the specified date
+
+  list($year, $month) = split('-', $date);
+  return last_semester($year, $month);
+}
 
 /**
  * determine the most-recently completed semester relative to specified month & year
@@ -256,7 +278,7 @@ function get_graduate_etds($filename, $refdate = null) {
  * @return string 4-digit registrar semester code
  */
 function last_semester($year, $month) {
-  global $opts;
+  global $opts, $publish_date;
 
   if ($month < 5) { // before May
     $semester = "FALL";
@@ -339,15 +361,24 @@ function confirm_graduation(array $etds) {
 }
 
 /**
- * do everything needed to publish an etd (all the logic handled in etd model class)
+ * do everything needed to publish etds (most of the logic is handled in etd model class)
+ * 
  * @param array $etds etd objects
  */
 function publish(array $etds) {
-  global $opts;
+  global $opts, $publish_date;
   if ($opts->verbose) print "\nPublishing\n";
   if (!$opts->noact) {
     foreach ($etds as $etd) {
-      $etd->publish();	// currently no return value / status -- needed?
+      // official publication date (end of semester), current date
+      $etd->publish($publish_date, $opts->date);     // currently no return value / status -- needed?
+
+      // send an email to notify author, and record in history
+      $notify = new etd_notifier($etd);
+      $notify->publication();
+      $etd->premis->addEvent("notice",
+			     "Publication Notification sent by ETD system",
+			     "success",  array("software", "etd system"));
     }
   }
 }
