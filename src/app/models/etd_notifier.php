@@ -90,5 +90,12 @@ class etd_notifier extends notifier {
     $this->send();
     return $this->to;
   }
+
+  public function embargo_expiration() {
+    $this->mail->setSubject("Your ETD Access Restriction will Expire in 60 Days");
+    $this->setBodyHtml($this->view->render("email/embargo_expiration.phtml"));
+    $this->send();
+    return $this->to;
+  }
 }
 
