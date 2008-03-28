@@ -556,6 +556,19 @@ class etd extends foxml implements etdInterface {
 
   }
 
+  public static function findByEmbargoEnd($date) {
+    $solr = Zend_Registry::get('solr');
+    // date *must* be in YYYYMMDD format
+    $query = "date_embargoedUntil:$date";
+    $results = $solr->query($query);	// FIXME: paging? need to get all results
+
+    $etds = array();
+    foreach ($results['response']['docs'] as $result_doc) {
+      array_push($etds, new etd($result_doc['PID']));
+    }
+    return $etds;
+  }
+
   // find recently published for goldbar
   // solr query just needs this added: sort=dateIssued%20desc
   public static function findRecentlyPublished($max = 10, $opts = null, $type = "etd") {
