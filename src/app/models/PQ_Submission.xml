@@ -29,7 +29,6 @@
 	</DISS_address>
 	<DISS_email/>
       </DISS_contact>
-      <DISS_citizenship/>
     </DISS_author>
   </DISS_authorship>
   <DISS_description page_count="" type="" external_id="" apply_for_copyright="">
@@ -80,9 +79,4 @@
       <DISS_file_descr/>
     </DISS_attachment>
   </DISS_content>
-  <DISS_restriction>
-    <DISS_sales_restriction  code="0" remove=""/> 
-    <DISS_format_restriction code="0" remove=""/>
-    <DISS_note/>
-  </DISS_restriction>
 </DISS_submission>
