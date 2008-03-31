@@ -591,11 +591,11 @@ class etd extends foxml implements etdInterface {
   }
 
 
-  public static function findEmbargoed() {
+  public static function findEmbargoed($start, $max, &$total) {
     $solr = Zend_Registry::get('solr');
     $query = "date_embargoedUntil:[" . date("Ymd") . "TO *] NOT embargo_duration:(0 days)";
-    $results = $solr->query($query, null, null, null, null, "date_embargoedUntil asc");
-
+    $results = $solr->query($query, $start, $max, null, null, "date_embargoedUntil asc");
+    $total = $results['response']['numFound'];
     $etds = array();
     foreach ($results['response']['docs'] as $result_doc) {
       array_push($etds, new etd($result_doc['PID']));
