@@ -173,7 +173,7 @@ class BrowseController extends Etd_Controller_Action {
   /* browse by program */
   public function programsAction() {
     $start = $this->_getParam("start", 1);
-    $max = $this->_getParam("max", 20);	
+    $max = $this->_getParam("max", 10);	
     
     // optional name parameter - find id by full name
     $name = $this->_getParam("name", null);
@@ -185,10 +185,18 @@ class BrowseController extends Etd_Controller_Action {
       $coll = $prog->findIdbyLabel($name);
     }
 
-    $programs = new programs($coll);
+    try {
+      $programs = new programs($coll);
+    } catch (XmlObjectException $e) {
+      $message = "Error: Program not found";
+      if ($this->env != "production")
+	$message .= " (<b>" . $e->getMessage() . "</b>)";
+      $this->_helper->flashMessenger->addMessage($message);
+      $this->_helper->redirector->gotoRouteAndExit(array("controller" => "error", "action" => "notfound"), "", true);
+    }
     $this->view->collection = $programs;
 
-    $this->view->browse_mode = "program"; // fixme: singular or plural?
+    $this->view->browse_mode = "program"; 
 
 
     $results = $programs->findEtds($start, $max);
@@ -215,14 +223,25 @@ class BrowseController extends Etd_Controller_Action {
     // shared view script for programs & researchfields
     $this->view->action = "programs";
     $this->_helper->viewRenderer->setScriptAction("collection");
+
+    //    $this->view->feed = new Zend_Feed_Rss($this->_helper->absoluteUrl('recent', 'feeds', null, array("program" => $programs->label)));
   }
 
   public function researchfieldsAction() {
     $start = $this->_getParam("start", 1);
-    $max = $this->_getParam("max", 20);	
+    $max = $this->_getParam("max", 10);	
 
     $coll = $this->_getParam("coll", "researchfields");
-    $fields = new researchfields("#$coll");
+
+    try {
+      $fields = new researchfields("#$coll");
+    } catch (XmlObjectException $e) {
+      $message = "Error: Research Field not found";
+      if ($this->env != "production")
+	$message .= " (<b>" . $e->getMessage() . "</b>)";
+      $this->_helper->flashMessenger->addMessage($message);
+      $this->_helper->redirector->gotoRouteAndExit(array("controller" => "error", "action" => "notfound"), "", true);
+    }
 
     $this->view->collection = $fields;
 
@@ -262,7 +281,8 @@ class BrowseController extends Etd_Controller_Action {
       switch ($this->current_user->role) {
       case "student":
       case "student with submission":
-	$etds = etd::findbyAuthor(strtolower($this->current_user->netid));
+	// should it only be unpublished records? or all records?
+	$etds = etd::findUnpublishedByAuthor(strtolower($this->current_user->netid));
 	break;
       case "staff":
 	$this->view->etds = etd::findUnpublishedByDepartment($this->current_user->department);
