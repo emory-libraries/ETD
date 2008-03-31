@@ -1,0 +1,10 @@
+<config>
+  <development>
+     <adapter>Pdo_Sqlite</adapter>
+	<params>
+        <dbname>/home/rsutton/public_html/etdnew/src/data/stats.db</dbname>  
+	</params>
+  </development>
+  <test extends="development"/>
+  <production extends="development"/>
+</config>

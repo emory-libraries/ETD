@@ -1,0 +1,11 @@
+<p>There was an error processing your PDF. <?= $this->error ?></p>
+
+<? if ($this->debug): ?>
+  <pre>
+   <?= htmlentities($this->xml) ?>
+  </pre>
+<? endif ?>
+
+
+
+

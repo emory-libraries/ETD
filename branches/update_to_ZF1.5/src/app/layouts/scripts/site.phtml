@@ -1,0 +1,126 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+ <? if ($this->xforms): ?>
+  xmlns:xf="http://www.w3.org/2002/xforms"
+  xmlns:ev="http://www.w3.org/2001/xml-events"
+   <? if (isset($this->namespaces)): ?>
+    <? foreach ($this->namespaces as $prefix => $uri): ?>
+	 xmlns:<?= $prefix ?>="<?= $uri ?>"
+    <? endforeach ?>
+    <? endif ?>
+ <? endif ?>    	 
+  xml:lang="en">
+<head>
+
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+   <title>Emory ETDs : <?= $this->escape($this->title) ?></title>
+  <?= $this->css('etd.css'); ?>
+  <? if (isset($this->dc)): ?>
+    <?= $this->render('dc_header.phtml'); ?>
+  <? elseif (isset($this->etd) && !isset($this->etds)): /* only if display if this is a single-etd page */?>
+    <?= $this->render('view/etd_dcheader.phtml'); ?>
+  <? endif ?>
+
+  <? if ($this->xforms): ?>
+       <?= $this->render('xforms_head.phtml'); ?>
+  <? endif ?>
+<link rel="Bookmark" href="<?= $this->linkTo('favicon.ico') ?>"/>
+<link rel="SHORTCUT ICON" href="<?= $this->linkTo('favicon.ico') ?>" />
+ <?= $this->javascript("projax/js/prototype.js"); ?>
+</head>
+<body>
+
+<div id="header">
+  <div id="emory">
+	<a href="http://www.emory.edu"><img
+	  src="<?= $this->linkTo("images/emory.gif") ?>" alt="EMORY" title="EMORY"/></a>
+      </div>
+<div id="title"><a href="<?= $this->url(array(), '', true) ?>">Electronic Theses and Dissertations</a></div>
+
+  <div id="photo">
+	<img src="<?= $this->linkto("images/woodruff-path.jpg") ?>"/> 
+<p>Welcome to Emory University's Electronic Thesis and Dissertation
+	  repository.</p>
+      </div>
+</div>
+
+
+<div id="login">
+ <? if ($this->printable): ?>
+   <a style="float:right" target="_new" href="<?= $this->url(array('layout' => 'printable')) ?>">print view</a>
+ <? endif ?>
+ <? if (isset($this->current_user)): ?>
+   <b>Welcome, <?= $this->current_user ?></b>
+   <? if ($this->env == "development"): ?>
+      (<span id="current_role"><?= $this->current_user->role ?>
+      <? if ($this->current_user->role == "staff"): ?>- <?= $this->current_user->department ?> <? endif ?>
+     </span>)
+   <? endif ?>
+
+   <ul class="horizontal">
+      <li class="first">
+         <a title="logout"
+		href="<?= $this->url(array("controller" => "auth", "action" => "logout"), "", true)?>"><b>Logout &gt;</b></a>
+
+	    </li>
+
+          <? if ($this->acl->isAllowed($this->current_user, "etd", "manage")): ?>
+            <li><a href="<?= $this->url(array("controller" => "manage"), "", true)?>">Manage</a></li>
+   	  <? endif ?>
+
+            <li><a href="<?= $this->url(array("controller" => "browse", "action" => "my"), "", true)  ?>">My ETDs</a></li>
+
+<!--      	    <li><a title="user information" href="<?= $this->url(array("controller" => "user", "action" => "view"), null, true) ?>">Profile</a></li> -->
+
+            <li><a href="<?= $this->url(array("controller" => "docs", "action" => "faq"), '', true); ?>#help">Help</a></li>
+
+	    <? if ($this->env == "development" && !($this->xforms && $this->browserInfo->browser == "IE")): ?>
+	       <?= $this->render("_setrole.phtml"); ?>
+	    <? endif ?>
+         </ul>
+
+ <? else: ?>
+  <?= $this->render('_loginform.phtml'); ?>
+ <? endif ?>
+</div>
+
+<div id="navbar">
+  <div id="etdhome"><a href="<?= $this->url(array(), "", true) ?>">ETD HOME</a></div>
+  <?=  $this->render('navbar-curve.phtml'); ?>
+</div>
+
+<?=  $this->render('sidenav.phtml'); ?>
+
+
+<div class="content">
+
+<? if ($this->feed): ?>
+ <?=  $this->render("index/topten.phtml"); ?>
+<? endif ?>
+
+
+<? if (isset($this->messages)):?>
+  <div id="messages" style="color:green;">
+   <? foreach ($this->messages as $message): ?>
+     <p<? if (strpos($message, "Error") !== false): ?> style="color:red" <? endif ?> ><?= $message ?></p>
+   <? endforeach ?>
+  </div>
+<? endif ?>
+
+  <?= $this->content ?>
+
+</div> <? /* end content div */ ?>
+
+<div id="footer">
+ <a
+    href="http://www.emory.edu/copyright.cfm">&copy; 2008 Emory
+    University.</a> 
+   Version 0.9.1 updated 3/07. 
+ <a href="<?= $this->url(array("controller" => "docs", "action" => "ip"), '', true); ?>">Rights and Privileges</a>
+ | <a href="<?= $this->url(array("controller" => "statistics", "action" => "index"), '', true); ?>">Access Statistics</a>
+</div>
+
+<?=  $this->render('google_analytics.phtml'); ?>
+
+</body>
+</html>

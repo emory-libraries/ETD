@@ -1,0 +1,15 @@
+<solr>
+  <development>
+     <server>wilson.library.emory.edu</server>
+     <port>6080</port>
+<!-- note: apparently Zend_Config can't handle multiple values for one tag... -->
+     <facets>advisor_lastnamefirst,year,subject_facet,keyword_facet,author_lastnamefirst,committee_lastnamefirst,program_facet</facets>
+  </development>
+  <test extends="development">
+     <port>7080</port>
+  </test>
+  <production extends="development">
+     <server>domokun</server>
+     <port>8080</port>
+  </production>
+</solr>

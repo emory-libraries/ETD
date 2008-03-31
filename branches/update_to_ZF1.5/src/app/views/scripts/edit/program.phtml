@@ -1,0 +1,101 @@
+<h1>Edit Program/Department</h1>
+<p><b><?= $this->etd->title() ?></b></p>
+
+<?=  $this->render('edit/_xforms_key.phtml'); ?>
+
+<p>Your Emory record indicates that you are currently enrolled in the
+following Graduate Program (or undergraduate department).</p>
+
+<p>  
+  <?= $this->xformOutput("Department/Graduate Program",
+			 "instance('main')/mods:name[mods:role/mods:roleTerm='author']/mods:affiliation"); ?>
+</p>
+<p>
+  <?= $this->xformOutput("Subfield", "instance('main')/mods:extension/etd:degree/etd:discipline"); ?>
+</p>
+
+<p>If this information is incorrect, reenter your program or
+department below.  Choose Graduate or Undergraduate, then Humanities,
+Natural/Health Sciences or Social Sciences, and then your particular
+program/department.</p>
+
+<br/>
+ <xf:select1 ref="instance('tmp')/program/level1">
+   <xf:label>Division</xf:label>
+   <xf:itemset nodeset="instance('tmp')/none|instance('programs')/skos:Collection[@rdf:about = '#programs']/skos:member">
+   <xf:label ref="instance('programs')/skos:Collection[@rdf:about = current()/@rdf:resource]/rdfs:label"/>
+   <xf:value ref="@rdf:resource"/>
+   </xf:itemset>
+
+   <xf:action ev:event="xforms-value-changed"> 
+     <xf:setvalue ref="../level2"/>
+     <xf:rebuild model="model"/> 
+   </xf:action>
+  </xf:select1>
+  <br/>
+
+ <xf:select1 ref="instance('tmp')/program/level2">
+   <xf:label>Discipline</xf:label>
+   <xf:itemset nodeset="instance('tmp')/none|instance('programs')/skos:Collection[@rdf:about = instance('tmp')/program/level1]/skos:member">
+   <xf:label ref="instance('programs')/skos:Collection[@rdf:about = current()/@rdf:resource]/rdfs:label"/>
+   <xf:value ref="@rdf:resource"/>
+   </xf:itemset>
+
+   <xf:action ev:event="xforms-value-changed">
+     <xf:setvalue ref="../department"/>
+    <xf:rebuild model="model"/> 
+   </xf:action>
+  </xf:select1>
+  <br/>
+  
+ <xf:select1 ref="instance('tmp')/program/department">
+   <xf:label>Program/Department</xf:label>
+   <xf:itemset nodeset="instance('tmp')/none|instance('programs')/skos:Collection[@rdf:about = instance('tmp')/program/level2]/skos:member">
+   <xf:label ref="instance('programs')/skos:Collection[@rdf:about = current()/@rdf:resource]/rdfs:label"/>
+   <xf:value ref="@rdf:resource"/>
+   </xf:itemset>
+
+   <xf:action ev:event="xforms-value-changed">
+     <xf:setvalue ref="../subfield"/>
+     <xf:setvalue nodeset="instance('main')/mods:name[mods:role/mods:roleTerm='author']/mods:affiliation"
+      value="instance('programs')/skos:Collection[@rdf:about = instance('tmp')/program/department]/rdfs:label"/>
+   <xf:setvalue nodeset="instance('main')/mods:name[mods:role/mods:roleTerm='author']/mods:affiliation[.='--']" value="''"/>
+     <xf:setvalue nodeset="instance('main')/mods:extension/etd:degree/etd:discipline" value="''"/>
+       <xf:rebuild model="model"/> 
+   </xf:action>
+  </xf:select1>
+  <br/>
+
+  <xf:group ref="instance('tmp')/program/subfield">
+  
+ <xf:select1 ref=".">
+   <xf:label>Subfield</xf:label>
+   <xf:itemset nodeset="instance('tmp')/none|instance('programs')/skos:Collection[@rdf:about = instance('tmp')/program/department]/skos:member">
+   <xf:label ref="instance('programs')/skos:Collection[@rdf:about = current()/@rdf:resource]/rdfs:label"/>     
+   <xf:value ref="@rdf:resource"/>
+   </xf:itemset>
+
+   <xf:action ev:event="xforms-value-changed">
+     <xf:setvalue nodeset="instance('main')/mods:extension/etd:degree/etd:discipline"
+      value="instance('programs')/skos:Collection[@rdf:about = instance('tmp')/program/subfield]/rdfs:label"/>
+   
+      <xf:setvalue nodeset="instance('main')/mods:extension/etd:degree/etd:discipline[.='--']" value="''"/>
+     <xf:rebuild model="model"/> 
+   </xf:action>
+  </xf:select1>
+  
+  </xf:group>
+
+   
+<br/>
+
+  
+<p> <xf:submit submission="submission">
+<xf:label>Save</xf:label>
+</xf:submit></p>
+
+<? if ($this->env == 'development'): ?>
+  <p id="status"></p>
+<? endif ?>   
+
+

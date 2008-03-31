@@ -1,0 +1,24 @@
+<esd>
+  <development>
+     <adapter>Pdo_Oci</adapter>
+	<params>
+	  <username>etdapo</username>
+	  <password>d!sRt8ns</password>
+<!-- The oracle adapter needs TNS configuration for the dbname.
+   This configuration was retrieved from Emory's Oracle Directory
+   using the Oracle Directory Manager.  -->
+	  <dbname>PRDMDP</dbname>
+<!--	  <dbname>
+   (DESCRIPTION =
+     (ADDRESS_LIST = 
+       (ADDRESS = (PROTOCOL = TCP)(HOST = triton.cc.emory.edu)(PORT = 1521))
+     )
+     (CONNECT_DATA = 
+        (SERVICE_NAME=PRDMDP.CC.EMORY.EDU)
+      )
+   )</dbname> -->
+	</params>
+  </development>
+  <test extends="development"/>
+  <production extends="development"/>
+</esd>

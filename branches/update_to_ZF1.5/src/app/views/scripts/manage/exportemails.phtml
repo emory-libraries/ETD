@@ -1,0 +1,3 @@
+<? foreach ($this->etds as $etd): ?>
+<?= $etd->authorInfo->mads->name ?>,<?= $etd->authorInfo->mads->current->email ?>,<?= $etd->authorInfo->mads->permanent->email ?>,<?= $etd->program() ?>,
+<? endforeach?>

@@ -1,0 +1,50 @@
+<? /* curved css corner - used multiple times */
+ $leftcorner = '<div class="leftcorner">
+ <div class="c4 c"></div>
+ <div class="c3 c"></div>
+ <div class="c2 c"></div>
+ <div class="c1 c"></div>
+</div>' ?>
+<?= $this->css('topten.css'); ?>
+<div id="topten-bar">
+</div>
+
+<div id="topten-curve">
+ <div class="c10 c"></div>
+ <div class="c9 c"></div>
+ <div class="c8 c"></div>
+ <div class="c7 c"></div>
+ <div class="c6 c"></div>
+ <div class="c5 c"></div>
+ <div class="c4 c"></div>
+ <div class="c3 c"></div>
+ <div class="c2 c"></div>
+ <div class="c1 c"></div>
+</div>
+
+<div id="topten">
+
+<?= $leftcorner ?>
+
+<div class="types"> 
+<a class="current">Recently Published</a>
+</div>
+
+<ol>
+<? foreach ($this->feed as $entry): ?>
+<li><a href="<?= $entry->link() ?>"><span class="etdtitle"><?= $entry->title() ?></span>
+      <br/><?= $entry->author() ?>
+</a></li>
+<? endforeach ?>
+</ol>
+
+
+
+<div class="leftrightcorner bottom">
+ <div class="c1 c"></div>
+ <div class="c2 c"></div>
+ <div class="c3 c"></div>
+ <div class="c4 c"></div>
+</div>
+
+</div> 	<!-- end of top-ten section -->
