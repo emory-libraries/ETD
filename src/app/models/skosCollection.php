@@ -36,6 +36,9 @@ class collectionHierarchy extends XmlObject {
 	$id = str_replace("#", "", $mem->id);
 	$this->members_by_id[$id] = $mem;
       }
+    } else {
+      // collection not found - bad initialization
+      throw new XmlObjectException("Error in constructor: collection id " . $id . " not found");
     }
 	  
     // if this collection has a parent initialize parent as another collection object
