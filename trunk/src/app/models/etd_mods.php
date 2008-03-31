@@ -42,6 +42,7 @@ class etd_mods extends mods {
     $this->xmlconfig["embargo_request"] = array("xpath" => "mods:note[@type='admin'][@ID='embargo']");
     $this->xmlconfig["embargo"] = array("xpath" => "mods:accessCondition[@type='restrictionOnAccess']");
     $this->xmlconfig["embargo_end"] = array("xpath" => "mods:originInfo/mods:dateOther[@type='embargoedUntil']");
+    $this->xmlconfig["embargo_notice"] = array("xpath" => "mods:note[@type='admin'][@ID='embargo_expiration_notice']");
 
     // FIXME: may need mods_date class to set keyDate, start/end, qualifier attributes
     

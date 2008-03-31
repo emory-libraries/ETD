@@ -172,6 +172,12 @@ class ManageController extends Etd_Controller_Action {
 						 "action" => "summary"), "", true); 
    }
 
+   public function embargoesAction() {
+     if (!$this->_helper->access->allowedOnEtd("manage")) return;
+     $this->view->etds = etd::findEmbargoed();
+   }
+
+   
    public function exportEmailsAction() {
      if (!$this->_helper->access->allowedOnEtd("manage")) return;
      $this->view->etds = etd::findbyStatus('approved');
@@ -182,6 +188,7 @@ class ManageController extends Etd_Controller_Action {
 				     'attachment; filename="ETD_approved_emails.csv"');
      // FIXME: include date generated in filename? better filename?
    }
+
    
 }
 ?>

@@ -1,0 +1,27 @@
+<h1>Upcoming Embargo Expirations</h1>
+
+<? if (count($this->etds) == 0): ?>
+   no records found
+<? else: ?>
+     <p><?= count($this->etds) ?> records, ordered by embargo expiration date</p>
+<? endif ?>
+
+<? foreach ($this->etds as $this->etd) : ?>
+<div class="listrecord">	
+  <b><?= $this->etd->mods->embargo_end ?></b>
+  <span class="embargo_notice">
+   60 day notice 
+  <? if (isset($this->etd->mods->embargo_notice)): ?>
+	<?= $this->etd->mods->embargo_notice ?>
+  <? else: ?>
+    should be sent on      
+    <?= date("Y-m-d", strtotime("-60 days", strtotime($this->etd->mods->embargo_end))) ?>
+  <? endif ?>
+  </span> <br/>
+  <?= $this->etd->author() ?>:
+   <a href="<?= $this->url(array("controller" => "view",
+   "action" => "record", "pid" => $this->etd->pid()), "", true, false)?>"><?= $this->etd->title() ?></a>
+</div>
+
+<? endforeach ?>
+
