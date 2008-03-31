@@ -44,7 +44,7 @@ class BrowseController extends Etd_Controller_Action {
     $request->setParam("field", $type . "_lastnamefirst");
 
     if (is_null($value)) {
-      $this->_forward("browseField");
+      $this->_forward("browsefield");
     } else {
       // note: using exact match so we don't get confusing results where names partially match
       $request->setParam("exact", true);
@@ -71,7 +71,7 @@ class BrowseController extends Etd_Controller_Action {
 
     if (is_null($value)) {
       $request->setParam("field", $type);
-      $this->_forward("browseField");
+      $this->_forward("browsefield");
     } else {
       $request->setParam("field", $type);
       $this->_forward("browse");
@@ -83,7 +83,7 @@ class BrowseController extends Etd_Controller_Action {
   /* common functionality - get a list of terms by field
    expects field parameter to be set 
   */
-  public function browseFieldAction() {
+  public function browsefieldAction() {
     $request = $this->getRequest();
     $field = $request->getParam("field");
 
