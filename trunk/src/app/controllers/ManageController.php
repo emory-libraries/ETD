@@ -178,10 +178,12 @@ class ManageController extends Etd_Controller_Action {
      $start = $this->_getParam("start", 1);
      $max = $this->_getParam("max", 10);	
      $this->view->etds = etd::findEmbargoed($start, $max, $total);
+     $this->view->show_lastaction = true;
      $this->view->count = $total;
      $this->view->start = $start;
      $this->view->max = $max;
 
+     
      
    }
 
