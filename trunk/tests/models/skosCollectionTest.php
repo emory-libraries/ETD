@@ -87,4 +87,11 @@ class TestSkosCollection extends UnitTestCase {
     
   }
 
+  public function testBadInitialization() {
+    $xml = new DOMDocument();
+    $xml->load("fixtures/skos.xml");
+    $this->expectException(new XmlObjectException("Error in constructor: collection id #nonexistent not found"));
+    $skos = new collectionHierarchy($xml, "#nonexistent");
+  }
+
 }
