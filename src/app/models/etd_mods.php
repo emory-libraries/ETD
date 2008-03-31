@@ -366,6 +366,13 @@ class etd_mods extends mods {
     return false;
   }
 
+  // add mods:note at end of document
+  public function addNote($text, $type, $id) {
+    $note = $this->domnode->appendChild($this->dom->createElementNS($this->namespaceList["mods"], "mods:note", $text));
+    $note->setAttribute("type", $type);
+    $note->setAttribute("ID", $id);
+  }
+
 
   /**
    * check if this portion of the record is ready to submit and all required fields are filled in
