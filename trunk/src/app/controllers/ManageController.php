@@ -174,7 +174,15 @@ class ManageController extends Etd_Controller_Action {
 
    public function embargoesAction() {
      if (!$this->_helper->access->allowedOnEtd("manage")) return;
-     $this->view->etds = etd::findEmbargoed();
+
+     $start = $this->_getParam("start", 1);
+     $max = $this->_getParam("max", 10);	
+     $this->view->etds = etd::findEmbargoed($start, $max, $total);
+     $this->view->count = $total;
+     $this->view->start = $start;
+     $this->view->max = $max;
+
+     
    }
 
    
