@@ -437,7 +437,16 @@ class etd extends foxml implements etdInterface {
 			   "Submitted to Proquest by ETD system",
 			   "success",  array("software", "etd system"));
   }
-  
+
+
+  public function embargo_expiration_notice() {
+    //add an admin note that embargo expiration was sent
+    $this->mods->addNote("sent " . date("Y-m-d"), "admin", "embargo_expiration_notice");
+    // log the event in the record history
+    $this->premis->addEvent("notice",
+			    "Embargo Expiration 60-Day Notification sent by ETD system",
+			    "success",  array("software", "etd system"));
+  }
 
 
 
@@ -556,10 +565,22 @@ class etd extends foxml implements etdInterface {
 
   }
 
-  public static function findByEmbargoEnd($date) {
+  /**
+   * find records with embargo expiring anywhere from today up to the specified date
+   * where an embargo notice has *not* already been sent and
+   * there is an embargo approved by the graduate school
+   * (the extra checks are to ensure that no records are missed if the cron script fails to run)
+   *
+   * @param string $date expiration date in YYYYMMDD format (e.g., 60 days from today)
+   * @return array of etds
+   */
+  public static function findExpiringEmbargoes($date) {
     $solr = Zend_Registry::get('solr');
     // date *must* be in YYYYMMDD format
-    $query = "date_embargoedUntil:$date";
+
+    // search for any records with embargo expiring between now and specified embargo end date
+    // where an embargo notice has not been sent and an embargo was approved by the graduate school
+    $query = "date_embargoedUntil:[" . date("Ymd") . " TO $date] NOT embargo_notice:sent NOT embargo_duration:(0 days)";
     $results = $solr->query($query);	// FIXME: paging? need to get all results
 
     $etds = array();
