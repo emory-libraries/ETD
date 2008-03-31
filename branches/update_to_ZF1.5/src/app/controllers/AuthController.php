@@ -24,10 +24,7 @@ class AuthController extends Etd_Controller_Action {
      $ldap_config = new Zend_Config_Xml("../config/ldap.xml", $env->mode);
      $authAdapter = new Zend_Auth_Adapter_Ldap($ldap_config->toArray(), $username, $password);
 
-     print "DEBUG: username is " . $authAdapter->getUsername() . "<br/>";
      $auth = Zend_Auth::getInstance();
-     //     $this->_helper->viewRenderer->setScriptAction("denied");
-
 
      $result = $auth->authenticate($authAdapter);
      if (!$result->isValid()) {
