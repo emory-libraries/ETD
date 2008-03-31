@@ -67,16 +67,20 @@ try {
 // find ETDs with embargoes that will expire in 60 days
 $expiration = date("Ymd", strtotime("+60 days"));	// 60 days from now
 if ($opts->verbose) print "Searching for records with embargo expiration of $expiration\n";
-$etds = etd::findByEmbargoEnd($expiration); 
+$etds = etd::findExpiringEmbargoes($expiration); 
 
-if ($opts->verbose) print "Found " . count($etds) . " records\n";
+if ($opts->verbose) print "Found " . count($etds) . " record" .
+	  ((count($etds) != 1) ? "s" : "") . "\n";
 if (!$opts->noact) {
   foreach ($etds as $etd) {
     $notify = new etd_notifier($etd);
+    // send email about embargo expiration
     $notify->embargo_expiration();
-    $etd->premis->addEvent("notice",
-			   "Embargo Expiration Notification sent by ETD system",
-			   "success",  array("software", "etd system"));
+
+    // add an administrative note that embargo expiration notice has been sent,
+    // and add notification event to record history log
+    $etd->embargo_expiration_notice();
+    
     $etd->save("sent embargo expiration 60-day notice");
   }
 }
