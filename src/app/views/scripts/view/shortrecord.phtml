@@ -9,16 +9,5 @@
    </div>
   <?=  $this->render('manage/_actions.phtml'); ?>
   <?=  $this->render('view/summary.phtml'); ?>
-  <? if ($this->show_status || $this->show_lastaction) : ?>
-   <div class="record_status">
-      <? if ($this->show_status): ?> 
-       Current status: <b><?= $this->etd->status() ?></b><br/>
-     <? endif ?>
-     <? if ($this->show_lastaction): ?> 
-       <? $last_event = $this->etd->premis->event[count($this->etd->premis->event) - 1]; ?>
-       Last action: <?= $last_event->detail ?>
-      (<?= date(DATE_RFC850, strtotime($last_event->date, 0))?>)<br/>
-     <? endif ?>
-   </div>
-  <? endif ?>      
+  <?=  $this->render('view/_lastaction.phtml'); ?>
 </div>

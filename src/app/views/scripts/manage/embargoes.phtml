@@ -28,7 +28,6 @@ records ordered by embargo expiration date<br/>
 
 <? endif ?>
 
-	
 <? foreach ($this->etds as $this->etd) : ?>
 <div class="listrecord">	
   <b><?= $this->etd->mods->embargo_end ?></b>
@@ -44,6 +43,8 @@ records ordered by embargo expiration date<br/>
   <?= $this->etd->author() ?>:
    <a href="<?= $this->url(array("controller" => "view",
    "action" => "record", "pid" => $this->etd->pid()), "", true, false)?>"><?= $this->etd->title() ?></a>
+
+  <?=  $this->render('view/_lastaction.phtml'); ?>
 </div>
 
 <? endforeach ?>
