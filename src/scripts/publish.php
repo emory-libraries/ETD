@@ -56,10 +56,15 @@ $config = new Zend_Config_Xml("../config/config.xml", $env_config->mode);
 Zend_Registry::set('config', $config);
 $fedora_cfg = new Zend_Config_Xml("../config/fedora.xml", $env_config->mode);
 // needs to connect to Fedora using maintenance account to view and modify unpublished records
-$fedora = new FedoraConnection($fedora_cfg->maintenance_account->user,
-			       $fedora_cfg->maintenance_account->password,
-			       $fedora_cfg->server, $fedora_cfg->port,
-			       $fedora_cfg->protocol, $fedora_cfg->resourceindex);
+try {
+  $fedora = new FedoraConnection($fedora_cfg->maintenance_account->user,
+				 $fedora_cfg->maintenance_account->password,
+				 $fedora_cfg->server, $fedora_cfg->port,
+				 $fedora_cfg->protocol, $fedora_cfg->resourceindex);
+} catch (FedoraNotAvailable $e) {
+  trigger_error("Fedora is not available-- cannot proceed", E_USER_ERROR);
+  return;
+} 
 Zend_Registry::set('fedora', $fedora);
 
 // ESD needed to get email addresses for publication notification
