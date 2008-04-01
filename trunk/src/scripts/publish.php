@@ -255,15 +255,15 @@ function get_graduate_etds($filename, $refdate = null) {
       $name_degree = $data[$lastname] . ", " . $data[$firstname] . " (" . $data[$major] . ")";
 	  
       if ($opts->verbose) print "   Found graduate " . $data[$netid] . " $name_degree\n";
-
+      
       // find fedora record id, add to $pids
       $etd = etd::findUnpublishedByAuthor($data[$netid]);
       // only allowing one unpublished record per student at a time, so this should be safe
       $count = count($etd);
       if ($count == 0) {
 	/* NOTE: no longer filtering by pilot departments; we will probably get lots of warnings
-	 	 from now until electronic submission becomes mandatory 
-	 */
+	 from now until electronic submission becomes mandatory 
+	*/
 	if ($opts->verbose)  print "\tWarning: no ETD found for $name_degree\n";
       } elseif ($count == 1) {			// what we expect 
 	if ($opts->verbose)  print "\tFound etd record " . $etd[0]->pid . " for $name_degree\n";
@@ -282,7 +282,7 @@ function get_graduate_etds($filename, $refdate = null) {
 	There is not yet any code to handle this.\n";
     }
   }	// finished processing feed
-
+  
   return $etds;
 }
 
