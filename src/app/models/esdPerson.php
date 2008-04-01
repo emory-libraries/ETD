@@ -18,6 +18,10 @@ class esdPerson implements Zend_Acl_Role_Interface {
 
   private $_etds;
 
+
+  /* hashed version of user's password for Fedora access */
+  private $password;
+  
   public function __construct() {
     $this->alias = array("netid" => "LOGN8NTWR_I",
 			 "type" => "PRSN_C_TYPE",
@@ -149,10 +153,19 @@ X           Pre-start
 
   public function __sleep() {
     $this->_etds = null;	// foxml objects don't recover from serialization, so reset
-    $myfields = array("alias", "_address", "role", "_etds");
+    $myfields = array("alias", "_address", "role", "_etds", "password");
     return array_merge($myfields, array_values($this->alias));
   }
 
+
+  /* base64 encoding password to avoid inadvertently outputting clear-text password */
+  public function setPassword($password) {
+    $this->password = base64_encode($password);
+  }
+
+  public function getPassword() {
+    return base64_decode($this->password);
+  }
   
 }
 
