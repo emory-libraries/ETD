@@ -283,5 +283,9 @@ class TestPQSubmission extends UnitTestCase {
     //$phone->set("82-10-7227-40904");
   }
 
+
+  public function testValidation() {
+    $this->pq->isValid();
+  }
  
 }
