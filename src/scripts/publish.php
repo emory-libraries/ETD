@@ -261,27 +261,27 @@ function get_graduate_etds($filename, $refdate = null) {
       // only allowing one unpublished record per student at a time, so this should be safe
       $count = count($etd);
       if ($count == 0) {
-	/* NOTE: no longer filtering by pilot departments; we will probably get lots of warnings
-	 from now until electronic submission becomes mandatory 
-	*/
-	if ($opts->verbose)  print "\tWarning: no ETD found for $name_degree\n";
+         /* NOTE: no longer filtering by pilot departments; we will probably get lots of warnings
+          from now until electronic submission becomes mandatory 
+         */
+        if ($opts->verbose)  print "\tWarning: no ETD found for $name_degree\n";
       } elseif ($count == 1) {			// what we expect 
-	if ($opts->verbose)  print "\tFound etd record " . $etd[0]->pid . " for $name_degree\n";
-	if ($etd[0]->status() != "approved") {
+        if ($opts->verbose)  print "\tFound etd record " . $etd[0]->pid . " for $name_degree\n";
+        if ($etd[0]->status() != "approved") {
 	  if ($opts->verbose)  print "\tRecord is not yet approved, skipping\n";
 	  continue;
-	}
-	$etds[] = $etd[0];
+        }
+        $etds[] = $etd[0];
       } else {		      // should never happen (except maybe in development)
-	if ($opts->verbose)  print "\tWarning: found more than one record for $name_degree (shouldn't happen)\n";
+        if ($opts->verbose)  print "\tWarning: found more than one record for $name_degree (shouldn't happen)\n";
       }
     } elseif ($data[$degree_status] == "RE") {      // degree status revoked
       // note: no handling for this yet -- what should be done?
       print "   Warning: found a revoked degree for " . $data[$lastname] . ", " . $data[$firstname] . " (" . 
-	$data[$degree] . ", " . $data[$major] . ")
-	There is not yet any code to handle this.\n";
+        $data[$degree] . ", " . $data[$major] . ")
+        There is not yet any code to handle this.\n";
     }
-  }	// finished processing feed
+  }	// finished processing feed (end while loop)
   
   return $etds;
 }
