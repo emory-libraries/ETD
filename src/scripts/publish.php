@@ -171,6 +171,8 @@ if ($do_all) {
       $etds[] = new etd($pid);
     } catch (FedoraObjectNotFound $e) {
       trigger_error("Record not found: $pid", E_USER_WARNING);
+    } catch (FoxmlBadContentModel $e) {
+      trigger_error("Record is not an etd, ignoring: $pid", E_USER_WARNING);
     }
   }
 }
