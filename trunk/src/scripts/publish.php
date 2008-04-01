@@ -426,7 +426,11 @@ function publish(array $etds) {
 function submit_to_proquest(array $etds) {
   global $opts, $tmpdir;
 
-  if (!is_dir($tmpdir)) mkdir($tmpdir);
+  // delete temporary directory to ensure its contents are only from the last run of this script
+  if (is_dir($tmpdir)) {
+    rdelete($tmpdir);	// recursively delete directory & all contents
+  }
+  mkdir($tmpdir);
   
   if ($opts->verbose) print "\nSubmitting to ProQuest\n";
   if ($opts->verbose) print "   Temporary files will be created in $tmpdir\n";
@@ -603,6 +607,29 @@ function proquest_email(array $submissions) {
   }
   
   return true;
+}
+
+
+/**
+ * convenience function to delete a directory and all its contents (used by proquest submission process)
+ * @param string $file filename or directory to be deleted
+ */
+function rdelete($file) {
+  if (is_dir($file)) {
+    foreach (scandir($file) as $f) {
+      if ($f != '.' && $f != '..') {	// ignore current/parent dirs
+	// if the current file is a directory, recurse and delete all its files
+	if (is_dir("$file/$f")) {
+	  rdelete("$file/$f");	// needs full path
+	}
+	else unlink("$file/$f");
+      }
+    }
+    // all files have been deleted, now remove the directory
+    rmdir("$file");
+  } else if (is_file($file))  { //regular file
+    unlink($file);
+  } // any other conditions?
 }
 
 
