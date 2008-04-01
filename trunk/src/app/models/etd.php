@@ -408,6 +408,20 @@ class etd extends foxml implements etdInterface {
    *
    * @param string $publish_date official publish date for the record; should be in YYYY-MM-DD format
    * @param string $date optional 'real' publish date (defaults to today)- used for embargo calculations, etc
+   *
+   * Clarification: the official publish date is a set date for each
+   * semester so that all records, no matter when they are actually
+   * published (this could vary by a few days or more), will have the
+   * same publication date.
+   * 
+   * The "real" publication date is the actual date when the Registrar
+   * confirms graduation and the record is released (e.g., this could
+   * be May 5 when the official publish date is May 31).  The real
+   * date must be used everywhere else (e.g., calculating embargo end
+   * date).  This is particularly important for records with no
+   * embargo, so that they are not restricted between the real
+   * publication date and the official one.
+   * 
    */
   public function publish($publish_date, $date = null) {
     // set publication date (date issued)
