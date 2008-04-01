@@ -53,6 +53,8 @@ class AuthController extends Etd_Controller_Action {
        // find this user in ESD and save their user information
        $esd = new esdPersonObject();
        $current_user = $esd->findByUsername($username);
+       // store the password for accessing Fedora
+       $current_user->setPassword($password);
        $auth->getStorage()->write($current_user);
        $this->view->current_user = $current_user;
 

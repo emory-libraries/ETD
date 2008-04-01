@@ -35,7 +35,8 @@ try {
   if ($auth->hasIdentity()) {
     $current_user = $auth->getIdentity();
     $password = strtoupper($current_user->netid);	// because of the way fedora ldap config is hacked right now
-    $fedora = new FedoraConnection($current_user->netid, $password,
+    $fedora = new FedoraConnection($current_user->netid,
+				   $current_user->getPassword(),
 				   $fedora_cfg->server, $fedora_cfg->port,
 				   $fedora_cfg->protocol, $fedora_cfg->resourceindex);
     
