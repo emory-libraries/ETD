@@ -405,7 +405,6 @@ class etd extends foxml implements etdInterface {
    *  - set publication date (mods:dateIssued)
    *  - calculate embargo end date (if there is an embargo)
    *  - set status to published, and load appropriate policies
-   *  - send publication notification email
    *
    * @param string $publish_date official publish date for the record; should be in YYYY-MM-DD format
    * @param string $date optional 'real' publish date (defaults to today)- used for embargo calculations, etc
