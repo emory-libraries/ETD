@@ -1,7 +1,8 @@
 <?php
-
+require_once("../bootstrap.php");
 require_once('models/ProQuestSubmission.php');
 require_once('simpletest/mock_objects.php');
+require_once("models/etdfile.php");
 Mock::generate('etd_file');
 
 class TestPQSubmission extends UnitTestCase {
@@ -42,12 +43,15 @@ class TestPQSubmission extends UnitTestCase {
   function testInitializeFromEtd() {
     $this->etdxml = array("etd2" => "test:etd2", "user" => "test:user1");
 
+
+    $fedora = Zend_Registry::get("fedora");
+    
     // note: needs to be in repository so authorInfo relation will work
     
     // load test objects to repository
     // NOTE: for risearch queries to work, syncupdates must be turned on for test fedora instance
     foreach (array_keys($this->etdxml) as $etdfile) {
-      $pid = fedora::ingest(file_get_contents('fixtures/' . $etdfile . '.xml'), "loading test object");
+	$pid = $fedora->ingest(file_get_contents('../fixtures/' . $etdfile . '.xml'), "loading test object");
     }
     
     $etd = new etd('test:etd2');
@@ -285,7 +289,16 @@ class TestPQSubmission extends UnitTestCase {
 
 
   public function testValidation() {
-    $this->pq->isValid();
+    // test validation error handling on blank, invalid record
+    $this->assertFalse($this->pq->isValid());
+    $this->assertEqual(6, count($this->pq->dtdValidationErrors()));
+    $this->assertEqual(9, count($this->pq->schemaValidationErrors())); 
   }
  
+}
+
+if (! defined('RUNNER')) {
+  define('RUNNER', true);
+  $test = &new TestPQSubmission();
+  $test->run(new HtmlReporter());
 }

@@ -1,13 +1,13 @@
 <?php
-
+require_once("../bootstrap.php");
 require_once('models/policy.php');
 
-class policyTest extends UnitTestCase {
+class TestPolicy extends UnitTestCase {
   private $policy;
 
   function setUp() {
     $xml = new DOMDocument();
-    $xml->load("fixtures/policy.xml");
+    $xml->load("../fixtures/policy.xml");
     $this->policy = new XacmlPolicy($xml);
   }
 
@@ -162,4 +162,10 @@ class policyTest extends UnitTestCase {
     $this->assertEqual($policy->draft->condition->user, "author");
   }
   
+}
+
+if (! defined('RUNNER')) {
+  define('RUNNER', true);
+  $test = &new TestPolicy();
+  $test->run(new HtmlReporter());
 }

@@ -1,12 +1,12 @@
 <?php
-
+require_once("../bootstrap.php");
 require_once('models/user.php');
 
 class TestUser extends UnitTestCase {
     private $user;
 
   function setUp() {
-    $fname = 'fixtures/user.xml';
+    $fname = '../fixtures/user.xml';
     $dom = new DOMDocument();
     //    $dom->load($fname);
     $dom->loadXML(file_get_contents($fname));
@@ -45,3 +45,8 @@ class TestUser extends UnitTestCase {
 
 }
 
+if (! defined('RUNNER')) {
+  define('RUNNER', true);
+  $test = &new TestUser();
+  $test->run(new HtmlReporter());
+}

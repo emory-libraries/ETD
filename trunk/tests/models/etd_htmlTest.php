@@ -1,5 +1,5 @@
 <?php
-
+require_once("../bootstrap.php");
 require_once('models/etd.php');
 require_once('models/etd_html.php');
 
@@ -7,7 +7,7 @@ class TestEtdHtml extends UnitTestCase {
     private $etd_html;
 
   function setUp() {
-    $fname = 'fixtures/etd1.xml';
+    $fname = '../fixtures/etd1.xml';
     $dom = new DOMDocument();
     $dom->load($fname);
     $etd = new etd($dom);
@@ -125,4 +125,12 @@ class TestEtdHtml extends UnitTestCase {
   }
   
 }
+
+
+if (! defined('RUNNER')) {
+  define('RUNNER', true);
+  $test = &new TestEtdHtml();
+  $test->run(new HtmlReporter());
+}
+
 ?>

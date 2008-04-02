@@ -1,5 +1,5 @@
 <?php
-
+require_once("../bootstrap.php");
 require_once('models/skosCollection.php');
 
 class TestSkosCollection extends UnitTestCase {
@@ -7,7 +7,7 @@ class TestSkosCollection extends UnitTestCase {
 
   function setUp() {
     $xml = new DOMDocument();
-    $xml->load("fixtures/skos.xml");
+    $xml->load("../fixtures/skos.xml");
     $this->skos = new collectionHierarchy($xml, "#toplevel");
   }
 
@@ -28,7 +28,7 @@ class TestSkosCollection extends UnitTestCase {
   function testMiddleHierarchy() {
     // initialize in the middle of the hierarchy - should have access below and to parent
     $xml = new DOMDocument();
-    $xml->load("fixtures/skos.xml");
+    $xml->load("../fixtures/skos.xml");
     $middle = new collectionHierarchy($xml, "#two");
 
 
@@ -89,9 +89,15 @@ class TestSkosCollection extends UnitTestCase {
 
   public function testBadInitialization() {
     $xml = new DOMDocument();
-    $xml->load("fixtures/skos.xml");
+    $xml->load("../fixtures/skos.xml");
     $this->expectException(new XmlObjectException("Error in constructor: collection id #nonexistent not found"));
     $skos = new collectionHierarchy($xml, "#nonexistent");
   }
 
+}
+
+if (! defined('RUNNER')) {
+  define('RUNNER', true);
+  $test = &new TestSkosCollection();
+  $test->run(new HtmlReporter());
 }
