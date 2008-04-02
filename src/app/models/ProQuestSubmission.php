@@ -236,16 +236,13 @@ class ProQuestSubmission extends XmlObject {
     $dtd_valid = $this->dom->validate();
     $this->dtd_validation_errors = libxml_get_errors();
     libxml_clear_errors();
-    print "dtd errors: <pre>" . print_r($this->dtd_validation_errors, true) . "</pre>";
       
     // also validate against customized & stricter schema, which should
     // be a better indication that this is the data PQ actually wants
     if (isset($this->schema) && $this->schema != '')
      $schema_valid = $this->dom->schemaValidate($this->schema);
 
-    
     $this->schema_validation_errors = libxml_get_errors();
-    print "schema errors: <pre>" . print_r($this->schema_validation_errors, true) . "</pre>";
     // is only valid if both of the validations pass
     return ($dtd_valid && $schema_valid);
   }
