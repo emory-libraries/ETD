@@ -153,6 +153,15 @@ if ($do_all) {
   exit;
 }
 
+$writer = new Zend_Log_Writer_Stream("php://output");
+$logger = new Zend_Log($writer);
+/*
+ FIXME: not supported in current version of ZF? should be in 1.5
+ $format = '%priorityName%: %message%' . PHP_EOL;	// don't display timestamp or numeric priority
+$formatter = new Zend_Log_Formatter_Simple($format);
+$logger->setFormatter($formatter);
+*/
+
 // global publish date as it should be set on record (relative to current semester)
 $publish_date;
 // if not doing all steps *but* publishing, need to calculate publish date
@@ -162,12 +171,11 @@ if (!$do_all && $opts->publish) {
 
 
 // find graduates and get etd records from fedora
-if ($do_all) {	
-  if ($opts->verbose) print "Finding pids from Registrar feed\n";
+if ($do_all) {
+  $logger->info("Finding pids from Registrar feed");
   $etds = get_graduate_etds($filename, $opts->date);
-  if ($opts->verbose) {
-    if (count($etds) == 0) print "\nNo records to be processed\n";
-    else print "  Found " . count($etds) . " records\n";
+  if (count($etds) == 0) $logger->info("No records to be processed");
+  else 			 $logger->info("Found " . count($etds) . " records");
   }
  } else {	// no in do-all mode; initialize etd objects based on pids specified on command line
   $etds = array();
@@ -175,9 +183,11 @@ if ($do_all) {
     try {
       $etds[] = new etd($pid);
     } catch (FedoraObjectNotFound $e) {
-      trigger_error("Record not found: $pid", E_USER_WARNING);
+      $logger->warn("Record not found: $pid");
+      //      trigger_error("Record not found: $pid", E_USER_WARNING);
     } catch (FoxmlBadContentModel $e) {
-      trigger_error("Record is not an etd, ignoring: $pid", E_USER_WARNING);
+      $logger->warn("Record is not an etd, ignoring: $pid");	
+      //      trigger_error("Record is not an etd, ignoring: $pid", E_USER_WARNING);
     }
   }
 }
@@ -239,10 +249,8 @@ function get_graduate_etds($filename, $refdate = null) {
   // determine the term most recently *completed* (or about to end) relative to the specified date
   $last_term =  last_term($refdate);
 
-  if ($opts->verbose) {
-    print "   Finding graduates for most recently completed term ";
-    if ($refdate) print "relative to $refdate ";
-    print "(semester code $last_term)\n\n";
+  $logger->info("   Finding graduates for most recently completed term " . 
+		($refdate ? "relative to $refdate " : "" ) .  "(semester code $last_term)");
   }
 
   //open alumni feed
@@ -261,7 +269,7 @@ function get_graduate_etds($filename, $refdate = null) {
 
       $name_degree = $data[$lastname] . ", " . $data[$firstname] . " (" . $data[$major] . ")";
 	  
-      if ($opts->verbose) print "   Found graduate " . $data[$netid] . " $name_degree\n";
+      $logger->info("Found graduate " . $data[$netid] . " $name_degree");
       
       // find fedora record id, add to $pids
       $etd = etd::findUnpublishedByAuthor($data[$netid]);
@@ -271,22 +279,23 @@ function get_graduate_etds($filename, $refdate = null) {
          /* NOTE: no longer filtering by pilot departments; we will probably get lots of warnings
           from now until electronic submission becomes mandatory 
          */
-        if ($opts->verbose)  print "\tWarning: no ETD found for $name_degree\n";
+	$logger->warn("Warning: no ETD found for $name_degree");
       } elseif ($count == 1) {			// what we expect 
-        if ($opts->verbose)  print "\tFound etd record " . $etd[0]->pid . " for $name_degree\n";
+        $logger->info("Found etd record " . $etd[0]->pid . " for $name_degree");
         if ($etd[0]->status() != "approved") {
-	  if ($opts->verbose)  print "\tRecord is not yet approved, skipping\n";
+	  $logger->info("Record is not yet approved, skipping");
 	  continue;
         }
         $etds[] = $etd[0];
       } else {		      // should never happen (except maybe in development)
-        if ($opts->verbose)  print "\tWarning: found more than one record for $name_degree (shouldn't happen)\n";
+        $logger->warn("Found more than one record for $name_degree (this shouldn't happen)");
       }
     } elseif ($data[$degree_status] == "RE") {      // degree status revoked
       // note: no handling for this yet -- what should be done?
-      print "   Warning: found a revoked degree for " . $data[$lastname] . ", " . $data[$firstname] . " (" . 
+      // fixme: is it appropriate to make this an alert instead of a warning?
+      $logger->alert("Found a revoked degree for " . $data[$lastname] . ", " . $data[$firstname] . " (" . 
         $data[$degree] . ", " . $data[$major] . ")
-        There is not yet any code to handle this.\n";
+        There is not yet any code to handle this.");
     }
   }	// finished processing feed (end while loop)
   
@@ -321,7 +330,7 @@ function last_term($refdate = null) {
  * @return string 4-digit registrar semester code
  */
 function last_semester($year, $month) {
-  global $opts, $publish_date;
+  global $opts, $publish_date, $logger;
 
   if ($month < 5) { // before May
     $semester = "FALL";
@@ -338,7 +347,7 @@ function last_semester($year, $month) {
     $grad_month = "12";
   }
 
-  if ($opts->verbose)  print "   Most recently completed term is $semester $year\n";
+  $logger->info("Most recently completed term is $semester $year");
   $publish_date = "$year-{$grad_month}-31";
   return semester_code($year, $semester);
 }
@@ -393,8 +402,8 @@ function semester_code ($year, $term) {
  * @param array $etds etd objects
  */
 function confirm_graduation(array $etds) {
-  global $opts;
-  if ($opts->verbose) print "\nConfirming graduation\n";
+  global $opts, $logger;
+  $logger->info("Confirming graduation");
   if (!$opts->noact) {
     foreach ($etds as $etd) {
       $etd->confirm_graduation();	// no status returned currently (necessary?)
@@ -409,8 +418,8 @@ function confirm_graduation(array $etds) {
  * @param array $etds etd objects
  */
 function publish(array $etds) {
-  global $opts, $publish_date;
-  if ($opts->verbose) print "\nPublishing\n";
+  global $opts, $publish_date, $logger;
+  $logger->info("Publishing");
   if (!$opts->noact) {
     foreach ($etds as $etd) {
       // official publication date (end of semester), current date
@@ -418,11 +427,20 @@ function publish(array $etds) {
 
       // send an email to notify author, and record in history
       $notify = new etd_notifier($etd);
-      $notify->publication();
+
+      try {
+	$notify->publication();
+      } catch (Zend_Exception $ex) {
+	$logger->err("There was a problem sending the publication notification email for " . $etd->pid . ": "
+		     .  $ex->getMessage());
+	// don't add notification event to history, but continue processing other records
+	continue;
+      }
+
       $etd->premis->addEvent("notice",
 			     "Publication Notification sent by ETD system",
 			     "success",  array("software", "etd system"));
-    }
+    } // end looping through etds
   }
 }
 
@@ -431,7 +449,7 @@ function publish(array $etds) {
  * @param array $etds etd objects
  */
 function submit_to_proquest(array $etds) {
-  global $opts, $tmpdir;
+  global $opts, $tmpdir, $logger;
 
   // delete temporary directory to ensure its contents are only from the last run of this script
   if (is_dir($tmpdir)) {
@@ -439,8 +457,8 @@ function submit_to_proquest(array $etds) {
   }
   mkdir($tmpdir);
   
-  if ($opts->verbose) print "\nSubmitting to ProQuest\n";
-  if ($opts->verbose) print "   Temporary files will be created in $tmpdir\n";
+  $logger->info("Submitting to ProQuest");
+  $logger->info("Temporary files will be created in $tmpdir");
     
   // in test mode: create the metadata & zip files, but don't change the records, ftp, or send email
   $zipfiles = array();
@@ -448,7 +466,7 @@ function submit_to_proquest(array $etds) {
   $submissions = array();
   
   foreach ($etds as $etd) {
-    if ($opts->verbose) print "   Preparing ProQuest submission file for " . $etd->pid . "\n";
+    $logger->info("Preparing ProQuest submission file for " . $etd->pid);	// debug instead of info?
     $submission = new ProQuestSubmission();
     $submission->initializeFromEtd($etd);
     // still to do: save xml, get binary files from fedora, create zip file
@@ -457,28 +475,47 @@ function submit_to_proquest(array $etds) {
       $submission->create_zip($tmpdir);
       $submissions[] = $submission;
     } else {
-      // what to do here?
+      $logger->err("ProQuest submission xml for " . $etd->pid . " is not valid");
+
+      // output more detailed validation information as info
+      $errors['ProQuest DTD'] = $submission->dtdValidationErrors();
+      $errors['Schema'] = $submission->schemaValidationErrors();
+      foreach ($errors as $name => $xml_errors) {
+	if (count($xml_errors)) {
+	  $logger->info("Invalid according to $name");
+	  foreach ($xml_errors as $err) {
+	    switch ($err->level) {
+	    case LIBXML_ERR_WARNING:
+	      $logger->info("Validation Warning, line " . $err->line . ": " $err->message); break;
+	    case LIBXML_ERR_ERROR:
+	      $logger->info("Validation Error, line " . $err->line . ": " $err->message); break;
+	    case LIBXML_ERR_FATAL:
+	      $logger->info("Fatal Validation Error, line " . $err->line . ": " $err->message); break;
+	    }
+	  }
+	}
+      }
     }
   }
     
   // batch post-processing for proquest submissions 
-  if ($opts->noact && $opts->verbose) {
-    print "   Test mode, so not ftping submission zip files to ProQuest\n";
+  if ($opts->noact) {
+    $logger->info("Test mode, so not ftping submission zip files to ProQuest");
     foreach ($submissions as $sub) $sub->ftped = true;		// pretend ftp worked
   } else {
     //  - ftp all zip files to PQ	(with error checking)
-    if ($opts->verbose) print "   Ftping all submission zip files to ProQuest\n";
+    $logger->info("Ftping all submission zip files to ProQuest");
     // ftp 
     proquest_ftp($submissions);
   }
     
-  if ($opts->noact && $opts->verbose) {
-    print "   Test mode, so not emailing submission list to ProQuest\n";
+  if ($opts->noact) {
+    $logger->info("Test mode, so not emailing submission list to ProQuest");
     // generate & display email 
-    print "\n     Packing list email:\n" . proquest_email($submissions) . "\n";
+    $logger->debug("Packing list email:\n" . proquest_email($submissions));
   } else {
     //  - send email with packing list
-    if ($opts->verbose) print "   Sending submission list email to ProQuest\n";
+    $logger->info("Sending submission list email to ProQuest");
     proquest_email($submissions);
 
     // add proquest submission to history for each etd record
@@ -499,26 +536,26 @@ function submit_to_proquest(array $etds) {
  * @return boolean success
  */
 function proquest_ftp(array $submissions) {
-  global $opts, $proquest;
+  global $opts, $proquest, $logger;
 
   $success = array();
   
   // set up basic connection
   $ftpsrv = ftp_connect($proquest->ftp->server);
   if (!$ftpsrv) {
-    print "\tError! Failed to connect to ftp server " . $proquest->ftp->server . "\n";
+    $logger->err("Failed to connect to ftp server " . $proquest->ftp->server);
     return false;
   } else {
-    if ($opts->verbose)  print "\tSuccessfully connected to ftp server " . $proquest->ftp->server . "\n";
+    $logger->info("Successfully connected to ftp server " . $proquest->ftp->server);
   }
   // login with username and password
   $ftplogin = ftp_login($ftpsrv, $proquest->ftp->user, $proquest->ftp->password);
 
   if (!$ftplogin) {
-    print "\tError! Failed to log in to ftp server as " . $proquest->ftp->user . "\n";
+    $logger->err("Failed to log in to ftp server as " . $proquest->ftp->user);
     return false;
   } else {
-    if ($opts->verbose) print "\tLogged in to ftp server as " . $proquest->ftp->user . "\n";
+    $logger->info("Logged in to ftp server as " . $proquest->ftp->user);
   }
 
   // set mode to passive
@@ -532,9 +569,9 @@ function proquest_ftp(array $submissions) {
     
     // check if the file is already on the server
     if (is_array($serverfiles) && in_array($remotefile, $serverfiles)) {
-      if ($opts->verbose) print "\t$remotefile is already on the ftp server; deleting\n";
-      if (!ftp_delete($ftpsrv, $remotefile) && $opts->verbose) {
-	print "\tWarning - unable to delete $remotefile already on the ftp server\n";
+      $logger->debug("$remotefile is already on the ftp server; deleting");
+      if (!ftp_delete($ftpsrv, $remotefile)) {
+	$logger->warn("Unable to delete $remotefile already on the ftp server");
       }
     }
 
@@ -542,11 +579,11 @@ function proquest_ftp(array $submissions) {
     $upload = ftp_put($ftpsrv, $remotefile, $submission->zipfile, FTP_BINARY);
     // check upload status
     if (!$upload) {
-      print "\tError! FTP upload failed for $remotefile\n";
+      $logger->err("FTP upload failed for $remotefile");
       $submission->ftped = false;
     } else {
       array_push($success, $remotefile);	
-      if ($opts->verbose) print "\tSuccessfully uploaded $remotefile\n";
+      $logger->info("Successfully uploaded $remotefile");
       $submission->ftped = true;
     }
 
@@ -554,7 +591,7 @@ function proquest_ftp(array $submissions) {
     $rsize = ftp_size($ftpsrv, $remotefile);
     if ($rsize != -1) {		// -1 = couldn't get remote filesize - not supported by ftp server
       if ($rsize != filesize($submission->zipfile)) {
-	print "\tError: remote file is not the same size as local file " . $submission->zipfile . "\n";
+	$logger->err("Remote file is not the same size as local file " . $submission->zipfile);
 	// exit code?
 	$submission->ftped = false;
       }
@@ -576,7 +613,7 @@ function proquest_ftp(array $submissions) {
  * @return boolean|string true on success, packing list content in when testing
  */
 function proquest_email(array $submissions) {
-  global $opts, $proquest, $config, $env_config;
+  global $opts, $proquest, $config, $env_config, $logger;
 
   // if there are no records, don't send an email
   if (!count($submissions)) return;	
@@ -608,8 +645,7 @@ function proquest_email(array $submissions) {
   try {
     $mail->send();
   } catch (Zend_Exception $ex) {
-    print "Error! There was a problem sending the email message:\n";
-    print $ex->getMessage() . "\n";
+    $logger->err("There was a problem sending the Submission 'packing list' email to ProQuest: " .  $ex->getMessage());
     return false;
   }
   
@@ -645,18 +681,18 @@ function rdelete($file) {
  * find records that have been approved that weren't published (e.g., author is not yet in registrar feed)
  */
 function find_orphans() {
-  global $opts;
-  if ($opts->verbose) print "\nChecking for 'orphaned' ETD records\n";
+  global $opts, $logger;
+  $logger->info("Checking for 'orphaned' ETD records");
 
   $orphans = etd::findByStatus("approved");
   $count = count($orphans);
   
   if ($count) {
-    print "  Found " . $count . " approved record" . ($count != 1 ? "s" : "") . "\n";
+    $logger->notice("Found " . $count . " approved record" . ($count != 1 ? "s" : ""));
     foreach ($orphans as $etd) {
-      print "    " . $etd->author() . " " . $etd->pid . "\n";
+      $logger->info("    " . $etd->author() . " " . $etd->pid);
     }
-  } elseif ($opts->verbose) {
-    print "  No approved records found\n";
+  } else {
+    $logger->notice("No approved records found");
   }
 }
