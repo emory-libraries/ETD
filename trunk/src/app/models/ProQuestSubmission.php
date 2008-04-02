@@ -20,6 +20,9 @@ class ProQuestSubmission extends XmlObject {
   public $zipfile;
   public $ftped;
 
+  private $schema_validation_errors;
+  private $dtd_validation_errors;
+
   public function __construct($dom = null) {
     if (is_null($dom)) {	// by default, initialize from template xml with Emory defaults
       $xml = file_get_contents("PQ_Submission.xml", FILE_USE_INCLUDE_PATH); 
@@ -226,16 +229,32 @@ class ProQuestSubmission extends XmlObject {
   
 
   public function isValid() {
+    // suppress errors so they can be handled and displayed in a more controlled manner
+    libxml_use_internal_errors(true);
+    
     // validate against PQ DTD
     $dtd_valid = $this->dom->validate();
-    
+    $this->dtd_validation_errors = libxml_get_errors();
+    libxml_clear_errors();
+    print "dtd errors: <pre>" . print_r($this->dtd_validation_errors, true) . "</pre>";
+      
     // also validate against customized & stricter schema, which should
     // be a better indication that this is the data PQ actually wants
     if (isset($this->schema) && $this->schema != '')
      $schema_valid = $this->dom->schemaValidate($this->schema);
 
+    
+    $this->schema_validation_errors = libxml_get_errors();
+    print "schema errors: <pre>" . print_r($this->schema_validation_errors, true) . "</pre>";
     // is only valid if both of the validations pass
     return ($dtd_valid && $schema_valid);
+  }
+
+  public function dtdValidationErrors() {
+    return $this->dtd_validation_errors;
+  }
+  public function schemaValidationErrors() {
+    return $this->schema_validation_errors;
   }
 
 
