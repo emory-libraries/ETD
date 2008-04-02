@@ -1,6 +1,6 @@
 <?php
 
-  //require_once("models/foxmlDatastreamAbstract.php");
+require_once("models/foxmlDatastreamAbstract.php");
 
 class premis extends foxmlDatastreamAbstract  {
 
