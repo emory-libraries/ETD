@@ -1,5 +1,5 @@
 <?php
-
+require_once("../bootstrap.php");
 require_once('models/etd.php');
 require_once('models/esdPerson.php');
 
@@ -7,7 +7,7 @@ class TestEtd extends UnitTestCase {
     private $etd;
 
   function setUp() {
-    $fname = 'fixtures/etd1.xml';
+    $fname = '../fixtures/etd1.xml';
     $dom = new DOMDocument();
     $dom->load($fname);
     $this->etd = new etd($dom);
@@ -100,7 +100,7 @@ class TestEtd extends UnitTestCase {
   function testSetStatus() {
 
     // attach an etd file for testing
-    $fname = 'fixtures/etdfile.xml';
+    $fname = '../fixtures/etdfile.xml';
     $dom = new DOMDocument();
     $dom->load($fname);
     $etdfile = new etd_file($dom);
@@ -219,30 +219,37 @@ class TestEtd extends UnitTestCase {
     $this->etd->mods->advisor->id = "nobody";	// set ids for error messages
     $this->etd->mods->committee[0]->id = "nobodytoo";
 
-    // notices for non-existent users in metadata (looked up when sending notification)
-    $this->expectError("Advisor (nobody) not found in ESD");
-    $this->expectError("Committee member (nobodytoo) not found in ESD");
+    // official pub date, 'actual' pub date
+    $this->etd->publish($pubdate, $pubdate);		// if not specified, date defaults to today
 
-    $this->etd->publish($pubdate);		// if not specified, date defaults to today
-
-    $fname = 'fixtures/user.xml';
+    $fname = '../fixtures/user.xml';
     $dom = new DOMDocument();
     $dom->loadXML(file_get_contents($fname));
     $authorinfo = new user($dom);
     $this->etd->related_objects['authorInfo'] = $authorinfo;
-	
+
     $this->assertEqual($pubdate, $this->etd->mods->originInfo->issued);
     $this->assertEqual("2008-07-01", $this->etd->mods->embargo_end);
     $this->assertEqual("published", $this->etd->status());
     $this->assertEqual("Published by ETD system",
-		       $this->etd->premis->event[count($this->etd->premis->event) - 2]->detail);
-    $this->assertEqual("Publication Notification sent by ETD system",
 		       $this->etd->premis->event[count($this->etd->premis->event) - 1]->detail);
+    // note: publication notification no longer part of publish() function
+
+
+    // simulate bad data / incomplete record to test exception
+    $this->etd->mods->embargo = "";	// empty duration - results in zero-time unix
+    $this->expectException(new XmlObjectException("Calculated embargo date does not look correct (timestamp:$end_date, 1969-12-31)"));
+    $this->etd->publish($pubdate, $pubdate);	      
   }
   
 
 }
 
+if (! defined('RUNNER')) {
+  define('RUNNER', true);
+  $test = &new TestEtd();
+  $test->run(new HtmlReporter());
+}
 
 
 ?>
