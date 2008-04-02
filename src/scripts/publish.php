@@ -87,7 +87,7 @@ $opts = new Zend_Console_Getopt(
     'orphan|o'	       => 'Check for "orphaned" ETDs (graduate not in feed)',
     'file|f=s'	       => 'Registrar feed /path/to/file',
     'date|d=s'	       => 'Date for calculating recent grads (defaults to current date)',
-    'verbose|v'	       => 'Verbose output',
+    'verbose|v=s'      => 'Output level/verbosity; one of error, warn, notice, info, debug (default: error)',
     'noact|n'	       => "Test/simulate - don't actually do anything (no actions)",
     'tmpdir|t=s'       => "Temp directory for proquest files (default: /tmp/pqsubmission-YYYYMMDD)",
   )
@@ -154,13 +154,25 @@ if ($do_all) {
 }
 
 $writer = new Zend_Log_Writer_Stream("php://output");
-$logger = new Zend_Log($writer);
-/*
- FIXME: not supported in current version of ZF? should be in 1.5
- $format = '%priorityName%: %message%' . PHP_EOL;	// don't display timestamp or numeric priority
+// minimal output format - don't display timestamp or numeric priority
+$format = '%priorityName%: %message%' . PHP_EOL;
 $formatter = new Zend_Log_Formatter_Simple($format);
-$logger->setFormatter($formatter);
-*/
+$writer->setFormatter($formatter);
+$logger = new Zend_Log($writer);
+
+// set level of output to be displayed based on command line parameter
+switch ($opts->verbose) {
+ case "warn":    $verbosity = Zend_Log::WARN; break;
+ case "notice":  $verbosity = Zend_Log::NOTICE; break;
+ case "info":    $verbosity = Zend_Log::INFO; break;
+ case "debug":   $verbosity = Zend_Log::DEBUG; break;   
+ case "error": 
+ default:
+   $verbosity = Zend_Log::ERR; break;
+ }
+$filter = new Zend_Log_Filter_Priority($verbosity);
+$logger->addFilter($filter);
+
 
 // global publish date as it should be set on record (relative to current semester)
 $publish_date;
@@ -176,8 +188,7 @@ if ($do_all) {
   $etds = get_graduate_etds($filename, $opts->date);
   if (count($etds) == 0) $logger->info("No records to be processed");
   else 			 $logger->info("Found " . count($etds) . " records");
-  }
- } else {	// no in do-all mode; initialize etd objects based on pids specified on command line
+ } else {	// not in do-all mode; initialize etd objects based on pids specified on command line
   $etds = array();
   foreach ($pids as $pid) {
     try {
@@ -226,8 +237,7 @@ if ($do_all || $opts->orphan) 		find_orphans();
  * @return array of approved etd objects belonging to graduates found in the feed
  */
 function get_graduate_etds($filename, $refdate = null) {
-  global $opts;
-
+  global $opts, $logger;
 
   // degrees for which we should expect an ETD
   $etd_degrees = array("PHD", "MA", "MS");
@@ -250,9 +260,8 @@ function get_graduate_etds($filename, $refdate = null) {
   // determine the term most recently *completed* (or about to end) relative to the specified date
   $last_term =  last_term($refdate);
 
-  $logger->info("   Finding graduates for most recently completed term " . 
+  $logger->info("Finding graduates for most recently completed term " . 
 		($refdate ? "relative to $refdate " : "" ) .  "(semester code $last_term)");
-  }
 
   //open alumni feed
   $fp = fopen($filename, 'r');
@@ -524,11 +533,11 @@ function submit_to_proquest(array $etds) {
 	  foreach ($xml_errors as $err) {
 	    switch ($err->level) {
 	    case LIBXML_ERR_WARNING:
-	      $logger->info("Validation Warning, line " . $err->line . ": " $err->message); break;
+	      $logger->info("Validation Warning, line " . $err->line . ": " . $err->message); break;
 	    case LIBXML_ERR_ERROR:
-	      $logger->info("Validation Error, line " . $err->line . ": " $err->message); break;
+	      $logger->info("Validation Error, line " . $err->line . ": " . $err->message); break;
 	    case LIBXML_ERR_FATAL:
-	      $logger->info("Fatal Validation Error, line " . $err->line . ": " $err->message); break;
+	      $logger->info("Fatal Validation Error, line " . $err->line . ": " . $err->message); break;
 	    }
 	  }
 	}
@@ -731,6 +740,6 @@ function find_orphans() {
       $logger->info("    " . $etd->author() . " " . $etd->pid);
     }
   } else {
-    $logger->notice("No approved records found");
+    $logger->notice("No approved unprocessed records found");
   }
 }
