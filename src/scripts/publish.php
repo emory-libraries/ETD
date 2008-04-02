@@ -195,9 +195,12 @@ if ($do_all) {
 // if there are any records to be processed
 if (count($etds)) {
 
-  if ($do_all || $opts->confirmgrad) 	confirm_graduation($etds);
-  if ($do_all || $opts->publish) 	publish($etds);
-  if ($do_all || $opts->proquest)	submit_to_proquest($etds);
+  if ($do_all || $opts->confirmgrad)
+    confirm_graduation($etds);
+  if ($do_all || $opts->publish) 
+    $etds = publish($etds);	// if publication fails, record will not continue through the rest of the process
+  if ($do_all || $opts->proquest)
+    submit_to_proquest($etds);
 
   // save etd records with whatever changes were made
   foreach ($etds as $etd) {
@@ -212,8 +215,6 @@ if (count($etds)) {
 
 // look for any approved records still in the system ('orphaned' theses)
 if ($do_all || $opts->orphan) 		find_orphans();  
-
-
 
 
 
@@ -420,10 +421,23 @@ function confirm_graduation(array $etds) {
 function publish(array $etds) {
   global $opts, $publish_date, $logger;
   $logger->info("Publishing");
+
+  // store all etds that are successfully published 
+  $published = array();
+  
   if (!$opts->noact) {
     foreach ($etds as $etd) {
       // official publication date (end of semester), current date
-      $etd->publish($publish_date, $opts->date);     // currently no return value / status -- needed?
+      try {
+	$etd->publish($publish_date, $opts->date);     // currently no return value / status -- needed?
+      } catch (XmlObjectException $ex) {
+	$logger->err("Problem publishing record " . $etd->pid . ": " . $ex->getMessage());
+	// skip to the next record
+	continue;
+      }
+
+      // if publish succeeded, add to array 
+      $published[] = $etd;
 
       // send an email to notify author, and record in history
       $notify = new etd_notifier($etd);
@@ -441,7 +455,11 @@ function publish(array $etds) {
 			     "Publication Notification sent by ETD system",
 			     "success",  array("software", "etd system"));
     } // end looping through etds
+  } else {
+    // in noact mode, simulate successful publication of all records
+    $published = $etds;
   }
+  return $published;
 }
 
 /**
@@ -477,7 +495,7 @@ function submit_to_proquest(array $etds) {
     } else {
       $logger->err("ProQuest submission xml for " . $etd->pid . " is not valid");
 
-      // output more detailed validation information as info
+      // output more detailed validation information as info 
       $errors['ProQuest DTD'] = $submission->dtdValidationErrors();
       $errors['Schema'] = $submission->schemaValidationErrors();
       foreach ($errors as $name => $xml_errors) {
