@@ -421,6 +421,10 @@ class etd extends foxml implements etdInterface {
    * date).  This is particularly important for records with no
    * embargo, so that they are not restricted between the real
    * publication date and the official one.
+   *
+   * Note that the "real" publication date can be overridden, e.g. in
+   * case a record is missed and needs to be published retroactively.
+   * Should mostly be used only for testing.
    * 
    */
   public function publish($publish_date, $date = null) {
@@ -428,11 +432,21 @@ class etd extends foxml implements etdInterface {
     $this->mods->originInfo->issued = $publish_date;
 
     // set date if not specified
-    if (!$date) $date = date("Y-m-d");	// default to today
+    if (!$date) $date = date("Y-m-d");	// defaults to today - this is what should be used in most cases
 
+    // unix timestamp representation of "actual" publication date
+    $datetime = strtotime($date, 0);
+    
     // calculate embargo end date
-    $end_date = strtotime($this->mods->embargo, strtotime($date, 0));
-    // calculate based on duration in reference to 'real' publication date, e.g. today + 6 months
+    // calculation is based on duration (mods embargo field)
+    // in reference to 'real' publication date, e.g. today + 6 months
+    $end_date = strtotime($this->mods->embargo, $datetime);
+    // sanity check on calculated end date : should be greater than or equal to publication date
+    if ($end_date <  $datetime) {
+      throw new XmlObjectException("Calculated embargo date does not look correct  (timestamp:$end_date, " .
+				   date("Y-m-d", $end_date) . ") ");
+    }
+
     $this->mods->embargo_end = date("Y-m-d", $end_date);
     
     // sets status, add appropriate policies to etd & related files, and puts embargo end date in policies
