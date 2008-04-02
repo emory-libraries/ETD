@@ -443,8 +443,8 @@ class etd extends foxml implements etdInterface {
     $end_date = strtotime($this->mods->embargo, $datetime);
     // sanity check on calculated end date : should be greater than or equal to publication date
     if ($end_date <  $datetime) {
-      throw new XmlObjectException("Calculated embargo date does not look correct  (timestamp:$end_date, " .
-				   date("Y-m-d", $end_date) . ") ");
+      throw new XmlObjectException("Calculated embargo date does not look correct (timestamp:$end_date, " .
+				   date("Y-m-d", $end_date) . ")");
     }
 
     $this->mods->embargo_end = date("Y-m-d", $end_date);
