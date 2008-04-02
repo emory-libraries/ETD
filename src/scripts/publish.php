@@ -405,12 +405,17 @@ function semester_code ($year, $term) {
 function confirm_graduation(array $etds) {
   global $opts, $logger;
   $logger->info("Confirming graduation");
-  if (!$opts->noact) {
-    foreach ($etds as $etd) {
-      $etd->confirm_graduation();	// no status returned currently (necessary?)
+  foreach ($etds as $etd) {
+    // only records that are currently approved should have graduation confirmed
+    if ($etd->status() != "approved") {
+      $logger->warn("Cannot confirm graduation on record " . $etd->pid . ": status is " .
+		    $etd->status() . " instead of approved");
+      continue;	// skip to next etd
+    }
+    if (!$opts->noact) {
+      $etd->confirm_graduation();	// note: no status returned (not much to go wrong here)
     }
   }
-  
 }
 
 /**
@@ -425,40 +430,48 @@ function publish(array $etds) {
   // store all etds that are successfully published 
   $published = array();
   
-  if (!$opts->noact) {
-    foreach ($etds as $etd) {
-      // official publication date (end of semester), current date
-      try {
-	$etd->publish($publish_date, $opts->date);     // currently no return value / status -- needed?
-      } catch (XmlObjectException $ex) {
-	$logger->err("Problem publishing record " . $etd->pid . ": " . $ex->getMessage());
-	// skip to the next record
-	continue;
-      }
+  foreach ($etds as $etd) {
+    // only records that are currently approved should be published
+    if ($etd->status() != "approved") {
+      $logger->warn("Cannot publish record " . $etd->pid . ": status is " .
+		    $etd->status() . " instead of approved");
+      continue;	// skip to next etd
+    }
 
-      // if publish succeeded, add to array 
+    if ($opts->noact) {
+      // in noact mode, simulate successful publication of all records but skip all actual processing
       $published[] = $etd;
-
-      // send an email to notify author, and record in history
-      $notify = new etd_notifier($etd);
-
-      try {
-	$notify->publication();
-      } catch (Zend_Exception $ex) {
-	$logger->err("There was a problem sending the publication notification email for " . $etd->pid . ": "
-		     .  $ex->getMessage());
-	// don't add notification event to history, but continue processing other records
-	continue;
-      }
-
-      $etd->premis->addEvent("notice",
-			     "Publication Notification sent by ETD system",
-			     "success",  array("software", "etd system"));
-    } // end looping through etds
-  } else {
-    // in noact mode, simulate successful publication of all records
-    $published = $etds;
-  }
+      continue;
+    }
+    
+    try {
+      // official publication date (end of semester), current date
+      $etd->publish($publish_date, $opts->date);     // currently no return value / status -- needed?
+    } catch (XmlObjectException $ex) {
+      $logger->err("Problem publishing record " . $etd->pid . ": " . $ex->getMessage());
+      // skip to the next record
+      continue;
+    }
+    
+    // if publish succeeded, add to array 
+    $published[] = $etd;
+    
+    // send an email to notify author, and record in history
+    $notify = new etd_notifier($etd);
+    
+    try {
+      $notify->publication();
+    } catch (Zend_Exception $ex) {
+      $logger->err("There was a problem sending the publication notification email for " . $etd->pid . ": "
+		   .  $ex->getMessage());
+      // don't add notification event to history, but continue processing other records
+      continue;
+    }
+    
+    $etd->premis->addEvent("notice",
+			   "Publication Notification sent by ETD system",
+			   "success",  array("software", "etd system"));
+  } // end looping through etds
   return $published;
 }
 
@@ -484,6 +497,13 @@ function submit_to_proquest(array $etds) {
   $submissions = array();
   
   foreach ($etds as $etd) {
+    // only records that are either approved or published should be sent to ProQuest
+    if ($etd->status() != "approved" && $etd->status != "published") {
+      $logger->warn("Cannot submit record " . $etd->pid . " to ProQuest: status is " .
+		    $etd->status() . " instead of approved or published");
+      continue;	// skip to next etd
+    }
+
     $logger->info("Preparing ProQuest submission file for " . $etd->pid);	// debug instead of info?
     $submission = new ProQuestSubmission();
     $submission->initializeFromEtd($etd);
