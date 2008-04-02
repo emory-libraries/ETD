@@ -1,5 +1,5 @@
 <?php
-
+require_once("../bootstrap.php");
 require_once('models/premis.php');
 
 class TestPremis extends UnitTestCase {
@@ -7,7 +7,7 @@ class TestPremis extends UnitTestCase {
 
   function setUp() {
     $xml = new DOMDocument();
-    $xml->load("fixtures/premis.xml");
+    $xml->load("../fixtures/premis.xml");
     $this->premis = new premis($xml);
   }
 
@@ -62,3 +62,10 @@ class TestPremis extends UnitTestCase {
   }
 
 }
+
+if (! defined('RUNNER')) {
+  define('RUNNER', true);
+  $test = &new TestPremis();
+  $test->run(new HtmlReporter());
+}
+

@@ -1,12 +1,12 @@
 <?php
-
+require_once("../bootstrap.php");
 require_once('models/etdfile.php');
 
 class TestEtdFile extends UnitTestCase {
   private $etdfile;
 
   function setUp() {
-    $fname = 'fixtures/etdfile.xml';
+    $fname = '../fixtures/etdfile.xml';
     $dom = new DOMDocument();
     $dom->load($fname);
     $this->etdfile = new etd_file($dom);
@@ -36,6 +36,13 @@ class TestEtdFile extends UnitTestCase {
     $this->assertIsA($this->etdfile->policy->draft, "PolicyRule");
     $this->assertIsA($this->etdfile->policy->view, "PolicyRule");
   }
+}
+
+
+if (! defined('RUNNER')) {
+  define('RUNNER', true);
+  $test = &new TestEtdFile();
+  $test->run(new HtmlReporter());
 }
 
 ?>

@@ -1,5 +1,5 @@
 <?php
-
+require_once("../bootstrap.php");
 require_once('models/fezetd.php');
 
 class TestFezEtd extends UnitTestCase {
@@ -39,4 +39,9 @@ class TestFezEtd extends UnitTestCase {
 
 }
 
+if (! defined('RUNNER')) {
+  define('RUNNER', true);
+  $test = &new TestFezEtd();
+  $test->run(new HtmlReporter());
+}
 ?>

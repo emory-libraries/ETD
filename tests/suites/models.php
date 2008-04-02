@@ -1,6 +1,6 @@
 <?php
 
-require_once("bootstrap.php");
+require_once("../bootstrap.php");
 
 class ModelGroupTest extends GroupTest {
   function ModelGroupTest() {

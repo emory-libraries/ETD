@@ -1,5 +1,5 @@
 <?php
-
+require_once("../bootstrap.php");
 require_once('models/mads.php');
 
 class TestMads extends UnitTestCase {
@@ -7,7 +7,7 @@ class TestMads extends UnitTestCase {
 
   function setUp() {
     $xml = new DOMDocument();
-    $xml->load("fixtures/mads.xml");
+    $xml->load("../fixtures/mads.xml");
     $this->mads = new mads($xml);
   }
 
@@ -30,4 +30,10 @@ class TestMads extends UnitTestCase {
     $this->assertEqual("mmouse", $this->mads->netid);
   }
     
+}
+
+if (! defined('RUNNER')) {
+  define('RUNNER', true);
+  $test = &new TestMads();
+  $test->run(new HtmlReporter());
 }
