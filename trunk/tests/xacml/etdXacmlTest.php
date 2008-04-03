@@ -71,7 +71,8 @@ class TestEtdXacml extends UnitTestCase {
     setFedoraAccount("guest");
 
     // test draft etd - guest shouldn't be able to see anything
-    $this->expectException(new FoxmlException("Access Denied to {$this->pid}"));
+    //    $this->expectException(new FoxmlException("Access Denied to {$this->pid}"));
+    $this->expectException(new FedoraAccessDenied("getDatastream for {$this->pid}/RELS-EXT"));
     new etd($this->pid);
 
   }
@@ -130,24 +131,24 @@ class TestEtdXacml extends UnitTestCase {
 
     // ETD no longer has draft policy - now test that author *cannot* modify
     $etd->dc->title = "new title";	  //   DC
-    $this->expectError("Access Denied to modify datastream DC");
+    //    $this->expectError("Access Denied to modify datastream DC");
     $this->assertNull($etd->save("test author permissions - modify DC on non-draft etd"));
     $etd->dc->calculateChecksum();	// mark as unmodified
     
     $etd->mods->title = "new title";    //   MODS
-    $this->expectError("Access Denied to modify datastream MODS");
+    //    $this->expectError("Access Denied to modify datastream MODS");
     $this->assertNull($etd->save("test author permissions - modify MODS on non-draft etd"));
     $etd->mods->calculateChecksum();
     
     $etd->html->title = "new title";    //   XHTML
-    $this->expectError("Access Denied to modify datastream XHTML");
+    //    $this->expectError("Access Denied to modify datastream XHTML");
     $this->assertNull($etd->save("test author permissions - modify XHTML on non-draft etd"));
     $etd->html->calculateChecksum();
-    
+	
     $etd->rels_ext->status = "reviewed";    // RELS-EXT
-    $this->expectError("Access Denied to modify datastream RELS-EXT");
+    //    $this->expectError("Access Denied to modify datastream RELS-EXT");
     $this->assertNull($etd->save("test author permissions - modify RELS-EXT on non-draft etd"));
-    $etd->rels_ext->calculateChecksum();       
+    $etd->rels_ext->calculateChecksum();
 
     /*
 
@@ -259,6 +260,11 @@ class TestEtdXacml extends UnitTestCase {
     $this->assertNotNull($etd->save("test etdadmin permissions - modify POLICY on draft etd"),
 			 "etdadmin can modify policy");
 
+    // admin needs access to modify MODS for setting embargo duration, admin notes, etc.
+    $etd->mods->title = "new title";    //   MODS
+    $this->assertNotNull($etd->save("test etdadmin permissions - modify MODS"), "etdadmin cannot modify MODS");
+
+
   }
   
   function testEtdAdminCannotModify() {
@@ -272,13 +278,9 @@ class TestEtdXacml extends UnitTestCase {
     $etd->dc->title = "new title";	  //   DC
     $this->expectError("Access Denied to modify datastream DC");
     $this->assertNull($etd->save("test etdadmin permissions - modify DC"), "etdadmin cannot modify DC");
-    $etd->dc->calculateChecksum();
-    
-    $etd->mods->title = "new title";    //   MODS
-    $this->expectError("Access Denied to modify datastream MODS");
-    $this->assertNull($etd->save("test etdadmin permissions - modify MODS"), "etdadmin cannot modify MODS");
-    $etd->mods->calculateChecksum();
-	
+
+
+    $etd = new etd($this->pid);	
     $etd->html->title = "new title";    //   XHTML
     // NOTE: the order of these errors is significant
     $this->expectError("Access Denied to modify datastream XHTML");
