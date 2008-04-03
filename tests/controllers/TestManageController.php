@@ -85,15 +85,16 @@ class ManageControllerTest extends ControllerTestCase {
     Zend_Registry::set('current_user', $this->test_user);
     $ManageController = new ManageControllerForTest($this->request,$this->response);
     $this->setUpGet(array('pid' => 'test:etd2'));	   // reviewed etd
-    $ManageController->reviewAction();
+
+    $this->assertFalse($ManageController->reviewAction());  // false - not allowed
 
     // not be allowed - etd has wrong status
     // 	 - should be redirected, no etd set, and get a not authorized message
     $viewVars = $ManageController->view->getVars();
-    $this->assertTrue($ManageController->redirectRan);
+    $this->assertFalse($ManageController->redirectRan);
     $this->assertFalse(isset($viewVars['etd']));
-    $messages = $ManageController->getHelper('FlashMessenger')->getMessages();
-    $this->assertPattern("/not authorized/", $messages[0]);
+    // note: can no longer test redirect or error message because that is
+    // handled by Access Controller Helper in a way that can't be checked here (?)
 
     // set status appropriately on etd
     $etd = new etd("test:etd2");
@@ -111,14 +112,10 @@ class ManageControllerTest extends ControllerTestCase {
     Zend_Registry::set('current_user', $this->test_user);
     $ManageController = new ManageControllerForTest($this->request,$this->response);
     $this->setUpGet(array('pid' => 'test:etd2'));	   // reviewed etd
-    $ManageController->acceptAction();
 
     // not be allowed - etd has wrong status
-    // 	 - should be redirected, no etd set, and get a not authorized message
-    $viewVars = $ManageController->view->getVars();
-    $this->assertTrue($ManageController->redirectRan);
-    $messages = $ManageController->getHelper('FlashMessenger')->getMessages();
-    $this->assertPattern("/not authorized/", $messages[0]);
+    $this->assertFalse($ManageController->acceptAction());
+    // can't test redirect/error message - same as review above
 
     // set status appropriately on etd
     $etd = new etd("test:etd2");
@@ -143,14 +140,11 @@ class ManageControllerTest extends ControllerTestCase {
     $ManageController = new ManageControllerForTest($this->request,$this->response);
 
     $this->setUpGet(array('pid' => 'test:etd2', 'type' => 'record'));   // reviewed etd
-    $ManageController->requestchangesAction();
+    $this->assertFalse($ManageController->requestchangesAction());
 
     // should not be allowed - etd has wrong status
-    // 	 - should be redirected, no etd set, and get a not authorized message
-    $viewVars = $ManageController->view->getVars();
-    $this->assertTrue($ManageController->redirectRan);
-    $messages = $ManageController->getHelper('FlashMessenger')->getMessages();
-    $this->assertPattern("/not authorized/", $messages[0]);
+    $this->assertFalse($ManageController->redirectRan);
+    // can't test redirect/message- handled by Access Helper
 
     // set status appropriately on etd
     $etd = new etd("test:etd2");
@@ -178,7 +172,7 @@ class ManageControllerTest extends ControllerTestCase {
     $ManageController = new ManageControllerForTest($this->request,$this->response);
 
     $this->setUpGet(array('pid' => 'test:etd2', 'type' => 'document'));   // reviewed etd
-    $ManageController->requestchangesAction();
+    $this->assertFalse($ManageController->requestchangesAction());
 
     $ManageController = new ManageControllerForTest($this->request,$this->response);
     $ManageController->requestchangesAction();
@@ -194,13 +188,14 @@ class ManageControllerTest extends ControllerTestCase {
     $this->assertEqual("test_user", $etd->premis->event[1]->agent->value);
 
     // try again now that etd is in draft status
-    $ManageController->requestchangesAction();
+    $this->assertFalse($ManageController->requestchangesAction());
     // should not be allowed - etd has wrong status
-    // 	 - should be redirected, no etd set, and get a not authorized message
+    // 	 - should be redirected, no etd set, and get a not authorized message (but can't test)
     $viewVars = $ManageController->view->getVars();
-    $this->assertTrue($ManageController->redirectRan);
-    $messages = $ManageController->getHelper('FlashMessenger')->getMessages();
-    $this->assertPattern("/not authorized/", $messages[0]);
+    $this->assertFalse($ManageController->redirectRan);
+    // can't test- handled by Access Helper
+    //    $messages = $ManageController->getHelper('FlashMessenger')->getMessages();
+    //    $this->assertPattern("/not authorized/", $messages[0]);
   }
 
   
@@ -224,11 +219,9 @@ class ManageControllerTest extends ControllerTestCase {
 
     // should not be allowed - etd has wrong status
     $ManageController = new ManageControllerForTest($this->request,$this->response);
-    $ManageController->approveAction();
-    // 	 - should be redirected and get a not authorized message
-    $this->assertTrue($ManageController->redirectRan);
-    $messages = $ManageController->getHelper('FlashMessenger')->getMessages();
-    $this->assertPattern("/not authorized/", $messages[0]);
+    $this->assertFalse($ManageController->approveAction());
+    // 	 - should be redirected and get a not authorized message (but can't test)
+    $this->assertFalse($ManageController->redirectRan);
     $viewVars = $ManageController->view->getVars();
     $this->assertFalse(isset($viewVars['etd']));
 
@@ -239,12 +232,12 @@ class ManageControllerTest extends ControllerTestCase {
     Zend_Registry::set('current_user', $this->test_user);
     $ManageController = new ManageControllerForTest($this->request,$this->response);
     $this->setUpGet(array('pid' => 'test:etd1', 'embargo' => '3 months'));	   // published etd
-    $ManageController->doapproveAction();
 
+    $this->assertFalse($ManageController->doapproveAction());
     // not allowed - etd has wrong status
-    $this->assertTrue($ManageController->redirectRan);
-    $messages = $ManageController->getHelper('FlashMessenger')->getMessages();
-    $this->assertPattern("/not authorized/", $messages[0]);
+    $this->assertFalse($ManageController->redirectRan);
+    //    $messages = $ManageController->getHelper('FlashMessenger')->getMessages();
+    //    $this->assertPattern("/not authorized/", $messages[0]);
     $etd = new etd("test:etd1");
     $this->assertEqual("published", $etd->status());	// status unchanged 
 
@@ -280,12 +273,12 @@ class ManageControllerTest extends ControllerTestCase {
 
     $ManageController = new ManageControllerForTest($this->request,$this->response);
     $this->setUpGet(array('pid' => 'test:etd2'));	   // NOT a published etd
-    $ManageController->unpublishAction();
-    $this->assertTrue($ManageController->redirectRan);
+    $this->assertFalse($ManageController->unpublishAction());
+    $this->assertFalse($ManageController->redirectRan);
     $viewVars = $ManageController->view->getVars();
     $this->assertFalse(isset($viewVars['etd']));
-    $messages = $ManageController->getHelper('FlashMessenger')->getMessages();
-    $this->assertPattern("/not authorized/", $messages[0]);
+    //    $messages = $ManageController->getHelper('FlashMessenger')->getMessages();
+    //    $this->assertPattern("/not authorized/", $messages[0]);
 				 
   }
 
@@ -304,11 +297,8 @@ class ManageControllerTest extends ControllerTestCase {
     $this->assertPattern("/Record unpublished.*status changed/", $messages[0]);
 
     $this->setUpPost(array('pid' => 'test:etd2', 'reason' => 'testing unpublish'));	   // NOT a published etd
-    $ManageController->unpublishAction();
-    $viewVars = $ManageController->view->getVars();
-    $this->assertTrue($ManageController->redirectRan);
-    $messages = $ManageController->getHelper('FlashMessenger')->getMessages();
-    $this->assertPattern("/not authorized/", $messages[0]);
+    $this->assertFalse($ManageController->unpublishAction());
+    // redirect/not authorized - can't test
   }
    
 
@@ -319,56 +309,25 @@ class ManageControllerTest extends ControllerTestCase {
     $this->setUpGet(array('pid' => 'test:etd1'));	 
     
     $ManageController = new ManageControllerForTest($this->request,$this->response);
-    $ManageController->summaryAction();
+    $this->assertFalse($ManageController->summaryAction());
     $viewVars = $ManageController->view->getVars();
-    $this->assertTrue($ManageController->redirectRan);
     $this->assertFalse(isset($viewVars['etds']));
-    $messages = $ManageController->getHelper('FlashMessenger')->getMessages();
-    $this->assertPattern("/not authorized/", $messages[0]);
 
-    $ManageController->reviewAction();
+    $this->assertFalse($ManageController->reviewAction());
     $viewVars = $ManageController->view->getVars();
-    $this->assertTrue($ManageController->redirectRan);
     $this->assertFalse(isset($viewVars['etd']));
-    $messages = $ManageController->getHelper('FlashMessenger')->getMessages();
-    $this->assertPattern("/not authorized/", $messages[0]);
 
-    $ManageController->acceptAction();
-    $viewVars = $ManageController->view->getVars();
-    $this->assertTrue($ManageController->redirectRan);
-    $messages = $ManageController->getHelper('FlashMessenger')->getMessages();
-    $this->assertPattern("/not authorized/", $messages[0]);
+    $this->assertFalse($ManageController->acceptAction());
 
-    $ManageController->requestchangesAction();
-    $viewVars = $ManageController->view->getVars();
-    $this->assertTrue($ManageController->redirectRan);
-    $messages = $ManageController->getHelper('FlashMessenger')->getMessages();
-    $this->assertPattern("/not authorized/", $messages[0]);
+    $this->assertFalse($ManageController->requestchangesAction());
 
-    $ManageController->approveAction();
-    $viewVars = $ManageController->view->getVars();
-    $this->assertTrue($ManageController->redirectRan);
-    $messages = $ManageController->getHelper('FlashMessenger')->getMessages();
-    $this->assertPattern("/not authorized/", $messages[0]);
+    $this->assertFalse($ManageController->approveAction());
     
-    $ManageController->doapproveAction();
-    $viewVars = $ManageController->view->getVars();
-    $this->assertTrue($ManageController->redirectRan);
-    $messages = $ManageController->getHelper('FlashMessenger')->getMessages();
-    $this->assertPattern("/not authorized/", $messages[0]);
+    $this->assertFalse($ManageController->doapproveAction());
 
-    $ManageController->unpublishAction();
-    $viewVars = $ManageController->view->getVars();
-    $this->assertTrue($ManageController->redirectRan);
-    $messages = $ManageController->getHelper('FlashMessenger')->getMessages();
-    $this->assertPattern("/not authorized/", $messages[0]);
+    $this->assertFalse($ManageController->unpublishAction());
 
-    $ManageController->doUnpublishAction();
-    $viewVars = $ManageController->view->getVars();
-    $this->assertTrue($ManageController->redirectRan);
-    $messages = $ManageController->getHelper('FlashMessenger')->getMessages();
-    $this->assertPattern("/not authorized/", $messages[0]);
-
+    $this->assertFalse($ManageController->doUnpublishAction());
   }
   
 }
@@ -378,12 +337,10 @@ class ManageControllerForTest extends ManageController {
   
   public $renderRan = false;
   public $redirectRan = false;
-  
+
   public function initView() {
     $this->view = new Zend_View();
-
     Zend_Controller_Action_HelperBroker::addPrefix('TestEtd_Controller_Action_Helper');
-
   }
   
   public function render() {
