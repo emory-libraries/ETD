@@ -39,10 +39,5 @@ class TestEtdFile extends UnitTestCase {
 }
 
 
-if (! defined('RUNNER')) {
-  define('RUNNER', true);
-  $test = &new TestEtdFile();
-  $test->run(new HtmlReporter());
-}
-
+runtest(new TestEtdFile());
 ?>

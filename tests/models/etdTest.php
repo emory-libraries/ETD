@@ -238,18 +238,13 @@ class TestEtd extends UnitTestCase {
 
     // simulate bad data / incomplete record to test exception
     $this->etd->mods->embargo = "";	// empty duration - results in zero-time unix
-    $this->expectException(new XmlObjectException("Calculated embargo date does not look correct (timestamp:$end_date, 1969-12-31)"));
+    $this->expectException(new XmlObjectException("Calculated embargo date does not look correct (timestamp:, 1969-12-31)"));
     $this->etd->publish($pubdate, $pubdate);	      
   }
   
 
 }
 
-if (! defined('RUNNER')) {
-  define('RUNNER', true);
-  $test = &new TestEtd();
-  $test->run(new HtmlReporter());
-}
-
+runtest(new TestEtd());
 
 ?>

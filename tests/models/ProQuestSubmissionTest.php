@@ -297,8 +297,5 @@ class TestPQSubmission extends UnitTestCase {
  
 }
 
-if (! defined('RUNNER')) {
-  define('RUNNER', true);
-  $test = &new TestPQSubmission();
-  $test->run(new HtmlReporter());
-}
+runtest(new TestPQSubmission());
+?>

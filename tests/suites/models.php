@@ -1,5 +1,5 @@
 <?php
-
+define('RUNNER', true);
 require_once("../bootstrap.php");
 
 class ModelGroupTest extends GroupTest {
@@ -22,9 +22,9 @@ class ModelGroupTest extends GroupTest {
   }
 }
 
-if (! defined('RUNNER')) {
-  define('RUNNER', true);
-  $test = &new ModelGroupTest();
-  $test->run(new HtmlReporter());
-}
+
+$test = new ModelGroupTest;
+$reporter = isset($argv) ? new TextReporter() : new HtmlReporter();
+$test->run($reporter);
+
 ?>

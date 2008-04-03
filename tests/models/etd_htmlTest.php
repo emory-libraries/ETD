@@ -127,10 +127,5 @@ class TestEtdHtml extends UnitTestCase {
 }
 
 
-if (! defined('RUNNER')) {
-  define('RUNNER', true);
-  $test = &new TestEtdHtml();
-  $test->run(new HtmlReporter());
-}
-
+runtest(new TestEtdHtml());
 ?>

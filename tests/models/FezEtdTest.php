@@ -9,7 +9,7 @@ class TestFezEtd extends UnitTestCase {
   function setUp() {
     $this->testfile = array("pid" => "test:fezetd1",
 		      "name" => "fezetd.xml");
-    fedora::ingest(file_get_contents('fixtures/' . $this->testfile["name"]), "loading test object");
+    fedora::ingest(file_get_contents('../fixtures/' . $this->testfile["name"]), "loading test object");
     $this->etd = new FezEtd($this->testfile["pid"]);
   }
   
@@ -39,9 +39,5 @@ class TestFezEtd extends UnitTestCase {
 
 }
 
-if (! defined('RUNNER')) {
-  define('RUNNER', true);
-  $test = &new TestFezEtd();
-  $test->run(new HtmlReporter());
-}
+runtest(new TestFezEtd());
 ?>
