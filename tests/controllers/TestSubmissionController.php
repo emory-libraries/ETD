@@ -1,4 +1,6 @@
 <?
+
+require_once("../bootstrap.php");
 require_once('ControllerTestCase.php');
 require_once('controllers/SubmissionController.php');
       
@@ -31,7 +33,7 @@ class SubmissionControllerTest extends ControllerTestCase {
     // load a test objects to repository
     // NOTE: for risearch queries to work, syncupdates must be turned on for test fedora instance
     foreach (array_keys($this->etdxml) as $etdfile) {
-      $pid = fedora::ingest(file_get_contents('fixtures/' . $etdfile . '.xml'), "loading test etd");
+      $pid = fedora::ingest(file_get_contents('../fixtures/' . $etdfile . '.xml'), "loading test etd");
     }
 
   }
@@ -159,5 +161,5 @@ class SubmissionControllerForTest extends SubmissionController {
   }
 } 	
 
-
+runtest(new SubmissionControllerTest());
 ?>
