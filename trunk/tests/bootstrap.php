@@ -42,11 +42,16 @@ Zend_Registry::set('acl', $acl);
 // store acl for use within view also
 //$viewRenderer->view->acl = $acl;
 
+$front = Zend_Controller_Front::getInstance();
+//$front = $this->view->getFrontController();
+$front->setControllerDirectory(array("default" => "../app/controllers", "emory" => "../lib/ZendFramework/Emory"));
+$front->addModuleDirectory("../app/modules");
+$front->setControllerDirectory("../../src/app/controllers", "default");
+
 // add new helper path to view
 $viewRenderer = Zend_Controller_Action_HelperBroker::getStaticHelper('ViewRenderer');
 $viewRenderer->initView();
 $viewRenderer->view->addHelperPath('Emory/View/Helper', 'Emory_View_Helper');
-
 
 // required when running through the web - zend complains without this
 if (!isset($argv)) Zend_Session::start();
