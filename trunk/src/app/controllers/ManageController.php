@@ -36,7 +36,7 @@ class ManageController extends Etd_Controller_Action {
 
    public function reviewAction() {
      $etd = $this->_helper->getFromFedora("pid", "etd");
-     if (!$this->_helper->access->allowedOnEtd("review", $etd)) return;
+     if (!$this->_helper->access->allowedOnEtd("review", $etd)) return false;
 
      $this->view->etd = $etd;
      $this->view->title = "Manage : Review record information";
@@ -47,7 +47,8 @@ class ManageController extends Etd_Controller_Action {
    // change status on etd to reviewed
    public function acceptAction() {
      $etd = $this->_helper->getFromFedora("pid", "etd");
-     if (!$this->_helper->access->allowedOnEtd("review", $etd)) return;	// part of review workflow
+     // accept is part of review workflow
+     if (!$this->_helper->access->allowedOnEtd("review", $etd)) return false;	
      
      $newstatus = "reviewed";
      $etd->setStatus($newstatus);
@@ -69,7 +70,7 @@ class ManageController extends Etd_Controller_Action {
    public function requestchangesAction() {
      $etd = $this->_helper->getFromFedora("pid", "etd");
      $changetype = $this->_getParam("type", "record");	  // could also be document (record=metadata)
-     if (!$this->_helper->access->allowedOnEtd("request $changetype changes", $etd)) return;  
+     if (!$this->_helper->access->allowedOnEtd("request $changetype changes", $etd)) return false;  
 
      $newstatus = "draft";
      $etd->setStatus($newstatus);
@@ -95,7 +96,7 @@ class ManageController extends Etd_Controller_Action {
 
    public function approveAction() {
      $etd = $this->_helper->getFromFedora("pid", "etd");
-     if (!$this->_helper->access->allowedOnEtd("approve", $etd)) return;
+     if (!$this->_helper->access->allowedOnEtd("approve", $etd)) return false;
      
      $this->view->etd = $etd;
      $this->view->title = "Manage : Approve ETD";
@@ -103,7 +104,7 @@ class ManageController extends Etd_Controller_Action {
 
    public function doapproveAction() {
      $etd = $this->_helper->getFromFedora("pid", "etd");
-     if (!$this->_helper->access->allowedOnEtd("approve", $etd)) return;
+     if (!$this->_helper->access->allowedOnEtd("approve", $etd)) return false;
      
      $embargo = $this->_getParam("embargo");	// duration
      
@@ -145,14 +146,14 @@ class ManageController extends Etd_Controller_Action {
    
    public function unpublishAction() {
      $etd = $this->_helper->getFromFedora("pid", "etd");
-     if (!$this->_helper->access->allowedOnEtd("unpublish", $etd)) return;
+     if (!$this->_helper->access->allowedOnEtd("unpublish", $etd)) return false;
      $this->view->etd = $etd;
      $this->view->title = "Manage : Unpublish ETD";
    }
 
    public function doUnpublishAction() {
      $etd = $this->_helper->getFromFedora("pid", "etd");
-     if (!$this->_helper->access->allowedOnEtd("unpublish", $etd)) return;
+     if (!$this->_helper->access->allowedOnEtd("unpublish", $etd)) return false;
      
      $reason = $this->_getParam("reason", "");
      
@@ -173,7 +174,7 @@ class ManageController extends Etd_Controller_Action {
    }
 
    public function embargoesAction() {
-     if (!$this->_helper->access->allowedOnEtd("manage")) return;
+     if (!$this->_helper->access->allowedOnEtd("manage")) return false;
 
      $start = $this->_getParam("start", 1);
      $max = $this->_getParam("max", 10);	
@@ -189,7 +190,7 @@ class ManageController extends Etd_Controller_Action {
 
    
    public function exportEmailsAction() {
-     if (!$this->_helper->access->allowedOnEtd("manage")) return;
+     if (!$this->_helper->access->allowedOnEtd("manage")) return false;
      $this->view->etds = etd::findbyStatus('approved');
 
      $this->getHelper('layoutManager')->disableLayouts();
