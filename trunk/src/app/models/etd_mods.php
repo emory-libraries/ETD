@@ -285,17 +285,20 @@ class etd_mods extends mods {
       $i++;
     }
 
+
     // remove any committee members beyond this set of new ones
-    while (isset($this->committee[$i]) ) {
+    while (isset($this->committee[$i]) && $this->committee[$i]->id  != "") {
       $this->removeCommitteeMember($this->committee[$i]->id);
     }
-
     $this->update();
   }
 
   /* remove a committee member by id */
   public function removeCommitteeMember($id) {
-    if ($id == "") return;	// don't remove empty nodes (part of template)
+    if ($id == "") {
+      throw new XmlObjectException("Can't remove committee member with non-existent id");
+      return;	// don't remove empty nodes (should be part of template)
+    }
     
     // remove the node from the xml dom
     $nodelist = $this->xpath->query("//mods:name[@ID = '$id'][mods:role/mods:roleTerm = 'Committee Member']");
