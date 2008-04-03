@@ -13,7 +13,7 @@ class SubmissionController extends Etd_Controller_Action {
   }
    
   public function startAction() {
-    if (!$this->_helper->access->allowedOnEtd("create")) return;
+    if (!$this->_helper->access->allowedOnEtd("create")) return false;
     // any other info needed here?
     $this->view->title = "Begin Submission";
   }
@@ -22,7 +22,7 @@ class SubmissionController extends Etd_Controller_Action {
   // pulls information from the PDF, creates a new fedora record with associated pdf file,
   // then forwards to the view/master edit page
   public function processPdfAction() {
-    if (!$this->_helper->access->allowedOnEtd("create")) return;
+    if (!$this->_helper->access->allowedOnEtd("create")) return false;
     
     $etd_info = $this->_helper->processPDF($_FILES['pdf']);
 
@@ -159,7 +159,7 @@ class SubmissionController extends Etd_Controller_Action {
   public function reviewAction() {
     // double-check that etd is ready to submit?
     $etd = $this->_helper->getFromFedora("pid", "etd");
-    if (!$this->_helper->access->allowedOnEtd("submit", $etd)) return;
+    if (!$this->_helper->access->allowedOnEtd("submit", $etd)) return false;
     
     $this->view->etd = $etd;
     $this->view->title = "Final Review";
@@ -169,7 +169,7 @@ class SubmissionController extends Etd_Controller_Action {
     // fixme: double-check that etd is ready to submit
     
     $etd = $this->_helper->getFromFedora("pid", "etd");
-    if (!$this->_helper->access->allowedOnEtd("submit", $etd)) return;
+    if (!$this->_helper->access->allowedOnEtd("submit", $etd)) return false;
     
     
     $newstatus = "submitted";

@@ -44,25 +44,18 @@ class SubmissionControllerTest extends ControllerTestCase {
   }
 
 
-  function XtestStartAction() {
+  function testStartAction() {
     $this->test_user->role = "staff";	// set to non-student
     Zend_Registry::set('current_user', $this->test_user);
     $SubmissionController = new SubmissionControllerForTest($this->request,$this->response);
-    $SubmissionController->startAction();
+    $this->assertFalse($SubmissionController->startAction());
     // should not be allowed (not a student)
-    $this->assertTrue($SubmissionController->redirectRan);
-    $messages = $SubmissionController->getHelper('FlashMessenger')->getMessages();
-    $this->assertPattern("/not authorized/", $messages[0]);
 
     // student who already has a submission 
     $this->test_user->role = "student with submission";
     Zend_Registry::set('current_user', $this->test_user);
-    $SubmissionController->startAction();
     // should not be allowed to create a new submission
-    $this->assertTrue($SubmissionController->redirectRan);
-    $messages = $SubmissionController->getHelper('FlashMessenger')->getMessages();
-    $this->assertPattern("/not authorized/", $messages[0]);
-
+    $this->assertFalse($SubmissionController->startAction());
 
     // student
     $SubmissionController = new SubmissionControllerForTest($this->request,$this->response);
@@ -75,17 +68,14 @@ class SubmissionControllerTest extends ControllerTestCase {
   /* FIXME: not sure how to test processPdf action - LOTS of stuff going on, hard to simulate... */
 
 
-  function XtestReviewAction() {
+  function testReviewAction() {
     $this->test_user->role = "student";	// set to non-student
     Zend_Registry::set('current_user', $this->test_user);
     $SubmissionController = new SubmissionControllerForTest($this->request,$this->response);
 
     $this->setUpGet(array('pid' => 'test:etd2'));	   // reviewed etd
-    $SubmissionController->reviewAction();
     // etd is wrong status, should not be allowed
-    $this->assertTrue($SubmissionController->redirectRan);
-    $messages = $SubmissionController->getHelper('FlashMessenger')->getMessages();
-    $this->assertPattern("/not authorized/", $messages[0]);
+    $this->assertFalse($SubmissionController->reviewAction());
     $viewVars = $SubmissionController->view->getVars();
     $this->assertFalse(isset($viewVars['etd']));
 
@@ -108,13 +98,10 @@ class SubmissionControllerTest extends ControllerTestCase {
     $SubmissionController = new SubmissionControllerForTest($this->request,$this->response);
 
     $this->setUpGet(array('pid' => 'test:etd2'));	   // reviewed etd
-    $SubmissionController->submitAction();
     // etd is wrong status, should not be allowed
-    $this->assertTrue($SubmissionController->redirectRan);
-    $messages = $SubmissionController->getHelper('FlashMessenger')->getMessages();
-    $this->assertPattern("/not authorized/", $messages[0]);
+    $this->assertFalse($SubmissionController->submitAction());
     $etd = new etd("test:etd2");
-    $this->assertEqual("reviewed", $etd->status(), "status unchanged");
+    $this->assertEqual("reviewed", $etd->status(), "status unchanged");	
 
     // set status to draft so it can be submitted
     $etd = new etd("test:etd2");
