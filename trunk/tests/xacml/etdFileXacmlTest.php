@@ -60,8 +60,8 @@ class TestEtdFileXacml extends UnitTestCase {
     $etdfile = new etd_file($this->pid);
     $etdfile->purge('removing test object');
     // FIXME: not sure why purge is getting an access denied error..
-    //    $this->expectException(new FedoraAccessDenied("purge {$this->pid}"));
-    //$this->fedoraAdmin->purge($this->pid, "removing test object");
+    //$this->expectException(new FedoraAccessDenied("purge {$this->pid}"));
+    //    $this->fedoraAdmin->purge($this->pid, "removing test object");
   }
 
 
@@ -119,6 +119,7 @@ class TestEtdFileXacml extends UnitTestCase {
     $etdfile->policy->removeRule("view");    // POLICY
     $this->assertNotNull($etdfile->save("test author permissions - modify POLICY on draft etdfile"));
 
+    $this->expectException(new FedoraAccessDenied("purge test:etdfile1"));
     $this->assertNull($etdfile->purge("testing author permissions - purge draft etdfile"));
     
   }
@@ -150,6 +151,7 @@ class TestEtdFileXacml extends UnitTestCase {
     $this->expectError("Access Denied to modify datastream POLICY"); 
     $this->assertNull($etdfile->save("test author permissions - modify POLICY on non-draft etdfile"));
 
+    $this->expectException(new FedoraAccessDenied("purge test:etdfile1"));
     $this->assertNull($etdfile->purge("testing author permissions - purge non-draft etdfile"));
 
   }
@@ -206,7 +208,8 @@ class TestEtdFileXacml extends UnitTestCase {
     $etdfile = new etd_file($this->pid);
 
     // should be able to modify these datastreams
-    $etdfile->rels_ext->pdfOf = "test:etd1";    // RELS-EXT  (set status)
+    //    $etdfile->rels_ext->pdfOf = "test:etd1";    // RELS-EXT  (set status)
+    $etdfile->rels_ext->addRelation("rel:status", "draft");    // RELS-EXT  (set status)
     $saveresult = $etdfile->save("test etdadmin permissions - modify RELS-EXT on draft etdfile");
     $this->assertNotNull($saveresult,
 			 "etdadmin can set status");
