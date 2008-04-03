@@ -34,7 +34,7 @@ abstract class Etd_Controller_Action extends Zend_Controller_Action {
     $this->view->acl = $this->acl;
     if (isset($this->current_user)) $this->view->current_user = $this->current_user;
     $this->view->env = $this->env;
-    $this->view->browserInfo = get_browser();
+    if (isset($_SERVER['HTTP_USER_AGENT'])) $this->view->browserInfo = get_browser();
     $config = Zend_Registry::get('config');
     $this->view->supported_browsers = explode(',', $config->supported_browsers);
 
