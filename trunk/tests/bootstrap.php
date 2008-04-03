@@ -42,8 +42,24 @@ Zend_Registry::set('acl', $acl);
 // store acl for use within view also
 //$viewRenderer->view->acl = $acl;
 
+// add new helper path to view
+$viewRenderer = Zend_Controller_Action_HelperBroker::getStaticHelper('ViewRenderer');
+$viewRenderer->initView();
+$viewRenderer->view->addHelperPath('Emory/View/Helper', 'Emory_View_Helper');
 
-// required - zend complains without this
-Zend_Session::start();
+
+// required when running through the web - zend complains without this
+if (!isset($argv)) Zend_Session::start();
+
+function runtest($test) {
+  global $argv;
+  if (! defined('RUNNER')) {
+    define('RUNNER', true);
+    $reporter = isset($argv) ? new TextReporter() : new HtmlReporter();
+    $test->run($reporter);
+  }
+}
+
+
 
 ?>

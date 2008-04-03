@@ -164,8 +164,6 @@ class TestPolicy extends UnitTestCase {
   
 }
 
-if (! defined('RUNNER')) {
-  define('RUNNER', true);
-  $test = &new TestPolicy();
-  $test->run(new HtmlReporter());
-}
+
+runtest(new TestPolicy());
+?>

@@ -32,8 +32,5 @@ class TestMads extends UnitTestCase {
     
 }
 
-if (! defined('RUNNER')) {
-  define('RUNNER', true);
-  $test = &new TestMads();
-  $test->run(new HtmlReporter());
-}
+runtest(new TestMads());
+?>

@@ -42,11 +42,7 @@ class TestUser extends UnitTestCase {
     $this->assertEqual("", $this->user->mads->permanent->date);
     
   }
-
 }
 
-if (! defined('RUNNER')) {
-  define('RUNNER', true);
-  $test = &new TestUser();
-  $test->run(new HtmlReporter());
-}
+runtest(new TestUser());
+?>

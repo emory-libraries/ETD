@@ -96,8 +96,5 @@ class TestSkosCollection extends UnitTestCase {
 
 }
 
-if (! defined('RUNNER')) {
-  define('RUNNER', true);
-  $test = &new TestSkosCollection();
-  $test->run(new HtmlReporter());
-}
+runtest(new TestSkosCollection());
+?>

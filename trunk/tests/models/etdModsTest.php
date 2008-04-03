@@ -13,7 +13,7 @@ class TestEtdMods extends UnitTestCase {
 
   function tearDown() {}
 
-  function testKeywords() {
+  function NOtestKeywords() {
     // sanity checks - reading values in the xml
     $this->assertIsa($this->mods->keywords, "Array");
     $this->assertEqual(1, count($this->mods->keywords));
@@ -108,7 +108,7 @@ class TestEtdMods extends UnitTestCase {
     
   }
 
-  function NOtestAddCommittee() {
+  function testAddCommittee() {
     $count = count($this->mods->committee);
     $this->mods->addCommitteeMember("Duck", "Donald");
     $this->assertEqual($count + 1, count($this->mods->committee));
@@ -117,13 +117,26 @@ class TestEtdMods extends UnitTestCase {
     $this->assertEqual("Duck, Donald", $this->mods->committee[$count]->full);
     // should probably check xml with regexp, but mods:name is complicated and it seems to be working...
 
+    
     // test adding committee after all committee members have been removed
-    $this->mods->advisor->id = "wdisney";	// needs to be set or it will get removed
+    // FIXME: this section is TIMING OUT for some reason...
+    // ids need to be set so names can be removed
+    $this->mods->committee[0]->id = "test";	
+    $this->mods->committee[1]->id = "dduck";
     $this->mods->setCommittee(array());
     $this->assertEqual(0, count($this->mods->committee));
     $this->mods->addCommitteeMember("Duck", "Donald");
     $this->assertEqual(1, count($this->mods->committee));
     $this->assertEqual("Duck", $this->mods->committee[0]->last);
+  }
+
+  function testRemoveCommittee() {
+    $this->expectException(new XmlObjectException("Can't remove committee member with non-existent id"));
+    $this->mods->removeCommitteeMember("");
+    
+    $this->mods->committee[0]->id = "testid";
+    $this->mods->removeCommitteeMember("testid");
+    $this->assertEqual(0, count($this->mods->committee));
   }
 
   function NOtestAddNonemoryCommittee() {
@@ -162,9 +175,6 @@ class TestEtdMods extends UnitTestCase {
 
 }
 
+runtest(new TestEtdMods());
 
-if (! defined('RUNNER')) {
-  define('RUNNER', true);
-  $test = &new TestEtdMods();
-  $test->run(new HtmlReporter());
-}
+?>

@@ -63,9 +63,5 @@ class TestPremis extends UnitTestCase {
 
 }
 
-if (! defined('RUNNER')) {
-  define('RUNNER', true);
-  $test = &new TestPremis();
-  $test->run(new HtmlReporter());
-}
-
+runtest(new TestPremis());
+?>
