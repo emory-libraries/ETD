@@ -51,6 +51,7 @@ $viewRenderer->view->addHelperPath('Emory/View/Helper', 'Emory_View_Helper');
 // required when running through the web - zend complains without this
 if (!isset($argv)) Zend_Session::start();
 
+// convenience function used to run tests individually when not running as a suite
 function runtest($test) {
   global $argv;
   if (! defined('RUNNER')) {
@@ -59,6 +60,19 @@ function runtest($test) {
     $test->run($reporter);
   }
 }
+
+// utility function used by xacml tests
+function setFedoraAccount($user) {
+  $fedora_cfg = Zend_Registry::get('fedora-config');
+  
+  // create a new fedora connection with configured port & server, specified password
+  $fedora = new FedoraConnection($user, $user,	// for test accounts, username = password
+				 $fedora_cfg->server, $fedora_cfg->port);
+  
+  // note: needs to be in registry because this is what the etd object will use
+  Zend_Registry::set('fedora', $fedora);
+}
+
 
 
 

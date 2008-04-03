@@ -1,7 +1,7 @@
 <?php
 
+require_once("../bootstrap.php");
 require_once('models/user.php');
-
 
 /* NOTE: this test depends on having these user accounts defined in the test fedora instance:
   author, committee, etdadmin, guest
@@ -26,7 +26,7 @@ class TestUserXacml extends UnitTestCase {
 			       $fedora_cfg->server, $fedora_cfg->port);
     }
       
-    $fname = 'fixtures/user.xml';
+    $fname = '../fixtures/user.xml';
     $dom = new DOMDocument();
     $dom->load($fname);
     $user = new user($dom);
@@ -111,3 +111,6 @@ class TestUserXacml extends UnitTestCase {
   }
 
 }
+
+runtest(new TestUserXacml());
+?>

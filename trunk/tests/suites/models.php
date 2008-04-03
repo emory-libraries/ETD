@@ -1,5 +1,12 @@
 <?php
-define('RUNNER', true);
+
+if (defined('RUNNER')) {
+  $is_runner = false;	// running as part of a larger suite
+} else {
+  define('RUNNER', true);
+  $is_runner = true;
+}
+
 require_once("../bootstrap.php");
 
 class ModelGroupTest extends GroupTest {
@@ -22,9 +29,10 @@ class ModelGroupTest extends GroupTest {
   }
 }
 
-
-$test = new ModelGroupTest;
-$reporter = isset($argv) ? new TextReporter() : new HtmlReporter();
-$test->run($reporter);
+if ($is_runner) {
+  $test = new ModelGroupTest;
+  $reporter = isset($argv) ? new TextReporter() : new HtmlReporter();
+  $test->run($reporter);
+}
 
 ?>

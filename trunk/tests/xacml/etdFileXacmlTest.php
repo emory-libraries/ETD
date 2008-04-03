@@ -1,5 +1,5 @@
 <?php
-
+require_once("../bootstrap.php");
 require_once('models/etdfile.php');
 
 
@@ -24,7 +24,7 @@ class TestEtdFileXacml extends UnitTestCase {
 			       $fedora_cfg->server, $fedora_cfg->port);
     }
       
-    $fname = 'fixtures/etdfile.xml';
+    $fname = '../fixtures/etdfile.xml';
     $dom = new DOMDocument();
     $dom->load($fname);
 
@@ -58,7 +58,7 @@ class TestEtdFileXacml extends UnitTestCase {
   function purgeTestObject() {
     setFedoraAccount("fedoraAdmin");
     $etdfile = new etd_file($this->pid);
-    $etfile->purge('removing test object');
+    $etdfile->purge('removing test object');
     // FIXME: not sure why purge is getting an access denied error..
     //    $this->expectException(new FedoraAccessDenied("purge {$this->pid}"));
     //$this->fedoraAdmin->purge($this->pid, "removing test object");
@@ -311,12 +311,7 @@ class TestEtdFileXacml extends UnitTestCase {
 
 
   }
-
-  
-  
-
-
-
 }
 
+runtest(new TestEtdFileXacml());
 ?>

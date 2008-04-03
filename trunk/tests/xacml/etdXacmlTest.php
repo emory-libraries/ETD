@@ -1,5 +1,5 @@
 <?php
-
+require_once("../bootstrap.php");
 require_once('models/etd.php');
 
 
@@ -26,7 +26,7 @@ class TestEtdXacml extends UnitTestCase {
 			       $fedora_cfg->server, $fedora_cfg->port);
     }
       
-    $fname = 'fixtures/etd1.xml';
+    $fname = '../fixtures/etd1.xml';
     $dom = new DOMDocument();
     $dom->load($fname);
     $etd = new etd($dom);
@@ -288,3 +288,6 @@ class TestEtdXacml extends UnitTestCase {
   
   
 }
+
+runtest(new TestEtdXacml());
+?>
