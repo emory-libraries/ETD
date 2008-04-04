@@ -14,7 +14,7 @@ class FileController extends Etd_Controller_Action {
      if (!$this->_helper->access->allowedOnEtdFile("view", $etdfile)) return;
      
      // don't use layout or templates
-     $this->getHelper('layoutManager')->disableLayouts();
+     $this->_helper->layout->disableLayout();
      $this->_helper->viewRenderer->setNoRender(true);
 
      // fix headers for IE bug (otherwise file download doesn't work over https)

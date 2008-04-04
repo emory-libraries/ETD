@@ -45,7 +45,7 @@ abstract class Etd_Controller_Action extends Zend_Controller_Action {
     if (isset($params['action']))  $this->view->action = $params['action'];
 
     if (isset($params['layout']) && $params['layout'] == "printable")
-      Xend_Layout::setDefaultLayoutName('printable');
+      $this->_helper->layout->setLayout("printable");
     // by default, pages are not printable (don't need print-view link)
     $this->view->printable = false;
 

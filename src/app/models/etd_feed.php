@@ -41,8 +41,8 @@ class Etd_Feed_Builder implements Zend_Feed_Builder_Interface {
 					   $link,			// link within site
 					   $etd->_abstract()	// brief non-html description
 					   );
-      $entry->guid = $etd->ark;		// globally unique identifier (ark)	no way to set isPermaLink="true" ?
-      $entry->setLastUpdate(strtotime($etd->dateIssued));
+      $entry->guid = $etd->mods->ark;		// globally unique identifier (ark)	no way to set isPermaLink="true" ?
+      $entry->setLastUpdate(strtotime($etd->mods->originInfo->issued));
       $entry->author = $etd->author();	// adds but doesn't output
 
       // add program, research fields, and keywords as categories (appropriate/useful?)

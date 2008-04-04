@@ -121,7 +121,7 @@ class SearchController extends Etd_Controller_Action {
     $this->view->faculty = $p->match_faculty(stripslashes($name));
     
     // disable layouts and view script rendering in order to set content-type header as xml
-    $this->getHelper('layoutManager')->disableLayouts();
+     $this->_helper->layout->disableLayout();
     //    $this->_helper->viewRenderer->setNoRender(true);
     $this->getResponse()->setHeader('Content-Type', "text/xml");
     // FIXMe: use displayXml helper?
