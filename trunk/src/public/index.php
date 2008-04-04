@@ -82,8 +82,11 @@ $front->setControllerDirectory(array("default" => "../app/controllers", "emory" 
 $front->addModuleDirectory("../app/modules");
 
 // Define Layout
-Xend_Layout::setup(array('path' => '../app/layouts',));
-Xend_Layout::setDefaultLayoutName('site');
+Zend_Layout::startMvc(array("layout" => "site",		// default layout
+			    "layoutPath" => "../app/layouts/scripts",	// layout base path
+			    ));
+//Zend_Layout::setup(array('path' => '../app/layouts',));
+//Zend_Layout::setDefaultLayoutName('site');
 
 
 // add new helper path to view

@@ -193,7 +193,7 @@ class ManageController extends Etd_Controller_Action {
      if (!$this->_helper->access->allowedOnEtd("manage")) return false;
      $this->view->etds = etd::findbyStatus('approved');
 
-     $this->getHelper('layoutManager')->disableLayouts();
+     $this->_helper->layout->disableLayout();
      $this->getResponse()->setHeader('Content-Type', "text/csv");
      $this->getResponse()->setHeader('Content-Disposition',
 				     'attachment; filename="ETD_approved_emails.csv"');

@@ -2,8 +2,10 @@
   <production>
      <server>domokun</server>
      <port>8080</port>
+<!-- by default, site should connect to fedora as a non-privileged user -->
      <user>guest</user>
      <password>guest</password>
+<!-- account for automated processes that need more access -->
      <maintenance_account>
        <user>etdmaint</user>  
        <password></password>   
@@ -14,21 +16,15 @@
   <development extends="production">
      <server>wilson.library.emory.edu</server>
      <port>6080</port>
-<!-- by default, site should connect to fedora as a non-privileged user -->
-     <user>guest</user>  
-     <password>guest</password>   
-<!-- account for automated processes that need more access -->
      <maintenance_account>
-       <user>etdmaint</user>  
        <password>etdmaint</password>   
      </maintenance_account>
      <protocol>http</protocol>
      <resourceindex>risearch</resourceindex>
-     <protocol>http</protocol>
   </development>
   <test extends="development">
      <port>7080</port>
      <user>fedoraAdmin</user>  
-     <password>fedoraAdmin</password>   
+     <password></password>   
   </test>
 </fedora>
