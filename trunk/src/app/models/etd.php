@@ -195,22 +195,38 @@ class etd extends foxml implements etdInterface {
     // if there is already a file of this type, set the number accordingly
     if ($count) {
       $etdfile->rels_ext->sequence = $count + 1;
+      // FIXME: should this save here, or would that be unexpected behavior?
       $etdfile->save("setting sequence number");
     }
+
+    // update etdfile xacml with any information already added to etd
+    //  - for all files other than the Original, advisor & committee members should always be able to view
+    if ($relation != "Original") {
+      // add netids for advisor and committee if they have already been set
+      if ($this->mods->advisor->id != "")
+	$etdfile->policy->view->condition->addUser($this->mods->advisor->id);
+      foreach ($this->mods->committee as $cm) {
+	if ($cm->id != "")
+	  $etdfile->policy->view->condition->addUser($cm->id);
+      }
+      // if department has already been set, add to the view rule for departmental staff
+      if ($this->mods->department != "")
+	$etdfile->policy->view->condition->department = $this->mods->department;
+    }
+
 
     // etd is related to file
     $this->rels_ext->addRelationToResource("rel:has{$relation}", $etdfile->pid);
 
     // add the etd file to the appropriate array in this object
-    // FIXME: don't think this works with the new dynamic related objects set/get in foxml class
+    // FIXME: this may not work with the new dynamic related objects set/get in foxml class
     if (!isset($this->related_objects[$array_name])) $this->related_objects[$array_name] = array();
-    $this->related_objects[$array_name][] = new etd_file ($etdfile->pid);
-
+    $this->related_objects[$array_name][] = $etdfile;
+    //$this->related_objects[$array_name][] = new etd_file ($etdfile->pid);
     // fixme: need better error handling here...
 
-    $result = $this->save("adding relation to file ($relation) " . $etdfile->pid);
-    
-    return $result;
+
+    // NOTE: record should be saved after this; not saving here for consistency & easier testing
   }
 
 
@@ -230,6 +246,23 @@ class etd extends foxml implements etdInterface {
     //    risearch::flush($this->pid);
     $this->fedora->risearch->flush_next();
   }
+
+
+  public function save($message) {
+    // cascade save to related files
+    // since changes on etd can cause changes on etdfiles (e.g., xacml)
+    // should not be a big performance hit, because only changed datastreams are actually saved
+    $etdfiles = array_merge($this->pdfs, $this->originals, $this->supplements);
+    foreach ($etdfiles as $file) {
+      $file->save($message);	// FIXME: add a note that it was saved with/by etd?
+    }
+
+    // TODO: update DC datastream based on MODS
+    
+
+    parent::save($message);
+  }
+  
 
   
   /* FIXME: systematic way to link mods fields to dublin core?  update
@@ -304,8 +337,13 @@ class etd extends foxml implements etdInterface {
     case "department":
       // set author's department in mods & in view policy
       $this->mods->department = $value;
-      if (isset($this->policy->view))
-	$this->policy->view->condition->department = $value;
+
+      // set department on xacml policy for etd and any associated etdFiles
+      $objects = array_merge(array($this), $this->pdfs, $this->supplements);
+      foreach ($objects as $obj) {
+	if (isset($obj->policy->view))
+	  $obj->policy->view->condition->department = $value;
+      }
       break;
     default:
       parent::__set($name, $value);
@@ -315,33 +353,47 @@ class etd extends foxml implements etdInterface {
 
   // set advisor in mods metadata but *also* set in view policy
   public function setAdvisor($id) {
-    // if a different advisor was set before, remove from policy
-    if ($this->mods->advisor->id)
-      $this->policy->view->condition->removeUser($this->mods->advisor->id);
-    // store in mods    
+    // if a different advisor was set before, remove from policy on etd and associated files
+    if ($this->mods->advisor->id) {
+      foreach (array_merge(array($this), $this->pdfs, $this->supplements) as $obj) {
+	if (isset($obj->policy->view))
+	  $obj->policy->view->condition->removeUser($this->mods->advisor->id);
+      }
+    }
+    
+    // store new advisor in mods    
     $this->mods->setAdvisor($id);
 
     // store relation in rels-ext
     if (isset($this->rels_ext->advisor)) $this->rels_ext->advisor = $id;
     else $this->rels_ext->addRelation("rel:advisor", $id);
 
-    // add to 'view' policy rule
-    $this->policy->view->condition->addUser($id);
+    // add to 'view' policy rule for etd and associated files
+    foreach (array_merge(array($this), $this->pdfs, $this->supplements) as $obj) {
+      $obj->policy->view->condition->addUser($id);
+    }
   }
 
   // similar logic to advisor above
   public function setCommittee(array $ids) {
-    // fixme: clear any old committee members from policy ?
+    // clear any old committee members from policy 
     foreach ($this->mods->committee as $cm) {
       if ($cm->id)
-	$this->policy->view->condition->removeUser($cm->id);
+	// remove from etd policy and from associated etd files
+	foreach (array_merge(array($this), $this->pdfs, $this->supplements) as $obj) {
+	  $obj->policy->view->condition->removeUser($cm->id);
+	}
     }
 
     $this->mods->setCommittee($ids);
     $this->rels_ext->setCommittee($ids);
     
-    foreach ($ids as $id) 
-      $this->policy->view->condition->addUser($id);
+    foreach ($ids as $id) {
+      // add to view policy rule for etd and associated files
+      foreach (array_merge(array($this), $this->pdfs, $this->supplements) as $obj) {
+        $obj->policy->view->condition->addUser($id);
+      }
+    }
   }
 
   // is this record embargoed?
