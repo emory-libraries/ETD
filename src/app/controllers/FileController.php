@@ -81,15 +81,16 @@ class FileController extends Etd_Controller_Action {
        // delete temporary file now that we are done with it
        unlink($filename);
 
-       //FIXME: not working - not getting added to etd
        // add relation to etd object as well
        switch($file_rel) {
-       case "pdf": $result = $etd->addPdf($etdfile); break;
-       case "original":   $result = $etd->addOriginal($etdfile); break;
-       case "supplement": $result = $etd->addSupplement($etdfile); break;
+       case "pdf": 	  $etd->addPdf($etdfile); break;
+       case "original":   $etd->addOriginal($etdfile); break;
+       case "supplement": $etd->addSupplement($etdfile); break;
        default:	
 	 trigger_warning("relation '$relation' not recognized - not adding to etd", E_USER_WARNING);
-      } 
+      }
+
+       $result = $etd->save("added relation to uploaded $file_rel");
        if (!$result)	// only warn if there is a problem
 	 $this->_helper->flashMessenger->addMessage("Error: problem  associating new $relation file with your ETD record");
 
