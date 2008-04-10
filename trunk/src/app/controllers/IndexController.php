@@ -7,7 +7,11 @@ class IndexController extends Etd_Controller_Action {
     $this->view->assign("title", "Welcome");
 
     // rss feed of recently published ETD records - for display on sidebar
-    $this->view->feed = new Zend_Feed_Rss($this->_helper->absoluteUrl('recent', 'feeds'));
+    try {
+      $this->view->feed = new Zend_Feed_Rss($this->_helper->absoluteUrl('recent', 'feeds'));
+    } catch (Exception $e) {
+      trigger_error("Could not parse Feed of recently published records", E_USER_NOTICE);
+    }
   }
 
 	public function listAction() {
