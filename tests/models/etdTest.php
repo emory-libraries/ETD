@@ -65,9 +65,20 @@ class TestEtd extends UnitTestCase {
     $this->assertEqual("dduck", $this->etd->policy->draft->condition->user);
 
     // department - mods & view policy
+
+    // attach an etd file to test that department is set on etdFile view policy
+    $fname = '../fixtures/etdfile.xml';
+    $dom = new DOMDocument();
+    $dom->load($fname);
+    $etdfile = new etd_file($dom);
+    $etdfile->policy->addRule("view");
+    $this->etd->addSupplement($etdfile);
+
     $this->etd->department = "Chemistry";
     $this->assertEqual("Chemistry", $this->etd->mods->department);
     $this->assertEqual("Chemistry", $this->etd->policy->view->condition->department);
+    // check that department was also set on etdfile
+    $this->assertEqual("Chemistry", $this->etd->supplements[0]->policy->view->condition->department);
   }
 
   function testGetUserRole() {
@@ -189,12 +200,22 @@ class TestEtd extends UnitTestCase {
   }
 
   function testAddCommitteeAndAdvisor() {
+    // attach an etd file to test that advisor/committee are set on etdFile view policy
+    $fname = '../fixtures/etdfile.xml';
+    $dom = new DOMDocument();
+    $dom->load($fname);
+    $etdfile = new etd_file($dom);
+    $etdfile->policy->addRule("view");
+    $this->etd->addSupplement($etdfile);
+
+    
     $this->etd->setAdvisor("mhalber");		// FIXME: if this netid goes out of ESD, this test will fail
     // should be set in mods, rels-ext, and in view policy rule
     $this->assertEqual("mhalber", $this->etd->mods->advisor->id);
     $this->assertEqual("Halbert", $this->etd->mods->advisor->last);
     $this->assertEqual("mhalber", $this->etd->rels_ext->advisor);
     $this->assertTrue($this->etd->policy->view->condition->users->includes("mhalber"));
+    $this->assertTrue($this->etd->supplements[0]->policy->view->condition->users->includes("mhalber"));
 
 
     $this->etd->setCommittee(array("ahickco", "jfenton"));
@@ -204,6 +225,8 @@ class TestEtd extends UnitTestCase {
     $this->assertEqual("jfenton", $this->etd->rels_ext->committee[1]);
     $this->assertTrue($this->etd->policy->view->condition->users->includes("ahickco"));
     $this->assertTrue($this->etd->policy->view->condition->users->includes("jfenton"));
+    $this->assertTrue($this->etd->supplements[0]->policy->view->condition->users->includes("ahickco"));
+    $this->assertTrue($this->etd->supplements[0]->policy->view->condition->users->includes("jfenton"));
   }
 
 
@@ -241,6 +264,37 @@ class TestEtd extends UnitTestCase {
     $this->expectException(new XmlObjectException("Calculated embargo date does not look correct (timestamp:, 1969-12-31)"));
     $this->etd->publish($pubdate, $pubdate);	      
   }
+
+
+  // test adding files to an etd
+  function testAddFile() {
+    $fname = '../fixtures/etdfile.xml';
+    $dom = new DOMDocument();
+    $dom->load($fname);
+    $etdfile = new etd_file($dom);
+    $etdfile->policy->addRule("view");
+
+    $this->etd->mods->advisor->id = "jsmith";
+    $this->etd->mods->committee[0]->id = "kjones";
+    $this->etd->addSupplement($etdfile);
+
+    $this->assertTrue(isset($this->etd->supplements));
+    $this->assertEqual(1, count($this->etd->supplements));
+    $this->assertTrue(isset($this->etd->rels_ext->supplement));
+    $this->assertEqual(1, count($this->etd->rels_ext->supplement));
+    // relation to file was added to etd
+    $this->assertPattern("|<rel:hasSupplement rdf:resource=\"info:fedora/" . $etdfile->pid . "\"/>|",
+			 $this->etd->rels_ext->saveXML());
+    // NOTE: relation to etd is not currently added to file object by this function (should it be?)
+
+    // any values already added to etd that are relevant to xacml policy should be set on file
+    $this->assertTrue($this->etd->supplements[0]->policy->view->condition->users->includes("jsmith"));
+    $this->assertTrue($this->etd->supplements[0]->policy->view->condition->users->includes("kjones"));
+    $this->assertEqual("Disney", $this->etd->supplements[0]->policy->view->condition->department);
+    
+
+  }
+  
   
 
 }
