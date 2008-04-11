@@ -75,7 +75,16 @@ class FileController extends Etd_Controller_Action {
        // add relation to etd
        // fixme: this should probably be a function of etdfile or rels
        $etdfile->rels_ext->addRelationToResource("rel:is{$relation}Of", $etd->pid);
-       $filepid = $etdfile->save("adding new file");
+       try {
+	 $filepid = $etdfile->save("adding new file");
+       } catch (PersisServiceUnavailable $e) {
+	 // ingest relies on persistent id server to generate the pid
+	 $this->_helper->flashMessenger->addMessage("Error: could not create new record because Persistent Identifier Service is not available");
+	 // redirect to an error page
+	 $this->_helper->redirector->gotoRouteAndExit(array("controller" => "error", "action" => "unavailable"));
+       }
+       // FIXME: catch other errors here - permission? what else?
+       
        $this->view->file_pid = $filepid;
 
        // delete temporary file now that we are done with it

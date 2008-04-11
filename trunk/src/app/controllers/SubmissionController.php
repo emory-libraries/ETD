@@ -21,7 +21,7 @@ class SubmissionController extends Etd_Controller_Action {
 
   // pulls information from the PDF, creates a new fedora record with associated pdf file,
   // then forwards to the view/master edit page
-  public function processPdfAction() {
+  public function processpdfAction() {
     if (!$this->_helper->access->allowedOnEtd("create")) return false;
     
     $etd_info = $this->_helper->processPDF($_FILES['pdf']);
@@ -86,21 +86,27 @@ class SubmissionController extends Etd_Controller_Action {
       try {
 	// create an etd file object for uploaded PDF and associate with etd record
 	$pid = $etd->save("creating preliminary record from uploaded pdf");
+      } catch (PersisServiceUnavailable $e) {
+	// ingest relies on persistent id server to generate the pid
+	$this->_helper->flashMessenger->addMessage("Error: could not create new record because Persistent Identifier Service is not available");
+	// redirect to an error page
+	$this->_helper->redirector->gotoRouteAndExit(array("controller" => "error", "action" => "unavailable"));
       } catch (FedoraObjectNotValid $e) {
 	print $e->getMessage() . "<br/>\n";
 	$this->view->error = "Could not create record.";
 	$this->view->xml = $etd->saveXML();
 	return;
       }
+      // FIXME: convert this to logging
       if ($this->debug) $this->_helper->flashMessenger->addMessage("Saved etd as $pid");
       if ($pid) {
 	// need to retrieve record from fedora so datastreams can be saved, etc.
 	$etd = $this->_helper->getFromFedora->findById($pid, "etd");
 	
-	// could use fullname as agent id, but netid seems more userful
+	// could use fullname as agent id, but netid seems more useful
 	$etd->premis->addEvent("ingest", "Record created by " . $current_user->fullname, "success",
 			       array("netid", $identity));
-	$etd->save();
+	$etd->save("added ingest history event");
 
 	// only create the etdfile object if etd was successfully created
 	$etdfile = new etd_file(null, $etd);	// initialize from template, but associate with parent etd
@@ -108,9 +114,17 @@ class SubmissionController extends Etd_Controller_Action {
 	
 	// add relations between objects
 	$etdfile->rels_ext->addRelationToResource("rel:isPDFOf", $etd->pid);
-	$filepid = $etdfile->save("creating record from uploaded pdf");	// save and get pid
 
-       // delete temporary file now that we are done with it
+	try {
+	  $filepid = $etdfile->save("creating record from uploaded pdf");	// save and get pid
+	} catch (PersisServiceUnavailable $e) {
+	  // if Persis is down this would probably already be caught when attempting to save new etd
+	  $this->_helper->flashMessenger->addMessage("Error: could not create new record because Persistent Identifier Service is not available");
+	  // redirect to an error page
+	  $this->_helper->redirector->gotoRouteAndExit(array("controller" => "error", "action" => "unavailable"));
+	}
+
+	// delete temporary file now that we are done with it
 	unlink($etd_info['pdf']);
 	
 	// add relation to etd object and save changes
@@ -132,7 +146,7 @@ class SubmissionController extends Etd_Controller_Action {
     }
   }
 
-  public function debugPdfAction() {
+  public function debugpdfAction() {
     
     $this->view->messages = array();
     $this->view->etd_info = $this->_helper->processPDF($_FILES['pdf']);
