@@ -122,9 +122,8 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
 
   // loop through the pages, determining which content to look for
   private function process_page($content, $number) {
-
     // remove break tags 
-    $content = str_replace("<br>", " ", $_content);
+    $content = str_replace("<br>", " ", $content);
     // collapse multiple spaces into one
     $content = preg_replace("/ +/", " ", $content);
     // split by lines
