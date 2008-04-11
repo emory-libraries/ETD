@@ -27,7 +27,7 @@ Abstract Cover Sheet, Abstract, etc.). </p>
 later in the process, if necessary.</p>
 
 <form name="submission" method="post" enctype="multipart/form-data"
-    action="<?= $this->url(array("action" => "processPdf"))?>">
+    action="<?= $this->url(array("action" => "processpdf"))?>">
 
 <?//= $this->formHidden("MAX_FILE_SIZE", "3000000"); ?> 
   <p><b>Your PDF</b> <?= $this->formFile("pdf"); ?>
@@ -57,7 +57,7 @@ by using the "edit" links.  Green check marks <?= $ok ?> will appear in the Subm
 <? if ($this->env == "development"): ?>
 
 <form name="submission" method="post" enctype="multipart/form-data"
-    action="<?= $this->url(array("action" => "debugPdf"))?>">
+    action="<?= $this->url(array("action" => "debugpdf"))?>">
 
    <p>Test information extracted from a PDF (development only)</p>
 
