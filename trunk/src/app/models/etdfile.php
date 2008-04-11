@@ -4,7 +4,8 @@ require_once("XmlObject.class.php");
 require_once("models/foxml.php");
 require_once("api/fedora.php");
 
-require_once("persis.php");
+// Persistent ID server - generate arks for fedora pids
+require_once("Etd/Service/Persis.php");
 
 require_once("etd.php");
 require_once("etd_rels.php");
@@ -267,7 +268,8 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
   /**  override default foxml ingest function to use arks for object pids
    */
   public function ingest($message ) {
-    $persis = new etd_persis();
+    // could generate service unavailable exception - should be caught in the controller
+    $persis = new Etd_Service_Persis();
     
     // FIXME: use view/controller to build this url?
     $ark = $persis->generateArk("http://etd.library.emory.edu/file/view/pid/emory:{%PID%}", $this->label);

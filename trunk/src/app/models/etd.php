@@ -4,7 +4,8 @@ require_once("api/fedora.php");
 require_once("api/risearch.php");
 require_once("models/foxml.php");
 
-require_once("persis.php");
+// Persistent ID server - generate arks for fedora pids
+require_once("Etd/Service/Persis.php");
 
 require_once("etdInterface.php");
 // etd datastreams
@@ -160,7 +161,7 @@ class etd extends foxml implements etdInterface {
     }
   }
 
-  private function removePolicyRule($name) {
+  public function removePolicyRule($name) {
     $objects = array_merge(array($this), $this->pdfs, $this->supplements);
     if ($name == "draft") $objects = array_merge($objects, $this->originals);
     foreach ($objects as $obj) {
@@ -250,17 +251,17 @@ class etd extends foxml implements etdInterface {
 
   public function save($message) {
     // cascade save to related files
+    
     // since changes on etd can cause changes on etdfiles (e.g., xacml)
     // should not be a big performance hit, because only changed datastreams are actually saved
     $etdfiles = array_merge($this->pdfs, $this->originals, $this->supplements);
     foreach ($etdfiles as $file) {
-      $file->save($message);	// FIXME: add a note that it was saved with/by etd?
+      $result = $file->save($message);	// FIXME: add a note that it was saved with/by etd?
+      // FIXME2: how to capture/return error messages here?
     }
 
     // TODO: update DC datastream based on MODS
-    
-
-    parent::save($message);
+    return parent::save($message);
   }
   
 
@@ -428,9 +429,11 @@ class etd extends foxml implements etdInterface {
    */
   public function ingest($message ) {
     /* Note: it would be good to validate the XACML policy here,
-       but the policy->isValid can only validate the entire record (since it is all in one DO)Md.
+       but the policy->isValid can only validate the entire record (since it is all in one DOM).
      */
-    $persis = new etd_persis();
+
+    // could generate service unavailable exception - should be caught in the controller
+    $persis = new Etd_Service_Persis();
     
     // FIXME: use view/controller to build this url?
     $ark = $persis->generateArk("http://etd.library.emory.edu/view/record/pid/emory:{%PID%}", $this->label);
@@ -643,6 +646,25 @@ class etd extends foxml implements etdInterface {
     return $etds;
 
   }
+
+
+  // find unpublished records
+  public static function findUnpublished($start = null, $max = null) {
+    $solr = Zend_Registry::get('solr');
+    $query = "NOT status:published";
+    $solr->clearFacets();
+    $results = $solr->query($query, $start, $max, null, null); 	// (no filter query)
+
+    $etds = array();
+    if ($results) {
+      foreach ($results['response']['docs'] as $result_doc) {
+	array_push($etds, new etd($result_doc['PID']));
+      }
+    }
+    return $etds;
+  }
+
+  
 
   /**
    * find records with embargo expiring anywhere from today up to the specified date

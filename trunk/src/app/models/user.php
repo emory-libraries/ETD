@@ -4,7 +4,8 @@ require_once("fedora/models/foxml.php");
 require_once("fedora/api/fedora.php");
 require_once("fedora/api/risearch.php");
 
-require_once("persis.php");
+// Persistent ID server - generate arks for fedora pids
+require_once("Etd/Service/Persis.php");
 
 require_once("mads.php");
 require_once("etd_rels.php");
@@ -138,7 +139,7 @@ class user extends foxml {
   /**  override default foxml ingest function to use arks for object pids
    */
   public function ingest($message ) {
-    $persis = new etd_persis();
+    $persis = new Etd_Service_Persis();
 
     // FIXME: use view/controller to build this url?
     $ark = $persis->generateArk("http://etd.library.emory.edu/user/view/pid/emory:{%PID%}", $this->label);
