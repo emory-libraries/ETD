@@ -102,7 +102,14 @@ class UserController extends Etd_Controller_Action {
       
       $resource = "contact information";
       if ($user->mads->hasChanged()) {
-	$save_result = $user->save("edited user information");
+	try {
+	  $save_result = $user->save("edited user information");
+	} catch (PersisServiceUnavailable $e) {
+	  // this can only happen when saving a new record (ingest)
+	  $this->_helper->flashMessenger->addMessage("Error: could not create new record because Persistent Identifier Service is not available");
+	  // redirect to an error page
+	  $this->_helper->redirector->gotoRouteAndExit(array("controller" => "error", "action" => "unavailable"));
+	}
 	if ($save_result)
 	  $this->_helper->flashMessenger->addMessage("Saved changes to $resource");
 	else
