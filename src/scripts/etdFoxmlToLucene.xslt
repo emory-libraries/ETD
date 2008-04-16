@@ -45,33 +45,54 @@
   <xsl:variable name="cmodel"  
     select="//foxml:objectProperties/foxml:property[@NAME='info:fedora/fedora-system:def/model#contentModel']/@VALUE"/>
 
-  <xsl:template match="/">
+
+
+  <xsl:template match="/foxml:digitalObject[foxml:objectProperties/foxml:property[@NAME='info:fedora/fedora-system:def/model#contentModel']/@VALUE = 'etd'] |
+	/foxml:digitalObject[foxml:objectProperties/foxml:property[@NAME='info:fedora/fedora-system:def/model#contentModel']/@VALUE = 'etdFile'] ">
     <IndexDocument> 
     <!-- The PID attribute is mandatory for indexing to work -->
     <xsl:attribute name="PID">
-      <xsl:value-of select="$pid"/>
+      <xsl:value-of select="@PID"/>
     </xsl:attribute>
+
+    <IndexField IFname="PID" index="UN_TOKENIZED" store="YES" termVector="NO">
+      <xsl:value-of select="@PID"/>
+    </IndexField>
+
+    <xsl:apply-templates select="foxml:objectProperties/foxml:property"/>
+
+    <xsl:apply-templates select="foxml:datastream/foxml:datastreamVersion[position() = last()]/foxml:xmlContent/mods:mods"/>
+
+    <xsl:apply-templates select="foxml:datastream[@ID='RELS-EXT']/foxml:datastreamVersion[position() = last()]/foxml:xmlContent/rdf:RDF"/>
 
     <!-- FIXME: probably should boost main etd & pdf higher and/or supplements lower 
          <xsl:attribute name="boost"/> -->
 
+    <xsl:choose>
+      <!-- only index etd records  -->
+      <xsl:when test="$cmodel = 'etd'">
+        <xsl:apply-templates/>
+      </xsl:when>
+      <xsl:when test="$cmodel = 'etdfile'">
+        <xsl:apply-templates mode="etdFile"/>   <!-- doesn't exist yet -->
+      </xsl:when>
+    </xsl:choose>
 
-         <xsl:choose>
-           <!-- only index etd records  -->
-           <xsl:when test="$cmodel = 'etd'">
-             <xsl:apply-templates/>
-           </xsl:when>
-           <xsl:when test="$cmodel = 'etdfile'">
-             <xsl:apply-templates mode="etdFile"/>   <!-- doesn't exist yet -->
-           </xsl:when>
-         </xsl:choose>
-
-       </IndexDocument>
-     </xsl:template>
+  </IndexDocument>
+  </xsl:template>
 
 
 
      <xsl:template match="/foxml:digitalObject">
+    <IndexDocument> 
+    <!-- The PID attribute is mandatory for indexing to work -->
+    <xsl:attribute name="PID">
+      <xsl:value-of select="@PID"/>
+    </xsl:attribute>
+
+    <IndexField IFname="PID" index="UN_TOKENIZED" store="YES" termVector="NO">
+      <xsl:value-of select="@PID"/>
+    </IndexField>
        
        <IndexField IFname="PID" index="UN_TOKENIZED" store="YES" termVector="NO" boost="2.5">
          <xsl:value-of select="$pid"/>
@@ -105,6 +126,7 @@
 
                  <!--            <xsl:apply-templates select="foxml:datastream/foxml:datastreamVersion[position() = last() and @MIMETYPE='application/pdf']"/> -->
                  
+  </IndexDocument>
                </xsl:template>
 
                <xsl:template match="foxml:datastreamVersion[@MIMETYPE='application/pdf']">
@@ -132,7 +154,15 @@
                       <xsl:value-of select="substring-after(@NAME,'#')"/>                      
                     </xsl:variable>
 
-                    <IndexField index="UN_TOKENIZED" store="NO" termVector="NO">
+                    <IndexField index="UN_TOKENIZED" store="YES" termVector="NO">
+			 <xsl:choose>
+                          <xsl:when test="$property = 'contentModel'">
+                                <xsl:attribute name="store">YES</xsl:attribute>
+                          </xsl:when>
+                          <xsl:otherwise>
+                                <xsl:attribute name="store">NO</xsl:attribute>
+                          </xsl:otherwise>
+                        </xsl:choose>
                       <xsl:attribute name="IFname"> 
                       <xsl:value-of select="$property"/>
                     </xsl:attribute>
