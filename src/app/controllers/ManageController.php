@@ -189,7 +189,7 @@ class ManageController extends Etd_Controller_Action {
    }
 
    
-   public function exportEmailsAction() {
+   public function exportemailsAction() {
      if (!$this->_helper->access->allowedOnEtd("manage")) return false;
      $this->view->etds = etd::findbyStatus('approved');
 
