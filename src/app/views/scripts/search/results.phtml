@@ -18,7 +18,7 @@
    <?= $this->formHidden("max", $this->max); ?>
    </form>
 
-  <? $this->end = min($this->start + $this->max - 1, $this->count); ?>
+   <? $this->end = min($this->start + $this->max, $this->count); ?>
   <? if ($this->max < $this->count): ?>
    <ul style="float:right" class="horizontal">
       <li class="first">More results:
@@ -26,8 +26,8 @@
      <? $cur_end = min($i + $this->max - 1, $this->count);
         $range = $i;  if ($cur_end != $i) $range .= "-" . $cur_end ; ?>
 	<? if ($i != 1): ?><li><? endif ?>
-       <? if ($i != $this->start): ?>
-          <a href="#" onClick="setStart('<?= $i ?>')"><?= $range ?></a>
+     <? if (($i - 1) != $this->start): ?>
+          <a href="#" onClick="setStart('<?= $i -1 ?>')"><?= $range ?></a>
        <? else: ?>
 	   <?= $range ?>
        <? endif ?>
