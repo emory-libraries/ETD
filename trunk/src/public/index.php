@@ -30,11 +30,10 @@ Zend_Registry::set('fedora-config',
 	  new Zend_Config_Xml("../config/fedora.xml", $env_config->mode));
 
 try {
-  // if there is a logged in user, retrieve their information from fedora so it is available everywhere
+  // if there is a logged in user, use their account to connect to Fedora
   $auth = Zend_Auth::getInstance();
   if ($auth->hasIdentity()) {
     $current_user = $auth->getIdentity();
-    $password = strtoupper($current_user->netid);	// because of the way fedora ldap config is hacked right now
     $fedora = new FedoraConnection($current_user->netid,
 				   $current_user->getPassword(),
 				   $fedora_cfg->server, $fedora_cfg->port,
@@ -60,13 +59,16 @@ Zend_Db_Table_Abstract::setDefaultAdapter($esd);
 //set default timezone
 date_default_timezone_set($config->timezone);
 
+// keep separate sessions for different ZF projects on the same server
+Zend_Session::setOptions(array("name" => $config->session_name));
+
 
 // set up connection to solr for search & browse
-require_once("solr.php");
 $solr_config = new Zend_Config_Xml("../config/solr.xml", $env_config->mode);
-$solr = new solr($solr_config->server, $solr_config->port);
-$solr->addFacets(explode(',', $solr_config->facets)); 	// array of default facet terms
-Zend_Registry::set('solr', $solr);
+require_once("Etd/Service/Solr.php");
+$newsolr = new Etd_Service_Solr($solr_config->server, $solr_config->port);
+$newsolr->addFacets($solr_config->facet->toArray());
+Zend_Registry::set('solr', $newsolr);
 
 // sqlite db for statistics data
 $config = new Zend_Config_Xml('../config/statistics.xml', $env_config->mode);
