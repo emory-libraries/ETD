@@ -2,14 +2,20 @@
   <development>
      <server>wilson.library.emory.edu</server>
      <port>6080</port>
-<!-- note: apparently Zend_Config can't handle multiple values for one tag... -->
-     <facets>advisor_lastnamefirst,year,subject_facet,keyword_facet,author_lastnamefirst,committee_lastnamefirst,program_facet</facets>
+<!-- fields which should be included as default facets -->
+     <facet>advisor_lastnamefirst</facet>
+     <facet>year</facet>
+     <facet>subject_facet</facet>
+     <facet>keyword_facet</facet>
+     <facet>author_lastnamefirst</facet>
+     <facet>committee_lastnamefirst</facet>
+     <facet>program_facet</facet>
   </development>
   <test extends="development">
      <port>7080</port>
   </test>
   <production extends="development">
-     <server>domokun</server>
+     <server>domokun.library.emory.edu</server>
      <port>8080</port>
   </production>
 </solr>
