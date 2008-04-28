@@ -1,15 +1,7 @@
 <config>
 	<development>
-		<timezone>America/New_York</timezone>
-		<database>
-			<adapter>Pdo_Mysql</adapter>
-			<params>
-				<host>localhost</host>
-				<username></username>
-				<password></password>
-				<dbname></dbname>
-			</params>
-		</database>
+  	  <timezone>America/New_York</timezone>
+	  <session_name>etd-dev</session_name>	<!-- PHP session name -->
 	  <email>
 	    <etd>
 	       <address>etd-admin@listserv.cc.emory.edu</address>
