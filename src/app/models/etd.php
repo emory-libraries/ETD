@@ -637,7 +637,7 @@ class etd extends foxml implements etdInterface {
   public static function findUnpublishedByDepartment($dept) {
     $solr = Zend_Registry::get('solr');
     $query = "program_facet:$dept NOT status:published";
-    $results = $solr->query($query, null, null, null, null); 	// ... paging? .. , $start, $max);
+    $results = $solr->query($query); 	// ... paging? .. , $start, $max);
 
     $etds = array();
     foreach ($results['response']['docs'] as $result_doc) {
@@ -653,7 +653,7 @@ class etd extends foxml implements etdInterface {
     $solr = Zend_Registry::get('solr');
     $query = "NOT status:published";
     $solr->clearFacets();
-    $results = $solr->query($query, $start, $max, null, null); 	// (no filter query)
+    $results = $solr->query($query, $start, $max); 
 
     $etds = array();
     if ($results) {
@@ -682,7 +682,7 @@ class etd extends foxml implements etdInterface {
     // search for any records with embargo expiring between now and specified embargo end date
     // where an embargo notice has not been sent and an embargo was approved by the graduate school
     $query = "date_embargoedUntil:[" . date("Ymd") . " TO $date] NOT embargo_notice:sent NOT embargo_duration:(0 days)";
-    $results = $solr->query($query);	// FIXME: paging? need to get all results
+    $results = $solr->queryPublished($query);	// FIXME: paging? need to get all results
 
     $etds = array();
     foreach ($results['response']['docs'] as $result_doc) {
@@ -695,7 +695,7 @@ class etd extends foxml implements etdInterface {
   public static function findEmbargoed($start, $max, &$total) {
     $solr = Zend_Registry::get('solr');
     $query = "date_embargoedUntil:[" . date("Ymd") . "TO *] NOT embargo_duration:(0 days)";
-    $results = $solr->query($query, $start, $max, null, null, "date_embargoedUntil asc");
+    $results = $solr->query($query, $start, $max, "date_embargoedUntil asc");
     $total = $results['response']['numFound'];
     $etds = array();
     foreach ($results['response']['docs'] as $result_doc) {
@@ -712,21 +712,17 @@ class etd extends foxml implements etdInterface {
     $solr->clearFacets();
 
     if (!is_null($opts)) {
-      $filter = "";
       foreach ($opts as $key => $value) {
 	switch ($key) {
-	case "program":
-	  $filter .= " program:($value)";
+	case "program":			// filter query by program
+	  $solr->addFilter("program_facet:($value)");
 	}
       }
-    } else {
-      $filter = null;
     }
 
+    $results = $solr->query($query, 0, $max, "dateIssued desc");
+    //    print "<pre>"; print_r($results); print "</pre>";
     
-
-    $results = $solr->query($query, 0, $max, null, $filter, "dateIssued desc");
-
     $etds = array();
     foreach ($results['response']['docs'] as $result_doc) {
       if ($type == "etd")
