@@ -34,8 +34,8 @@ class ErrorController extends Etd_Controller_Action {
   }
 
 
-  // when Fedora is not accessible, the Etd Controller forwards to this pagemessage
-  public function fedoraUnavailableAction() {
+  // when Fedora is not accessible, the Etd Controller forwards to this page
+  public function fedoraunavailableAction() {
     $this->view->service = "Repository";
     $this->_helper->viewRenderer->setScriptAction("unavailable");
     $this->view->title = "Repository Unavailable";
