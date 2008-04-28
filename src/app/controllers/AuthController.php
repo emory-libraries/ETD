@@ -7,6 +7,11 @@ require_once("models/esdPerson.php");
 
 class AuthController extends Etd_Controller_Action {
 
+  public function postDispatch() {
+    $this->view->messages = $this->_helper->flashMessenger->getMessages();
+  }
+
+  
    public function loginAction() {
      $login = $this->_getParam('login', null);
      $username = $login['username'];
@@ -21,7 +26,7 @@ class AuthController extends Etd_Controller_Action {
      }
      
      $env = Zend_Registry::get('env-config');
-     $ldap_config = new Zend_Config_Xml("../config/ldap.xml", $env->mode);
+     $ldap_config = new Zend_Config_Xml("../../src/config/ldap.xml", $env->mode);
      $authAdapter = new Zend_Auth_Adapter_Ldap($ldap_config->toArray(), $username, $password);
      $auth = Zend_Auth::getInstance();
 
@@ -63,7 +68,7 @@ class AuthController extends Etd_Controller_Action {
 
    // only expects to be called via ajax
    public function setroleAction() {
-     if ($this->env != "development") return;
+     if ($this->env != "development") return false;
      $this->_helper->viewRenderer->setNoRender(true);
 
      $role = $this->_getParam("role");
