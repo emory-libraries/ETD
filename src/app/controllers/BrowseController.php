@@ -154,8 +154,8 @@ class BrowseController extends Etd_Controller_Action {
     // if there's only one match found, forward directly to full record view
     if ($this->view->count == 1) {
       $this->_helper->flashMessenger->addMessage("Only one match found; displaying full record");
-      //     $this->_helper->redirector->gotoRoute(array("controller" => "view",
-      //						  "action" => "record", "pid" => $etds[0]->pid), "", true);
+      $this->_helper->redirector->gotoRoute(array("controller" => "view",
+      						  "action" => "record", "pid" => $etds[0]->pid), "", true);
     }
 
     $this->view->start = $start;
