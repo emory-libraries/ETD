@@ -266,6 +266,8 @@
 
    <field name="document_type" type="string" indexed="true" stored="true" required="true" /> 
    <field name="note_admin" type="string" indexed="true" stored="true" required="true" /> 
+   <field name="embargo_requested" type="string" indexed="true" stored="false" required="false" /> 
+   <field name="embargo_duration" type="string" indexed="true" stored="false" required="false" /> 
 
 
 <!-- unused fields that phps needs to know about -->
@@ -279,13 +281,13 @@
    <field name="dc.title" type="string" indexed="true" stored="false" required="false" /> 
 
 
-   <field name="fgs.contentModel" type="string" indexed="true" stored="false" required="false" /> 
-   <field name="fgs.createdDate" type="string" indexed="true" stored="false" required="false" /> 
-   <field name="fgs.label" type="string" indexed="true" stored="false" required="false" /> 
-   <field name="fgs.lastModifiedDate" type="string" indexed="true" stored="false" required="false" /> 
-   <field name="fgs.ownerId" type="string" indexed="true" stored="false" required="false" /> 
-   <field name="fgs.state" type="string" indexed="true" stored="false" required="false" /> 
-   <field name="fgs.type" type="string" indexed="true" stored="false" required="false" /> 
+   <field name="contentModel" type="string" indexed="true" stored="false" required="false" /> 
+   <field name="createdDate" type="string" indexed="true" stored="false" required="false" /> 
+   <field name="label" type="string" indexed="true" stored="false" required="false" /> 
+   <field name="lastModifiedDate" type="string" indexed="true" stored="false" required="false" /> 
+   <field name="ownerId" type="string" indexed="true" stored="false" required="false" /> 
+   <field name="state" type="string" indexed="true" stored="false" required="false" /> 
+   <field name="type" type="string" indexed="true" stored="false" required="false" /> 
 
 
 
