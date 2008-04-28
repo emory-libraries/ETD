@@ -94,10 +94,6 @@
       <xsl:value-of select="@PID"/>
     </IndexField>
        
-       <IndexField IFname="PID" index="UN_TOKENIZED" store="YES" termVector="NO" boost="2.5">
-         <xsl:value-of select="$pid"/>
-       </IndexField>
-
        <xsl:apply-templates select="foxml:objectProperties/foxml:property"/>
 
        <!-- only index the latest version of the datastream -->
@@ -431,6 +427,8 @@
                         <xsl:choose>
                           <xsl:when test="@authority = 'proquestresearchfield'">subject</xsl:when>
                           <xsl:when test="@authority = 'keyword'">keyword</xsl:when>
+                          <!-- need a default if nothing is set or else the index will be broken -->
+                          <xsl:otherwise>subject</xsl:otherwise>
                         </xsl:choose>
                       </xsl:attribute>
                       <xsl:value-of select="mods:topic"/>
@@ -441,6 +439,7 @@
                         <xsl:choose>
                           <xsl:when test="@authority = 'proquestresearchfield'">subject_facet</xsl:when>
                           <xsl:when test="@authority = 'keyword'">keyword_facet</xsl:when>
+                          <xsl:otherwise>subject_facet</xsl:otherwise>
                         </xsl:choose>
                       </xsl:attribute>
                       <xsl:value-of select="mods:topic"/>
