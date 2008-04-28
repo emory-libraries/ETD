@@ -18,6 +18,9 @@ class SearchController extends Etd_Controller_Action {
 
      /* fixme: maybe get all params at once and then loop through them ? */
     $this->view->query = array();
+
+    // simple search
+    $this->view->query['query'] = $query;
     
      $title = $request->getParam("title");
      if ($title) {
@@ -91,7 +94,7 @@ class SearchController extends Etd_Controller_Action {
      $this->view->title = "Search Results"; 
 
      $this->view->count = $results['response']['numFound'];
-     $this->view->start = $start + 1;
+     $this->view->start = $start;
      $this->view->max = $max;
      $this->view->post = true;
 
