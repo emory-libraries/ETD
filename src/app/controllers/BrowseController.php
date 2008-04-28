@@ -89,7 +89,8 @@ class BrowseController extends Etd_Controller_Action {
 
     $solr = Zend_Registry::get('solr');
     $results = $solr->browse($field);
-    //     print "<pre>"; print_r($results); print "</pre>";
+    
+    //    print "<pre>"; print_r($results); print "</pre>";
     $this->view->count = count($results['facet_counts']['facet_fields'][$field]);
     $this->view->values = $results['facet_counts']['facet_fields'][$field];
     $this->view->title = "Browse " . $this->view->browse_mode . "s";
@@ -116,7 +117,8 @@ class BrowseController extends Etd_Controller_Action {
       $value = strtolower($value);
       $value = str_replace(",", "", $value);	// remove commas from names
     }
-     
+
+
     $solr = Zend_Registry::get('solr');
 
     // note - solr default set to OR (seems to work best)
@@ -134,7 +136,7 @@ class BrowseController extends Etd_Controller_Action {
     }
     //     print "query is $query\n";
     //$results = $solr->query("$field:($value)");
-    $results = $solr->query($query, $start, $max);
+    $results = $solr->queryPublished($query, $start, $max);	// limit to published records
      
     /*       $results = solrQuery("$mode:$value"); */
      
@@ -172,7 +174,7 @@ class BrowseController extends Etd_Controller_Action {
 
   /* browse by program */
   public function programsAction() {
-    $start = $this->_getParam("start", 1);
+    $start = $this->_getParam("start", 0);
     $max = $this->_getParam("max", 10);	
     
     // optional name parameter - find id by full name
@@ -199,7 +201,7 @@ class BrowseController extends Etd_Controller_Action {
     $this->view->browse_mode = "program"; 
 
 
-    $results = $programs->findEtds($start, $max);
+    $results = $programs->findEtds($start, $max);  
 
     $this->view->count = $results['response']['numFound'];
     $this->view->results = $results;
@@ -290,7 +292,7 @@ class BrowseController extends Etd_Controller_Action {
       default:
 	$etds = array();
       }
-    }
+    } // FIXME: not authorized if not logged in? what should error here be?
 
     $this->view->etds = $etds;
       

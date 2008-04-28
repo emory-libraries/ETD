@@ -13,7 +13,7 @@ class SearchController extends Etd_Controller_Action {
   public function resultsAction() {
     $request = $this->getRequest();
     $query = $request->getParam("query");	// basic keyword/anywhere query
-    $start = $request->getParam("start", 1);
+    $start = $request->getParam("start", 0);
     $max = $request->getParam("max", 20);	
 
      /* fixme: maybe get all params at once and then loop through them ? */
@@ -65,7 +65,6 @@ class SearchController extends Etd_Controller_Action {
        $this->view->query['year'] = $year;
      }
 
-     $solr = Zend_Registry::get('solr');
      if ($query == "") {
        $this->_helper->flashMessenger->addMessage("Error: no search terms specified");
        // where to redirect?
@@ -73,8 +72,11 @@ class SearchController extends Etd_Controller_Action {
 						   "action" => "index"), "", true);
        exit;
      }
+     
+     $solr = Zend_Registry::get('solr');
+     
      $query = strtolower($query);	// FIXME: any cases where this won't work?
-     $results = $solr->query($query, $start, $max);
+     $results = $solr->queryPublished($query, $start, $max);	// limit to published records
      
      $this->view->count = $results['response']['numFound'];
      $this->view->etds = $results['response']['docs'];
@@ -89,7 +91,7 @@ class SearchController extends Etd_Controller_Action {
      $this->view->title = "Search Results"; 
 
      $this->view->count = $results['response']['numFound'];
-     $this->view->start = $start;
+     $this->view->start = $start + 1;
      $this->view->max = $max;
      $this->view->post = true;
 
