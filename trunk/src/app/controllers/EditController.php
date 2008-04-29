@@ -34,14 +34,10 @@ class EditController extends Etd_Controller_Action {
     $this->view->title = "Edit Program";
     $this->view->etd = $etd;
 
-    // necessary?
-    $xml = new DOMDocument();
-    $xmlcontent = file_get_contents("programs.xml", FILE_USE_INCLUDE_PATH);
-    $xml->loadXML($xmlcontent); 
-    $programs = new programs($xml);
+    $programs = new programs();
     $id = $programs->findIdbyLabel(trim($etd->mods->department));
     if ($id)	// FIXME: what if id is not found ?
-      $this->view->program = new programs($xml, $id);
+      $this->view->program = new programs($id);
 
     
     // xforms setting - so layout can include needed code in the header
