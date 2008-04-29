@@ -27,10 +27,9 @@ $fedora = new FedoraConnection($fedora_cfg->maintenance_account->user,
 Zend_Registry::set('fedora', $fedora);
 
 // set up connection to solr to find records with expiring embargoes
-require_once("solr.php");
 $solr_config = new Zend_Config_Xml("../config/solr.xml", $env_config->mode);
-$solr = new solr($solr_config->server, $solr_config->port);
-$solr->addFacets(explode(',', $solr_config->facets)); 	// array of default facet terms
+$solr = new Etd_Service_Solr($solr_config->server, $solr_config->port);
+$solr->addFacets($solr_config->facet->toArray());
 Zend_Registry::set('solr', $solr);
 
 $opts = new Zend_Console_Getopt(
