@@ -142,7 +142,7 @@ class ManageController extends Etd_Controller_Action {
    }
    
 
-   /* unpublish workflow (unpublish, doUnpublish) */
+   /* unpublish workflow (unpublish, dounpublish) */
    
    public function unpublishAction() {
      $etd = $this->_helper->getFromFedora("pid", "etd");
