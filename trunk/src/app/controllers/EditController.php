@@ -207,17 +207,17 @@ class EditController extends Etd_Controller_Action {
 
   public function savetitleAction() {
     $this->_setParam("mode", "title");
-    $this->_forward("saveHtml");
+    $this->_forward("savehtml");
   }
   
   public function saveabstractAction() {
     $this->_setParam("mode", "abstract");
-    $this->_forward("saveHtml");
+    $this->_forward("savehtml");
   }
 
   public function savecontentsAction() {
     $this->_setParam("mode", "contents");
-    $this->_forward("saveHtml");
+    $this->_forward("savehtml");
   }
 
   
