@@ -151,7 +151,7 @@ class ManageController extends Etd_Controller_Action {
      $this->view->title = "Manage : Unpublish ETD";
    }
 
-   public function doUnpublishAction() {
+   public function dounpublishAction() {
      $etd = $this->_helper->getFromFedora("pid", "etd");
      if (!$this->_helper->access->allowedOnEtd("unpublish", $etd)) return false;
      

@@ -119,7 +119,7 @@ class SearchController extends Etd_Controller_Action {
 
 
 
-  public function facultySuggestorAction() {
+  public function facultysuggestorAction() {
     $name = $this->_getParam("faculty");
     $p = new esdPersonObject();
 

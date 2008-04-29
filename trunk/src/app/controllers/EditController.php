@@ -138,7 +138,7 @@ class EditController extends Etd_Controller_Action {
     $this->view->fields = new researchfields(); 
   }
 
-  public function saveResearchfieldAction() {
+  public function saveresearchfieldAction() {
     $etd = $this->_helper->getFromFedora("pid", "etd");
     if (!$this->_helper->access->allowedOnEtd("edit metadata", $etd)) return;
     
@@ -205,24 +205,24 @@ class EditController extends Etd_Controller_Action {
   }
 
 
-  public function saveTitleAction() {
+  public function savetitleAction() {
     $this->_setParam("mode", "title");
     $this->_forward("saveHtml");
   }
   
-  public function saveAbstractAction() {
+  public function saveabstractAction() {
     $this->_setParam("mode", "abstract");
     $this->_forward("saveHtml");
   }
 
-  public function saveContentsAction() {
+  public function savecontentsAction() {
     $this->_setParam("mode", "contents");
     $this->_forward("saveHtml");
   }
 
   
   // save formatted fields
-  public function saveHtmlAction() {
+  public function savehtmlAction() {
     $etd = $this->_helper->getFromFedora("pid", "etd");
 
     if (!$this->_helper->access->allowedOnEtd("edit metadata", $etd)) return;
