@@ -148,7 +148,9 @@ class FileController extends Etd_Controller_Action {
        						   "pid" => $etdfile->pid, 'etd' => $etd->pid), '', true);
        
      } else {
-       // FIXME: problem with file upload - redirect somewhere? error message?
+       // FIXME: problem with file upload - redirect somewhere else? error message?
+       $this->_helper->redirector->gotoRoute(array("controller" => "file", "action" => "edit",
+       						   "pid" => $etdfile->pid, 'etd' => $etd->pid), '', true);
      }
      
    }
