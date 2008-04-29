@@ -5,7 +5,7 @@
 include("projax/projax.php");
 $projax = new Projax();
 
-$ajaxopts = array("url" => $this->url(array("controller" => "search", "action" => "facultySuggestor"), "", true),
+$ajaxopts = array("url" => $this->url(array("controller" => "search", "action" => "facultysuggestor"), "", true),
 		  "indicator" => "adv-loading", "value" => "id", "select" => "value",
 		  "after_update_element" => "setAdvisor" );
 $inputopts = array("size" => "55", "autocomplete" => "off", "id" => "advisor_autocomplete");
