@@ -42,8 +42,9 @@ $opts = new Zend_Console_Getopt(
 // extended usage information - based on option list above, but with explanation/examples
 $scriptname = basename($_SERVER{"SCRIPT_NAME"});
 $usage = $opts->getUsageMessage() . "
-  FIXME: do we need more information here?
 ";
+//  FIXME: do we need more information here?
+
 
 try {
   $opts->parse();
@@ -66,9 +67,11 @@ switch ($opts->verbose) {
  case "notice":  $verbosity = Zend_Log::NOTICE; break;
  case "info":    $verbosity = Zend_Log::INFO; break;
  case "debug":   $verbosity = Zend_Log::DEBUG; break;   
- case "error": 
+ case "error":   $verbosity = Zend_Log::ERR; break;
  default:
-   $verbosity = Zend_Log::ERR; break;
+   print "Bad verbose level: must be one of error, warn, notice, info, or debug\n";
+   echo $usage;
+   exit;
  }
 $filter = new Zend_Log_Filter_Priority($verbosity);
 $logger->addFilter($filter);
@@ -76,10 +79,8 @@ $logger->addFilter($filter);
 
 
 
-// find ETDs with embargoes that will expire in 60 days
-$expiration = date("Ymd", strtotime("+60 days"));	// 60 days from now
 $logger->info("Searching for unpublished records");
-$etds = etd::findUnpublished(0, 2); 	// enough to get all records in current state
+$etds = etd::findUnpublished(0, 30); 	// enough to get all records in current state
 $logger->info("Found " . count($etds) . " record" . ((count($etds) != 1) ? "s" : ""));
 
 foreach ($etds as $etd) {
