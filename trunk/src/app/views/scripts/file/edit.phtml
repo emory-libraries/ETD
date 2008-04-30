@@ -41,10 +41,10 @@
 <form name="updatefile" method="post" enctype="multipart/form-data"
     action="<?= $this->url(array("action" => "update", "etd" => $this->pid))?>">
   <p>
-<?//= $this->formFile("file"); ?>
- <input type="file" id="file" value=""/>
- <input type="submit" name="Upload" id="upload" value="Upload &gt;" class="button" style="margin-left:10px"/>
-   <?//= $this->formSubmit("Upload", "Upload >", array("class" => "button", "style" => "margin-left:10px")); ?>
+<? /* NOTE: for some reason formFile does not detect that doctype is xhtml;
+    setting again here to force it to produce valid xhtml output (required for Xforms) */ ?>
+<? $this->doctype('XHTML1_STRICT') ?><?= $this->formFile("file"); ?>
+   <?= $this->formSubmit("Upload", "Upload >", array("class" => "button", "style" => "margin-left:10px")); ?>
   </p>
 </form>
 
