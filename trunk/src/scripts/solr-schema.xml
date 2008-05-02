@@ -239,95 +239,48 @@
        fields or fields that need an index-time boost need norms.
    -->
 
-   <field name="id" type="string" indexed="true" stored="true" required="false" /> 
    <field name="PID" type="string" indexed="true" stored="true" required="true" /> 
-   <field name="abstract" type="string" indexed="true" stored="true" required="true" /> 
-   <field name="advisor" type="string" indexed="true" stored="true" required="true" /> 
-   <field name="advisor_lastnamefirst" type="string" indexed="true" stored="true" required="true" /> 
-   <field name="author" type="string" indexed="true" stored="true" required="true" /> 
-   <field name="author_lastnamefirst" type="string" indexed="true" stored="true" required="true" /> 
-   <field name="committee" type="string" indexed="true" stored="false" required="true" multiValued="true"/> 
-   <field name="committee_lastnamefirst" type="string" indexed="true" stored="true" required="true" multiValued="true"/> 
-   <field name="keyword" type="string" indexed="true" stored="false" required="false" multiValued="true"/> 
-   <field name="keyword_facet" type="string" indexed="true" stored="true" required="false" multiValued="true"/> 
-   <field name="subject" type="string" indexed="true" stored="false" required="false" multiValued="true"/> 
-   <field name="subject_facet" type="string" indexed="true" stored="true" required="false" multiValued="true"/> 
+   <field name="abstract" type="text" indexed="true" stored="true"/>
+   <field name="advisor" type="text" indexed="true" stored="true"/>
+   <field name="author" type="text" indexed="true" stored="true" required="true" /> 
+   <field name="committee" type="text" indexed="true" stored="true" multiValued="true"/> 
+   <field name="keyword" type="text" indexed="true" stored="true" multiValued="true"/> 
+   <field name="subject" type="text" indexed="true" stored="true" multiValued="true"/> 
    <field name="language" type="string" indexed="true" stored="true" required="false"/> 
    <field name="num_pages" type="string" indexed="true" stored="true" required="false"/> 
-   <field name="program" type="string" indexed="true" stored="true" required="true" /> 
-   <field name="subfield" type="string" indexed="true" stored="true" required="false" /> 
-   <field name="program_facet" type="string" indexed="true" stored="true" required="true" /> 
+   <field name="program" type="text" indexed="true" stored="true" required="true" /> 
+   <field name="subfield" type="text" indexed="true" stored="true" required="false" /> 
    <field name="status" type="string" indexed="true" stored="true" required="true" /> 
-   <field name="tableOfContents" type="string" indexed="true" stored="true" required="true" /> 
-   <field name="title" type="string" indexed="true" stored="true" required="true" /> 
-   <field name="title_sort" type="string" indexed="true" stored="false" required="true" /> 
-   <field name="year" type="string" indexed="true" stored="true" required="true" /> 
-   <field name="dateIssued" type="string" indexed="true" stored="true" required="true" /> 
-   <field name="date_embargoedUntil" type="string" indexed="true" stored="true" required="true" /> 
-
-   <field name="document_type" type="string" indexed="true" stored="true" required="true" /> 
-   <field name="note_admin" type="string" indexed="true" stored="true" required="true" /> 
+   <field name="tableOfContents" type="text" indexed="true" stored="true" /> 
+   <field name="title" type="text" indexed="true" stored="true" required="true"/> 
+   <field name="year" type="string" indexed="true" stored="true"/> 
+   <field name="dateIssued" type="string" indexed="true" stored="true"/> 
+   <field name="date_embargoedUntil" type="string" indexed="true" stored="true"/>
+   <field name="document_type" type="string" indexed="true" stored="true"/> 
+   <field name="note_admin" type="string" indexed="true" stored="true"/>
    <field name="embargo_requested" type="string" indexed="true" stored="false" required="false" /> 
    <field name="embargo_duration" type="string" indexed="true" stored="false" required="false" /> 
 
+   <field name="contentModel" type="string" indexed="true" stored="true"/> 
+   <field name="createdDate" type="string" indexed="true" stored="false"/> 
+   <field name="label" type="string" indexed="true" stored="false"/> 
+   <field name="lastModifiedDate" type="string" indexed="true" stored="false" /> 
+   <field name="ownerId" type="string" indexed="true" stored="false" /> 
+   <field name="state" type="string" indexed="true" stored="false"/> 
+   <field name="type" type="string" indexed="true" stored="false"/> 
 
-<!-- unused fields that phps needs to know about -->
-   <field name="dc.contributor" type="string" indexed="true" stored="false" required="false" /> 
-   <field name="dc.creator" type="string" indexed="true" stored="false" required="false" /> 
-   <field name="dc.date" type="string" indexed="true" stored="false" required="false" /> 
-   <field name="dc.description" type="string" indexed="true" stored="false" required="false" /> 
-   <field name="dc.identifier" type="string" indexed="true" stored="false" required="false" /> 
-   <field name="dc.language" type="string" indexed="true" stored="false" required="false" /> 
-   <field name="dc.subject" type="string" indexed="true" stored="false" required="false" /> 
-   <field name="dc.title" type="string" indexed="true" stored="false" required="false" /> 
-
-
-   <field name="contentModel" type="string" indexed="true" stored="false" required="false" /> 
-   <field name="createdDate" type="string" indexed="true" stored="false" required="false" /> 
-   <field name="label" type="string" indexed="true" stored="false" required="false" /> 
-   <field name="lastModifiedDate" type="string" indexed="true" stored="false" required="false" /> 
-   <field name="ownerId" type="string" indexed="true" stored="false" required="false" /> 
-   <field name="state" type="string" indexed="true" stored="false" required="false" /> 
-   <field name="type" type="string" indexed="true" stored="false" required="false" /> 
-
-<!-- FIXME: SmallPox fields (how to manage?) -->
-   <field name="dateCreated" type="string" indexed="true" stored="false" required="false"/>
-
-
-   <field name="sku" type="textTight" indexed="true" stored="true" omitNorms="true"/>
-   <field name="name" type="text" indexed="true" stored="true"/>
-   <field name="nameSort" type="string" indexed="true" stored="false"/>
-   <field name="alphaNameSort" type="alphaOnlySort" indexed="true" stored="false"/>
-   <field name="manu" type="text" indexed="true" stored="true" omitNorms="true"/>
-   <field name="cat" type="text_ws" indexed="true" stored="true" multiValued="true" omitNorms="true"/>
-   <field name="features" type="text" indexed="true" stored="true" multiValued="true"/>
-   <field name="includes" type="text" indexed="true" stored="true"/>
-
-   <field name="weight" type="sfloat" indexed="true" stored="true"/>
-   <field name="price"  type="sfloat" indexed="true" stored="true"/>
-   <!-- "default" values can be specified for fields, indicating which
-        value should be used if no value is specified when adding a document.
-     -->
-   <field name="popularity" type="sint" indexed="true" stored="true" default="0"/>
-   <field name="inStock" type="boolean" indexed="true" stored="true"/>
-
-   <!-- Some sample docs exists solely to demonstrate the spellchecker
-        functionality, this is the only field they container.
-        Typically you might build the spellchecker of "catchall" type field
-        containing all of the text in each document
-     -->
-   <field name="word" type="string" indexed="true" stored="true"/>
-
-   
    <!-- catchall field, containing all other searchable text fields (implemented
         via copyField further on in this schema  -->
-<!--   <field name="text" type="text" indexed="true" stored="false"
-multiValued="true"/> -->
-   <field name="text" type="text_ws" indexed="true" stored="false" multiValued="true"/>
+   <field name="text" type="text" indexed="true" stored="false" multiValued="true"/>
 
-   <!-- non-tokenized version of manufacturer to make it easier to sort or group
-        results by manufacturer.  copied from "manu" via copyField -->
-   <field name="manu_exact" type="string" indexed="true" stored="false"/>
+   <!-- non-tokenized versions of terms to for sorting and/or facets -->
+   <field name="title_exact" type="string" indexed="true" stored="true"/>
+   <field name="author_facet" type="string" indexed="true" stored="true"/>
+   <field name="advisor_facet" type="string" indexed="true" stored="true"/> <!-- multi? -->
+   <field name="committee_facet" type="string" indexed="true" stored="true" multiValued="true"/>
+   <field name="subject_facet" type="string" indexed="true" stored="true" multiValued="true"/>
+   <field name="keyword_facet" type="string" indexed="true" stored="true" multiValued="true"/>
+   <field name="program_facet" type="string" indexed="true" stored="true" multiValued="true"/>
 
    <!-- Here, default is used to create a "timestamp" field indicating
         When each document was indexed.
@@ -378,15 +331,32 @@ multiValued="true"/> -->
 
 <!--   <copyField source="PID" dest="id"/>  -->
 
-<!--   <copyField source="cat" dest="text"/>
-   <copyField source="name" dest="text"/>
-   <copyField source="name" dest="nameSort"/>
-   <copyField source="name" dest="alphaNameSort"/>
-   <copyField source="manu" dest="text"/>
-   <copyField source="features" dest="text"/>
-   <copyField source="includes" dest="text"/>
 
-   <copyField source="manu" dest="manu_exact"/> -->
+   <copyField source="title" dest="title_exact"/>
+   <!-- advisor should also be searchable as committee -->
+   <copyField source="advisor" dest="committee"/>
+   <!-- copy into facet fields -->
+   <copyField source="author" dest="author_facet"/>
+   <copyField source="advisor" dest="advisor_facet"/>
+   <copyField source="advisor" dest="committee_facet"/>
+   <copyField source="committee" dest="committee_facet"/>
+   <copyField source="program" dest="program_facet"/>
+   <copyField source="subfield" dest="program_facet"/>
+   <copyField source="subject" dest="subject_facet"/>
+   <copyField source="keyword" dest="keyword_facet"/> 
+
+<!-- subfield must be included in program facet -->
+   <copyField source="subfield" dest="program_facet"/>
+
+<!-- fields that should be in default search -->
+   <copyField source="author" dest="text"/>
+   <copyField source="advisor" dest="text"/>
+   <copyField source="committee" dest="text"/>
+   <copyField source="program" dest="text"/>
+   <copyField source="subject" dest="text"/>
+   <copyField source="keyword" dest="text"/>
+   <copyField source="abstract" dest="text"/>
+   <copyField source="tableOfContents" dest="text"/>
 
  <!-- Similarity is the scoring routine for each document vs. a query.
       A custom similarity may be specified here, but the default is fine
