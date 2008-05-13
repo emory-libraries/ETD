@@ -41,7 +41,8 @@ class BrowseController extends Etd_Controller_Action {
     if (!isset($this->view->browse_mode))
       $this->view->browse_mode = $type;
     
-    $request->setParam("field", $type . "_lastnamefirst");
+    $request->setParam("field", $type . "_facet");
+    //$request->setParam("field", $type);
 
     if (is_null($value)) {
       $this->_forward("browsefield");
@@ -134,11 +135,9 @@ class BrowseController extends Etd_Controller_Action {
       }
       $query = join($queryparts, '+AND+');
     }
-    //     print "query is $query\n";
+    //         print "query is $query\n";
     //$results = $solr->query("$field:($value)");
     $results = $solr->queryPublished($query, $start, $max);	// limit to published records
-     
-    /*       $results = solrQuery("$mode:$value"); */
      
     $this->view->count = $results['response']['numFound'];
 

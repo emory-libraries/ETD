@@ -49,7 +49,7 @@ class SearchController extends Etd_Controller_Action {
      }
      $keyword = $request->getParam("keyword");
      if ($keyword) {
-       $query .= " keyword:($keyword)";
+       $query .= " keyword_facet:($keyword)";
        $this->view->query['keyword'] = $keyword;
      }
      $subject = $request->getParam("subject");
@@ -97,7 +97,7 @@ class SearchController extends Etd_Controller_Action {
      $this->view->start = $start;
      $this->view->max = $max;
      $this->view->post = true;
-
+     
 
      //
      $etds = array();
