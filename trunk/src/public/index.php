@@ -66,7 +66,7 @@ Zend_Session::setOptions(array("name" => $config->session_name));
 // set up connection to solr for search & browse
 $solr_config = new Zend_Config_Xml("../config/solr.xml", $env_config->mode);
 require_once("Etd/Service/Solr.php");
-$newsolr = new Etd_Service_Solr($solr_config->server, $solr_config->port);
+$newsolr = new Etd_Service_Solr($solr_config->server, $solr_config->port, $solr_config->path);
 $newsolr->addFacets($solr_config->facet->toArray());
 Zend_Registry::set('solr', $newsolr);
 
