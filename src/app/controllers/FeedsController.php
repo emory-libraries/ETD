@@ -15,7 +15,8 @@ class FeedsController extends Etd_Controller_Action {
 
   /* recently published ETDs */
   public function recentAction() {
-    $etds = etd::findRecentlyPublished();
+    $etds = etd::findRecentlyPublished(10);
+    //   $etds = etd::findRecentlyPublished(10, array("program" => "Chemistry"));
 
     // pass in title for the feed, absolute url, and array of etds to be included      
     $this->feed = new Etd_Feed("Emory ETDs: Recently published",
