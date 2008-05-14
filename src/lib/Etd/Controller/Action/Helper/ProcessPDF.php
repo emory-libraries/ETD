@@ -227,7 +227,7 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
     // pick up the title  (could be multiline)
     if (preg_match("|<A name=\d><\/a>(.+)[Bb]y|D", $content, $matches)) {
       $this->fields['title'] = $matches[1];
-      if ($this->debug) print "DEBUG: found title:<pre>$title</pre>";
+      if ($this->debug) print "DEBUG: found title:<pre>" . $this->fields['title'] . "</pre>";
     }
     
     // loop through the lines for single-line content
@@ -245,15 +245,21 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
     
       // advisor
       if (preg_match("/Advis[eo]r:(.+)/", $line, $matches) ||
-	  preg_match("/([^_ ]+)Advis[eo]r/", $line, $matches)) {
+	  preg_match("/([^_\s]+)Advis[eo]r/", $line, $matches)) {
 	$this->fields['advisor'] = $this->clean_name($matches[1]);
 	if ($this->debug) print "DEBUG: found advisor: (1)<pre>$advisor</pre> ";
       } elseif (preg_match("/^ *Advis[eo]r/", $line)) {
-	$this->fields['advisor'] = $this->clean_name($lines[$i-1]);	// pick up the advisor from the line before
-	if ($this->debug) print "DEBUG: found advisor: (2)<pre>$advisor</pre>";
-      } elseif (preg_match("/^ *Committee/", $line) || preg_match("/Reader/", $line)) {	
-	array_push($this->fields['committee'], $this->clean_name($lines[$i-1]));// pick up the committee from the line before
-	if ($this->debug) print "DEBUG: found committee member:<pre>" . $this->clean_name($lines[$i-1]) . "</pre>";
+	$name = $this->clean_name($lines[$i-1]);	// pick up the advisor from the line before
+	if (!preg_match("/^Advis[eo]r$/", $name)) {
+	  $this->fields['advisor'] = $name;
+	  if ($this->debug) print "DEBUG: found advisor: (2)<pre>$name</pre>";
+	}
+      } elseif (preg_match("/^ *Committee/", $line) || preg_match("/Reader/", $line)) {
+	$name = $this->clean_name($lines[$i-1]);
+	if ($name != "Committee Member") {	// in some cases getting false match
+	  array_push($this->fields['committee'], $name);// pick up the committee from the line before
+	  if ($this->debug) print "DEBUG: found committee member:<pre>$name</pre>";
+	}
       } elseif (preg_match("/^(.+), Committee/", $line, $matches)) {
 	// looking for name, Committee Member on a single line
 	array_push($this->fields['committee'], $this->clean_name($matches[1])); 
@@ -267,6 +273,7 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
   private function clean_name ($name) {
     $name = str_replace("Dr. ", "", $name);
     $name = str_replace(", Ph.D.", "", $name);
+    $name = preg_replace("/\((.*)\)/", "$1", $name);	// remove parentheses around the name
     $name = trim($name);
     return $name;
   }
