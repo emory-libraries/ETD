@@ -73,7 +73,8 @@ class SubmissionController extends Etd_Controller_Action {
 	  $this->_helper->flashMessenger->addMessage("Couldn't find directory match for "
 						     . $cm . "; please enter manually");
       }
-      $etd->mods->setCommitteeFromPersons($committee);
+      // don't set committee if none are found (causes problem trying to remove blank entry)
+      if (count($committee)) $etd->mods->setCommitteeFromPersons($committee);
 
 
       foreach ($etd_info['keywords'] as $i => $keyword) {
