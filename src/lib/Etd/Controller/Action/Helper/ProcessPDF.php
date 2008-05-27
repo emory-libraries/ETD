@@ -256,7 +256,7 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
 	}
       } elseif (preg_match("/^ *Committee/", $line) || preg_match("/Reader/", $line)) {
 	$name = $this->clean_name($lines[$i-1]);
-	if ($name != "Committee Member") {	// in some cases getting false match
+	if ($name != "Committee Member" && $name != "") {	// in some cases getting false match
 	  array_push($this->fields['committee'], $name);// pick up the committee from the line before
 	  if ($this->debug) print "DEBUG: found committee member:<pre>$name</pre>";
 	}
@@ -272,7 +272,8 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
   // minimal cleaning for advisor/committee names - remove dr.,  ph.d.
   private function clean_name ($name) {
     $name = str_replace("Dr. ", "", $name);
-    $name = str_replace(", Ph.D.", "", $name);
+    //   match PhD or Ph.D.; also match MD/PhD
+    $name = preg_replace("|, (MD/?)?Ph\.?D\.?|", "", $name);
     $name = preg_replace("/\((.*)\)/", "$1", $name);	// remove parentheses around the name
     $name = trim($name);
     return $name;
