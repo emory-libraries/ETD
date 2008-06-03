@@ -77,10 +77,7 @@ program/department.</p>
 
    <xf:action ev:event="xforms-value-changed">
      <xf:setvalue nodeset="instance('main')/mods:extension/etd:degree/etd:discipline"
-      value="instance('programs')/skos:Collection[@rdf:about = instance('tmp')/program/subfield]/rdfs:label"/>
-   
-      <xf:setvalue nodeset="instance('main')/mods:extension/etd:degree/etd:discipline[.='--']" value="''"/>
-     <xf:rebuild model="model"/> 
+      value="instance('programs')/skos:Collection[@rdf:about = instance('tmp')/program/subfield]/rdfs:label[. != '--']"/>
    </xf:action>
   </xf:select1>
   
