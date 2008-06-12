@@ -1,7 +1,15 @@
 <?=  $this->render('email/_debug.phtml'); ?>
 <p>Dear <?= $this->etd->mods->author->first ?>,</p>
 
-<p>Your access restriction will be expiring in 60 days
-on <?= $this->etd->mods->embargo_end ?>.</p>
+<p>When you submitted your dissertation to the Emory University ETD 
+>repository, you requested that the full text of your document remain 
+>inaccessible until <?= $this->etd->mods->embargo_end ?>.</p>
 
-<p>(more information here)</p>
+<p> Unless the library is informed otherwise, the full text of your thesis 
+will be available via our website on <?= $this->etd->mods->embargo_end ?>.  
+It is your responsibility to request an extension of your access restriction
+if it is necessary.</p>
+
+<p>Please feel free to contact etd-admin@listserv.cc.emory.edu if you need to request an 
+extension or if you have other questions regarding your ETD.  Thank you very much
+for participating in the ETD Program</p>
