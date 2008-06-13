@@ -418,7 +418,8 @@ class DISS_phone extends XmlObject {
   }
 
   public function set($number) {
-    if (trim($number) == "") return;	// no value - don't attempt to parse
+    $number = trim($number);
+    if ($number == "") return;	// no value - don't attempt to parse
     // this should work for most US phone numbers and possibly some international ones 
     if (preg_match("/^((\+\d{1,3}[- ]?\(?\d\)?[- ]?\d{1,5})|\(?(\d{2,6})\)?)[- ]?(\d{3,4})[- ]?(\d{4})( x| ext)?(\d{1,5})?$/", $number,  $matches)) {
       // parse number into parts and save in the correct fields
