@@ -279,7 +279,7 @@ function get_graduate_etds($filename, $refdate = null) {
 
       $name_degree = $data[$lastname] . ", " . $data[$firstname] . " (" . $data[$major] . ")";
 	  
-      $logger->info("Found graduate " . $data[$netid] . " $name_degree");
+      $logger->debug("Found graduate " . $data[$netid] . " $name_degree");
       
       // find fedora record id, add to $pids
       $etd = etd::findUnpublishedByAuthor($data[$netid]);
@@ -507,7 +507,7 @@ function submit_to_proquest(array $etds) {
   
   foreach ($etds as $etd) {
     // only records that are either approved or published should be sent to ProQuest
-    if ($etd->status() != "approved" && $etd->status != "published") {
+    if ($etd->status() != "approved" && $etd->status() != "published") {
       $logger->warn("Cannot submit record " . $etd->pid . " to ProQuest: status is " .
 		    $etd->status() . " instead of approved or published");
       continue;	// skip to next etd
