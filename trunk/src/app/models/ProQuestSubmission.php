@@ -100,7 +100,7 @@ class ProQuestSubmission extends XmlObject {
     $this->description->external_id = $this->etd->pid;
     if ($this->etd->mods->genre == "Dissertation")
       $this->description->type = "doctoral";
-    elseif ($this->etd->mods->genre == "Masters Thesis")
+    elseif ($this->etd->mods->genre == "Master's Thesis")
       $this->description->type = "masters";
     $this->description->copyright = $this->etd->mods->copyright;
     $this->description->title = $this->etd->mods->title;	// plain-text version
