@@ -263,6 +263,10 @@ class TestPQSubmission extends UnitTestCase {
     $phone->set("404-123-4567");
     $this->assertEqual("404", $phone->area_code);
     $this->assertEqual("123-4567", $phone->number);
+    // leading space
+    $phone->set(" 404-123-4567");
+    $this->assertEqual("404", $phone->area_code);
+    $this->assertEqual("123-4567", $phone->number);
 
     $phone->set("(981) 565-4267 x293");
     $this->assertEqual("981", $phone->area_code);
