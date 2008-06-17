@@ -27,10 +27,11 @@ $fedora = new FedoraConnection($fedora_cfg->maintenance_account->user,
 Zend_Registry::set('fedora', $fedora);
 
 // set up connection to solr to find records with expiring embargoes
-require_once("solr.php");
+require_once("Etd/Service/Solr.php");
 $solr_config = new Zend_Config_Xml("../config/solr.xml", $env_config->mode);
-$solr = new solr($solr_config->server, $solr_config->port);
-$solr->addFacets(explode(',', $solr_config->facets)); 	// array of default facet terms
+$solr = new Etd_Service_Solr($solr_config->server, $solr_config->port, $solr_config->path);
+$solr->addFacets($solr_config->facet->toArray());
+$solr->setFacetLimit($solr_config->facet_limit);
 Zend_Registry::set('solr', $solr);
 
 
@@ -45,7 +46,7 @@ Zend_Db_Table_Abstract::setDefaultAdapter($esd);
 
 $opts = new Zend_Console_Getopt(
   array(
-    'verbose|v'	       => 'Verbose output',
+    'verbose|v=s'      => 'Output level/verbosity; one of error, warn, notice, info, debug (default: error)',
     'noact|n'	       => "Test/simulate - don't actually do anything (no actions)",
     )
   );
@@ -53,9 +54,9 @@ $opts = new Zend_Console_Getopt(
 // extended usage information - based on option list above, but with explanation/examples
 $scriptname = basename($_SERVER{"SCRIPT_NAME"});
 $usage = $opts->getUsageMessage() . "
-  FIXME: do we need more information here?
-
 ";
+//  FIXME: do we need more information here?
+
 
 try {
   $opts->parse();
@@ -64,26 +65,67 @@ try {
   exit;
 }
 
+// output logging
+$writer = new Zend_Log_Writer_Stream("php://output");
+// minimal output format - don't display timestamp or numeric priority
+$format = '%priorityName%: %message%' . PHP_EOL;
+$formatter = new Zend_Log_Formatter_Simple($format);
+$writer->setFormatter($formatter);
+$logger = new Zend_Log($writer);
+
+// set level of output to be displayed based on command line parameter
+switch ($opts->verbose) {
+ case "warn":    $verbosity = Zend_Log::WARN; break;
+ case "notice":  $verbosity = Zend_Log::NOTICE; break;
+ case "info":    $verbosity = Zend_Log::INFO; break;
+ case "debug":   $verbosity = Zend_Log::DEBUG; break;   
+ case "error": 
+ default:
+   $verbosity = Zend_Log::ERR; break;
+ }
+$filter = new Zend_Log_Filter_Priority($verbosity);
+$logger->addFilter($filter);
+
+
 // find ETDs with embargoes that will expire in 60 days
 $expiration = date("Ymd", strtotime("+60 days"));	// 60 days from now
-if ($opts->verbose) print "Searching for records with embargo expiration of $expiration\n";
+$logger->debug("Searching for records with embargo expiration of $expiration or before and notice not sent");
 $etds = etd::findExpiringEmbargoes($expiration); 
 
-if ($opts->verbose) print "Found " . count($etds) . " record" .
-	  ((count($etds) != 1) ? "s" : "") . "\n";
-if (!$opts->noact) {
-  foreach ($etds as $etd) {
+$logger->info("Found " . count($etds) . " record" . ((count($etds) != 1) ? "s" : ""));
+foreach ($etds as $etd) {
+  $logger->debug("Processing " . $etd->pid);
+
+  // double-check that embargo notice has not been sent according to MODS record
+  // (this should only happen if Solr index does not get updated -- should be fixed by now?)
+  if (isset($etd->mods->embargo_notice) && strstr($etd->mods->embargo_notice, "sent")) {
+    $logger->warn("Notice has already been sent for " . $etd->pid . "; skipping");
+    continue;
+  }
+  
+  if (!$opts->noact) {
     $notify = new etd_notifier($etd);
     // send email about embargo expiration
     $notify->embargo_expiration();
-
+    
     // add an administrative note that embargo expiration notice has been sent,
     // and add notification event to record history log
     $etd->embargo_expiration_notice();
     
-    $etd->save("sent embargo expiration 60-day notice");
+    $result = $etd->save("sent embargo expiration 60-day notice");
+    if ($result) {
+      $logger->debug("Successfully saved " . $etd->pid . " at $result");
+    } else {
+      $logger->err("Could not save embargo expiration notice sent to record history"); 
+    }
   }
 }
+
+
+/* to do :
+      send a 7-day warning to etd-admin listserv
+      send a day-of notice to author & committee
+*/
 
 
 // results? anything else?
