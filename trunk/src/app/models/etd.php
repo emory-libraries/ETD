@@ -640,8 +640,8 @@ class etd extends foxml implements etdInterface {
     $results = $solr->query($query); 	// ... paging? .. , $start, $max);
 
     $etds = array();
-    foreach ($results['response']['docs'] as $result_doc) {
-      array_push($etds, new etd($result_doc['PID']));
+    foreach ($results->docs as $result_doc) {
+      array_push($etds, new etd($result_doc->PID));
     }
     return $etds;
 
@@ -657,8 +657,8 @@ class etd extends foxml implements etdInterface {
 
     $etds = array();
     if ($results) {
-      foreach ($results['response']['docs'] as $result_doc) {
-	array_push($etds, new etd($result_doc['PID']));
+      foreach ($results->docs as $result_doc) {
+	array_push($etds, new etd($result_doc->PID));
       }
     }
     return $etds;
@@ -685,8 +685,8 @@ class etd extends foxml implements etdInterface {
     $results = $solr->queryPublished($query);	// FIXME: paging? need to get all results
 
     $etds = array();
-    foreach ($results['response']['docs'] as $result_doc) {
-      array_push($etds, new etd($result_doc['PID']));
+    foreach ($results->docs as $result_doc) {
+      array_push($etds, new etd($result_doc->PID));
     }
     return $etds;
   }
@@ -696,10 +696,11 @@ class etd extends foxml implements etdInterface {
     $solr = Zend_Registry::get('solr');
     $query = "date_embargoedUntil:[" . date("Ymd") . "TO *] NOT embargo_duration:(0 days)";
     $results = $solr->query($query, $start, $max, "date_embargoedUntil asc");
-    $total = $results['response']['numFound'];
+    //print "<pre>"; print_r($results); print "</pre>";
+    $total = $results->numFound;
     $etds = array();
-    foreach ($results['response']['docs'] as $result_doc) {
-      array_push($etds, new etd($result_doc['PID']));
+    foreach ($results->docs as $result_doc) {
+      array_push($etds, new etd($result_doc->PID));
     }
     return $etds;
   }
@@ -724,9 +725,9 @@ class etd extends foxml implements etdInterface {
     //    print "<pre>"; print_r($results); print "</pre>";
     
     $etds = array();
-    foreach ($results['response']['docs'] as $result_doc) {
+    foreach ($results->docs as $result_doc) {
       if ($type == "etd")
-	array_push($etds, new etd($result_doc['PID']));
+	array_push($etds, new etd($result_doc->PID));
       elseif ($type == "solrEtd")
 	array_push($etds, new solrEtd($result_doc));
     }
