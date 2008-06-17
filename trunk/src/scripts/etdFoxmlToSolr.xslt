@@ -55,8 +55,7 @@
         
         
         </doc>
-        <commit waitFlush="false" waitSearcher="false"/>
-        <optimize waitFlush="false" waitSearcher="false"/>
+        <commit/>
       </add>
       
     </xsl:if>
@@ -229,13 +228,19 @@
   </xsl:template>
 
   <!-- embargo requested : yes/no -->
-  <xsl:template match="mods:note[@ID='copyright']">
+  <xsl:template match="mods:note[@ID='embargo']">
     <xsl:variable name="yesno">
       <xsl:value-of select="substring-after(., 'embargo requested? ')"/>
     </xsl:variable>
 
     <xsl:if test="$yesno != ''">
       <field name="embargo_requested"><xsl:value-of select="$yesno"/></field>
+    </xsl:if>
+  </xsl:template>
+
+  <xsl:template match="mods:note[@ID='embargo_expiration_notice']">
+    <xsl:if test=". != ''">
+      <field name="embargo_notice"><xsl:value-of select="."/></field>
     </xsl:if>
   </xsl:template>
 
