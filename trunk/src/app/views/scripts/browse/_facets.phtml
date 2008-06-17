@@ -3,15 +3,15 @@
    <b>Facets</b><br/>
 Advisor:<br/>
    <ul>
-   <? foreach ($this->facets['advisor_facet'] as $value => $count): ?>
+   <? foreach ($this->facets->advisor as $value => $count): ?>
      <li><?= $value ?> (<?= $count ?>)</li>
    <? endforeach ?>
    </ul>
 
-<? if (count($this->facets['year']) && $this->browse_mode != "year"): ?>
+<? if (count($this->facets->year) && $this->browse_mode != "year"): ?>
   Year:<br/>
    <ul>
-   <? foreach ($this->facets['year'] as $value => $count): ?>
+   <? foreach ($this->facets->year as $value => $count): ?>
 	<li><?= $value ?> (<?= $count ?>)</li>
    <? endforeach ?>
    </ul>
@@ -19,14 +19,14 @@ Advisor:<br/>
     
 Subject:<br/>
    <ul>
-   <? foreach ($this->facets['subject_facet'] as $value => $count): ?>
+   <? foreach ($this->facets->subject as $value => $count): ?>
 	<li><?= $value ?> (<?= $count ?>)</li>
    <? endforeach ?>
    </ul>
 
 Committee:<br/>
    <ul>
-   <? foreach ($this->facets['committee_facet'] as $value => $count): ?>
+   <? foreach ($this->facets->committee as $value => $count): ?>
      <li><?= $value ?> (<?= $count ?>)</li>
    <? endforeach ?>
    </ul>
@@ -34,7 +34,7 @@ Committee:<br/>
 <? if ($this->browse_mode != "program"): ?>
 Program:<br/>
    <ul>
-   <? foreach ($this->facets['program_facet'] as $value => $count): ?>
+   <? foreach ($this->facets->program as $value => $count): ?>
 	<li><?= $value ?> (<?= $count ?>)</li>
    <? endforeach ?>
    </ul>
@@ -43,7 +43,7 @@ Program:<br/>
 <? if ($this->browse_mode != "author"): ?>
 Author:<br/>
    <ul>
-   <? foreach ($this->facets['author_facet'] as $value => $count): ?>
+   <? foreach ($this->facets->author as $value => $count): ?>
      <li><?= $value ?> (<?= $count ?>)</li>
    <? endforeach ?>
    </ul>
