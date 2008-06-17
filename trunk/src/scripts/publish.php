@@ -260,7 +260,7 @@ function get_graduate_etds($filename, $refdate = null) {
   // determine the term most recently *completed* (or about to end) relative to the specified date
   $last_term =  last_term($refdate);
 
-  $logger->info("Finding graduates for most recently completed term " . 
+  $logger->debug("Finding graduates for most recently completed term " . 
 		($refdate ? "relative to $refdate " : "" ) .  "(semester code $last_term)");
 
   //open alumni feed
@@ -524,6 +524,10 @@ function submit_to_proquest(array $etds) {
     } else {
       $logger->err("ProQuest submission xml for " . $etd->pid . " is not valid");
 
+
+
+      $submission->create_zip($tmpdir);
+
       // output more detailed validation information as info 
       $errors['ProQuest DTD'] = $submission->dtdValidationErrors();
       $errors['Schema'] = $submission->schemaValidationErrors();
@@ -602,7 +606,7 @@ function proquest_ftp(array $submissions) {
     $logger->err("Failed to log in to ftp server as " . $proquest->ftp->user);
     return false;
   } else {
-    $logger->info("Logged in to ftp server as " . $proquest->ftp->user);
+    $logger->debug("Logged in to ftp server as " . $proquest->ftp->user);
   }
 
   // set mode to passive
@@ -630,7 +634,7 @@ function proquest_ftp(array $submissions) {
       $submission->ftped = false;
     } else {
       array_push($success, $remotefile);	
-      $logger->info("Successfully uploaded $remotefile");
+      $logger->debug("Successfully uploaded $remotefile");
       $submission->ftped = true;
     }
 
