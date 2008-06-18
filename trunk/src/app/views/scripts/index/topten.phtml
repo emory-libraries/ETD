@@ -33,7 +33,7 @@
 <ol>
 <? foreach ($this->feed as $entry): ?>
 <li><a href="<?= $entry->link() ?>"><div class="etdtitle"><?= $entry->title() ?></div>
-      <br/><?= $entry->author() ?>
+     <?= $entry->author() ?>
 </a></li>
 <? endforeach ?>
 </ol>
