@@ -135,7 +135,7 @@ class collectionHierarchy extends XmlObject {
 
      $solr->setFacetLimit(-1);		// no limit - return all facets
      $results = $solr->queryPublished($query, $start, $return_num);	
-     $totals = $results['facet_counts']['facet_fields'][$this->index_field];
+     $totals = $results->facets->{$this->index_field};
 
      // sum up totals recursively
      $this->collection->calculateTotal($totals);
