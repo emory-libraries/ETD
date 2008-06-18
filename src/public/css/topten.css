@@ -34,11 +34,18 @@ div#topten li a:hover {
   text-decoration:underline;
 }
 
-span.etdtitle { 
+div.etdtitle { 
   color:#14214d;
   text-decoration:underline;
   word-wrap:break-word;
-  white-space: -moz-pre-wrap !important;
+/*  white-space: -moz-pre-wrap !important;*/
+}
+
+/* for multi-line titles */
+div#topten li div.etdtitle p {  
+/* display:inline;  */
+ margin:0px;
+ text-align:left;
 }
 
 
