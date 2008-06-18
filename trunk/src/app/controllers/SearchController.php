@@ -81,10 +81,10 @@ class SearchController extends Etd_Controller_Action {
      $query = strtolower($query);	// FIXME: any cases where this won't work?
      $results = $solr->queryPublished($query, $start, $max);	// limit to published records
      
-     $this->view->count = $results['response']['numFound'];
-     $this->view->etds = $results['response']['docs'];
+     $this->view->count = $results->numFound;
+     $this->view->etds = $results->docs;
      
-     $this->view->facets = $results['facet_counts']['facet_fields'];
+     $this->view->facets = $results->facets;
      
      /*       $this->view->count = $results->response->numFound;
       $this->view->etds = $results->response->docs;
@@ -93,7 +93,7 @@ class SearchController extends Etd_Controller_Action {
      $this->view->results = $results;
      $this->view->title = "Search Results"; 
 
-     $this->view->count = $results['response']['numFound'];
+     $this->view->count = $results->numFound;
      $this->view->start = $start;
      $this->view->max = $max;
      $this->view->post = true;
@@ -101,8 +101,8 @@ class SearchController extends Etd_Controller_Action {
 
      //
      $etds = array();
-     foreach ($results['response']['docs'] as $result_doc) {
-       array_push($etds, new etd($result_doc['PID']));
+     foreach ($results->docs as $result_doc) {
+       array_push($etds, new etd($result_doc->PID));
      }
      $this->view->etds = $etds;
 
