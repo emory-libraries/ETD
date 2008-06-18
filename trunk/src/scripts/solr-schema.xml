@@ -261,6 +261,8 @@
    <field name="embargo_requested" type="string" indexed="true" stored="false" required="false" /> 
    <field name="embargo_duration" type="string" indexed="true" stored="false" required="false" /> 
    <field name="embargo_notice" type="text" indexed="true" stored="false" required="false" /> 
+   <field name="registering_copyright" type="text" indexed="true" stored="false" required="false" /> 
+
 
    <field name="contentModel" type="string" indexed="true" stored="true"/> 
    <field name="createdDate" type="string" indexed="true" stored="false"/> 
