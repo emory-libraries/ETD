@@ -92,8 +92,8 @@ class BrowseController extends Etd_Controller_Action {
     $results = $solr->browse($field);
     
     //    print "<pre>"; print_r($results); print "</pre>";
-    $this->view->count = count($results['facet_counts']['facet_fields'][$field]);
-    $this->view->values = $results['facet_counts']['facet_fields'][$field];
+    $this->view->count = count($results->facets->$field);
+    $this->view->values = $results->facets->$field;
     $this->view->title = "Browse " . $this->view->browse_mode . "s";
   }
 
@@ -139,16 +139,16 @@ class BrowseController extends Etd_Controller_Action {
     //$results = $solr->query("$field:($value)");
     $results = $solr->queryPublished($query, $start, $max);	// limit to published records
      
-    $this->view->count = $results['response']['numFound'];
+    $this->view->count = $results->numFound;
 
     //
     $etds = array();
-    foreach ($results['response']['docs'] as $result_doc) {
-      array_push($etds, new etd($result_doc['PID']));
+    foreach ($results->docs as $result_doc) {
+      array_push($etds, new etd($result_doc->PID));
     }
     //     $this->view->etds = $results['response']['docs'];
     $this->view->etds = $etds;
-    $this->view->facets = $results['facet_counts']['facet_fields'];
+    $this->view->facets = $results->facets;
 
     // if there's only one match found, forward directly to full record view
     if ($this->view->count == 1) {
@@ -202,19 +202,18 @@ class BrowseController extends Etd_Controller_Action {
 
     $results = $programs->findEtds($start, $max);  
 
-    $this->view->count = $results['response']['numFound'];
+    $this->view->count = $results->numFound;
     $this->view->results = $results;
      
     $etds = array();
-    foreach ($results['response']['docs'] as $result_doc) {
-      array_push($etds, new etd($result_doc['PID']));
+    foreach ($results->docs as $result_doc) {
+      array_push($etds, new etd($result_doc->PID));
     }
 
     $this->view->etds = $etds;
-    $this->view->facets = $results['facet_counts']['facet_fields'];
+    $this->view->facets = $results->facets;
 
 
-    $this->view->count = $results['response']['numFound'];
     $this->view->start = $start;
     $this->view->max = $max;
 
@@ -250,16 +249,15 @@ class BrowseController extends Etd_Controller_Action {
 
     $this->view->browse_mode = "researchfield"; 
 
-    $this->view->count = $results['response']['numFound'];
     $this->view->results = $results;
      
     $etds = array();
-    foreach ($results['response']['docs'] as $result_doc) {
-      array_push($etds, new etd($result_doc['PID']));
+    foreach ($results->docs as $result_doc) {
+      array_push($etds, new etd($result_doc->PID));
     }
     $this->view->etds = $etds;
-    $this->view->facets = $results['facet_counts']['facet_fields'];
-    $this->view->count = $results['response']['numFound'];
+    $this->view->facets = $results->facets;
+    $this->view->count = $results->numFound;
     $this->view->start = $start;
     $this->view->max = $max;
     
