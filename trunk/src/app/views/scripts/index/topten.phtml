@@ -32,7 +32,7 @@
 
 <ol>
 <? foreach ($this->feed as $entry): ?>
-<li><a href="<?= $entry->link() ?>"><span class="etdtitle"><?= $entry->title() ?></span>
+<li><a href="<?= $entry->link() ?>"><div class="etdtitle"><?= $entry->title() ?></div>
       <br/><?= $entry->author() ?>
 </a></li>
 <? endforeach ?>
