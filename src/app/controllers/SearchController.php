@@ -68,6 +68,14 @@ class SearchController extends Etd_Controller_Action {
        $this->view->query['year'] = $year;
      }
 
+     // restrict to records that have files available - any embargo has ended
+     $unembargoed = $this->_hasParam("unembargoed");
+     if ($unembargoed) {
+       $today = date("Ymd");	// today's date
+       // any embargoes that have ended today or before
+       $query .= " date_embargoedUntil:[*  TO $today]";  
+     }
+
      if ($query == "") {
        $this->_helper->flashMessenger->addMessage("Error: no search terms specified");
        // where to redirect?
@@ -77,8 +85,10 @@ class SearchController extends Etd_Controller_Action {
      }
      
      $solr = Zend_Registry::get('solr');
-     
-     $query = strtolower($query);	// FIXME: any cases where this won't work?
+
+     // FIXME: turning off lower-casing because now using date_embargoedUntil field
+     // -  shouldn't cause problems
+     //     $query = strtolower($query);	// FIXME: any cases where this won't work?
      $results = $solr->queryPublished($query, $start, $max);	// limit to published records
      
      $this->view->count = $results->numFound;
