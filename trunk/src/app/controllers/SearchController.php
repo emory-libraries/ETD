@@ -73,7 +73,11 @@ class SearchController extends Etd_Controller_Action {
      if ($unembargoed) {
        $today = date("Ymd");	// today's date
        // any embargoes that have ended today or before
-       $query .= " date_embargoedUntil:[*  TO $today]";  
+       $embargo_query = " date_embargoedUntil:[*  TO $today]";  
+
+       // embargo should always be an AND; allow embargo query without other parameters
+       if ($query != "") $query = "($query) AND $embargo_query";
+       $query = $embargo_query;
      }
 
      if ($query == "") {
