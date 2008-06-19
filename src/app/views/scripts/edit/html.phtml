@@ -6,24 +6,17 @@
 
 <form name="edit" method="post"
     action="<?= $this->url(array("action" => "save" . ucfirst($this->mode), "mode" => $this->mode))?>">
-
-<?php
-$oFCKeditor = new FCKeditor("edit_content");
-$oFCKeditor->BasePath = (string)$this->linkTo("js/FCKeditor/");
-$oFCKeditor->Value = (string)$this->edit_content;
-
-$oFCKeditor->Config["CustomConfigurationsPath"] = (string)$this->linkTo("js/FCKconfig.js");
-$oFCKeditor->ToolbarSet = 'Basic';
-if ($this->mode == "title") {
-  $oFCKeditor->Height = '200';
-  $oFCKeditor->ToolbarSet = "etd-title";
-} else {
-  $oFCKeditor->Height = '400';
-  $oFCKeditor->ToolbarSet = "etd";
+<? /* configuration options for FCK editor */ 
+$editor_opts = array("config" => (string)$this->linkTo("js/FCKconfig.js"),
+			    "height" => "400", "toolbar" => "etd" );
+if ( $this->mode == "title") {
+  $editor_opts["toolbar"] = "etd-title";
+  $editor_opts["height"] = "etd-title";
 }
-if ($this->current_user->role == "superuser")  $oFCKeditor->ToolbarSet = "etd-admin";
-$oFCKeditor->Create();
+if ($this->current_user->role == "superuser") $editor_opts["toolbar"] = "etd-admin";
 ?>
+
+<?= $this->FckEditor("edit_content", (string)$this->edit_content, $editor_opts) ?>
 
 <?= $this->formSubmit("Save", "Save", array("class" => "button")); ?>
 </form>
