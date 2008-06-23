@@ -100,8 +100,15 @@ class esdPerson implements Zend_Acl_Role_Interface {
       $superusers = explode(',', $config->superusers);
       if (in_array($this->netid, $superusers)) $this->role = "superuser";
     }
-    
-    
+  }
+
+  /**
+   * determine if a user is the graduate program coordinator of the specified program
+   * @param string $program program name
+   * @return boolean
+   */
+  public function isCoordinator($program) {
+    return ($this->grad_coord == $program);
   }
 
   public function __get($field) {
