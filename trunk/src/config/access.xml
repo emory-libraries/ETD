@@ -32,7 +32,9 @@
       <allow resource="user">view, edit</allow>
     </role>
     <role name="committee" inherits="view_all"/>	
-    <role name="departmental staff" inherits="view_all"/>
+	<!--  coordinator for a particular program/department; 
+      role is determined in relation to specific ETDs -->
+    <role name="program coordinator" inherits="view_all"/>
 
     <role name="admin" inherits="view_all">
        <allow resource="etd">edit history, edit status, manage</allow>
