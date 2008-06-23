@@ -1,14 +1,23 @@
 <? /* assumes view->facets is set with output from Solr */ ?>
 <div class="facets" style="float:right;border:1px solid gold;background:white;width:150px;font-size:85%;"> 
-   <b>Facets</b><br/>
+   <b>Filter your results:</b><br/>
+<? if (isset($this->facets->status)): ?>
+ Status:
+   <ul>
+   <? foreach ($this->facets->status as $value => $count): ?>
+     <li><?= $value ?> (<?= $count ?>)</li>
+   <? endforeach ?>
+   </ul>
+<? endif ?>
+<? if (isset($this->facets->advisor) && count($this->facets->advisor)): ?>
 Advisor:<br/>
    <ul>
    <? foreach ($this->facets->advisor as $value => $count): ?>
      <li><?= $value ?> (<?= $count ?>)</li>
    <? endforeach ?>
    </ul>
-
-<? if (count($this->facets->year) && $this->browse_mode != "year"): ?>
+<? endif ?>
+<? if (isset($this->facets->year) && count($this->facets->year) && $this->browse_mode != "year"): ?>
   Year:<br/>
    <ul>
    <? foreach ($this->facets->year as $value => $count): ?>
@@ -16,22 +25,23 @@ Advisor:<br/>
    <? endforeach ?>
    </ul>
 <? endif ?>
-    
+<? if (isset($this->facets->subject) && count($this->facets->subject) && $this->browse_mode != "subject"): ?>
 Subject:<br/>
    <ul>
    <? foreach ($this->facets->subject as $value => $count): ?>
 	<li><?= $value ?> (<?= $count ?>)</li>
    <? endforeach ?>
    </ul>
-
+<? endif ?>
+<? if (isset($this->facets->committee) && count($this->facets->committee) && $this->browse_mode != "committee"): ?>
 Committee:<br/>
    <ul>
    <? foreach ($this->facets->committee as $value => $count): ?>
      <li><?= $value ?> (<?= $count ?>)</li>
    <? endforeach ?>
    </ul>
-
-<? if ($this->browse_mode != "program"): ?>
+<? endif ?>
+<? if (isset($this->facets->program) && count($this->facets->program) && $this->browse_mode != "program"): ?>  
 Program:<br/>
    <ul>
    <? foreach ($this->facets->program as $value => $count): ?>
@@ -39,8 +49,7 @@ Program:<br/>
    <? endforeach ?>
    </ul>
 <? endif ?>
-
-<? if ($this->browse_mode != "author"): ?>
+<? if (isset($this->facets->author) && count($this->facets->author) && $this->browse_mode != "author"): ?>  
 Author:<br/>
    <ul>
    <? foreach ($this->facets->author as $value => $count): ?>
