@@ -275,6 +275,12 @@ class BrowseController extends Etd_Controller_Action {
 
   // list a user's ETDs
   public function myAction() {
+    // if logged in user is a program coordinator, forward to appropriate action
+    if ($this->current_user->program_coord) {
+      $this->_forward("my-program");
+      return;
+    }
+    
     if (isset($this->current_user)) {
       // expand to find by role, depending on current user - faculty, dept. staff, etc.
       switch ($this->current_user->role) {
@@ -283,14 +289,17 @@ class BrowseController extends Etd_Controller_Action {
 	// should it only be unpublished records? or all records?
 	$etds = etd::findUnpublishedByAuthor(strtolower($this->current_user->netid));
 	break;
-      case "staff":
-	$this->view->etds = etd::findUnpublishedByDepartment($this->current_user->department);
-	break;
       default:
 	$etds = array();
       }
-    } // FIXME: not authorized if not logged in? what should error here be?
-
+      if ($this->current_user->program_coord) {
+	print "finding ETDS for department " . $this->current_user->program_coord . ".<br/>\n";
+	$etds = etd::findUnpublishedByDepartment($this->current_user->program_coord);
+      }
+    } else { // FIXME: not authorized if not logged in? what should error here be?
+      $etds = array();
+    }
+    
     $this->view->etds = $etds;
       
     // FIXME: need to add paging - count/start/max 
@@ -298,6 +307,28 @@ class BrowseController extends Etd_Controller_Action {
     $this->_helper->viewRenderer->setScriptAction("list");
     $this->view->show_status = true;
     $this->view->show_lastaction = true;
+  }
+
+
+  // program coordinator view : list unpublished records for the specified department 
+  public function myProgramAction() {
+    $start = $this->_getParam("start", 0);
+    $max = $this->_getParam("max", 25);	
+    
+    $this->view->etds = etd::findUnpublishedByDepartment($this->current_user->program_coord,
+							 $start, $max, $total, $facets);
+    $this->view->count = count($this->view->etds);
+    $title = "Unpublished Records : " . $this->current_user->program_coord;
+    $this->view->title = $title;
+    $this->view->list_title = $title;
+    $this->_helper->viewRenderer->setScriptAction("list");
+    $this->view->show_status = true;
+    $this->view->show_lastaction = true;
+
+    $this->view->count = $total;
+    $this->view->start = $start;
+    $this->view->max = $max;
+    $this->view->facets = $facets;
   }
 
 
