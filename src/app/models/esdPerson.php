@@ -38,25 +38,39 @@ class esdPerson implements Zend_Acl_Role_Interface {
 			 "id" => "PRSN_I",
 			 "department" => "DPRT_N",
 			 "academic_plan_id" => "ACPL_I",
-			 "academic_plan" => "ACPL_N");
+			 "academic_plan" => "ACPL_N",
+			 /* graduate program coordinator
+			    - if not null, user is a program coordinator 
+			    - field contains the program name
+			  */
+			 "program_coord" => "ACPL8GPCO_N",
+			 );
+
+    // determine the user's role in the system
+    $this->setRole();
+
+    $this->_etds = null;
+  }
 
 
-/*  person type codes
-PRSN_C_TYPE PRSN_E_TYPE   
-A           Administrative                
-B           Student/Staff  (usually student employees)               
-C           Staff/Student  (usually staff taking courses)               
-D           Future Hire Effective Date    
-E           Staff                         
-F           Faculty                       
-H           HealthCare Only               
-P           Sponsored                     
-R           Retired                       
-S           Student                       
-U           Unknown                       
-X           Pre-start
+  
+  public function setRole() {
+    /*  person type codes
+     PRSN_C_TYPE PRSN_E_TYPE   
+     A           Administrative                
+     B           Student/Staff  (usually student employees)               
+     C           Staff/Student  (usually staff taking courses)               
+     D           Future Hire Effective Date    
+     E           Staff                         
+     F           Faculty                       
+     H           HealthCare Only               
+     P           Sponsored                     
+     R           Retired                       
+     S           Student                       
+     U           Unknown                       
+     X           Pre-start
     */
-
+    
     // set base role for access controls
     switch ($this->type) {
     case "B":
@@ -70,20 +84,24 @@ X           Pre-start
     default:
       $this->role = "";		// fixme: what should the default be?
     }
-
+    
     // determine roles for special cases
     if ($this->department == "Graduate School Administration")
       $this->role = "admin";	// graduate school administrator
-
-
+    if (!is_null($this->grad_coord)) {
+      // role is graduate program coordinator ?
+      // **** - not a separate role but a role in relation to particular ETDs
+      // a user should have this role only if grad_coord matches ETD's department field...
+    }
+    
     // etd superuser - override role for users listed in config file, if set
     if (Zend_Registry::isRegistered('config')) {
       $config = Zend_Registry::get('config');
       $superusers = explode(',', $config->superusers);
       if (in_array($this->netid, $superusers)) $this->role = "superuser";
     }
-
-    $this->_etds = null;
+    
+    
   }
 
   public function __get($field) {
@@ -206,7 +224,8 @@ class esdPersonObject extends Emory_Db_Table {
 			     "PRSN_I" => array("DATA_TYPE" => "int", "NULLABLE" => true, "DEFAULT" => null),
 			     "DPRT_N" => array("DATA_TYPE" => "int", "NULLABLE" => true, "DEFAULT" => null),
 			     "ACPL_I" => array("DATA_TYPE" => "char", "NULLABLE" => true, "DEFAULT" => null),
-			     "ACPL_N" => array("DATA_TYPE" => "char", "NULLABLE" => true, "DEFAULT" => null)
+			     "ACPL_N" => array("DATA_TYPE" => "char", "NULLABLE" => true, "DEFAULT" => null),
+			     "ACPL8GPCO_N" => array("DATA_TYPE" => "char", "NULLABLE" => true, "DEFAULT" => null),
 			     );
     
     $this->_cols = array_keys($this->_metadata);
