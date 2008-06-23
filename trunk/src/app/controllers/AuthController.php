@@ -73,11 +73,10 @@ class AuthController extends Etd_Controller_Action {
 
      $role = $this->_getParam("role");
      
-     if (strstr($role, "department")) {
-       $dept = str_replace("department:", "", $role);
-       $this->current_user->role = "staff";
-       $this->current_user->DPRT_N = $dept;	// department
-       //$this->current_user->DPRT_N = "Chemistry";	// department
+     if (strstr($role, "coordinator")) {
+       $dept = str_replace("coordinator:", "", $role);
+       $this->current_user->role = "staff";	// shouldn't matter
+       $this->current_user->ACPL8GPCO_N = $dept;	// program coordinator of department
      } else {
        $this->current_user->role = $role;
      }
