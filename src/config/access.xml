@@ -22,7 +22,8 @@
 <!-- pseudo-role with view privileges inherited by author, committee, dept. staff -->
     <role name="view_all" inherits="guest">	
       <allow resource="etd">view metadata, view history, view status</allow>
-      <allow resource="embargoed file">view, download</allow>
+	<!-- files in any status, including embargoed -->
+      <allow resource="file">view, download</allow>	
     </role>
 
     <role name="author" inherits="view_all">
