@@ -1,3 +1,7 @@
+<? if ($this->list_title): ?>
+     <h1><?= $this->list_title ?></h1>
+<? endif ?>
+
 <? if (isset($this->count) && isset($this->start) && isset($this->max)): ?>
   <? $this->end = min($this->start + $this->max, $this->count); ?>
   <? if (!$this->post && $this->max < $this->count): ?>
@@ -22,7 +26,8 @@
  </p>
 
 <? endif ?>
-	       
+
+  <?=  $this->render('browse/_facets.phtml'); ?>	       
 
 
 <? foreach ($this->etds as $etd): ?>
