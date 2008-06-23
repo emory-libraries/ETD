@@ -78,8 +78,13 @@ class TestEsdPerson extends UnitTestCase {
     $user->netid = "rsutton";
     $user->setRole();
     $this->assertEqual($user->role, "superuser");
-    
-    
+  }
+
+  function testProgramCoordinator(){
+    $user = new esdPerson();
+    $user->grad_coord = "English";
+    $this->assertTrue($user->isCoordinator("English"));
+    $this->assertFalse($user->isCoordinator("Chemistry"));
   }
 
   // FIXME: add tests for functions that find faculty names
