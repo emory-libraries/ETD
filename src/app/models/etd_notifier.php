@@ -39,7 +39,7 @@ class etd_notifier extends notifier {
     // author - send to both current & permanent addresses
     if (isset($etd->authorInfo)) {
       $name = $etd->authorInfo->mads->name->first . " " . $etd->authorInfo->mads->name->last;
-      if (isset($etd->authorInfo->mads->current->email)) 
+      if (isset($etd->authorInfo->mads->current->email) && ($etd->authorInfo->mads->current->email != '')) 
 	$this->to[$etd->authorInfo->mads->current->email] = $name;
       $this->to[$etd->authorInfo->mads->permanent->email] = $name;
     }
