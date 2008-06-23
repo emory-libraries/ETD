@@ -100,8 +100,8 @@ class etd extends foxml implements etdInterface {
     elseif ($this->rels_ext->committee instanceof DOMElementArray
 	    && $this->rels_ext->committee->includes($user->netid))	
       return "committee";
-    elseif ($user->role == "staff" && $this->mods->department && ($user->department == $this->mods->department))
-      return "departmental staff";
+    elseif ($user->isCoordinator($this->mods->department))
+      return "program coordinator";
     else
       return $user->role;
   }
