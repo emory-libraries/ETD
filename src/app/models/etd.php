@@ -634,13 +634,16 @@ class etd extends foxml implements etdInterface {
 
   // find by department/program - used for program coordinator view
   //  program_facet:Chemistry NOT status:published
-  public static function findUnpublishedByDepartment($dept, $start = null, $max = null, &$total = null,
-						     &$facets = null) {
+  public static function findUnpublishedByDepartment($dept, $start = null, $max = null,
+						     $opts, &$total = null, &$facets = null) {
     $solr = Zend_Registry::get('solr');
     // FIXME: might make more sense to clear all filters and add relevant ones-- status, advisor, ?
     $solr->clearFacets();
     $solr->addFacets(array("status", "advisor_facet"));
     $query = "program_facet:\"$dept\" AND NOT status:published";
+    foreach ($opts as $filter => $value) {
+      $query .= " AND $filter:($value)";
+    }
     $results = $solr->query($query, $start, $max);
     $total = $results->numFound;
     $facets = $results->facets;

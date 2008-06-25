@@ -20,7 +20,8 @@ class BrowseController extends Etd_Controller_Action {
     $request = $this->getRequest();
     $request->setParam("nametype", "committee");
     $this->_forward("name");
-    $this->view->browse_mode = "Committee Member";
+    //    $this->view->browse_mode = "Committee Member";
+    $this->view->browse_mode = "committee";
   }
 
   /* browse by advisor */
@@ -135,6 +136,12 @@ class BrowseController extends Etd_Controller_Action {
       }
       $query = join($queryparts, '+AND+');
     }
+
+    $opts = $this->getFilterOptions();
+    foreach ($opts as $filter => $value) {
+      $query .= " AND $filter:($value)";
+    }
+    $this->view->filters = $opts;
     //         print "query is $query\n";
     //$results = $solr->query("$field:($value)");
     $results = $solr->queryPublished($query, $start, $max);	// limit to published records
@@ -313,10 +320,16 @@ class BrowseController extends Etd_Controller_Action {
   // program coordinator view : list unpublished records for the specified department 
   public function myProgramAction() {
     $start = $this->_getParam("start", 0);
-    $max = $this->_getParam("max", 25);	
+    $max = $this->_getParam("max", 25);
+    $status = $this->_getParam("status", null);
+    $opts = $this->getFilterOptions();
+    /*    $opts = array();
+    if ($this->_hasParam("status")) $opts["status"] = $this->_getParam("status");
+    if ($this->_hasParam("advisor")) $opts["advisor"] = $this->_getParam("advisor");*/
     
     $this->view->etds = etd::findUnpublishedByDepartment($this->current_user->program_coord,
-							 $start, $max, $total, $facets);
+							 $start, $max, $opts,
+							 $total, $facets);
     $this->view->count = count($this->view->etds);
     $title = "Unpublished Records : " . $this->current_user->program_coord;
     $this->view->title = $title;
@@ -329,6 +342,10 @@ class BrowseController extends Etd_Controller_Action {
     $this->view->start = $start;
     $this->view->max = $max;
     $this->view->facets = $facets;
+
+    // filters for this record set (to display for user)
+    $this->view->filters = $opts;
+
   }
 
 
@@ -362,6 +379,17 @@ class BrowseController extends Etd_Controller_Action {
   public function indexAction() {
     // FIXME: do we need a main browse page?
     $this->view->assign("title", "Welcome to %project%");
+  }
+
+
+  private function getFilterOptions() {
+    $opts = array();
+    foreach (array("status", "advisor", "year", "program", "subject", "author", "keyword") as $filter) {
+      if ($this->_hasParam($filter))
+	$opts[$filter] = $this->_getParam($filter);
+    }
+
+    return $opts;
   }
 
 }
