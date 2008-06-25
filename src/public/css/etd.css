@@ -814,3 +814,23 @@ div.indent { margin-left:25px; }
 .button:hover, .xforms-submit input:hover { 
   color:#881725; 
 }
+
+div.facets { 
+ position:absolute;
+ right:5px;
+ border:1px solid #f1aa00;
+ background:white;
+ width:150px;
+ font-size:85%;
+ padding:5px;
+}
+
+div.facets ul, div.facets li, div.facets p { 
+ margin:0px; padding:0px;
+}
+div.facets li { 
+ margin-left:15px;
+ list-style-type:none;
+}
+
+div.facets p.label { font-weight:bold; color:#f1aa00; /*text-decoration:underline; */}
