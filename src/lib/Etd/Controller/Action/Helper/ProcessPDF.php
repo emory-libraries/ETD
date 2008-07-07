@@ -23,8 +23,11 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
 
     $config = Zend_Registry::get('config');
     $tmpdir = $config->tmpdir;
-    if (!file_exists($tmpdir))			// create temporary directory if it doesn't exist
-      mkdir($tmpdir); 
+    if (!file_exists($tmpdir)) 		// create temporary directory if it doesn't exist
+      mkdir($tmpdir);
+    if(!is_writable($tmpdir))
+      throw new Exception("ProcessPDF: Temporary directory $tmpdir is not writable");
+
 
     // filename where the temporary upload file should be moved
     $pdf = $tmpdir . "/" . $fileinfo['name'];
