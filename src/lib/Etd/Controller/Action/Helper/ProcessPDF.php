@@ -29,19 +29,20 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
       throw new Exception("ProcessPDF: Temporary directory $tmpdir is not writable");
 
 
-    // filename where the temporary upload file should be moved
-    $pdf = $tmpdir . "/" . $fileinfo['name'];
-    // if user is so silly as to include spaces in their filename, get rid of them
-    $pdf = str_replace(" ", "_", $pdf);
+    // location of temporary upload copy of user's pdf
+    $pdf = $fileinfo['tmp_name'];
     
     $flashMessenger = $this->_actionController->getHelper('FlashMessenger');
 
     $fileUpload = $this->_actionController->getHelper('FileUpload');
-    
-    if($fileUpload->direct($fileinfo, $pdf, array("application/pdf"))) {
+
+    // verify that the upload succeeded and file is correct type
+    if($fileUpload->check_upload($fileinfo, array("application/pdf"))) {
 
       $this->_actionController->view->log = array();
-      $html = $tmpdir . "/" . basename(str_replace(" ", "_", $fileinfo['name']), ".pdf") . ".html";
+      $_html = tempnam($tmpdir, "html_");
+      // NOTE: pdftohtml insists on creating output file as .html
+      $html  = $_html . ".html";
       
       $pdftohtml = $config->pdftohtml;
       // pdftohtml options: -q -noframes -i -l 10 filename.pdf filename.html
@@ -56,6 +57,7 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
 
 	// remove temporary html file after we have pulled the information from it
 	unlink($html);
+	unlink($_html);		// unlink empty tmp file created by tempnam()
 	
 	return $this->fields;
       }
@@ -161,7 +163,7 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
       if (preg_match("/submitted to the Faculty of the Graduate/", $content)) {
 	// title page
 	// if department has not yet been found, look for it here
-	$this->findDepartment();
+	$this->findDepartment($lines);
 	if ($this->debug) print "DEBUG: abstract does not continue on second page<br>\n";
 	$this->_actionController->view->log[] = "found abstract on page " . ($number - 1);
 	$this->next = "";
@@ -203,7 +205,7 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
       }
 
       // if department has not already been found, look for it again
-      $this->findDepartment();
+      $this->findDepartment($lines);
     }
   
   }
@@ -256,7 +258,7 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
    */
   private function findDepartment(array $lines) {
     // only look for department if not already set
-    if (!isset($this->fields['department']) || $$this->fields['department'] == "") {
+    if (!isset($this->fields['department']) || $this->fields['department'] == "") {
 
       // department should be on a single line
       foreach ($lines as $line) {
