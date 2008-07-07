@@ -118,8 +118,6 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
     $this->fields['abstract'] = preg_replace("|^\s*(<b>)?abstract\s*(</b>)?\s*(<br/>)?\s*|i", "",  $this->fields['abstract']);
     $this->fields['abstract'] = preg_replace("|</?html>|i", "", $this->fields['abstract']);
 	
-
-    $this->fields['department'] = trim($this->fields['department']);
   }
   
 
@@ -163,14 +161,7 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
       if (preg_match("/submitted to the Faculty of the Graduate/", $content)) {
 	// title page
 	// if department has not yet been found, look for it here
-	if (!isset($department) || $department == "") {
-	  foreach ($lines as $line) {
-	    if (preg_match("/Department of (.+)/m", $line, $matches)
-		|| preg_match("/(.+) Department/m", $line, $matches)) {
-	      $this->fields['department'] = $matches[1];
-	    }
-	  }
-	}
+	$this->findDepartment();
 	if ($this->debug) print "DEBUG: abstract does not continue on second page<br>\n";
 	$this->_actionController->view->log[] = "found abstract on page " . ($number - 1);
 	$this->next = "";
@@ -212,15 +203,7 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
       }
 
       // if department has not already been found, look for it again
-      if (!isset($department) || $department == "") {
-	foreach ($lines as $line) {
-	  if (preg_match("/Department of (.+)/m", $line, $matches)
-	      || preg_match("/(.+) Department/m", $line, $matches)) {
-	    $department = $matches[1];
-	  }
-	}
-      }
-
+      $this->findDepartment();
     }
   
   }
@@ -236,15 +219,9 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
     // loop through the lines for single-line content
     for($i = 0; $i < count($lines); $i++) {
       $line = $lines[$i];
-      // department  (should be on a single line)
-      if (preg_match("/Department of (.+)/m", $line, $matches)
-	  || preg_match("/(.+) Department/m", $line, $matches)) {
-	$this->fields['department'] = $matches[1];
-	if ($this->debug) print "DEBUG: found department:<pre>$department</pre>";
-	// match any specially named departments here
-      } elseif (preg_match("/Graduate Institute of the Liberal Arts/", $line)) {
-	$this->fields['department'] = "Graduate Institute of the Liberal Arts";
-      }
+
+      // look for department name
+      $this->department($line);
     
       // advisor
       if (preg_match("/Advis[eo]r:(.+)/", $line, $matches) ||
@@ -271,6 +248,44 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
     }
   }
 
+
+  /**
+   * detect department name - wrapper for single-line department detection
+   *
+   * @param array $lines array of lines in the page
+   */
+  private function findDepartment(array $lines) {
+    // only look for department if not already set
+    if (!isset($this->fields['department']) || $$this->fields['department'] == "") {
+
+      // department should be on a single line
+      foreach ($lines as $line) {
+	$this->department($line);
+      }
+    }
+  }
+    
+  /**
+   * pull department name from a single line
+   *
+   * @param string $line single line of text
+   */
+  private function department($line) {  
+    // department should be on a single line
+    // matches either "Department of Chemistry" or "Chemistry Department"
+    if (preg_match("/Department of (.+)/m", $line, $matches)
+	|| preg_match("/(.+) Department/m", $line, $matches)) {
+      $this->fields['department'] = $matches[1];
+
+    // match any specially named departments here
+    } elseif (preg_match("/Graduate Institute of the Liberal Arts/", $line)) {
+      $this->fields['department'] = "Graduate Institute of the Liberal Arts";
+    }
+
+    // trim any whitespace
+    $this->fields['department'] = trim($this->fields['department']);
+  }
+  
 
   // minimal cleaning for advisor/committee names - remove dr.,  ph.d.
   private function clean_name ($name) {
