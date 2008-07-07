@@ -6,10 +6,22 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
   // process resulting file to pull out metadata
 
 
-  private $next;
-  private $fields;
+  public $next;
+  public $fields;
 
   private $debug;
+
+  public function __construct() {
+    // set the fields to be filled in 
+    $this->fields = array("title" => "",
+			  "department" => "",
+			  "advisor" => "",
+			  "committee" => array(),
+			  "abstract" => "",
+			  "toc" => "",
+			  "keywords" => array());
+  }
+  
 
   public function direct($fileinfo) {
     return $this->process_upload($fileinfo);
@@ -74,15 +86,6 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
     $this->next = "";	// expected content for the next page
 
 
-    // fields to be filled in 
-    $this->fields = array("title" => "",
-			  "department" => "",
-			  "advisor" => "",
-			  "committee" => array(),
-			  "abstract" => "",
-			  "toc" => "",
-			  "keywords" => array());
-    
     if ($handle) {
       while (! feof($handle)) {
 	$buffer = fgets($handle);
@@ -124,7 +127,7 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
   
 
   // loop through the pages, determining which content to look for
-  private function process_page($content, $number) {
+  public function process_page($content, $number) {
     // remove break tags 
     $content = str_replace("<br>", " ", $content);
     // collapse multiple spaces into one
