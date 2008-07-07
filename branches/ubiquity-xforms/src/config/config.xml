@@ -1,0 +1,29 @@
+<config>
+	<development>
+  	  <timezone>America/New_York</timezone>
+	  <session_name>etd-dev</session_name>	<!-- PHP session name -->
+	  <email>
+	    <etd>
+	       <address>etd-admin@listserv.cc.emory.edu</address>
+	       <name>ETD ADMIN</name>
+	    </etd>
+	    <test>rsutton@emory.edu</test>
+	  </email>
+	  <tmpdir>/tmp/etd</tmpdir>
+  	  <!-- executable for pdftohtml; supply full path if necessary -->
+	  <pdftohtml>/usr/local/bin/pdftohtml</pdftohtml>	
+	   <!-- browsers supported for submission process  
+		Note: this should match the "parent" field returned by get_browser() -->
+ 	  <supported_browsers>IE 7.0,Firefox 2.0,Iceweasel</supported_browsers>
+
+	<!-- override default role for superusers only here:
+	     note that these people must also be listed permit-etds-to-etdadmins policy -->
+	  <superusers>rsutton,pogrady,croddy</superusers>
+	</development>
+
+	<test extends="development">
+	</test>
+
+	<production extends="development">
+	</production>
+</config>
