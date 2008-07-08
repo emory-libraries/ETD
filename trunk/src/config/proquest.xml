@@ -6,6 +6,7 @@
       <password></password>
     </ftp>
     <email>dissepubl@il.proquest.com</email>
+    <abstract_max_words>350</abstract_max_words>
   </production>
   <development extends="production">
     <ftp>
