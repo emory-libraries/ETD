@@ -531,6 +531,10 @@ class etd extends foxml implements etdInterface {
   }
 
 
+  public function abstract_word_count() {
+    // return word count on text-only version, not formatted html version
+    return str_word_count($this->mods->abstract);
+  }
 
 
   /** static functions for finding (or counting) ETDs by various criteria **/
