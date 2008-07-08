@@ -59,10 +59,10 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
       $pdftohtml = $config->pdftohtml;
       // pdftohtml options: -q -noframes -i -l 10 filename.pdf filename.html
       // generate a single file (no frames), first 10 pages, ignore images, quiet (no output)
-      $cmd = "$pdftohtml -q -noframes -i -l 10 $pdf $html";
+      $cmd = escapeshellcmd("$pdftohtml -q -noframes -i -l 10 $pdf $html");
       $result = system($cmd);
       if ($result === 0) {
-	$flashMessenger->addMessage("error converting pdf to html");
+	$flashMessenger->addMessage("Error: could not convert PDF to html");
       } else {
 	$this->getInformation($html);
 	$this->fields['pdf'] = $pdf;
