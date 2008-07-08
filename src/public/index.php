@@ -25,6 +25,10 @@ Zend_Registry::set('config', $config);
 
 Zend_Registry::set('debug', (boolean)$env_config->debug);
 
+Zend_Registry::set('proquest-config',
+	  new Zend_Config_Xml("../config/proquest.xml", $env_config->mode));
+
+
 $fedora_cfg = new Zend_Config_Xml("../config/fedora.xml", $env_config->mode);
 Zend_Registry::set('fedora-config',
 	  new Zend_Config_Xml("../config/fedora.xml", $env_config->mode));
