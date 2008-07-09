@@ -20,6 +20,7 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
     $this->initialize_fields();
     
     // FIXME: how to encapsulate order information ?
+    // (note: this is not yet in use... )
     $this->order= array("circ_agreement" => 0,
 			"signature" 	 => 1,
 			"abstract_cover" => 2,
@@ -128,6 +129,14 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
 
     $body_tags = $doc->getElementsByTagName("body");
     $body = $body_tags->item(0);
+
+    if (preg_match("/^\s*$/", $body->textContent)) {
+      $flashMessenger = $this->_actionController->getHelper('FlashMessenger');
+      // FIXME: how to report error?
+      $this->_actionController->view->log[] = "Error: no text content found; is PDF an image-only document?";
+      //      $flashMessenger->addMessage("Error: no text content found; is PDF an image-only document?");
+      return;
+    }
 
     // creating a DOMDocument to hold the contents of the current page
     // NOTE: using separate dom to allow deep-importing of nodes
