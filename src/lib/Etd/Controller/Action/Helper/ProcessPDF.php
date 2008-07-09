@@ -166,17 +166,15 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
 
 
     // minor cleaning on fields that need it
-    /* FIXME: some dom equivalent for this?
+    /* FIXME: some dom equivalent for this? */
     $this->fields['toc'] = preg_replace("|<hr/?>|", "",  $this->fields['toc']);
     $this->fields['toc'] = preg_replace("|^\s*(<b>)?Table of Contents\s*(</b>)?\s*(<br/>)?\s*|i", "",
 					     $this->fields['toc']);
-    $this->fields['toc'] = preg_replace("|</?html>|i", "", $this->fields['toc']);
+    $this->fields['toc'] = preg_replace("|<a name=\"\d\"\/>|", "",  $this->fields['toc']);
 
     $this->fields['abstract'] = preg_replace("|<hr/?>|", "",  $this->fields['abstract']);
-    $this->fields['abstract'] = preg_replace("|<A name=\d></a>|", "",  $this->fields['abstract']);
+    $this->fields['abstract'] = preg_replace("|<a name=\"\d\"\/>|", "",  $this->fields['abstract']);
     $this->fields['abstract'] = preg_replace("|^\s*(<b>)?abstract\s*(</b>)?\s*(<br/>)?\s*|i", "",  $this->fields['abstract']);
-    $this->fields['abstract'] = preg_replace("|</?html>|i", "", $this->fields['abstract']);
-    */
 
   }
 
