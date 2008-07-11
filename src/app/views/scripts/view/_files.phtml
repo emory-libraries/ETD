@@ -34,7 +34,7 @@
 		  <?= $file->dc->title ?>
 	     <? endif ?>
 	  <? if (isset($file->dc->pages)): ?><?= $file->dc->pages ?> pages<? endif ?>
-	  <? if (isset($file->dc->filesize)): ?>(<?= $this->readableSize($file->dc->filesize) ?>) <?endif ?>						      
+	  <? if (isset($file->dc->filesize)): ?>(<?= $this->readableSize($file->dc->filesize) ?>) <?endif ?>
 	   <? if ($file->dc->description): ?>
 	    <span class="description">[<?= $file->dc->description ?>]</span>
           <?endif ?>
@@ -45,6 +45,9 @@
 	  <? if ($this->acl->isAllowed($this->role, $file, "remove")): ?>
 	    <a href="<?= $this->url(array("controller" => "file", "action" => "remove", "pid" => $file->pid), '', true, false)?>">remove</a>
 	  <? endif ?>
+          <? if ($this->acl->isAllowed($this->role, $file, "edit") && isset($file->lastModified)): ?>	       
+	      <br/>Modified <?= $file->lastModified ?>
+	 <? endif ?> 	       
 	  <br/>
        <? endif /* can view file */ ?>
     <? endforeach ?>
