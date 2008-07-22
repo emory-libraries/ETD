@@ -134,7 +134,13 @@ class SearchController extends Etd_Controller_Action {
 
 
   public function facultysuggestorAction() {
-    $name = $this->_getParam("faculty");
+    if ($this->_hasParam("faculty"))
+      $name = $this->_getParam("faculty");
+    /* slight hack: need two auto-suggestors on the same page with
+       different ids; easiest to just allow two different parameters */
+    elseif ($this->_hasParam("adv"))
+      $name = $this->_getParam("adv");
+
     $p = new esdPersonObject();
 
     $this->view->faculty = $p->match_faculty(stripslashes($name));
