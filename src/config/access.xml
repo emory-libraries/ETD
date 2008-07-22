@@ -23,11 +23,11 @@
     <role name="view_all" inherits="guest">	
       <allow resource="etd">view metadata, view history, view status</allow>
 	<!-- files in any status, including embargoed -->
-      <allow resource="file">view, download, view modified</allow>	
+      <allow resource="file">view, download</allow>	
     </role>
 
     <role name="author" inherits="view_all">
-      <allow resource="file">view, download, view modified</allow>	<!-- includes original, embargoed -->
+      <allow resource="file">view modified</allow>  
       <allow resource="draft etd">edit metadata, add file, order files, submit</allow>
       <allow resource="draft file">edit</allow>
       <allow resource="user">view, edit</allow>
@@ -35,7 +35,9 @@
     <role name="committee" inherits="view_all"/>	
 	<!--  coordinator for a particular program/department; 
       role is determined in relation to specific ETDs -->
-    <role name="program coordinator" inherits="view_all"/>
+    <role name="program coordinator" inherits="view_all">
+      <allow resource="file">view modified</allow>  
+    </role>
 
     <role name="admin" inherits="view_all">
        <allow resource="etd">edit history, edit status, manage</allow>
@@ -45,7 +47,7 @@
        <allow resource="approved etd">publish</allow>	<!-- not technically done by admin... -->
        <allow resource="published etd">unpublish</allow>
 
-       <allow resource="file">view, download, view modified</allow> <!-- includes original, embargoed -->
+       <allow resource="file">view modified</allow>
 
        <allow resource="user">view</allow>
     </role>
