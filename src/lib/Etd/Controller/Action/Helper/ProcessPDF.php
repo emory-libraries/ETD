@@ -16,6 +16,8 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
   private $doc;
   private $debug;
 
+  private $found_circ = false;
+
   public function __construct() {
     $this->initialize_fields();
     
@@ -53,7 +55,7 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
   public function process_upload($fileinfo) {
     if (Zend_Registry::isRegistered('debug'))	// set in environment config file
       $this->debug = Zend_Registry::get('debug');
-    else  $this->debug = true;// TMP-FIXME			// if not set, default to debugging off
+    else  $this->debug = false;			// if not set, default to debugging off
 
     $config = Zend_Registry::get('config');
     $tmpdir = $config->tmpdir;
@@ -73,6 +75,9 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
     // verify that the upload succeeded and file is correct type
     if($fileUpload->check_upload($fileinfo, array("application/pdf"))) {
 
+      // errors to be displayed to the user
+      $this->_actionController->view->errors = array();
+      // log of what was found where
       $this->_actionController->view->log = array();
       $_html = tempnam($tmpdir, "html_");
       // NOTE: pdftohtml insists on creating output file as .html
@@ -83,8 +88,10 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
       // generate a single file (no frames), first 10 pages, ignore images, quiet (no output)
       $cmd = escapeshellcmd("$pdftohtml -q -noframes -i -l 10 $pdf $html");
       $result = system($cmd);
-      if ($result === 0) {
-	$flashMessenger->addMessage("Error: could not convert PDF to html");
+      // error if system call exited with failure code or html file does not exist
+      if ($result === false || !file_exists($html)) {
+	// is this user-comprehensible enough?
+	$this->_actionController->view->errors[] = "Failure reading PDF";
       } else {
 	$this->getInformation($html);
 	$this->fields['pdf'] = $pdf;
@@ -131,10 +138,7 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
     $body = $body_tags->item(0);
 
     if (preg_match("/^\s*$/", $body->textContent)) {
-      $flashMessenger = $this->_actionController->getHelper('FlashMessenger');
-      // FIXME: how to report error?
-      $this->_actionController->view->log[] = "Error: no text content found; is PDF an image-only document?";
-      //      $flashMessenger->addMessage("Error: no text content found; is PDF an image-only document?");
+      $this->_actionController->view->errors[] = "No text content found; is PDF an image-only document?";
       return;
     }
 
@@ -184,6 +188,19 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
     $this->fields['abstract'] = preg_replace("|<hr/?>|", "",  $this->fields['abstract']);
     $this->fields['abstract'] = preg_replace("|<a name=\"\d\"\/>|", "",  $this->fields['abstract']);
     $this->fields['abstract'] = preg_replace("|^\s*(<b>)?abstract\s*(</b>)?\s*(<br/>)?\s*|i", "",  $this->fields['abstract']);
+
+
+
+    // some error-checking to display useful messages to the user
+    if ($this->found_circ == false)
+      $this->_actionController->view->errors[] = "Circulation Agreement not detected";
+    // FIXME: only true essential is title - should we fall back to filename as title?
+    if (!isset($this->fields['title']) || $this->fields['title'] == "") 
+      $this->_actionController->view->errors[] = "Could not determine title";
+    if (!isset($this->fields['abstract']) || $this->fields['abstract'] == "") 
+      $this->_actionController->view->errors[] = "Could not find abstract";
+    
+    // FIXME: what other fields should be checked?
 
   }
 
@@ -251,10 +268,11 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
 	if ($this->debug) print "* found circ agreement\n";
 	$this->_actionController->view->log[] = "Found Circulation Agreement on page " . $this->current_page;
 	$this->next = "signature";	// next page expected
+	$this->found_circ = true;
 	return;
       } elseif ($this->current_page == 1) {
 	// page 1 and no circ agreement - probably signature page
-	$this->processSig($page);
+	$this->processSignaturePage($page);
       } elseif (preg_match("/Table of Contents/i", $content)) {
 	if ($this->debug) print "* found table of contents - page " . $this->current_page . "\n";
 	$this->_actionController->view->log[] = "Found Table of Contents on page " . $this->current_page;
