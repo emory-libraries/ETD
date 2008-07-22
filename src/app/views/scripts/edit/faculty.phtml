@@ -7,14 +7,15 @@ $projax = new Projax();
 
 $ajaxopts = array("url" => $this->url(array("controller" => "search", "action" => "facultysuggestor"), "", true),
 		  "indicator" => "adv-loading", "value" => "id", "select" => "value",
-		  "after_update_element" => "setAdvisor" );
+		  "after_update_element" => "setAdvisor",
+		  );
 $inputopts = array("size" => "55", "autocomplete" => "off", "id" => "advisor_autocomplete");
 ?>
 
 <script language="Javascript" type="text/javascript">
   function setAdvisor(text, li) {
   /* create a hidden input with faculty's netid, and display name */
-      new Insertion.Bottom('advisor', '<p id="'+li.id+'"><input type="hidden" name="advisor" value="' + li.id + '"/>' + text.value + '<a class="remove" href="#" onClick="javascript:removeAdvisor(\''+li.id+'\')">remove</a></p>');
+      new Insertion.Bottom('advisor_list', '<p id="'+li.id+'"><input type="hidden" name="advisor" value="' + li.id + '"/>' + text.value + '<a class="remove" href="#" onClick="javascript:removeAdvisor(\''+li.id+'\')">remove</a></p>');
       // blank out suggestor and hide it -- only one advisor
       text.value = '';
       Element.hide("advisor_autocomplete");
@@ -41,7 +42,7 @@ function addNonemory() {
 </script>
 
 
-<h1>Edit Advisor & Committee Members</h1>
+<h1>Edit Advisor &amp; Committee Members</h1>
 <p><b><?= $this->etd->title() ?></b></p>
 
 
@@ -59,7 +60,7 @@ clicking on and dragging the names.</p>
 <? $committeeMembers = $this->etd->mods->committee; ?>
 
 <form method="post" id="fields_form"  action="<?= $this->url(array("action" => "savefaculty"))?>">
-   <div id="advisor"><h2>Advisor</h2>
+   <div id="advisor_list"><h2>Advisor</h2>
      <? if ($advisor->id) : ?>
        <p id="<?= $advisor->id ?>"><input type="hidden" name="advisor" value="<?= $advisor->id ?>"/>
 	  <?= $advisor->full ?>
@@ -68,7 +69,7 @@ clicking on and dragging the names.</p>
      <? endif ?>
    </div>
 	  <div id="advisor_autocomplete" <? if ($advisor->id): ?> style="display:none" <? endif ?> >
-      <?=  $projax->text_field_with_auto_complete('faculty', $inputopts, $ajaxopts); ?>
+      <?=  $projax->text_field_with_auto_complete('adv', $inputopts, $ajaxopts); ?>
 	<span id="adv-loading" style="display:none;">Searching...</span>
     </div>
     <hr/>
