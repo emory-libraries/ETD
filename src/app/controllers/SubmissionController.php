@@ -58,15 +58,19 @@ class SubmissionController extends Etd_Controller_Action {
 
       // match faculty names found in the PDF to persons in ESD
       $esd = new esdPersonObject();
-      if ($advisor = $esd->findFacultyByName($etd_info['advisor'])) {
-	$etd->mods->setAdvisorFromPerson($advisor);
-      } else {
-	$this->_helper->flashMessenger->addMessage("Couldn't find directory match for " .
-				   $this->view->etd_info['advisor'] . "; please enter manually");
+      // only look up advisor if a name was found
+      if (isset($etd_info['advisor']) && $etd_info['advisor'] != '') {
+	if ($advisor = $esd->findFacultyByName($etd_info['advisor'])) {
+	  $etd->mods->setAdvisorFromPerson($advisor);
+	} else {
+	  $this->_helper->flashMessenger->addMessage("Couldn't find directory match for " .
+						     $this->view->etd_info['advisor'] . "; please enter manually");
+	}
       }
       
       $committee = array();
       foreach ($etd_info['committee'] as $cm) {
+	if ($cm == "") continue;	// skip if blank for some reason
 	if ($person = $esd->findFacultyByName($cm)) 
 	  $committee[] = $person;
 	else 
@@ -94,7 +98,7 @@ class SubmissionController extends Etd_Controller_Action {
 	$this->_helper->redirector->gotoRouteAndExit(array("controller" => "error", "action" => "unavailable"));
       } catch (FedoraObjectNotValid $e) {
 	print $e->getMessage() . "<br/>\n";
-	$this->view->error = "Could not create record.";
+	$this->view->errors[] = "Could not create record.";
 	$this->view->xml = $etd->saveXML();
 	return;
       }
@@ -141,10 +145,12 @@ class SubmissionController extends Etd_Controller_Action {
 	$this->_helper->flashMessenger->addMessage("Error saving record");
 	$this->view->foxml = $etd->saveXML();
       }
-
-    } else {
-      // error finding title; ask user if pdf is in correct format...
     }
+    /* If record cannot be created or there was an error extracting
+     information from the PDF, the processpdf view script will be
+     displayed, including any error messages, alont with a list of
+     suggested trouble-shooting steps to try.
+    */
   }
 
   public function debugpdfAction() {
@@ -157,17 +163,22 @@ class SubmissionController extends Etd_Controller_Action {
     
 
     $esd = new esdPersonObject();
-    if ($advisor = $esd->findFacultyByName($this->view->etd_info['advisor']))
-      $this->view->advisor = $advisor;
-    else 
-      $this->_helper->flashMessenger->addMessage("Couldn't find directory match for " . $this->view->etd_info['advisor'] . "; please enter manually");
-
-    $this->view->committee = array();
-    foreach ($this->view->etd_info['committee'] as $cm) {
-      if ($committee = $esd->findFacultyByName($cm)) 
-	$this->view->committee[] = $committee;
+    // only look up advisor if a name was found
+    if (isset($etd_info['advisor']) && $etd_info['advisor'] != '') {
+      if ($advisor = $esd->findFacultyByName($this->view->etd_info['advisor']))
+	$this->view->advisor = $advisor;
       else 
-	$this->_helper->flashMessenger->addMessage("Couldn't find directory match for " . $cm . "; please enter manually");
+	$this->_helper->flashMessenger->addMessage("Couldn't find directory match for " . $this->view->etd_info['advisor'] . "; please enter manually");
+    }
+    $this->view->committee = array();
+    if (isset($this->view->etd_info['committee'])) {
+      foreach ($this->view->etd_info['committee'] as $cm) {
+	if ($cm == "") continue;	// skip if blank for some reason
+	if ($committee = $esd->findFacultyByName($cm)) 
+	  $this->view->committee[] = $committee;
+	else 
+	  $this->_helper->flashMessenger->addMessage("Couldn't find directory match for " . $cm . "; please enter manually");
+      }
     }
   }
 
