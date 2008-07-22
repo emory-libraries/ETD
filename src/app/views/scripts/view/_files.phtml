@@ -45,8 +45,9 @@
 	  <? if ($this->acl->isAllowed($this->role, $file, "remove")): ?>
 	    <a href="<?= $this->url(array("controller" => "file", "action" => "remove", "pid" => $file->pid), '', true, false)?>">remove</a>
 	  <? endif ?>
-          <? if ($this->acl->isAllowed($this->role, $file, "edit") && isset($file->lastModified)): ?>	       
-	      <br/>Modified <?= $file->lastModified ?>
+          <? if ($this->acl->isAllowed($this->role, $file, "view modified")
+		 && isset($file->lastModified)): ?>	       
+	       <br/><span class="lastmodified">Last modified <?= date("Y-m-d h:ia", strtotime($file->lastModified)) ?></span>
 	 <? endif ?> 	       
 	  <br/>
        <? endif /* can view file */ ?>
