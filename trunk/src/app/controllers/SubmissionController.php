@@ -88,20 +88,34 @@ class SubmissionController extends Etd_Controller_Action {
 	  $etd->mods->addKeyword($keyword);
       }
 
+      $error = true;
       try {
 	// create an etd file object for uploaded PDF and associate with etd record
 	$pid = $etd->save("creating preliminary record from uploaded pdf");
+	$error = false;
       } catch (PersisServiceUnavailable $e) {
-	// ingest relies on persistent id server to generate the pid
-	$this->_helper->flashMessenger->addMessage("Error: could not create new record because Persistent Identifier Service is not available");
-	// redirect to an error page
-	$this->_helper->redirector->gotoRouteAndExit(array("controller" => "error", "action" => "unavailable"));
+	// if Persis is down this would probably already be caught when attempting to save new etd
+	$message = "Could not create new record because Persistent Identifier Service is not available";
+      } catch (PersisServiceUnauthorized $e) {
+	// not authorized - most likely misconfigured, bad password
+	$message = "Could not create new record because of an authorization error with Persistent Identifier Service";
+      } catch (PersisServiceException $e) {
+	// generic persis error - most likely misconfigured, bad password
+	$message = "Could not create new record because of an error accessing Persistent Identifier Service";
       } catch (FedoraObjectNotValid $e) {
 	print $e->getMessage() . "<br/>\n";
 	$this->view->errors[] = "Could not create record.";
 	$this->view->xml = $etd->saveXML();
 	return;
       }
+
+      // any of the Persis Service errors
+      if ($error) {
+	$this->_helper->flashMessenger->addMessage("Error: $message");
+	// redirect to an error page
+	$this->_helper->redirector->gotoRouteAndExit(array("controller" => "error", "action" => "unavailable"));
+      }
+
       // FIXME: convert this to logging
       if ($this->debug) $this->_helper->flashMessenger->addMessage("Saved etd as $pid");
       if ($pid) {
@@ -120,14 +134,27 @@ class SubmissionController extends Etd_Controller_Action {
 	// add relations between objects
 	$etdfile->rels_ext->addRelationToResource("rel:isPDFOf", $etd->pid);
 
+	$error = true;
 	try {
 	  $filepid = $etdfile->save("creating record from uploaded pdf");	// save and get pid
+	  $error = false;
 	} catch (PersisServiceUnavailable $e) {
 	  // if Persis is down this would probably already be caught when attempting to save new etd
-	  $this->_helper->flashMessenger->addMessage("Error: could not create new record because Persistent Identifier Service is not available");
+	  $message = "Could not create file record because Persistent Identifier Service is not available";
+	} catch (PersisServiceUnauthorized $e) {
+	  // not authorized - most likely misconfigured, bad password
+	  $message = "Could not create file record because of an authorization error with Persistent Identifier Service";
+	} catch (PersisServiceException $e) {
+	  // generic persis error - most likely misconfigured, bad password
+	  $message = "Could not create file record because of an error accessing Persistent Identifier Service";
+	}
+
+	if ($error) {
+	  $this->_helper->flashMessenger->addMessage("Error: $message");
 	  // redirect to an error page
 	  $this->_helper->redirector->gotoRouteAndExit(array("controller" => "error", "action" => "unavailable"));
 	}
+
 
 	// delete temporary file now that we are done with it
 	unlink($etd_info['pdf']);
