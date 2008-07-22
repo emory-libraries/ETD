@@ -14,8 +14,17 @@ ETD repository, open your PDF file, and print a paper copy.</p>
 
 <p>All students must submit the ETD Submission Agreement Form with the
 paper copy of their dissertation. In part 2 of that form, you must
-choose between the "Open" or "Restricted" Access options.  Your access
-   restriction choice was: <?= $this->etd->mods->embargo_request ?>.</p>
+choose between the "Open" or "Restricted" Access options.
+<? if ($this->etd->mods->embargo_request == "yes"): ?>
+   You have requested <b>Restricted Access</b> (pending the approval of the
+   Graduate School). The full text of your work will be published in
+   the repository immediately after the expiration of your access
+   restriction period.
+<? elseif ($this->etd->mods->embargo_request == "no"): ?>
+   You have requested <b>Open Access</b>. The full text of your work
+   will be published in the repository immediately after graduation.
+<? endif ?>
+</p>     
 
 <p>You will receive written notification confirming whether or not your
 <?= $this->etd->document_type() ?> has been approved by the Graduate School.  Upon approval
