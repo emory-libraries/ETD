@@ -252,7 +252,7 @@ class esdPersonObject extends Emory_Db_Table {
    * find a list of matching faculty based on name - used for suggestor
    */
   public function match_faculty($name) {
-    $sql = "SELECT * FROM ESDV.v_etd_prsn WHERE PRSN_C_TYPE='F' ";
+    $sql = "SELECT * FROM ESDV.v_etd_prsn_tabl WHERE PRSN_C_TYPE='F' ";
 
     $name = str_replace(",", "", $name);	// ignore commas
     $name = strtolower($name);	// convert to lower case for case-insensitive comparison
@@ -272,7 +272,6 @@ class esdPersonObject extends Emory_Db_Table {
     $sql = "SELECT * FROM ( $sql ) WHERE ROWNUM <= 25";	// limit results to first 25
     // (oracle notation for limiting results)
 
-    $sql = $this->getAdapter()->quoteInto($sql, $uname);
     // NOTE: Zend OCI quote class doesn't quote apostrophes correctly - fix them here
     $sql = str_replace("\'", "''", $sql);
     $stmt = $this->_db->query($sql);
