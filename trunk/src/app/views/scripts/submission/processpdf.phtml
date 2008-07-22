@@ -15,14 +15,17 @@
  <li>Ensure that your document does not include images of signatures, your own 
  nor those of your committee members.</li>
  <li>The system cannot accept an encrypted PDF.</li>
- <li>All PDFs should be created using Adobe Acrobat Professional.  We cannot 
+ <li><a href="<?= $this->url(array('controller' => 'docs', 'action' => 'faq')) ?>#technical">All PDFs should be created using Adobe Acrobat Professional</a>.  We cannot 
  guarantee that PDFs created with other tools will meet our requirements for
  long-term preservation.</li>
  <li>Check that all required pages are included in the correct order.  The correct 
- ordered is detailed in the submission instructions.</li>
+ ordered is detailed in the
+ <a href="<?= $this->url(array('controller' => 'docs', 'action' => 'instructions')) ?>">submission instructions</a>.</li>
 </ul>
 
-<? if (count($this->log)): /* FIXME: show these to the user ? */?>
+  </a>.</li>
+
+<? if (count($this->log)): ?>
    <hr/>
   <p>More details:</p>
   <ul>
