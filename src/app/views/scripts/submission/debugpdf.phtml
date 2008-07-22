@@ -1,43 +1,67 @@
 <h1>Processing PDF</h1>
 
-<p>information extracted from pdf</p>
+<? if (count($this->errors)): ?>
+ <p>There was an error processing the PDF.</p>
+<? endif ?>   
+<?= $this->render("submission/_processpdf_errs.phtml"); ?>
 
 <? if($this->etd_info): ?>
+<p>information extracted from pdf</p>
 <div>
-<b>Title:</b> <?= $this->etd_info['title'] ?><br/>
-<b>Department:</b> <?= $this->etd_info['department'] ?> <br/>
-<b>Advisor:</b> <?= $this->etd_info['advisor'] ?> <br/>
-   <? if ($this->advisor): ?>
+  <? if (isset($this->etd_info['title'])): ?>
+    <b>Title:</b> <?= $this->etd_info['title'] ?><br/>
+  <? endif ?>      
+  <? if (isset($this->etd_info['department'])): ?>
+    <b>Department:</b> <?= $this->etd_info['department'] ?> <br/>
+  <? endif ?>            
+  <? if (isset($this->etd_info['advisor'])): ?>
+    <b>Advisor:</b> <?= $this->etd_info['advisor'] ?> <br/>
+    <? if ($this->advisor): ?>
    &nbsp;&nbsp;&nbsp;<b>from ESD:</b> <?= $this->advisor->lastname ?>, <?= $this->advisor->name ?> (netid: <?= $this->advisor->netid ?>)  <br/>
-   <? endif ?>
-<b>Committee Members:</b> <?=  implode("; ", $this->etd_info['committee']) ?><br/>
-   &nbsp;&nbsp;&nbsp;<b>from ESD:</b>
-   <? foreach ($this->committee as $cm) : ?>
-     <?= $cm->lastname ?>, <?= $cm->name ?> (netid: <?= $cm->netid ?>);
-   <? endforeach ?>
-   <br/>
-<b>Keywords:</b> <?= implode("; ", $this->etd_info['keywords']) ?><br/>
-<b>Abstract:</b> <div><?= $this->etd_info['abstract'] ?></div> 
-<b>Table of Contents:</b> <div><?= $this->etd_info['toc'] ?></div>
-<? endif ?>
-
-<? if ($this->env == 'development'): ?>
-  <p id="log">
-     <? foreach ($this->log as $logline): ?>
-       <?= $logline ?><br/>
-     <? endforeach ?>
-  </p>
+    <? endif ?>
+  <? endif ?>
+  <? if (isset($this->etd_info['committee'])): ?>   
+    <b>Committee Members:</b> <?=  implode("; ", $this->etd_info['committee']) ?><br/>
+     &nbsp;&nbsp;&nbsp;<b>from ESD:</b>
+    <? foreach ($this->committee as $cm) : ?>
+      <?= $cm->lastname ?>, <?= $cm->name ?> (netid: <?= $cm->netid ?>);
+    <? endforeach ?>
+    <br/>
+  <? endif ?> 
+  <? if (isset($this->etd_info['keywords'])): ?>     
+    <b>Keywords:</b> <?= implode("; ", $this->etd_info['keywords']) ?><br/>
+  <? endif ?>     
+  <? if (isset($this->etd_info['abstract'])): ?>        
+    <b>Abstract:</b> <div><?= $this->etd_info['abstract'] ?></div>
+  <? endif ?>     
+  <? if (isset($this->etd_info['toc'])): ?>     
+    <b>Table of Contents:</b> <div><?= $this->etd_info['toc'] ?></div>
+  <? endif ?>   
 <? endif ?>
      
+<? if (isset($this->department)): ?>
+  <p><b>Department match from program list:</b> <?= $this->department ?>
+<? endif ?>   
 
-<p><b>Department match from program list:</b> <?= $this->department ?>   
+<? if ($this->env == 'development'): ?>
+ <hr/>     
+ <p>More details:</p>
+  <ul id="log">
+     <? foreach ($this->log as $logline): ?>
+       <li><?= $logline ?></li>
+     <? endforeach ?>
+  </ul>
+<? endif ?>
 
+     
 <hr>
 
-<p>raw content pulled from pdf</p>
-<pre>
+<? if($this->etd_info): ?>
+  <p>raw content pulled from pdf</p>
+  <pre>
      <?= htmlentities(print_r($this->etd_info, true)); ?>
-</pre>
+  </pre>
+<? endif ?>  
 
 
 
