@@ -537,7 +537,7 @@ table div.fullrecord {
   padding:0.5in;
 }
 
-div#files span.description { 
+div#files span.description, div#files .lastmodified { 
  font-size:90%;
  color: #787878;
 }
