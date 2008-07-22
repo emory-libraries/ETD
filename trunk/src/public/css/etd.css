@@ -757,6 +757,7 @@ p.warning {
   padding: 4px;
   background-color: #efefef; /* light grey */
 }
+ul.errors { color:red; }
 
 span#exclamation { 
  color:#d70d0d;
