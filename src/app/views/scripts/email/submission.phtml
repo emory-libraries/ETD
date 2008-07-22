@@ -29,7 +29,7 @@ copies.</p>
 <tr><th valign="top">Advisor:</th><td><?= $this->etd->advisor() ?></td></tr>
 <tr><th valign="top">Committee:</th><td><?= implode("; ", $this->etd->committee()) ?>
 <? if (isset($this->etd->mods->nonemory_committee) && isset($this->etd->mods->nonemory_committee[0]) && 
-       $this->etd->mods->nonemory_committee[0]->full): ?>
+       ($this->etd->mods->nonemory_committee[0]->full != '')): ?>
   <? foreach ($this->etd->mods->nonemory_committee as $cm): ?>
      <?= $cm->full ?> (<?= $cm->affiliation ?>);
   <? endforeach ?> 
