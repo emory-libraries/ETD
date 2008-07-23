@@ -1,0 +1,47 @@
+<? /* Process PDF page - if processing succeeded, user should be
+    redirected to main record view to start editing.
+    Landing on this page means some kind of error occurred.   */ ?>
+<h1>Processing PDF</h1>
+    
+<p>There was an error processing your PDF.</p>
+
+<?= $this->render("submission/_processpdf_errs.phtml"); ?>
+
+<p>Suggestions for resolving this problem:</p>
+<ul>
+ <li>Check to make sure that your PDF is not an "image-only" document. 
+ The text of your PDF should be searchable in Adobe Reader.  If it is not, it
+ may be an image-only document.</li>
+ <li>Ensure that your document does not include images of signatures, your own 
+ nor those of your committee members.</li>
+ <li>The system cannot accept an encrypted PDF.</li>
+ <li><a href="<?= $this->url(array('controller' => 'docs', 'action' => 'faq')) ?>#technical">All PDFs should be created using Adobe Acrobat Professional</a>.  We cannot 
+ guarantee that PDFs created with other tools will meet our requirements for
+ long-term preservation.</li>
+ <li>Check that all required pages are included in the correct order.  The correct 
+ ordered is detailed in the
+ <a href="<?= $this->url(array('controller' => 'docs', 'action' => 'instructions')) ?>">submission instructions</a>.</li>
+</ul>
+
+  </a>.</li>
+
+<? if (count($this->log)): ?>
+   <hr/>
+  <p>More details:</p>
+  <ul>
+  <? foreach ($this->log as $msg): ?>
+    <li><?= $msg ?></li>
+  <? endforeach ?>
+  </ul>
+<? endif ?>
+
+   
+<? if ($this->debug): ?>
+  <pre>
+   <?= htmlentities($this->xml) ?>
+  </pre>
+<? endif ?>
+
+
+
+

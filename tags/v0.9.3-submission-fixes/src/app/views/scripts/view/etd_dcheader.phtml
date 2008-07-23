@@ -1,0 +1,24 @@
+<?/* ETD Dublin Core metadata formatted for HTML header */ ?>
+<link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"/>
+<link rel="schema.DCTERMS" href="http://purl.org/dc/terms/"/>
+ <meta name="DC.title" content="<?= htmlentities($this->etd->mods->title) ?>"/>
+ <meta name="DC.creator" content="<?= $this->etd->mods->author ?>"/>
+ <meta name="DC.contributor" content="<?= $this->etd->mods->advisor ?>"/>
+ <meta name="DC.publisher" content="Emory University"/> <? /* FIXME: okay to hard code this? accurate? */ ?>
+ <meta name="DCTERMS.issued" content="<?= $this->etd->year() ?>"/>
+ <meta name="DC.identifier" content="<?= $this->etd->mods->ark ?>"/> <? /* full ark url */ ?>
+ <meta name="DC.language" content="<?= $this->etd->language() ?>"/>
+<? foreach (array_merge($this->etd->keywords(), $this->etd->researchfields()) as $subj): ?>
+  <meta name="DC.subject" content="<?= htmlentities($subj) ?>"/>
+<? endforeach ?>
+ <meta name="DC.type" scheme="DCTERMS.DCMIType" content="Text"/>
+ <meta name="DC.format" scheme="DCTERMS.IMT" content="text/xml"/>
+<? /* plain text versions of abstract/table of contents (htmlentities in case of any quotes) */ ?>
+ <meta name="DCTERMS.abstract" content="<?= htmlentities($this->etd->mods->abstract) ?>"/>
+ <meta name="DCTERMS.tableOfContents" content="<?= htmlentities($this->etd->mods->tableOfContents)?>"/>
+<? /* PDF of the dissertation, if not restricted - include ark url as dc:relation */ ?>
+<? foreach ($this->etd->pdfs as $pdf): ?>
+ <? if ($this->acl->isAllowed("guest", $pdf, "download")): ?>
+   <meta name="DC.relation" content="<?= $pdf->dc->ark ?>"/>
+ <? endif ?>
+<? endforeach ?>

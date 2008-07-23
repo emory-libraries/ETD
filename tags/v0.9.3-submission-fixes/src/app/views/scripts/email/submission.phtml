@@ -1,0 +1,50 @@
+<?=  $this->render('email/_debug.phtml'); ?>
+<p>Dear <?= $this->etd->mods->author->first ?>,</p>
+
+<p>Congratulations!  You have successfully submitted your ETD to
+Emory's repository.</p>
+
+<p>Your next step is to print a paper copy of the document you deposited for
+the Dean's review.  To ensure that the Dean will be reviewing the final
+version of your document, click the link below to visit your record in the
+ETD repository, open your PDF file, and print a paper copy.</p>
+
+<p>View your record:
+<a href="<?= $this->etd->mods->ark ?>"><?= $this->etd->mods->ark ?></a></p>
+
+<p>All students must submit the ETD Submission Agreement Form with the
+paper copy of their dissertation. In part 2 of that form, you must
+choose between the "Open" or "Restricted" Access options.
+<? if ($this->etd->mods->embargo_request == "yes"): ?>
+   You have requested <b>Restricted Access</b> (pending the approval of the
+   Graduate School). The full text of your work will be published in
+   the repository immediately after the expiration of your access
+   restriction period.
+<? elseif ($this->etd->mods->embargo_request == "no"): ?>
+   You have requested <b>Open Access</b>. The full text of your work
+   will be published in the repository immediately after graduation.
+<? endif ?>
+</p>     
+
+<p>You will receive written notification confirming whether or not your
+<?= $this->etd->document_type() ?> has been approved by the Graduate School.  Upon approval
+you will receive further information regarding the publication of your
+ETD in our repository, as well as your opportunity to order bound
+copies.</p>
+
+<table>
+<tr><th valign="top">Title:</th><td><?= $this->etd->title() ?></td></tr>
+<tr><th valign="top">Author:</th><td><?= $this->etd->author() ?></td></tr>
+<tr><th valign="top">Advisor:</th><td><?= $this->etd->advisor() ?></td></tr>
+<tr><th valign="top">Committee:</th><td><?= implode("; ", $this->etd->committee()) ?>
+<? if (isset($this->etd->mods->nonemory_committee) && isset($this->etd->mods->nonemory_committee[0]) && 
+       ($this->etd->mods->nonemory_committee[0]->full != '')): ?>
+  <? foreach ($this->etd->mods->nonemory_committee as $cm): ?>
+     <?= $cm->full ?> (<?= $cm->affiliation ?>);
+  <? endforeach ?> 
+<? endif ?>
+</td></tr>
+<tr><th valign="top">Abstract:</th><td><?= $this->etd->html->abstract ?></td></tr>
+</table>
+
+
