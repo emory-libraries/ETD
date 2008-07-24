@@ -10,7 +10,7 @@ class collectionHierarchy extends XmlObject {
 
   public $id;
   protected $members_by_id;
-
+  protected $collection_class = "skosCollection";
 
   protected $index_field;
 
@@ -25,7 +25,7 @@ class collectionHierarchy extends XmlObject {
     
        $config = $this->config(array(
 	     "collection" => array("xpath" => "skos:Collection[@rdf:about = '" . $this->id . "']",
-				   "class_name" => "skosCollection"),
+				   "class_name" => $this->collection_class),
 	     "parent_id" => array("xpath" => "skos:Collection[skos:member/@rdf:resource = '" . $id . "']/@rdf:about"),
 				       ));
     parent::__construct($dom, $config, null);	// no xpath
@@ -66,16 +66,26 @@ class collectionHierarchy extends XmlObject {
     }
   }
 
-  public function getAllFields() {
+  
+  public function getFields($mode) {
     $fields = array();
-    
+
     array_push($fields, (string)$this->label);
 
     foreach ($this->members as $member)
-      $fields = array_merge($fields, $member->getAllFields());
+      $fields = array_merge($fields, $member->getFields($mode));
 
     return $fields;
   }
+
+  public function getAllFields() {
+    return $this->getFields("all");
+  }
+  
+  public function getIndexedFields() {
+    return $this->getFields("indexed");
+  }
+
 
   // find the label for a matching word (may need improvement) - used to map departments to our hierarchy
   public function findLabel($string) {
@@ -113,7 +123,7 @@ class collectionHierarchy extends XmlObject {
 
      $solr = Zend_Registry::get('solr');
      // get all fields of this collection and its members (all the way down)
-     $all_fields = $this->getAllFields();
+     $all_fields = $this->getIndexedFields();
      
      // construct a query that will find any of these
      $queryparts = array();
@@ -148,19 +158,18 @@ class collectionHierarchy extends XmlObject {
 
 
 
-
 class skosCollection extends XmlObject {
   protected $members_by_id;
   public $count;
+
+  protected $member_class = "skosMember";
   
   public function __construct($dom, $xpath) {
     $id = $dom->getAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "about");
     $config = $this->config(array(
 	"label" => array("xpath" => "rdfs:label"), 
-      //      "label" => array("xpath" => "skos:prefLabel"),
-	//	"collections" => array("xpath" => "//skos:Collection[@rdf:about = ./skos:member/@rdf:resource]",
-	//			  "is_series" => true, "class_name" => "skosCollection"),
-	"members" => array("xpath" => "skos:member", "is_series" => true, "class_name" => "skosMember"),
+	"members" => array("xpath" => "skos:member", "is_series" => true,
+			   "class_name" => $this->member_class),
       
       ));
     parent::__construct($dom, $config, $xpath);
@@ -190,13 +199,10 @@ class skosCollection extends XmlObject {
 
   public function calculateTotal($totals) {
     $sum = isset($totals[$this->label]) ? $totals[$this->label] : 0;
-    //    print "DEBUG: calculating total for " . $this->label . ", starts as $sum<br/>\n";
     foreach ($this->members as $mem) {
-      //      print "DEBUG: adding " . $mem->label . "<br/>\n";
       $sum += $mem->calculateTotal($totals);
     }
     $this->count = $sum;
-    //    print "DEBUG: total for {$this->label} is {$this->count}<br/>\n";
     return $this->count;
   }
 
@@ -204,14 +210,14 @@ class skosCollection extends XmlObject {
 }
 
 class skosMember extends XmlObject {
-
+  protected $collection_class = "skosCollection";
+  
   public function __construct($dom, $xpath) {
     $id = $dom->getAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "resource");
-    //    print "in skosMember constructor, id is $id\n";
     $config = $this->config(array(
 	 "id" =>  array("xpath" => "@rdf:resource"),
 	 "collection" => array("xpath" => "//skos:Collection[@rdf:about='" . $id . "']",
-			       "class_name" => "skosCollection"),
+			       "class_name" => $this->collection_class),
 	 ));
     parent::__construct($dom, $config, $xpath);
   }
@@ -223,21 +229,33 @@ class skosMember extends XmlObject {
       return parent::__get($name);
   }
 
-  public function getAllFields() {
+  public function getFields($mode) {
     $fields = array();
 
-    // add current element    
-    array_push($fields, (string)$this->label);
+    // add current element if appropriate
+    if ($mode == "all" ||
+	($mode == "indexed" && $this->isIndexed())) {
+	array_push($fields, (string)$this->label);
+    }
 
     // add any collection members
     if ($this->collection)
       foreach ($this->collection->members as $member)
-	$fields = array_merge($fields, $member->getAllFields());
+	$fields = array_merge($fields, $member->getFields($mode));
     return $fields;
+  }
+
+  // by default, assume indexed-- override this function only when needed
+  protected function isIndexed() {
+    return true;
   }
 
   public function calculateTotal($totals) {
     return $this->collection->calculateTotal($totals);
+  }
+
+  public function hasChildren() {
+    
   }
 
 }
