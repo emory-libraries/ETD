@@ -57,6 +57,16 @@ class TestSkosCollection extends UnitTestCase {
     $this->assertTrue(in_array("third-level member", $fields));
   }
 
+  // for basic skosCollection, indexed fields should be the same as all fields
+  public function testGetIndexedFields() {
+    $fields = $this->skos->getIndexedFields();
+    $this->assertIsA($fields, "array");
+    $this->assertTrue(in_array("Top Level", $fields));
+    $this->assertTrue(in_array("a member", $fields));
+    $this->assertTrue(in_array("another member", $fields));
+    $this->assertTrue(in_array("third-level member", $fields));
+  }
+
   public function testFindLabel() {
     $this->assertEqual("Top Level", $this->skos->findLabel("Level"));
     $this->assertEqual("third-level member", $this->skos->findLabel("third-level"));
