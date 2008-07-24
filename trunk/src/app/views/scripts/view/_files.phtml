@@ -47,7 +47,8 @@
 	  <? endif ?>
           <? if ($this->acl->isAllowed($this->role, $file, "view modified")
 		 && isset($file->lastModified)): ?>	       
-	       <br/><span class="lastmodified">Last modified <?= date("Y-m-d h:ia", strtotime($file->lastModified)) ?></span>
+	       <br/><span class="lastmodified">Last modified
+		  <?= date("Y-m-d h:ia", strtotime($file->fileLastModified())) ?></span>
 	 <? endif ?> 	       
 	  <br/>
        <? endif /* can view file */ ?>
