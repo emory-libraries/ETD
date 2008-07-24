@@ -309,6 +309,12 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
   }
 
 
+  // wrapper for foxml lastModified function - abstract datastream name
+  public function fileLastModified() {
+    return $this->lastModified("FILE");
+  }
+
+
 
   // for Zend ACL Resource
   public function getResourceId() {
