@@ -43,7 +43,8 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
 			  "committee" => array(),
 			  "abstract" => "",
 			  "toc" => "",
-			  "keywords" => array());
+			  "keywords" => array(),
+			  "filename" => "");
   }
   
 
@@ -67,6 +68,10 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
 
     // location of temporary upload copy of user's pdf
     $pdf = $fileinfo['tmp_name'];
+    // store the original filename
+    $this->fields['filename'] = $fileinfo['name'];
+    // path to temporary uploaded file
+    $this->fields['pdf'] = $pdf;
     
     $flashMessenger = $this->_actionController->getHelper('FlashMessenger');
 
@@ -94,14 +99,16 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
 	$this->_actionController->view->errors[] = "Failure reading PDF";
       } else {
 	$this->getInformation($html);
-	$this->fields['pdf'] = $pdf;
 
 	// remove temporary html file after we have pulled the information from it
 	unlink($html);
 	unlink($_html);		// unlink empty tmp file created by tempnam()
-	
-	return $this->fields;
+
       }
+
+      // return fields even if there was an error, so we at least have original filename
+      return $this->fields;
+
     }
 
   }
