@@ -286,7 +286,51 @@ class TestEtdXacml extends UnitTestCase {
     $this->expectError("Access Denied to modify datastream XHTML");
     $this->assertNull($etd->save("test etdadmin permissions - modify XHTML"), "etdadmin cannot modify XHTML");
   }
+
+
+
+  // test transition from draft to submission (triggered by author)
+  function testChangingStatus_submitted() {
+    setFedoraAccount("author");
+
+    $etd = new etd($this->pid);
+    $etd->setStatus("draft");	// starts as draft first, then moves to submitted
+    $etd->setStatus("submitted");
+    $this->assertFalse(isset($etd->policy->draft), "draft removed before saving");
+    $etd->save("simulating author submission");
+
+    // reload from fedora to confirm policy was saved
+    $etd = new etd($this->pid);
+    $this->assertEqual("submitted", $etd->status());
+    $this->assertFalse(isset($etd->policy->draft), "draft rule no longer present in fedora");
+  }
  
+  function testChangingStatus_return_to_draft() {
+    setFedoraAccount("etdadmin");
+
+    $etd = new etd($this->pid);
+    // record has been submitted and is kicked back to draft
+    
+    $etd->setStatus("draft");	// setting to draft so draft rule will be removed
+    $etd->setStatus("submitted");
+    $this->assertFalse(isset($etd->policy->draft), "draft removed from submitted record");
+    $etd->save("setting status to submitted to test revert to draft");
+    // pull fresh from fedora
+    $etd = new etd($this->pid);
+    $this->assertFalse(isset($etd->policy->draft), "draft removed from submitted record");
+    $etd->setStatus("draft");
+    $this->assertTrue(isset($etd->policy->draft), "draft added before saving");
+    $this->assertEqual($etd->policy->draft->condition->user, "author"); 	// author/owner
+    $etd->save("simulating request changes");
+
+    // reload from fedora to confirm policy was saved
+    $etd = new etd($this->pid);
+    $this->assertEqual("draft", $etd->status());
+    $this->assertTrue(isset($etd->policy->draft), "draft present in fedora");
+    // set based on author/owner
+    $this->assertEqual($etd->policy->draft->condition->user, "author");
+    
+  }
   
   
 }
