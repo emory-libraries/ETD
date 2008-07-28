@@ -147,9 +147,14 @@ class etd extends foxml implements etdInterface {
 
       // special case - owner needs to be specified for draft rule
       if ($name == "draft") {
-	if (isset($this->owner)) $owner = $this->owner;	// not retrieved from Fedora when initializing by pid
-	else $owner = $this->rels_ext->author;		// fall-back / alternate way to get netid
-	
+	if (isset($this->owner) &&  $this->owner != "") {
+	  // NOTE: owner is *not* retrieved from Fedora when initializing by pid
+	  $owner = $this->owner;
+	} else {
+	  // fall-back / alternate way to get author's netid
+	  $owner = $this->rels_ext->author;
+	}
+
 	$obj->policy->draft->condition->user = $owner;
       }
 
