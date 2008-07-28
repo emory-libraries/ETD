@@ -63,14 +63,12 @@ class FileController extends Etd_Controller_Action {
      }
      
      $fileinfo = $_FILES['file'];
-
-     $tmpdir = "/tmp/etd";
-     $filename = $tmpdir . "/" . $fileinfo['name'];
-     $uploaded = $this->_helper->FileUpload($fileinfo, $filename);
+     $filename = $fileinfo['tmp_name'];
+     $uploaded = $this->_helper->FileUpload->check_upload($fileinfo);
      
      if ($uploaded) {
        $etdfile = new etd_file(null, $etd);	// initialize from template, but associate with parent etd
-       $etdfile->initializeFromFile($filename, $file_rel, $this->current_user);
+       $etdfile->initializeFromFile($filename, $file_rel, $this->current_user, $fileinfo['name']);
 
        // add relation to etd
        // fixme: this should probably be a function of etdfile or rels
@@ -126,16 +124,27 @@ class FileController extends Etd_Controller_Action {
      $fileinfo = $_FILES['file'];
 
      Zend_Controller_Action_HelperBroker::addPrefix('Etd_Controller_Action_Helper');
-     $tmpdir = "/tmp/etd";
-     $filename = $tmpdir . "/" . $fileinfo['name'];
-     $uploaded = $this->_helper->FileUpload($fileinfo, $filename);
+     $filename = $fileinfo['tmp_name'];
+     $uploaded = $this->_helper->FileUpload->check_upload($fileinfo);
+     
      if ($uploaded) {
+       $old_pagecount = $etdfile->dc->pages;	// save current page count
+       
        $fileresult = $etdfile->updateFile($filename, "new version of file");	// update file info, upload new file
        $xmlresult = $etdfile->save("modified metadata for new version of file");
        if ($fileresult === false || $xmlresult === false) {	// how to determine which failed?
 	 $this->_helper->flashMessenger->addMessage("Error: there was a problem saving the record.");
        } else {
 	 $this->view->save_result = $fileresult;
+       }
+
+       // if file being updated is a PDF, need to update main record page count (can't be caught elsewhere)
+       if ($etdfile->type == "pdf") {
+	 // subtract pages from the old version of file
+	 $etdfile->etd->mods->pages = (int)$etdfile->etd->mods->pages - (int)$old_pagecount;
+	// add new page count
+	$etdfile->etd->mods->pages = (int)$etdfile->etd->mods->pages + (int)$etdfile->dc->pages;
+	$etdfile->etd->save("updated page count for new version of pdf");
        }
 
        // delete temporary file now that we are done with it
