@@ -70,6 +70,13 @@ class TestProcessPdf extends UnitTestCase {
     $this->assertEqual("Joe Smitt", $this->processpdf->fields['committee'][1]);
     $this->assertEqual("Freddie Prinze Jr.", $this->processpdf->fields['committee'][2]);
 
+    // title on same line as "by"
+    $this->processpdf->initialize_fields();
+    $dom = new DOMDocument();
+    $dom->loadXML("<div>Properties and Synthesis of Red-Ox Active Proline Mimics By <br/>
+John H. Shugart <br/></div>");
+    $this->processpdf->processSignaturePage($dom);
+    $this->assertPattern("|Properties and Synthesis of Red-Ox Active Proline Mimics|", $this->processpdf->fields['title']);
     
   }
 
@@ -90,7 +97,6 @@ class TestProcessPdf extends UnitTestCase {
 
 
   /** test pulling information from sample html documents generated from real pdfs **/
-  
   function testGetInformation_xu() {
     $this->processpdf->getInformation("../fixtures/xu_sample.html");
     $fields = $this->processpdf->fields;
@@ -143,7 +149,7 @@ class TestProcessPdf extends UnitTestCase {
 			 $fields['abstract'], "abstract");
     $this->assertPattern("/Introduction: Rice, Rain, and Response/", $fields['toc']);
 
-  }
+    }
   function testGetInformation_strickland() {
     $this->processpdf->getInformation("../fixtures/strickland_sample.html");
     $fields = $this->processpdf->fields;
