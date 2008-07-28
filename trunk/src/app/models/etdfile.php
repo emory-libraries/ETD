@@ -130,9 +130,10 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
       
 
 
-  public function initializeFromFile($filename, $reltype, esdPerson $author) {
+  public function initializeFromFile($filename, $reltype, esdPerson $author, $label = null) {
     $this->type = $reltype;
-    $this->label = basename($filename);
+    if (!is_null($label)) $this->label = $label;
+    else $this->label = basename($filename);
     $this->owner = $author->netid;
 
     // set reasonable defaults for author, description
