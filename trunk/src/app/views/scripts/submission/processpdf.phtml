@@ -15,7 +15,8 @@
  <li>Ensure that your document does not include images of signatures, your own 
  nor those of your committee members.</li>
  <li>The system cannot accept an encrypted PDF.</li>
- <li><a href="<?= $this->url(array('controller' => 'docs', 'action' => 'faq')) ?>#technical">All PDFs should be created using Adobe Acrobat Professional</a>.  We cannot 
+ <li><a href="<?= $this->url(array('controller' => 'docs', 'action' => 'faq')) ?>#technical">
+ All PDFs should be created using Adobe Acrobat Professional</a>. (Avoid trial versions!) We cannot 
  guarantee that PDFs created with other tools will meet our requirements for
  long-term preservation.</li>
  <li>Check that all required pages are included in the correct order.  The correct 
@@ -35,12 +36,16 @@
   </ul>
 <? endif ?>
 
-<hr/>
+<h2>How to Proceed with Your Submission =></h2>
+<p>The submission system is designed to extract data from your PDF, but the system
+is having trouble with your record.  At this point you have two choices:</p> 
+<p>(1) You may choose to recreate your PDF so that the system can read it using
+the suggestions above, and begin the process again; or </p> 
 <? /*** Submission workaround: allow user to create record even if the
    system cannot recognize the PDF or pull any information from it. */  ?>
-<h2>Would you like to proceed with your submission anyway?</h2>
-
-<p>Any information not detected by the ETD system will need to be entered manually.</p>
+<p> (2) You may choose to proceed without the system extracting the data from 
+your PDF.  This will require that you enter any information not detected by the 
+ETD system manually. To proceed with the manual process, upload your file below.  </p>
 
 <form name="submission" method="post" enctype="multipart/form-data"
     action="<?= $this->url(array("action" => "processpdf"))?>">
