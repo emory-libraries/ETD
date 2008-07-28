@@ -178,7 +178,7 @@ class etd extends foxml implements etdInterface {
   public function addPdf(etd_file $etdfile) {
     // if value is already set, add to the total (multiple pdfs)
     if (isset($etdfile->dc->pages) && isset($this->mods->pages)) 
-      $this->mods->pages = $this->mods->pages + $etdfile->dc->pages;
+      $this->mods->pages = (int)$this->mods->pages + (int)$etdfile->dc->pages;
     else
       $this->mods->pages = $etdfile->dc->pages;
 
