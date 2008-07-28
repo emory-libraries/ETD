@@ -35,13 +35,31 @@
   </ul>
 <? endif ?>
 
+<hr/>
+<h2>Would you like to proceed with your submission anyway?</h2>
+
+<p>Any information not detected by the ETD system will need to be entered manually.</p>
+
+<form name="submission" method="post" enctype="multipart/form-data"
+    action="<?= $this->url(array("action" => "processpdf"))?>">
+
+  <?= $this->formHidden("force", "create"); ?> 
+  <p><b>Your PDF</b> <?= $this->formFile("pdf"); ?>
+<?= $this->formSubmit("Proceed", "Proceed >", array("class" => "button", "style" => "margin-left:10px",
+						"onClick" => "Element.show('processing')")); ?>
+
+<span id="processing" style="display:none">Processing ... <span class="note">(this may take a moment)</span></span>
+</p>
+</form>
+      
+
    
 <? if ($this->debug): ?>
   <pre>
    <?= htmlentities($this->xml) ?>
+     <? if (isset($this->file_xml)): ?><?= htmlentities($this->file_xml) ?><? endif ?>
   </pre>
 <? endif ?>
-
 
 
 
