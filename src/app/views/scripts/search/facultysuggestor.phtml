@@ -6,6 +6,8 @@
        <span class="value"><?= $member->lastname ?>, <?= $member->name ?> <?//= $member->firstname ?> <?//= $member->middlename ?></span>
     </li>
   <? endforeach ?>
+<? elseif ($this->esd_error) : ?>
+  <li>Error accessing Emory Shared Data; please try again later.</li>
 <? else : ?>
   <li>No matches</li>
 <? endif ?>

@@ -143,7 +143,11 @@ class SearchController extends Etd_Controller_Action {
 
     $p = new esdPersonObject();
 
-    $this->view->faculty = $p->match_faculty(stripslashes($name));
+    try {
+      $this->view->faculty = $p->match_faculty(stripslashes($name));
+    } catch (Exception $e) {
+      $this->view->esd_error = true;
+    }
     
     // disable layouts and view script rendering in order to set content-type header as xml
      $this->_helper->layout->disableLayout();
