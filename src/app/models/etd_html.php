@@ -97,10 +97,12 @@ class etd_html extends foxmlDatastreamAbstract {
   // clean up entities, convert named entities into numeric ones that fedora can handle
   public static function cleanEntities($string, $clean_whitespace = true) {
     // convert tags to a more easily matchable form, remove unneeded formatting
-    $string = str_replace("&amp;", "&", $string);
+    //    $string = str_replace("&amp;", "&", $string);
     
-    $search = array("&lt;", "&gt;", "&rsquo;", "&ldquo;", "&rdquo;", "&quot;", "&ndash;", "&mdash;", "&shy;");
-    $replace = array("<", ">", "'", '"', '"', '"', '-', '--','-',);
+    //    $search = array("&lt;", "&gt;", "&rsquo;", "&ldquo;", "&rdquo;", "&quot;", "&ndash;", "&mdash;", "&shy;");
+    //    $replace = array("<", ">", "'", '"', '"', '"', '-', '--','-',);
+    $search = array("&rsquo;", "&ldquo;", "&rdquo;", "&quot;", "&ndash;", "&mdash;", "&shy;");
+    $replace = array("'", '"', '"', '"', '-', '--','-',);
     $string = str_replace($search, $replace, $string);
 
     if ($clean_whitespace) {
@@ -193,6 +195,8 @@ class etd_html extends foxmlDatastreamAbstract {
     $nodetext = $node->nodeValue;
     // blank out current text so it can be replaced with the new nodes
     $node->nodeValue = "";
+
+    $nodetext = preg_replace("|&([^a-z#0-9;]*)|", "&amp;$1", $nodetext);
 
     // load the xml into a temporary DOM
     $tmpdoc = new DOMDocument();
