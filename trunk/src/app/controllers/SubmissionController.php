@@ -23,9 +23,20 @@ class SubmissionController extends Etd_Controller_Action {
   // then forwards to the view/master edit page
   public function processpdfAction() {
     if (!$this->_helper->access->allowedOnEtd("create")) return false;
+
+    // allow a way to create record even if there are errors -
+    // workaround for unrecognizable PDFs
+    $force_create = false;
+    if ($this->_getParam("force") == "create") $force_create = true;
     
     $etd_info = $this->_helper->processPDF($_FILES['pdf']);
 
+    // if force_create is set, use the filename as a title so that a record can be created
+    // with whatever information was found (may be none)
+    if ($etd_info['title'] == "" && $force_create) {
+      $etd_info['title'] = $etd_info['filename'];
+    }
+    
     // as long as title is not blank, create fedora object for user to edit
     if ($etd_info['title'] != "") {
       // create new etd record and save all the fields
@@ -113,7 +124,7 @@ class SubmissionController extends Etd_Controller_Action {
 	// generic persis error - most likely misconfigured, bad password
 	$message = "Could not create new record because of an error accessing Persistent Identifier Service";
       } catch (FedoraObjectNotValid $e) {
-	print $e->getMessage() . "<br/>\n";
+	if ($this->debug) print $e->getMessage() . "<br/>\n";
 	$this->view->errors[] = "Could not create record.";
 	$this->view->xml = $etd->saveXML();
 	return;
@@ -134,7 +145,7 @@ class SubmissionController extends Etd_Controller_Action {
 	
 	// could use fullname as agent id, but netid seems more useful
 	$etd->premis->addEvent("ingest", "Record created by " . $current_user->fullname, "success",
-			       array("netid", $identity));
+			       array("netid", $current_user->netid));
 	$etd->save("added ingest history event");
 
 	// only create the etdfile object if etd was successfully created
@@ -157,6 +168,11 @@ class SubmissionController extends Etd_Controller_Action {
 	} catch (PersisServiceException $e) {
 	  // generic persis error - most likely misconfigured, bad password
 	  $message = "Could not create file record because of an error accessing Persistent Identifier Service";
+	} catch (FedoraObjectNotValid $e) {
+	  if ($this->debug) print $e->getMessage() . "<br/>\n";
+	  $this->view->errors[] = "Could not save PDF to Fedora.";	// FIXME: better error message?
+	  if ($this->debug) $this->view->filexml = $etdfile->saveXML();
+	  // FIXME: should it bail out here? or let them continue? ... letting them continue for now
 	}
 
 	if ($error) {
