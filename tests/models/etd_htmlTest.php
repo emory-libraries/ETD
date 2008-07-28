@@ -131,6 +131,11 @@ class TestEtdHtml extends UnitTestCase {
     $this->etd_html->abstract = 'content with &amp; ampersand';
     $this->assertEqual('content with &amp; ampersand', $this->etd_html->abstract);
 
+
+    // superscripts and subscripts 
+    $this->etd_html->abstract = "some equation C<sub>s3</sub>K<sub>2</sub>";
+    $this->assertPattern("|C<sub>s3</sub>K<sub>2</sub>|", $this->etd_html->abstract);
+    
     // don't cause a fatal error if given bad xml...
     // FIXME: how to trigger an error that tidy won't clean up?
 
