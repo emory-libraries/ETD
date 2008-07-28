@@ -60,7 +60,12 @@ class SubmissionController extends Etd_Controller_Action {
       $esd = new esdPersonObject();
       // only look up advisor if a name was found
       if (isset($etd_info['advisor']) && $etd_info['advisor'] != '') {
-	if ($advisor = $esd->findFacultyByName($etd_info['advisor'])) {
+	try {
+	  $advisor = $esd->findFacultyByName($this->view->etd_info['advisor']);
+	} catch (Exception $e) {
+	  $this->ESDerror();
+	}
+	if ($advisor) {
 	  $etd->mods->setAdvisorFromPerson($advisor);
 	} else {
 	  $this->_helper->flashMessenger->addMessage("Couldn't find directory match for " .
@@ -71,7 +76,12 @@ class SubmissionController extends Etd_Controller_Action {
       $committee = array();
       foreach ($etd_info['committee'] as $cm) {
 	if ($cm == "") continue;	// skip if blank for some reason
-	if ($person = $esd->findFacultyByName($cm)) 
+	try {
+	  $person = $esd->findFacultyByName($cm);
+	} catch (Exception $e) {
+	  $this->ESDerror();
+	}
+	if ($person) 
 	  $committee[] = $person;
 	else 
 	  $this->_helper->flashMessenger->addMessage("Couldn't find directory match for "
@@ -192,7 +202,12 @@ class SubmissionController extends Etd_Controller_Action {
     $esd = new esdPersonObject();
     // only look up advisor if a name was found
     if (isset($etd_info['advisor']) && $etd_info['advisor'] != '') {
-      if ($advisor = $esd->findFacultyByName($this->view->etd_info['advisor']))
+      try {
+	$advisor = $esd->findFacultyByName($this->view->etd_info['advisor']);
+      } catch (Exception $e) {
+	$this->ESDerror();
+      }
+      if ($advisor)
 	$this->view->advisor = $advisor;
       else 
 	$this->_helper->flashMessenger->addMessage("Couldn't find directory match for " . $this->view->etd_info['advisor'] . "; please enter manually");
@@ -201,7 +216,12 @@ class SubmissionController extends Etd_Controller_Action {
     if (isset($this->view->etd_info['committee'])) {
       foreach ($this->view->etd_info['committee'] as $cm) {
 	if ($cm == "") continue;	// skip if blank for some reason
-	if ($committee = $esd->findFacultyByName($cm)) 
+	try {
+	  $committee = $esd->findFacultyByName($cm);
+	} catch (Exception $e) {
+	  $this->ESDerror();
+	}
+	if ($committee) 
 	  $this->view->committee[] = $committee;
 	else 
 	  $this->_helper->flashMessenger->addMessage("Couldn't find directory match for " . $cm . "; please enter manually");
@@ -265,6 +285,18 @@ class SubmissionController extends Etd_Controller_Action {
   // display success message with more information
   public function successAction() {
     $this->view->title = "Submission successful";
+  }
+
+
+  /**
+   * error accessing ESD - show an error and redirect to "service
+   * unavailable" page; called in processpdf and debugpdf actions if
+   * an exception is thrown when attempting to find faculty by name in ESD.
+   */
+  private function ESDerror() {
+    $this->_helper->flashMessenger->addMessage("Error: could not access Emory Shared Data");
+    // redirect to an error page
+    $this->_helper->redirector->gotoRouteAndExit(array("controller" => "error", "action" => "unavailable"));
   }
 
 }
