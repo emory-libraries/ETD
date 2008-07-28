@@ -2,7 +2,9 @@
 
 require_once("xml-utilities/XmlObject.class.php");
 
-
+/**
+ * xml object mapping for a collection defined with skos and rdf
+ */
 class collectionHierarchy extends XmlObject {
   protected $rdf_namespace = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
   protected $rdfs_namespace = "http://www.w3.org/2000/01/rdf-schema#";
