@@ -308,7 +308,6 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
    * @param DOMNode $node
    */
   public function find_title($node) {
-
     // tags for allowed/expected formatting in title
     $tags_to_keep = array("i", "b");
     // empty tags to be excluded from title
@@ -331,7 +330,9 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
 	continue;
 
       // marker for the end of the title - break out of the loop
-      } elseif (preg_match("|[Bb]y|", $subnode->textContent)) {
+      } elseif (preg_match("|(.*)[Bb]y|", $subnode->textContent, $matches)) {
+	// preserve any content before the "by", in case it is on same line as title
+	$this->fields['title'] .= $matches[1];
 	break;
 
       // default action: add the current node to the title
