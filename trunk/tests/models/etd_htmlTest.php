@@ -131,14 +131,20 @@ class TestEtdHtml extends UnitTestCase {
     $this->etd_html->abstract = 'content with &amp; ampersand';
     $this->assertEqual('content with &amp; ampersand', $this->etd_html->abstract);
 
+    // spaces getting added between superscripts and subscripts 
+    $this->etd_html->abstract = "Cs<sub>3</sub>K<sub>2</sub>Na<sub>4</sub>[Cs<sub>2</sub>K(H<sub>2</sub>O)";
+    $this->assertEqual("Cs<sub>3</sub>K<sub>2</sub>Na<sub>4</sub>[Cs<sub>2</sub>K(H<sub>2</sub>O)", $this->etd_html->abstract);
 
-    // superscripts and subscripts 
-    $this->etd_html->abstract = "some equation C<sub>s3</sub>K<sub>2</sub>";
-    $this->assertPattern("|C<sub>s3</sub>K<sub>2</sub>|", $this->etd_html->abstract);
-    
-    // don't cause a fatal error if given bad xml...
-    // FIXME: how to trigger an error that tidy won't clean up?
 
+    // < character as entity
+    $this->etd_html->abstract = "<p>1 &lt; 100</p>";
+    $this->assertPattern("|<p>1 &lt; 100</p>|", $this->etd_html->abstract);
+    // also fine unescaped
+    $this->etd_html->abstract = "<p>2 < 50</p>";
+    $this->assertPattern("|<p>2 &lt; 50</p>|", $this->etd_html->abstract);
+
+    // shouldn't cause a fatal error if given bad xml...
+    // FIXME: how to trigger an error that tidy can't clean up?
     
   }
 
