@@ -39,13 +39,9 @@ class etd_html extends foxmlDatastreamAbstract {
   public function __set($name, $value) {
     switch ($name) {
     case "title":	
-      /* don't wrap title in a paragraph tag (added by FCKeditor) */
-      // FIXME: is this fix still needed ? handle paragraphs with styles instead?
-      //      $value = preg_replace("|^\s*<p>\s*(.*)\s*</p>\s*$|", "$1", $value);
     case "abstract":
     case "contents":
-      parent::__set($name, etd_html::cleanEntities($value));
-      $this->map{$name} = etd_html::tags_to_nodes($this->map{$name});
+      $this->map{$name} = etd_html::tags_to_nodes($this->map{$name}, $value);
       $this->update();
       return $this->map{$name};
     default:
@@ -183,24 +179,37 @@ class etd_html extends foxmlDatastreamAbstract {
 
 
   /**
-    * convert text tags contained in node into proper xml nodes
-    * (so < & * > don't get escaped as characters)
-    
+    * convert text tags contained in node or value passed in
+    * into proper xml nodes (so < & * > don't get escaped as characters)
+    *
     * @param DOMNode $node
+    * @param string $value text to be converted (optional, overrides node text)
     * @return converted node
     */
-  public static function tags_to_nodes(DOMNode $node) {
+  public static function tags_to_nodes(DOMNode $node, $value = "") {
 
-    // save the text xml currently in the node (to be converted)
-    $nodetext = $node->nodeValue;
-    // blank out current text so it can be replaced with the new nodes
+    if ($value == "") {
+      // save the text xml currently in the node (to be converted)
+      $value = $node->nodeValue;
+    }
+    
+    // blank out current content so it can be replaced with the new nodes
     $node->nodeValue = "";
 
-    $nodetext = preg_replace("|&([^a-z#0-9;]*)|", "&amp;$1", $nodetext);
-
+    // clean html using tidy -- handles special characters, &, <, etc.
+    $value = etd_html::cleanEntities($value);
+    
     // load the xml into a temporary DOM
     $tmpdoc = new DOMDocument();
-    $tmpdoc->loadXML("<doc>" . $nodetext . "</doc>");
+    $loaded = $tmpdoc->loadXML("<doc>" . $value . "</doc>");
+    if ($loaded == false) {
+      trigger_error("Cannot parse xml", E_USER_ERROR);
+      // FIXME: how to set an error message here ?
+
+      // restore initial value so at least nothing is lost
+      $node->nodeValue = $value;
+      return;
+    }
 
     // append all nodes under top-level doc to the node being converted
     if ($tmpdoc->documentElement->hasChildNodes()) {
