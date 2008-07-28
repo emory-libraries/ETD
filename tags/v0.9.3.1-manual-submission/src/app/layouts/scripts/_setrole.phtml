@@ -1,0 +1,19 @@
+<?= $this->javascript("projax/js/scriptaculous.js"); ?>
+<? require_once("projax/projax.php");
+$projax = new Projax(); ?>
+
+ 		<form name="set_role" method="post" 
+		  action="<?= $this->url(array('controller' => 'auth', 'action' => 'setrole'), '', true) ?>">
+		Set role:
+		<? $role_opts = array("student" => "student", "admin" => "admin", "superuser" => "superuser",
+				      "coordinator:Chemistry" => "grad coord - Chem",
+				      "coordinator:English" => "grad coord - Eng",
+				      "coordinator:Graduate Institute of the Liberal Arts" => "grad coord - ILA",
+				      ); ?>
+		<?= $this->formSelect("role", $this->current_user->role, array("id" => "user_role"), $role_opts); ?>
+<script type="text/javascript">
+	<?= $projax->observe_field("user_role", array("url" => $this->url(array('controller' => 'auth', 'action' => 'setrole'), '', true), "with" => "role", "function" => "", "success" => "Element.show('setrole_success')")) ?>
+</script>
+		</form>
+		<span id="setrole_success" style="display:none">success</span>
+

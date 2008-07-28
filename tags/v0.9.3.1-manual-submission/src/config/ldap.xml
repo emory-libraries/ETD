@@ -1,0 +1,18 @@
+<ldap>
+  <development>
+   <server>	<!-- config has to be nested/grouped per server like this for Zend_Ldap_Auth_Adapter -->
+    <host>ldap-proxy.service.emory.edu</host>
+    <port>636</port>
+    <baseDn>dc=emory,dc=edu</baseDn>  
+    <username>uid=,ou=services,dc=eu,dc=emory,dc=edu</username>   
+    <password></password>
+    <accountCanonicalForm>2</accountCanonicalForm>
+    <bindRequiresDn>1</bindRequiresDn>  
+    <useSsl>1</useSsl>
+   </server>
+  </development>
+  <test extends="development">
+  </test>
+  <production extends="development">
+  </production>
+</ldap>

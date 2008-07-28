@@ -1,0 +1,72 @@
+<? /* Process PDF page - if processing succeeded, user should be
+    redirected to main record view to start editing.
+    Landing on this page means some kind of error occurred.   */ ?>
+<h1>Processing PDF</h1>
+    
+<p>There was an error processing your PDF.</p>
+
+<?= $this->render("submission/_processpdf_errs.phtml"); ?>
+
+<p>Suggestions for resolving this problem:</p>
+<ul>
+ <li>Check to make sure that your PDF is not an "image-only" document. 
+ The text of your PDF should be searchable in Adobe Reader.  If it is not, it
+ may be an image-only document.</li>
+ <li>Ensure that your document does not include images of signatures, your own 
+ nor those of your committee members.</li>
+ <li>The system cannot accept an encrypted PDF.</li>
+ <li><a href="<?= $this->url(array('controller' => 'docs', 'action' => 'faq')) ?>#technical">
+ All PDFs should be created using Adobe Acrobat Professional</a>. (Avoid trial versions!) We cannot 
+ guarantee that PDFs created with other tools will meet our requirements for
+ long-term preservation.</li>
+ <li>Check that all required pages are included in the correct order.  The correct 
+ ordered is detailed in the
+ <a href="<?= $this->url(array('controller' => 'docs', 'action' => 'instructions')) ?>">submission instructions</a>.</li>
+</ul>
+
+  </a>.</li>
+
+<? if (count($this->log)): ?>
+   <hr/>
+  <p>More details:</p>
+  <ul>
+  <? foreach ($this->log as $msg): ?>
+    <li><?= $msg ?></li>
+  <? endforeach ?>
+  </ul>
+<? endif ?>
+
+<? /*** Submission workaround: allow user to create record even if the
+   system cannot recognize the PDF or pull any information from it. */  ?>
+<h2>How to Proceed with Your Submission</h2>
+<p>The submission system is designed to extract data from your PDF, but the system
+is having trouble with your record.  At this point you have two choices:</p> 
+<p>(1) You may choose to recreate your PDF so that the system can read it using
+the suggestions above, and begin the process again; or </p> 
+<p> (2) You may choose to proceed without the system extracting the data from 
+your PDF.  This will require that you enter any information not detected by the 
+ETD system manually. To proceed with the manual process, upload your file below.  </p>
+
+<form name="submission" method="post" enctype="multipart/form-data"
+    action="<?= $this->url(array("action" => "processpdf"))?>">
+
+  <?= $this->formHidden("force", "create"); ?> 
+  <p><b>Your PDF</b> <?= $this->formFile("pdf"); ?>
+<?= $this->formSubmit("Proceed", "Proceed >", array("class" => "button", "style" => "margin-left:10px",
+						"onClick" => "Element.show('processing')")); ?>
+
+<span id="processing" style="display:none">Processing ... <span class="note">(this may take a moment)</span></span>
+</p>
+</form>
+      
+
+   
+<? if ($this->debug): ?>
+  <pre>
+   <?= htmlentities($this->xml) ?>
+     <? if (isset($this->file_xml)): ?><?= htmlentities($this->file_xml) ?><? endif ?>
+  </pre>
+<? endif ?>
+
+
+
