@@ -125,6 +125,14 @@ class TestEtdHtml extends UnitTestCase {
     $this->etd_html->contents = "<p style='margin-left:40px;'>indented paragraph</p><p>second paragraph</p>";
     $this->assertPattern("|<p style=['\"]margin-left:40px;['\"]>indented paragraph</p>|", $this->etd_html->contents); 
 
+    // ampersands causing problems - try both escaped and unescaped
+    $this->etd_html->abstract = 'content with & ampersand';
+    $this->assertEqual('content with &amp; ampersand', $this->etd_html->abstract);
+    $this->etd_html->abstract = 'content with &amp; ampersand';
+    $this->assertEqual('content with &amp; ampersand', $this->etd_html->abstract);
+
+    // don't cause a fatal error if given bad xml...
+    // FIXME: how to trigger an error that tidy won't clean up?
 
     
   }
