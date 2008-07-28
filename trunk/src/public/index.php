@@ -36,14 +36,19 @@ Zend_Registry::set('fedora-config',
 try {
   // if there is a logged in user, use their account to connect to Fedora
   $auth = Zend_Auth::getInstance();
-  if ($auth->hasIdentity()) {
-    $current_user = $auth->getIdentity();
-    $fedora = new FedoraConnection($current_user->netid,
-				   $current_user->getPassword(),
-				   $fedora_cfg->server, $fedora_cfg->port,
-				   $fedora_cfg->protocol, $fedora_cfg->resourceindex);
-    
+  if ($auth->hasIdentity() &&
+      /* In some rare cases, Ldap/ESD fails and user is logged in but
+         $current_user is not the right kind of object, which means
+         access to Fedora will *not* work. If that happens, log them out.  */
+      ($current_user = $auth->getIdentity()) instanceof esdPerson) {
+      $fedora = new FedoraConnection($current_user->netid,
+				     $current_user->getPassword(),
+				     $fedora_cfg->server, $fedora_cfg->port,
+				     $fedora_cfg->protocol, $fedora_cfg->resourceindex);
+      
   } else {
+    // clear identity in case user is partially logged in
+    $auth->clearIdentity();
     $fedora = new FedoraConnection($fedora_cfg->user, $fedora_cfg->password,
 				   $fedora_cfg->server, $fedora_cfg->port,
 				   $fedora_cfg->protocol, $fedora_cfg->resourceindex);
