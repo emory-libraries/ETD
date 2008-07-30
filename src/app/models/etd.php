@@ -95,6 +95,10 @@ class etd extends foxml implements etdInterface {
    */
   public function getUserRole(esdPerson $user = null) {
     if (is_null($user)) return "guest";
+
+    // superuser should supercede all other roles
+    if ($user->role == "superuser") return $user->role;
+    
     if ($user->netid == $this->rels_ext->author)
       return "author";
     elseif ($this->rels_ext->committee instanceof DOMElementArray
