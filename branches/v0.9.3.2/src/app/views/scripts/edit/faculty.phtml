@@ -1,0 +1,128 @@
+<?= $this->javascript("projax/js/prototype.js"); ?>
+<?= $this->javascript("projax/js/scriptaculous.js"); ?>
+
+<? //php ajax/scriptaculous
+include("projax/projax.php");
+$projax = new Projax();
+
+$ajaxopts = array("url" => $this->url(array("controller" => "search", "action" => "facultysuggestor"), "", true),
+		  "indicator" => "adv-loading", "value" => "id", "select" => "value",
+		  "after_update_element" => "setAdvisor",
+		  );
+$inputopts = array("size" => "55", "autocomplete" => "off", "id" => "advisor_autocomplete");
+?>
+
+<script language="Javascript" type="text/javascript">
+  function setAdvisor(text, li) {
+  /* create a hidden input with faculty's netid, and display name */
+      new Insertion.Bottom('advisor_list', '<p id="'+li.id+'"><input type="hidden" name="advisor" value="' + li.id + '"/>' + text.value + '<a class="remove" href="#" onClick="javascript:removeAdvisor(\''+li.id+'\')">remove</a></p>');
+      // blank out suggestor and hide it -- only one advisor
+      text.value = '';
+      Element.hide("advisor_autocomplete");
+  }
+  function addFaculty(text, li) {
+    /* create a hidden input with faculty's netid, and display name */
+    new Insertion.Bottom('faculty_list', '<li id="' + li.id +'"><input type="hidden" name="committee[]" value="' + li.id + '"/>' + text.value + '<a class="remove" href="#" onClick="Element.remove(\''+li.id+'\')">remove</a></li>');
+
+    // make the faculty list sortable (needs to be updated when new fields are added)
+    Sortable.create("faculty_list");
+    text.value = '';	// blank out suggestor for more entries
+  }
+ function removeAdvisor(id) { Element.remove(id); Element.show("advisor_autocomplete"); }
+
+function addNonemory() {
+  nonemory_count++;	// unique id for remove link
+  new Insertion.Bottom('nonemory_list', "<tr id='nonemory_" + nonemory_count + "'>\n" +
+    "\t<td><input type='text' name='nonemory_firstname[]'></td>\n" +
+    "\t<td><input type='text' name='nonemory_lastname[]' ></td>\n" +
+    "\t<td><input type='text' name='nonemory_affiliation[]' ></td>\n" +
+    "\t<td><a href='#' onClick=\"Element.remove('nonemory_" + nonemory_count + "')\">remove</a>\n" + 
+    "</tr>");
+}
+</script>
+
+
+<h1>Edit Advisor &amp; Committee Members</h1>
+<p><b><?= $this->etd->title() ?></b></p>
+
+
+<p>Your PDF submission indicates that the following faculty members
+comprise your advisor and committee.  If any of the selections are
+incorrect, click on remove and reenter the name in the box provided.
+The name should appear from the suggestor, but if you cannot find the
+correct name on the list, enter the name in Non-Emory Committee
+Members below.  You may rearrange the order of your committee by
+clicking on and dragging the names.</p>
+<p> Enter last name of faculty member(s) below and <b>wait a moment</b> while the system retrieves names.</p>
+
+<div id="edit_faculty">
+<? $advisor = $this->etd->mods->advisor; ?>
+<? $committeeMembers = $this->etd->mods->committee; ?>
+
+<form method="post" id="fields_form"  action="<?= $this->url(array("action" => "savefaculty"))?>">
+   <div id="advisor_list"><h2>Advisor</h2>
+     <? if ($advisor->id) : ?>
+       <p id="<?= $advisor->id ?>"><input type="hidden" name="advisor" value="<?= $advisor->id ?>"/>
+	  <?= $advisor->full ?>
+	  <a class="remove" href="#" onClick="javascript:removeAdvisor('<?= $advisor->id ?>')">remove</a>
+       </p>
+     <? endif ?>
+   </div>
+	  <div id="advisor_autocomplete" <? if ($advisor->id): ?> style="display:none" <? endif ?> >
+      <?=  $projax->text_field_with_auto_complete('adv', $inputopts, $ajaxopts); ?>
+	<span id="adv-loading" style="display:none;">Searching...</span>
+    </div>
+    <hr/>
+   <h2>Committee Members</h2>
+   <ul id="faculty_list">
+     <? foreach ($committeeMembers as $committee): ?>
+	<? if ($committee->id) : ?>
+	   <li id="<?= $committee->id ?>">
+	      <input type="hidden" name="committee[]" value="<?= $committee->id ?>"/>
+	      <?= $committee->full ?>
+	      <a class="remove" href="#" onClick="Element.remove('<?= $committee->id ?>')">remove</a>
+	<? endif ?>
+     <? endforeach ?>	
+   </ul>
+
+  <? if (count($committeeMembers) > 1): ?>
+      <?= $projax->sortable_element("faculty_list", array("url" => null)); ?>     
+  <? endif ?>	      
+ 
+<? $ajaxopts["after_update_element"] = "addFaculty"; $ajaxopts["indicator"] = "cm-loading"; ?>
+<?= $projax->text_field_with_auto_complete('faculty', $inputopts, $ajaxopts); ?>
+     <span id="cm-loading" style="display:none;">Searching...</span>
+
+ <hr/>
+ <h2>Non-Emory Committee Members</h2>
+<table>
+<tbody id="nonemory_list">						       
+     <? $ne_count = 0; ?>
+     <tr><th>Last name</th> <th>First name</th> <th>Affiliation</th></tr>
+     <? foreach ($this->etd->mods->nonemory_committee as $ne) : ?>
+       <tr id="nonemory_<?= ++$ne_count; ?>">
+     <td><?= $this->formText("nonemory_lastname[]", $ne->last); ?></td>
+     <td><?= $this->formText("nonemory_firstname[]", $ne->first); ?></td>
+     <td><?= $this->formText("nonemory_affiliation[]", $ne->affiliation); ?></td>
+     <td><a href="#" onClick="Element.remove('nonemory_<?= $ne_count ?>')">remove</a>
+       </tr>
+     <? endforeach ?>
+   <tr id="nonemory_<?= ++$ne_count; ?>">
+     <td><?= $this->formText("nonemory_lastname[]"); ?></td>
+     <td><?= $this->formText("nonemory_firstname[]"); ?></td>
+     <td><?= $this->formText("nonemory_affiliation[]"); ?></td>
+     <td><a href="#" onClick="Element.remove('nonemory_<?= $ne_count ?>')">remove</a>
+   </tr>
+ <tbody>						       
+</table>
+<? /* pass the count to the javascript so inserted nodes can have unique ids for removal */ ?>
+<script type="text/javascript">var nonemory_count = <?= $ne_count ?>; </script>		       
+<a href="#" onClick="javascript:addNonemory()">add another</a>
+     
+<p><input class="button" type="submit" value="save"/></p>
+</form>
+
+						       
+</div>
+
+
