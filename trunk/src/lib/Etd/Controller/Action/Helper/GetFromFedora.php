@@ -46,6 +46,11 @@ class Etd_Controller_Action_Helper_GetFromFedora extends Zend_Controller_Action_
       $message = "Error: access denied to $id";
       if ($this->_actionController->view->env != "production")
 	$message .= " (message from Fedora: <b>" . $e->getMessage() . "</b>)";
+    } catch (FedoraNotAuthorized $e) {
+      $denied = true;
+      $message = "Error: not authorized to view $id";
+      if ($this->_actionController->view->env != "production")
+	$message .= " (message from Fedora: <b>" . $e->getMessage() . "</b>)";
     } catch (FoxmlException $e) {
       // another access denied, but at a different level ...
       $denied = true;
