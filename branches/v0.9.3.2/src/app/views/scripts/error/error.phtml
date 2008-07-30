@@ -1,7 +1,0 @@
-<p><b>Error: <?= $this->error ?></b></p>
-
-<? if ($this->env == "development"): ?>
-<?= $this->exception->getMessage() ?><br/>
-Line <b><?= $this->exception->getLine() ?></b> in <b><?= $this->exception->getFile() ?></b><br/>
-<?= $this->exception->getTraceAsString() ?>
-<? endif ?>
