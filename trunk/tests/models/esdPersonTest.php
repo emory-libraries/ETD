@@ -82,7 +82,7 @@ class TestEsdPerson extends UnitTestCase {
 
   function testProgramCoordinator(){
     $user = new esdPerson();
-    $user->grad_coord = "English";
+    $user->program_coord = "English";
     $this->assertTrue($user->isCoordinator("English"));
     $this->assertFalse($user->isCoordinator("Chemistry"));
   }
