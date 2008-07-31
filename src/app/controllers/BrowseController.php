@@ -24,16 +24,16 @@ class BrowseController extends Etd_Controller_Action {
     $this->view->browse_mode = "committee";
   }
 
-  /* browse by advisor */
+  /* browse by committee chair */
   /* (not actually public, but might be nice to have available...) */
-  public function advisorAction() {
+  public function chairAction() {
     $request = $this->getRequest();
-    $request->setParam("nametype", "advisor");
+    $request->setParam("nametype", "chair");
     $this->_forward("name");
-    $this->view->browse_mode = "advisor";
+    $this->view->browse_mode = "chair";
   }
 
-  /* handle common functionality for "name" fields (author, committee, advisor) */
+  /* handle common functionality for "name" fields (author, committee, chair) */
   public function nameAction() {
     $request = $this->getRequest();
     $type = $request->getParam("nametype");
@@ -384,7 +384,7 @@ class BrowseController extends Etd_Controller_Action {
 
   private function getFilterOptions() {
     $opts = array();
-    foreach (array("status", "advisor", "year", "program", "subject", "author", "keyword") as $filter) {
+    foreach (array("status", "chair", "year", "program", "subject", "author", "keyword") as $filter) {
       if ($this->_hasParam($filter))
 	$opts[$filter] = $this->_getParam($filter);
     }

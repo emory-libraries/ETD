@@ -58,7 +58,7 @@ class EditController extends Etd_Controller_Action {
   public function facultyAction() {
     $etd = $this->_helper->getFromFedora("pid", "etd");
     if (!$this->_helper->access->allowedOnEtd("edit metadata", $etd)) return;
-    $this->view->title = "Edit Advisor & Committee Members";
+    $this->view->title = "Edit Committee Chair(s) & Members";
     $this->view->etd = $etd;
   }
 
@@ -69,12 +69,12 @@ class EditController extends Etd_Controller_Action {
     
     $this->view->etd = $etd;
     
-    $advisor_id = $this->_getParam("advisor");
+    $chair_ids = $this->_getParam("chair");	       
     $committee_ids = $this->_getParam("committee");		// array
     $this->view->committee_ids = $committee_ids;
 
     // set fields
-    $etd->mods->setAdvisor($advisor_id);
+    $etd->mods->setCommittee($chair_ids, "chair");
     $etd->mods->setCommittee($committee_ids);
 
     // handle non-emory committee members as well
@@ -88,14 +88,14 @@ class EditController extends Etd_Controller_Action {
     }
     
     if ($etd->mods->hasChanged()) {
-      $save_result = $etd->save("updated advisor & committee members");
+      $save_result = $etd->save("updated committe chair(s) & members");
       $this->view->save_result = $save_result;
       if ($save_result) 
-	$this->_helper->flashMessenger->addMessage("Saved changes to advisor & committee");
+	$this->_helper->flashMessenger->addMessage("Saved changes to committee chairs & members");
       else
-      $this->_helper->flashMessenger->addMessage("Could not save changes to advisor & committee (permission denied?)");
+      $this->_helper->flashMessenger->addMessage("Could not save changes to committee chair(s) & members (permission denied?)");
     } else {
-      $this->_helper->flashMessenger->addMessage("No changes made to advisor & committee");
+      $this->_helper->flashMessenger->addMessage("No changes made to committee chair(s) & members");
     }
 
 

@@ -77,7 +77,7 @@ class SubmissionController extends Etd_Controller_Action {
 	  $this->ESDerror();
 	}
 	if ($advisor) {
-	  $etd->mods->setAdvisorFromPerson($advisor);
+	  $etd->mods->setCommitteeFromPersons(array($advisor), "chair");
 	} else {
 	  $this->_helper->flashMessenger->addMessage("Couldn't find directory match for " .
 						     $this->view->etd_info['advisor'] . "; please enter manually");
