@@ -18,10 +18,10 @@ class etd_mods extends mods {
 				       "class_name" => "mods_name");
     $this->xmlconfig["department"] = array("xpath" => "mods:name[mods:role/mods:roleTerm = 'author']/mods:affiliation");
     $this->xmlconfig["subfield"] = array("xpath" => "mods:extension/etd:degree/etd:discipline");
-    
-    $this->xmlconfig["advisor"] = array("xpath" => "mods:name[mods:role/mods:roleTerm = 'Thesis Advisor']",
-					"class_name" => "mods_name");
-    // can't seem to filter out empty committee members added by Fez...
+
+    // committee chair - may be more than one
+    $this->xmlconfig["chair"] = array("xpath" => "mods:name[mods:role/mods:roleTerm = 'Thesis Advisor']",
+				      "class_name" => "mods_name", "is_series" => true);
     $this->xmlconfig["committee"] = array("xpath" => "mods:name[mods:description = 'Emory Committee Member']",
 					  "class_name" => "mods_name", "is_series" => "true");
     $this->xmlconfig["nonemory_committee"] = array("xpath" =>
@@ -146,7 +146,7 @@ class etd_mods extends mods {
     $name->first = $firstname;
     $name->last = $lastname;
     $name->full = "$lastname, $firstname";
-    if (!$emory && !is_null($affiliation)) {
+    if (isset($name->affiliation) && !is_null($affiliation)) {
       $name->affiliation = $affiliation;
     }
 	  
@@ -156,15 +156,15 @@ class etd_mods extends mods {
     // if a context node was found, insert the new node before it
     if ($nodeList->length) {
       $contextnode = $nodeList->item(0);
-    } elseif ($emory) {		// currently no emory committee members in xml - insert after advisor
-      $contextnode = $this->map["advisor"]->domnode;
-    } elseif (!$emory) {
+    } elseif ($type == "committee") {		// currently no emory committee members in xml - insert after advisor
+      $contextnode = $this->map["chair"][count($this->chair) - 1]->domnode;
+    } elseif ($type == "nonemory_committee") {
       // if adding a non-emory committee member and there are none in the xml,
       // then add after last emory committee member
-      if (isset($this->map['committee']))
+      if (isset($this->map['committee']) && count($this->committee))
 	$contextnode = $this->map['committee'][count($this->committee) - 1]->domnode;
       else
-	$contextnode = $this->map["advisor"]->domnode;
+	$contextnode = $this->map["chair"][count($this->chair) - 1]->domnode;
     } else {
       // this shouldn't happen unless there is something wrong with the xml.... 
       trigger_error("Couldn't find context node to insert new committee member", E_USER_NOTICE);
@@ -194,67 +194,56 @@ class etd_mods extends mods {
   }
 
   /**
-   * set advisor fields
+   * set committee names from an array of esdPerson objects
+   * @param array $people
+   * @param string $type defaults to committee (member); can also be chair
    */
-  public function setAdvisor($id) {
-    if ($this->advisor->id == $id)   // if id is unchanged, don't lookup/reset
-      return;
-    $esd = new esdPersonObject();
-    if ($person = $esd->findByUsername($id))
-      $this->setAdvisorFromPerson($person);
-    else
-	trigger_error("Could not find person information for '$id' in Emory Shared Data", E_USER_WARNING);
-      
-  }
-
-  public function setAdvisorFromPerson(esdPerson $person) {
-    if (isset($this->advisor))
-      $this->setNameFromPerson($this->advisor, $person);
-    else
-      trigger_error("Advisor is not set!", E_USER_WARNING);
-  }
-  
-  public function setCommitteeFromPersons(array $people) {
+  public function setCommitteeFromPersons(array $people, $type = "committee") {
     $needUpdate = false;
     $i = 0;	// index for looping over committee array
     foreach ($people as $person) {
-      if (isset($this->map["committee"][$i])) {
-	$this->setNameFromPerson($this->map["committee"][$i], $person);
+      if (isset($this->map[$type][$i])) {
+	$this->setNameFromPerson($this->map[$type][$i], $person);
       } else {
-	$this->addCommitteeMember($person->lastname, $person->name);
+	$this->addCommittee($person->lastname, $person->name);
 	// FIXME: need a better way store netid... - should be part of addCommittee function ?
-	$this->committee[$i]->id = $person->netid;
+	$this->{$type}[$i]->id = $person->netid;
 	$needUpdate = true;	// DOM has changed - new nodes
       }
       $i++;
     }
 
     // remove any committee members beyond this set of new ones
-    while (isset($this->committee[$i]) ) {
-      $this->removeCommitteeMember($this->committee[$i]->id);
+    while (isset($this->{$type}[$i]) ) {
+      $this->removeCommittee($this->{$type}[$i]->id);
       $needUpdate = true;	// DOM has changed - removed nodes
     }
 
     if ($needUpdate) $this->update();
   }
-  
-  public function setCommittee(array $netids) {
+
+  /**
+   * set committee names from an array of netids
+   * @param array $netids
+   * @param string $type defaults to committee (member); can also be chair
+   */
+  public function setCommittee(array $netids, $type = "committee") {
     $esd = new esdPersonObject();
     $i = 0;	// index for looping over committee array
     
     foreach ($netids as $id) {  // if id is unchanged, don't lookup/reset
-      if (isset($this->map["committee"][$i]) && $this->committee[$i]->id == $id) {
+      if (isset($this->map[$type][$i]) && $this->committee[$i]->id == $id) {
 	$i++;
 	continue;
       }
       $person = $esd->findByUsername($id);
       if ($person) {
-	if (isset($this->map["committee"][$i])) {
-	  $this->setNameFromPerson($this->committee[$i], $person);
+	if (isset($this->map[$type][$i])) {
+	  $this->setNameFromPerson($this->{$type}[$i], $person);
 	} else {
-	  $this->addCommitteeMember($person->lastname, $person->name);
+	  $this->addCommittee($person->lastname, $person->name, $type);
 	  // FIXME: need a better way store netid... - should be part of addCommittee function ?
-	  $this->committee[$i]->id = $id;
+	  $this->{$type}[$i]->id = $id;
 	}
       } else {
 	// shouldn't come here, since ids should be selected by drop-down populated from ESD...
@@ -263,23 +252,26 @@ class etd_mods extends mods {
       $i++;
     }
 
-
     // remove any committee members beyond this set of new ones
-    while (isset($this->committee[$i]) && $this->committee[$i]->id  != "") {
-      $this->removeCommitteeMember($this->committee[$i]->id);
+    while (isset($this->{$type}[$i]) && $this->{$type}[$i]->id  != "") {
+      $this->removeCommittee($this->{$type}[$i]->id);
     }
     $this->update();
   }
 
-  /* remove a committee member by id */
-  public function removeCommitteeMember($id) {
+  /**
+   * remove a committee member or chair person by id
+   * @param string $id netid
+   */
+  public function removeCommittee($id) {
     if ($id == "") {
-      throw new XmlObjectException("Can't remove committee member with non-existent id");
+      throw new XmlObjectException("Can't remove committee member/chair with non-existent id");
       return;	// don't remove empty nodes (should be part of template)
     }
     
     // remove the node from the xml dom
-    $nodelist = $this->xpath->query("//mods:name[@ID = '$id'][mods:role/mods:roleTerm = 'Committee Member']");
+    $nodelist = $this->xpath->query("//mods:name[@ID = '$id'][mods:role/mods:roleTerm = 'Committee Member'
+	or mods:role/mods:roleTerm = 'Thesis Advisor']");
     for ($i = 0; $i < $nodelist->length; $i++) {
       $node = $nodelist->item($i);      
       $node->parentNode->removeChild($node);
@@ -392,10 +384,10 @@ class etd_mods extends mods {
 
     // note - key is display of what is missing, value is edit action (where should this logic be?)
     
-    // must have a valid advisor - should have an emory id
-    if ($this->advisor->id == "") $missing["advisor"] = "faculty";
+    // must have at elast one valid chair - should have an emory id
+    if ($this->chair[0]->id == "") $missing["chair"] = "faculty";
 
-    // at least one committee member (valid faculty, same as advisor test)
+    // at least one committee member (valid faculty, same as chair test)
     if ($this->committee[0]->id == "") $missing["committee members"] = "faculty";
 
     // at least one research field (filled out, not blank)

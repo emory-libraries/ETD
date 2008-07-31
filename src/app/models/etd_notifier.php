@@ -43,22 +43,15 @@ class etd_notifier extends notifier {
 	$this->to[$etd->authorInfo->mads->current->email] = $name;
       $this->to[$etd->authorInfo->mads->permanent->email] = $name;
     }
-    // advisor & committee  - look up in ESD
+    // committee chair & members  - look up in ESD
     $esd = new esdPersonObject();
 
-    // advisor
-    $person = $esd->findByUsername($etd->mods->advisor->id);
-    if ($person)
-      $this->cc[$person->email] = $person->fullname;
-    else
-    	trigger_error("Advisor (" . $etd->mods->advisor->id . ") not found in ESD", E_USER_NOTICE);
-    // committee members
-    foreach ($etd->mods->committee as $cm) {
-      $person = $esd->findByUsername($cm->id);
+    foreach (array_merge($etd->mods->advisor, $etd->mods->committee) as $committee) {
+      $person = $esd->findByUsername($committee->id);
       if ($person)
 	$this->cc[$person->email] = $person->fullname;
       else
-	trigger_error("Committee member (" . $cm->id . ") not found in ESD", E_USER_NOTICE);
+	trigger_error("Committee member/chair (" . $committee->id . ") not found in ESD", E_USER_NOTICE);
     }
 
     // store in the view for debugging output when in development mode
