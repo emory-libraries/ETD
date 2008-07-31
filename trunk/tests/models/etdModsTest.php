@@ -176,7 +176,13 @@ class TestEtdMods extends UnitTestCase {
     $this->assertEqual("jfenton", $this->mods->committee[1]->id);
     $this->assertEqual("Fenton", $this->mods->committee[1]->last);
   }
-  
+
+  // testing adding a second chair
+  function testCoChairs() {
+    $this->mods->addCommittee("Harrison", "George", "chair");
+    $this->assertEqual(2, count($this->mods->chair));
+    $this->assertEqual("Harrison", $this->mods->chair[1]->last);
+  }
 
 }
 
