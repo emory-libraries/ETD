@@ -13,7 +13,7 @@ class ManageController extends Etd_Controller_Action {
      $this->_forward("summary");
 
      // for department admin, list records by department
-     // for faculty, list records where they are advisor/on committee
+     // for faculty, list records where they are on the committee as chair or member
    }
 
    public function summaryAction() {
