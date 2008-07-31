@@ -23,14 +23,17 @@
  <? if ($doctype = $this->etd->document_type()): ?><b><?= $doctype ?></b><? endif ?>
  <? if ($num_pages = $this->etd->num_pages()): ?>(<?= $num_pages ?> pages)<? endif ?>
    <br/>
-<b>Advisor:</b>
- <? if ($published): ?>
-  <a href="<?= $this->url(array('controller' => 'browse', 'action' => 'committee',
-	'value' => urlencode($this->etd->advisor())), '', true)?>"><?= $this->etd->advisor() ?></a>
- <? else: ?>   <?= $this->etd->advisor() ?> <? endif ?>     
+<b>Committee Chair<? if (count($this->etd->chair()) > 1): ?>s<? endif ?>:</b>
+ <? foreach ($this->etd->chair() as $chair): ?>
+   <? $last = ($chair == $chair[count($chair)-1]); ?>
+   <? if ($published): ?>
+     <a href="<?= $this->url(array('controller' => 'browse', 'action' => 'committee',
+	'value' => urlencode($chair)), '', true)?>"><?= $chair ?></a><? if (!$last):?>; <? endif ?>
+   <? else: ?>   <?= $chair ?><? if (!$last):?>; <? endif ?> <? endif ?>
+ <? endforeach ?>	
 <br/>
      
-<b>Committee members:</b> <? $committee = $this->etd->committee(); ?>
+<b>Committee Members:</b> <? $committee = $this->etd->committee(); ?>
     <? foreach ($committee as $cm): ?>
         <? if ($published): ?>
 	 <a href="<?= $this->url(array('controller' => 'browse', 'action' => 'committee','value' => urlencode($cm)),

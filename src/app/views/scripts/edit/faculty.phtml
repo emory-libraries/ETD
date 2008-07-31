@@ -6,19 +6,17 @@ include("projax/projax.php");
 $projax = new Projax();
 
 $ajaxopts = array("url" => $this->url(array("controller" => "search", "action" => "facultysuggestor"), "", true),
-		  "indicator" => "adv-loading", "value" => "id", "select" => "value",
-		  "after_update_element" => "setAdvisor",
+		  "indicator" => "chair-loading", "value" => "id", "select" => "value",
+		  "after_update_element" => "setChair",
 		  );
-$inputopts = array("size" => "55", "autocomplete" => "off", "id" => "advisor_autocomplete");
+$inputopts = array("size" => "55", "autocomplete" => "off", "id" => "chair_autocomplete");
 ?>
 
 <script language="Javascript" type="text/javascript">
-  function setAdvisor(text, li) {
+  function setChair(text, li) {
   /* create a hidden input with faculty's netid, and display name */
-      new Insertion.Bottom('advisor_list', '<p id="'+li.id+'"><input type="hidden" name="advisor" value="' + li.id + '"/>' + text.value + '<a class="remove" href="#" onClick="javascript:removeAdvisor(\''+li.id+'\')">remove</a></p>');
-      // blank out suggestor and hide it -- only one advisor
-      text.value = '';
-      Element.hide("advisor_autocomplete");
+      new Insertion.Bottom('chair_list', '<li id="'+li.id+'"><input type="hidden" name="chair[]" value="' + li.id + '"/>' + text.value + '<a class="remove" href="#" onClick="javascript:removeChair(\''+li.id+'\')">remove</a></li>');
+      text.value = '';   // blank out suggestor for more entries
   }
   function addFaculty(text, li) {
     /* create a hidden input with faculty's netid, and display name */
@@ -28,7 +26,7 @@ $inputopts = array("size" => "55", "autocomplete" => "off", "id" => "advisor_aut
     Sortable.create("faculty_list");
     text.value = '';	// blank out suggestor for more entries
   }
- function removeAdvisor(id) { Element.remove(id); Element.show("advisor_autocomplete"); }
+ function removeChair(id) { Element.remove(id); Element.show("chair_autocomplete"); }
 
 function addNonemory() {
   nonemory_count++;	// unique id for remove link
@@ -42,12 +40,12 @@ function addNonemory() {
 </script>
 
 
-<h1>Edit Advisor &amp; Committee Members</h1>
+<h1>Edit Committee Chair(s) &amp; Members</h1>
 <p><b><?= $this->etd->title() ?></b></p>
 
 
 <p>Your PDF submission indicates that the following faculty members
-comprise your advisor and committee.  If any of the selections are
+comprise your committee chair(s) and members.  If any of the selections are
 incorrect, click on remove and reenter the name in the box provided.
 The name should appear from the suggestor, but if you cannot find the
 correct name on the list, enter the name in Non-Emory Committee
@@ -56,21 +54,24 @@ clicking on and dragging the names.</p>
 <p> Enter last name of faculty member(s) below and <b>wait a moment</b> while the system retrieves names.</p>
 
 <div id="edit_faculty">
-<? $advisor = $this->etd->mods->advisor; ?>
+<? $chairs = $this->etd->mods->chair; ?>
 <? $committeeMembers = $this->etd->mods->committee; ?>
 
 <form method="post" id="fields_form"  action="<?= $this->url(array("action" => "savefaculty"))?>">
-   <div id="advisor_list"><h2>Advisor</h2>
-     <? if ($advisor->id) : ?>
-       <p id="<?= $advisor->id ?>"><input type="hidden" name="advisor" value="<?= $advisor->id ?>"/>
-	  <?= $advisor->full ?>
-	  <a class="remove" href="#" onClick="javascript:removeAdvisor('<?= $advisor->id ?>')">remove</a>
-       </p>
+  <h2>Committee Chair(s)</h2>
+  <ul id="chair_list">
+    <? foreach ($chairs as $chair): ?>
+     <? if ($chair->id) : ?>
+       <li id="<?= $chair->id ?>"><input type="hidden" name="chair[]" value="<?= $chair->id ?>"/>
+	  <?= $chair->full ?>
+	  <a class="remove" href="#" onClick="javascript:removeChair('<?= $chair->id ?>')">remove</a>
+       </li>
      <? endif ?>
-   </div>
-	  <div id="advisor_autocomplete" <? if ($advisor->id): ?> style="display:none" <? endif ?> >
-      <?=  $projax->text_field_with_auto_complete('adv', $inputopts, $ajaxopts); ?>
-	<span id="adv-loading" style="display:none;">Searching...</span>
+     <? endforeach ?>
+   </ul>
+	  <div id="chair_autocomplete">
+      <?=  $projax->text_field_with_auto_complete('advisor', $inputopts, $ajaxopts); ?>
+	<span id="chair-loading" style="display:none;">Searching...</span>
     </div>
     <hr/>
    <h2>Committee Members</h2>

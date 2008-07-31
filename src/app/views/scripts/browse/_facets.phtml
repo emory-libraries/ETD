@@ -20,8 +20,8 @@
    
    <b>Filter your results:</b>
    
-	    <? foreach (array("status", "advisor", "year", "subject", "committee", "program", "author", "keyword") as $facet): ?>
-     <? if ($this->browse_mode == "committee" && $facet == "advisor") continue; ?>
+	    <? foreach (array("status", "chair", "year", "subject", "committee", "program", "author", "keyword") as $facet): ?>
+     <? if ($this->browse_mode == "committee" && $facet == "chair") continue; ?>
      <? if (isset($this->facets->$facet) && count($this->facets->$facet)
 	    && !isset($this->filters[$facet]) && $this->browse_mode != $facet): ?>
    <p class="label"><?= ucfirst($facet) ?></p>
