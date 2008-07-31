@@ -25,6 +25,8 @@ Zend_Registry::set('config', $config);
 
 Zend_Registry::set('debug', (boolean)$env_config->debug);
 
+Zend_Registry::set('ldap-config',
+	  new Zend_Config_Xml("../config/ldap.xml", $env_config->mode));
 Zend_Registry::set('proquest-config',
 	  new Zend_Config_Xml("../config/proquest.xml", $env_config->mode));
 
