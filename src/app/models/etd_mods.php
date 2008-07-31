@@ -151,7 +151,12 @@ class etd_mods extends mods {
     }
 	  
     // find first node following current type of subjects and append before
-    $nodeList = $this->xpath->query("//mods:name[mods:description='" . $name->description ."'][last()]/following-sibling::*");
+    if (isset($name->description)) {
+      $xpath = "//mods:name[mods:description='" . $name->description ."'][last()]/following-sibling::*";
+    } else {
+      $xpath = "//mods:name[mods:role/mods:roleTerm='" . $name->role ."'][last()]/following-sibling::*";
+    }
+      $nodeList = $this->xpath->query($xpath);
 
     // if a context node was found, insert the new node before it
     if ($nodeList->length) {
