@@ -272,8 +272,9 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
     // could generate service unavailable exception - should be caught in the controller
     $persis = new Etd_Service_Persis();
     
-    // FIXME: use view/controller to build this url?
-    $ark = $persis->generateArk("http://etd.library.emory.edu/file/view/pid/emory:{%PID%}", $this->label);
+    // FIXME: is there any way to use view/controller helper to build this url?
+    $ark = $persis->generateArk("http://etd.library.emory.edu/file/view/pid/emory:{%PID%}",
+				$this->etd->label . " : " . $this->label . " (" . $this->type . ")");
     $pid = $persis->pidfromArk($ark);
     $this->pid = $pid;
 
