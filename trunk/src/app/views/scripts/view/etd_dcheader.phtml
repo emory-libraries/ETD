@@ -3,7 +3,7 @@
 <link rel="schema.DCTERMS" href="http://purl.org/dc/terms/"/>
  <meta name="DC.title" content="<?= htmlentities($this->etd->mods->title) ?>"/>
  <meta name="DC.creator" content="<?= $this->etd->mods->author ?>"/>
- <meta name="DC.contributor" content="<?= $this->etd->mods->advisor ?>"/>
+   <meta name="DC.contributor" content="<?= implode('; ', $this->etd->chair()) ?>"/>
  <meta name="DC.publisher" content="Emory University"/> <? /* FIXME: okay to hard code this? accurate? */ ?>
  <meta name="DCTERMS.issued" content="<?= $this->etd->year() ?>"/>
  <meta name="DC.identifier" content="<?= $this->etd->mods->ark ?>"/> <? /* full ark url */ ?>
