@@ -1,0 +1,32 @@
+<form name="search" method="post" action="<?= $this->url(array("action" => "results"))?>">
+<table class="advanced_search">
+<? /* doesn't make sense/redundant(?)  <tr><th>anywhere</th> <td><?= $this->formText("query", ""); ?></td></tr> */ ?>
+  <tr><th>All Fields</th><td><?= $this->formText("query"); ?></td></tr>
+  <tr><td colspan="2"><hr/></td></tr>
+  <tr><th>Title</th> <td><?= $this->formText("title", ""); ?></td></tr>
+  <tr><th>Author</th> <td><?= $this->formText("author", ""); ?></td></tr>
+  <tr><th>Committee Member</th> <td><?= $this->formText("committee", ""); ?></td></tr>
+  <tr><th>Abstract</th> <td><?= $this->formText("abstract", ""); ?></td></tr>
+  <tr><th>Table of Contents</th> <td><?= $this->formText("toc", ""); ?></td></tr>
+  <tr><th>Keywords</th> <td><?= $this->formText("keyword", ""); ?></td></tr>
+  <tr><th>Research Field</th> <td><?= $this->formText("subject", ""); ?></td></tr>
+  <tr><th>Program</th> <td><?= $this->formText("program", ""); ?> </td></tr>
+  <tr><th>Year</th> <td><?= $this->formText("year", ""); ?> </td></tr>
+</table>
+  <?//= $this->formCheckbox("unembargoed", null, array('checked' => false), array("false", "true")) ?>
+  <p><?= $this->formCheckbox("unembargoed", null, null, array("0", "1")) ?>
+   	Restrict search to records with full text of thesis/dissertation available.</p>
+  <?= $this->formSubmit("Search", "Search >", array("class" => "button")); ?>
+</form>
+
+
+<hr/>
+<p><b>Search tips:</b></p>
+<ul>
+ <li>If you enter multiple terms in different fields, only documents that match all of your search terms will appear.</li>
+ <li>Multiple words are allowed.</li>
+ <li>Searches are <i>not</i> case-sensitive.</li>
+ <li>To match part of a word, add an asterisk, e.g., <b>chem*</b> would match <b>chemistry</b>, <b>chemical</b>, etc.
+     <br/>Do not use an asterisk at the beginning of your search term.</li>
+ <li>If you're not sure how to spell something, try the fuzzy search: e.g. <b>Gbadgsn~</b> would match <b>Gbadegesin</b>.</li>
+</ul>

@@ -1,0 +1,41 @@
+<h1>Search Results</h1>
+<script language="Javascript" type="text/javascript">
+   function setStart(i) {
+   document.searchform.start.value = i;
+   document.searchform.submit()
+ }
+</script>   
+
+<?//=  $this->render('browse/_facets.phtml'); ?>
+<? /* fixme: display search terms?... */ ?>
+<? if (isset($this->count) && isset($this->start) && isset($this->max)): ?>
+  <? /* FIXME: combine with code in browse/list.phtml and pull into a view helper? */ ?>
+   <form name="searchform" method="post" action="<?= $this->url(array("action" => "results"))?>">
+   <? foreach ($this->query as $field => $value): ?>
+    <?= $this->formHidden($field, $value); ?>
+   <? endforeach ?>
+   <?= $this->formHidden("start", ''); ?>
+   <?= $this->formHidden("max", $this->max); ?>
+   </form>
+
+   <? $this->end = min($this->start + $this->max, $this->count); ?>
+  <? if ($this->max < $this->count): ?>
+   <ul style="float:right" class="horizontal">
+      <li class="first">More results:
+     <? for ($i = 1; $i <= $this->count; $i += $this->max): ?>
+     <? $cur_end = min($i + $this->max - 1, $this->count);
+        $range = $i;  if ($cur_end != $i) $range .= "-" . $cur_end ; ?>
+	<? if ($i != 1): ?><li><? endif ?>
+     <? if (($i - 1) != $this->start): ?>
+          <a href="#" onClick="setStart('<?= $i -1 ?>')"><?= $range ?></a>
+       <? else: ?>
+	   <?= $range ?>
+       <? endif ?>
+	</li>	 
+     <? endfor ?>
+     </ul>		  
+  <? endif ?>
+<? endif ?>
+
+<?=  $this->render('browse/list.phtml'); ?>
+

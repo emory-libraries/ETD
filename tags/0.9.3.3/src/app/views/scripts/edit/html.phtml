@@ -1,0 +1,22 @@
+<? include "js/FCKeditor/fckeditor.php"; ?>
+
+<h1>Edit <?= $this->mode_label ?></h1>
+<p><b><?= $this->etd->title() ?></b></p>
+
+
+<form name="edit" method="post"
+    action="<?= $this->url(array("action" => "save" . ucfirst($this->mode), "mode" => $this->mode))?>">
+<? /* configuration options for FCK editor */ 
+$editor_opts = array("config" => (string)$this->linkTo("js/FCKconfig.js"),
+			    "height" => "400", "toolbar" => "etd" );
+if ( $this->mode == "title") {
+  $editor_opts["toolbar"] = "etd-title";
+  $editor_opts["height"] = "etd-title";
+}
+if ($this->current_user->role == "superuser") $editor_opts["toolbar"] = "etd-admin";
+?>
+
+<?= $this->FckEditor("edit_content", (string)$this->edit_content, $editor_opts) ?>
+
+<?= $this->formSubmit("Save", "Save", array("class" => "button")); ?>
+</form>
