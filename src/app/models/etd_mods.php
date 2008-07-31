@@ -129,37 +129,12 @@ class etd_mods extends mods {
     // fixme: need a way to set netid -- set from netid if emory ?
 
     $set_description = false;
-    
-    if ($emory)  {
-      $type = "Emory Committee Member";
-      if (isset($this->map['committee'][0])) {
-	$newnode = $this->map['committee'][0]->domnode->cloneNode(true);
-      } else {
-	// all committee members have been removed; copy advisor and set flag to set description
-	$newnode = $this->map["advisor"]->domnode->cloneNode(true);
-	$newnode->appendChild($this->dom->createElementNS($this->namespaceList["mods"], "mods:description"));
-	$set_description = true;
-      }
-    } else {  
-      $type = "Non-Emory Committee Member";
-      if (isset($this->map['nonemory_committee'][0])) {
-	// if there is an existing non-emory committee node, clone that
-	$newnode = $this->map['nonemory_committee'][0]->domnode->cloneNode(true);
-      } elseif (isset($this->map['committee'][0])) {
-	// xml does not include a non-emory committee member - copy emory and change accordingly
-	$set_description = true;
-	$newnode = $this->map['committee'][0]->domnode->cloneNode(true);
-	$newnode->appendChild($this->dom->createElementNS($this->namespaceList["mods"], "mods:affiliation"));
-	// ID attribute not used for non-emory, and duplicate IDs will make the xml invalid
-	$newnode->removeAttribute("ID");
-      } else {
-	trigger_error("No committee nodes to copy! Can't add committee member", E_USER_WARNING);
-	return;
-      }
 
-      // may be redundant, but needs to be updated if called separately
-      $this->update();
-    }
+    $template = new etd_mods(DOMDocument::loadXML(file_get_contents("mods.xml", FILE_USE_INCLUDE_PATH)));
+    if ($emory)  $field = "committee";
+    else $field = "nonemory_committee";
+    
+    $newnode = $this->dom->importNode($template->map[$field][0]->domnode, true);
 
     // map new domnode to xml object
     $name = new mods_name($newnode, $this->xpath);
@@ -169,11 +144,9 @@ class etd_mods extends mods {
     if (!$emory && !is_null($affiliation)) {
       $name->affiliation = $affiliation;
     }
-    if ($set_description) $name->description = $type;
 	  
-    
     // find first node following current type of subjects and append before
-    $nodeList = $this->xpath->query("//mods:name[mods:description='$type'][last()]/following-sibling::*");
+    $nodeList = $this->xpath->query("//mods:name[mods:description='" . $name->description ."'][last()]/following-sibling::*");
 
     // if a context node was found, insert the new node before it
     if ($nodeList->length) {
@@ -184,7 +157,7 @@ class etd_mods extends mods {
       // if adding a non-emory committee member and there are none in the xml,
       // then add after last emory committee member
       if (isset($this->map['committee']))
-	$contextnode = $this->map['committee'][0]->domnode;
+	$contextnode = $this->map['committee'][count($this->committee) - 1]->domnode;
       else
 	$contextnode = $this->map["advisor"]->domnode;
     } else {
@@ -194,7 +167,7 @@ class etd_mods extends mods {
 
     if (isset($contextnode))
       $newnode = $contextnode->parentNode->insertBefore($newnode, $contextnode);
-    else	// if no context is found, just add at the end
+    else	// if no context is found, just add at the end of xml
       $newnode = $contextnode->parentNode->appendChild($newnode);
     
 
