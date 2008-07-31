@@ -46,7 +46,7 @@ class etd_notifier extends notifier {
     // committee chair & members  - look up in ESD
     $esd = new esdPersonObject();
 
-    foreach (array_merge($etd->mods->advisor, $etd->mods->committee) as $committee) {
+    foreach (array_merge($etd->mods->chair, $etd->mods->committee) as $committee) {
       $person = $esd->findByUsername($committee->id);
       if ($person)
 	$this->cc[$person->email] = $person->fullname;
