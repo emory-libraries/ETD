@@ -20,7 +20,8 @@ Zend_Registry::set('debug', false);
 // needed for notifier
 $config = new Zend_Config_Xml("../../src/config/config.xml", $mode);
 Zend_Registry::set('config', $config);
-
+Zend_Registry::set('ldap-config',
+	  new Zend_Config_Xml("../../src/config/ldap.xml", $mode));
 
 $fedora_cfg = new Zend_Config_Xml("../../src/config/fedora.xml", $mode);
 Zend_Registry::set('fedora-config', $fedora_cfg);
