@@ -28,7 +28,8 @@ class TestPQSubmission extends UnitTestCase {
     $this->assertIsA($this->pq->author_info->current_contact->address, "DISS_address");
     $this->assertIsA($this->pq->author_info->permanent_contact, "DISS_contact");
     $this->assertIsA($this->pq->description, "DISS_description");
-    $this->assertIsA($this->pq->description->advisor, "DISS_name");
+    $this->assertIsA($this->pq->description->advisor, "Array");
+    $this->assertIsA($this->pq->description->advisor[0], "DISS_name");
     $this->assertIsA($this->pq->description->committee, "Array");
     $this->assertIsA($this->pq->description->committee[0], "DISS_name");
     $this->assertIsA($this->pq->description->categories, "Array");
@@ -89,8 +90,8 @@ class TestPQSubmission extends UnitTestCase {
     $this->assertEqual($etd->mods->department, $this->pq->description->department);
 
     // advisor & committee
-    $this->assertEqual($etd->mods->advisor->first, $this->pq->description->advisor->first);
-    $this->assertEqual($etd->mods->advisor->last, $this->pq->description->advisor->last);
+    $this->assertEqual($etd->mods->chair[0]->first, $this->pq->description->advisor[0]->first);
+    $this->assertEqual($etd->mods->chair[0]->last, $this->pq->description->advisor[0]->last);
     $this->assertEqual($etd->mods->committee[0]->first, $this->pq->description->committee[0]->first);
     $this->assertEqual($etd->mods->committee[0]->last, $this->pq->description->committee[0]->last);
 

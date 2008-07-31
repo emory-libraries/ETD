@@ -51,7 +51,7 @@ class TestEtd extends UnitTestCase {
     $this->assertEqual("cheese explained", $this->etd->dc->description);
 
     $this->etd->contents = "<p>chapter 1 <br/> chapter 2</p>";
-    $this->assertEqual("<p>chapter 1 <br/> chapter 2</p>", $this->etd->html->contents);
+    $this->assertPattern("|<p>chapter 1\s*<br/>\s*chapter 2</p>|", $this->etd->html->contents);
     $this->assertEqual("chapter 1 -- chapter 2", $this->etd->mods->tableOfContents);
 
     // xacml
@@ -199,8 +199,8 @@ class TestEtd extends UnitTestCase {
   
   }
 
-  function testAddCommitteeAndAdvisor() {
-    // attach an etd file to test that advisor/committee are set on etdFile view policy
+  function testAddCommittee() {	// committee chairs and members
+    // attach an etd file to test that chair/committee are set on etdFile view policy
     $fname = '../fixtures/etdfile.xml';
     $dom = new DOMDocument();
     $dom->load($fname);
@@ -209,11 +209,12 @@ class TestEtd extends UnitTestCase {
     $this->etd->addSupplement($etdfile);
 
     
-    $this->etd->setAdvisor("mhalber");		// FIXME: if this netid goes out of ESD, this test will fail
+    // NOTE: if this netid goes out of ESD, this test will fail
+    $this->etd->setCommittee(array("mhalber"), "chair");
     // should be set in mods, rels-ext, and in view policy rule
-    $this->assertEqual("mhalber", $this->etd->mods->advisor->id);
-    $this->assertEqual("Halbert", $this->etd->mods->advisor->last);
-    $this->assertEqual("mhalber", $this->etd->rels_ext->advisor);
+    $this->assertEqual("mhalber", $this->etd->mods->chair[0]->id);
+    $this->assertEqual("Halbert", $this->etd->mods->chair[0]->last);
+    $this->assertEqual("mhalber", $this->etd->rels_ext->committee[0]);
     $this->assertTrue($this->etd->policy->view->condition->users->includes("mhalber"));
     $this->assertTrue($this->etd->supplements[0]->policy->view->condition->users->includes("mhalber"));
 
@@ -239,7 +240,7 @@ class TestEtd extends UnitTestCase {
   function testPublish() {
     $pubdate = "2008-01-01";
     $this->etd->mods->embargo = "6 months";	// specify an embargo duration
-    $this->etd->mods->advisor->id = "nobody";	// set ids for error messages
+    $this->etd->mods->chair[0]->id = "nobody";	// set ids for error messages
     $this->etd->mods->committee[0]->id = "nobodytoo";
 
     // official pub date, 'actual' pub date
@@ -274,7 +275,7 @@ class TestEtd extends UnitTestCase {
     $etdfile = new etd_file($dom);
     $etdfile->policy->addRule("view");
 
-    $this->etd->mods->advisor->id = "jsmith";
+    $this->etd->mods->chair[0]->id = "jsmith";
     $this->etd->mods->committee[0]->id = "kjones";
     $this->etd->addSupplement($etdfile);
 

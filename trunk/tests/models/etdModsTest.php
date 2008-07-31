@@ -13,7 +13,12 @@ class TestEtdMods extends UnitTestCase {
 
   function tearDown() {}
 
-  function NOtestKeywords() {
+  function testBasicProperties() {
+    $this->assertIsA($this->mods, "etd_mods");
+    $this->assertIsA($this->mods->chair, "Array");
+  }
+  
+  function testKeywords() {
     // sanity checks - reading values in the xml
     $this->assertIsa($this->mods->keywords, "Array");
     $this->assertEqual(1, count($this->mods->keywords));
@@ -21,7 +26,7 @@ class TestEtdMods extends UnitTestCase {
     $this->assertEqual("1", count($this->mods->keywords));
   }
   
-  function NOtestAddKeywords() {
+  function testAddKeywords() {
     // adding new values
     $this->mods->addKeyword("animated mice");
     $this->assertEqual(2, count($this->mods->keywords));
@@ -29,7 +34,7 @@ class TestEtdMods extends UnitTestCase {
     $this->assertPattern('|<mods:subject authority="keyword"><mods:topic>animated mice</mods:topic></mods:subject>|', $this->mods->saveXML());
   }
 
-  function NOtestResearchFields() {
+  function testResearchFields() {
     $this->assertIsa($this->mods->researchfields, "Array");
     $this->assertEqual(1, count($this->mods->researchfields));
     $this->assertIsa($this->mods->researchfields[0], "mods_subject");
@@ -40,7 +45,7 @@ class TestEtdMods extends UnitTestCase {
     $this->assertFalse($this->mods->hasResearchField("5934"));
   }
 
-  function NOtestAddResearchFields() {
+  function testAddResearchFields() {
 
     // add a single field
     $this->mods->addResearchField("Mouse Studies", "7025");
@@ -53,7 +58,7 @@ class TestEtdMods extends UnitTestCase {
     
   }
 
-  function NOtestSetResearchFields() {
+  function testSetResearchFields() {
 
     // set all fields from an array 
     $newfields = array("7334" => "Animated Arts", "8493" => "Cheese and Mice",
@@ -84,14 +89,14 @@ class TestEtdMods extends UnitTestCase {
     
   }
 
-  function NOtestCheckRequirements() {
+  function testCheckRequirements() {
     $missing = $this->mods->checkRequired();
     $this->assertTrue(in_array("table of contents", array_keys($missing)));
     $this->assertFalse($this->mods->readyToSubmit());
     $this->mods->tableOfContents = "1. a chapter -- 2. another chapter";
 
-    $this->assertTrue(in_array("advisor", array_keys($missing)));
-    $this->mods->advisor->id = "wdisney";
+    $this->assertTrue(in_array("chair", array_keys($missing)));
+    $this->mods->chair[0]->id = "wdisney";
 
     $this->assertTrue(in_array("committee members", array_keys($missing)));
     $this->mods->committee[0]->id = "dduck";
@@ -99,7 +104,7 @@ class TestEtdMods extends UnitTestCase {
     $this->assertTrue($this->mods->readyToSubmit());
   }
 
-  function NOtestPageNumbers() {
+  function testPageNumbers() {
     // number of pages stored in mods:extent - should be able to set and write as a number
     $this->mods->pages = 133;
     $this->assertEqual(133, $this->mods->pages);
@@ -110,7 +115,7 @@ class TestEtdMods extends UnitTestCase {
 
   function testAddCommittee() {
     $count = count($this->mods->committee);
-    $this->mods->addCommitteeMember("Duck", "Donald");
+    $this->mods->addCommittee("Duck", "Donald");
     $this->assertEqual($count + 1, count($this->mods->committee));
     $this->assertEqual("Duck", $this->mods->committee[$count]->last);
     $this->assertEqual("Donald", $this->mods->committee[$count]->first);
@@ -125,23 +130,23 @@ class TestEtdMods extends UnitTestCase {
     $this->mods->committee[1]->id = "dduck";
     $this->mods->setCommittee(array());
     $this->assertEqual(0, count($this->mods->committee));
-    $this->mods->addCommitteeMember("Duck", "Donald");
+    $this->mods->addCommittee("Duck", "Donald");
     $this->assertEqual(1, count($this->mods->committee));
     $this->assertEqual("Duck", $this->mods->committee[0]->last);
   }
 
   function testRemoveCommittee() {
-    $this->expectException(new XmlObjectException("Can't remove committee member with non-existent id"));
-    $this->mods->removeCommitteeMember("");
+    $this->expectException(new XmlObjectException("Can't remove committee member/chair with non-existent id"));
+    $this->mods->removeCommittee("");
     
     $this->mods->committee[0]->id = "testid";
     $this->mods->removeCommitteeMember("testid");
     $this->assertEqual(0, count($this->mods->committee));
   }
 
-  function NOtestAddNonemoryCommittee() {
+  function testAddNonemoryCommittee() {
     $count = count($this->mods->nonemory_committee);
-    $this->mods->addCommitteeMember("Duck", "Daisy", false, "Disney World");
+    $this->mods->addCommittee("Duck", "Daisy", "nonemory_committee", "Disney World");
     $this->assertEqual($count + 1, count($this->mods->nonemory_committee));
     $this->assertEqual("Duck", $this->mods->nonemory_committee[$count]->last);
     $this->assertEqual("Daisy", $this->mods->nonemory_committee[$count]->first);
@@ -152,7 +157,7 @@ class TestEtdMods extends UnitTestCase {
     $xml->load("../fixtures/mods2.xml");
     $mods = new etd_mods($xml);
 
-    $mods->addCommitteeMember("Duck", "Daisy", false, "Disney World");
+    $mods->addCommittee("Duck", "Daisy", "nonemory_committee", "Disney World");
     $this->assertEqual(1, count($mods->nonemory_committee));
     $this->assertEqual("Duck", $mods->nonemory_committee[0]->last);
     $this->assertEqual("Daisy", $mods->nonemory_committee[0]->first);
@@ -160,10 +165,10 @@ class TestEtdMods extends UnitTestCase {
 
   }
 
-  function NOtestSetAdvisorCommitteeById() {
-    $this->mods->setAdvisor("mhalber");		// fixme: testing against real ESD, so data could change...
-    $this->assertEqual("mhalber", $this->mods->advisor->id);
-    $this->assertEqual("Halbert", $this->mods->advisor->last);
+  function testSetCommitteeById() {
+    $this->mods->setCommittee(array("mhalber"), "chair"); // NOTE: testing against real ESD, so data could change...
+    $this->assertEqual("mhalber", $this->mods->chair[0]->id);
+    $this->assertEqual("Halbert", $this->mods->chair[0]->last);
 
     $this->mods->setCommittee(array("ahickco", "jfenton"));
     $this->assertEqual("ahickco", $this->mods->committee[0]->id);
