@@ -210,14 +210,13 @@ class etd extends foxml implements etdInterface {
     }
 
     // update etdfile xacml with any information already added to etd
-    //  - for all files other than the Original, advisor & committee members should always be able to view
+    //  - for all files other than the Original,
+    // committee chairs & committee members should always be able to view
     if ($relation != "Original") {
       // add netids for advisor and committee if they have already been set
-      if ($this->mods->advisor->id != "")
-	$etdfile->policy->view->condition->addUser($this->mods->advisor->id);
-      foreach ($this->mods->committee as $cm) {
-	if ($cm->id != "")
-	  $etdfile->policy->view->condition->addUser($cm->id);
+      foreach (array_merge($this->mods->chair, $this->mods->committee) as $committee) {
+	if ($committee->id != "")
+	  $etdfile->policy->view->condition->addUser($committee->id);
       }
       // if department has already been set, add to the view rule for departmental staff
       if ($this->mods->department != "")
@@ -360,44 +359,24 @@ class etd extends foxml implements etdInterface {
     }
   }
 
-
-  // set advisor in mods metadata but *also* set in view policy
-  public function setAdvisor($id) {
-    // if a different advisor was set before, remove from policy on etd and associated files
-    if ($this->mods->advisor->id) {
-      foreach (array_merge(array($this), $this->pdfs, $this->supplements) as $obj) {
-	if (isset($obj->policy->view))
-	  $obj->policy->view->condition->removeUser($this->mods->advisor->id);
-      }
-    }
-    
-    // store new advisor in mods    
-    $this->mods->setAdvisor($id);
-
-    // store relation in rels-ext
-    if (isset($this->rels_ext->advisor)) $this->rels_ext->advisor = $id;
-    else $this->rels_ext->addRelation("rel:advisor", $id);
-
-    // add to 'view' policy rule for etd and associated files
-    foreach (array_merge(array($this), $this->pdfs, $this->supplements) as $obj) {
-      $obj->policy->view->condition->addUser($id);
-    }
-  }
-
-  // similar logic to advisor above
-  public function setCommittee(array $ids) {
+  /*
+   * set committee chairs & members in MODS metadata
+   * but *also* set in xacml view policy and RELS-EXT
+   */
+  public function setCommittee(array $ids, $type = "committee") {
     // clear any old committee members from policy 
-    foreach ($this->mods->committee as $cm) {
-      if ($cm->id)
+    foreach ($this->mods->{$type} as $committee) {
+      if ($committee->id)
 	// remove from etd policy and from associated etd files
 	foreach (array_merge(array($this), $this->pdfs, $this->supplements) as $obj) {
-	  $obj->policy->view->condition->removeUser($cm->id);
+	  $obj->policy->view->condition->removeUser($committee->id);
 	}
     }
 
-    $this->mods->setCommittee($ids);
+    // store new committee in mods, rels-ext
+    $this->mods->setCommittee($ids, $type);
     $this->rels_ext->setCommittee($ids);
-    
+
     foreach ($ids as $id) {
       // add to view policy rule for etd and associated files
       foreach (array_merge(array($this), $this->pdfs, $this->supplements) as $obj) {
@@ -764,7 +743,13 @@ class etd extends foxml implements etdInterface {
   public function author() { return $this->mods->author->full; }
   public function program() { return $this->mods->department; }
   public function subfield() { return isset($this->mods->subfield) ? $this->mods->subfield : ""; }
-  public function advisor() { return $this->mods->advisor->full; }
+  public function chair() {
+    $chairs = array();
+    foreach ($this->mods->chair as $c) {
+      array_push($chairs, $c->full);
+    }
+    return $chairs;
+  }
 
   // note: doesn't handle non-emory committee members
   public function committee() {

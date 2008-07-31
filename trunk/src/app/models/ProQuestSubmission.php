@@ -118,7 +118,7 @@ class ProQuestSubmission extends XmlObject {
     // *except* for "institutional contact", which ProQuest uses for department
     $this->description->department = $this->etd->mods->department;
 
-    $this->description->advisor->set($this->etd->mods->advisor);
+    //    $this->description->advisor->set($this->etd->mods->advisor);
     $this->setCommittee();
     $this->setCategories();
     for ($i = 0; $i < count($this->etd->mods->keywords); $i++) {
@@ -142,7 +142,20 @@ class ProQuestSubmission extends XmlObject {
   }
 
 
+  /**
+   * set committee chairs  & members
+   */
   public function setCommittee() {
+    // chairs/advisor
+    $chairs = $this->etd->mods->chair;
+    for ($i = 0; $i < count($chairs); $i++) {
+      if (isset($this->description->advisor[$i]))
+	$this->description->advisor[$i]->set($chairs[$i]);
+      else
+	$this->description->addCommitteeMember($chairs[$i]);
+    }
+
+    // members
     $committee = array_merge($this->etd->mods->committee, $this->etd->mods->nonemory_committee);
     for ($i = 0; $i < count($committee); $i++) {
       if (isset($this->description->committee[$i]))
@@ -448,7 +461,8 @@ class DISS_description extends XmlObject {
 	"degree" => array("xpath" => "DISS_degree"),
 	// for institutional contact PQ wants department name
 	"department" => array("xpath" => "DISS_institution/DISS_inst_contact"),
-	"advisor" => array("xpath" => "DISS_advisor/DISS_name", "class_name" => "DISS_name"),
+	"advisor" => array("xpath" => "DISS_advisor/DISS_name", "class_name" => "DISS_name",
+			   "is_series" => true),
 	"committee" => array("xpath" => "DISS_cmte_member/DISS_name", "class_name" => "DISS_name",
 			     "is_series" => true),
 	"categories" => array("xpath" => "DISS_categorization/DISS_category",
@@ -478,7 +492,22 @@ class DISS_description extends XmlObject {
     return parent::__set($name, $value);
   }
 
-  // need functions: addCommitteeMember, addCategory
+  // add a new Advisor node and optionally initialize values from a mods_name instance
+  public function addAdvisor(mods_name $name = null) {
+    // deep clone first committee member
+    // note: using parentNode to clone DISS_advisor node; object mapping is on DISS_cmte_member/DISS_name
+    $newnode = $this->map["advisor"][0]->domnode->parentNode->cloneNode(true);	
+    // insert before DISS_committee 
+    $newnode = $this->domnode->insertBefore($newnode, $this->map["committee"][0]->domnode->parentNode);
+
+    $this->update();
+
+    // if a mods_name was passed in, initialize the newly added node
+    if (!is_null($name)) {
+      $this->advisor[count($this->advisor) - 1]->set($name);
+    }
+    
+  }
 
   // add a new committee member node and optionally initialize values from a mods_name instance
   public function addCommitteeMember(mods_name $name = null) {

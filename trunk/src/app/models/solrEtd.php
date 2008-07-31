@@ -22,7 +22,8 @@ class solrEtd implements etdInterface {
   public function author() { return $this->getField("author"); }
   public function program() { return $this->getField("program"); }
   public function subfield() { return $this->getField("subfield"); }
-  public function advisor() { return $this->getField("advisor"); }
+  // advisor renamed to chair to handle multiple names
+  public function chair() { return $this->getField("advisor"); }
   public function committee() { return $this->getField("committee", true); }
 			  // how to handle non-emory committee?
   	// dissertation/thesis/etc
