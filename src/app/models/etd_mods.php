@@ -125,16 +125,21 @@ class etd_mods extends mods {
     $this->update();
   }
 
-  public function addCommitteeMember($lastname, $firstname, $emory = true, $affiliation = null) {
+  /**
+   * add Committee persons - committee chair, member, or non-emory member
+   * @param string $lastname
+   * @param string $firstname
+   * @param string $type : one of committee, chair, or nonemory_committee
+   * @param string $affiliation (optional)
+   */
+  public function addCommittee($lastname, $firstname, $type = "committee", $affiliation = null) {
     // fixme: need a way to set netid -- set from netid if emory ?
 
     $set_description = false;
 
     $template = new etd_mods(DOMDocument::loadXML(file_get_contents("mods.xml", FILE_USE_INCLUDE_PATH)));
-    if ($emory)  $field = "committee";
-    else $field = "nonemory_committee";
     
-    $newnode = $this->dom->importNode($template->map[$field][0]->domnode, true);
+    $newnode = $this->dom->importNode($template->map[$type][0]->domnode, true);
 
     // map new domnode to xml object
     $name = new mods_name($newnode, $this->xpath);
