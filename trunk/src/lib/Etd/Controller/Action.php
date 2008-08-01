@@ -60,6 +60,24 @@ abstract class Etd_Controller_Action extends Zend_Controller_Action {
   public function postDispatch() {
     $this->view->messages = $this->_helper->flashMessenger->getMessages();
   }
+
+
+  /**
+   * 
+   */
+  protected function getFilterOptions() {
+    $opts = array();
+    foreach (array("status", "committee", "year", "program", "subject", "author", "keyword") as $filter) {
+      if ($this->_hasParam($filter))
+	$opts[$filter] = $this->_getParam($filter);
+    }
+
+    // pass filters to the view to display for user
+    $this->view->filters = $opts;
+    $this->view->url_params = array();		// may be overridden, but should always be set
+
+    return $opts;
+  }
   
 }
 
