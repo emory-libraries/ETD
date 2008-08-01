@@ -108,6 +108,9 @@ class BrowseController extends Etd_Controller_Action {
     $value = $_value;
     $value = urldecode($value);
 
+    // pass browse value to generate remove-facet links
+    $this->view->url_params = array("value" => $_value);
+
 
     $start = $this->_getParam("start", 0);
     $max = $this->_getParam("max", 20);	   
@@ -141,7 +144,7 @@ class BrowseController extends Etd_Controller_Action {
     foreach ($opts as $filter => $value) {
       $query .= " AND $filter:($value)";
     }
-    $this->view->filters = $opts;
+
     //         print "query is $query\n";
     //$results = $solr->query("$field:($value)");
     $results = $solr->queryPublished($query, $start, $max);	// limit to published records
@@ -181,12 +184,14 @@ class BrowseController extends Etd_Controller_Action {
   /* browse by program */
   public function programsAction() {
     $start = $this->_getParam("start", 0);
-    $max = $this->_getParam("max", 10);	
+    $max = $this->_getParam("max", 10);
+    $opts = $this->getFilterOptions();
     
     // optional name parameter - find id by full name
     $name = $this->_getParam("name", null);
     if (is_null($name)) {
       $coll = $this->_getParam("coll", "programs");
+      $this->view->url_params = array("coll" => $coll);
       $coll = "#$coll";
     } else {
       $prog = new programs();
@@ -207,7 +212,7 @@ class BrowseController extends Etd_Controller_Action {
     $this->view->browse_mode = "program"; 
 
 
-    $results = $programs->findEtds($start, $max);  
+    $results = $programs->findEtds($start, $max, $opts);  
 
     $this->view->count = $results->numFound;
     $this->view->results = $results;
@@ -227,9 +232,10 @@ class BrowseController extends Etd_Controller_Action {
     $this->view->title = "Browse Programs";
     if ($coll != "#programs") $this->view->title .= " : " . $programs->label;
      
-    // shared view script for programs & researchfields
     $this->view->action = "programs";
+    // shared view script for programs & researchfields
     $this->_helper->viewRenderer->setScriptAction("collection");
+
 
     //    $this->view->feed = new Zend_Feed_Rss($this->_helper->absoluteUrl('recent', 'feeds', null, array("program" => $programs->label)));
   }
@@ -239,7 +245,11 @@ class BrowseController extends Etd_Controller_Action {
     $max = $this->_getParam("max", 10);	
 
     $coll = $this->_getParam("coll", "researchfields");
+    $opts = $this->getFilterOptions();
+    // needed to generate remove-facet links
+    $this->view->url_params = array("coll" => $coll);
 
+    
     try {
       $fields = new researchfields("#$coll");
     } catch (XmlObjectException $e) {
@@ -252,7 +262,7 @@ class BrowseController extends Etd_Controller_Action {
 
     $this->view->collection = $fields;
 
-    $results = $fields->findEtds($start, $max);
+    $results = $fields->findEtds($start, $max, $opts);
 
     $this->view->browse_mode = "researchfield"; 
 
@@ -323,9 +333,6 @@ class BrowseController extends Etd_Controller_Action {
     $max = $this->_getParam("max", 25);
     $status = $this->_getParam("status", null);
     $opts = $this->getFilterOptions();
-    /*    $opts = array();
-    if ($this->_hasParam("status")) $opts["status"] = $this->_getParam("status");
-    if ($this->_hasParam("advisor")) $opts["advisor"] = $this->_getParam("advisor");*/
     
     $this->view->etds = etd::findUnpublishedByDepartment($this->current_user->program_coord,
 							 $start, $max, $opts,
@@ -342,10 +349,6 @@ class BrowseController extends Etd_Controller_Action {
     $this->view->start = $start;
     $this->view->max = $max;
     $this->view->facets = $facets;
-
-    // filters for this record set (to display for user)
-    $this->view->filters = $opts;
-
   }
 
 
@@ -382,15 +385,6 @@ class BrowseController extends Etd_Controller_Action {
   }
 
 
-  private function getFilterOptions() {
-    $opts = array();
-    foreach (array("status", "chair", "year", "program", "subject", "author", "keyword") as $filter) {
-      if ($this->_hasParam($filter))
-	$opts[$filter] = $this->_getParam($filter);
-    }
-
-    return $opts;
-  }
 
 }
 ?>
