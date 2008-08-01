@@ -4,7 +4,7 @@
      <path>solr/etd</path>
      <port>8983</port>
 <!-- fields which should be included as default facets -->
-     <facet>advisor_facet</facet>
+<!--     <facet>advisor_facet</facet> -->
      <facet>year</facet>
      <facet>subject_facet</facet>
      <facet>keyword_facet</facet>
