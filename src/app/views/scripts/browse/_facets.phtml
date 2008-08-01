@@ -10,7 +10,8 @@
 	<ul>
 	  <? foreach ($this->filters as $facet => $term): ?>
 	   <? /* build up url for this page _without_ this facet */ ?>
-	   <? $url_opts = array('controller' => $this->controller, 'action' => $this->action);
+	   <? $url_opts = array_merge(array('controller' => $this->controller, 'action' => $this->action),
+				      $this->url_params);
 		foreach ($this->filters as $f => $t) if ($f != $facet) $url_opts[$f] = $t; ?>
 	    <li><a href="<?= $this->url($url_opts, '', true) ?>"><?= $term ?></a></li>
           <? endforeach ?>
@@ -20,11 +21,16 @@
    
    <b>Filter your results:</b>
    
-	    <? foreach (array("status", "chair", "year", "subject", "committee", "program", "author", "keyword") as $facet): ?>
-     <? if ($this->browse_mode == "committee" && $facet == "chair") continue; ?>
+   <? foreach (array("status", "year", "subject", "advisor", "committee", "program", "author", "keyword") as $facet): ?>
+    <? if ($this->browse_mode == "committee" && $facet == "advisor") continue; ?>
+    <? if ($this->browse_mode == "researchfield" && $facet == "subject") continue; ?>
      <? if (isset($this->facets->$facet) && count($this->facets->$facet)
 	    && !isset($this->filters[$facet]) && $this->browse_mode != $facet): ?>
-   <p class="label"><?= ucfirst($facet) ?></p>
+   <p class="label">
+      <? if ($facet == "advisor"): ?>Committee Chair
+      <? else: ?><?= ucfirst($facet) ?>
+      <? endif ?>		      
+   </p>
 	  <ul>
   	    <? foreach ($this->facets->$facet as $label => $count): ?>
   	      <li>
