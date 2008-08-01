@@ -121,7 +121,7 @@ class collectionHierarchy extends XmlObject {
 
 
   
-  public function findEtds($start = 1, $max = 10) {
+  public function findEtds($start = 1, $max = 10, $opts = array()) {
 
      $solr = Zend_Registry::get('solr');
      // get all fields of this collection and its members (all the way down)
@@ -138,8 +138,9 @@ class collectionHierarchy extends XmlObject {
 
      $query = join($queryparts, " OR ");
 
-     //     print "query is: " . $query . "<br/>\n";
-
+     foreach ($opts as $filter => $value) {
+      $query = "($query) AND $filter:($value)";
+    }
 
      /* don't retrieve etd records at top level of hierarchy */ 
      if (isset($this->parent)) $return_num = $max;		// use defaults
