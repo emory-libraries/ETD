@@ -8,6 +8,7 @@ $projax = new Projax(); ?>
 		<? $role_opts = array("student" => "student", "admin" => "admin", "superuser" => "superuser",
 				      "coordinator:Chemistry" => "grad coord - Chem",
 				      "coordinator:English" => "grad coord - Eng",
+				      "coordinator:Religion" => "grad coord - Religion",
 				      "coordinator:Graduate Institute of the Liberal Arts" => "grad coord - ILA",
 				      ); ?>
 		<?= $this->formSelect("role", $this->current_user->role, array("id" => "user_role"), $role_opts); ?>
