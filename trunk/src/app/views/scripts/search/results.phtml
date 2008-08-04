@@ -11,7 +11,7 @@
 <? if (isset($this->count) && isset($this->start) && isset($this->max)): ?>
   <? /* FIXME: combine with code in browse/list.phtml and pull into a view helper? */ ?>
    <form name="searchform" method="post" action="<?= $this->url(array("action" => "results"))?>">
-   <? foreach ($this->query as $field => $value): ?>
+   <? foreach ($this->url_params as $field => $value): ?>
     <?= $this->formHidden($field, $value); ?>
    <? endforeach ?>
    <?= $this->formHidden("start", ''); ?>
