@@ -27,12 +27,12 @@
        currently the mimetypes text/plain, text/xml, text/html, application/pdf can be handled.
        -->
 
-  <xsl:param name="REPOSITORYNAME" select="repositoryName"/>
-  <xsl:param name="FEDORASOAP" select="repositoryName"/>
-  <xsl:param name="FEDORAUSER" select="repositoryName"/>
-  <xsl:param name="FEDORAPASS" select="repositoryName"/>
-  <xsl:param name="TRUSTSTOREPATH" select="repositoryName"/>
-  <xsl:param name="TRUSTSTOREPASS" select="repositoryName"/>
+  <xsl:param name="REPOSITORYNAME" select="FedoraRepository"/>
+  <xsl:param name="FEDORASOAP" select="fedora"/>
+  <xsl:param name="FEDORAUSER" select="fedoraAdmin"/>
+  <xsl:param name="FEDORAPASS" select="fedoraAdmin"/>
+  <xsl:param name="TRUSTSTOREPATH" select="FedoraRepository"/>
+  <xsl:param name="TRUSTSTOREPASS" select="FedoraRepository"/>
   <xsl:variable name="PID" select="/foxml:digitalObject/@PID"/>
   <xsl:variable name="docBoost" select="1.4*2.5"/> <!-- or any other calculation, default boost is 1.0 -->
   
@@ -264,6 +264,7 @@
   <!-- RELS-EXT -->
   <xsl:template match="rdf:RDF[ancestor::foxml:datastream/@ID='RELS-EXT']">
     <xsl:apply-templates select="rdf:description/rel:etdStatus"/>
+    <xsl:apply-templates select="rdf:description/rel:hasPDF"/>
     <!-- currently not including any rels besides status -->
   </xsl:template>
 
@@ -272,7 +273,22 @@
   </xsl:template>
 
 
-<!-- other rels? etd id from etdfile ? -->
+  <!-- index pdf datastream for related object -->
+  <xsl:template match="rel:hasPDF">
+    <!-- pid of the etdFile object for the PDF  -->
+    <xsl:variable name="etdfile"><xsl:value-of select="substring-after(@rdf:resource, 'info:fedora/')"/></xsl:variable>
+
+    <!-- adding text of the PDF to default text index for etd -->
+<!-- may eventually just put in default search field... 
+             using a new field for testing  -->
+
+<!-- FIXME: for some documents we get null characters here;
+    Solr chokes on it, and it can't be cleaned up in xslt -->
+<!--    <field name="pdf">
+      <xsl:value-of select="translate(normalize-space(exts:getDatastreamText($etdfile, $REPOSITORYNAME, 'FILE', $FEDORASOAP, $FEDORAUSER, $FEDORAPASS, $TRUSTSTOREPATH, $TRUSTSTOREPASS)), '&#x0000;', '')"/>
+    </field> -->
+  </xsl:template>
+
 
 
 <!-- a managed datastream is fetched, if its mimetype 
