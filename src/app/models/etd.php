@@ -633,9 +633,9 @@ class etd extends foxml implements etdInterface {
     $solr->clearFacets();
     $solr->addFacets(array("status", "advisor_facet"));
     $query = "program_facet:\"$dept\" AND NOT status:published";
-    foreach ($opts as $filter => $value) {
-      $query .= " AND $filter:($value)";
-    }
+    // add any filters to the query
+    $query .= etd::filterQuery($opts);
+    
     $results = $solr->query($query, $start, $max);
     $total = $results->numFound;
     $facets = $results->facets;
@@ -646,6 +646,17 @@ class etd extends foxml implements etdInterface {
     }
     return $etds;
 
+  }
+
+  // convert facets into filter query 
+  public static function filterQuery($opts) {
+    $filters = array();
+    foreach ($opts as $filter => $value) {
+      $filters[] = "$filter:($value)";
+    }
+
+    $query = implode(" AND ", $filters);
+    return $query;
   }
 
 
