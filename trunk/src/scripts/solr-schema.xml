@@ -241,7 +241,7 @@
 
    <field name="PID" type="string" indexed="true" stored="true" required="true" /> 
    <field name="abstract" type="text" indexed="true" stored="true"/>
-   <field name="advisor" type="text" indexed="true" stored="true"/>
+   <field name="advisor" type="text" indexed="true" stored="true" multiValued="true"/>
    <field name="author" type="text" indexed="true" stored="true" required="true" /> 
    <field name="committee" type="text" indexed="true" stored="true" multiValued="true"/> 
    <field name="keyword" type="text" indexed="true" stored="true" multiValued="true"/> 
@@ -276,14 +276,19 @@
         via copyField further on in this schema  -->
    <field name="text" type="text" indexed="true" stored="false" multiValued="true"/>
 
+<!--   <field name="pdf" type="text" indexed="true" stored="false" required="false"/>  -->
+
+
+
    <!-- non-tokenized versions of terms to for sorting and/or facets -->
    <field name="title_exact" type="string" indexed="true" stored="true"/>
    <field name="author_facet" type="string" indexed="true" stored="true"/>
-   <field name="advisor_facet" type="string" indexed="true" stored="true"/> <!-- multi? -->
+   <field name="advisor_facet" type="string" indexed="true" stored="true" multiValued="true"/>
    <field name="committee_facet" type="string" indexed="true" stored="true" multiValued="true"/>
    <field name="subject_facet" type="string" indexed="true" stored="true" multiValued="true"/>
    <field name="keyword_facet" type="string" indexed="true" stored="true" multiValued="true"/>
    <field name="program_facet" type="string" indexed="true" stored="true" multiValued="true"/>
+   <field name="subfield_facet" type="string" indexed="true" stored="true" multiValued="true"/>
 
    <!-- Here, default is used to create a "timestamp" field indicating
         When each document was indexed.
@@ -345,11 +350,10 @@
    <copyField source="committee" dest="committee_facet"/>
    <copyField source="program" dest="program_facet"/>
    <copyField source="subfield" dest="program_facet"/>
+   <copyField source="subfield" dest="subfield_facet"/>
    <copyField source="subject" dest="subject_facet"/>
    <copyField source="keyword" dest="keyword_facet"/> 
 
-<!-- subfield must be included in program facet -->
-   <copyField source="subfield" dest="program_facet"/>
 
 <!-- fields that should be in default search -->
    <copyField source="author" dest="text"/>
