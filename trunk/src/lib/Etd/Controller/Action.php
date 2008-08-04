@@ -68,8 +68,11 @@ abstract class Etd_Controller_Action extends Zend_Controller_Action {
   protected function getFilterOptions() {
     $opts = array();
     foreach (array("status", "committee", "year", "program", "subject", "author", "keyword") as $filter) {
+      // only include a filter if the parameter is set and is not blank
       if ($this->_hasParam($filter))
-	$opts[$filter] = $this->_getParam($filter);
+	if ($value = $this->_getParam($filter)) {
+	  $opts[$filter] = $value;
+	}
     }
 
     // pass filters to the view to display for user
