@@ -23,7 +23,7 @@
    
    <b>Filter your results:</b>
    
-   <? foreach (array("status", "year", "subject", "advisor", "committee", "program", "author", "keyword") as $facet): ?>
+    <? foreach (array("status", "year", "subject", "advisor", "committee", "program", "author", "keyword", "subfield") as $facet): ?>
     <? if ($this->browse_mode == "committee" && $facet == "advisor") continue; ?>
     <? if ($this->browse_mode == "researchfield" && $facet == "subject") continue; ?>
      <? if (isset($this->facets->$facet) && count($this->facets->$facet)

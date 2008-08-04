@@ -628,7 +628,7 @@ class etd extends foxml implements etdInterface {
     $solr = Zend_Registry::get('solr');
     // FIXME: might make more sense to clear all filters and add relevant ones-- status, advisor, ?
     $solr->clearFacets();
-    $solr->addFacets(array("status", "advisor_facet"));
+    $solr->addFacets(array("status", "advisor_facet", "subfield_facet"));
     $query = "program_facet:\"$dept\" AND NOT status:published";
     // add any filters to the query
     $query .= etd::filterQuery($opts);
