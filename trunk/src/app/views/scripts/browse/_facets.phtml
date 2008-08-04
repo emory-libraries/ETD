@@ -4,15 +4,17 @@
 
 <? /* assumes view->facets is set with output from Solr */ ?>
 <div class="facets">
+
+    <?=  $this->render('search/_terms.phtml'); ?>
+
      <? /* display filters currently in effect and allow them to be removed */ ?>
      <? if (isset($this->filters) && count($this->filters)): ?>
         <p><b>Remove filters:</b></p>
 	<ul>
 	  <? foreach ($this->filters as $facet => $term): ?>
 	   <? /* build up url for this page _without_ this facet */ ?>
-	   <? $url_opts = array_merge(array('controller' => $this->controller, 'action' => $this->action),
-				      $this->url_params);
-		foreach ($this->filters as $f => $t) if ($f != $facet) $url_opts[$f] = $t; ?>
+	   <? $url_opts = array_merge(array('controller' => $this->controller, 'action' => $this->action), $this->url_params); ?>
+<?		foreach ($this->filters as $f => $t) if ($f != $facet) $url_opts[$f] = $t; ?>
 	    <li><a href="<?= $this->url($url_opts, '', true) ?>"><?= $term ?></a></li>
           <? endforeach ?>
 	</ul>
@@ -34,7 +36,10 @@
 	  <ul>
   	    <? foreach ($this->facets->$facet as $label => $count): ?>
   	      <li>
-  	        <a href="<?= $this->url(array($facet => $label)) ?>"><?= $label ?></a>
+<? /* include url params when generating links (needed for facets on search query) */ ?>
+<? $url_opts = array_merge(array('controller' => $this->controller, 'action' => $this->action), $this->url_params); ?>
+     <? $url_opts[$facet] = $label; ?>
+  	        <a href="<?= $this->url($url_opts) ?>"><?= $label ?></a>
 	       (<?= $count ?>)</li>
  	    <? endforeach ?>
 	  </ul>
