@@ -4,9 +4,6 @@ require_once("api/fedora.php");
 require_once("api/risearch.php");
 require_once("models/foxml.php");
 
-// Persistent ID server - generate arks for fedora pids
-require_once("Etd/Service/Persis.php");
-
 require_once("etdInterface.php");
 // etd datastreams
 require_once("etd_mods.php");
@@ -421,7 +418,7 @@ class etd extends foxml implements etdInterface {
      */
 
     // could generate service unavailable exception - should be caught in the controller
-    $persis = new Etd_Service_Persis();
+    $persis = new Emory_Service_Persis(Zend_Registry::get('persis-config'));
     
     // FIXME: use view/controller to build this url?
     $ark = $persis->generateArk("http://etd.library.emory.edu/view/record/pid/emory:{%PID%}", $this->label);
