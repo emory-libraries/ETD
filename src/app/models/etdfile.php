@@ -4,9 +4,6 @@ require_once("XmlObject.class.php");
 require_once("models/foxml.php");
 require_once("api/fedora.php");
 
-// Persistent ID server - generate arks for fedora pids
-require_once("Etd/Service/Persis.php");
-
 require_once("etd.php");
 require_once("etd_rels.php");
 require_once("etd_dc.php");
@@ -270,7 +267,7 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
    */
   public function ingest($message ) {
     // could generate service unavailable exception - should be caught in the controller
-    $persis = new Etd_Service_Persis();
+    $persis = new Emory_Service_Persis(Zend_Registry::get('persis-config'));
     
     // FIXME: is there any way to use view/controller helper to build this url?
     $ark = $persis->generateArk("http://etd.library.emory.edu/file/view/pid/emory:{%PID%}",
