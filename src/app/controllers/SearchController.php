@@ -14,63 +14,41 @@ class SearchController extends Etd_Controller_Action {
     $request = $this->getRequest();
     $query = $request->getParam("query");	// basic keyword/anywhere query
     $start = $request->getParam("start", 0);
-    $max = $request->getParam("max", 20);	
+    $max = $request->getParam("max", 20);
 
-     /* fixme: maybe get all params at once and then loop through them ? */
-    $this->view->query = array();
+    $opts = $this->getFilterOptions();
+    // includes these fields: status, committee, year, program, subject, author, keyword
 
-    // simple search
-    $this->view->query['query'] = $query;
     
-     $title = $request->getParam("title");
-     if ($title) {
-       $query .= " title:($title)";
-       $this->view->query['title'] = $title;
-     }
-     $author = $request->getParam("author");
-     if ($author) {
-       $query .= " author:($author)";
-       $this->view->query['author'] = $author;
-     }
-     $abstract = $request->getParam("abstract");
-     if ($abstract) {
-       $query .= " abstract:($abstract)";
-       $this->view->query['abstract'] = $abstract;
-     }
-     $committee = $request->getParam("committee");
-     if ($committee) {
-       $query .= " committee:($committee)";
-       $this->view->query['comittee'] = $committee;
-     }
-     $toc = $request->getParam("toc");
-     if ($toc) {
-       $query .= " tableOfContents:($toc)";
-       $this->view->query['comittee'] = $committee;
-     }
-     $keyword = $request->getParam("keyword");
-     if ($keyword) {
-       $query .= " keyword_facet:($keyword)";
-       $this->view->query['keyword'] = $keyword;
-     }
-     $subject = $request->getParam("subject");
-     if ($subject) {
-       $query .= " subject:($subject)";
-       $this->view->query['subject'] = $subject;
-     }
-     $program = $request->getParam("program");
-     if ($program) {
-       $query .= " program:($program)";
-       $this->view->query['program'] = $program;
-     }
-     $year = $request->getParam("year");
-     if ($year) {
-       $query .= " year:($year)";
-       $this->view->query['year'] = $year;
-     }
+    // non-facet fields included in advanced search
+    $extra_fields = array("title", "abstract", "tableOfContents");
+    $this->view->search_fields = $extra_fields;
+    foreach ($extra_fields as $field) {
+      if ($this->_hasParam($field)) {
+	// only include a if the parameter is set and is not blank
+	if ($value = $this->_getParam($field)) {
+	  $opts[$field] = $this->_getParam($field);
+	  $this->view->url_params[$field] = $opts[$field];
+	}
+      }
+    }
 
-     // restrict to records that have files available - any embargo has ended
+    // generate generic filter query from facets & search fields
+    $filter_query = etd::filterQuery($opts);
+
+    // combine simple search query with filter (either one could be blank)
+    if ($query) {
+      $this->view->url_params["query"] = $query;
+      if ($filter_query)	// only include filter if it is not blank
+	$query .= " AND " . $filter_query;
+    } else {
+      $query = $filter_query;
+    }
+
+    
      $unembargoed = $this->_hasParam("unembargoed");
      if ($unembargoed) {
+     // restrict to records that have files available - any embargo has ended
        $today = date("Ymd");	// today's date
        // any embargoes that have ended today or before
        $embargo_query = " date_embargoedUntil:[*  TO $today]";  
@@ -90,19 +68,12 @@ class SearchController extends Etd_Controller_Action {
      
      $solr = Zend_Registry::get('solr');
 
-     // FIXME: turning off lower-casing because now using date_embargoedUntil field
-     // -  shouldn't cause problems
-     //     $query = strtolower($query);	// FIXME: any cases where this won't work?
-     $results = $solr->queryPublished($query, $start, $max);	// limit to published records
+     // by default, limiting search to published records
+     $results = $solr->queryPublished($query, $start, $max);
      
      $this->view->count = $results->numFound;
      $this->view->etds = $results->docs;
-     
      $this->view->facets = $results->facets;
-     
-     /*       $this->view->count = $results->response->numFound;
-      $this->view->etds = $results->response->docs;
-      $this->view->facets = $results->facet_counts->facet_fields;*/
      
      $this->view->results = $results;
      $this->view->title = "Search Results"; 
@@ -113,13 +84,11 @@ class SearchController extends Etd_Controller_Action {
      $this->view->post = true;
      
 
-     //
      $etds = array();
      foreach ($results->docs as $result_doc) {
        array_push($etds, new etd($result_doc->PID));
      }
      $this->view->etds = $etds;
-
 
 
      // if there's only one match found, forward directly to full record view
@@ -128,7 +97,6 @@ class SearchController extends Etd_Controller_Action {
        $this->_helper->redirector->gotoRoute(array("controller" => "view",
 						   "action" => "record", "pid" => $etds[0]->pid), "", true);
      } 
-
    }
 
 
