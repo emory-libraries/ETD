@@ -3,5 +3,5 @@
 <? if ($this->env == "development"): ?>
 <?= $this->exception->getMessage() ?><br/>
 Line <b><?= $this->exception->getLine() ?></b> in <b><?= $this->exception->getFile() ?></b><br/>
-<?= $this->exception->getTraceAsString() ?>
+<pre><?= $this->exception->getTraceAsString() ?></pre>
 <? endif ?>
