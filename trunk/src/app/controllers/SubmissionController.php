@@ -113,6 +113,7 @@ class SubmissionController extends Etd_Controller_Action {
       try {
 	// create an etd file object for uploaded PDF and associate with etd record
 	$pid = $etd->save("creating preliminary record from uploaded pdf");
+	$this->logger->info("Created new etd record with pid $pid");
 	$error = false;
       } catch (PersisServiceUnavailable $e) {
 	// if Persis is down this would probably already be caught when attempting to save new etd
@@ -127,11 +128,13 @@ class SubmissionController extends Etd_Controller_Action {
 	if ($this->debug) print $e->getMessage() . "<br/>\n";
 	$this->view->errors[] = "Could not create record.";
 	$this->view->xml = $etd->saveXML();
+	$this->logger->err("Could not create etd record : FedoraObjectNotValid");
 	return;
       }
 
       // any of the Persis Service errors
       if ($error) {
+	$this->logger->err($message);
 	$this->_helper->flashMessenger->addMessage("Error: $message");
 	// redirect to an error page
 	$this->_helper->redirector->gotoRouteAndExit(array("controller" => "error", "action" => "unavailable"));
@@ -146,7 +149,12 @@ class SubmissionController extends Etd_Controller_Action {
 	// could use fullname as agent id, but netid seems more useful
 	$etd->premis->addEvent("ingest", "Record created by " . $current_user->fullname, "success",
 			       array("netid", $current_user->netid));
-	$etd->save("added ingest history event");
+	$message = "added ingest history event";
+	$result = $etd->save($message);
+	if ($result)
+	  $this->logger->info("Updated etd " . $etd->pid . " at $result ($message)");
+	else
+	  $this->logger->err("Error updating etd " . $etd->pid . " ($message)");
 
 	// only create the etdfile object if etd was successfully created
 	$etdfile = new etd_file(null, $etd);	// initialize from template, but associate with parent etd
@@ -158,6 +166,7 @@ class SubmissionController extends Etd_Controller_Action {
 	$error = true;
 	try {
 	  $filepid = $etdfile->save("creating record from uploaded pdf");	// save and get pid
+	  $this->logger->info("Created new etdFile $filepid");
 	  $error = false;
 	} catch (PersisServiceUnavailable $e) {
 	  // if Persis is down this would probably already be caught when attempting to save new etd
@@ -173,10 +182,12 @@ class SubmissionController extends Etd_Controller_Action {
 	  $this->view->errors[] = "Could not save PDF to Fedora.";	// FIXME: better error message?
 	  if ($this->debug) $this->view->filexml = $etdfile->saveXML();
 	  // FIXME: should it bail out here? or let them continue? ... letting them continue for now
+	  $this->logger->err("Could not ingest etdFile : FedoraObjectNotValid");
 	}
 
 	if ($error) {
 	  $this->_helper->flashMessenger->addMessage("Error: $message");
+	  $this->logger->err($message);
 	  // redirect to an error page
 	  $this->_helper->redirector->gotoRouteAndExit(array("controller" => "error", "action" => "unavailable"));
 	}
@@ -185,9 +196,14 @@ class SubmissionController extends Etd_Controller_Action {
 	// delete temporary file now that we are done with it
 	unlink($etd_info['pdf']);
 	
-	// add relation to etd object and save changes
-	$result = $etd->addPdf($etdfile);
-	$etd->save("added relation to uploaded pdf");
+	// add relation to etdfile object and save changes
+	$etd->addPdf($etdfile);
+	$result = $etd->save("added relation to uploaded pdf");	// also saves changed etdfile
+	if ($result)
+	  $this->logger->info("Updated etd " . $etd->pid . " at $result (adding relation to pdf)");
+	else
+	  $this->logger->err("Error updating etd " . $etd->pid . " (adding relation to pdf)");
+
 	if ($this->debug) $this->_helper->flashMessenger->addMessage("Saved etd file as $filepid");
 	
 	$this->_helper->redirector->gotoRoute(array("controller" => "view",
@@ -283,6 +299,7 @@ class SubmissionController extends Etd_Controller_Action {
     $result = $etd->save("set status to '$newstatus'; notification event");
     if ($result) {
       $this->_helper->flashMessenger->addMessage("Record status changed to <b>$newstatus</b>");
+      $logger->info("Successfully submitted " . $etd->pid);
 
       // send notification only if submit succeeded 
       $notify = new etd_notifier($etd);
@@ -290,6 +307,7 @@ class SubmissionController extends Etd_Controller_Action {
       $this->_helper->flashMessenger->addMessage("Submission notification email sent to " . implode(', ', array_keys($to)));
     }
     else {
+      $logger->err("Problem submitting " . $etd->pid);
       $this->_helper->flashMessenger->addMessage("Error: there was a problem submitting your record");
     }
     
