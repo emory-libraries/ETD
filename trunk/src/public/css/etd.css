@@ -835,3 +835,17 @@ div.facets li {
 }
 
 div.facets p.label { font-weight:bold; color:#f1aa00; /*text-decoration:underline; */}
+
+/*div.log { clear:both; }*/
+div.log .priority { float:left; width:5em;/*border:1px solid red; */}
+div.log .user { float:left; width:5em; }
+div.log .message { margin-left:10em; }
+div.log .backtrace { white-space:pre; text-indent:0px;}
+div.log div.timestamp { float:right; color:grey;}
+div.ERR { color:red; }
+div.WARN { color:orange; }
+div.INFO { color:blue; }
+div.DEBUG { color:purple; }
+
+div.log-labels { font-weight:bold; border-bottom:1px solid black; margin-bottom:5px; }
+div.log-labels div.timestamp { color:black }
