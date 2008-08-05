@@ -6,6 +6,8 @@ abstract class Etd_Controller_Action extends Zend_Controller_Action {
   protected $debug;
   protected $env;
   protected $requires_fedora = false;
+
+  protected $logger;
   
   public function init() {
     $this->initView();
@@ -19,6 +21,8 @@ abstract class Etd_Controller_Action extends Zend_Controller_Action {
     
     $this->debug = Zend_Registry::get('debug');
     $this->view->debug = $this->debug;
+
+    $this->logger = Zend_Registry::get('logger');
 
     //        $this->acl = $this->view->acl;	// FIXME: which is better? Zend_Registry::get("acl");
     $this->acl = Zend_Registry::get('acl');
@@ -81,7 +85,7 @@ abstract class Etd_Controller_Action extends Zend_Controller_Action {
 
     return $opts;
   }
-  
+
 }
 
 ?>
