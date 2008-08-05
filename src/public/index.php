@@ -86,8 +86,8 @@ $newsolr->addFacets($solr_config->facet->toArray());
 Zend_Registry::set('solr', $newsolr);
 
 // sqlite db for statistics data
-$config = new Zend_Config_Xml('../config/statistics.xml', $env_config->mode);
-$db = Zend_Db::factory($config);
+$db_config = new Zend_Config_Xml('../config/statistics.xml', $env_config->mode);
+$db = Zend_Db::factory($db_config);
 Zend_Registry::set('stat-db', $db);	
 
 
@@ -121,6 +121,30 @@ if (isset($current_user)) {
 require_once("xml_acl.php");
 $acl = new Xml_Acl();
 Zend_Registry::set('acl', $acl);
+
+
+// setup logging
+// FIXME: could also write to db -- useful?
+$writer = new Zend_Log_Writer_Stream($config->logfile);
+// default field names and order, but adding username
+$formatter = new Zend_Log_Formatter_Xml('logEntry',
+					array(
+					      "timestamp" => "timestamp",
+					      "message" => "message",
+					      "priorityName" => "priorityName",
+					      "priority" => "priority",
+					      "username" => "username",
+					      )
+					);
+$writer->setFormatter($formatter);
+$logger = new Zend_Log($writer);
+if (isset($current_user)) $username = $current_user->netid;
+else $username = "guest";
+// store username with every entry
+$logger->setEventItem('username', $username);
+// $filter = new Zend_Log_Filter_Priority(priority here...);
+// $logger->addFilter($filter);
+Zend_Registry::set('logger', $logger);
 
 
 
