@@ -52,6 +52,11 @@ class AuthController extends Etd_Controller_Action {
        $this->_helper->redirector->gotoUrl($url, array("prependBase" => false));
      } else {	
        $this->_helper->flashMessenger->addMessage("Login successful");
+
+       // store username for newly logged in user
+       $this->logger->setEventItem('username', $username);
+       $this->logger->debug("login");
+
        // find this user in ESD and save their user information
        $esd = new esdPersonObject();
        try {
@@ -90,9 +95,14 @@ class AuthController extends Etd_Controller_Action {
 
    public function logoutAction() {
      $auth = Zend_Auth::getInstance();
+     $current_user = $auth->getIdentity();
+     $this->logger->debug("logout");
+
      $auth->clearIdentity();
      unset($this->view->current_user);
      $this->_helper->flashMessenger->addMessage("Logout successful");
+
+
 
      // forward to ... ?
      $this->_helper->redirector->gotoRoute(array("controller" => "index",
