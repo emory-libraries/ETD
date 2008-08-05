@@ -355,6 +355,9 @@ class etd extends foxml implements etdInterface {
   /*
    * set committee chairs & members in MODS metadata
    * but *also* set in xacml view policy and RELS-EXT
+   *
+   * @param array $ids array of string OR of esdPerson objects; assumed to be all the same
+   * @param string $type type of committee person: member or chair
    */
   public function setCommittee(array $ids, $type = "committee") {
     // clear any old committee members from policy 
@@ -367,10 +370,22 @@ class etd extends foxml implements etdInterface {
     }
 
     // store new committee in mods, rels-ext
-    $this->mods->setCommittee($ids, $type);
-    $this->rels_ext->setCommittee($ids);
+    if ($ids[0] instanceof esdPerson)		// already esdPerson objects - no lookup required
+      $this->mods->setCommitteeFromPersons($ids, $type);
+    else	       // set in mods by netid
+      $this->mods->setCommittee($ids, $type);
 
-    foreach ($ids as $id) {
+
+    // generate an array of netid strings
+    $netids = array();
+    if ($ids[0] instanceof esdPerson) {
+      foreach ($ids as $person) $netids[] = $person->netid;
+    } else {
+      $netids = $ids;
+    }
+    $this->rels_ext->setCommittee($netids);
+
+    foreach ($netids as $id) {
       // add to view policy rule for etd and associated files
       foreach (array_merge(array($this), $this->pdfs, $this->supplements) as $obj) {
         $obj->policy->view->condition->addUser($id);

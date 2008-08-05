@@ -77,7 +77,8 @@ class SubmissionController extends Etd_Controller_Action {
 	  $this->ESDerror();
 	}
 	if ($advisor) {
-	  $etd->mods->setCommitteeFromPersons(array($advisor), "chair");
+	  // FIXME: need to do through etd so xacml will get updated
+	  $etd->setCommittee(array($advisor), "chair");
 	} else {
 	  $this->_helper->flashMessenger->addMessage("Couldn't find directory match for " .
 						     $this->view->etd_info['advisor'] . "; please enter manually");
@@ -99,7 +100,7 @@ class SubmissionController extends Etd_Controller_Action {
 						     . $cm . "; please enter manually");
       }
       // don't set committee if none are found (causes problem trying to remove blank entry)
-      if (count($committee)) $etd->mods->setCommitteeFromPersons($committee);
+      if (count($committee)) $etd->setCommittee($committee);
 
 
       foreach ($etd_info['keywords'] as $i => $keyword) {

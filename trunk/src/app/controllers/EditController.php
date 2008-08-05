@@ -74,8 +74,8 @@ class EditController extends Etd_Controller_Action {
     $this->view->committee_ids = $committee_ids;
 
     // set fields
-    $etd->mods->setCommittee($chair_ids, "chair");
-    $etd->mods->setCommittee($committee_ids);
+    $etd->setCommittee($chair_ids, "chair");
+    $etd->setCommittee($committee_ids);
 
     // handle non-emory committee members as well
     $etd->mods->clearNonEmoryCommittee();
@@ -269,6 +269,8 @@ class EditController extends Etd_Controller_Action {
       $this->view->noxml = true;
     } else {
       $etd->mods->updateXML($xml);
+      // update main record in case dept. has changed - set in etd & etdfile xacml, etc.
+      $etd->department = $etd->mods->department;
       
       if ($etd->mods->hasChanged()) {
 	$save_result = $etd->save($log_message);
