@@ -138,7 +138,7 @@ class etd extends foxml implements etdInterface {
   /* convenience functions to add and remove policies in etd and related objects all at once
       note: the only rule that may be added and removed to original/archive copy is draft
    */
-  private function addPolicyRule($name) {
+  public function addPolicyRule($name) {
     $objects = array_merge(array($this), $this->pdfs, $this->supplements);
     if ($name == "draft") $objects = array_merge($objects, $this->originals);
     foreach ($objects as $obj) {
@@ -168,8 +168,7 @@ class etd extends foxml implements etdInterface {
   }
 
   public function removePolicyRule($name) {
-    $objects = array_merge(array($this), $this->pdfs, $this->supplements);
-    if ($name == "draft") $objects = array_merge($objects, $this->originals);
+    $objects = array_merge(array($this), $this->pdfs, $this->supplements, $this->originals);
     foreach ($objects as $obj) {
       if (isset($obj->policy->{$name}))	$obj->policy->removeRule($name);
     }
@@ -185,7 +184,11 @@ class etd extends foxml implements etdInterface {
 
     return $this->addFile($etdfile, "PDF");
   }
-  public function addOriginal(etd_file $etdfile) { return $this->addFile($etdfile, "Original");  }
+  public function addOriginal(etd_file $etdfile) {
+    // original documents should not have 'view' rule; this is the best place to remove 
+    if (isset($etdfile->policy->view)) $etdfile->policy->removeRule("view");
+    return $this->addFile($etdfile, "Original");
+  }
   public function addSupplement(etd_file $etdfile) { return $this->addFile($etdfile, "Supplement");  }
   
   // set the relations between this etd and a file object (original, pdf, supplement)
@@ -549,6 +552,29 @@ class etd extends foxml implements etdInterface {
     
     return $totals;
   }
+
+
+  // generic find copied from smallpox - useful ? possible to consolidate other searches ?
+  public static function find($start, $max, $opts = array(), &$total = null, &$facets = null) {
+    $solr = Zend_Registry::get('solr');
+    // FIXME: add filters to query based on opts
+
+    $sort = null;
+    if (isset($opts['sort'])) $sort = $opts['sort'];
+    $query = "contentModel:etd";	// FIXME: don't hard-code content model
+
+    $results = $solr->query($query, $start, $max, $sort);
+    $total = $results->numFound;
+    $facets = $results->facets;
+
+    $etds = array();
+    foreach ($results->docs as $result_doc) {
+      $etds[] = new etd($result_doc->PID);
+      // FIXME: store relevance?  $result_doc->score;
+    }
+    return $etds;
+  }
+
 
 
   // find etds by status
