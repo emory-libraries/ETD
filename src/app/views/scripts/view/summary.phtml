@@ -25,6 +25,7 @@
    <br/>
 <b>Committee Chair<? if (count($this->etd->chair()) > 1): ?>s<? endif ?>:</b>
  <? foreach ($this->etd->chair() as $chair): ?>
+   <? if ($chair == "") continue; ?>
    <? $last = ($chair == $chair[count($chair)-1]); ?>
    <? if ($published): ?>
      <a href="<?= $this->url(array('controller' => 'browse', 'action' => 'committee',
