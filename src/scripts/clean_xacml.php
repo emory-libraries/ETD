@@ -1,14 +1,19 @@
 #!/usr/bin/php -q
 <?php
 
+  /**
+	This script cleans known xacml problems on existing records.
+	- remove draft rule if status is not draft
+	- remove view rule and add new one from current template, to
+  	  update graduate coordinator portion of the rule (August 2008)
+   */
 
-// ZendFramework, etc.
+
+  // ZendFramework, etc.
 ini_set("include_path", "../app/:../config:../app/models:../app/modules/:../lib:../lib/ZendFramework:../lib/fedora:../lib/xml-utilities:js/:/home/rsutton/public_html:" . ini_get("include_path")); 
 
 require("Zend/Loader.php");
 Zend_Loader::registerAutoload();
-
-require_once("Zend/Console/Getopt.php");
 
 require_once("models/etd.php");
 require_once("models/etd_notifier.php");
@@ -25,7 +30,7 @@ $fedora = new FedoraConnection($fedora_cfg->maintenance_account->user,
 			       $fedora_cfg->server, $fedora_cfg->port,
 			       $fedora_cfg->protocol, $fedora_cfg->resourceindex);
 Zend_Registry::set('fedora', $fedora);
-
+ 
 // set up connection to solr to find records with expiring embargoes
 $solr_config = new Zend_Config_Xml("../config/solr.xml", $env_config->mode);
 $solr = new Etd_Service_Solr($solr_config->server, $solr_config->port, $solr_config->path);
@@ -33,17 +38,18 @@ $solr->addFacets($solr_config->facet->toArray());
 Zend_Registry::set('solr', $solr);
 
 $opts = new Zend_Console_Getopt(
-  array(
-    'verbose|v=s'      => 'Output level/verbosity; one of error, warn, notice, info, debug (default: error)',
-    'noact|n'	       => "Test/simulate - don't actually do anything (no actions)",
-    )
-  );
+	array(
+	      'pid|p=s'	    => 'Clean xacml on one etd record only',
+	      'verbose|v=s' => 'Output level/verbosity; one of error, warn, notice, info, debug (default: error)',
+	      'noact|n'	    => "Test/simulate - don't actually do anything (no actions)",
+	      )
+	);
 
 // extended usage information - based on option list above, but with explanation/examples
 $scriptname = basename($_SERVER{"SCRIPT_NAME"});
 $usage = $opts->getUsageMessage() . "
+ $scriptname goes through all etd records and cleans object xacml policy
 ";
-//  FIXME: do we need more information here?
 
 
 try {
@@ -77,31 +83,61 @@ $filter = new Zend_Log_Filter_Priority($verbosity);
 $logger->addFilter($filter);
 
 
+$count = 0;
 
 
-$logger->info("Searching for unpublished records");
-$etds = etd::findUnpublished(0, 30); 	// enough to get all records in current state
-$logger->info("Found " . count($etds) . " record" . ((count($etds) != 1) ? "s" : ""));
+// if pid is specified, run single record mode
+if ($opts->pid) {
+  $etd = new etd($opts->pid);
+  clean_xacml($etd);
+  return;
+}
 
-foreach ($etds as $etd) {
-  $logger->info("Processing " . $etd->pid);
+
+// find *all* records, no matter their status
+$start = 0;
+$setsize = 30;		// retrieve records in chunks of 100
+$total = $setsize;	// set to an initial value to iterate at least once
+while ($start < $total) {	// loop through the images in chunks of setsize
+  $etds = etd::find($start, $setsize, array(), $total); 
+  $logger->info("Processing records $start-" . ($start + $setsize) . " of $total");
+
+  foreach ($etds as $etd) {
+    if (clean_xacml($etd)) $count++;
+  }
+
+  $start += $setsize;	// move to the next set of records
+}
+
+$logger->info($count . " records changed");
+
+
+
+
+/**
+ * do the actual work of cleaning the xacml
+ * @param etd $etd to be cleaned
+ * @return boolean whether or not record was changed
+ */
+function clean_xacml(etd $etd) {
+  global $logger, $opts;
+
+  $logger->debug("Processing " . $etd->pid);
   // update view rules
   //  - advisor & committee members should be listed on view rules for etd & all etdfiles but original
   //  - departmental staff (filtered by department name) is allowed to view
   
-  // advisor is allowed to view
-  if ($etd->mods->advisor->id != "") {
-    $logger->debug("Adding advisor id " . $etd->mods->advisor->id . " to policy view rule");
-    foreach (array_merge(array($etd), $etd->pdfs, $etd->supplements) as $obj) {
-      $obj->policy->view->condition->addUser($etd->mods->advisor->id);	  
-    }
-  }
-  // committee members are allowed to view
-  foreach ($etd->mods->committee as $cm) {
-    if ($cm->id == "") continue;	// skip if not yet set
-    $logger->debug("Adding committee member id " . $cm->id . " to policy view rule");
-    foreach (array_merge(array($etd), $etd->pdfs, $etd->supplements) as $obj) {
-      $obj->policy->view->condition->addUser($cm->id);
+  // remove old view role and add new one to get new grad coordinator xacml
+  $etd->removePolicyRule("view");
+  $etd->addPolicyRule("view");		// should not get added to original files
+  
+  // add committee chairs & members to policies
+  foreach (array_merge($etd->mods->chair, $etd->mods->committee) as $committee) {
+    if ($committee->id != "") {
+      $logger->debug("Adding committee id " . $committee->id . " to policy view rule");
+      foreach (array_merge(array($etd), $etd->pdfs, $etd->supplements) as $obj) {
+	$obj->policy->view->condition->addUser($committee->id);	  
+      }
     }
   }
   // set department for departmental staff view
@@ -114,28 +150,30 @@ foreach ($etds as $etd) {
   
   // if etd is no longer in draft status, make sure draft rule is removed from etd files
   if ($etd->status() != "draft") {
-    $logger->debug("Record is not in draft status; removing policy draft rules");
-    $etd->removePolicyRule("draft");		// remove draft policy on etd & all files, if it is there
+    // draft rule could be present in one of the etdfiles (hard to detect); just force removal
+    $logger->debug("Record is not in draft status; removing any draft policy rules.");
+    $etd->removePolicyRule("draft");		// remove draft policy on etd & all files
   }
   
-  if (!$opts->noact) {
-    $hasChanged = false;
-    foreach (array_merge(array($etd), $etd->pdfs, $etd->supplements) as $obj) {
-      if ($obj->policy->hasChanged()) $hasChanged == true;
-    }
-    if ($hasChanged) {
-      $result = $etd->save("cleaned xacml policy - advisor, committee, department on view rule; draft rule");
-      if ($result)
-	$logger->info("Saved changes to " . $etd->pid . " and associated files");
-      else	// save failed
-	$logger->err("Error saving changes to " . $etd->pid . " and associated files");
-
-      // FIXME: if etdfiles changed but etd did not, might look like an error here when it is not
-    } else {
-      $logger->info("No changes to policies on " . $etd->pid . " or associated files");
-    }
+  // check if anything has been changed (for reporting purposes)
+  $hasChanged = false;
+  foreach (array_merge(array($etd), $etd->pdfs, $etd->supplements) as $obj) {
+    if ($obj->policy->hasChanged()) $hasChanged = true;
   }
+  
+  if (!$hasChanged) {
+    $logger->info("No changes to policies on " . $etd->pid . " or associated files");
+  } elseif (!$opts->noact) {
+    $result = $etd->save("cleaned xacml policy - advisor, committee, department on view rule; draft rule");
+    if ($result)
+      $logger->info("Saved changes to " . $etd->pid . " and associated files");
+    else	// save failed
+      $logger->err("Error saving changes to " . $etd->pid . " and associated files");
+  }
+  // NOTE: if etdfiles changed but etd did not, might look like an error here when it is not
 
+
+  
+  // return whether or not the record was changed
+  return $hasChanged;
 }
-
-
