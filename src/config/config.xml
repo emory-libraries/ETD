@@ -10,6 +10,7 @@
 	    <test>rsutton@emory.edu</test>
 	  </email>
 	  <tmpdir>/tmp/etd</tmpdir>
+	  <logfile>/home/rsutton/public_html/etdnew/tmp/logfile.xml</logfile>
   	  <!-- executable for pdftohtml; supply full path if necessary -->
 	  <pdftohtml>/usr/local/bin/pdftohtml</pdftohtml>	
 	   <!-- browsers supported for submission process  
