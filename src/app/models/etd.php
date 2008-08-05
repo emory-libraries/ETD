@@ -194,16 +194,14 @@ class etd extends foxml implements etdInterface {
     case "PDF": 
     case "Original":
     case "Supplement":
-      $array_name = strtolower($relation) . "s";	//pdfs, originals, supplements
+      $rel_name = strtolower($relation) . "s";	//pdfs, originals, supplements
       break;
     }
-    $count = count($this->{$array_name});
+    $count = count($this->{$rel_name});
     
     // if there is already a file of this type, set the number accordingly
     if ($count) {
       $etdfile->rels_ext->sequence = $count + 1;
-      // FIXME: should this save here, or would that be unexpected behavior?
-      $etdfile->save("setting sequence number");
     }
 
     // update etdfile xacml with any information already added to etd
@@ -224,13 +222,11 @@ class etd extends foxml implements etdInterface {
     // etd is related to file
     $this->rels_ext->addRelationToResource("rel:has{$relation}", $etdfile->pid);
 
-    // add the etd file to the appropriate array in this object
-    // FIXME: this may not work with the new dynamic related objects set/get in foxml class
-    if (!isset($this->related_objects[$array_name])) $this->related_objects[$array_name] = array();
-    $this->related_objects[$array_name][] = $etdfile;
-    //$this->related_objects[$array_name][] = new etd_file ($etdfile->pid);
-    // fixme: need better error handling here...
-
+    /** add the etd file to the appropriate related objects array in this object
+        this will result in the changed etdfile being saved when and if the etd is saved
+     */
+    if (!isset($this->related_objects[$rel_name])) $this->related_objects[$rel_name] = array();
+    $this->related_objects[$rel_name][] = $etdfile;
 
     // NOTE: record should be saved after this; not saving here for consistency & easier testing
   }
@@ -428,7 +424,7 @@ class etd extends foxml implements etdInterface {
 
     $this->pid = $pid;
     $this->mods->ark = $ark;
-    
+
     return $this->fedora->ingest($this->saveXML(), $message);
   }
 
