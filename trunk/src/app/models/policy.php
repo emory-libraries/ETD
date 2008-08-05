@@ -10,8 +10,6 @@ class XacmlPolicy extends foxmlDatastreamAbstract {
   
   protected $xmlconfig;
 
-
-
   
   public function __construct($dom, $xpath = null) {
     // note: even though namespace is not used in xml, needs to be used here for xpath to work
@@ -188,7 +186,7 @@ class policyCondition extends XmlObject {
 	"user" => array("xpath" => "x:AttributeValue[following-sibling::x:SubjectAttributeDesignator[@AttributeId='urn:fedora:names:fedora:2.1:subject:loginId'] and parent::x:Condition[@FunctionId='urn:oasis:names:tc:xacml:1.0:function:string-is-in']]"),
 
 	// department name for departmental staff
-	"department" => array("xpath" => "x:Apply[@FunctionId='urn:oasis:names:tc:xacml:1.0:function:and'][x:Apply[@FunctionId='urn:oasis:names:tc:xacml:1.0:function:string-is-in'][x:AttributeValue='Staff'][x:SubjectAttributeDesignator/@AttributeId='organizationalstatus']]/x:Apply[@FunctionId='urn:oasis:names:tc:xacml:1.0:function:string-is-in'][x:SubjectAttributeDesignator/@AttributeId='ou']/x:AttributeValue"),
+	"department" => array("xpath" => "x:Apply[@FunctionId='urn:oasis:names:tc:xacml:1.0:function:string-is-in'][x:SubjectAttributeDesignator/@AttributeId='deptCoordinator']/x:AttributeValue"),
 
 
 	// date
@@ -235,7 +233,7 @@ class EtdXacmlRules {
   */
   
 const view = '<Rule xmlns="urn:oasis:names:tc:xacml:1.0:policy" RuleId="view" Effect="Permit">
- <!-- Allow committee members &  departmental staff to view everything (mods, dc, xhtml, premis, rels-ext)  -->
+ <!-- Allow committee members and  departmental staff to view everything (mods, dc, xhtml, premis, rels-ext)  -->
     <Target>
      <Subjects>
         <AnySubject/>
@@ -305,6 +303,17 @@ const view = '<Rule xmlns="urn:oasis:names:tc:xacml:1.0:policy" RuleId="view" Ef
           </ActionMatch>
         </Action>
 
+      <!-- api-m getDatastream for high-level datastream info (time last modified) -->
+      <Action>
+        <ActionMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">urn:fedora:names:fedora:2.1:action:id-getDatastream</AttributeValue>
+          <ActionAttributeDesignator
+                MustBePresent="false"
+                DataType="http://www.w3.org/2001/XMLSchema#string" 
+                AttributeId="urn:fedora:names:fedora:2.1:action:id"/>
+        </ActionMatch>
+       </Action>
+
       </Actions>
     </Target>
 	
@@ -318,22 +327,12 @@ const view = '<Rule xmlns="urn:oasis:names:tc:xacml:1.0:policy" RuleId="view" Ef
         </Apply>
       </Apply>
 
-      <!-- departmental staff: should be staff + in a particular department -->
-      <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:and">
-        <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-is-in">
-         <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">Staff</AttributeValue>
-	 <SubjectAttributeDesignator DataType="http://www.w3.org/2001/XMLSchema#string"
-		AttributeId="organizationalstatus" MustBePresent="false"/>
-	<!-- organizationalstatus is LDAP attribute : faculty/staff -->
-        </Apply>
-
+      <!-- program coordinator: ESD db filter should set deptCoordinator attribute -->
         <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-is-in">
          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string"/>
 	 <SubjectAttributeDesignator DataType="http://www.w3.org/2001/XMLSchema#string"
-		AttributeId="ou" MustBePresent="false"/>
-	<!-- ou is an LDAP attribute : organizational unit (= department) -->
-        </Apply>
-      </Apply>	<!-- end departmental staff -->
+		AttributeId="deptCoordinator" MustBePresent="false"/>
+      </Apply>	<!-- end program coordinator -->
 
     </Condition>
   </Rule>
