@@ -14,19 +14,25 @@ log level:
 </form>
 <hr/>
 
-<div class="log">
- <? foreach ($this->logEntries as $entry): ?>
-  <p>
+<?/* labels */ ?>
+ <div class="log log-labels">
+    <div class="priority">priority</div>
     <? if (!isset($this->username)): /* if filtering by user, don't display username */?>
-     <?= $entry->username ?>
+     <div class="user">user</div>
     <? endif ?>
-    <span class="priority"><?= $entry->priorityName ?></span>
-    <? if (preg_match("/^Backtrace:/", $entry->message)): ?>
-      <pre><?= $entry->message ?></pre>
-    <? else: ?>
+    <div class="timestamp">time</div>
+    <div class="message">message</div>
+  </div>
+
+<? foreach ($this->logEntries as $entry): ?>
+ <div class="log">
+    <div class="priority <?=$entry->priorityName ?>"><?= $entry->priorityName ?></div>
+    <? if (!isset($this->username)): /* if filtering by user, don't display username */?>
+     <div class="user"><?= $entry->username ?></div>
+    <? endif ?>
+    <div class="timestamp"><?= $entry->timestamp ?></div>
+    <div class="message <? if (preg_match("/^Backtrace:/", $entry->message)): ?>backtrace<? endif ?>">
       <?= $entry->message ?>
-    <? endif ?>
-    <?= $entry->timestamp ?>
-  </p>
- <? endforeach ?>
-</div>
+    </div>
+  </div>
+<? endforeach ?>

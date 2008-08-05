@@ -16,7 +16,7 @@ class ErrorController extends Etd_Controller_Action {
     $logger->err("Exception of type " . get_class($errorHandler->exception) . ": " . $errorHandler->exception->getMessage());
     $logger->debug("Exception on line " . $errorHandler->exception->getLine() .
 		  " in " . $errorHandler->exception->getFile());
-    $logger->debug("Backtrace: " . $errorHandler->exception->getTraceAsString());
+    $logger->debug("Backtrace:\n" . $errorHandler->exception->getTraceAsString());
     
 
     switch ($errorHandler->type) {
