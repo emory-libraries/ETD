@@ -188,6 +188,24 @@ class ManageController extends Etd_Controller_Action {
      
    }
 
+
+   public function viewLogAction() {
+     $priority = $this->_getParam("priority", Zend_Log::DEBUG);
+     $this->view->priority = $priority;
+     $filter['priority'] = $priority;
+     // optionally filter log entries by username
+     $username = $this->_getParam("username");
+     if ($username)  {
+       $filter['username'] = $username;
+       $this->view->username = $username;
+     }
+
+     $config = Zend_Registry::get('config');
+     $log = new Emory_Log_Reader_Xml($config->logfile);
+     
+     $this->view->logEntries = $log->getEntries($filter);
+   }
+
    
    public function exportemailsAction() {
      if (!$this->_helper->access->allowedOnEtd("manage")) return false;
