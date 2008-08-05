@@ -1,0 +1,32 @@
+<h1>View Log</h1>
+
+<p><b>Filter log output</b></p>
+<form action="<?= $this->url(array("controller" => "manage", "action" => "view-log"), '', true) ?>">
+username: <input type="text" name="username" value="<?= $this->username ?>"/>
+log level:
+<?= $this->formSelect("priority", $this->priority, null,
+		     array(Zend_Log::DEBUG => "Debug",
+			   Zend_Log::INFO => "Info",
+			   Zend_Log::WARN => "Warning",
+			   Zend_Log::ERR => "Error")) ?>
+
+<input type="submit" value="submit"/>
+</form>
+<hr/>
+
+<div class="log">
+ <? foreach ($this->logEntries as $entry): ?>
+  <p>
+    <? if (!isset($this->username)): /* if filtering by user, don't display username */?>
+     <?= $entry->username ?>
+    <? endif ?>
+    <span class="priority"><?= $entry->priorityName ?></span>
+    <? if (preg_match("/^Backtrace:/", $entry->message)): ?>
+      <pre><?= $entry->message ?></pre>
+    <? else: ?>
+      <?= $entry->message ?>
+    <? endif ?>
+    <?= $entry->timestamp ?>
+  </p>
+ <? endforeach ?>
+</div>
