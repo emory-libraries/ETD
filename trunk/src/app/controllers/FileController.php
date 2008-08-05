@@ -95,12 +95,18 @@ class FileController extends Etd_Controller_Action {
        case "supplement": $etd->addSupplement($etdfile); break;
        default:	
 	 trigger_warning("relation '$relation' not recognized - not adding to etd", E_USER_WARNING);
-      }
+       }
 
+       // note: saving etd will also save any changed related objects (etdfile rels & xacml)
        $result = $etd->save("added relation to uploaded $file_rel");
-       if (!$result)	// only warn if there is a problem
+       if ($result)
+	 $this->logger->info("Updated etd " . $etd->pid . " at $result (adding relation to pdf)");
+       else {
 	 $this->_helper->flashMessenger->addMessage("Error: problem  associating new $relation file with your ETD record");
+	 $this->logger->err("Error updating etd " . $etd->pid . " (adding relation to pdf)");
+       }
 
+       
        // direct user to edit file info
        $this->_helper->redirector->gotoRoute(array("controller" => "file", "action" => "edit",
        						   "pid" => $etdfile->pid, 'etd' => $etd->pid), '', true);
