@@ -11,6 +11,14 @@ class ErrorController extends Etd_Controller_Action {
     $errorHandler = $this->_getParam("error_handler");
     $this->view->exception = $errorHandler->exception;
 
+
+    $logger = Zend_Registry::get("logger");
+    $logger->err("Exception: " . $errorHandler->exception->getMessage());
+    $logger->debug("Exception on line " . $errorHandler->exception->getLine() .
+		  " in " . $errorHandler->exception->getFile());
+    $logger->debug("Backtrace: " . $errorHandler->exception->getTraceAsString());
+    
+
     switch ($errorHandler->type) {
     case "EXCEPTION_NO_ACTION":
     case "EXCEPTION_NO_CONTROLLER":
