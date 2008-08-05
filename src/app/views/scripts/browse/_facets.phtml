@@ -1,4 +1,4 @@
-<? if (isset($this->facets) && count($this->facets)): ?>
+<? if (isset($this->facets) && $this->facets->hasValues()): ?>
   <style type="text/css">div.content {padding-right:215px; }</style>
  <? /* FIXME.. better way to do this? (set margin for main div to leave room for faces) */ ?>
 
