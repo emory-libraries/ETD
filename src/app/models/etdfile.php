@@ -136,8 +136,9 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
     // set reasonable defaults for author, description
     $this->dc->creator = $author->fullname;	// most likely the case...
     $this->dc->type = "Text";			// most likely; can be overridden based on mimetype below
-    
-    $this->setFileInfo($filename);	// set mimetype, filesize, and pages if appropriate       
+
+    // store original filename, mimetype, filesize, and number of pages (when appropriate)
+    $this->setFileInfo($filename, $label);
 
     $doctype = "Dissertation/Thesis";
     if (isset($this->etd)) $doctype = $this->etd->document_type();
@@ -171,17 +172,26 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
   }
 
 
-  
-  public function setFileInfo($filename) {
+
+  /**
+   * store information about a newly uploaded file
+   * @param string $tmpfile location of the temporary file
+   * @param string $userfilename (optional) user's file name (instead of php temporary name)
+   */
+  public function setFileInfo($tmpfile, $userfilename = null) {
     // note: using fileinfo because mimetype reported by the browser is unreliable
     $finfo = finfo_open(FILEINFO_MIME);	
-    $filetype = finfo_file($finfo, $filename);
+    $filetype = finfo_file($finfo, $tmpfile);
 
+    if (isset($userfilename)) $filename = $userfilename;
+    else $filename = $tmpfile;
+    
     // FIXME: this logic should be pulled out into a helper or library...
     
     // several things get reported as zip that we want to recognize
     if ($filetype == "application/zip" || $filetype == "application/x-zip") {
       $parts = explode(".", $filename);
+      
       $ext = $parts[count($parts)-1];
       switch ($ext) {
 	// Microsoft Office 2007 formats
@@ -211,11 +221,11 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
     */
     if ($filetype == "application/pdf") {
       $pagecalc = new Etd_Controller_Action_Helper_PdfPageTotal();
-      $this->dc->setPages($pagecalc->pagetotal($filename));
+      $this->dc->setPages($pagecalc->pagetotal($tmpfile));
     }
     
     // since mimetype from upload info is not reliable, don't rely on that for size either
-    $this->dc->setFilesize(filesize($filename));	// file size in bytes
+    $this->dc->setFilesize(filesize($tmpfile));	// file size in bytes
   }
 
   public function setFile($filename) {

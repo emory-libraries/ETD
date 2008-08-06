@@ -159,7 +159,7 @@ class SubmissionController extends Etd_Controller_Action {
 
 	// only create the etdfile object if etd was successfully created
 	$etdfile = new etd_file(null, $etd);	// initialize from template, but associate with parent etd
-	$etdfile->initializeFromFile($etd_info['pdf'], "pdf", $current_user);
+	$etdfile->initializeFromFile($etd_info['pdf'], "pdf", $current_user, $etd_info['filename']);
 	
 	// add relations between objects
 	$etdfile->rels_ext->addRelationToResource("rel:isPDFOf", $etd->pid);
