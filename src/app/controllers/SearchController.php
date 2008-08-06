@@ -68,8 +68,12 @@ class SearchController extends Etd_Controller_Action {
      
      $solr = Zend_Registry::get('solr');
 
-     // by default, limiting search to published records
-     $results = $solr->queryPublished($query, $start, $max);
+     if ($this->_hasParam("status") && $this->acl->isAllowed($this->current_user, "etd", "view status"))
+       // if status parameter is set and user has permission, search all records
+       $results = $solr->query($query, $start, $max);
+     else
+       // otherwise (default), limit search to published records
+       $results = $solr->queryPublished($query, $start, $max);
      
      $this->view->count = $results->numFound;
      $this->view->etds = $results->docs;
@@ -122,7 +126,39 @@ class SearchController extends Etd_Controller_Action {
     //    $this->_helper->viewRenderer->setNoRender(true);
     $this->getResponse()->setHeader('Content-Type', "text/xml");
     // FIXMe: use displayXml helper?
+  }
 
+
+  public function suggestorAction() {
+    $query = $this->_getParam("query");
+
+    $solr = Zend_Registry::get('solr');
+
+    // optionally limit to a specific field
+    if ($this->_hasParam("field")) {
+      $field = $this->_getParam("field");
+      $solr->clearFacets();
+      $solr->addFacets(array("$field"));
+    }
+
+    $mode = $this->_getParam("mode");
+    if ($mode == "unpublished") $solr->addFilter("NOT status:published");
+    
+
+    // uses query string as facet prefix and returns any facets that match
+    // using currently configured default facets
+    $results = $solr->suggest(ucfirst($query));		// FIXME: case sensitive...
+
+    // combine all values into a single array (doesn't matter which facet they came from)
+    $matches = array();
+    foreach($results->facets as $facet => $values) {
+      $matches = array_merge($matches, $values);
+    }
+
+    $this->view->matches = $matches;
+
+    $this->_helper->layout->disableLayout();
+    $this->getResponse()->setHeader('Content-Type', "text/xml");
   }
   
 }
