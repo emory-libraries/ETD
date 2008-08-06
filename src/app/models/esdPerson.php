@@ -156,21 +156,20 @@ class esdPerson implements Zend_Acl_Role_Interface {
   // find any unpublished etds that belong to this user
   public function getEtds() {
     if (is_null($this->_etds))	// only initialize once (but will be reset after serialization)
-      $this->_etds = etd::findUnpublishedByAuthor($this->netid);
+      $this->_etds = etd::findUnpublishedByOwner($this->netid);
     return $this->_etds;
   }
 
   // so esdPerson can act as a Zend_Acl_Role
   public function getRoleId(){
     if ($this->role == "student") {
-      $etds = $this->getEtds(); 
-      if (count($etds))
+      if ($this->hasUnpublishedEtd())
 	$this->role = "student with submission";
     } 
     return $this->role;
   }
 
-  public function hasEtd() {
+  public function hasUnpublishedEtd() {
     if ($this->role != "student" && $this->role != "student with submission") return false;
     elseif (count($this->getEtds())) return true;
     else return false;

@@ -557,12 +557,12 @@ class etd extends foxml implements etdInterface {
   // generic find copied from smallpox - useful ? possible to consolidate other searches ?
   public static function find($start, $max, $opts = array(), &$total = null, &$facets = null) {
     $solr = Zend_Registry::get('solr');
-    // FIXME: add filters to query based on opts
-
+    
     $sort = null;
     if (isset($opts['sort'])) $sort = $opts['sort'];
     $query = "contentModel:etd";	// FIXME: don't hard-code content model
 
+    // for now, assume field name is solr index name
     foreach ($opts as $field => $value) {
       $query .= ' AND ' . $field . ':"' . $value . '"'; 
     }
@@ -578,7 +578,11 @@ class etd extends foxml implements etdInterface {
 	$etds[] = new etd($result_doc->PID);
       } catch (FedoraObjectNotFound $e) {
 	trigger_error("Record not found: $pid", E_USER_WARNING);
+      } catch (FoxmlBadContentModel $e) {
+	// should only get this if query is bad or (in some cases) when Fedora is not responding
+	trigger_error("$pid is not an etd", E_USER_NOTICE);
       }
+
       // FIXME: catch other errors (access denied, not authorized, etc)
       
       // FIXME: store relevance?  $result_doc->score;
@@ -586,89 +590,42 @@ class etd extends foxml implements etdInterface {
     return $etds;
   }
 
-  public static function findbyAuthor($username) {
-    $fedora = Zend_Registry::get('fedora');
-    
-    // can only use triple query with MPTstore
-    $query = '* <fedora-rels-ext:author> \'' . $username . '\'';
-    $rdf = $fedora->risearch->triples($query);
-
-    // Note: this query will match records that are not etds, and they need to be filtered somehow...
-    //	(can't filter in the query itself because MPTstore only supports querying by triples)
-    // 	FIXME-- would it be better to filter with another RIsearch query ? write a getContentModel function ?
-    // 		(would have to be done one at a time)
-    $etds = array();
-    $ns = $rdf->getNamespaces();
-    $descriptions = $rdf->children($ns['rdf']);
-    foreach ($descriptions as $desc) {
-      $pid = $desc->attributes($ns['rdf']);	// rdf:about
-      $pid = str_replace("info:fedora/", "", $pid);
-      try {
-	$etds[] = new etd($pid);
-      } catch (FedoraObjectNotFound $e) {
-	trigger_error("Record not found: $pid", E_USER_WARNING);
-      } catch (FoxmlBadContentModel $e) {      // filtering out non-etds here
-	// shouldn't need to do anything... 
-	// trigger_error("Found $pid as belonging to $username, but it is not an etd", E_USER_NOTICE);
-      }
-    }
-    return $etds;
+  public static function findUnpublishedByOwner($username, $start = 0, $max = 10,
+						 $opts = array(), &$total = null, &$facets = null) {
+    $opts['ownerId'] = strtolower($username);
+    $opts['NOT status'] = "published";		// any status other than published
+    return etd::find($start, $max, $opts, $total, $facets);
   }
+						 
 
 
-  // find records by author with any status *except* for published
-  public static function findUnpublishedByAuthor($username) {
-    $username = strtolower($username);
-    /*    $solr = Zend_Registry::get('solr');
-    $query = "ownerId:$username NOT status:published";
-    $results = $solr->query($query, null, null, null, null); 	// ... paging? .. , $start, $max - no filter query);
-
-    $etds = array();
-    foreach ($results['response']['docs'] as $result_doc) {
-      array_push($etds, new etd($result_doc['PID']));
-    }
-    return $etds;
-    */
-        
-    $etds = etd::findByAuthor($username);
-    $unpublished = array();
-
-    foreach ($etds as $etd) {		// have to filter here since MPTstore only supports SPO
-      if ($etd->status() != 'published')
-	$unpublished[] = $etd;
-    }
-    return $unpublished;
-    
-    // could switch to Solr - simple query like this: 
-    // fgs.ownerId:rsutton NOT status:published
-  }
-
-
-  // find by department/program - used for program coordinator view
-  //  program_facet:Chemistry NOT status:published
-  public static function findUnpublishedByDepartment($dept, $start = null, $max = null,
-						     $opts, &$total = null, &$facets = null) {
+  /**
+   * find unpublished records by program - used for program coordinator view
+   * (wrapper for generic etd find with some customized settings)
+   *
+   * @param string $dept department/program
+   * @param int $start starting record (optional, default:0)
+   * @param int $max maximum number of records to return at once (optional, default:25)
+   * @param array $opts optional filters for query (e.g., facets)
+   * @param int $total passed by reference - total records found
+   * @param array $facets passed by reference - Solr facets found
+   * @return array of etd records
+   */
+  public static function findUnpublishedByDepartment($dept, $start = 0, $max = 25,
+						     $opts = array(), &$total = null, &$facets = null) {
     $solr = Zend_Registry::get('solr');
-    // FIXME: might make more sense to clear all filters and add relevant ones-- status, advisor, ?
+    // clear all default filters and add back the relevant ones-- status, advisor, subfield
     $solr->clearFacets();
     $solr->addFacets(array("status", "advisor_facet", "subfield_facet"));
-    $query = "program_facet:\"$dept\" AND NOT status:published";
-    // add any filters to the query
-    $query .= etd::filterQuery($opts);
-    
-    $results = $solr->query($query, $start, $max);
-    $total = $results->numFound;
-    $facets = $results->facets;
-    
-    $etds = array();
-    foreach ($results->docs as $result_doc) {
-      array_push($etds, new etd($result_doc->PID));
-    }
-    return $etds;
+    $solr->setFacetMinCount(1);		// display even single facets, since set of facets is so limited
+    $opts['program_facet'] = $dept;
+    $opts['NOT status'] = "published";
 
+    return etd::find($start, $max, $opts, $total, $facets);
   }
 
-  // convert facets into filter query 
+  // convert facets into filter query
+  // FIXME: unused ?
   public static function filterQuery($opts) {
     $filters = array();
     foreach ($opts as $filter => $value) {
@@ -681,6 +638,7 @@ class etd extends foxml implements etdInterface {
 
 
   // find unpublished records
+  /*  unused ?
   public static function findUnpublished($start = null, $max = null) {
     $solr = Zend_Registry::get('solr');
     $query = "NOT status:published";
@@ -694,7 +652,7 @@ class etd extends foxml implements etdInterface {
       }
     }
     return $etds;
-  }
+    }*/
 
   
 

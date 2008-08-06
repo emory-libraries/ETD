@@ -1,4 +1,4 @@
-<? if (isset($this->current_user) && $this->current_user->hasEtd()): ?>
+<? if (isset($this->current_user) && $this->current_user->hasUnpublishedEtd()): ?>
   <? $user_etds = $this->current_user->getEtds(); ?>
 <p class="notice">
     Your submission, <a href="<?= $this->url(array("controller" => "view",
