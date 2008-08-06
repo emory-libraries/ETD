@@ -71,7 +71,7 @@ class FileController extends Etd_Controller_Action {
        $etdfile->initializeFromFile($filename, $file_rel, $this->current_user, $fileinfo['name']);
 
        // add relation to etd
-       // fixme: this should probably be a function of etdfile or rels
+       // FIXME: this should probably be a function of etdfile or rels
        $etdfile->rels_ext->addRelationToResource("rel:is{$relation}Of", $etd->pid);
        try {
 	 $filepid = $etdfile->save("adding new file");
