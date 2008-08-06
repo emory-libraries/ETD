@@ -186,6 +186,15 @@
         <xsl:apply-templates select="mods:affiliation"/>
       </xsl:if>
       
+      <!-- index committee netids in order to retrieve records for faculty view -->
+      <xsl:if test="$person-type = 'advisor' or $person-type = 'committee'">
+        <field>
+          <xsl:attribute name="name"><xsl:value-of select="concat($person-type, '_id')"/></xsl:attribute>
+          <xsl:if test="$person-type = 'advisor'"><xsl:attribute name="boost">1.25</xsl:attribute></xsl:if>
+          <xsl:value-of select="@ID"/>
+        </field>
+      </xsl:if>
+
       <!-- FIXME: do we care about indexing non-emory committee member affiliations? -->
       
     </xsl:if>
