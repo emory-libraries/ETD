@@ -9,3 +9,7 @@
 
 <hr/>
 <p><a href="<?= $this->url(array('action' => 'embargoes')) ?>">Upcoming embargo expirations</a></p>
+
+<? if ($this->acl->isAllowed($this->current_user, "log", "view")): ?>
+   <p><a href="<?= $this->url(array('action' => 'view-log')) ?>">View log</a></p>
+<? endif ?>
