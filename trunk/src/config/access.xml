@@ -77,6 +77,8 @@
 
    <resource name="statistics"/>
 
+   <resource name="log"/>
+
   </resources>
 
 <!-- fixme: some way to use these as shortcuts? 
