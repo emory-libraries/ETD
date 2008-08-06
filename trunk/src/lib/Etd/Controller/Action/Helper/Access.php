@@ -65,12 +65,16 @@ class Etd_Controller_Action_Helper_Access extends Zend_Controller_Action_Helper_
 
   
   // redirect to a generic access denied page, with minimal information why
-  private function notAllowed($action, $role, $resource) {
+  public function notAllowed($action, $role, $resource) {
     $flashMessenger = $this->_actionController->getHelper("FlashMessenger");
     $redirector = $this->_actionController->getHelper("Redirector");
+    if (isset($this->_actionController->current_user)) {
+      $user = $this->_actionController->current_user->netid;
+    } else{
+      "guest";
+    }
 
-    $message = "Error: " . $this->_actionController->current_user->netid
-      		. " (role=" . $role .  ") is not authorized to $action $resource";
+    $message = "Error: $user (role=$role) is not authorized to $action $resource";
 
     // if resources is denied, NOT redirecting - that way logging in can reload
     // the denied page and user may have access
