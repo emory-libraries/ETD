@@ -1,12 +1,2 @@
-<h1><?= $this->status ?> records</h1>
-
-<? if (count($this->etds) == 0): ?>
-   no records found
-<? else: ?>
-     <p><?= count($this->etds) ?> records</p>
-<? endif ?>
-
-<? foreach ($this->etds as $this->etd) : ?>
-  <?=  $this->render('view/shortrecord.phtml'); ?>
-<? endforeach ?>
-
+<? /* using main record list template with paging, facets, etc. */ ?>
+<?= $this->render("browse/list.phtml") ?>
