@@ -563,39 +563,25 @@ class etd extends foxml implements etdInterface {
     if (isset($opts['sort'])) $sort = $opts['sort'];
     $query = "contentModel:etd";	// FIXME: don't hard-code content model
 
+    foreach ($opts as $field => $value) {
+      $query .= ' AND ' . $field . ':"' . $value . '"'; 
+    }
+
+
     $results = $solr->query($query, $start, $max, $sort);
     $total = $results->numFound;
     $facets = $results->facets;
 
     $etds = array();
     foreach ($results->docs as $result_doc) {
-      $etds[] = new etd($result_doc->PID);
-      // FIXME: store relevance?  $result_doc->score;
-    }
-    return $etds;
-  }
-
-
-
-  // find etds by status
-  public static function findbyStatus($status) {
-    $fedora = Zend_Registry::get('fedora');
-    
-    // can only use triple query with MPTstore
-    $query = '* <fedora-rels-ext:etdStatus> \'' . $status . '\'';
-    $rdf = $fedora->risearch->triples($query);
-    
-    $etds = array();
-    $ns = $rdf->getNamespaces();
-    $descriptions = $rdf->children($ns['rdf']);
-    foreach ($descriptions as $desc) {
-      $pid = $desc->attributes($ns['rdf']);	// rdf:about
-      $pid = str_replace("info:fedora/", "", $pid);
       try {
-	$etds[] = new etd($pid);
+	$etds[] = new etd($result_doc->PID);
       } catch (FedoraObjectNotFound $e) {
 	trigger_error("Record not found: $pid", E_USER_WARNING);
       }
+      // FIXME: catch other errors (access denied, not authorized, etc)
+      
+      // FIXME: store relevance?  $result_doc->score;
     }
     return $etds;
   }
