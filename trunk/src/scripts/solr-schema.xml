@@ -278,6 +278,8 @@
 
 <!--   <field name="pdf" type="text" indexed="true" stored="false" required="false"/>  -->
 
+   <field name="committee_id" type="string" indexed="true" stored="false" multiValued="true"/> 
+   <field name="advisor_id" type="string" indexed="true" stored="false" multiValued="true"/> 
 
 
    <!-- non-tokenized versions of terms to for sorting and/or facets -->
