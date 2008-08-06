@@ -22,14 +22,38 @@ class ManageController extends Etd_Controller_Action {
      $this->view->status_totals = etd::totals_by_status();
      $this->view->messages = $this->_helper->flashMessenger->getMessages();
    }
-   
+
+   // list records by status; uses browse list template for paging & facet functionality
    public function listAction() {
      if (!$this->_helper->access->allowedOnEtd("manage")) return;
+
+     $start = $this->_getParam("start", 0);
+     $max = $this->_getParam("max", 25);
+     $opts = $this->getFilterOptions();  // pick up any facets; includes status
+
+     $this->view->etds = etd::find($start, $max, $opts, $total, $facets);
+
+     // should always have a status set
      $status = $this->_getParam("status");
-     $this->view->title = "Manage : " . ucfirst($status);
+     $list_title = ucfirst($status) . " records";
+
+     $this->view->title = "Manage : " . $list_title;;
+     $this->view->list_title = $list_title;
+
      $this->view->status = $status;
-     $this->view->etds = etd::findbyStatus($status);
+     // display administrative info in short-record view
+     $this->view->show_status = true;
      $this->view->show_lastaction = true;
+
+     $this->view->count = $total;
+     $this->view->start = $start;
+     $this->view->max = $max;
+     $this->view->facets = $facets;
+     // don't include status in list of filters that can be removed
+     unset($this->view->filters["status"]);
+     // do include status in any facet links
+     $this->view->url_params["status"] = $status;
+
    }
 
    /* review workflow (review, accept, requestChanges) */
