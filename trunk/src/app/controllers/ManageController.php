@@ -190,6 +190,11 @@ class ManageController extends Etd_Controller_Action {
 
 
    public function viewLogAction() {
+     if (!isset($this->current_user) || !$this->acl->isAllowed($this->current_user, "log", "view")) {
+       $role = isset($this->current_user) ? $this->current_user->getRoleId() : "guest";
+       $this->_helper->access->notAllowed("view", $role, "log");
+       return false;
+     }
      $priority = $this->_getParam("priority", Zend_Log::DEBUG);
      $this->view->priority = $priority;
      $filter['priority'] = $priority;
