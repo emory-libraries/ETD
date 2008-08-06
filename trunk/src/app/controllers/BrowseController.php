@@ -292,35 +292,51 @@ class BrowseController extends Etd_Controller_Action {
 
   // list a user's ETDs
   public function myAction() {
-    // if logged in user is a program coordinator, forward to appropriate action
-    if ($this->current_user->program_coord) {
-      $this->_forward("my-program");
+    $this->view->title = $this->view->list_title = "My ETDs";
+
+    // currently no content to display if user is not logged in (shouldn't see links here...)
+    if (!isset($this->current_user)) {
+      $etds = array();
       return;
     }
+
+    $start = $this->_getParam("start", 0);
+    $max = $this->_getParam("max", 5);
+    $opts = $this->getFilterOptions();
     
-    if (isset($this->current_user)) {
-      // expand to find by role, depending on current user - faculty, dept. staff, etc.
-      switch ($this->current_user->role) {
-      case "student":
-      case "student with submission":
-	// should it only be unpublished records? or all records?
-	$etds = etd::findUnpublishedByAuthor(strtolower($this->current_user->netid));
-	break;
-      default:
-	$etds = array();
-      }
-      if ($this->current_user->program_coord) {
-	print "finding ETDS for department " . $this->current_user->program_coord . ".<br/>\n";
-	$etds = etd::findUnpublishedByDepartment($this->current_user->program_coord);
-      }
-    } else { // FIXME: not authorized if not logged in? what should error here be?
-      $etds = array();
+    // if logged in user is a program coordinator, forward to the appropriate action
+    if ($this->current_user->program_coord) {
+      // FIXME: how to give super-user option to view the student/faculty pages?
+      $this->_forward("my-program");
+      return;	
     }
-    
-    $this->view->etds = $etds;
+
+    // expand to find by role, depending on current user - faculty, dept. staff, etc.
+    switch ($this->current_user->role) {
+    case "student":
+    case "student with submission":
+      // records for this action : owned by current user (author) and not published
+      $opts['ownerId'] = strtolower($this->current_user->netid);
+      // FIXME: is this filter necessary/useful ?
+      $opts['NOT status'] = "published";		// any status other than published
+      break;
+    case "faculty":
+      //	$etds = etd::find
+      break;
+    default:
+      // no records to display for this user; simulate an empty result set 
+      $etds = array();	
+    }
+
+    $this->view->etds = etd::find($start, $max, $opts, $total, $facets); 
+    // does it make sense to have facets here?
+    $this->view->facets = $facets;
+    $this->view->count = $total;
+    $this->view->start = $start;
+    $this->view->max = $max;
       
     // FIXME: need to add paging - count/start/max 
-    $this->view->title = "My ETDs";
+    $this->_helper->viewRenderer->setScriptAction("list");
     $this->_helper->viewRenderer->setScriptAction("list");
     $this->view->show_status = true;
     $this->view->show_lastaction = true;
@@ -337,7 +353,7 @@ class BrowseController extends Etd_Controller_Action {
     $this->view->etds = etd::findUnpublishedByDepartment($this->current_user->program_coord,
 							 $start, $max, $opts,
 							 $total, $facets);
-    $this->view->count = count($this->view->etds);
+    //    $this->view->count = count($this->view->etds);
     $title = "Unpublished Records : " . $this->current_user->program_coord;
     $this->view->title = $title;
     $this->view->list_title = $title;
@@ -359,19 +375,6 @@ class BrowseController extends Etd_Controller_Action {
   }
 
 
-  // list ETDs by department
-  public function mydeptAction() {
-
-    $this->view->etds = etd::findUnpublishedByDepartment("English");
-      
-    $this->view->title = "English ETDs";
-    $this->_helper->viewRenderer->setScriptAction("list");
-    $this->view->show_status = true;
-    $this->view->show_lastaction = true;
-  }
-
-  
-   
   // nice readable url - redirect to proquest listings for emory
   public function proquestAction() {
     // note: should this url be configurable, stored somewhere else?
