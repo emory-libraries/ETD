@@ -554,47 +554,70 @@ class etd extends foxml implements etdInterface {
   }
 
 
-  // generic find copied from smallpox - useful ? possible to consolidate other searches ?
-  public static function find($start, $max, $opts = array(), &$total = null, &$facets = null) {
+  /**
+   * generic etd find with many different parameters
+   *
+   * @param array $options settings for solr query
+   *   sort   : field to sort on
+   *   start  : where to begin retrieving record set
+   *   max    : maximum number of records to return
+   *   query  : preliminary query to which other values may be added
+   *   AND    : hash of field-value pairs that should be included in the query with AND
+   *   NOT    : hash of field-value pairs that should be included in the query with NOT
+   *   facets : hash with options for facets
+   *		clear - if set to true, default facets will be cleared
+   *		mincount - minimum number of matches for a facet to be included
+   * 		add - array of facets to be added
+   *   return_type : type of etd object to return, one of etd or solrEtd
+   *
+   * @return EtdSet
+   */
+  public static function find($options) {
     $solr = Zend_Registry::get('solr');
     
-    $sort = null;
-    if (isset($opts['sort'])) $sort = $opts['sort'];
-    $query = "contentModel:etd";	// FIXME: don't hard-code content model
+    $sort = isset($options['sort']) 	?  $options['sort'] : null;
+    $start = isset($options['start']) 	? $options['start'] : null;
+    $max = isset($options['max']) 	? $options['max']   : null;
 
-    // for now, assume field name is solr index name
-    foreach ($opts as $field => $value) {
-      $query .= ' AND ' . $field . ':"' . $value . '"'; 
-    }
+    // preliminary starting query, if set; otherwise return all documents
+    //    $query = isset($options['query']) ? $options['query'] : "*:*";
+    $query = isset($options['query']) ? $options['query'] : "";
 
-
-    $results = $solr->query($query, $start, $max, $sort);
-    $total = $results->numFound;
-    $facets = $results->facets;
-
-    $etds = array();
-    foreach ($results->docs as $result_doc) {
-      try {
-	$etds[] = new etd($result_doc->PID);
-      } catch (FedoraObjectNotFound $e) {
-	trigger_error("Record not found: $pid", E_USER_WARNING);
-      } catch (FoxmlBadContentModel $e) {
-	// should only get this if query is bad or (in some cases) when Fedora is not responding
-	trigger_error("$pid is not an etd", E_USER_NOTICE);
+    foreach (array("AND", "OR", "NOT") as $op) {
+      if (isset($options[$op])) {
+	// field name should match solr index name
+	foreach ($options[$op] as $field => $value) {
+	  // if query is empty, first 'AND' or 'OR' is not needed; NOT must always be used
+	  if (! empty($query) || $op == "NOT") $query .= " $op ";
+	  $query .= $field . ':"' . $value . '"'; 
+	}
       }
-
-      // FIXME: catch other errors (access denied, not authorized, etc)
-      
-      // FIXME: store relevance?  $result_doc->score;
     }
-    return $etds;
+	
+    if (empty($query)) $query = "*:*";
+
+    // facet configuration
+    if (isset($options['facets'])) {
+      if (isset($options['facets']['clear']) && $options['facets']['clear']) $solr->clearFacets();
+      if (isset($options['facets']['mincount'])) $solr->setFacetMinCount($options['facets']['mincount']);
+      if (isset($options['facets']['add'])) $solr->addFacets($options['facets']['add']);
+    }
+
+    //print $query;
+    if (!isset($options["return_type"])) $options["return_type"] = "etd";
+    return new EtdSet($solr->query($query, $start, $max, $sort), $options["return_type"]);
   }
 
-  public static function findUnpublishedByOwner($username, $start = 0, $max = 10,
-						 $opts = array(), &$total = null, &$facets = null) {
-    $opts['ownerId'] = strtolower($username);
-    $opts['NOT status'] = "published";		// any status other than published
-    return etd::find($start, $max, $opts, $total, $facets);
+  /**
+   * find unpublished records by author's netid
+   * @param string $username netid of user who created the record
+   * @param array $options any filter options to be passed to etd find function
+   * @return EtdSet
+   */
+  public static function findUnpublishedByOwner($username, $options) {
+    $options['AND']['ownerId'] = strtolower($username);
+    $options['NOT']['status'] = "published";		// any status other than published
+    return etd::find($options);
   }
 						 
 
@@ -609,52 +632,19 @@ class etd extends foxml implements etdInterface {
    * @param array $opts optional filters for query (e.g., facets)
    * @param int $total passed by reference - total records found
    * @param array $facets passed by reference - Solr facets found
-   * @return array of etd records
+   * @return EtdSet
    */
-  public static function findUnpublishedByDepartment($dept, $start = 0, $max = 25,
-						     $opts = array(), &$total = null, &$facets = null) {
-    $solr = Zend_Registry::get('solr');
-    // clear all default filters and add back the relevant ones-- status, advisor, subfield
-    $solr->clearFacets();
-    $solr->addFacets(array("status", "advisor_facet", "subfield_facet"));
-    $solr->setFacetMinCount(1);		// display even single facets, since set of facets is so limited
-    $opts['program_facet'] = $dept;
-    $opts['NOT status'] = "published";
+  public static function findUnpublishedByDepartment($dept, $options) {
+    $options['facets'] = array("clear" => true,    // clear all default filters 
+			       "mincount" => 1,    // display even single facets
+			       // add the relevant facets-- status, advisor, subfield
+			       "add" => array("status", "advisor_facet", "subfield_facet"));
+    $options['AND']['program_facet'] = $dept;
+    $options['NOT']['status'] = "published";
 
-    return etd::find($start, $max, $opts, $total, $facets);
+    return etd::find($options);
   }
 
-  // convert facets into filter query
-  // FIXME: unused ?
-  public static function filterQuery($opts) {
-    $filters = array();
-    foreach ($opts as $filter => $value) {
-      $filters[] = "$filter:($value)";
-    }
-
-    $query = implode(" AND ", $filters);
-    return $query;
-  }
-
-
-  // find unpublished records
-  /*  unused ?
-  public static function findUnpublished($start = null, $max = null) {
-    $solr = Zend_Registry::get('solr');
-    $query = "NOT status:published";
-    $solr->clearFacets();
-    $results = $solr->query($query, $start, $max); 
-
-    $etds = array();
-    if ($results) {
-      foreach ($results->docs as $result_doc) {
-	array_push($etds, new etd($result_doc->PID));
-      }
-    }
-    return $etds;
-    }*/
-
-  
 
   /**
    * find records with embargo expiring anywhere from today up to the specified date
@@ -663,66 +653,41 @@ class etd extends foxml implements etdInterface {
    * (the extra checks are to ensure that no records are missed if the cron script fails to run)
    *
    * @param string $date expiration date in YYYYMMDD format (e.g., 60 days from today)
-   * @return array of etds
+   * @return EtdSet
    */
   public static function findExpiringEmbargoes($date) {
-    $solr = Zend_Registry::get('solr');
-    // date *must* be in YYYYMMDD format
-
+    // date *must* be in YYYYMMDD format	(FIXME: check date format)
+    
     // search for any records with embargo expiring between now and specified embargo end date
     // where an embargo notice has not been sent and an embargo was approved by the graduate school
-    $query = "date_embargoedUntil:[" . date("Ymd") . " TO $date] NOT embargo_notice:sent NOT embargo_duration:(0 days)";
-    $results = $solr->queryPublished($query);	// FIXME: paging? need to get all results
-
-    $etds = array();
-    foreach ($results->docs as $result_doc) {
-      array_push($etds, new etd($result_doc->PID));
-    }
-    return $etds;
-  }
-
-
-  public static function findEmbargoed($start, $max, &$total) {
-    $solr = Zend_Registry::get('solr');
-    $query = "date_embargoedUntil:[" . date("Ymd") . "TO *] NOT embargo_duration:(0 days)";
-    $results = $solr->query($query, $start, $max, "date_embargoedUntil asc");
-    //print "<pre>"; print_r($results); print "</pre>";
-    $total = $results->numFound;
-    $etds = array();
-    foreach ($results->docs as $result_doc) {
-      array_push($etds, new etd($result_doc->PID));
-    }
-    return $etds;
-  }
-
-  // find recently published for goldbar
-  // solr query just needs this added: sort=dateIssued%20desc
-  public static function findRecentlyPublished($max = 10, $opts = null, $type = "etd") {
-    $solr = Zend_Registry::get('solr');
-    $query = "status:published";
-    $solr->clearFacets();
-
-    if (!is_null($opts)) {
-      foreach ($opts as $key => $value) {
-	switch ($key) {
-	case "program":			// filter query by program
-	  $solr->addFilter("program_facet:($value)");
-	}
-      }
-    }
-
-    $results = $solr->query($query, 0, $max, "dateIssued desc");
-    //    print "<pre>"; print_r($results); print "</pre>";
+    $options["query"] = "date_embargoedUntil:[" . date("Ymd") . " TO $date] NOT embargo_notice:sent NOT embargo_duration:(0 days)";
+    $options["AND"]["status"] = "published";
     
-    $etds = array();
-    foreach ($results->docs as $result_doc) {
-      if ($type == "etd")
-	array_push($etds, new etd($result_doc->PID));
-      elseif ($type == "solrEtd")
-	array_push($etds, new solrEtd($result_doc));
-    }
-    return $etds;
+    return etd::find($options);
+    // FIXME: add paging-- need a way to get all results
+  }
 
+
+  /**
+   * find embargoed records - has non-zero embargo and that is not yet expired
+   * @param array $options options as passed to etd find function
+   * @return EtdSet
+   */
+  public static function findEmbargoed($options) {
+    $options["query"] = "date_embargoedUntil:[" . date("Ymd") . "TO *] NOT embargo_duration:(0 days)";
+    $options["sort"] = "date_embargoedUntil asc";
+    return etd::find($options);
+  }
+
+  /**
+   * find the most recently published records
+   * @param array $options options as passed to etd find function
+   * @return EtdSet
+   */ 
+  public static function findRecentlyPublished($options) {
+    $options["AND"]["status"] = "published";
+    $options["sort"] = "dateIssued desc";	// date published, most recent first
+    return etd::find($options);
   }
 
   
@@ -789,10 +754,74 @@ class etd extends foxml implements etdInterface {
   
 }
 
+/**
+ * container object for a group of etds retrieved from Solr, with relevant metadata
+ *
+ ************ FIXME:  would it make sense to move the find functions here and make them non-static ?
+ */
+class EtdSet {
+  
+  /**
+   * @var array of etds objects (class etd or solrEtd)
+   */ 
+  public $etds;
+
+  /**
+   * @var Emory_Service_Solr_Response
+   */
+  protected $solrResponse;
+
+  
+  /**
+   * initialize from a Solr response
+   * @param Emory_Service_Solr_Response
+   * @param string $return_type type of etd object to initialize (etd or solrEtd); defaults to etd
+   */
+  public function __construct(Emory_Service_Solr_Response $result, $return_type = "etd") {
+    // FIXME: just store all of the solr response and refer to it that way ?
+    // stores query, etc. -- everything that would be needed for retrieving the next set of documents
+    $this->solrResponse = $result;
+
+    $this->etds = array();
+    foreach ($result->docs as $doc) {
+      if ($return_type == "etd") {
+	try {
+	  $this->etds[] = new etd($doc->PID);
+	} catch (FedoraObjectNotFound $e) {
+	  trigger_error("Record not found: $pid", E_USER_WARNING);
+	} catch (FoxmlBadContentModel $e) {
+	  // should only get this if query is bad or (in some cases) when Fedora is not responding
+	  trigger_error($doc->PID . " is not an etd", E_USER_NOTICE);
+	}
+
+	// FIXME: catch other errors (access denied, not authorized, etc)
+	
+	// FIXME: store relevance?  $result_doc->score;
+	
+      } else if ($return_type = "solrEtd") {
+	$this->etds[] =  new solrEtd($doc);	
+      } else {
+	trigger_error("EtdSet return type $return_type unknown", E_USER_ERROR);
+      }
+    }
+  }
+
+  public function __get($name) {
+    if (isset($this->solrResponse->$name)) return $this->solrResponse->$name;
+    else trigger_error("Unknown attribute $name", E_USER_NOTICE);
+  }
+
+  public function __isset($name) {
+    return isset($this->solrResponse->$name);
+  }
+
+}
 
 
 
-  // simple function to sort etdfiles based on sequence number  (used when foxml class initializes them)
+
+
+// simple function to sort etdfiles based on sequence number  (used when foxml class initializes them)
  function sort_etdfiles(etd_file $a, etd_file $b) {
     if ($a->rels_ext->sequence == $b->rels_ext->sequence) return 0;
     return ($a->rels_ext->sequence < $b->rels_ext->sequence) ? -1 : 1;
