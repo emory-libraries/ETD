@@ -63,19 +63,21 @@ class ManageControllerTest extends ControllerTestCase {
   }	
 
   function testListAction() {
+    $solr = &new MockEtd_Service_Solr();
+    $response = new MockEmory_Service_Solr_Response();
+    $solr->setReturnReference('query', $response);
+    Zend_Registry::set('solr', $solr);
+
     $this->test_user->role = "admin";
     Zend_Registry::set('current_user', $this->test_user);
     
     $ManageController = new ManageControllerForTest($this->request,$this->response);
-    // FIXME: error in resource index - listing a published record that doesn't exist
     $this->setUpGet(array("status" => "reviewed"));
 
     $ManageController->listAction();
     $viewVars = $ManageController->view->getVars();
 
-    $this->assertEqual(1, count($viewVars['etds']));
-    $this->assertIsA($viewVars['etds'], "array");
-    $this->assertIsA($viewVars['etds'][0], "etd");
+    $this->assertIsA($viewVars['etdSet'], "etdSet");
     $this->assertTrue(isset($viewVars['title']));
   }
 
