@@ -45,7 +45,7 @@
        <allow resource="submitted etd">review, request record changes</allow>	<!-- record=metadata -->
        <allow resource="reviewed etd">approve, request document changes</allow>
        <allow resource="approved etd">publish</allow>	<!-- not technically done by admin... -->
-       <allow resource="published etd">unpublish</allow>
+       <allow resource="published etd">inactivate</allow>
 
        <allow resource="file">view modified</allow>
 
@@ -64,6 +64,7 @@
       <resource name="reviewed etd"/>
       <resource name="approved etd"/>
       <resource name="published etd"/>
+      <resource name="inactive etd"/>
     </resource>
 
    <resource name="file">
