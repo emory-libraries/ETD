@@ -121,9 +121,7 @@ class collectionHierarchy extends XmlObject {
 
 
   
-  public function findEtds($start = 1, $max = 10, $opts = array()) {
-
-     $solr = Zend_Registry::get('solr');
+  public function findEtds($options = array()) {
      // get all fields of this collection and its members (all the way down)
      $all_fields = $this->getIndexedFields();
      
@@ -136,24 +134,32 @@ class collectionHierarchy extends XmlObject {
        array_push($queryparts, $this->index_field .':' . $searchfield);
      }
 
-     $query = join($queryparts, " OR ");
+     $query = "(" . join($queryparts, " OR ") . ")"; 
 
-     foreach ($opts as $filter => $value) {
-      $query = "($query) AND $filter:($value)";
-    }
+     /*     foreach ($options as $filter => $value) {
+      $query .= "AND $filter:($value)";	
+      }*/
 
+     $options["query"] = $query;
      /* don't retrieve etd records at top level of hierarchy */ 
-     if (isset($this->parent)) $return_num = $max;		// use defaults
-     else $return_num = 0;	     // NOTE: setting to no returns speeds things up substantially
+     if (! isset($this->parent)) $options["max"] = 0;  // NOTE: setting to no returns speeds things up substantially
 
-     $solr->setFacetLimit(-1);		// no limit - return all facets
-     $results = $solr->queryPublished($query, $start, $return_num);	
-     $totals = $results->facets->{$this->index_field};
+
+     
+     //     $solr->setFacetLimit(-1);		// no limit - return all facets
+     //     $results = $solr->queryPublished($query, $start, $return_num);
+
+     // return minimal solrEtd for quicker browse results
+     //     $options["return_type"] = "solrEtd";
+     // FIXME: solrEtd no longer useful/ functional enough (?)
+     
+     $etdSet = etd::find($options);
+     $totals = $etdSet->facets->{$this->index_field};
 
      // sum up totals recursively
      $this->collection->calculateTotal($totals);
 
-     return $results;
+     return $etdSet;
   }
 
   
