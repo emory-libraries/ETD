@@ -19,6 +19,6 @@
         <img src="<?= $this->linkTo('images/action_icons/x.gif') ?>">
 	request changes</a> <? endif ?>
 
-    <? if ($this->acl->isAllowed($this->role, $this->etd, "unpublish")): ?>
+    <? if ($this->acl->isAllowed($this->role, $this->etd, "inactivate")): ?>
 <a class="action" href="<?= $this->url(array('controller' => 'manage',
-		'action' => 'unpublish', 'pid' => $this->etd->pid), '', true, false) ?>">unpublish</a> <? endif ?>
+		'action' => 'inactivate', 'pid' => $this->etd->pid), '', true, false) ?>">mark inactive</a> <? endif ?>
