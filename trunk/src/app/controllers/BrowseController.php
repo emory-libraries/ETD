@@ -141,30 +141,16 @@ class BrowseController extends Etd_Controller_Action {
     }
 
     $opts = $this->getFilterOptions();
-    foreach ($opts as $filter => $value) {
-      $query .= " AND $filter:($value)";
-    }
-
-    //         print "query is $query\n";
-    //$results = $solr->query("$field:($value)");
-    $results = $solr->queryPublished($query, $start, $max);	// limit to published records
-     
-    $this->view->count = $results->numFound;
-
-    //
-    $etds = array();
-    foreach ($results->docs as $result_doc) {
-      array_push($etds, new etd($result_doc->PID));
-    }
-    //     $this->view->etds = $results['response']['docs'];
-    $this->view->etds = $etds;
-    $this->view->facets = $results->facets;
+    
+    $options = array("query" => $query, "AND" => $opts, "start" => $start, "max" => $max);
+    $etdSet = etd::find($options);
+    $this->view->etdSet = $etdSet;
 
     // if there's only one match found, forward directly to full record view
     if ($this->view->count == 1) {
       $this->_helper->flashMessenger->addMessage("Only one match found; displaying full record");
       $this->_helper->redirector->gotoRoute(array("controller" => "view",
-      						  "action" => "record", "pid" => $etds[0]->pid), "", true);
+      						  "action" => "record", "pid" => $etdSet->etds[0]->pid), "", true);
     }
 
     $this->view->start = $start;
@@ -172,7 +158,6 @@ class BrowseController extends Etd_Controller_Action {
 
      
     $this->view->value = $_value;
-    $this->view->results = $results;
      
     $this->view->title = "Browse by " . $this->view->browse_mode . " : " . $_value;
   }
@@ -186,6 +171,7 @@ class BrowseController extends Etd_Controller_Action {
     $start = $this->_getParam("start", 0);
     $max = $this->_getParam("max", 10);
     $opts = $this->getFilterOptions();
+    $options = array("start" => $start, "max" => $max, "AND" => $opts);
     
     // optional name parameter - find id by full name
     $name = $this->_getParam("name", null);
@@ -211,23 +197,8 @@ class BrowseController extends Etd_Controller_Action {
 
     $this->view->browse_mode = "program"; 
 
-
-    $results = $programs->findEtds($start, $max, $opts);  
-
-    $this->view->count = $results->numFound;
-    $this->view->results = $results;
-     
-    $etds = array();
-    foreach ($results->docs as $result_doc) {
-      array_push($etds, new etd($result_doc->PID));
-    }
-
-    $this->view->etds = $etds;
-    $this->view->facets = $results->facets;
-
-
-    $this->view->start = $start;
-    $this->view->max = $max;
+    $result = $programs->findEtds($options);
+    $this->view->etdSet = $result;
 
     $this->view->title = "Browse Programs";
     if ($coll != "#programs") $this->view->title .= " : " . $programs->label;
@@ -246,9 +217,10 @@ class BrowseController extends Etd_Controller_Action {
 
     $coll = $this->_getParam("coll", "researchfields");
     $opts = $this->getFilterOptions();
+    $options = array("start" => $start, "max" => $max, "AND" => $opts);
+    
     // needed to generate remove-facet links
     $this->view->url_params = array("coll" => $coll);
-
     
     try {
       $fields = new researchfields("#$coll");
@@ -257,26 +229,14 @@ class BrowseController extends Etd_Controller_Action {
       if ($this->env != "production")
 	$message .= " (<b>" . $e->getMessage() . "</b>)";
       $this->_helper->flashMessenger->addMessage($message);
-      $this->_helper->redirector->gotoRouteAndExit(array("controller" => "error", "action" => "notfound"), "", true);
+      $this->_helper->redirector->gotoRouteAndExit(array("controller" => "error",
+							 "action" => "notfound"), "", true);
     }
 
     $this->view->collection = $fields;
 
-    $results = $fields->findEtds($start, $max, $opts);
-
+    $this->view->etdSet = $fields->findEtds($options);
     $this->view->browse_mode = "researchfield"; 
-
-    $this->view->results = $results;
-     
-    $etds = array();
-    foreach ($results->docs as $result_doc) {
-      array_push($etds, new etd($result_doc->PID));
-    }
-    $this->view->etds = $etds;
-    $this->view->facets = $results->facets;
-    $this->view->count = $results->numFound;
-    $this->view->start = $start;
-    $this->view->max = $max;
     
 
     // shared view script for programs & researchfields
@@ -285,7 +245,6 @@ class BrowseController extends Etd_Controller_Action {
 
     $this->view->title = "Browse Research Fields";
     if ($coll != "researchfields") $this->view->title .= " : " . $fields->label;
-
   }
 
 
@@ -303,40 +262,38 @@ class BrowseController extends Etd_Controller_Action {
     $start = $this->_getParam("start", 0);
     $max = $this->_getParam("max", 5);
     $opts = $this->getFilterOptions();
+    $options = array("start" => $start, "max" => $max, "AND" => $opts);
     
     // if logged in user is a program coordinator, forward to the appropriate action
-    if ($this->current_user->program_coord) {
+    /*    if ($this->current_user->program_coord) {
       // FIXME: how to give super-user option to view the student/faculty pages?
       $this->_forward("my-program");
       return;	
-    }
+      }*/
 
+    $username = strtolower($this->current_user->netid);
+    
     // expand to find by role, depending on current user - faculty, dept. staff, etc.
     switch ($this->current_user->role) {
     case "student":
     case "student with submission":
       // records for this action : owned by current user (author) and not published
-      $opts['ownerId'] = strtolower($this->current_user->netid);
+      $options["AND"]["ownerId"] = $username;
       // FIXME: is this filter necessary/useful ?
-      $opts['NOT status'] = "published";		// any status other than published
+      $options["NOT"]["status"] = "published";		// any status other than published
       break;
     case "faculty":
-      //	$etds = etd::find
+      $options["OR"]["advisor_id"] = $options["OR"]["committee_id"] = $username;
+      // FIXME: display add some kind of label in this mode?
+      // something like: "Records on which you are listed as committee chair or member"
       break;
     default:
       // no records to display for this user; simulate an empty result set 
       $etds = array();	
     }
 
-    $this->view->etds = etd::find($start, $max, $opts, $total, $facets); 
-    // does it make sense to have facets here?
-    $this->view->facets = $facets;
-    $this->view->count = $total;
-    $this->view->start = $start;
-    $this->view->max = $max;
+    $this->view->etdSet = etd::find($options); 
       
-    // FIXME: need to add paging - count/start/max 
-    $this->_helper->viewRenderer->setScriptAction("list");
     $this->_helper->viewRenderer->setScriptAction("list");
     $this->view->show_status = true;
     $this->view->show_lastaction = true;
@@ -349,28 +306,28 @@ class BrowseController extends Etd_Controller_Action {
     $max = $this->_getParam("max", 25);
     $status = $this->_getParam("status", null);
     $opts = $this->getFilterOptions();
-    
-    $this->view->etds = etd::findUnpublishedByDepartment($this->current_user->program_coord,
-							 $start, $max, $opts,
-							 $total, $facets);
-    //    $this->view->count = count($this->view->etds);
+    $options = array("start" => $start, "max" => $max, "AND" => $opts);
+
+    $this->view->etdSet = etd::findUnpublishedByDepartment($this->current_user->program_coord, $options);
     $title = "Unpublished Records : " . $this->current_user->program_coord;
     $this->view->title = $title;
     $this->view->list_title = $title;
     $this->_helper->viewRenderer->setScriptAction("list");
     $this->view->show_status = true;
     $this->view->show_lastaction = true;
-
-    $this->view->count = $total;
-    $this->view->start = $start;
-    $this->view->max = $max;
-    $this->view->facets = $facets;
   }
 
 
   public function recentAction() {
+    $start = $this->_getParam("start", 0);
+    $max = $this->_getParam("max", 25);
+    $opts = $this->getFilterOptions();
+    $options = array("start" => $start, "max" => $max, "AND" => $opts);
+
+    
     $this->view->title = "Browse Recently Published";
-    $this->view->etds = etd::findRecentlyPublished();
+    $this->view->list_title = "Recently Published";
+    $this->view->etdSet = etd::findRecentlyPublished($options);
     $this->_helper->viewRenderer->setScriptAction("list");
   }
 
