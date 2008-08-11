@@ -49,6 +49,12 @@ class TestEtdHtml extends UnitTestCase {
   function testRemoveTags() {
     $this->assertEqual("content in divs",
 		       etd_html::removeTags("<div>content in divs</div>", true));
+    // no top-level wrapping element
+    $this->assertEqual("paragraph 1 paragraph 2",
+		       etd_html::removeTags("<p>paragraph 1</p> <p>paragraph 2</p>", true));
+    $this->assertEqual("formatting",
+		       etd_html::removeTags("<p class='MsoNormal' font-color='black'>formatting</p>", true));
+    
     
   }
 
