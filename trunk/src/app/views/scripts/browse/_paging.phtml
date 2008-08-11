@@ -1,0 +1,22 @@
+<? /* generate link navigation for paging through sets of results */ ?>
+
+<? if (isset($this->etdSet) && !$this->post && $this->etdSet->hasMoreResults()): ?>
+  <ul style="float:right" class="horizontal">
+      <li class="first">More results:</li>
+       <? foreach ($this->etdSet->resultSets() as $start => $end): ?>
+       <li <? if ($start == 1): ?>class="first" <? endif ?> >
+       <? $range =  $start . ( $start != $end ? " - " . $end : "") ?>
+        <? if ($start - 1 != $this->etdSet->start): ?>
+          <a href="<?= $this->url(array('start' => $start - 1, 'max' => $this->etdSet->rows)) ?>">
+	     <?= $range ?></a>
+        <? else: ?> <?= $range ?>
+	<? endif ?>
+       </li>
+       <? endforeach ?>
+     </ul>		  
+
+ <p><?= $this->etdSet->numFound ?> match<? if ($this->etdSet->numFound != 1): ?>es<? endif ?>
+   found<? if ($this->etdSet->numFound > 1): ?>; displaying <?= $this->etdSet->currentRange() ?><? endif ?>
+ </p>
+
+<? endif ?>

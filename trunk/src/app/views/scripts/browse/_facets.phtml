@@ -1,4 +1,4 @@
-<? if (isset($this->facets) && $this->facets->hasValues()): ?>
+<? if (isset($this->etdSet->facets) && $this->etdSet->facets->hasValues()): ?>
   <style type="text/css">div.content {padding-right:215px; }</style>
  <? /* FIXME.. better way to do this? (set margin for main div to leave room for faces) */ ?>
 
@@ -26,7 +26,7 @@
     <? foreach (array("status", "year", "subject", "advisor", "committee", "program", "author", "keyword", "subfield") as $facet): ?>
     <? if ($this->browse_mode == "committee" && $facet == "advisor") continue; ?>
     <? if ($this->browse_mode == "researchfield" && $facet == "subject") continue; ?>
-     <? if (isset($this->facets->$facet) && count($this->facets->$facet)
+     <? if (isset($this->etdSet->facets->$facet) && count($this->etdSet->facets->$facet)
 	    && !isset($this->filters[$facet]) && $this->browse_mode != $facet): ?>
    <p class="label">
       <? if ($facet == "advisor"): ?>Committee Chair
@@ -34,7 +34,7 @@
       <? endif ?>		      
    </p>
 	  <ul>
-  	    <? foreach ($this->facets->$facet as $label => $count): ?>
+  	    <? foreach ($this->etdSet->facets->$facet as $label => $count): ?>
   	      <li>
 <? /* include url params when generating links (needed for facets on search query) */ ?>
 <? $url_opts = array_merge(array('controller' => $this->controller, 'action' => $this->action), $this->url_params); ?>
