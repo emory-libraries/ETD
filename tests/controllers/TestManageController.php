@@ -244,8 +244,8 @@ class ManageControllerTest extends ControllerTestCase {
     
     $this->setUpGet(array('pid' => 'test:etd2', 'embargo' => '3 months'));	   // reviewed etd
     // notices for non-existent users in metadata
-    $this->expectError("Advisor (nobody) not found in ESD");
-    $this->expectError("Committee member (nobodytoo) not found in ESD");
+    $this->expectError("Committee member/chair (nobody) not found in ESD");
+    $this->expectError("Committee member/chair (nobodytoo) not found in ESD");
     $ManageController->doapproveAction();
     $etd = new etd("test:etd2");
     $this->assertEqual("approved", $etd->status(), "status set correctly");
@@ -260,20 +260,20 @@ class ManageControllerTest extends ControllerTestCase {
 
   }
 
-  public function testUnpublishAction() {
+  public function testInactivateAction() {
     $this->test_user->role = "admin";
     Zend_Registry::set('current_user', $this->test_user);
     $ManageController = new ManageControllerForTest($this->request,$this->response);
 
     $this->setUpGet(array('pid' => 'test:etd1'));	   // published etd
-    $ManageController->unpublishAction();
+    $ManageController->inactivateAction();
     $viewVars = $ManageController->view->getVars();
     $this->assertIsA($viewVars['etd'], "etd");
     $this->assertTrue(isset($viewVars['title']));
 
     $ManageController = new ManageControllerForTest($this->request,$this->response);
     $this->setUpGet(array('pid' => 'test:etd2'));	   // NOT a published etd
-    $this->assertFalse($ManageController->unpublishAction());
+    $this->assertFalse($ManageController->inactivateAction());
     $this->assertFalse($ManageController->redirectRan);
     $viewVars = $ManageController->view->getVars();
     $this->assertFalse(isset($viewVars['etd']));
@@ -282,22 +282,22 @@ class ManageControllerTest extends ControllerTestCase {
 				 
   }
 
-  public function testDoUnpublishAction() {
+  public function testMarkInactiveAction() {
     $this->test_user->role = "admin";
     Zend_Registry::set('current_user', $this->test_user);
     $ManageController = new ManageControllerForTest($this->request,$this->response);
 
-    $this->setUpPost(array('pid' => 'test:etd1', 'reason' => 'testing unpublish'));	   // published etd
-    $ManageController->doUnpublishAction();
+    $this->setUpPost(array('pid' => 'test:etd1', 'reason' => 'testing inactivation'));	   // published etd
+    $ManageController->markInactiveAction();
 
     $etd = new etd("test:etd1");
-    $this->assertEqual("draft", $etd->status());
-    $this->assertEqual("Unpublished - testing unpublish", $etd->premis->event[1]->detail);
+    $this->assertEqual("inactive", $etd->status());
+    $this->assertEqual("Marked inactive - testing inactivation", $etd->premis->event[1]->detail);
     $messages = $ManageController->getHelper('FlashMessenger')->getMessages();
-    $this->assertPattern("/Record unpublished.*status changed/", $messages[0]);
+    $this->assertPattern("/Record.*status changed/", $messages[0]);
 
-    $this->setUpPost(array('pid' => 'test:etd2', 'reason' => 'testing unpublish'));	   // NOT a published etd
-    $this->assertFalse($ManageController->unpublishAction());
+    $this->setUpPost(array('pid' => 'test:etd2', 'reason' => 'testing inactivate'));	   // NOT a published etd
+    $this->assertFalse($ManageController->markInactiveAction());
     // redirect/not authorized - can't test
   }
    
@@ -325,9 +325,9 @@ class ManageControllerTest extends ControllerTestCase {
     
     $this->assertFalse($ManageController->doapproveAction());
 
-    $this->assertFalse($ManageController->unpublishAction());
+    $this->assertFalse($ManageController->inactivateAction());
 
-    $this->assertFalse($ManageController->doUnpublishAction());
+    $this->assertFalse($ManageController->markInactiveAction());
   }
   
 }
