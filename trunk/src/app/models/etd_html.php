@@ -139,11 +139,16 @@ class etd_html extends foxmlDatastreamAbstract {
       return str_replace("<br/>", "", $string);
   }
 
+  /**
+   * remove _all_ xml tags from a string, returning only the text content
+   * @param string $string xml content
+   * @return string
+   */
   public static function removeTags($string) {
-    $search = array("&lt;", "&gt;");
-    $replace = array("<", ">");
-    $string = str_replace($search, $replace, $string);
-    return preg_replace("|</?[a-z]+/?>|", "", $string);		// also remove empty tags
+    $dom = new DOMDocument();
+    $dom->loadXML("<div>" . $string . "</div>");
+    // return the text content of this node and all its children, without node tags
+    return $dom->documentElement->nodeValue;
   }
 
 
