@@ -30,8 +30,15 @@ class ManageController extends Etd_Controller_Action {
      $start = $this->_getParam("start", 0);
      $max = $this->_getParam("max", 25);
      $opts = $this->getFilterOptions();  // pick up any facets; includes status
+     $options = array("start" => $start, "max" => $max,
+		      "AND" => $opts);
 
-     $this->view->etds = etd::find($start, $max, $opts, $total, $facets);
+     $etdset = etd::find($options);
+     $this->view->etd_set = $etdset;
+
+     
+     //     print "<pre>"; print_r($etdset); print "</pre>";
+     $this->view->etds = $etdset->etds;
 
      // should always have a status set
      $status = $this->_getParam("status");
@@ -45,10 +52,10 @@ class ManageController extends Etd_Controller_Action {
      $this->view->show_status = true;
      $this->view->show_lastaction = true;
 
-     $this->view->count = $total;
-     $this->view->start = $start;
-     $this->view->max = $max;
-     $this->view->facets = $facets;
+     //     $this->view->count = $etdset->total;
+     //     $this->view->start = $start;
+     //     $this->view->max = $max;
+     $this->view->facets = $etdset->facets;
      // don't include status in list of filters that can be removed
      unset($this->view->filters["status"]);
      // do include status in any facet links
@@ -166,31 +173,31 @@ class ManageController extends Etd_Controller_Action {
    }
    
 
-   /* unpublish workflow (unpublish, dounpublish) */
+   /* inactivation workflow (inactivate, markInactive) */
    
-   public function unpublishAction() {
+   public function inactivateAction() {
      $etd = $this->_helper->getFromFedora("pid", "etd");
-     if (!$this->_helper->access->allowedOnEtd("unpublish", $etd)) return false;
+     if (!$this->_helper->access->allowedOnEtd("inactivate", $etd)) return false;
      $this->view->etd = $etd;
-     $this->view->title = "Manage : Unpublish ETD";
+     $this->view->title = "Manage : Mark ETD as Inactive";
    }
 
-   public function dounpublishAction() {
+   public function markInactiveAction() {
      $etd = $this->_helper->getFromFedora("pid", "etd");
-     if (!$this->_helper->access->allowedOnEtd("unpublish", $etd)) return false;
+     if (!$this->_helper->access->allowedOnEtd("inactivate", $etd)) return false;
      
      $reason = $this->_getParam("reason", "");
      
-     $newstatus = "draft";
+     $newstatus = "inactive";
      $etd->setStatus($newstatus);
      
      // log event in record history 
      $etd->premis->addEvent("status change",
-			    "Unpublished - $reason",	// by whom ?
+			    "Marked inactive - $reason",	// by whom ?
 			    "success",  array("netid", $this->current_user->netid));
-     $result = $etd->save("unpublished");
+     $result = $etd->save("marked inactivate");
      
-     $this->_helper->flashMessenger->addMessage("Record unpublished and status changed to <b>$newstatus</b>; saved at $result");
+     $this->_helper->flashMessenger->addMessage("Record status changed to <b>$newstatus</b>; saved at $result");
      // user information also, for email address ?
      
      $this->_helper->redirector->gotoRoute(array("controller" => "manage",
@@ -200,16 +207,15 @@ class ManageController extends Etd_Controller_Action {
    public function embargoesAction() {
      if (!$this->_helper->access->allowedOnEtd("manage")) return false;
 
-     $start = $this->_getParam("start", 0);
-     $max = $this->_getParam("max", 10);	
-     $this->view->etds = etd::findEmbargoed($start, $max, $total);
+     $options["start"] = $this->_getParam("start", null);
+     $options["max"] = $this->_getParam("max", null);
+
+     $etdset = etd::findEmbargoed($options);
+     $this->view->etds = $etdset->etds;
      $this->view->show_lastaction = true;
-     $this->view->count = $total;
+     $this->view->count = $etdset->total;
      $this->view->start = $start;
      $this->view->max = $max;
-
-     
-     
    }
 
 
