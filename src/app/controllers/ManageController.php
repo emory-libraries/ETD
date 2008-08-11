@@ -33,14 +33,8 @@ class ManageController extends Etd_Controller_Action {
      $options = array("start" => $start, "max" => $max,
 		      "AND" => $opts);
 
-     $etdset = etd::find($options);
-     $this->view->etd_set = $etdset;
-
-     
-     //     print "<pre>"; print_r($etdset); print "</pre>";
-     $this->view->etds = $etdset->etds;
-
-     // should always have a status set
+     $this->view->etdSet = etd::find($options);
+     // should always have a status parameter
      $status = $this->_getParam("status");
      $list_title = ucfirst($status) . " records";
 
@@ -52,10 +46,6 @@ class ManageController extends Etd_Controller_Action {
      $this->view->show_status = true;
      $this->view->show_lastaction = true;
 
-     //     $this->view->count = $etdset->total;
-     //     $this->view->start = $start;
-     //     $this->view->max = $max;
-     $this->view->facets = $etdset->facets;
      // don't include status in list of filters that can be removed
      unset($this->view->filters["status"]);
      // do include status in any facet links
@@ -210,12 +200,8 @@ class ManageController extends Etd_Controller_Action {
      $options["start"] = $this->_getParam("start", null);
      $options["max"] = $this->_getParam("max", null);
 
-     $etdset = etd::findEmbargoed($options);
-     $this->view->etds = $etdset->etds;
+     $this->view->etdSet = etd::findEmbargoed($options);
      $this->view->show_lastaction = true;
-     $this->view->count = $etdset->total;
-     $this->view->start = $start;
-     $this->view->max = $max;
    }
 
 
