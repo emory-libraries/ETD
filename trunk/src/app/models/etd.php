@@ -566,6 +566,7 @@ class etd extends foxml implements etdInterface {
    *   NOT    : hash of field-value pairs that should be included in the query with NOT
    *   facets : hash with options for facets
    *		clear - if set to true, default facets will be cleared
+   * 		limit - number of facets to return
    *		mincount - minimum number of matches for a facet to be included
    * 		add - array of facets to be added
    *   return_type : type of etd object to return, one of etd or solrEtd
@@ -601,9 +602,10 @@ class etd extends foxml implements etdInterface {
       if (isset($options['facets']['clear']) && $options['facets']['clear']) $solr->clearFacets();
       if (isset($options['facets']['mincount'])) $solr->setFacetMinCount($options['facets']['mincount']);
       if (isset($options['facets']['add'])) $solr->addFacets($options['facets']['add']);
+      if (isset($options['facets']['limit'])) $solr->setFacetLimit($options['facets']['limit']);
     }
 
-    //print $query;
+    //    print $query;
     if (!isset($options["return_type"])) $options["return_type"] = "etd";
     return new EtdSet($solr->query($query, $start, $max, $sort), $options["return_type"]);
   }
@@ -815,6 +817,46 @@ class EtdSet {
     return isset($this->solrResponse->$name);
   }
 
+
+  /**
+   * return the number of the last record in the current set
+   * @return int 
+   */
+  public function currentLast() {
+    return min($this->solrResponse->start + $this->solrResponse->rows, $this->solrResponse->numFound); 
+  }
+
+  /**
+   * return a string with the range ofthe current result set
+   * @return string (e.g., 1 - 25)
+   */
+  public function currentRange() {
+    return ($this->solrResponse->start + 1) . " - " .  $this->currentLast();
+  }
+
+  /**
+   * check if there more results than returned in the current set
+   * @return boolean 
+   */
+  public function hasMoreResults() {
+    return ($this->solrResponse->rows < $this->solrResponse->numFound);
+  }
+
+
+  /**
+   * build an array of human-readable ranges for the result sets for this query
+   * @return array (key is start number, value is end value, e.g. 1 => 10, 11 => 15)
+   */
+  public function resultSets() {
+    $results = array();
+    for ($i = 1; $i < $this->solrResponse->numFound; $i += $this->solrResponse->rows) {
+      $current_end = min($this->solrResponse->numFound, $i + $this->solrResponse->rows - 1);
+      $results[$i] = $current_end;
+    }
+
+    return $results;
+  }
+    
 }
 
 
@@ -822,7 +864,7 @@ class EtdSet {
 
 
 // simple function to sort etdfiles based on sequence number  (used when foxml class initializes them)
- function sort_etdfiles(etd_file $a, etd_file $b) {
+function sort_etdfiles(etd_file $a, etd_file $b) {
     if ($a->rels_ext->sequence == $b->rels_ext->sequence) return 0;
     return ($a->rels_ext->sequence < $b->rels_ext->sequence) ? -1 : 1;
-  }
+}
