@@ -18,7 +18,7 @@ class etd_rels extends rels_ext {
 
 
     // allowable values for status
-    $this->status_list = array("draft", "submitted", "approved", "reviewed", "published");
+    $this->status_list = array("draft", "submitted", "approved", "reviewed", "published", "inactive");
     
     // etd status
     $this->xmlconfig["status"] = array("xpath" => "rdf:description/rel:etdStatus");
@@ -103,6 +103,18 @@ class etd_rels extends rels_ext {
   }
 
 
+
+  /**
+   * static function to retrieve etd status list
+   * @return array of status
+   */
+  public static function getStatusList() {
+    // class must be initialized with some kind of DOM; load an empty one to get the status array
+    $emptydom = new DOMDocument();
+    $emptydom->loadXML("<empty/>");
+    $rels = new etd_rels($emptydom);
+    return $rels->status_list;
+  }
 
 
 

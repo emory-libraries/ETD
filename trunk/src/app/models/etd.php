@@ -543,7 +543,7 @@ class etd extends foxml implements etdInterface {
     $totals = array();
     
     // foreach status, do a triple-query and then count the number of matches
-    foreach (array('published', 'approved', 'reviewed', 'submitted', 'draft') as $status) {
+    foreach (etd_rels::getStatusList() as $status) {
       $query = '* <fedora-rels-ext:etdStatus> \'' . $status . '\'';
       $rdf = $fedora->risearch->triples($query);
       $ns = $rdf->getNamespaces();
