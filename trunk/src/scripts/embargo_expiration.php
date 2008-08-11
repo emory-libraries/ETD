@@ -90,10 +90,12 @@ $logger->addFilter($filter);
 // find ETDs with embargoes that will expire in 60 days
 $expiration = date("Ymd", strtotime("+60 days"));	// 60 days from now
 $logger->debug("Searching for records with embargo expiration of $expiration or before and notice not sent");
-$etds = etd::findExpiringEmbargoes($expiration); 
+$etdset = etd::findExpiringEmbargoes($expiration); 
+// FIXME: need to iterate through all records; handle through EtdSet object? 
 
-$logger->info("Found " . count($etds) . " record" . ((count($etds) != 1) ? "s" : ""));
-foreach ($etds as $etd) {
+
+$logger->info("Found " . $etdset->numFound . " record" . ($etdset->numFound != 1 ? "s" : ""));
+foreach ($etdset->etds as $etd) {
   $logger->debug("Processing " . $etd->pid);
 
   // double-check that embargo notice has not been sent according to MODS record
