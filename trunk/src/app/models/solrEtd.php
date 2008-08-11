@@ -4,11 +4,11 @@ require_once("etdInterface.php");
 
 class solrEtd implements etdInterface {
 
-  public function __construct(array $values) {
+  public function __construct(Emory_Service_Solr_Response_Document $document) {
 
     // map lucene fields to etd fields - should be named consistently
-    foreach ($values as $key =>  $value) {
-      $this->$key = $values[$key];
+    foreach ($document as $key =>  $value) {
+      $this->$key = $document->{$key};
     }
     // note that facet fields will be ignored here
   }
@@ -57,6 +57,12 @@ class solrEtd implements etdInterface {
     } else {
       return "etd";
     }
+  }
+
+
+  // bogus getUserRole function ... do we actually have enough information from Solr to do this ?
+  public function getUserRole(esdPerson $user = null) {
+    return $user->role;
   }
 
   
