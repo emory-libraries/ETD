@@ -15,13 +15,23 @@ class FeedsController extends Etd_Controller_Action {
 
   /* recently published ETDs */
   public function recentAction() {
-    $etds = etd::findRecentlyPublished(10);
-    //   $etds = etd::findRecentlyPublished(10, array("program" => "Chemistry"));
+    $opts = $this->getFilterOptions();
+
+    $options = array("max" => 10, "AND" => $opts, "return_type" => "solrEtd");
+    /* NOTE: using solrEtd object here because it is significantly
+       faster to load (does not pull from Fedora) and has sufficient
+       information to generate feed entry.  */
+    
+    $etdset = etd::findRecentlyPublished($options);
+
+    $feed_title = "Emory ETDs: Recently published";
+    if (isset($opts["program"])) $feed_title .= " : " . ucfirst($opts["program"]);
+    
 
     // pass in title for the feed, absolute url, and array of etds to be included      
-    $this->feed = new Etd_Feed("Emory ETDs: Recently published",
-			       $this->_helper->absoluteUrl('recent'),	       
-			       $etds);
+    $this->feed = new Etd_Feed($feed_title,
+			       $this->_helper->absoluteUrl("recent", "feeds", null, $opts),
+			       $etdset->etds);
   }
 
 }
