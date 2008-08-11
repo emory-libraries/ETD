@@ -14,19 +14,13 @@
   <? endif ?>
    </p>
 <? endforeach ?>
-<? if (count($this->etds) && count($this->collection->members)) : ?>
-     <hr/> <? /* divider if there are both records and categories listed */ ?>
+
+
+<? if (count($this->etdSet->etds) && count($this->collection->members)) : ?>
+     <hr/> <? /* display a divider if there are both records and categories listed */ ?>
 <? endif ?>
 	
-       
 <? /* don't show etd records at top level */ ?>
-<? if ($this->collection->parent): ?>
-	<?//=  $this->render('browse/_facets.phtml'); ?>
-
-  <? if (count($this->etds)): ?>
-
-       
+<? if ($this->collection->parent && isset($this->etdSet)): ?>
    <?=  $this->render('browse/list.phtml'); ?>
-  <? endif ?>
-	 
-<? endif ?>  
+<? endif ?> 

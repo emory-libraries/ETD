@@ -1,34 +1,10 @@
 <h1>Upcoming Embargo Expirations</h1>
 
-records ordered by embargo expiration date<br/>
+<p>records ordered by embargo expiration date</p>
 
-<? /* FIXME: copied from browse/list.phtml; need a helper for paging */ ?>
-<? if (isset($this->count) && isset($this->start) && isset($this->max)): ?>
-  <? $this->end = min($this->start + $this->max, $this->count); ?>
-  <? if (!$this->post && $this->max < $this->count): ?>
-   <ul style="float:right" class="horizontal">
-      <li class="first">More results:
-     <? for ($i = 1; $i <= $this->count; $i += $this->max): ?>
-     <? $cur_end = min($i + $this->max - 1, $this->count);
-        $range = $i;  if ($cur_end != $i) $range .= "-" . $cur_end ; ?>
-	<? if ($i != 1): ?><li><? endif ?>
-       <? if (($i - 1) != $this->start): ?>
-          <a href="<?= $this->url(array('start' => $i - 1, 'max' => $this->max)) ?>"><?= $range ?></a>
-       <? else: ?>
-	   <?= $range ?>
-       <? endif ?>
-	</li>	 
-     <? endfor ?>
-     </ul>		  
-  <? endif ?>
+<?=  $this->render('browse/_paging.phtml') ?>
 
- <p><?= $this->count ?> match<? if ($this->count != 1): ?>es<? endif ?> found<? if ($this->count): ?>;
-  displaying <?= $this->start + 1 ?> - <?= $this->end ?><? endif ?>
- </p>
-
-<? endif ?>
-
-<? foreach ($this->etds as $this->etd) : ?>
+<? foreach ($this->etdSet->etds as $this->etd) : ?>
 <div class="listrecord">	
   <b><?= $this->etd->mods->embargo_end ?></b>
   <span class="embargo_notice">
