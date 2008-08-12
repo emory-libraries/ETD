@@ -282,9 +282,10 @@ function get_graduate_etds($filename, $refdate = null) {
       $logger->debug("Found graduate " . $data[$netid] . " $name_degree");
       
       // find fedora record id, add to $pids
-      $etd = etd::findUnpublishedByAuthor($data[$netid]);
+      $etdSet = new EtdSet();
+      $etdSet->findUnpublishedByOwner($data[$netid]);
       // only allowing one unpublished record per student at a time, so this should be safe
-      $count = count($etd);
+      $count = count($etdSet->etds);
       if ($count == 0) {
          /* NOTE: no longer filtering by pilot departments; we will probably get lots of warnings
           from now until electronic submission becomes mandatory 
@@ -735,8 +736,9 @@ function find_orphans() {
   global $opts, $logger;
   $logger->info("Checking for 'orphaned' ETD records");
 
-  $orphans = etd::findByStatus("approved");
-  $count = count($orphans);
+  $etdSet = new EtdSet();
+  $etdSet->find(array("status" => "approved"));
+  $count = count($etdSet->etds);
   
   if ($count) {
     $logger->notice("Found " . $count . " approved record" . ($count != 1 ? "s" : ""));

@@ -90,37 +90,45 @@ $logger->addFilter($filter);
 // find ETDs with embargoes that will expire in 60 days
 $expiration = date("Ymd", strtotime("+60 days"));	// 60 days from now
 $logger->debug("Searching for records with embargo expiration of $expiration or before and notice not sent");
-$etdset = etd::findExpiringEmbargoes($expiration); 
+
 // FIXME: need to iterate through all records; handle through EtdSet object? 
+$options = array("start" => 0, "max" => 100);
+$etdSet = new EtdSet();
+$etdSet->findExpiringEmbargoes($expiration, $options);
 
 
-$logger->info("Found " . $etdset->numFound . " record" . ($etdset->numFound != 1 ? "s" : ""));
-foreach ($etdset->etds as $etd) {
-  $logger->debug("Processing " . $etd->pid);
+while ($etdSet->hasResults()) {
+  $logger->info("Processing records " . $etdSet->currentRange() . " of " . $etdSet->numFound);
 
-  // double-check that embargo notice has not been sent according to MODS record
-  // (this should only happen if Solr index does not get updated -- should be fixed by now?)
-  if (isset($etd->mods->embargo_notice) && strstr($etd->mods->embargo_notice, "sent")) {
-    $logger->warn("Notice has already been sent for " . $etd->pid . "; skipping");
-    continue;
-  }
-  
-  if (!$opts->noact) {
-    $notify = new etd_notifier($etd);
-    // send email about embargo expiration
-    $notify->embargo_expiration();
-    
-    // add an administrative note that embargo expiration notice has been sent,
-    // and add notification event to record history log
-    $etd->embargo_expiration_notice();
-    
-    $result = $etd->save("sent embargo expiration 60-day notice");
-    if ($result) {
-      $logger->debug("Successfully saved " . $etd->pid . " at $result");
-    } else {
-      $logger->err("Could not save embargo expiration notice sent to record history"); 
+  foreach ($etdSet->etds as $etd) {
+    $logger->debug("Processing " . $etd->pid);
+
+    // double-check that embargo notice has not been sent according to MODS record
+    // (this should only happen if Solr index does not get updated -- should be fixed by now?)
+    if (isset($etd->mods->embargo_notice) && strstr($etd->mods->embargo_notice, "sent")) {
+      $logger->warn("Notice has already been sent for " . $etd->pid . "; skipping");
+      continue;
     }
-  }
+
+    if (!$opts->noact) {
+      $notify = new etd_notifier($etd);
+      // send email about embargo expiration
+      $notify->embargo_expiration();
+      
+      // add an administrative note that embargo expiration notice has been sent,
+      // and add notification event to record history log
+      $etd->embargo_expiration_notice();
+      
+      $result = $etd->save("sent embargo expiration 60-day notice");
+      if ($result) {
+	$logger->debug("Successfully saved " . $etd->pid . " at $result");
+      } else {
+	$logger->err("Could not save embargo expiration notice sent to record history"); 
+      }
+    }
+  }	// end looping through current set of etds
+  
+  $etdSet->next();	// retrieve the next batch
 }
 
 

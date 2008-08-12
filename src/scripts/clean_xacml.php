@@ -94,19 +94,19 @@ if ($opts->pid) {
 }
 
 
-// find *all* records, no matter their status
-$start = 0;
-$setsize = 30;		// retrieve records in chunks of 100
-$total = $setsize;	// set to an initial value to iterate at least once
-while ($start < $total) {	// loop through the images in chunks of setsize
-  $etds = etd::find($start, $setsize, array(), $total); 
-  $logger->info("Processing records $start-" . ($start + $setsize) . " of $total");
+// find *all* records, no matter their status, etc.
+$options = array("start" => 0, "max" => 100et);
+$etdSet = new EtdSet();
+$etdSet->find($options);
 
-  foreach ($etds as $etd) {
+while ($etdSet->hasResults())) {
+  $logger->info("Processing records " . $etdSet->currentRange() . " of " . $etdSet->numFound);
+  
+  foreach ($etdSet->etds as $etd) {
     if (clean_xacml($etd)) $count++;
   }
-
-  $start += $setsize;	// move to the next set of records
+  
+  $etdSet->next();
 }
 
 $logger->info($count . " records changed");
