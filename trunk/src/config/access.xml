@@ -1,7 +1,7 @@
 <acl>
   <roles>
     <role name="guest">
-      <allow resource="published etd">view metadata</allow>
+      <allow resource="published etd">view metadata, view statistics</allow>
       <allow resource="published file">view, download</allow>
       <!-- no privileges on embargoed files (not even to view metadata) -->
     </role>
