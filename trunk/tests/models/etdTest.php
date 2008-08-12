@@ -292,8 +292,30 @@ class TestEtd extends UnitTestCase {
     $this->assertTrue($this->etd->supplements[0]->policy->view->condition->users->includes("jsmith"));
     $this->assertTrue($this->etd->supplements[0]->policy->view->condition->users->includes("kjones"));
     $this->assertEqual("Disney", $this->etd->supplements[0]->policy->view->condition->department);
-    
+  }
 
+
+  
+  function testUpdateDC() {
+    $fname = '../fixtures/etd2.xml';
+    $dom = new DOMDocument();
+    $dom->load($fname);
+    $etd = new etd($dom);
+
+    $etd->updateDC();
+
+    $this->assertEqual($etd->mods->title, $etd->dc->title);
+    $this->assertEqual($etd->mods->abstract, $etd->dc->description);
+    $this->assertEqual($etd->mods->ark, $etd->dc->ark);	// fix dc class
+    $this->assertEqual($etd->mods->author->full, $etd->dc->creator);
+    $this->assertEqual($etd->mods->chair[0]->full, $etd->dc->contributor);
+    $this->assertEqual($etd->mods->language->text, $etd->dc->language);
+    $this->assertEqual($etd->mods->researchfields[0]->topic, $etd->dc->subjects[0]);
+    $this->assertEqual($etd->mods->keywords[0]->topic, $etd->dc->subjects[1]);
+    $this->assertEqual($etd->mods->date, $etd->dc->date);
+    $this->assertEqual($etd->mods->genre, $etd->dc->type);
+
+    // need to test setting arks for related objects (pdf/supplement)
   }
   
   
