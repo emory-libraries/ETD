@@ -1,8 +1,7 @@
 <?
 
 error_reporting(E_ALL);
-ini_set("include_path", "../../src/app/:../../src/app/modules/:../../src/lib:../../src/lib/ZendFramework:../../src/lib/fedora:../../src/lib/xml-utilities:..:../../src/config:"
-	. ini_get("include_path"));
+ini_set("include_path", "../../src/app/:../../src/app/modules/:../../src/lib:../../src/lib/ZendFramework:../../src/lib/fedora:../../src/lib/xml-utilities:..:../../src/config:../../src/app/models:" . ini_get("include_path"));
 
 require_once('simpletest/unit_tester.php');
 require_once('simpletest/reporter.php');
@@ -23,8 +22,6 @@ Zend_Registry::set("config-dir", $config_dir);
 // needed for notifier
 $config = new Zend_Config_Xml($config_dir . "config.xml", $mode);
 Zend_Registry::set('config', $config);
-Zend_Registry::set('ldap-config',
-	  new Zend_Config_Xml($config_dir . "ldap.xml", $mode));
 
 $fedora_cfg = new Zend_Config_Xml($config_dir . "fedora.xml", $mode);
 Zend_Registry::set('fedora-config', $fedora_cfg);
@@ -66,6 +63,10 @@ $front->addModuleDirectory("../app/modules");
 $front->setControllerDirectory("../../src/app/controllers", "default");
 // set a dummy request for any functionality that requires it
 $front->setRequest(new Zend_Controller_Request_Http());
+
+// default routes must be set up for certain helpers, like url
+$router = $front->getRouter();
+$router->addDefaultRoutes();	
 
 // add new helper path to view
 $viewRenderer = Zend_Controller_Action_HelperBroker::getStaticHelper('ViewRenderer');
