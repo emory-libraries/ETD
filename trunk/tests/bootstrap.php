@@ -57,6 +57,8 @@ $front = Zend_Controller_Front::getInstance();
 $front->setControllerDirectory(array("default" => "../app/controllers", "emory" => "../lib/ZendFramework/Emory"));
 $front->addModuleDirectory("../app/modules");
 $front->setControllerDirectory("../../src/app/controllers", "default");
+// set a dummy request for any functionality that requires it
+$front->setRequest(new Zend_Controller_Request_Http());
 
 // add new helper path to view
 $viewRenderer = Zend_Controller_Action_HelperBroker::getStaticHelper('ViewRenderer');

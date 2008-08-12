@@ -20,6 +20,7 @@ class ControllerGroupTest extends GroupTest {
     $this->addTestFile('controllers/TestDocsController.php');
     $this->addTestFile('controllers/TestBrowseController.php');
     $this->addTestFile('controllers/TestConfigController.php');
+    $this->addTestFile('controllers/TestFeedsController.php');
     //    $this->addTestFile('controllers/TestEtdController.php');
   }
 }
