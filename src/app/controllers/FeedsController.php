@@ -24,8 +24,9 @@ class FeedsController extends Etd_Controller_Action {
     /* NOTE: using solrEtd object here because it is significantly
        faster to load (does not pull from Fedora) and has sufficient
        information to generate feed entry.  */
-    
-    $etdset = etd::findRecentlyPublished($options);
+
+    $etdset = new EtdSet();
+    $etdset->findRecentlyPublished($options);
 
     $feed_title = "Emory ETDs: Recently published";
     if (isset($opts["program"])) $feed_title .= " : " . ucfirst($opts["program"]);
