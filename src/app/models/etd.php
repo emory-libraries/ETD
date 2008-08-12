@@ -616,7 +616,7 @@ class etd extends foxml implements etdInterface {
    * @param array $options any filter options to be passed to etd find function
    * @return EtdSet
    */
-  public static function findUnpublishedByOwner($username, $options) {
+  public static function findUnpublishedByOwner($username, $options = array()) {
     $options['AND']['ownerId'] = strtolower($username);
     $options['NOT']['status'] = "published";		// any status other than published
     return etd::find($options);
