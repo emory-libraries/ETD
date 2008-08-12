@@ -1,7 +1,8 @@
 <?php
 
 require_once("models/stats.php");
-require_once("countries.php");
+require_once("models/etd.php");
+require_once("CountryNames.php");
 
 class StatisticsController extends Etd_Controller_Action {
 
@@ -34,12 +35,14 @@ class StatisticsController extends Etd_Controller_Action {
 
    // statistics for a single record
    public function recordAction() {
-     // fixme: error handling ?
-     $pid = $this->_getParam("pid", null);
-     $etd = new etd($pid);
+     $etd = $this->_helper->getFromFedora("pid", "etd");
+     if ($etd) {
+       if (!$this->_helper->access->allowedOnEtd("view statistics", $etd)) return false;
+     }
 
      $stats = new StatObject();
      $pids = array();
+     // search 
      $pids[] = $etd->pid;
      foreach ($etd->pdfs as $pdf) $pids[] = $pdf->pid;
      
