@@ -11,7 +11,7 @@ class EditController extends Etd_Controller_Action {
   // edit main record metadata
   public function recordAction() {
     $etd = $this->_helper->getFromFedora("pid", "etd");
-    if (!$this->_helper->access->allowedOnEtd("edit metadata", $etd)) return;
+    if (!$this->_helper->access->allowedOnEtd("edit metadata", $etd)) return false;
       
     $this->view->title = "Edit Record Information";
     $this->view->etd = $etd;
@@ -24,7 +24,9 @@ class EditController extends Etd_Controller_Action {
     //    $this->view->xforms_model_xml = $etd->mods->saveXML();
     // link to xml rather than embedding directly in the page
     $this->view->xforms_model_uri = $this->_helper->url->url(array("controller" => "view", "action" => "mods",
-								   "pid" => $etd->pid, "mode" => "edit"));
+								   "pid" => $etd->pid, "mode" => "edit"),
+							     // no route name, reset, don't url-encode
+							     '', true, false);
   }
 
   public function programAction() {
@@ -51,7 +53,9 @@ class EditController extends Etd_Controller_Action {
 				    );
     // link to xml rather than embedding directly in the page
     $this->view->xforms_model_uri = $this->_helper->url->url(array("controller" => "view", "action" => "mods",
-								   "pid" => $etd->pid));
+								   "pid" => $etd->pid),
+							     // no route name, reset, don't url-encode
+							     '', true, false);
   }
 
 
@@ -84,7 +88,8 @@ class EditController extends Etd_Controller_Action {
     $nonemory_affiliation = $this->_getParam("nonemory_affiliation");
     for ($i = 0; $i < count($nonemory_first); $i++) {
       if ($nonemory_last[$i] != '')
-	$etd->mods->addCommitteeMember($nonemory_last[$i], $nonemory_first[$i], false, $nonemory_affiliation[$i]);
+	$etd->mods->addCommittee($nonemory_last[$i], $nonemory_first[$i], "nonemory_committee",
+				 $nonemory_affiliation[$i]);
     }
     
     if ($etd->mods->hasChanged()) {
@@ -120,7 +125,9 @@ class EditController extends Etd_Controller_Action {
     $this->view->namespaces = array("mods" => "http://www.loc.gov/mods/v3");
     // link to xml rather than embedding directly in the page
     $this->view->xforms_model_uri = $this->_helper->url->url(array("controller" => "view", "action" => "mods",
-								   "pid" => $etd->pid));
+								   "pid" => $etd->pid),
+							     // no route name, reset, don't url-encode
+							     '', true, false);
   }
 
 
