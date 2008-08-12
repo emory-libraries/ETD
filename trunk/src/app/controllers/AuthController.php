@@ -24,8 +24,10 @@ class AuthController extends Etd_Controller_Action {
        $this->_helper->redirector->gotoRoute(array("controller" => "index",
 						   "action" => "index"), "", true);
      }
-     
-     $ldap_config = Zend_Registry::get('ldap-config');
+
+     $config_dir = Zend_Registry::get("config-dir");
+     $ldap_config = new Zend_Config_Xml($config_dir . "ldap.xml", $this->env);
+
      $authAdapter = new Zend_Auth_Adapter_Ldap($ldap_config->toArray(), $username, $password);
      $auth = Zend_Auth::getInstance();
 
@@ -41,8 +43,7 @@ class AuthController extends Etd_Controller_Action {
 	 $message .= " - wrong password?";
 	 break;
        default:
-	 //	 $message .= " (no details)";
-	 // fixme: should anything be added here?
+	 // no additional information for user
        }
 
        // display information about failed login / reason

@@ -25,18 +25,12 @@ Zend_Registry::set('env-config', $env_config);
 Zend_Registry::set('environment', $env_config->mode);
 $config = new Zend_Config_Xml($config_dir . "config.xml", $env_config->mode);
 Zend_Registry::set('config', $config);
-
 Zend_Registry::set('debug', (boolean)$env_config->debug);
 
-Zend_Registry::set('ldap-config',
-	  new Zend_Config_Xml($config_dir . "ldap.xml", $env_config->mode));
 Zend_Registry::set('persis-config',
 	  new Zend_Config_Xml($config_dir . "persis.xml", $env_config->mode));
-
-
 Zend_Registry::set('proquest-config',
-	  new Zend_Config_Xml($config_dir "proquest.xml", $env_config->mode));
-
+	  new Zend_Config_Xml($config_dir . "proquest.xml", $env_config->mode));
 
 $fedora_cfg = new Zend_Config_Xml($config_dir . "fedora.xml", $env_config->mode);
 Zend_Registry::set('fedora-config', $fedora_cfg);
