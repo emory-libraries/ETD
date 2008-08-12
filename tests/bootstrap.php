@@ -51,6 +51,13 @@ require_once('simpletest/mock_objects.php');
 Mock::generate('Etd_Service_Solr');
 Mock::generate('Emory_Service_Solr_Response');
 
+// sqlite db for statistics data
+$db_config = new Zend_Config_Xml($config_dir . 'statistics.xml', $mode);
+// copy over an empty version of the stats db with all tables set up
+copy("../../src/data/stats.db", $db_config->params->dbname);
+$db = Zend_Db::factory($db_config);
+Zend_Registry::set('stat-db', $db);	
+
 
 $front = Zend_Controller_Front::getInstance();
 //$front = $this->view->getFrontController();
@@ -87,6 +94,7 @@ function runtest($test) {
     $test->run($reporter);
   }
 }
+
 
 // utility function used by xacml tests
 function setFedoraAccount($user) {
