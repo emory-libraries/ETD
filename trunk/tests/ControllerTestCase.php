@@ -59,8 +59,19 @@ class TestEtd_Controller_Action_Helper_FlashMessenger extends Zend_Controller_Ac
 
 class TestEtd_Controller_Action_Helper_Layout extends Zend_Controller_Action_Helper_Abstract {
   public $enabled = true;
-  public function disableLayout() { $this->enabled = false;  }
+  public function disableLayout() { $this->enabled = false; }
 }
+
+class TestEtd_Controller_Action_Helper_GetFromFedora extends Etd_Controller_Action_Helper_GetFromFedora {
+  protected $object = null;
+  public function direct($pid, $type) {
+    if ($this->object == null)  return $this->find_or_error($pid, $type);
+    else return $this->object;
+  }
+  public function setReturnObject($obj) { $this->object = $obj; }
+  public function clearReturnObject() { $this->object = null; }
+}
+
 
 
 // override http response class to allow setting headers (otherwise not allowed because of simpletest headers)
