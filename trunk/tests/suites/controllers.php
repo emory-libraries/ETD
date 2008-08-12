@@ -16,7 +16,10 @@ class ControllerGroupTest extends GroupTest {
     $this->GroupTest('ETD Controller tests');
     $this->addTestFile('controllers/TestManageController.php');
     $this->addTestFile('controllers/TestSubmissionController.php');
-    //    $this->addTestFile('controllers/TestAuthController.php');
+    $this->addTestFile('controllers/TestAuthController.php');
+    $this->addTestFile('controllers/TestDocsController.php');
+    $this->addTestFile('controllers/TestBrowseController.php');
+    $this->addTestFile('controllers/TestConfigController.php');
     //    $this->addTestFile('controllers/TestEtdController.php');
   }
 }
