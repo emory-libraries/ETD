@@ -254,7 +254,7 @@ class etd extends foxml implements etdInterface {
 
 
   public function save($message) {
-    // cascade save to related files
+    // cascade save to related etdfile objects
     
     // since changes on etd can cause changes on etdfiles (e.g., xacml)
     // should not be a big performance hit, because only changed datastreams are actually saved
@@ -264,19 +264,49 @@ class etd extends foxml implements etdInterface {
       // FIXME2: how to capture/return error messages here?
     }
 
-    // TODO: update DC datastream based on MODS
+    // update Dublin Core before saving in case MODS has changed
+    $this->updateDC();
     return parent::save($message);
   }
   
+  // synchronize Dublin Core with MODS (master metadata)
+  public function updateDC() {
+    $this->dc->title = $this->mods->title;
+    $this->dc->type = $this->mods->genre;
+    $this->dc->date = $this->mods->date;
+    $this->dc->language = $this->mods->language->text;
+    $this->dc->description = $this->mods->abstract;
+
+    // author
+    $this->dc->creator = $this->mods->author->full;
+
+    // committee chair(s)
+    $chairs = array();
+    foreach ($this->mods->chair as $chair) {
+      $chairs[] = $chair->full;
+    }
+    $this->dc->setContributors($chairs);
+
+    // subjects : research fields and keywords
+    $subjects = array_merge($this->researchfields(), $this->keywords());
+    $this->dc->setSubjects($subjects);
+
+    // ark for this object
+    $this->dc->setArk($this->mods->ark);
+
+    // related objects : arks for public etd files (pdfs and supplements)
+    $relations = array();
+    foreach (array_merge($this->pdfs, $this->supplements) as $file) {
+      $relations[] = $file->dc->ark;
+    }
+    $this->dc->setRelations($relations);
+
+
+    // FIXME: what else should be included in this update?
+    // - number of pages?
+  }
 
   
-  /* FIXME: systematic way to link mods fields to dublin core?  update
-     them all at once when saving?
-
-     ... one idea: have an 'update' function that can be overridden
-     and is called before any save action (save xml, save xml to file,
-     save to fedora)
-  */
   
   // handle special values
   public function __set($name, $value) {
