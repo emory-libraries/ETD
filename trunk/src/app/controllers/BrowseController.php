@@ -3,6 +3,7 @@
 require_once("models/etd.php");
 require_once("models/etd_feed.php");
 require_once("models/programs.php");
+require_once("models/researchfields.php");
 
 class BrowseController extends Etd_Controller_Action {
   protected $requires_fedora = true;
@@ -81,9 +82,8 @@ class BrowseController extends Etd_Controller_Action {
   }
    
 
-
   /* common functionality - get a list of terms by field
-   expects field parameter to be set 
+     expects 'field' parameter to be set 
   */
   public function browsefieldAction() {
     $request = $this->getRequest();
@@ -97,8 +97,6 @@ class BrowseController extends Etd_Controller_Action {
     $this->view->values = $results->facets->$field;
     $this->view->title = "Browse " . $this->view->browse_mode . "s";
   }
-
-
 
    
   // list of records by field + value
@@ -114,8 +112,6 @@ class BrowseController extends Etd_Controller_Action {
 
     $start = $this->_getParam("start", 0);
     $max = $this->_getParam("max", 20);	   
-
-
     
     $exact = $this->_getParam("exact", false);
     if (! $exact) {
@@ -155,7 +151,6 @@ class BrowseController extends Etd_Controller_Action {
 
     $this->view->start = $start;
     $this->view->max = $max;
-
      
     $this->view->value = $_value;
      
@@ -188,17 +183,13 @@ class BrowseController extends Etd_Controller_Action {
       $programs = new programs($coll);
     } catch (XmlObjectException $e) {
       $message = "Error: Program not found";
-      if ($this->env != "production")
-	$message .= " (<b>" . $e->getMessage() . "</b>)";
+      if ($this->env != "production") $message .= " (<b>" . $e->getMessage() . "</b>)";
       $this->_helper->flashMessenger->addMessage($message);
       $this->_helper->redirector->gotoRouteAndExit(array("controller" => "error", "action" => "notfound"), "", true);
     }
     $this->view->collection = $programs;
-
     $this->view->browse_mode = "program"; 
-
-    $result = $programs->findEtds($options);
-    $this->view->etdSet = $result;
+    $this->view->etdSet = $programs->findEtds($options);
 
     $this->view->title = "Browse Programs";
     if ($coll != "#programs") $this->view->title .= " : " . $programs->label;
@@ -207,8 +198,8 @@ class BrowseController extends Etd_Controller_Action {
     // shared view script for programs & researchfields
     $this->_helper->viewRenderer->setScriptAction("collection");
 
-
-    //    $this->view->feed = new Zend_Feed_Rss($this->_helper->absoluteUrl('recent', 'feeds', null, array("program" => $programs->label)));
+  //        $this->view->feed = new Zend_Feed_Rss($this->_helper->absoluteUrl('recent', 'feeds', null,
+  //							      array("program" => $programs->label)));
   }
 
   public function researchfieldsAction() {
@@ -246,8 +237,6 @@ class BrowseController extends Etd_Controller_Action {
     $this->view->title = "Browse Research Fields";
     if ($coll != "researchfields") $this->view->title .= " : " . $fields->label;
   }
-
-
 
   // list a user's ETDs
   public function myAction() {
@@ -302,6 +291,14 @@ class BrowseController extends Etd_Controller_Action {
 
   // program coordinator view : list unpublished records for the specified department 
   public function myProgramAction() {
+    // FIXME: error handling if user is not a program coordinator?
+
+    if (!isset($this->current_user) || empty($this->current_user->program_coord)) {
+      $role = isset($this->current_user) ? $this->current_user->getRoleId() : "guest";
+      $this->_helper->access->notAllowed("view", $role, "program coordinator view");
+      return false;
+    }
+
     $start = $this->_getParam("start", 0);
     $max = $this->_getParam("max", 25);
     $status = $this->_getParam("status", null);
@@ -340,7 +337,7 @@ class BrowseController extends Etd_Controller_Action {
 
 
   public function indexAction() {
-    // FIXME: do we need a main browse page?
+    // FIXME: should probably create a top-level browse page, in case anyone meddles with the urls...
     $this->view->assign("title", "Welcome to %project%");
   }
 
