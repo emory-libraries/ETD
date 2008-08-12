@@ -8,12 +8,14 @@ class ConfigController extends Etd_Controller_Action {
     $request = $this->getRequest();
     $id = $request->getParam("id");
 
+    $config_dir = Zend_Registry::get("config-dir");
+    
     switch($id) {
     case "countries":
     case "degrees":
     case "programs":
     case "languages":
-      $xml = file_get_contents("../config/" . $id . ".xml");
+      $xml = file_get_contents($config_dir . $id . ".xml");
 
       $this->_helper->displayXml($xml);
       break;
