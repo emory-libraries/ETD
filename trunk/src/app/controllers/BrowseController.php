@@ -254,11 +254,11 @@ class BrowseController extends Etd_Controller_Action {
     $options = array("start" => $start, "max" => $max, "AND" => $opts);
     
     // if logged in user is a program coordinator, forward to the appropriate action
-    /*    if ($this->current_user->program_coord) {
+    if ($this->current_user->program_coord) {
       // FIXME: how to give super-user option to view the student/faculty pages?
       $this->_forward("my-program");
       return;	
-      }*/
+    }
 
     $username = strtolower($this->current_user->netid);
     
