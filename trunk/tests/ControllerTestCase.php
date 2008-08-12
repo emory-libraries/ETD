@@ -3,14 +3,15 @@ require_once("UnitTest.php");
  
 class ControllerTestCase extends UnitTest {
   protected $request;
-  protected $response;	
+  protected $response;
+
   
   protected function makeRequest($url = null) {
     return new Zend_Controller_Request_Http($url);
   }
   
   protected function makeResponse() {
-    return new Zend_Controller_Response_Http();
+    return new TestEtd_Controller_Response_Http();
   }	
   
   protected function setUpPost(array $params = array()) {
@@ -34,6 +35,14 @@ class TestEtd_Controller_Action_Helper_Redirector extends Zend_Controller_Action
   public function gotoRoute(array $urlOptions = array(), $name = null, $reset = false) {
     $this->_actionController->_redirect();
   }
+  public function gotoRouteAndExit(array $urlOptions = array(), $name = null, $reset = false) {
+    $this->gotoRoute($urlOptions, $name, $reset);
+    // no real way to simulate exiting...
+  }
+
+  public function gotoUrl($url, $opts) {
+    $this->_actionController->_redirect();
+  }
 }
 
 /* bypass real flashmessenger helper to simplify; clear out messages once they are retrieved */
@@ -46,9 +55,17 @@ class TestEtd_Controller_Action_Helper_FlashMessenger extends Zend_Controller_Ac
     $this->messages = array();		// as a convenience, clear out messages when retrieving them
     return $messages;
   }
-
-
 }
 
+class TestEtd_Controller_Action_Helper_Layout extends Zend_Controller_Action_Helper_Abstract {
+  public $enabled = true;
+  public function disableLayout() { $this->enabled = false;  }
+}
+
+
+// override http response class to allow setting headers (otherwise not allowed because of simpletest headers)
+class TestEtd_Controller_Response_Http extends Zend_Controller_Response_Http {
+  public function canSendHeaders() { return true; }
+}
 
 ?>
