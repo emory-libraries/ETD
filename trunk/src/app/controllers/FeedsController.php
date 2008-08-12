@@ -7,7 +7,10 @@ require_once("models/programs.php");
 class FeedsController extends Etd_Controller_Action {
   protected $requires_fedora = true;
 
-  protected $feed;
+  /**
+   * @var Etd_Feed object
+   */
+  public $feed;
   
   public function postDispatch() {
     $this->_helper->displayXml($this->feed->saveXml());
