@@ -11,7 +11,7 @@ class FileController extends Etd_Controller_Action {
    public function viewAction() {
      $etdfile = $this->_helper->getFromFedora("pid", "etd_file");
      
-     if (!$this->_helper->access->allowedOnEtdFile("view", $etdfile)) return;
+     if (!$this->_helper->access->allowedOnEtdFile("view", $etdfile)) return false;
      
      // don't use layout or templates
      $this->_helper->layout->disableLayout();
@@ -33,7 +33,7 @@ class FileController extends Etd_Controller_Action {
    public function addAction() {
      // etd record the file should be added to
      $etd = $this->_helper->getFromFedora("etd", "etd");
-     if (!$this->_helper->access->allowedOnEtd("add file", $etd)) return;
+     if (!$this->_helper->access->allowedOnEtd("add file", $etd)) return false;
 
      $this->view->pid = $etd->pid;
      $this->view->etd = $etd;
