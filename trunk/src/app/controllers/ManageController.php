@@ -223,7 +223,8 @@ class ManageController extends Etd_Controller_Action {
 
      $config = Zend_Registry::get('config');
      $log = new Emory_Log_Reader_Xml($config->logfile);
-     
+
+     $this->view->title = "Error Log";
      $this->view->logEntries = $log->getEntries($filter);
    }
 
