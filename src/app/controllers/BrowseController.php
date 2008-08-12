@@ -291,8 +291,7 @@ class BrowseController extends Etd_Controller_Action {
 
   // program coordinator view : list unpublished records for the specified department 
   public function myProgramAction() {
-    // FIXME: error handling if user is not a program coordinator?
-
+    // make sure user is a program coordinator before displaying any content
     if (!isset($this->current_user) || empty($this->current_user->program_coord)) {
       $role = isset($this->current_user) ? $this->current_user->getRoleId() : "guest";
       $this->_helper->access->notAllowed("view", $role, "program coordinator view");
