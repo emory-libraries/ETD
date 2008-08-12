@@ -17,13 +17,16 @@ Zend_Registry::set('env-config', $env);
 Zend_Registry::set('environment', $mode);
 Zend_Registry::set('debug', false);
 
+$config_dir = "../../src/config/";
+Zend_Registry::set("config-dir", $config_dir);
+
 // needed for notifier
-$config = new Zend_Config_Xml("../../src/config/config.xml", $mode);
+$config = new Zend_Config_Xml($config_dir . "config.xml", $mode);
 Zend_Registry::set('config', $config);
 Zend_Registry::set('ldap-config',
-	  new Zend_Config_Xml("../../src/config/ldap.xml", $mode));
+	  new Zend_Config_Xml($config_dir . "ldap.xml", $mode));
 
-$fedora_cfg = new Zend_Config_Xml("../../src/config/fedora.xml", $mode);
+$fedora_cfg = new Zend_Config_Xml($config_dir . "fedora.xml", $mode);
 Zend_Registry::set('fedora-config', $fedora_cfg);
 
 $fedora = new FedoraConnection($fedora_cfg->user, $fedora_cfg->password,
@@ -31,17 +34,23 @@ $fedora = new FedoraConnection($fedora_cfg->user, $fedora_cfg->password,
 Zend_Registry::set('fedora', $fedora);
 
 // create DB object for access to Emory Shared Data - needed to test setting advisor/committee fields
-$esdconfig = new Zend_Config_Xml('../../src/config/esd.xml', $mode);
+$esdconfig = new Zend_Config_Xml($config_dir . 'esd.xml', $mode);
 $esd = Zend_Db::factory($esdconfig->adapter, $esdconfig->params->toArray());
 Zend_Registry::set('esd-db', $esd);
 Zend_Db_Table_Abstract::setDefaultAdapter($esd);
 
 // set up access controls
 require_once("xml_acl.php");
-$acl = new Xml_Acl("../../src/config/access.xml");
+$acl = new Xml_Acl($config_dir . "access.xml");
 Zend_Registry::set('acl', $acl);
 // store acl for use within view also
 //$viewRenderer->view->acl = $acl;
+
+// mock objects for Solr interaction
+require_once('simpletest/mock_objects.php');
+Mock::generate('Etd_Service_Solr');
+Mock::generate('Emory_Service_Solr_Response');
+
 
 $front = Zend_Controller_Front::getInstance();
 //$front = $this->view->getFrontController();
@@ -53,6 +62,16 @@ $front->setControllerDirectory("../../src/app/controllers", "default");
 $viewRenderer = Zend_Controller_Action_HelperBroker::getStaticHelper('ViewRenderer');
 $viewRenderer->initView();
 $viewRenderer->view->addHelperPath('Emory/View/Helper', 'Emory_View_Helper');
+
+
+
+// set up minimal logging but suppress most of the output
+$writer = new Zend_Log_Writer_Stream("php://output");
+$logger = new Zend_Log($writer);
+$filter = new Zend_Log_Filter_Priority(Zend_Log::CRIT);
+$logger->addFilter($filter);
+Zend_Registry::set('logger', $logger);
+
 
 // required when running through the web - zend complains without this
 if (!isset($argv)) Zend_Session::start();
