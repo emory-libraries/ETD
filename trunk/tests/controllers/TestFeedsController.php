@@ -1,10 +1,8 @@
 <?
 require_once("../bootstrap.php"); 
 /**
- * unit tests for the Config Controller
- * - display configuration xml (used in various xforms)
+ * unit tests for the Feeds Controller (generates RSS feeds)
  */
-
 
 require_once('../ControllerTestCase.php');
 require_once('controllers/FeedsController.php');
