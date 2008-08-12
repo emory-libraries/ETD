@@ -16,28 +16,30 @@ Zend_Loader::registerAutoload();
 
 require_once("api/FedoraConnection.php");
 
+$config_dir = "../config/";
+Zend_Registry::set("config-dir", $config_dir);
+
 //Load Configuration
-$env_config = new Zend_Config_Xml("../config/environment.xml", "environment");
+$env_config = new Zend_Config_Xml($config_dir . "environment.xml", "environment");
 Zend_Registry::set('env-config', $env_config);
 Zend_Registry::set('environment', $env_config->mode);
-$config = new Zend_Config_Xml("../config/config.xml", $env_config->mode);
+$config = new Zend_Config_Xml($config_dir . "config.xml", $env_config->mode);
 Zend_Registry::set('config', $config);
 
 Zend_Registry::set('debug', (boolean)$env_config->debug);
 
 Zend_Registry::set('ldap-config',
-	  new Zend_Config_Xml("../config/ldap.xml", $env_config->mode));
+	  new Zend_Config_Xml($config_dir . "ldap.xml", $env_config->mode));
 Zend_Registry::set('persis-config',
-	  new Zend_Config_Xml("../config/persis.xml", $env_config->mode));
+	  new Zend_Config_Xml($config_dir . "persis.xml", $env_config->mode));
 
 
 Zend_Registry::set('proquest-config',
-	  new Zend_Config_Xml("../config/proquest.xml", $env_config->mode));
+	  new Zend_Config_Xml($config_dir "proquest.xml", $env_config->mode));
 
 
-$fedora_cfg = new Zend_Config_Xml("../config/fedora.xml", $env_config->mode);
-Zend_Registry::set('fedora-config',
-	  new Zend_Config_Xml("../config/fedora.xml", $env_config->mode));
+$fedora_cfg = new Zend_Config_Xml($config_dir . "fedora.xml", $env_config->mode);
+Zend_Registry::set('fedora-config', $fedora_cfg);
 
 try {
   // if there is a logged in user, use their account to connect to Fedora
@@ -65,7 +67,7 @@ try {
 }
 
 // create DB object for access to Emory Shared Data
-$esdconfig = new Zend_Config_Xml('../config/esd.xml', $env_config->mode);
+$esdconfig = new Zend_Config_Xml($config_dir . 'esd.xml', $env_config->mode);
 $esd = Zend_Db::factory($esdconfig);
 Zend_Registry::set('esd-db', $esd);
 Zend_Db_Table_Abstract::setDefaultAdapter($esd);
@@ -79,14 +81,14 @@ Zend_Session::setOptions(array("name" => $config->session_name));
 
 
 // set up connection to solr for search & browse
-$solr_config = new Zend_Config_Xml("../config/solr.xml", $env_config->mode);
+$solr_config = new Zend_Config_Xml($config_dir . "solr.xml", $env_config->mode);
 require_once("Etd/Service/Solr.php");
 $newsolr = new Etd_Service_Solr($solr_config->server, $solr_config->port, $solr_config->path);
 $newsolr->addFacets($solr_config->facet->toArray());
 Zend_Registry::set('solr', $newsolr);
 
 // sqlite db for statistics data
-$db_config = new Zend_Config_Xml('../config/statistics.xml', $env_config->mode);
+$db_config = new Zend_Config_Xml($config_dir . 'statistics.xml', $env_config->mode);
 $db = Zend_Db::factory($db_config);
 Zend_Registry::set('stat-db', $db);	
 
