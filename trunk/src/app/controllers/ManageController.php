@@ -33,7 +33,9 @@ class ManageController extends Etd_Controller_Action {
      $options = array("start" => $start, "max" => $max,
 		      "AND" => $opts);
 
-     $this->view->etdSet = etd::find($options);
+     $etdSet = new EtdSet();
+     $etdSet->find($options);
+     $this->view->etdSet = $etdSet;
      // should always have a status parameter
      $status = $this->_getParam("status");
      $list_title = ucfirst($status) . " records";
@@ -200,7 +202,9 @@ class ManageController extends Etd_Controller_Action {
      $options["start"] = $this->_getParam("start", null);
      $options["max"] = $this->_getParam("max", null);
 
-     $this->view->etdSet = etd::findEmbargoed($options);
+     $etdSet = new EtdSet();
+     $etdSet->findEmbargoed($options);
+     $this->view->etdSet = $etdSet;
      $this->view->show_lastaction = true;
    }
 
@@ -231,6 +235,7 @@ class ManageController extends Etd_Controller_Action {
    
    public function exportemailsAction() {
      if (!$this->_helper->access->allowedOnEtd("manage")) return false;
+     //FIXME!! update to use EtdSet
      $this->view->etds = etd::findbyStatus('approved');
 
      $this->_helper->layout->disableLayout();

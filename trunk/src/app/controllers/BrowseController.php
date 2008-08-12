@@ -139,7 +139,8 @@ class BrowseController extends Etd_Controller_Action {
     $opts = $this->getFilterOptions();
     
     $options = array("query" => $query, "AND" => $opts, "start" => $start, "max" => $max);
-    $etdSet = etd::find($options);
+    $etdSet = new EtdSet();
+    $etdSet->find($options);
     $this->view->etdSet = $etdSet;
 
     // if there's only one match found, forward directly to full record view
@@ -281,7 +282,9 @@ class BrowseController extends Etd_Controller_Action {
       $etds = array();	
     }
 
-    $this->view->etdSet = etd::find($options); 
+    $etdSet = new EtdSet();
+    $etdSet->find($options); 
+    $this->view->etdSet = $etdSet;
       
     $this->_helper->viewRenderer->setScriptAction("list");
     $this->view->show_status = true;
@@ -304,7 +307,9 @@ class BrowseController extends Etd_Controller_Action {
     $opts = $this->getFilterOptions();
     $options = array("start" => $start, "max" => $max, "AND" => $opts);
 
-    $this->view->etdSet = etd::findUnpublishedByDepartment($this->current_user->program_coord, $options);
+    $etdSet = new EtdSet();
+    $etdSet->findUnpublishedByDepartment($this->current_user->program_coord, $options);
+    $this->view->etdSet = $etdSet;
     $title = "Unpublished Records : " . $this->current_user->program_coord;
     $this->view->title = $title;
     $this->view->list_title = $title;
@@ -323,7 +328,9 @@ class BrowseController extends Etd_Controller_Action {
     
     $this->view->title = "Browse Recently Published";
     $this->view->list_title = "Recently Published";
-    $this->view->etdSet = etd::findRecentlyPublished($options);
+    $etdSet = new EtdSet();
+    $etdSet->findRecentlyPublished($options);
+    $this->view->etdSet = $etdSet;
     $this->_helper->viewRenderer->setScriptAction("list");
   }
 

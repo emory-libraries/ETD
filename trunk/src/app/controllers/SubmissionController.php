@@ -300,7 +300,7 @@ class SubmissionController extends Etd_Controller_Action {
     $result = $etd->save("set status to '$newstatus'; notification event");
     if ($result) {
       $this->_helper->flashMessenger->addMessage("Record status changed to <b>$newstatus</b>");
-      $logger->info("Successfully submitted " . $etd->pid);
+      $this->logger->info("Successfully submitted " . $etd->pid);
 
       // send notification only if submit succeeded 
       $notify = new etd_notifier($etd);
