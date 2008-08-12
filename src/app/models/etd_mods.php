@@ -134,6 +134,9 @@ class etd_mods extends mods {
    */
   public function addCommittee($lastname, $firstname, $type = "committee", $affiliation = null) {
     // fixme: need a way to set netid -- set from netid if emory ?
+    if (! in_array($type, array("committee", "chair", "nonemory_committee"))) {
+      trigger_error("$type is not allowed type for addCommittee", E_USER_ERROR);
+    }
 
     $set_description = false;
 
