@@ -6,14 +6,8 @@ class UserController extends Etd_Controller_Action {
   protected $requires_fedora = true;
   
   public function viewAction() {
-    if ($this->_hasParam("pid")) {
-      $user = new user($this->_getParam("pid"));
-      if (!$this->_helper->access->allowedOnUser("view", $user)) return;
-    } else {
-      //default to currently logged in user
-      // FIXME: still needed? may not make sense..
-      $user = user::find_by_username(strtolower($this->view->current_user->netid));
-    }
+    $user = $this->_helper->getFromFedora("pid", "user");
+    if (!$this->_helper->access->allowedOnUser("view", $user)) return false;
 
     $this->view->title = "View User Information";
     $this->view->user = $user;
@@ -21,7 +15,7 @@ class UserController extends Etd_Controller_Action {
 
   // create a new user record
   public function newAction() {
-    if (!$this->_helper->access->allowedOnUser("create")) return;
+    if (!$this->_helper->access->allowedOnUser("create")) return false;
     $this->_forward("edit");
   }
 
@@ -29,24 +23,26 @@ class UserController extends Etd_Controller_Action {
     // FIXME: still needed? may not make sense anymore..
     $user = user::find_by_username($this->_getParam("id"));
     $this->view->user = $user;
-    print "user pid is " . $user->pid . "\n";
+    //    print "user pid is " . $user->pid . "\n";
     $this->_helper->viewRenderer->setScriptAction("view");
   }
 
 
-  // fixme: if pid is blank, create a new record?
+  // edit or create (if pid is not specified, creates a new recodr);
   public function editAction() {
-    // default to null pid - create an empty user object
+    // if pid is null, create an empty user object
     $pid = $this->_getParam("pid", null);
 
-    // etd record the user should be added to   (fixme: what happens if this is not set?)
+    // etd record the user object should belong to (required)
+    if (!$this->_hasParam("etd")) throw new Exception("Required parameter 'etd' is not set");
     $this->view->etd_pid = $this->_getParam("etd");	
     
-    $user = new user($pid);
     if (is_null($pid))	{ // if pid is null, action is actually create (user is not author on an object yet)
-      if (!$this->_helper->access->allowedOnUser("create")) return;
+      $user = new user();	// create new empty user object
+      if (!$this->_helper->access->allowedOnUser("create")) return false;
     } else { 		// if pid is defined, action is editing an existing object
-      if (!$this->_helper->access->allowedOnUser("edit", $user)) return;
+      $user = $this->_helper->getFromFedora("pid", "user");	  
+      if (!$this->_helper->access->allowedOnUser("edit", $user)) return false;
     }
     $this->view->user = $user;
 
@@ -143,22 +139,20 @@ class UserController extends Etd_Controller_Action {
    public function madsAction() {
     // if pid is null, display template xml with netid set to id for current user
      $pid = $this->_getParam("pid", null);
-     
-     $user = new user($pid);
+
      if (is_null($pid))	{ // if pid is null, action is actually create (user is not author on an object yet)
-       if (!$this->_helper->access->allowedOnUser("create")) return;
+       $user = new user($pid);	// create new object from template
+       if (!$this->_helper->access->allowedOnUser("create")) return false;
+       
+       // empty template - set a few values
+       $user->mads->initializeFromEsd($this->view->current_user);
      } else { 		// if pid is defined, action is viewing an existing object
+       $user = $this->_helper->getFromFedora("pid", "user");	  
        if (!$this->_helper->access->allowedOnUser("view", $user)) return;
      }
      $this->view->user = $user;
 
-     if (is_null($pid)) {
-       // empty template - set a few values
-       $user->mads->initializeFromEsd($this->view->current_user);
-     }
-
      $this->_helper->displayXml($user->mads->saveXML());
    }
-
   
 }
