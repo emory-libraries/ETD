@@ -1,6 +1,8 @@
 <? /* generate link navigation for paging through sets of results */ ?>
 
-<? if (isset($this->etdSet) && !$this->post && $this->etdSet->hasMoreResults()): ?>
+<? if (isset($this->etdSet)): ?>
+
+  <? if ($this->etdSet->hasMoreResults()): ?>
   <ul style="float:right" class="horizontal">
       <li class="first">More results:</li>
        <? foreach ($this->etdSet->resultSets() as $start => $end): ?>
@@ -13,7 +15,8 @@
 	<? endif ?>
        </li>
        <? endforeach ?>
-     </ul>		  
+     </ul>
+   <? endif ?>	     
 
  <p><?= $this->etdSet->numFound ?> match<? if ($this->etdSet->numFound != 1): ?>es<? endif ?>
    found<? if ($this->etdSet->numFound > 1): ?>; displaying <?= $this->etdSet->currentRange() ?><? endif ?>
