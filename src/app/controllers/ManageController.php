@@ -204,6 +204,7 @@ class ManageController extends Etd_Controller_Action {
 
      $etdSet = new EtdSet();
      $etdSet->findEmbargoed($options);
+     $this->view->title = "Expiring Embargoes";
      $this->view->etdSet = $etdSet;
      $this->view->show_lastaction = true;
    }
