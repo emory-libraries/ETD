@@ -92,7 +92,7 @@ class esdPerson implements Zend_Acl_Role_Interface {
       // role is graduate program coordinator ?
       // **** - not a separate role but a role in relation to particular ETDs
       // a user should have this role only if grad_coord matches ETD's department field...
-    }
+   } 
     
     // etd superuser - override role for users listed in config file, if set
     if (Zend_Registry::isRegistered('config')) {
@@ -155,8 +155,11 @@ class esdPerson implements Zend_Acl_Role_Interface {
 
   // find any unpublished etds that belong to this user
   public function getEtds() {
-    if (is_null($this->_etds))	// only initialize once (but will be reset after serialization)
-      $this->_etds = etd::findUnpublishedByOwner($this->netid);
+    if (is_null($this->_etds)) {	// only initialize once (but will be reset after serialization)
+      $etdSet = new EtdSet();
+      $etdSet->findUnpublishedByOwner($this->netid);
+      $this->_etds = $etdSet->etds;
+    }
     return $this->_etds;
   }
 

@@ -152,8 +152,9 @@ class collectionHierarchy extends XmlObject {
      // return minimal solrEtd for quicker browse results
      //     $options["return_type"] = "solrEtd";
      // FIXME: solrEtd no longer useful/ functional enough (?)
-     
-     $etdSet = etd::find($options);
+
+     $etdSet = new EtdSet();
+     $etdSet->find($options);
      $totals = $etdSet->facets->{$this->index_field};
 
      // sum up totals recursively
