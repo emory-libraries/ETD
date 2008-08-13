@@ -66,9 +66,9 @@ class UserController extends Etd_Controller_Action {
     
     $user = new user($pid);
     if (is_null($pid))	{ // if pid is null, action is actually create (user is not author on an object yet)
-      if (!$this->_helper->access->allowedOnUser("create")) return;
+      if (!$this->_helper->access->allowedOnUser("create")) return false;
     } else { 		// if pid is defined, action is editing an existing object
-      if (!$this->_helper->access->allowedOnUser("edit", $user)) return;
+      if (!$this->_helper->access->allowedOnUser("edit", $user)) return false;
     }
 
     global $HTTP_RAW_POST_DATA;
@@ -142,13 +142,13 @@ class UserController extends Etd_Controller_Action {
 
      if (is_null($pid))	{ // if pid is null, action is actually create (user is not author on an object yet)
        $user = new user($pid);	// create new object from template
-       if (!$this->_helper->access->allowedOnUser("create")) return false;
+       if (!$this->_helper->access->allowedOnUser("create")) return false; 
        
        // empty template - set a few values
        $user->mads->initializeFromEsd($this->view->current_user);
      } else { 		// if pid is defined, action is viewing an existing object
        $user = $this->_helper->getFromFedora("pid", "user");	  
-       if (!$this->_helper->access->allowedOnUser("view", $user)) return;
+       if (!$this->_helper->access->allowedOnUser("view", $user)) return false;
      }
      $this->view->user = $user;
 
