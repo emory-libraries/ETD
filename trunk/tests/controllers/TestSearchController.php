@@ -4,15 +4,22 @@ require_once("../bootstrap.php");
 require_once('ControllerTestCase.php');
 require_once('controllers/SearchController.php');
 
-Mock::generate('etd');
-
 class SearchControllerTest extends ControllerTestCase {
 
+  private $mock_solr;
+  
   function setUp() {
     $this->response = $this->makeResponse();
     $this->request  = $this->makeRequest();
     
     $this->resetGet();
+
+    $this->mock_solr = &new Mock_Etd_Service_Solr();
+    Zend_Registry::set('solr', $this->mock_solr);
+  }
+
+  function tearDown() {
+    Zend_Registry::set('solr', null);
   }
 
   function testIndexAction() {
@@ -23,13 +30,7 @@ class SearchControllerTest extends ControllerTestCase {
   }
 
   function testResultsAction() {
-    $solr = &new MockEtd_Service_Solr();
-    $response = new MockEmory_Service_Solr_Response();
-    $response->numFound = 2;
-    $response->docs = array();
-    $response->facets = array();
-    $solr->setReturnReference('query', $response);
-    Zend_Registry::set('solr', $solr);
+    $this->mock_solr->response->numFound = 2;
     
     $searchController = new SearchControllerForTest($this->request,$this->response);
     $this->setUpGet(array('query' => 'dissertation', 'title' => 'analysis',
@@ -45,10 +46,11 @@ class SearchControllerTest extends ControllerTestCase {
     $this->assertEqual("chapter", $viewVars['url_params']['tableOfContents']);
 
     // when only one match is found, should forward to full record page
-    $response->numFound = 1;
+    $this->mock_solr->response->numFound = 1;
+    // mock etd so controller can find and pull out pid for the forward
     $etd = &new MockEtd();
     $etd->pid = "testpid:1";
-    $response->docs[] = $etd;
+    $this->mock_solr->response->docs[] = $etd;
     $searchController->resultsAction();
     $this->assertTrue($searchController->redirectRan);
   }
@@ -81,13 +83,8 @@ class SearchControllerTest extends ControllerTestCase {
 
 
   public function testSuggestorAction() {
-    $solr = &new MockEtd_Service_Solr();
-    $response = new MockEmory_Service_Solr_Response();
-    $response->numFound = 2;
-    $response->docs = array();
-    $response->facets = array("facet1" => array("hustle", "flow"), "facet2" => array("jingle", "bells"));
-    $solr->setReturnReference('suggest', $response);	// calling suggest instead of query here
-    Zend_Registry::set('solr', $solr);
+    $this->mock_solr->response->numFound = 2;
+    $this->mock_solr->response->facets = array("facet1" => array("hustle", "flow"), "facet2" => array("jingle", "bells"));
 
     $searchController = new SearchControllerForTest($this->request,$this->response);
     $this->setUpGet(array("query" => "name", "field" => "author"));

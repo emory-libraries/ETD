@@ -3,12 +3,15 @@
 error_reporting(E_ALL);
 ini_set("include_path", "../../src/app/:../../src/app/modules/:../../src/lib:../../src/lib/ZendFramework:../../src/lib/fedora:../../src/lib/xml-utilities:..:../../src/config:../../src/app/models:" . ini_get("include_path"));
 
-require_once('simpletest/unit_tester.php');
-require_once('simpletest/reporter.php');
 
 require('Zend/Loader.php');
 Zend_Loader::registerAutoload();
 require_once("api/FedoraConnection.php");
+
+require_once('simpletest/unit_tester.php');
+require_once('simpletest/reporter.php');
+include_once("MockObjects.php");
+
 
 $mode = "test";
 $env = new Zend_Config(array('mode' => $mode));
@@ -42,11 +45,6 @@ $acl = new Xml_Acl($config_dir . "access.xml");
 Zend_Registry::set('acl', $acl);
 // store acl for use within view also
 //$viewRenderer->view->acl = $acl;
-
-// mock objects for Solr interaction
-require_once('simpletest/mock_objects.php');
-Mock::generate('Etd_Service_Solr');
-Mock::generate('Emory_Service_Solr_Response');
 
 // sqlite db for statistics data
 $db_config = new Zend_Config_Xml($config_dir . 'statistics.xml', $mode);

@@ -8,8 +8,6 @@ require_once("../bootstrap.php");
 
 require_once('../ControllerTestCase.php');
 require_once('controllers/FileController.php');
-Mock::generate('etd_file', "BasicMock_EtdFile");
-Mock::generate('etd_dc');
 
 class FileControllerTest extends ControllerTestCase {
 
@@ -17,6 +15,8 @@ class FileControllerTest extends ControllerTestCase {
   private $etdpid;
   private $userpid;
   private $etdfile;
+
+  private $mock_etdfile;
   
   function setUp() {
     $this->response = $this->makeResponse();
@@ -33,26 +33,32 @@ class FileControllerTest extends ControllerTestCase {
     $this->etdpid = fedora::ingest(file_get_contents('../fixtures/etd2.xml'), "loading test etd");
     //    $this->userpid = fedora::ingest(file_get_contents('../fixtures/user.xml'), "loading test user object");
 
+    // use mock etd object to simplify permissions/roles/etc
+    $this->mock_etdfile = &new MockEtdFile();
+    $this->mock_etdfile->setReturnValue('getResourceId', "draft file");
+
+    $FileController = new FileControllerForTest($this->request,$this->response);
+    $gff = $FileController->getHelper("GetFromFedora");
+    $gff->setReturnObject($this->mock_etdfile);
+
   }
   
   function tearDown() {
     //    fedora::purge($this->filepid, "removing test etdFile");
     fedora::purge($this->etdpid, "removing test etd");
     //    fedora::purge($this->userpid, "removing test user object");
+
+    $FileController = new FileControllerForTest($this->request,$this->response);
+    $gff = $FileController->getHelper("GetFromFedora");
+    $gff->clearReturnObject();
   }
 
   public function testViewAction() {
     $FileController = new FileControllerForTest($this->request,$this->response);
 
-    // use mock etd object to simplify permissions/roles/etc
-    $etdfile = &new MockEtdFile();
-    $etdfile->dc = &new Mocketd_dc();
-    $etdfile->dc->setReturnValue("__get", "application/pdf");	// hack -  only accessing mimetype, so should work
-    $etdfile->setReturnValue('prettyFilename', "author_dissertation.pdf");
-    $etdfile->setReturnValue('getResourceId', "draft file");
-    $gff = $FileController->getHelper("GetFromFedora");
-    $gff->setReturnObject($etdfile);
-    
+    $this->mock_etdfile->dc->mimetype = "application/pdf";
+    $this->mock_etdfile->setReturnValue('prettyFilename', "author_dissertation.pdf");
+
     $FileController->viewAction();
     $layout = $FileController->getHelper("layout");
     $this->assertFalse($layout->enabled);
@@ -70,15 +76,15 @@ class FileControllerTest extends ControllerTestCase {
     $this->test_user->role = "guest";
     Zend_Registry::set('current_user', $this->test_user);
     $FileController = new FileControllerForTest($this->request,$this->response);
-    $gff = $FileController->getHelper("GetFromFedora");
-    $gff->setReturnObject($etdfile);
     $this->assertFalse($FileController->viewAction());
-
-    $gff->clearReturnObject();
   }
 
   public function testAddAction() {
     $FileController = new FileControllerForTest($this->request,$this->response);
+
+    // clear mock etdfile so etd can be pulled from fedora
+    $gff = $FileController->getHelper("GetFromFedora");
+    $gff->clearReturnObject();
 
     // etd is not in draft mode, add should not be allowed
     $this->setUpGet(array('etd' => $this->etdpid));
@@ -98,6 +104,10 @@ class FileControllerTest extends ControllerTestCase {
 
   public function testNewAction() {
     $FileController = new FileControllerForTest($this->request,$this->response);
+
+    // clear mock etdfile so etd can be pulled from fedora
+    $gff = $FileController->getHelper("GetFromFedora");
+    $gff->clearReturnObject();
 
     // etd is not in draft mode, adding new file should not be allowed
     $this->setUpGet(array('etd' => $this->etdpid, "filetype" => "pdf"));
@@ -122,12 +132,7 @@ class FileControllerTest extends ControllerTestCase {
     $FileController = new FileControllerForTest($this->request,$this->response);
 
     // use mock etd object to simplify permissions/roles/etc
-    $etdfile = &new MockEtdFile();
-    $etdfile->dc = &new Mocketd_dc();
-    $etdfile->pid = $this->filepid;
-    $etdfile->setReturnValue('getResourceId', "draft file");
-    $gff = $FileController->getHelper("GetFromFedora");
-    $gff->setReturnObject($etdfile);
+    $this->mock_etdfile->pid = $this->filepid;
     
     // etdfile is not in draft mode, adding new file should not be allowed
     $this->setUpGet(array('pid' => $this->filepid));
@@ -169,12 +174,6 @@ class FileControllerForTest extends FileController {
     $this->redirectRan = true;
   }
 } 	
-
-
-class MockEtdFile extends BasicMock_EtdFile {
-  public $dc;
-  public $pid;
-}
 
 runtest(new FileControllerTest());
 ?>

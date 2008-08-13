@@ -12,18 +12,14 @@ class FeedsControllerTest extends ControllerTestCase {
   function setUp() {
     $this->response = $this->makeResponse();
     $this->request  = $this->makeRequest();
+    
+    $solr = &new Mock_Etd_Service_Solr();
+    Zend_Registry::set('solr', $solr);
   }
   function tearDown() {}
 
   function testRecentAction() {
     $feedsController = new FeedsControllerForTest($this->request,$this->response);
-
-
-    $solr = &new MockEtd_Service_Solr();
-    $response = new MockEmory_Service_Solr_Response();
-    $response->docs = array();
-    $solr->setReturnReference('query', $response);
-    Zend_Registry::set('solr', $solr);
 
     $feedsController->recentAction();
     $feedsController->postDispatch();	// actual call to display feed xml is here
@@ -34,12 +30,6 @@ class FeedsControllerTest extends ControllerTestCase {
 
   function testRecentProgramAction() {
     $feedsController = new FeedsControllerForTest($this->request,$this->response);
-
-    $solr = &new MockEtd_Service_Solr();
-    $response = new MockEmory_Service_Solr_Response();
-    $response->docs = array();
-    $solr->setReturnReference('query', $response);
-    Zend_Registry::set('solr', $solr);
 
     // filter by program
     $this->setUpGet(array('program' => 'Chemistry'));
