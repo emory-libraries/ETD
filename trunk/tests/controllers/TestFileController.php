@@ -1,8 +1,8 @@
 <?
 require_once("../bootstrap.php"); 
 /**
- * unit tests for the Config Controller
- * - display configuration xml (used in various xforms)
+ * unit tests for the File Controller
+ * etdFile handling (view, edit, etc.)
  */
 
 
@@ -96,10 +96,9 @@ class FileControllerTest extends ControllerTestCase {
     $etd->save("status -> draft to test editing");
     
     $FileController->addAction();
-    $viewVars = $FileController->view->getVars();
-    $this->assertTrue(isset($viewVars['title']));
-    $this->assertTrue(isset($viewVars['pid']));
-    $this->assertIsA($viewVars['etd'], "etd");
+    $this->assertTrue(isset($FileController->view->title));
+    $this->assertTrue(isset($FileController->view->pid));
+    $this->assertIsA($FileController->view->etd, "etd");
   }
 
   public function testNewAction() {
@@ -137,14 +136,13 @@ class FileControllerTest extends ControllerTestCase {
     // etdfile is not in draft mode, adding new file should not be allowed
     $this->setUpGet(array('pid' => $this->filepid));
     $FileController->editAction();
-    $viewVars = $FileController->view->getVars();
-    $this->assertTrue(isset($viewVars['title']));
-    $this->assertTrue(isset($viewVars['etdfile']));
-    $this->assertTrue($viewVars['xforms']);
-    $this->assertIsA($viewVars['namespaces'], "Array");
-    $this->assertTrue(isset($viewVars['xforms_bind_script']));
-    $this->assertTrue(isset($viewVars['xforms_model_uri']));
-    $this->assertPattern("|view/dc|", $viewVars['xforms_model_uri']);
+    $this->assertTrue(isset($FileController->view->title));
+    $this->assertTrue(isset($FileController->view->etdfile));
+    $this->assertTrue($FileController->view->xforms);
+    $this->assertIsA($FileController->view->namespaces, "Array");
+    $this->assertTrue(isset($FileController->view->xforms_bind_script));
+    $this->assertTrue(isset($FileController->view->xforms_model_uri));
+    $this->assertPattern("|view/dc|", $FileController->view->xforms_model_uri);
   }
 
   // not sure how to test saving... (only testing non-xml saves in testing edit controller)

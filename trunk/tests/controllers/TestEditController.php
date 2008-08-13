@@ -60,11 +60,11 @@ class EditControllerTest extends ControllerTestCase {
 
     $EditController->recordAction();
     $viewVars = $EditController->view->getVars();
-    $this->assertIsA($viewVars['etd'], "etd");
+    $this->assertIsA($EditController->view->etd, "etd");
     // required namespaces for this xform
-    $this->assertTrue(isset($viewVars['namespaces']['mods']));
-    $this->assertTrue(isset($viewVars['namespaces']['etd']));
-    $this->assertEqual("/view/mods/pid/test:etd2/mode/edit", $viewVars['xforms_model_uri']);
+    $this->assertTrue(isset($EditController->view->namespaces['mods']));
+    $this->assertTrue(isset($EditController->view->namespaces['etd']));
+    $this->assertEqual("/view/mods/pid/test:etd2/mode/edit", $EditController->view->xforms_model_uri);
 
     // set status to non-draft to test access controls
     $etd = new etd("test:etd2");
@@ -88,17 +88,17 @@ class EditControllerTest extends ControllerTestCase {
     $this->setUpGet(array('pid' => 'test:etd2'));	   
     $EditController->programAction();
     $viewVars = $EditController->view->getVars();
-    $this->assertIsA($viewVars['etd'], "etd");
-    $this->assertTrue(isset($viewVars['program']));
-    $this->assertIsA($viewVars['program'], 'programs');
-    $this->assertIsA($viewVars['program'], 'collectionHierarchy');
-    $this->assertEqual("/view/mods/pid/test:etd2", $viewVars['xforms_model_uri']);
-    $this->assertTrue(isset($viewVars['namespaces']['mods']));
-    $this->assertTrue(isset($viewVars['namespaces']['etd']));
+    $this->assertIsA($EditController->view->etd, "etd");
+    $this->assertTrue(isset($EditController->view->program));
+    $this->assertIsA($EditController->view->program, 'programs');
+    $this->assertIsA($EditController->view->program, 'collectionHierarchy');
+    $this->assertEqual("/view/mods/pid/test:etd2", $EditController->view->xforms_model_uri);
+    $this->assertTrue(isset($EditController->view->namespaces['mods']));
+    $this->assertTrue(isset($EditController->view->namespaces['etd']));
     // needed for programs
-    $this->assertTrue(isset($viewVars['namespaces']['skos']));
-    $this->assertTrue(isset($viewVars['namespaces']['rdf']));
-    $this->assertTrue(isset($viewVars['namespaces']['rdfs']));
+    $this->assertTrue(isset($EditController->view->namespaces['skos']));
+    $this->assertTrue(isset($EditController->view->namespaces['rdf']));
+    $this->assertTrue(isset($EditController->view->namespaces['rdfs']));
   }
 
 
@@ -108,7 +108,7 @@ class EditControllerTest extends ControllerTestCase {
     $this->setUpGet(array('pid' => 'test:etd2'));	   
     $EditController->facultyAction();
     $viewVars = $EditController->view->getVars();
-    $this->assertIsA($viewVars['etd'], "etd");
+    $this->assertIsA($EditController->view->etd, "etd");
   }
 
   function testSaveFacultyAction() {
@@ -156,9 +156,9 @@ class EditControllerTest extends ControllerTestCase {
     $this->setUpGet(array('pid' => 'test:etd2'));	   
     $EditController->rightsAction();
     $viewVars = $EditController->view->getVars();
-    $this->assertIsA($viewVars['etd'], "etd");
-    $this->assertTrue(isset($viewVars['namespaces']['mods']));
-    $this->assertEqual("/view/mods/pid/test:etd2", $viewVars['xforms_model_uri']);  
+    $this->assertIsA($EditController->view->etd, "etd");
+    $this->assertTrue(isset($EditController->view->namespaces['mods']));
+    $this->assertEqual("/view/mods/pid/test:etd2", $EditController->view->xforms_model_uri);  
   }
 
   function testResearchfieldAction() {
@@ -167,10 +167,10 @@ class EditControllerTest extends ControllerTestCase {
     $this->setUpGet(array('pid' => 'test:etd2'));	   
     $EditController->researchfieldAction();
     $viewVars = $EditController->view->getVars();
-    $this->assertIsA($viewVars['etd'], "etd");
-    $this->assertTrue(isset($viewVars['fields']));
-    $this->assertIsA($viewVars['fields'], 'researchfields');
-    $this->assertIsA($viewVars['fields'], 'collectionHierarchy');
+    $this->assertIsA($EditController->view->etd, "etd");
+    $this->assertTrue(isset($EditController->view->fields));
+    $this->assertIsA($EditController->view->fields, 'researchfields');
+    $this->assertIsA($EditController->view->fields, 'collectionHierarchy');
   }
 
   function testSaveResearchfieldAction() {
@@ -200,8 +200,8 @@ class EditControllerTest extends ControllerTestCase {
     $this->setUpPost(array('pid' => 'test:etd2'));
     $EditController->fileorderAction();
     $viewVars = $EditController->view->getVars();
-    $this->assertTrue(isset($viewVars['title']));
-    $this->assertIsA($viewVars['etd'], "etd");
+    $this->assertTrue(isset($EditController->view->title));
+    $this->assertIsA($EditController->view->etd, "etd");
     
   }
 

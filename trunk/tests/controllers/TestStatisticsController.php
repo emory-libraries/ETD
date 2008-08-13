@@ -31,24 +31,22 @@ class StatisticsControllerTest extends ControllerTestCase {
   function testCountryAction() {
     $statsController = new StatisticsControllerForTest($this->request,$this->response);
     $statsController->countryAction();
-    $viewVars = $statsController->view->getVars();
-    $this->assertTrue(isset($viewVars['title']));
-    $this->assertIsA($viewVars['countries'], "CountryNames");
-    $this->assertTrue(isset($viewVars['country']));
-    $this->assertEqual("United States", $viewVars['country'][0]["country"]);
-    $this->assertEqual(1, $viewVars['country'][0]["abstract"]);
-    $this->assertEqual(0, $viewVars['country'][0]["file"]);
+    $this->assertTrue(isset($statsController->view->title));
+    $this->assertIsA($statsController->view->countries, "CountryNames");
+    $this->assertTrue(isset($statsController->view->country));
+    $this->assertEqual("United States", $statsController->view->country[0]["country"]);
+    $this->assertEqual(1, $statsController->view->country[0]["abstract"]);
+    $this->assertEqual(0, $statsController->view->country[0]["file"]);
   }
 
   function testMonthlyAction() {
     $statsController = new StatisticsControllerForTest($this->request,$this->response);
     $statsController->monthlyAction();
-    $viewVars = $statsController->view->getVars();
-    $this->assertTrue(isset($viewVars['title']));
-    $this->assertTrue(isset($viewVars['month']));
-    $this->assertEqual("2008-01", $viewVars['month'][0]["month"]);
-    $this->assertEqual(1, $viewVars['month'][0]["abstract"]);
-    $this->assertEqual(0, $viewVars['month'][0]["file"]);
+    $this->assertTrue(isset($statsController->view->title));
+    $this->assertTrue(isset($statsController->view->month));
+    $this->assertEqual("2008-01", $statsController->view->month[0]["month"]);
+    $this->assertEqual(1, $statsController->view->month[0]["abstract"]);
+    $this->assertEqual(0, $statsController->view->month[0]["file"]);
   }
 
   function testRecordAction() {
@@ -59,13 +57,12 @@ class StatisticsControllerTest extends ControllerTestCase {
     $statsController = new StatisticsControllerForTest($this->request,$this->response);
     $this->setUpGet(array('pid' => $pid));
     $statsController->recordAction();
-    $viewVars = $statsController->view->getVars();
-    $this->assertTrue(isset($viewVars['title']));
-    $this->assertIsA($viewVars['etd'], "etd");
-    $this->assertTrue(isset($viewVars['total']));
-    $this->assertTrue(isset($viewVars['country']));
-    $this->assertTrue(isset($viewVars['month']));
-    $this->assertIsA($viewVars['countries'], "CountryNames");
+    $this->assertTrue(isset($statsController->view->title));
+    $this->assertIsA($statsController->view->etd, "etd");
+    $this->assertTrue(isset($statsController->view->total));
+    $this->assertTrue(isset($statsController->view->country));
+    $this->assertTrue(isset($statsController->view->month));
+    $this->assertIsA($statsController->view->countries, "CountryNames");
 
     // FIXME: error handling, user not allowed to see etd?
     $etd = new etd($pid);
@@ -76,13 +73,12 @@ class StatisticsControllerTest extends ControllerTestCase {
     // re-initializing controller so view variables are reset
     $statsController = new StatisticsControllerForTest($this->request,$this->response);
     $this->assertFalse($statsController->recordAction());
-    $viewVars = $statsController->view->getVars();
-    $this->assertFalse(isset($viewVars['title']));
-    $this->assertFalse(isset($viewVars['etd']));
-    $this->assertFalse(isset($viewVars['total']));
-    $this->assertFalse(isset($viewVars['country']));
-    $this->assertFalse(isset($viewVars['month']));
-    $this->assertFalse(isset($viewVars['countries']));
+    $this->assertFalse(isset($statsController->view->title));
+    $this->assertFalse(isset($statsController->view->etd));
+    $this->assertFalse(isset($statsController->view->total));
+    $this->assertFalse(isset($statsController->view->country));
+    $this->assertFalse(isset($statsController->view->month));
+    $this->assertFalse(isset($statsController->view->countries));
     
     
     fedora::purge($pid, "removing test etd");

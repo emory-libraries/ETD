@@ -52,8 +52,7 @@ class ManageControllerTest extends ControllerTestCase {
     
     $ManageController = new ManageControllerForTest($this->request,$this->response);
     $ManageController->summaryAction();
-    $viewVars = $ManageController->view->getVars();
-    $status_totals = $viewVars['status_totals'];
+    $status_totals = $ManageController->view->status_totals;
 
     // FIXME: there is an error in Resource Index...  counts 1 published record when nothing is in the repository
 
@@ -63,7 +62,7 @@ class ManageControllerTest extends ControllerTestCase {
     $this->assertEqual(1, $status_totals['reviewed']);
     $this->assertEqual(0, $status_totals['submitted']);
     $this->assertEqual(0, $status_totals['draft']);
-    $this->assertTrue(isset($viewVars['title']));	// for html title
+    $this->assertTrue(isset($ManageController->view->title));	// for html title
   }	
 
   function testListAction() {
@@ -74,10 +73,9 @@ class ManageControllerTest extends ControllerTestCase {
     $this->setUpGet(array("status" => "reviewed"));
 
     $ManageController->listAction();
-    $viewVars = $ManageController->view->getVars();
 
-    $this->assertIsA($viewVars['etdSet'], "etdSet");
-    $this->assertTrue(isset($viewVars['title']));
+    $this->assertIsA($ManageController->view->etdSet, "etdSet");
+    $this->assertTrue(isset($ManageController->view->title));
   }
 
 
@@ -91,9 +89,8 @@ class ManageControllerTest extends ControllerTestCase {
 
     // not be allowed - etd has wrong status
     // 	 - should be redirected, no etd set, and get a not authorized message
-    $viewVars = $ManageController->view->getVars();
     $this->assertFalse($ManageController->redirectRan);
-    $this->assertFalse(isset($viewVars['etd']));
+    $this->assertFalse(isset($ManageController->view->etd));
     // note: can no longer test redirect or error message because that is
     // handled by Access Controller Helper in a way that can't be checked here (?)
 
@@ -103,9 +100,8 @@ class ManageControllerTest extends ControllerTestCase {
     $etd->save("set status to submitted to test review");
 
     $ManageController->reviewAction();
-    $viewVars = $ManageController->view->getVars();
-    $this->assertIsA($viewVars['etd'], "etd");
-    $this->assertTrue(isset($viewVars['title']));
+    $this->assertIsA($ManageController->view->etd, "etd");
+    $this->assertTrue(isset($ManageController->view->title));
   }
 
   public function testAcceptAction() {
@@ -124,7 +120,6 @@ class ManageControllerTest extends ControllerTestCase {
     $etd->save("set status to submitted to test review");
 
     $ManageController->acceptAction();
-    $viewVars = $ManageController->view->getVars();
     $etd = new etd("test:etd2");	// get from fedora to check changes
     $this->assertEqual("reviewed", $etd->status(), "status set correctly");	
     $this->assertTrue($ManageController->redirectRan);	// redirects to admin summary page on success
@@ -154,15 +149,14 @@ class ManageControllerTest extends ControllerTestCase {
 
     $ManageController = new ManageControllerForTest($this->request,$this->response);
     $ManageController->requestchangesAction();
-    $viewVars = $ManageController->view->getVars();
     $etd = new etd("test:etd2");	// get from fedora to check changes
     $this->assertEqual("draft", $etd->status(), "status set correctly");	
     $messages = $ManageController->getHelper('FlashMessenger')->getMessages();
     $this->assertPattern("/Changes requested;.*status changed/", $messages[0]);
     $this->assertEqual("Changes to record requested by Graduate School", $etd->premis->event[1]->detail);
     $this->assertEqual("test_user", $etd->premis->event[1]->agent->value);
-    $this->assertTrue(isset($viewVars['title']));
-    $this->assertEqual("record", $viewVars['changetype']);
+    $this->assertTrue(isset($ManageController->view->title));
+    $this->assertEqual("record", $ManageController->view->changetype);
   }
 
 
@@ -177,12 +171,11 @@ class ManageControllerTest extends ControllerTestCase {
 
     $ManageController = new ManageControllerForTest($this->request,$this->response);
     $ManageController->requestchangesAction();
-    $viewVars = $ManageController->view->getVars();
     $etd = new etd("test:etd2");	// get from fedora to check changes
     $this->assertEqual("draft", $etd->status(), "status set correctly");
     // FIXME: for some reason this test fails, but the page works correctly in the browser (?)
-    //    $this->assertTrue(isset($viewVars['title']), "page title set");
-    //    $this->assertEqual("document", $viewVars['changetype']);
+    //    $this->assertTrue(isset($ManageController->view->title), "page title set");
+    //    $this->assertEqual("document", $ManageController->view->changetype);
     $messages = $ManageController->getHelper('FlashMessenger')->getMessages();
     $this->assertPattern("/Changes requested;.*status changed/", $messages[0]);
     $this->assertEqual("Changes to document requested by Graduate School", $etd->premis->event[1]->detail);
@@ -192,7 +185,6 @@ class ManageControllerTest extends ControllerTestCase {
     $this->assertFalse($ManageController->requestchangesAction());
     // should not be allowed - etd has wrong status
     // 	 - should be redirected, no etd set, and get a not authorized message (but can't test)
-    $viewVars = $ManageController->view->getVars();
     $this->assertFalse($ManageController->redirectRan);
     // can't test- handled by Access Helper
     //    $messages = $ManageController->getHelper('FlashMessenger')->getMessages();
@@ -209,9 +201,8 @@ class ManageControllerTest extends ControllerTestCase {
 
     $ManageController = new ManageControllerForTest($this->request,$this->response);
     $ManageController->approveAction();
-    $viewVars = $ManageController->view->getVars();
-    $this->assertIsA($viewVars['etd'], 'etd');
-    $this->assertTrue(isset($viewVars['title']));
+    $this->assertIsA($ManageController->view->etd, 'etd');
+    $this->assertTrue(isset($ManageController->view->title));
 
     // set status to something that can't be approved
     $etd = new etd("test:etd2");
@@ -223,8 +214,7 @@ class ManageControllerTest extends ControllerTestCase {
     $this->assertFalse($ManageController->approveAction());
     // 	 - should be redirected and get a not authorized message (but can't test)
     $this->assertFalse($ManageController->redirectRan);
-    $viewVars = $ManageController->view->getVars();
-    $this->assertFalse(isset($viewVars['etd']));
+    $this->assertFalse(isset($ManageController->view->etd));
 
   }
 
@@ -268,16 +258,14 @@ class ManageControllerTest extends ControllerTestCase {
 
     $this->setUpGet(array('pid' => 'test:etd1'));	   // published etd
     $ManageController->inactivateAction();
-    $viewVars = $ManageController->view->getVars();
-    $this->assertIsA($viewVars['etd'], "etd");
-    $this->assertTrue(isset($viewVars['title']));
+    $this->assertIsA($ManageController->view->etd, "etd");
+    $this->assertTrue(isset($ManageController->view->title));
 
     $ManageController = new ManageControllerForTest($this->request,$this->response);
     $this->setUpGet(array('pid' => 'test:etd2'));	   // NOT a published etd
     $this->assertFalse($ManageController->inactivateAction());
     $this->assertFalse($ManageController->redirectRan);
-    $viewVars = $ManageController->view->getVars();
-    $this->assertFalse(isset($viewVars['etd']));
+    $this->assertFalse(isset($ManageController->view->etd));
     //    $messages = $ManageController->getHelper('FlashMessenger')->getMessages();
     //    $this->assertPattern("/not authorized/", $messages[0]);
 				 
@@ -311,12 +299,10 @@ class ManageControllerTest extends ControllerTestCase {
     
     $ManageController = new ManageControllerForTest($this->request,$this->response);
     $this->assertFalse($ManageController->summaryAction());
-    $viewVars = $ManageController->view->getVars();
-    $this->assertFalse(isset($viewVars['etds']));
+    $this->assertFalse(isset($ManageController->view->etds));
 
     $this->assertFalse($ManageController->reviewAction());
-    $viewVars = $ManageController->view->getVars();
-    $this->assertFalse(isset($viewVars['etd']));
+    $this->assertFalse(isset($ManageController->view->etd));
 
     $this->assertFalse($ManageController->acceptAction());
 

@@ -42,9 +42,8 @@ class BrowseControllerTest extends ControllerTestCase {
        _forward() calls, which is how this is implemented.
     */
     $BrowseController->browseAction();
-    $viewVars = $BrowseController->view->getVars();
-    $this->assertTrue(isset($viewVars['title']));
-    $this->assertIsA($viewVars['etdSet'], "EtdSet");
+    $this->assertTrue(isset($BrowseController->view->title));
+    $this->assertIsA($BrowseController->view->etdSet, "EtdSet");
 
     // FIXME: test browsefieldAction ?
   }
@@ -57,26 +56,23 @@ class BrowseControllerTest extends ControllerTestCase {
     // no param - should start at top-level
     $BrowseController = new BrowseControllerForTest($this->request,$this->response);
     $BrowseController->programsAction();
-    $viewVars = $BrowseController->view->getVars();
-    $this->assertTrue(isset($viewVars['title']));
-    $this->assertIsA($viewVars['collection'], "programs");
-    $this->assertEqual("Programs", $viewVars['collection']->label);
-    $this->assertIsA($viewVars['etdSet'], "EtdSet");
+    $this->assertTrue(isset($BrowseController->view->title));
+    $this->assertIsA($BrowseController->view->collection, "programs");
+    $this->assertEqual("Programs", $BrowseController->view->collection->label);
+    $this->assertIsA($BrowseController->view->etdSet, "EtdSet");
 
     // somewhere deeper in the hierarchy
     $this->setUpGet(array('coll' => 'immunology'));
     $BrowseController->programsAction();
-    $viewVars = $BrowseController->view->getVars();
-    $this->assertTrue(isset($viewVars['title']));
-    $this->assertIsA($viewVars['collection'], "programs");
-    $this->assertEqual("Immunology", $viewVars['collection']->label);
-    $this->assertIsA($viewVars['etdSet'], "EtdSet");
+    $this->assertTrue(isset($BrowseController->view->title));
+    $this->assertIsA($BrowseController->view->collection, "programs");
+    $this->assertEqual("Immunology", $BrowseController->view->collection->label);
+    $this->assertIsA($BrowseController->view->etdSet, "EtdSet");
 
     // bogus collection name
     /**		NOTE: can't actually test because can't simulate gotoRouteAndExit for testing...
     $this->setUpGet(array('coll' => 'bogus'));
     $BrowseController->programsAction();
-    $viewVars = $BrowseController->view->getVars();
     $this->assertTrue($BrowseController->redirectRan);
     $messages = $BrowseController->getHelper('FlashMessenger')->getMessages();
     $this->assertPattern("/Error: Program not found/", $messages[0]);
@@ -89,28 +85,25 @@ class BrowseControllerTest extends ControllerTestCase {
     // no param - should start at top-level
     $BrowseController = new BrowseControllerForTest($this->request,$this->response);
     $BrowseController->researchfieldsAction();
-    $viewVars = $BrowseController->view->getVars();
-    $this->assertTrue(isset($viewVars['title']));
-    $this->assertIsA($viewVars['collection'], "researchfields");
-    $this->assertEqual("UMI Research Fields", $viewVars['collection']->label);
-    $this->assertIsA($viewVars['etdSet'], "EtdSet");
+    $this->assertTrue(isset($BrowseController->view->title));
+    $this->assertIsA($BrowseController->view->collection, "researchfields");
+    $this->assertEqual("UMI Research Fields", $BrowseController->view->collection->label);
+    $this->assertIsA($BrowseController->view->etdSet, "EtdSet");
 
     // somewhere deeper in the hierarchy
     $this->setUpGet(array('coll' => '0413'));
     $BrowseController->researchfieldsAction();
-    $viewVars = $BrowseController->view->getVars();
-    $this->assertTrue(isset($viewVars['title']));
-    $this->assertIsA($viewVars['collection'], "researchfields");
-    $this->assertEqual("Music", $viewVars['collection']->label);
-    $this->assertIsA($viewVars['etdSet'], "EtdSet");
+    $this->assertTrue(isset($BrowseController->view->title));
+    $this->assertIsA($BrowseController->view->collection, "researchfields");
+    $this->assertEqual("Music", $BrowseController->view->collection->label);
+    $this->assertIsA($BrowseController->view->etdSet, "EtdSet");
   }
     	
   function testMyAction() {
     $BrowseController = new BrowseControllerForTest($this->request,$this->response);
     $BrowseController->myAction();
-    $viewVars = $BrowseController->view->getVars();
-    $this->assertTrue(isset($viewVars['title']));
-    $this->assertIsA($viewVars['etdSet'], "EtdSet");
+    $this->assertTrue(isset($BrowseController->view->title));
+    $this->assertIsA($BrowseController->view->etdSet, "EtdSet");
   }
 
   // FIXME: test forwarding to grad coord view, records for faculty view, etc. (?)
@@ -121,33 +114,30 @@ class BrowseControllerTest extends ControllerTestCase {
     $BrowseController = new BrowseControllerForTest($this->request,$this->response);
     $result = $BrowseController->myProgramAction();
     $this->assertFalse($result);		// not authorized
-    $viewVars = $BrowseController->view->getVars();
-    $this->assertFalse(isset($viewVars['title']));
-    $this->assertFalse(isset($viewVars['list_title']));
-    $this->assertFalse(isset($viewVars['etdSet']));
-    $this->assertFalse(isset($viewVars['show_status']));
-    $this->assertFalse(isset($viewVars['show_lastaction']));
+    $this->assertFalse(isset($BrowseController->view->title));
+    $this->assertFalse(isset($BrowseController->view->list_title));
+    $this->assertFalse(isset($BrowseController->view->etdSet));
+    $this->assertFalse(isset($BrowseController->view->show_status));
+    $this->assertFalse(isset($BrowseController->view->show_lastaction));
 
     // set program coordinator department so user will be recognized as valid
     $this->test_user->program_coord = "Chemistry";
     
     $BrowseController = new BrowseControllerForTest($this->request,$this->response);
     $BrowseController->myProgramAction();
-    $viewVars = $BrowseController->view->getVars();
-    $this->assertTrue(isset($viewVars['title']));
-    $this->assertTrue(isset($viewVars['list_title']));
-    $this->assertIsA($viewVars['etdSet'], "EtdSet");
-    $this->assertTrue($viewVars['show_status']);
-    $this->assertTrue($viewVars['show_lastaction']);
+    $this->assertTrue(isset($BrowseController->view->title));
+    $this->assertTrue(isset($BrowseController->view->list_title));
+    $this->assertIsA($BrowseController->view->etdSet, "EtdSet");
+    $this->assertTrue($BrowseController->view->show_status);
+    $this->assertTrue($BrowseController->view->show_lastaction);
   }
 
   function testRecentAction() {
     $BrowseController = new BrowseControllerForTest($this->request,$this->response);
     $BrowseController->recentAction();
-    $viewVars = $BrowseController->view->getVars();
-    $this->assertTrue(isset($viewVars['title']));
-    $this->assertTrue(isset($viewVars['list_title']));
-    $this->assertIsA($viewVars['etdSet'], "EtdSet");
+    $this->assertTrue(isset($BrowseController->view->title));
+    $this->assertTrue(isset($BrowseController->view->list_title));
+    $this->assertIsA($BrowseController->view->etdSet, "EtdSet");
   }
 
   function testProquestAction() {
