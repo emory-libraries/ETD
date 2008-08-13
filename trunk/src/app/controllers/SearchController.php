@@ -22,7 +22,7 @@ class SearchController extends Etd_Controller_Action {
     
     // non-facet fields included in advanced search
     $extra_fields = array("title", "abstract", "tableOfContents");
-    $this->view->search_fields = $extra_fields;
+    //    $this->view->search_fields = $extra_fields;	// FIXME: unused?
     foreach ($extra_fields as $field) {
       if ($this->_hasParam($field)) {
 	// only include a if the parameter is set and is not blank
@@ -33,75 +33,55 @@ class SearchController extends Etd_Controller_Action {
       }
     }
 
-    // generate generic filter query from facets & search fields
-    $filter_query = etd::filterQuery($opts);
+    if ($query) $this->view->url_params["query"] = $query;
 
-    // combine simple search query with filter (either one could be blank)
-    if ($query) {
-      $this->view->url_params["query"] = $query;
-      if ($filter_query)	// only include filter if it is not blank
-	$query .= " AND " . $filter_query;
-    } else {
-      $query = $filter_query;
+    $options = array("query" => $query,
+		     "start" => $start, "max" => $max,
+		     "AND" => $opts);
+
+    $unembargoed = $this->_hasParam("unembargoed");
+    if ($unembargoed) {
+      // restrict to records that have files available - any embargo has ended
+      $today = date("Ymd");	// today's date
+      // any embargoes that have ended today or before
+      $embargo_query = "date_embargoedUntil:[*  TO $today]";
+
+      // embargo should always be an AND; allow embargo query without other parameters
+      if ($query != "") $options["query"] = "($query) AND $embargo_query";
+      else $options["query"] = $embargo_query;
     }
 
+    if ($options["query"] == "" && count($options["AND"]) == 0) {
+      $this->_helper->flashMessenger->addMessage("Error: no search terms specified");
+      // where to redirect?
+      $this->_helper->redirector->gotoRouteAndExit(array("controller" => "search",
+							 "action" => "index"), "", true);
+    }
+
+
     
-     $unembargoed = $this->_hasParam("unembargoed");
-     if ($unembargoed) {
-     // restrict to records that have files available - any embargo has ended
-       $today = date("Ymd");	// today's date
-       // any embargoes that have ended today or before
-       $embargo_query = " date_embargoedUntil:[*  TO $today]";  
+    // if status parameter is set and user has permission, allow to search all records
+    if ($this->_hasParam("status") && $this->acl->isAllowed($this->current_user, "etd", "view status")) {
+      $options["AND"]["status"] = $this->_getParam("status");
+    } else {
+      // otherwise (by default), limit search to published records
+      $options["AND"]["status"] = "published";
+    }
 
-       // embargo should always be an AND; allow embargo query without other parameters
-       if ($query != "") $query = "($query) AND $embargo_query";
-       $query = $embargo_query;
-     }
-
-     if ($query == "") {
-       $this->_helper->flashMessenger->addMessage("Error: no search terms specified");
-       // where to redirect?
-       $this->_helper->redirector->gotoRoute(array("controller" => "search",
-						   "action" => "index"), "", true);
-       exit;
-     }
+    $etdSet = new EtdSet();
+    $etdSet->find($options);
+    $this->view->etdSet = $etdSet;
+    
+    $this->view->title = "Search Results"; 
      
-     $solr = Zend_Registry::get('solr');
-
-     if ($this->_hasParam("status") && $this->acl->isAllowed($this->current_user, "etd", "view status"))
-       // if status parameter is set and user has permission, search all records
-       $results = $solr->query($query, $start, $max);
-     else
-       // otherwise (default), limit search to published records
-       $results = $solr->queryPublished($query, $start, $max);
-     
-     $this->view->count = $results->numFound;
-     $this->view->etds = $results->docs;
-     $this->view->facets = $results->facets;
-     
-     $this->view->results = $results;
-     $this->view->title = "Search Results"; 
-
-     $this->view->count = $results->numFound;
-     $this->view->start = $start;
-     $this->view->max = $max;
-     $this->view->post = true;
-     
-
-     $etds = array();
-     foreach ($results->docs as $result_doc) {
-       array_push($etds, new etd($result_doc->PID));
-     }
-     $this->view->etds = $etds;
-
-
-     // if there's only one match found, forward directly to full record view
-     if ($this->view->count == 1) {
-       $this->_helper->flashMessenger->addMessage("Only one match found for search; displaying full record");
-       $this->_helper->redirector->gotoRoute(array("controller" => "view",
-						   "action" => "record", "pid" => $etds[0]->pid), "", true);
-     } 
-   }
+    // if there's only one match found, forward directly to full record view
+    if ($etdSet->numFound == 1) {
+      $this->_helper->flashMessenger->addMessage("Only one match found for search; displaying full record");
+      $this->_helper->redirector->gotoRoute(array("controller" => "view",
+						  "action" => "record",
+						  "pid" => $etdSet->etds[0]->pid), "", true);
+    } 
+  }
 
 
 
@@ -109,10 +89,13 @@ class SearchController extends Etd_Controller_Action {
     if ($this->_hasParam("faculty"))
       $name = $this->_getParam("faculty");
     /* slight hack: need two auto-suggestors on the same page with
-       different ids; easiest to just allow two different parameters */
+     different ids; easiest to just allow two different parameters */
     elseif ($this->_hasParam("advisor"))
       $name = $this->_getParam("advisor");
+    else 	// no search parameter : can't proceed
+      throw new Exception("Either faculty or advisor parameter must be specified");
 
+    
     $p = new esdPersonObject();
 
     try {
@@ -122,14 +105,14 @@ class SearchController extends Etd_Controller_Action {
     }
     
     // disable layouts and view script rendering in order to set content-type header as xml
-     $this->_helper->layout->disableLayout();
-    //    $this->_helper->viewRenderer->setNoRender(true);
+    $this->_helper->layout->disableLayout();
     $this->getResponse()->setHeader('Content-Type', "text/xml");
-    // FIXMe: use displayXml helper?
   }
 
 
   public function suggestorAction() {
+    if (!$this->_hasParam("query")) throw new Exception("Required parameter 'query' is not set");
+
     $query = $this->_getParam("query");
 
     $solr = Zend_Registry::get('solr');
