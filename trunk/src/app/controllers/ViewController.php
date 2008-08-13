@@ -11,7 +11,8 @@ class ViewController extends Etd_Controller_Action {
    public function recordAction() {
      $etd = $this->_helper->getFromFedora("pid", "etd");
      if ($etd) {
-       if (!$this->_helper->access->allowedOnEtd("view metadata", $etd)) return;
+       if (!$this->_helper->access->allowedOnEtd("view metadata", $etd)) return false;
+       
        $this->view->etd = $etd;
        $this->view->title = $etd->label;
        //$this->view->dc = $etd->dc;		/* DC not as detailed as MODS; using etd DC header template */
@@ -53,8 +54,7 @@ class ViewController extends Etd_Controller_Action {
      if (isset($object->$datastream)) {	// check that it is the correct type, also?
        $this->_helper->displayXml($object->$datastream->saveXML());
      } else {
-       $this->_helper->flashMessenger->addMessage("Error: invalid xml datastream");
-       // do something with this message?
+       throw new Exception("'$datastream' is not a valid datastream for " . $object->pid);
      }
    }
    
