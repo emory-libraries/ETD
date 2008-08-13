@@ -18,7 +18,12 @@ class etd_rels extends rels_ext {
 
 
     // allowable values for status
-    $this->status_list = array("draft", "submitted", "approved", "reviewed", "published", "inactive");
+    $this->status_list = array("published",
+			       "approved",
+			       "reviewed",
+			       "submitted",
+			       "draft",
+			       "inactive");
     
     // etd status
     $this->xmlconfig["status"] = array("xpath" => "rdf:description/rel:etdStatus");
