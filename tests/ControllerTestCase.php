@@ -26,7 +26,11 @@ class ControllerTestCase extends UnitTest {
     foreach($params as $key=>$value){
       $_GET[$key] = $value;
     }
-  }		
+  }
+
+  protected function resetGet(){
+    $_GET = array();
+  }
 }
 
 
