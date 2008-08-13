@@ -115,6 +115,10 @@ class UserControllerTest extends ControllerTestCase {
     $this->assertEqual("text/xml", $headers[0]["value"]);
     $this->assertPattern('|<mads:identifier type="netid">jsmith</mads:identifier>|', $response->getBody());
 
+    // access denied
+    $this->test_user->role = "guest";
+    $this->assertFalse($userController->madsAction());
+    
     // not testing editing existing version-- basically the same, but
     // would require mocking user object down to mads level
   }
