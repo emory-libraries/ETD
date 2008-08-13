@@ -76,8 +76,7 @@ class SubmissionControllerTest extends ControllerTestCase {
     $this->setUpGet(array('pid' => 'test:etd2'));	   // reviewed etd
     // etd is wrong status, should not be allowed
     $this->assertFalse($SubmissionController->reviewAction());
-    $viewVars = $SubmissionController->view->getVars();
-    $this->assertFalse(isset($viewVars['etd']));
+    $this->assertFalse(isset($SubmissionController->view->etd));
 
     // set status to draft so it can be reviewed
     $etd = new etd("test:etd2");
@@ -87,8 +86,7 @@ class SubmissionControllerTest extends ControllerTestCase {
     $SubmissionController = new SubmissionControllerForTest($this->request,$this->response);
     $SubmissionController->reviewAction();
     $this->assertFalse($SubmissionController->redirectRan);
-    $viewVars = $SubmissionController->view->getVars();
-    $this->assertTrue(isset($viewVars['etd']), "etd variable set for review");
+    $this->assertTrue(isset($SubmissionController->view->etd), "etd variable set for review");
     $messages = $SubmissionController->getHelper('FlashMessenger')->getMessages();
   }
 
@@ -109,8 +107,8 @@ class SubmissionControllerTest extends ControllerTestCase {
     $etd->save("changing status to test submit");
 
     // notices for non-existent users in metadata
-    $this->expectError("Advisor (nobody) not found in ESD");
-    $this->expectError("Committee member (nobodytoo) not found in ESD");
+    $this->expectError("Committee member/chair (nobody) not found in ESD");
+    $this->expectError("Committee member/chair (nobodytoo) not found in ESD");
     $SubmissionController->submitAction();
     $etd = new etd("test:etd2");
     $this->assertEqual("submitted", $etd->status());

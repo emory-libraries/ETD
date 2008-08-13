@@ -22,50 +22,44 @@ class DocsControllerTest extends ControllerTestCase {
   function testAboutAction() {
     $DocsController = new DocsControllerForTest($this->request,$this->response);
     $DocsController->aboutAction();
-    $viewVars = $DocsController->view->getVars();
-    $this->assertTrue(isset($viewVars['title']));
-    $this->assertEqual("About Emory's ETD Repository", $viewVars['title']);
-    $this->assertTrue($viewVars['printable']);
+    $this->assertTrue(isset($DocsController->view->title));
+    $this->assertEqual("About Emory's ETD Repository", $DocsController->view->title);
+    $this->assertTrue($DocsController->view->printable);
   }
   function testFaqAction() {
     $DocsController = new DocsControllerForTest($this->request,$this->response);
     $DocsController->faqAction();
-    $viewVars = $DocsController->view->getVars();
-    $this->assertTrue(isset($viewVars['title']));
-    $this->assertEqual("Frequently Asked Questions", $viewVars['title']);
-    $this->assertTrue($viewVars['printable']);
+    $this->assertTrue(isset($DocsController->view->title));
+    $this->assertEqual("Frequently Asked Questions", $DocsController->view->title);
+    $this->assertTrue($DocsController->view->printable);
   }
   function testIpAction() {
     $DocsController = new DocsControllerForTest($this->request,$this->response);
     $DocsController->ipAction();
-    $viewVars = $DocsController->view->getVars();
-    $this->assertTrue(isset($viewVars['title']));
-    $this->assertEqual("Intellectual Property", $viewVars['title']);
-    $this->assertTrue($viewVars['printable']);
+    $this->assertTrue(isset($DocsController->view->title));
+    $this->assertEqual("Intellectual Property", $DocsController->view->title);
+    $this->assertTrue($DocsController->view->printable);
   }
   function testPoliciesAction() {
     $DocsController = new DocsControllerForTest($this->request,$this->response);
     $DocsController->policiesAction();
-    $viewVars = $DocsController->view->getVars();
-    $this->assertTrue(isset($viewVars['title']));
-    $this->assertEqual("Policies & Procedures", $viewVars['title']);
-    $this->assertTrue($viewVars['printable']);
+    $this->assertTrue(isset($DocsController->view->title));
+    $this->assertEqual("Policies & Procedures", $DocsController->view->title);
+    $this->assertTrue($DocsController->view->printable);
   }
   function testBoundcopiesAction() {
     $DocsController = new DocsControllerForTest($this->request,$this->response);
     $DocsController->boundcopiesAction();
-    $viewVars = $DocsController->view->getVars();
-    $this->assertTrue(isset($viewVars['title']));
-    $this->assertEqual("Bound Copies", $viewVars['title']);
-    $this->assertTrue($viewVars['printable']);
+    $this->assertTrue(isset($DocsController->view->title));
+    $this->assertEqual("Bound Copies", $DocsController->view->title);
+    $this->assertTrue($DocsController->view->printable);
   }
   function testInstructionsAction() {
     $DocsController = new DocsControllerForTest($this->request,$this->response);
     $DocsController->instructionsAction();
-    $viewVars = $DocsController->view->getVars();
-    $this->assertTrue(isset($viewVars['title']));
-    $this->assertEqual("Submission Instructions", $viewVars['title']);
-    $this->assertTrue($viewVars['printable']);
+    $this->assertTrue(isset($DocsController->view->title));
+    $this->assertEqual("Submission Instructions", $DocsController->view->title);
+    $this->assertTrue($DocsController->view->printable);
   }
 }
 

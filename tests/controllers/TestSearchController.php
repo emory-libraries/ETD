@@ -25,8 +25,7 @@ class SearchControllerTest extends ControllerTestCase {
   function testIndexAction() {
     $searchController = new SearchControllerForTest($this->request,$this->response);
     $searchController->indexAction();
-    $viewVars = $searchController->view->getVars();
-    $this->assertTrue(isset($viewVars['title']));
+    $this->assertTrue(isset($searchController->view->title));
   }
 
   function testResultsAction() {
@@ -36,14 +35,13 @@ class SearchControllerTest extends ControllerTestCase {
     $this->setUpGet(array('query' => 'dissertation', 'title' => 'analysis',
 			  'abstract' => 'exploration', 'tableOfContents' => 'chapter'));
     $searchController->resultsAction();
-    $viewVars = $searchController->view->getVars();
-    $this->assertTrue(isset($viewVars['title']));
-    $this->assertIsA($viewVars['etdSet'], "EtdSet");
+    $this->assertTrue(isset($searchController->view->title));
+    $this->assertIsA($searchController->view->etdSet, "EtdSet");
     // non-facet filter terms should be passed to view for display & facet links
-    $this->assertEqual("dissertation", $viewVars['url_params']["query"]);
-    $this->assertEqual("analysis", $viewVars['url_params']['title']);
-    $this->assertEqual("exploration", $viewVars['url_params']['abstract']);
-    $this->assertEqual("chapter", $viewVars['url_params']['tableOfContents']);
+    $this->assertEqual("dissertation", $searchController->view->url_params["query"]);
+    $this->assertEqual("analysis", $searchController->view->url_params['title']);
+    $this->assertEqual("exploration", $searchController->view->url_params['abstract']);
+    $this->assertEqual("chapter", $searchController->view->url_params['tableOfContents']);
 
     // when only one match is found, should forward to full record page
     $this->mock_solr->response->numFound = 1;
@@ -59,9 +57,8 @@ class SearchControllerTest extends ControllerTestCase {
     $searchController = new SearchControllerForTest($this->request,$this->response);
     $this->setUpGet(array("faculty" => "Halb"));	// Halbert (NOTE: relying on actual data in ESD)
     $searchController->facultysuggestorAction();
-    $viewVars = $searchController->view->getVars();
-    $this->assertIsA($viewVars['faculty'], "Array");
-    $this->assertIsA($viewVars['faculty'][0], "esdPerson");
+    $this->assertIsA($searchController->view->faculty, "Array");
+    $this->assertIsA($searchController->view->faculty[0], "esdPerson");
     // confirm xml output settings - layout disabled, content-type set to text/xml
     $layout = $searchController->getHelper("layout");
     $this->assertFalse($layout->enabled);
@@ -89,11 +86,10 @@ class SearchControllerTest extends ControllerTestCase {
     $searchController = new SearchControllerForTest($this->request,$this->response);
     $this->setUpGet(array("query" => "name", "field" => "author"));
     $searchController->suggestorAction();
-    $viewVars = $searchController->view->getVars();
-    $this->assertIsA($viewVars['matches'], "Array");
+    $this->assertIsA($searchController->view->matches, "Array");
     // terms from both facets should appear in matches
-    $this->assertTrue(in_array("flow", $viewVars['matches']));
-    $this->assertTrue(in_array("jingle", $viewVars['matches']));
+    $this->assertTrue(in_array("flow", $searchController->view->matches));
+    $this->assertTrue(in_array("jingle", $searchController->view->matches));
     // confirm xml output settings - layout disabled, content-type set to text/xml
     $layout = $searchController->getHelper("layout");
     $this->assertFalse($layout->enabled);

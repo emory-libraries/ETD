@@ -28,8 +28,8 @@ class AuthControllerTest extends ControllerTestCase {
     $this->assertTrue($AuthController->redirectRan);
     $messages = $AuthController->getHelper('FlashMessenger')->getMessages();
     $this->assertEqual("Error: please supply username and password", $messages[0]);
-    $viewVars = $AuthController->view->getVars();
-    $this->assertFalse(isset($viewVars['current_user']));
+    $view = $AuthController->view;
+    $this->assertFalse(isset($view->current_user));
 
     // username but no password
     $this->setUpGet(array("login" => array("username" => "someuser", "password" => "", "url" => "index")));
@@ -38,8 +38,7 @@ class AuthControllerTest extends ControllerTestCase {
     $this->assertTrue($AuthController->redirectRan);
     $messages = $AuthController->getHelper('FlashMessenger')->getMessages();
     $this->assertEqual("Error: please supply username and password", $messages[0]);
-    $viewVars = $AuthController->view->getVars();
-    $this->assertFalse(isset($viewVars['current_user']));
+    $this->assertFalse(isset($AuthController->view->current_user));
     
     // password but no username
     $this->setUpGet(array("login" => array("username" => "", "password" => "somepass", "url" => "index")));
@@ -48,8 +47,7 @@ class AuthControllerTest extends ControllerTestCase {
     $this->assertTrue($AuthController->redirectRan);
     $messages = $AuthController->getHelper('FlashMessenger')->getMessages();
     $this->assertEqual("Error: please supply username and password", $messages[0]);
-    $viewVars = $AuthController->view->getVars();
-    $this->assertFalse(isset($viewVars['current_user']));
+    $this->assertFalse(isset($AuthController->view->current_user));
 
     // bad username
     $AuthController = new AuthControllerForTest($this->request,$this->response);
@@ -59,8 +57,7 @@ class AuthControllerTest extends ControllerTestCase {
     $this->assertTrue($AuthController->redirectRan);
     $messages = $AuthController->getHelper('FlashMessenger')->getMessages();
     $this->assertEqual("Error: login failed - wrong username?", $messages[0]);
-    $viewVars = $AuthController->view->getVars();
-    $this->assertFalse(isset($viewVars['current_user']));
+    $this->assertFalse(isset($AuthController->view->current_user));
 
     // good username, bad password
     $AuthController = new AuthControllerForTest($this->request,$this->response);
@@ -70,8 +67,7 @@ class AuthControllerTest extends ControllerTestCase {
     $this->assertTrue($AuthController->redirectRan);
     $messages = $AuthController->getHelper('FlashMessenger')->getMessages();
     $this->assertEqual("Error: login failed - wrong password?", $messages[0]);
-    $viewVars = $AuthController->view->getVars();
-    $this->assertFalse(isset($viewVars['current_user']));
+    $this->assertFalse(isset($AuthController->view->current_user));
 
     
     // not testing successful login because that would require including an ldap login and password here
@@ -83,17 +79,15 @@ class AuthControllerTest extends ControllerTestCase {
     $this->assertTrue($AuthController->redirectRan);
     $messages = $AuthController->getHelper('FlashMessenger')->getMessages();
     $this->assertEqual("Logout successful", $messages[0]);
-    $viewVars = $AuthController->view->getVars();
-    $this->assertFalse(isset($viewVars['current_user']));
+    $this->assertFalse(isset($AuthController->view->current_user));
 
   }
 
   function testDeniedAction() {
     $AuthController = new AuthControllerForTest($this->request,$this->response);
     $AuthController->deniedAction();
-    $viewVars = $AuthController->view->getVars();
-    $this->assertTrue(isset($viewVars['title']));
-    $this->assertEqual("Access Denied", $viewVars['title']);
+    $this->assertTrue(isset($AuthController->view->title));
+    $this->assertEqual("Access Denied", $AuthController->view->title);
   }
 
 
