@@ -32,10 +32,23 @@ class Mock_Etd_Service_Solr extends Basic_Mock_Etd_Service_Solr {
 require_once('models/etd.php');
 require_once('models/etdfile.php');
 require_once('models/etd_dc.php');
-Mock::generate('etd');
+Mock::generate('etd', 'BasicMock_Etd');
 Mock::generate('etd_file', "BasicMock_EtdFile");
 Mock::generate('etd_dc', "BasicMock_etd_dc");
 Mock::generate('user',  'BasicMock_User');
+
+class MockEtd extends BasicMock_Etd {
+  public $pid;
+  public $label;
+  public $dc;
+  
+  public function __construct() {
+    $this->BasicMock_Etd();
+    $this->dc = &new Mocketd_dc();
+  }
+
+}
+
 
 class MockEtd_dc extends BasicMock_etd_dc {
   public $mimetype;
