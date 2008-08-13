@@ -35,11 +35,15 @@ class ManageControllerTest extends ControllerTestCase {
       //      print "ingested $pid\n";
     }
 
+    $solr = &new Mock_Etd_Service_Solr();
+    Zend_Registry::set('solr', $solr);
   }
   
   function tearDown() {
     foreach ($this->etdxml as $file => $pid)
       fedora::purge($pid, "removing test etd");
+
+    Zend_Registry::set('solr', null);
   }
   
   function testSummaryAction() {
@@ -63,11 +67,6 @@ class ManageControllerTest extends ControllerTestCase {
   }	
 
   function testListAction() {
-    $solr = &new MockEtd_Service_Solr();
-    $response = new MockEmory_Service_Solr_Response();
-    $solr->setReturnReference('query', $response);
-    Zend_Registry::set('solr', $solr);
-
     $this->test_user->role = "admin";
     Zend_Registry::set('current_user', $this->test_user);
     
@@ -331,6 +330,11 @@ class ManageControllerTest extends ControllerTestCase {
 
     $this->assertFalse($ManageController->markInactiveAction());
   }
+
+
+  // FIXME: other actions need testing:
+  // - expiring embargoes page
+  // - email export (csv)
   
 }
 

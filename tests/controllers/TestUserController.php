@@ -3,7 +3,6 @@
 require_once("../bootstrap.php");
 require_once('ControllerTestCase.php');
 require_once('controllers/UserController.php');
-Mock::generate('user',  'BasicMock_User');
 
 class UserControllerTest extends ControllerTestCase {
 
@@ -19,11 +18,13 @@ class UserControllerTest extends ControllerTestCase {
     $this->resetGet();
 
 
-    $userController = new UserControllerForTest($this->request,$this->response);
     // use mock user object to simplify permissions/roles/etc
     $this->mock_user = &new MockUser();
     $this->mock_user->pid = "testuser:1";
     $this->mock_user->setReturnValue("getUserRole", "author");	// set role to author
+
+    // set getFromFedora helper to return our mock object
+    $userController = new UserControllerForTest($this->request,$this->response);
     $gff = $userController->getHelper("GetFromFedora");
     $gff->setReturnObject($this->mock_user);
 
@@ -115,7 +116,7 @@ class UserControllerTest extends ControllerTestCase {
     $this->assertEqual("text/xml", $headers[0]["value"]);
     $this->assertPattern('|<mads:identifier type="netid">jsmith</mads:identifier>|', $response->getBody());
 
-    // access denied
+    // access denied 
     $this->test_user->role = "guest";
     $this->assertFalse($userController->madsAction());
     
@@ -145,9 +146,6 @@ class UserControllerForTest extends UserController {
   }
 } 	
 
-class MockUser extends BasicMock_User {
-  public $pid;
-}
 
 runtest(new UserControllerTest());
 

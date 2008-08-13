@@ -4,12 +4,10 @@ require_once("../bootstrap.php");
 require_once('../ControllerTestCase.php');
 require_once('controllers/BrowseController.php');
 
-require_once('simpletest/mock_objects.php');
-Mock::generate('Etd_Service_Solr');
-Mock::generate('Emory_Service_Solr_Response');
-      
 class BrowseControllerTest extends ControllerTestCase {
 
+  private $solr;
+  
   function setUp() {
     $_GET 	= array();
     $_POST	= array();
@@ -20,18 +18,19 @@ class BrowseControllerTest extends ControllerTestCase {
     $this->test_user = new esdPerson();
     $this->test_user->role = "student";
     $this->test_user->netid = "test_user";
+    Zend_Registry::set('current_user', $this->test_user);
+
+    $this->solr = &new Mock_Etd_Service_Solr(); 
+    Zend_Registry::set('solr', $this->solr);
 
   }
 
-  function tearDown() { }
+  function tearDown() {
+    Zend_Registry::set('solr', null);
+    Zend_Registry::set('current_user', null);
+  }
 
   function testAuthorAction() {
-    $solr = &new MockEtd_Service_Solr();
-    $response = new MockEmory_Service_Solr_Response();
-    $response->docs = array();
-    $response->facets = array();
-    $solr->setReturnReference('query', $response);
-    Zend_Registry::set('solr', $solr);
 
     $BrowseController = new BrowseControllerForTest($this->request,$this->response);
 
@@ -53,13 +52,7 @@ class BrowseControllerTest extends ControllerTestCase {
   // committee and year browse are basically the same as author browse
 
   function testProgramAction() {
-    $solr = &new MockEtd_Service_Solr();
-    $response = new MockEmory_Service_Solr_Response();
-    $response->docs = array();
-    $response->facets = new Emory_Service_Solr_Response_Facets(array("program_facet" => array()));
-    $solr->setReturnReference('query', $response);
-    Zend_Registry::set('solr', $solr);
-
+    $this->solr->response->facets = new Emory_Service_Solr_Response_Facets(array("program_facet" => array()));
     
     // no param - should start at top-level
     $BrowseController = new BrowseControllerForTest($this->request,$this->response);
@@ -91,12 +84,7 @@ class BrowseControllerTest extends ControllerTestCase {
   }
 
   function testResearchFieldsAction() {
-    $solr = &new MockEtd_Service_Solr();
-    $response = new MockEmory_Service_Solr_Response();
-    $response->docs = array();
-    $response->facets = new Emory_Service_Solr_Response_Facets(array("subject_facet" => array()));
-    $solr->setReturnReference('query', $response);
-    Zend_Registry::set('solr', $solr);
+    $this->solr->response->facets = new Emory_Service_Solr_Response_Facets(array("subject_facet" => array()));
     
     // no param - should start at top-level
     $BrowseController = new BrowseControllerForTest($this->request,$this->response);
@@ -118,19 +106,6 @@ class BrowseControllerTest extends ControllerTestCase {
   }
     	
   function testMyAction() {
-    $solr = &new MockEtd_Service_Solr();
-    $response = new MockEmory_Service_Solr_Response();
-    $response->numFound = 2;
-    $response->rows = 2;
-    $response->start = 0;
-    $response->docs = array();
-    $solr->setReturnReference('query', $response);
-    Zend_Registry::set('solr', $solr);
-
-
-    //$this->test_user->role = "admin";
-    Zend_Registry::set('current_user', $this->test_user);
-
     $BrowseController = new BrowseControllerForTest($this->request,$this->response);
     $BrowseController->myAction();
     $viewVars = $BrowseController->view->getVars();
@@ -153,16 +128,8 @@ class BrowseControllerTest extends ControllerTestCase {
     $this->assertFalse(isset($viewVars['show_status']));
     $this->assertFalse(isset($viewVars['show_lastaction']));
 
-
-    $solr = &new MockEtd_Service_Solr();
-    $response = new MockEmory_Service_Solr_Response();
-    $response->docs = array();
-    $solr->setReturnReference('query', $response);
-    Zend_Registry::set('solr', $solr);
-
     // set program coordinator department so user will be recognized as valid
     $this->test_user->program_coord = "Chemistry";
-    Zend_Registry::set('current_user', $this->test_user);
     
     $BrowseController = new BrowseControllerForTest($this->request,$this->response);
     $BrowseController->myProgramAction();
@@ -175,13 +142,6 @@ class BrowseControllerTest extends ControllerTestCase {
   }
 
   function testRecentAction() {
-    $solr = &new MockEtd_Service_Solr();
-    $response = new MockEmory_Service_Solr_Response();
-    $response->docs = array();
-    $solr->setReturnReference('query', $response);
-    Zend_Registry::set('solr', $solr);
-
-    
     $BrowseController = new BrowseControllerForTest($this->request,$this->response);
     $BrowseController->recentAction();
     $viewVars = $BrowseController->view->getVars();
