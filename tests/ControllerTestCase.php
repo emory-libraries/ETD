@@ -63,7 +63,9 @@ class TestEtd_Controller_Action_Helper_FlashMessenger extends Zend_Controller_Ac
 
 class TestEtd_Controller_Action_Helper_Layout extends Zend_Controller_Action_Helper_Abstract {
   public $enabled = true;
+  public $name;
   public function disableLayout() { $this->enabled = false; }
+  public function setLayout($name) { $this->name = $name; }
 }
 
 class TestEtd_Controller_Action_Helper_GetFromFedora extends Etd_Controller_Action_Helper_GetFromFedora {
