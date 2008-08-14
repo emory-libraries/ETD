@@ -1,12 +1,13 @@
 <?php
 
+require_once("../bootstrap.php"); 
 require_once('xml_acl.php');
 
 class TestXmlAcl extends UnitTestCase {
     private $acl;
 
   function setUp() {
-    $this->acl = new Xml_Acl();
+    $this->acl = Zend_Registry::get('acl');
   }
   
   function tearDown() {
@@ -33,6 +34,7 @@ class TestXmlAcl extends UnitTestCase {
 
   function testGuest() {
     $this->assertTrue($this->acl->isAllowed("guest", "published etd", "view metadata"));
+    $this->assertTrue($this->acl->isAllowed("guest", "published etd", "view statistics"));
     $this->assertFalse($this->acl->isAllowed("guest", "published etd", "view history"));
     $this->assertFalse($this->acl->isAllowed("guest", "etd", "view metadata"));
     $this->assertFalse($this->acl->isAllowed("guest", "draft etd", "view metadata"));
@@ -41,13 +43,16 @@ class TestXmlAcl extends UnitTestCase {
     $this->assertFalse($this->acl->isAllowed("guest", "draft etd", "edit metadata"));
     $this->assertFalse($this->acl->isAllowed("guest", "etd", "add file"));
 
+    $this->assertFalse($this->acl->isAllowed("guest", "file", "view modified"));
+
   }
 
   function testAuthor() {
     $this->assertTrue($this->acl->isAllowed("author", "etd", "view metadata"));
     $this->assertTrue($this->acl->isAllowed("author", "etd", "view history"));
     $this->assertTrue($this->acl->isAllowed("author", "etd", "view status"));
-    $this->assertTrue($this->acl->isAllowed("author", "etd", "download"));
+    $this->assertTrue($this->acl->isAllowed("author", "file", "download"));
+    $this->assertTrue($this->acl->isAllowed("author", "file", "view modified"));
     $this->assertTrue($this->acl->isAllowed("author", "draft etd", "view metadata"));
     
     $this->assertTrue($this->acl->isAllowed("author", "draft etd", "edit metadata"));
@@ -55,13 +60,14 @@ class TestXmlAcl extends UnitTestCase {
 		      
     $this->assertFalse($this->acl->isAllowed("author", "etd", "edit metadata"));
     $this->assertFalse($this->acl->isAllowed("author", "etd", "add file"));
+
   }
 
   function testCommittee() {
     $this->assertTrue($this->acl->isAllowed("committee", "etd", "view metadata"));
     $this->assertTrue($this->acl->isAllowed("committee", "etd", "view history"));
     $this->assertTrue($this->acl->isAllowed("committee", "etd", "view status"));
-    $this->assertTrue($this->acl->isAllowed("committee", "etd", "download"));
+    $this->assertTrue($this->acl->isAllowed("committee", "file", "download"));
     $this->assertTrue($this->acl->isAllowed("committee", "draft etd", "view metadata"));
     
     $this->assertFalse($this->acl->isAllowed("committee", "etd", "edit metadata"));
@@ -72,7 +78,8 @@ class TestXmlAcl extends UnitTestCase {
     $this->assertTrue($this->acl->isAllowed("admin", "etd", "view metadata"));
     $this->assertTrue($this->acl->isAllowed("admin", "etd", "view status"));
     $this->assertTrue($this->acl->isAllowed("admin", "etd", "view history"));
-    $this->assertTrue($this->acl->isAllowed("admin", "etd", "download"));
+    $this->assertTrue($this->acl->isAllowed("admin", "file", "download"));
+    $this->assertTrue($this->acl->isAllowed("admin", "file", "view modified"));
     $this->assertTrue($this->acl->isAllowed("admin", "etd", "edit history"));
     $this->assertTrue($this->acl->isAllowed("admin", "etd", "edit status"));
 
@@ -86,10 +93,12 @@ class TestXmlAcl extends UnitTestCase {
 
     $this->assertTrue($this->acl->isAllowed("admin", "approved etd", "publish"));
     
-    $this->assertTrue($this->acl->isAllowed("admin", "published etd", "unpublish"));
-    $this->assertFalse($this->acl->isAllowed("admin", "etd", "unpublish"));
-    
+    $this->assertTrue($this->acl->isAllowed("admin", "published etd", "inactivate"));
+    $this->assertFalse($this->acl->isAllowed("admin", "etd", "inactivate"));
+
+    $this->assertFalse($this->acl->isAllowed("admin", "log", "view"));
   }
 
 }
 
+runtest(new TestXmlAcl());
