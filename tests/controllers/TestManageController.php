@@ -13,6 +13,7 @@ class ManageControllerTest extends ControllerTestCase {
     $this->test_user = new esdPerson();
     $this->test_user->role = "admin";
     $this->test_user->netid = "test_user";
+    Zend_Registry::set('current_user', $this->test_user);
 
     
     $_GET 	= array();
@@ -32,7 +33,6 @@ class ManageControllerTest extends ControllerTestCase {
     // NOTE: for risearch queries to work, syncupdates must be turned on for test fedora instance
     foreach (array_keys($this->etdxml) as $etdfile) {
       $pid = fedora::ingest(file_get_contents('../fixtures/' . $etdfile . '.xml'), "loading test etd");
-      //      print "ingested $pid\n";
     }
 
     $solr = &new Mock_Etd_Service_Solr();
@@ -47,9 +47,6 @@ class ManageControllerTest extends ControllerTestCase {
   }
   
   function testSummaryAction() {
-    $this->test_user->role = "admin";
-    Zend_Registry::set('current_user', $this->test_user);
-    
     $ManageController = new ManageControllerForTest($this->request,$this->response);
     $ManageController->summaryAction();
     $status_totals = $ManageController->view->status_totals;
@@ -66,8 +63,6 @@ class ManageControllerTest extends ControllerTestCase {
   }	
 
   function testListAction() {
-    $this->test_user->role = "admin";
-    Zend_Registry::set('current_user', $this->test_user);
     
     $ManageController = new ManageControllerForTest($this->request,$this->response);
     $this->setUpGet(array("status" => "reviewed"));
@@ -80,14 +75,13 @@ class ManageControllerTest extends ControllerTestCase {
 
 
   function testReviewAction() {
-    $this->test_user->role = "admin";
-    Zend_Registry::set('current_user', $this->test_user);
+
     $ManageController = new ManageControllerForTest($this->request,$this->response);
     $this->setUpGet(array('pid' => 'test:etd2'));	   // reviewed etd
 
     $this->assertFalse($ManageController->reviewAction());  // false - not allowed
 
-    // not be allowed - etd has wrong status
+    // should not be allowed - etd has wrong status
     // 	 - should be redirected, no etd set, and get a not authorized message
     $this->assertFalse($ManageController->redirectRan);
     $this->assertFalse(isset($ManageController->view->etd));
@@ -105,8 +99,7 @@ class ManageControllerTest extends ControllerTestCase {
   }
 
   public function testAcceptAction() {
-    $this->test_user->role = "admin";
-    Zend_Registry::set('current_user', $this->test_user);
+
     $ManageController = new ManageControllerForTest($this->request,$this->response);
     $this->setUpGet(array('pid' => 'test:etd2'));	   // reviewed etd
 
@@ -131,8 +124,7 @@ class ManageControllerTest extends ControllerTestCase {
 
   /* test request _record_ (metadata) changes */
   public function testRequestRecordChangesAction() {
-    $this->test_user->role = "admin";
-    Zend_Registry::set('current_user', $this->test_user);
+
     $ManageController = new ManageControllerForTest($this->request,$this->response);
 
     $this->setUpGet(array('pid' => 'test:etd2', 'type' => 'record'));   // reviewed etd
@@ -162,8 +154,6 @@ class ManageControllerTest extends ControllerTestCase {
 
   /* test request _document_ (file) changes */
   public function testRequestDocumentChangesAction() {
-    $this->test_user->role = "admin";
-    Zend_Registry::set('current_user', $this->test_user);
     $ManageController = new ManageControllerForTest($this->request,$this->response);
 
     $this->setUpGet(array('pid' => 'test:etd2', 'type' => 'document'));   // reviewed etd
@@ -174,8 +164,8 @@ class ManageControllerTest extends ControllerTestCase {
     $etd = new etd("test:etd2");	// get from fedora to check changes
     $this->assertEqual("draft", $etd->status(), "status set correctly");
     // FIXME: for some reason this test fails, but the page works correctly in the browser (?)
-    //    $this->assertTrue(isset($ManageController->view->title), "page title set");
-    //    $this->assertEqual("document", $ManageController->view->changetype);
+    //$this->assertTrue(isset($ManageController->view->title), "page title set");
+    //$this->assertEqual("document", $ManageController->view->changetype);
     $messages = $ManageController->getHelper('FlashMessenger')->getMessages();
     $this->assertPattern("/Changes requested;.*status changed/", $messages[0]);
     $this->assertEqual("Changes to document requested by Graduate School", $etd->premis->event[1]->detail);
@@ -186,15 +176,11 @@ class ManageControllerTest extends ControllerTestCase {
     // should not be allowed - etd has wrong status
     // 	 - should be redirected, no etd set, and get a not authorized message (but can't test)
     $this->assertFalse($ManageController->redirectRan);
-    // can't test- handled by Access Helper
-    //    $messages = $ManageController->getHelper('FlashMessenger')->getMessages();
-    //    $this->assertPattern("/not authorized/", $messages[0]);
+    // can't test error messages, since they are handled by the Access Helper
   }
 
   
   public function testApproveAction() {
-    $this->test_user->role = "admin";
-    Zend_Registry::set('current_user', $this->test_user);
     $ManageController = new ManageControllerForTest($this->request,$this->response);
     $this->setUpGet(array('pid' => 'test:etd2'));	   // reviewed etd
     $ManageController->approveAction();
@@ -219,19 +205,14 @@ class ManageControllerTest extends ControllerTestCase {
   }
 
   public function testDoApproveAction() {
-    $this->test_user->role = "admin";
-    Zend_Registry::set('current_user', $this->test_user);
     $ManageController = new ManageControllerForTest($this->request,$this->response);
     $this->setUpGet(array('pid' => 'test:etd1', 'embargo' => '3 months'));	   // published etd
 
     $this->assertFalse($ManageController->doapproveAction());
     // not allowed - etd has wrong status
     $this->assertFalse($ManageController->redirectRan);
-    //    $messages = $ManageController->getHelper('FlashMessenger')->getMessages();
-    //    $this->assertPattern("/not authorized/", $messages[0]);
     $etd = new etd("test:etd1");
     $this->assertEqual("published", $etd->status());	// status unchanged 
-
     
     $this->setUpGet(array('pid' => 'test:etd2', 'embargo' => '3 months'));	   // reviewed etd
     // notices for non-existent users in metadata
@@ -248,12 +229,9 @@ class ManageControllerTest extends ControllerTestCase {
     $this->assertEqual("Record approved by Graduate School", $etd->premis->event[1]->detail);
     $this->assertEqual("test_user", $etd->premis->event[1]->agent->value);
     $this->assertEqual("Access restriction of 3 months approved", $etd->premis->event[2]->detail);
-
   }
 
   public function testInactivateAction() {
-    $this->test_user->role = "admin";
-    Zend_Registry::set('current_user', $this->test_user);
     $ManageController = new ManageControllerForTest($this->request,$this->response);
 
     $this->setUpGet(array('pid' => 'test:etd1'));	   // published etd
@@ -266,14 +244,9 @@ class ManageControllerTest extends ControllerTestCase {
     $this->assertFalse($ManageController->inactivateAction());
     $this->assertFalse($ManageController->redirectRan);
     $this->assertFalse(isset($ManageController->view->etd));
-    //    $messages = $ManageController->getHelper('FlashMessenger')->getMessages();
-    //    $this->assertPattern("/not authorized/", $messages[0]);
-				 
   }
 
   public function testMarkInactiveAction() {
-    $this->test_user->role = "admin";
-    Zend_Registry::set('current_user', $this->test_user);
     $ManageController = new ManageControllerForTest($this->request,$this->response);
 
     $this->setUpPost(array('pid' => 'test:etd1', 'reason' => 'testing inactivation'));	   // published etd
@@ -289,12 +262,11 @@ class ManageControllerTest extends ControllerTestCase {
     $this->assertFalse($ManageController->markInactiveAction());
     // redirect/not authorized - can't test
   }
-   
 
   public function testUnauthorizedUser() {
     // test with an unauthorized user
     $this->test_user->role = "student";
-    Zend_Registry::set('current_user', $this->test_user);
+
     $this->setUpGet(array('pid' => 'test:etd1'));	 
     
     $ManageController = new ManageControllerForTest($this->request,$this->response);
