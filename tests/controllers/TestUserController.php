@@ -31,6 +31,11 @@ class UserControllerTest extends ControllerTestCase {
   }
   
   function tearDown() {
+    Zend_Registry::set('current_user', null);
+
+    $userController = new UserControllerForTest($this->request,$this->response);
+    $gff = $userController->getHelper("GetFromFedora");
+    $gff->clearReturnObject();
   }
 
 

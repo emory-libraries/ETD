@@ -14,6 +14,7 @@ if (defined('RUNNER')) {
 class ControllerGroupTest extends GroupTest {
   function ControllerGroupTest() {
     $this->GroupTest('ETD Controller tests');
+    $this->addTestFile('controllers/TestUserController.php');
     $this->addTestFile('controllers/TestManageController.php');
     $this->addTestFile('controllers/TestSubmissionController.php');
     $this->addTestFile('controllers/TestAuthController.php');
@@ -25,7 +26,6 @@ class ControllerGroupTest extends GroupTest {
     $this->addTestFile('controllers/TestEditController.php');
     $this->addTestFile('controllers/TestFileController.php');
     $this->addTestFile('controllers/TestSearchController.php');
-    $this->addTestFile('controllers/TestUserController.php');
     $this->addTestFile('controllers/TestViewController.php');
     //    $this->addTestFile('controllers/TestEtdController.php');
   }

@@ -51,6 +51,8 @@ class FileControllerTest extends ControllerTestCase {
     $FileController = new FileControllerForTest($this->request,$this->response);
     $gff = $FileController->getHelper("GetFromFedora");
     $gff->clearReturnObject();
+
+    Zend_Registry::set('solr', null);
   }
 
   public function testViewAction() {

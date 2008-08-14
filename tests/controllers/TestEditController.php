@@ -50,6 +50,8 @@ class EditControllerTest extends ControllerTestCase {
   function tearDown() {
     foreach ($this->etdxml as $file => $pid)
       fedora::purge($pid, "removing test etd");
+
+    Zend_Registry::set('current_user', null);
   }
 
 
