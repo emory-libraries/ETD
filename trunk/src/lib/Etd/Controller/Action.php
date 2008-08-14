@@ -10,13 +10,12 @@ abstract class Etd_Controller_Action extends Zend_Controller_Action {
   protected $logger;
   
   public function init() {
-    $this->initView();
-
     Zend_Controller_Action_HelperBroker::addPath('Emory/Controller/Action/Helper',
 						 'Emory_Controller_Action_Helper');
     Zend_Controller_Action_HelperBroker::addPath('Etd/Controller/Action/Helper',
 						 'Etd_Controller_Action_Helper');
     
+    $this->initView();
 
     
     $this->debug = Zend_Registry::get('debug');
