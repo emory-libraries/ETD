@@ -66,9 +66,13 @@ abstract class Etd_Controller_Action extends Zend_Controller_Action {
 
 
   /**
-   * 
+   * parse parameters into common filter options needed for facets and
+   * passed to Solr or EtdSet find functions
    */
-  protected function getFilterOptions() {
+  public function getFilterOptions() {
+    // FIXME: include other common filters, like what is repeatedly used for paging?
+    //     $options = array("query" => $query, "AND" => $opts, "start" => $start, "max" => $max);
+    
     $opts = array();
     foreach (array("status", "committee", "year", "program", "subject", "author", "keyword") as $filter) {
       // only include a filter if the parameter is set and is not blank
