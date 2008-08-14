@@ -29,7 +29,7 @@ class TestEsdPerson extends UnitTestCase {
     $this->assertEqual($user->department, "University Libraries");
     $this->assertEqual($user->academic_career, "GSAS");
     $this->assertEqual($user->academic_program, null);
-    $this->assertEqual($user->degree, "MA");
+    $this->assertEqual($user->degree, "PHD");
     $this->assertEqual($user->term_complete, "5061");
     $this->assertEqual($user->email, "rsutton@emory.edu");
     $this->assertEqual($user->academic_plan_id, "ENGLISHMA");
@@ -82,7 +82,7 @@ class TestEsdPerson extends UnitTestCase {
 
   function testProgramCoordinator(){
     $user = new esdPerson();
-    $user->program_coord = "English";
+    $user->grad_coord = "English";
     $this->assertTrue($user->isCoordinator("English"));
     $this->assertFalse($user->isCoordinator("Chemistry"));
   }
