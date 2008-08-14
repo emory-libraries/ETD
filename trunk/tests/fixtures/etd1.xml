@@ -42,6 +42,9 @@
 	   </mods:name>
 	  <mods:abstract>Gouda or Cheddar?</mods:abstract>
           <mods:tableOfContents/>
+	  <mods:language>
+	    <mods:languageTerm authority="iso639-2b" type="text">English</mods:languageTerm>
+	  </mods:language>
 	  <mods:originInfo>
 	    <mods:dateIssued keyDate="yes"/>
 	    <mods:dateOther type="embargoedUntil"/> 

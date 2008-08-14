@@ -107,6 +107,11 @@
 	      <dc:title>Why I Hate Milk</dc:title>
 	      <dc:description>milk curdles and goes sour</dc:description>
 	      <dc:identifier>info:fedora/test:etd2</dc:identifier>
+	      <dc:subject>curdling</dc:subject>
+	      <dc:creator/>
+	      <dc:contributor/>
+	      <dc:language/>
+	      <dc:date/>
 	</oai_dc:dc>
       </foxml:xmlContent>
     </foxml:datastreamVersion>
