@@ -44,6 +44,7 @@ class ManageControllerTest extends ControllerTestCase {
       fedora::purge($pid, "removing test etd");
 
     Zend_Registry::set('solr', null);
+    Zend_Registry::set('current_user', null);
   }
   
   function testSummaryAction() {

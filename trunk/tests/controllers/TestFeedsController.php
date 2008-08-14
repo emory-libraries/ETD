@@ -16,7 +16,9 @@ class FeedsControllerTest extends ControllerTestCase {
     $solr = &new Mock_Etd_Service_Solr();
     Zend_Registry::set('solr', $solr);
   }
-  function tearDown() {}
+  function tearDown() {
+    Zend_Registry::set('solr', null);
+  }
 
   function testRecentAction() {
     $feedsController = new FeedsControllerForTest($this->request,$this->response);
