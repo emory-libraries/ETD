@@ -751,6 +751,7 @@ div#edit_faculty span.dept { float:right; font-size:80%;}
 
 table#nonemory_list th { font-size:85%; text-align:left; }
 
+ul.suggestions span.count { float:right; font-size:80%;}
 
 p.warning { 
   border: 2px solid #d70d0d;  /* darkish red */
@@ -849,3 +850,6 @@ div.DEBUG { color:purple; }
 
 div.log-labels { font-weight:bold; border-bottom:1px solid black; margin-bottom:5px; }
 div.log-labels div.timestamp { color:black }
+
+div#quicksearch { padding:15px; }
+div#quicksearch p { margin:0px; }
