@@ -62,7 +62,13 @@ class SearchController extends Etd_Controller_Action {
     
     // if status parameter is set and user has permission, allow to search all records
     if ($this->_hasParam("status") && $this->acl->isAllowed($this->current_user, "etd", "view status")) {
-      $options["AND"]["status"] = $this->_getParam("status");
+      $status = $this->_getParam("status");
+      if ($status == "unpublished") {		// special case - find all unpublished records
+	$options["NOT"]["status"] = "published";
+	unset($options["AND"]["status"]);
+      } else {
+	$options["AND"]["status"] = $this->_getParam("status");
+      }
     } else {
       // otherwise (by default), limit search to published records
       $options["AND"]["status"] = "published";
@@ -112,7 +118,6 @@ class SearchController extends Etd_Controller_Action {
 
   public function suggestorAction() {
     if (!$this->_hasParam("query")) throw new Exception("Required parameter 'query' is not set");
-
     $query = $this->_getParam("query");
 
     $solr = Zend_Registry::get('solr');
@@ -125,8 +130,9 @@ class SearchController extends Etd_Controller_Action {
     }
 
     $mode = $this->_getParam("mode");
-    if ($mode == "unpublished") $solr->addFilter("NOT status:published");
-    
+    if ($mode == "unpublished") {
+      $solr->addFilter("NOT status:'published'");
+    }
 
     // uses query string as facet prefix and returns any facets that match
     // using currently configured default facets
@@ -139,6 +145,9 @@ class SearchController extends Etd_Controller_Action {
     }
 
     $this->view->matches = $matches;
+    // by default, display number of records matching the suggested term, but allow hiding it
+    $this->view->show_count = ($this->_getParam("show_count", "yes") == "yes") ? true : false;
+
 
     $this->_helper->layout->disableLayout();
     $this->getResponse()->setHeader('Content-Type', "text/xml");
