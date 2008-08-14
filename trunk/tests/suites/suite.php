@@ -15,6 +15,10 @@ $suite->addTestCase(new ModelGroupTest());
 
 // controllers
 $suite->addTestCase(new ControllerGroupTest());
+
+//lib
+$suite->addTestCase(new LibGroupTest());
+
 $reporter = isset($argv) ? new TextReporter() : new HtmlReporter();
 $suite->run($reporter);
 
