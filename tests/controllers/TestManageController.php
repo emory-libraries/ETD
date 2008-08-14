@@ -263,6 +263,37 @@ class ManageControllerTest extends ControllerTestCase {
     // redirect/not authorized - can't test
   }
 
+  public function testExpiringEmbargoes() {
+    $ManageController = new ManageControllerForTest($this->request,$this->response);
+    $ManageController->embargoesAction();
+    $this->assertTrue(isset($ManageController->view->title));
+    $this->assertIsA($ManageController->view->etdSet, "EtdSet");
+    $this->assertTrue($ManageController->view->show_lastaction);
+  }
+
+  public function testExportEmails() {
+    $ManageController = new ManageControllerForTest($this->request,$this->response);
+    $ManageController->exportemailsAction();
+    $this->assertIsA($ManageController->view->etdSet, "EtdSet");
+
+    $layout = $ManageController->getHelper("layout");
+    // confirm xml output settings - layout disabled, content-type set to text/xml
+    $this->assertFalse($layout->enabled);
+    $response = $ManageController->getResponse();
+    $headers = $response->getHeaders();
+    $this->assertEqual("Content-Type", $headers[0]["name"]);
+    $this->assertEqual("text/csv", $headers[0]["value"]);
+    $this->assertPattern("|filename=.*csv|", $headers[1]["value"]);
+  }
+
+  public function testViewLog() {
+    $this->test_user->role = "superuser";	// regular admin not allowed to view log
+    $ManageController = new ManageControllerForTest($this->request,$this->response);
+    $ManageController->viewLogAction();
+    $this->assertTrue(isset($ManageController->view->title));
+    // FIXME: any way to test the log entries stuff? 
+  }
+
   public function testUnauthorizedUser() {
     // test with an unauthorized user
     $this->test_user->role = "student";
@@ -275,25 +306,17 @@ class ManageControllerTest extends ControllerTestCase {
 
     $this->assertFalse($ManageController->reviewAction());
     $this->assertFalse(isset($ManageController->view->etd));
-
     $this->assertFalse($ManageController->acceptAction());
-
     $this->assertFalse($ManageController->requestchangesAction());
-
     $this->assertFalse($ManageController->approveAction());
-    
     $this->assertFalse($ManageController->doapproveAction());
-
     $this->assertFalse($ManageController->inactivateAction());
-
     $this->assertFalse($ManageController->markInactiveAction());
+    $this->assertFalse($ManageController->embargoesAction());
+    $this->assertFalse($ManageController->exportemailsAction());
+    $this->assertFalse($ManageController->viewLogAction());
   }
 
-
-  // FIXME: other actions need testing:
-  // - expiring embargoes page
-  // - email export (csv)
-  
 }
 
 
