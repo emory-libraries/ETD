@@ -30,13 +30,18 @@ class Etd_Controller_Action_Helper_Access extends Zend_Controller_Action_Helper_
     $current_user = $this->_actionController->current_user;
     $acl = $this->_actionController->acl;
     
-    if ($etdfile) {		// a specific etd object
-      $role = $etdfile->etd->getUserRole($current_user);	//  - user may have a different role on this etd
+    if ($etdfile) {		// a specific etdFile object
       $resource = $etdfile->getResourceId();
     } else {				// generic etd file
-      $role = $current_user->role;
       $resource = "file";
     }
+
+    if ($etdfile && isset($etdfile->etd)) {
+      $role = $etdfile->etd->getUserRole($current_user);	//  - user may have a different role on this etd
+    } else {
+      $role = $current_user->role;
+    }
+
     
     $allowed = $acl->isAllowed($role, $resource, $action);
     if (!$allowed) $this->notAllowed($action, $role, $resource);
@@ -71,7 +76,7 @@ class Etd_Controller_Action_Helper_Access extends Zend_Controller_Action_Helper_
     if (isset($this->_actionController->current_user)) {
       $user = $this->_actionController->current_user->netid;
     } else{
-      "guest";
+      $user = "guest";
     }
 
     $message = "Error: $user (role=$role) is not authorized to $action $resource";
