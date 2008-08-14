@@ -6,7 +6,7 @@
 */
 
 // ZendFramework, etc.
-ini_set("include_path", "../app/:../config:../app/models:../app/modules/:../lib:../lib/ZendFramework:../lib/fedora:../lib/xml-utilities:js/:" . ini_get("include_path")); // use local copies first (e.g., Zend)
+ini_set("include_path", "../app/:../config:../app/models:../app/modules/:../lib:../lib/fedora:../lib/xml-utilities:js/:" . ini_get("include_path")); // use local copies first (e.g., Zend)
 // NOTE: local models should come before fedora models so that correct
 // xml template files will be found first
 
@@ -91,7 +91,7 @@ Zend_Registry::set('stat-db', $db);
 $front = Zend_Controller_Front::getInstance();
 
 // Set the default controller directory:
-$front->setControllerDirectory(array("default" => "../app/controllers", "emory" => "../lib/ZendFramework/Emory"));
+$front->setControllerDirectory(array("default" => "../app/controllers", "emory" => "../lib/Emory"));
 $front->addModuleDirectory("../app/modules");
 
 // Define Layout
