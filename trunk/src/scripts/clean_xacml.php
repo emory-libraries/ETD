@@ -10,7 +10,7 @@
 
 
   // ZendFramework, etc.
-ini_set("include_path", "../app/:../config:../app/models:../app/modules/:../lib:../lib/ZendFramework:../lib/fedora:../lib/xml-utilities:js/:/home/rsutton/public_html:" . ini_get("include_path")); 
+ini_set("include_path", "../app/:../config:../app/models:../app/modules/:../lib:../lib/fedora:../lib/xml-utilities:js/:/home/rsutton/public_html:" . ini_get("include_path")); 
 
 require("Zend/Loader.php");
 Zend_Loader::registerAutoload();
@@ -95,11 +95,11 @@ if ($opts->pid) {
 
 
 // find *all* records, no matter their status, etc.
-$options = array("start" => 0, "max" => 100et);
+$options = array("start" => 0, "max" => 100);
 $etdSet = new EtdSet();
 $etdSet->find($options);
 
-while ($etdSet->hasResults())) {
+while ($etdSet->hasResults()) {
   $logger->info("Processing records " . $etdSet->currentRange() . " of " . $etdSet->numFound);
   
   foreach ($etdSet->etds as $etd) {
