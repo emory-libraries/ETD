@@ -131,7 +131,7 @@ class SearchController extends Etd_Controller_Action {
 
     $mode = $this->_getParam("mode");
     if ($mode == "unpublished") {
-      $solr->addFilter("NOT status:'published'");
+      $solr->addFilter("NOT status:published");
     }
 
     // uses query string as facet prefix and returns any facets that match
