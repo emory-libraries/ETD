@@ -54,8 +54,10 @@ class AuthControllerTest extends ControllerTestCase {
     $this->assertFalse(isset($AuthController->view->current_user));
 
     // NOTE: some kind of error with the ssl certificate for the ldap
-    // proxy server causes these two tests to return a slightly different error message,
-    // even though it works properly in production.
+    // proxy server causes these two tests to return a slightly
+    // different error message when unit tests are run on the command
+    // line, but it works properly when run from the web.
+    // (some kind of difference in running environment, user?)
     // Should revisit and fix if we ever get access to a test Ldap server.
     
     // bad username
@@ -78,7 +80,7 @@ class AuthControllerTest extends ControllerTestCase {
     $AuthController->loginAction();
     $this->assertTrue($AuthController->redirectRan);
     $messages = $AuthController->getHelper('FlashMessenger')->getMessages();
-    //    $this->assertEqual("Error: login failed - wrong password?", $messages[0]);
+    //$this->assertEqual("Error: login failed - wrong password?", $messages[0]);
     $this->assertPattern("/Error: login failed/", $messages[0]);
     $this->assertFalse(isset($AuthController->view->current_user));
 
