@@ -120,8 +120,21 @@ Zend_Registry::set('acl', $acl);
 
 
 // setup logging
-// FIXME: could also write to db -- useful?
-$writer = new Zend_Log_Writer_Stream($config->logfile);
+$logfile = $config->logfile;
+//  -- check that configured logfile can be used
+if (!file_exists($logfile))     { $error = "does not exist"; }
+elseif (!is_readable($logfile)) { $error = "is not readable"; }
+elseif (!is_writable($logfile)) { $error = "is not writable"; }
+
+// if there is an error, redirect logging output to /dev/null
+// and display some kind of error.... on website?
+if (isset($error)) {
+  $message = "Log file " . $logfile . " " . $error;
+  //  trigger_error($message, E_USER_WARNING);
+  $logfile = "/dev/null";
+  $viewRenderer->view->logger_error = $message;
+}
+$writer = new Zend_Log_Writer_Stream($logfile);
 // default field names and order, but adding username
 $formatter = new Zend_Log_Formatter_Xml('logEntry',
 					array(
@@ -149,6 +162,7 @@ Zend_Controller_Action_HelperBroker::addPath('Emory/Controller/Action/Helper',
 
 //set internal error handler
 $front->throwExceptions((boolean)$env_config->display_exception);
+
 
 // define custom routes
 //$routecfg = new Zend_Config_Xml("../config/routes.xml", $env_config->mode);
