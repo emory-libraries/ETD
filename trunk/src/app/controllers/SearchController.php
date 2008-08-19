@@ -22,7 +22,8 @@ class SearchController extends Etd_Controller_Action {
     
     // non-facet fields included in advanced search
     $extra_fields = array("title", "abstract", "tableOfContents");
-    //    $this->view->search_fields = $extra_fields;	// FIXME: unused?
+    // also include extra fields to be displayed as search terms
+    $this->view->search_fields = $extra_fields;	
     foreach ($extra_fields as $field) {
       if ($this->_hasParam($field)) {
 	// only include a if the parameter is set and is not blank
@@ -86,7 +87,9 @@ class SearchController extends Etd_Controller_Action {
       $this->_helper->redirector->gotoRoute(array("controller" => "view",
 						  "action" => "record",
 						  "pid" => $etdSet->etds[0]->pid), "", true);
-    } 
+    }
+
+    $this->view->show_relevance = true;
   }
 
 
