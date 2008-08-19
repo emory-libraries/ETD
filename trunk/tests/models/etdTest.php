@@ -317,6 +317,29 @@ class TestEtd extends UnitTestCase {
 
     // need to test setting arks for related objects (pdf/supplement)
   }
+
+
+  function testEmbargoExpirationNotice() {
+    $event_count = count($this->etd->premis->event);
+    $this->etd->embargo_expiration_notice();
+    // admin note in mods should be set
+    $this->assertTrue(isset($this->etd->mods->embargo_notice));
+    $this->assertPattern("/sent/", $this->etd->mods->embargo_notice);
+    // premis event for record history
+    $this->assertEqual($event_count + 1, count($this->etd->premis->event), "additional event added");
+    $this->assertEqual("Embargo Expiration 60-Day Notification sent by ETD system",
+		       $this->etd->premis->event[$event_count]->detail);	// text of last event
+  }
+
+  function testUndoEmbargoExpirationNotice() {
+    // simulate embargo expiration notice so it can be undone
+    $this->etd->embargo_expiration_notice();
+	
+    $this->etd->undoEmbargoExpirationNotice();
+    $this->assertFalse(isset($this->etd->mods->embargo_notice));
+    $this->assertNotEqual("Embargo Expiration 60-Day Notification sent by ETD system",
+			  $this->etd->premis->event[count($this->etd->premis->event) - 1]->detail);
+  }
   
   
 
