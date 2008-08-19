@@ -91,5 +91,14 @@ class etd_notifier extends notifier {
     $this->send();
     return $this->to;
   }
+  
+  public function embargo_expiration_error() {
+    $this->mail->setSubject("Please Disregard Automated Message from ETD system sent out today");
+    $this->setBodyHtml($this->view->render("email/embargo_expiration_error.phtml"));
+    $this->send();
+    return $this->to;
+  }
+
+  
 }
 
