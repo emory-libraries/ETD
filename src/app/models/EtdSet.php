@@ -213,7 +213,18 @@ class EtdSet {
 
   /** customized find functions -- wrappers to generic find **/
 
-    /**
+  /**
+   * find published records 
+   * @param array $options any filter options to be passed to etd find function
+   * @return EtdSet
+   */
+  public function findPublished($options = array()) {
+    $options['AND']['status'] = "published";
+    return $this->find($options);
+  }
+
+  
+  /**
    * find unpublished records by author's netid
    * @param string $username netid of user who created the record
    * @param array $options any filter options to be passed to etd find function
