@@ -47,7 +47,10 @@ class EtdSet {
     foreach ($this->solrResponse->docs as $doc) {
       if ($this->options["return_type"] == "etd") { 
 	try {
-	  $this->etds[] = new etd($doc->PID);
+	  $etd = new etd($doc->PID);
+	  $etd->relevance = $doc->score;
+	  $this->etds[] = $etd;
+	  
 	} catch (FedoraObjectNotFound $e) {
 	  trigger_error("Record not found: $pid", E_USER_WARNING);
 	} catch (FoxmlBadContentModel $e) {
