@@ -98,6 +98,10 @@
  <?=  $this->render("index/topten.phtml"); ?>
 <? endif ?>
 
+<? /* if there is a logger configuration error and user is allowed to see the message (superuser), display */ ?>
+<? if (isset($this->logger_error) && $this->acl->isAllowed($this->current_user, null, "view log error")):?>
+<p style="color:red;font-size:115%"><b>Error:</b> <?= $this->logger_error ?> </p>
+<? endif ?>
 
 <? if (isset($this->messages)):?>
   <div id="messages" style="color:green;">
