@@ -57,9 +57,20 @@ class TestPremis extends UnitTestCase {
     $this->assertEqual("testuser", $this->premis->event[1]->agent->value);
     $this->assertEqual($date, $this->premis->event[1]->date);
     $this->assertEqual("emory:0011.2", $this->premis->event[1]->identifier->value);
-    
+  }
+
+  function testRemovingEvent() {
+    $this->premis->removeEvent("emory:0011.1");
+    $this->assertEqual(0, count($this->premis->event));
+    $this->assertNoPattern("|<premis:eventIdentifierValue>emory:0011.1</premis:eventIdentifierValue>|",
+			   $this->premis->saveXML());
+
+    // bogus id should generate an error
+    $this->expectError("No premis events found matching identifier 'nonexistent'");
+    $this->premis->removeEvent("nonexistent");
     
   }
+  
 
 }
 
