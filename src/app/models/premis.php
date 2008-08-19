@@ -68,6 +68,23 @@ class premis extends foxmlDatastreamAbstract  {
     $event->agent->type = $agentid;
     $event->agent->value = $agentval;
   }
+
+  public function removeEvent($id) {
+    $nodelist = $this->xpath->query("//premis:event[premis:eventIdentifier/premis:eventIdentifierValue = '$id']");
+    if ($nodelist->length == 0) {
+      trigger_error("No premis events found matching identifier '$id'", E_USER_NOTICE);
+      return;
+    }
+    for ($i = 0; $i < $nodelist->length; $i++) {
+      $node = $nodelist->item($i);      
+      $node->parentNode->removeChild($node);
+    }
+
+    // update in-memory array so it will reflect the change
+    $this->update();
+
+    
+  }
   
 }
 
