@@ -560,6 +560,23 @@ class etd extends foxml implements etdInterface {
 			    "success",  array("software", "etd system"));
   }
 
+  /**
+   * remove embargo notice stuff
+   * use this when embargo expiration script mistakenly sends emails to everyone
+   * (hopefully never again)
+   */
+  public function undoEmbargoExpirationNotice() {
+    // remove administrative note that embargo notice was sent from mods
+    $this->mods->remove("embargo_notice");
+
+    // remove from erroneous 60-day notification event from premis event history
+    foreach ($this->premis->event as $event) {
+      if ($event->type == "notice" && strpos($event->detail, "60-Day Notification sent")) {
+	$this->premis->removeEvent($event->identifier->value);
+      }
+    }
+  }
+
 
   public function abstract_word_count() {
     // return word count on text-only version, not formatted html version
