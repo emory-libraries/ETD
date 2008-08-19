@@ -99,14 +99,16 @@ access and modify (with some limitations) etd objects (etd, etdfile, user)</Desc
         <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-at-least-one-member-of">
           <ResourceAttributeDesignator DataType="http://www.w3.org/2001/XMLSchema#string" AttributeId="urn:fedora:names:fedora:2.1:resource:datastream:id" MustBePresent="false"/>
         <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-bag">
+  	  <!-- rels-ext : change object status -->
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">RELS-EXT</AttributeValue>
-	<!-- rels-ext : change object status -->
+  	  <!-- history : add events to log -->
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">PREMIS</AttributeValue>
-	<!-- history : add events to log -->
+	  <!-- xacml : add/remove rules associated with changed status -->
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">POLICY</AttributeValue>
-	<!-- xacml : add/remove rules associated with changed status -->
+  	  <!-- mods : embargo duration; publication date (publish script/etdmaint account) -->
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">MODS</AttributeValue>
-	<!-- mods : embargo duration; publication date (publish script/etdmaint account) -->
+	  <!-- dc : auto-generated from mods, so may change if mods changes -->
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">DC</AttributeValue>
         </Apply> 	<!-- end string bag -->
       </Apply>		<!-- end at least one member -->
 
