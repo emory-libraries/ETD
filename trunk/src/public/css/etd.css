@@ -853,3 +853,24 @@ div.log-labels div.timestamp { color:black }
 
 div#quicksearch { padding:15px; }
 div#quicksearch p { margin:0px; }
+
+
+div.relevance { 
+ float:right;
+ border:1px solid #262c39;
+ width:2cm;
+ height:8px;
+ background-color:#eeeeee;
+}
+div.relevance div.score { 
+ max-width:2cm;
+ float:right;
+ background-color:#14214d;
+ height:8px;
+}
+div.relevance-label { 
+ float:right;
+ clear:right;
+ font-size:8.5pt;
+ padding-right:5px;
+}
