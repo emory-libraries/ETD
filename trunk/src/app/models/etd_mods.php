@@ -353,6 +353,30 @@ class etd_mods extends mods {
     $note = $this->domnode->appendChild($this->dom->createElementNS($this->namespaceList["mods"], "mods:note", $text));
     $note->setAttribute("type", $type);
     $note->setAttribute("ID", $id);
+    $this->update();
+  }
+
+
+  public function remove($mapname){
+    if (!isset($this->{$mapname})) {
+      trigger_error("Cannot remove '$mapname' - not mapped", E_USER_WARNING);
+      return;
+    }
+    /*    for ($i = 0; $i < $nodelist->length; $i++) {
+      $node = $nodelist->item($i);      
+      $node->parentNode->removeChild($node);*/
+
+    if ($this->map[$mapname] instanceof DOMElementArray) {
+      foreach ($this->map[$mapname] as $node) {
+	$node->parentNode->removeChild($node);
+      }
+    } else if ($this->map[$mapname] instanceof XmlObject) {
+      $this->map[$mapname]->domnode->parentNode->removeChild($this->map[$mapname]->domnode);
+    } else {
+      $this->map[$mapname]->parentNode->removeChild($this->map[$mapname]);
+    }
+
+    $this->update();
   }
 
 
