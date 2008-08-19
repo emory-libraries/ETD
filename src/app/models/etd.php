@@ -30,6 +30,11 @@ class etd extends foxml implements etdInterface {
   public $supplements;
   public $authorInfo;	// user object
   */
+
+  /**
+   * @var float $relevance score when found via Solr
+   */
+  public $relevance;
   
   
   public function __construct($arg = null) {
