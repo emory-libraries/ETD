@@ -1,6 +1,5 @@
 <?php
 require_once("../bootstrap.php");
-//require_once('Etd/Controller/Action/Helper/ProcessPDF.php');
 
 class TestProcessPdf extends UnitTestCase {
     private $processpdf;
