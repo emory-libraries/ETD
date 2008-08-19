@@ -97,12 +97,33 @@ $etdSet = new EtdSet();
 $etdSet->findExpiringEmbargoes($expiration, $options);
 
 
+$count = 0;
+
 while ($etdSet->hasResults()) {
-  $logger->info("Processing records " . $etdSet->currentRange() . " of " . $etdSet->numFound);
+  $plural = ($etdSet->numFound == "1") ? "" : "s";
+  $logger->info("Processing record{$plural} " . $etdSet->currentRange() . " of " . $etdSet->numFound);
 
   foreach ($etdSet->etds as $etd) {
-    $logger->debug("Processing " . $etd->pid);
+    $logger->debug("Processing " . $etd->pid . " (embargo expires " . $etd->mods->embargo_end .
+		   " - duration of " . $etd->mods->embargo . ")");
 
+    /** sanity checks - skip any records returned from Solr that shouldn't be here **/
+
+    // double-check that embargo is actually 60-days or less away from expiration date
+    if (strtotime($etd->mods->embargo_end) > strtotime($expiration)) {
+      $logger->warn("ETD embargo for " . $etd->pid . " ends on " . $etd->mods->embargo_end .
+		   "; does not expire in 60 days, skipping");
+      continue;
+    // embargo end date should not be blank
+    } elseif ($etd->mods->embargo_end == "") {
+      $logger->warn("ETD embargo end date for " . $etd->pid . " is not set; skipping");
+      continue;
+    // should not find records with no embargo
+    } elseif ($etd->mods->embargo == "0 days") {
+      $logger->warn("ETD record " . $etd->pid . " has no embargo (duration is 0 days); skipping");
+      continue;
+    }
+    
     // double-check that embargo notice has not been sent according to MODS record
     // (this should only happen if Solr index does not get updated -- should be fixed by now?)
     if (isset($etd->mods->embargo_notice) && strstr($etd->mods->embargo_notice, "sent")) {
@@ -126,10 +147,14 @@ while ($etdSet->hasResults()) {
 	$logger->err("Could not save embargo expiration notice sent to record history"); 
       }
     }
+
+    $count++;
   }	// end looping through current set of etds
   
   $etdSet->next();	// retrieve the next batch
 }
+
+$logger->info("Sent " . $count . " notification" . (($count != 1) ? "s" : ""));
 
 
 /* to do :
