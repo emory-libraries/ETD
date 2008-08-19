@@ -163,6 +163,8 @@ class TestEtdMods extends UnitTestCase {
     $this->assertEqual("Daisy", $mods->nonemory_committee[0]->first);
     $this->assertEqual("Duck, Daisy", $mods->nonemory_committee[0]->full);
 
+    // FIXME: test passing invalid type
+
   }
 
   function testSetCommitteeById() {
@@ -182,6 +184,21 @@ class TestEtdMods extends UnitTestCase {
     $this->mods->addCommittee("Harrison", "George", "chair");
     $this->assertEqual(2, count($this->mods->chair));
     $this->assertEqual("Harrison", $this->mods->chair[1]->last);
+  }
+
+
+  function testAddNote() {
+    $this->mods->addNote("test adding note", "admin", "embargo_expiration_notice");
+    $this->assertTrue(isset($this->mods->embargo_notice));
+    $this->assertEqual("test adding note", $this->mods->embargo_notice);
+    $this->assertPattern('|<mods:note type="admin" ID="embargo_expiration_notice">test adding note</mods:note>|', $this->mods->saveXML());
+  }
+
+  function testRemove() {
+    $this->mods->addNote("testing note removal", "admin", "embargo_expiration_notice");
+    $this->mods->remove("embargo_notice");
+    $this->assertFalse(isset($this->mods->embargo_notice));
+    $this->assertNoPattern("|<mods:note type='admin' ID='embargo_expiration_notice'>|", $this->mods->saveXML());
   }
 
 }
