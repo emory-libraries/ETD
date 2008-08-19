@@ -90,7 +90,12 @@ class EtdSet {
    * @return string (e.g., 1 - 25)
    */
   public function currentRange() {
-    return ($this->solrResponse->start + 1) . " - " .  $this->currentLast();
+    $range = (string)($this->solrResponse->start + 1);
+    if ($range != $this->currentLast()) {
+      $range .= " - " .  $this->currentLast();
+    }
+    
+    return  $range;
   }
 
   /**
@@ -146,7 +151,7 @@ class EtdSet {
    *   max    : maximum number of records to return
    *   query  : preliminary query to which other values may be added
    *   AND    : hash of field-value pairs that should be included in the query with AND
-   *   NOT    : hash of field-value pairs that should be included in the query with NOT
+   *   NOT    : hash of field-value pairs that should be included in the query with (AND) NOT
    *   facets : hash with options for facets
    *		clear - if set to true, default facets will be cleared
    * 		limit - number of facets to return
@@ -171,14 +176,19 @@ class EtdSet {
       if (isset($options[$op])) {
 	// field name should match solr index name
 	foreach ($options[$op] as $field => $value) {
+	  // NOTE: when combined, NOT fields are prefixed with AND
+	  // (otherwise Solr may assume OR depending on configuration, with unexpected results)
+	  if ($op == "NOT") $prefix = "AND";
+	  else $prefix = "";
+
 	  // if query is empty, first 'AND' or 'OR' is not needed; NOT must always be used
-	  if (! empty($query) || $op == "NOT") $query .= " $op ";
+	  if (! empty($query) || $op == "NOT") $query .= " $prefix $op ";
 	  $query .= $field . ':"' . $value . '"'; 
 	}
       }
     }
 	
-    if (empty($query)) $query = "*:*";
+    if ($query == "") $query = "*:*";
 
     // facet configuration
     if (isset($options['facets'])) {
@@ -188,10 +198,11 @@ class EtdSet {
       if (isset($options['facets']['limit'])) $solr->setFacetLimit($options['facets']['limit']);
     }
 
-    //    print $query;
+    //    print $query . "\n";
     if (!isset($options["return_type"])) $options["return_type"] = "etd";
 
     $this->solrResponse = $solr->query($query, $start, $max, $sort);
+
     $this->initializeEtds();
     // save options in case of repeat query
     $this->options = $options;
@@ -248,7 +259,8 @@ class EtdSet {
     
     // search for any records with embargo expiring between now and specified embargo end date
     // where an embargo notice has not been sent and an embargo was approved by the graduate school
-    $options["query"] = "date_embargoedUntil:[" . date("Ymd") . " TO $date] NOT embargo_notice:sent NOT embargo_duration:(0 days)";
+    $options["query"] = "date_embargoedUntil:[" . date("Ymd") . " TO $date]";
+    $options["NOT"] = array("embargo_notice" => "sent", "embargo_duration" => "0 days");
     $options["AND"]["status"] = "published";
     
     return $this->find($options);
