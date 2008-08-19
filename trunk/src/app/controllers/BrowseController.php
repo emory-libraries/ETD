@@ -140,7 +140,7 @@ class BrowseController extends Etd_Controller_Action {
     
     $options = array("query" => $query, "AND" => $opts, "start" => $start, "max" => $max);
     $etdSet = new EtdSet();
-    $etdSet->find($options);
+    $etdSet->findPublished($options);
     $this->view->etdSet = $etdSet;
 
     // if there's only one match found, forward directly to full record view
@@ -168,7 +168,6 @@ class BrowseController extends Etd_Controller_Action {
     $max = $this->_getParam("max", 10);
     $opts = $this->getFilterOptions();
     $options = array("start" => $start, "max" => $max, "AND" => $opts);
-    
     // optional name parameter - find id by full name
     $name = $this->_getParam("name", null);
     if (is_null($name)) {
