@@ -7,6 +7,13 @@
       <a href="<?= $this->url(array("controller" => "view",
     "action" => "record", "pid" => $this->etd->pid()), "", true, false)?>"><?= $this->etd->title() ?></a>
    </div>
+   <? if ($this->show_relevance && isset($this->etd->relevance)): ?>
+          <div class="relevance">
+	     <div class="score" style="width:<?=$this->etd->relevance * 2 ?>cm;">&nbsp;</div>
+	  </div>
+          <div class="relevance-label">relevance: <?= $this->etd->relevance ?></div>
+   <? endif ?>
+
   <?=  $this->render('manage/_actions.phtml'); ?>
   <?=  $this->render('view/summary.phtml'); ?>
   <?=  $this->render('view/_lastaction.phtml'); ?>
