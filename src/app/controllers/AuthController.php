@@ -63,11 +63,13 @@ class AuthController extends Etd_Controller_Action {
        try {
 	 $current_user = $esd->findByUsername($username);
        } catch (Exception $e) {
-	 $auth->clearIdentity();
-	 $this->_helper->flashMessenger->addMessage("Error: problem accessing Emory Shared Data; could not complete login process");
-	 // redirect to an error page
-	 $this->_helper->redirector->gotoRouteAndExit(array("controller" => "error", "action" => "unavailable"));
+	 // if ESD is not accessible, create an esdPerson object with netid only
+	 $current_user = $esd->initializeWithoutEsd($username);
+	 $this->logger->warn("could not access ESD; logging in without full user information");
+	 
+	 $this->_helper->flashMessenger->addMessage("Warning: could not access Emory Shared Data; some functionality may not be available");
        }
+       
        // store the password for accessing Fedora
        $current_user->setPassword($password);
        $auth->getStorage()->write($current_user);
