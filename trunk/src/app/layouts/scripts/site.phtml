@@ -104,9 +104,12 @@
 <? endif ?>
 
 <? if (isset($this->messages)):?>
-  <div id="messages" style="color:green;">
+  <div id="messages">
    <? foreach ($this->messages as $message): ?>
-     <p<? if (strpos($message, "Error") !== false): ?> style="color:red" <? endif ?> ><?= $message ?></p>
+     <? $class = "";
+        if (strpos($message, "Error") !== false)  $class = 'class="error"';
+        elseif (strpos($message, "Warning") !== false) $class = 'class="warn"'; ?>
+     <p <?= $class ?> ><?= $message ?></p>
    <? endforeach ?>
   </div>
 <? endif ?>
