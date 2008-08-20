@@ -82,7 +82,7 @@ class esdPerson implements Zend_Acl_Role_Interface {
     case "E":
       $this->role = "staff"; break;
     default:
-      $this->role = "";		// fixme: what should the default be?
+      $this->role = "guest";		// fixme: what should the default be?
     }
     
     // determine roles for special cases
@@ -98,7 +98,9 @@ class esdPerson implements Zend_Acl_Role_Interface {
     if (Zend_Registry::isRegistered('config')) {
       $config = Zend_Registry::get('config');
       $superusers = explode(',', $config->superusers);
-      if (in_array($this->netid, $superusers)) $this->role = "superuser";
+      if (in_array($this->netid, $superusers)) {
+	$this->role = "superuser";
+      }
     }
   }
 
@@ -150,7 +152,9 @@ class esdPerson implements Zend_Acl_Role_Interface {
   }
 
   public function __toString() {
-    return $this->firstname;
+    if ($this->firstname)
+      return $this->firstname;
+    else return $this->netid;
   }
 
   // find any unpublished etds that belong to this user
@@ -248,6 +252,19 @@ class esdPersonObject extends Emory_Db_Table {
     $stmt = $this->_db->query($sql, array(strtoupper($netid)));
     return $stmt->fetchObject("esdPerson");
   }
+
+  /**
+   * create a minimal esdPerson when ESD is unavailable
+   */
+  public function initializeWithoutEsd($netid) {
+    $person = new esdPerson();
+    $person->LOGN8NTWR_I = $netid;
+    // have to reset role *after* initializing netid
+    $person->setRole();
+    return $person;
+  }
+
+  
 
 
   /**
