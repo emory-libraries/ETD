@@ -129,7 +129,7 @@ class etd_html extends foxmlDatastreamAbstract {
 
     // remove extra spaces, unused tags, clean up break tags; also remove empty tags
     $search = array("|<br\s+/?>|", "|</?i/?>|", "|</?b/?>|", "|</?em/?>|", "|</?strong/?>|",
-		    "|</?sup/?>|", "|</?sub/?>|", "|</?span/?>|", "|</?st1:[^>]+/?>|", "|</?o:p/?>|", "|</?p>|");
+		    "|</?sup/?>|", "|</?sub/?>|", "|</?span/?>|", "|</?st1:[^>]+/?>|", "|</?o:p/?>|");
     $replace = array("<br/>");  // standardize break tags to simplify split pattern later
     $string = preg_replace($search, $replace, $string);
 
@@ -154,15 +154,19 @@ class etd_html extends foxmlDatastreamAbstract {
 
   // convert formatted table of contents to text
   public static function formattedTOCtoText($string) {
+    // remove any tag attributes
+    $string = preg_replace("|<(\w+)( [^>/]+)?>|", "<$1>", $string);
+    
+    
     // remove tags, convert line breaks to --
-      $text = etd_html::cleanTags($string, true);
+    $text = etd_html::cleanTags($string, true);
 
       /* split on:
          - breaks
 	 - divs
 	 - li tags (<ul> tags in pattern so they will not be in output)
        */
-      $unfiltered_toc_lines = preg_split('{(<ul>\s*)?</?(li|div|br/)>(\s*</ul>)?}', $text);
+      $unfiltered_toc_lines = preg_split('{(<ul>\s*)?</?(li|p|div|br/)>(\s*</ul>)?}', $text);
       
       $toc_lines = array();
       foreach ($unfiltered_toc_lines as $line) {
