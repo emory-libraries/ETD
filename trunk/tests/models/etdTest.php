@@ -340,6 +340,28 @@ class TestEtd extends UnitTestCase {
     $this->assertNotEqual("Embargo Expiration 60-Day Notification sent by ETD system",
 			  $this->etd->premis->event[count($this->etd->premis->event) - 1]->detail);
   }
+
+
+  function testTitleAbstractToc() {
+    // title was not getting set in MODS
+    $this->etd->title = '<p>Enantiomeric <span style="font-family: Symbol">p</span>-Complexes</p>';
+    $this->assertPattern('|<p>Enantiomeric <span style="font-family: Symbol">p</span>-Complexes</p>|', $this->etd->html->title);
+    $this->assertEqual("Enantiomeric p-Complexes", $this->etd->mods->title);
+    $this->assertEqual("Enantiomeric p-Complexes", $this->etd->dc->title);
+
+    $this->etd->abstract = '<p>Pure TpMo(CO)<sub>2</sub>(<span style="font-family: Symbol;">h</span><sup>3</sup>-pyranyl)...</p>';
+    $this->assertPattern('|<p>Pure TpMo\(CO\)<sub>2</sub>\(<span style="font-family: Symbol;">h</span><sup>3</sup>-pyranyl\)...</p>|', $this->etd->html->abstract);
+    $this->assertEqual("Pure TpMo(CO)2(h3-pyranyl)...", $this->etd->mods->abstract);
+    $this->assertEqual("Pure TpMo(CO)2(h3-pyranyl)...", $this->etd->dc->description);
+
+
+    $this->etd->contents = '<p style="margin: 0cm 0cm 0pt 21pt;">Introduction</p>
+    <p style="margin: 0cm 0cm 0pt 21pt;">Zirconium Complexes</p>';
+    $this->assertPattern('|<p style="margin: 0cm 0cm 0pt 21pt;">Introduction</p>\s*<p style="margin: 0cm 0cm 0pt 21pt;">Zirconium Complexes</p>|', $this->etd->html->contents);
+    $this->assertEqual("Introduction -- Zirconium Complexes", $this->etd->mods->tableOfContents);
+
+    
+  }
   
   
 
