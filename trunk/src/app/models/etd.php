@@ -356,7 +356,6 @@ class etd extends foxml implements etdInterface {
       $this->html->title = $value;
 
       // clean entities & remove all tags before saving to mods/dc
-      $value = etd_html::cleanTags($value);
       $value = etd_html::removeTags($value); // necessary?
       // set title in multiple places (record label, dublin core, mods)
       $this->label = $this->dc->title = $this->mods->title = $value;
@@ -365,7 +364,6 @@ class etd extends foxml implements etdInterface {
       // remove unwanted tags
       $this->html->abstract = $value;
       // clean & remove all tags
-      $value = etd_html::cleanTags($value);
       $value = etd_html::removeTags($value);
       $this->dc->description = $this->mods->abstract = $value;
       break;
