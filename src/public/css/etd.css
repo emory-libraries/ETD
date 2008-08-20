@@ -744,7 +744,11 @@ div#submission {
  margin-right:175px !important;
 }
 
-div#messages p { margin:0px; }
+div#messages { padding-bottom:5px; }
+div#messages p { margin:0px; color:green; font-weight:bold;}
+div#messages p.error { color:red; }
+div#messages p.warn { color:#ef3e15; }
+
 
 div#edit_faculty a.remove { padding-left:20px; font-size:75%;}
 div#edit_faculty span.dept { float:right; font-size:80%;}
@@ -844,7 +848,7 @@ div.log .message { margin-left:10em; }
 div.log .backtrace { white-space:pre; text-indent:0px;}
 div.log div.timestamp { float:right; color:grey;}
 div.ERR { color:red; }
-div.WARN { color:orange; }
+div.WARN { color:#ef3e15;; }
 div.INFO { color:blue; }
 div.DEBUG { color:purple; }
 
