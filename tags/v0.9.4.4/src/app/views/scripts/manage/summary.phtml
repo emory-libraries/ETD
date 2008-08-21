@@ -1,0 +1,17 @@
+<h1>Summary by status</h1>
+
+<ul>
+<? foreach ($this->status_totals as $status => $total) : ?>
+  <li><a href="<?= $this->url(array("action" => "list", "status" => $status))?>"><?= $status ?></a>
+   (<?= $total ?>)</li>
+<? endforeach ?>
+</ul>
+
+<?= $this->render("manage/_search.phtml") ?>
+
+<hr/>
+<p><a href="<?= $this->url(array('action' => 'embargoes')) ?>">Upcoming embargo expirations</a></p>
+
+<? if ($this->acl->isAllowed($this->current_user, "log", "view")): ?>
+   <p><a href="<?= $this->url(array('action' => 'view-log')) ?>">View log</a></p>
+<? endif ?>
