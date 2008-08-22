@@ -56,6 +56,14 @@ class EtdSet {
 	} catch (FoxmlBadContentModel $e) {
 	  // should only get this if query is bad or (in some cases) when Fedora is not responding
 	  trigger_error($doc->PID . " is not an etd", E_USER_NOTICE);
+
+	 //  if user is not authorized to view this ETD just display a warning
+	 //  (will display however many records are allowed to be viewed)
+         //  Note: the record count will not match what the user sees in this case
+	} catch (FedoraAccessDenied $e) {
+	  trigger_error("Access Denied for " . $doc->PID, E_USER_WARNING);
+	} catch (FedoraNotAuthorized $e) {
+	  trigger_error("Not Authorized to view " . $doc->PID, E_USER_WARNING);
 	}
 	
 	// FIXME: catch other errors (access denied, not authorized, etc)
