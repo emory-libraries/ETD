@@ -67,4 +67,37 @@ class MockUser extends BasicMock_User {
   public $pid;
 }
 
+require_once('fedora/api/FedoraConnection.php');
+Mock::generate('FedoraConnection', 'BasicMockFedoraConnection');
+
+class MockFedoraConnection extends BasicMockFedoraConnection {
+  private $exception;
+  
+  public function setException($name) {
+    $this->exception = $name;
+    
+  }
+
+  public function getObjectProfile() {
+    switch($this->exception) {
+    case "NotFound":
+      throw new FedoraObjectNotFound();
+    case "AccessDenied":
+      throw new FedoraAccessDenied();
+    case "NotAuthorized":
+      throw new FedoraNotAuthorized();
+    case "generic":
+      throw new FoxmlException();
+    }
+
+    $response = new getObjectProfileResponse();
+    $response->objectProfile->objContentModel = "etd";
+    $response->objectProfile->objLabel = "title";
+    $response->objectProfile->objLastModDate = "today";
+    return $response->objectProfile;
+    
+  }
+  
+}
+
 
