@@ -111,6 +111,7 @@ class SubmissionController extends Etd_Controller_Action {
       }
 
       $error = true;
+      // FIXME: consolidate error handling here with duplicated code below when saving etdFile object
       try {
 	// create an etd file object for uploaded PDF and associate with etd record
 	$pid = $etd->save("creating preliminary record from uploaded pdf");
@@ -119,14 +120,18 @@ class SubmissionController extends Etd_Controller_Action {
       } catch (PersisServiceUnavailable $e) {
 	// if Persis is down this would probably already be caught when attempting to save new etd
 	$message = "Could not create new record because Persistent Identifier Service is not available";
+	$debug_msg = $e->getMessage();
       } catch (PersisServiceUnauthorized $e) {
 	// not authorized - most likely misconfigured, bad password
 	$message = "Could not create new record because of an authorization error with Persistent Identifier Service";
+	$debug_msg = $e->getMessage();
       } catch (PersisServiceException $e) {
 	// generic persis error - most likely misconfigured, bad password
 	$message = "Could not create new record because of an error accessing Persistent Identifier Service";
+	$debug_msg = $e->getMessage();
       } catch (FedoraObjectNotValid $e) {
 	if ($this->debug) print $e->getMessage() . "<br/>\n";
+	$debug_msg = $e->getMessage();
 	$this->view->errors[] = "Could not create record.";
 	$this->view->xml = $etd->saveXML();
 	$this->logger->err("Could not create etd record : FedoraObjectNotValid");
@@ -136,6 +141,7 @@ class SubmissionController extends Etd_Controller_Action {
       // any of the Persis Service errors
       if ($error) {
 	$this->logger->err($message);
+	$this->logger->debug($debug_msg);
 	$this->_helper->flashMessenger->addMessage("Error: $message");
 	// redirect to an error page
 	$this->_helper->redirector->gotoRouteAndExit(array("controller" => "error", "action" => "unavailable"));
@@ -172,14 +178,18 @@ class SubmissionController extends Etd_Controller_Action {
 	} catch (PersisServiceUnavailable $e) {
 	  // if Persis is down this would probably already be caught when attempting to save new etd
 	  $message = "Could not create file record because Persistent Identifier Service is not available";
+	  $debug_msg = $e->getMessage();
 	} catch (PersisServiceUnauthorized $e) {
 	  // not authorized - most likely misconfigured, bad password
 	  $message = "Could not create file record because of an authorization error with Persistent Identifier Service";
+	  $debug_msg = $e->getMessage();
 	} catch (PersisServiceException $e) {
 	  // generic persis error - most likely misconfigured, bad password
 	  $message = "Could not create file record because of an error accessing Persistent Identifier Service";
+	  $debug_msg = $e->getMessage();
 	} catch (FedoraObjectNotValid $e) {
 	  if ($this->debug) print $e->getMessage() . "<br/>\n";
+	  $debug_msg = $e->getMessage();
 	  $this->view->errors[] = "Could not save PDF to Fedora.";	// FIXME: better error message?
 	  if ($this->debug) $this->view->filexml = $etdfile->saveXML();
 	  // FIXME: should it bail out here? or let them continue? ... letting them continue for now
@@ -189,6 +199,7 @@ class SubmissionController extends Etd_Controller_Action {
 	if ($error) {
 	  $this->_helper->flashMessenger->addMessage("Error: $message");
 	  $this->logger->err($message);
+	  $this->logger->debug($debug_msg);
 	  // redirect to an error page
 	  $this->_helper->redirector->gotoRouteAndExit(array("controller" => "error", "action" => "unavailable"));
 	}
