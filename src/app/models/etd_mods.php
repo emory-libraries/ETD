@@ -392,16 +392,30 @@ class etd_mods extends mods {
     // don't attempt to validate until all required fields are filled
     // (missing research fields is invalid because of the ID attribute)
 
-    $env_config = Zend_Registry::get('env-config');
-    // hide any validation errors in production
-    if ($env_config->mode == "production") libxml_use_internal_errors(true);
-    // FIXME: how should validation errors be handled properly?
+    // capture any errors so they can be logged
+    libxml_use_internal_errors(true);
+    libxml_clear_errors();
+
+    // validate against MODS schema
     if (! $this->isValid()) {	    // xml should be valid MODS
-      // error message?
+
+      // if logger object is registered, log any validation errors
+      if (Zend_Registry::isRegistered('logger')) {
+	$logger = Zend_Registry::get('logger');
+	// Note: no access to foxml record id at this level, cannot include in log file
+	$logger->err("MODS XML is not valid according to MODS schema");
+	$errors = libxml_get_errors();
+	foreach ($errors as $error) {
+	  $message = $error->message . "(Line " . $error->line . ", column " . $error->column . ")";
+	  switch ($error->level) {
+	  case LIBXML_ERR_WARNING: $logger->warn($message); break;
+	  case LIBXML_ERR_ERROR:   $logger->err($message); break;
+	  case LIBXML_ERR_FATAL:   $logger->crit($message); break;
+	  }
+	}
+      }
       return false;
-
     }      
-
       
     // all checks passed
     return true;
