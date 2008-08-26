@@ -200,7 +200,7 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
 
     // some error-checking to display useful messages to the user
     if ($this->found_circ == false)
-      $this->_actionController->view->errors[] = "Circulation Agreement not detected";
+      $this->_actionController->view->errors[] = "Distribution Agreement not detected";
     // FIXME: only true essential is title - should we fall back to filename as title?
     if (!isset($this->fields['title']) || $this->fields['title'] == "") 
       $this->_actionController->view->errors[] = "Could not determine title";
@@ -268,12 +268,16 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
 
     default:
       // if next page is not set, try to figure out where we are
-    
-      if (preg_match("/Circulation Agreement/", $content) ||
-	  preg_match("/available\s+for\s+inspection\s+and\s+circulation/m", $content)) {
+
+      // look for expected first page: Distribution (formerly Circulation) Agreement
+      if (preg_match("/Distribution Agreement/", $content) ||	// new text, fall 2008
+	  preg_match("/grant\s+to\s+Emory\s+University.*non-exclusive\s+license/", $content)
+	  // old version of Circ Agreement text
+	  preg_match("/Circulation Agreement/", $content) ||
+	  preg_match("/available\s+for\s+inspection\s+and\s+circulation/m", $content) ) {
 	// part of boiler-plate grad-school circ agreement text
 	if ($this->debug) print "* found circ agreement\n";
-	$this->_actionController->view->log[] = "Found Circulation Agreement on page " . $this->current_page;
+	$this->_actionController->view->log[] = "Found Distribution Agreement on page " . $this->current_page;
 	$this->next = "signature";	// next page expected
 	$this->found_circ = true;
 	return;
