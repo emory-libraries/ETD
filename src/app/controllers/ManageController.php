@@ -230,6 +230,7 @@ class ManageController extends Etd_Controller_Action {
      $log = new Emory_Log_Reader_Xml($config->logfile);
 
      $this->view->title = "Error Log";
+     $this->view->log = $log;
      $this->view->logEntries = $log->getEntries($filter);
    }
 
