@@ -82,9 +82,10 @@
     <xsl:apply-templates select="mods:abstract"/>
     <xsl:apply-templates select="mods:tableOfContents"/>
     <xsl:apply-templates select="mods:note"/>
+    <xsl:apply-templates select="mods:accessCondition[@type='restrictionOnAccess']"/>
     <xsl:apply-templates select="mods:physicalDescription/mods:extent"/>
     <xsl:apply-templates select="mods:part/mods:extent"/>
-    <xsl:apply-templates select="mods:extension/etd:degree/etd:discipline"/>
+    <xsl:apply-templates select="mods:extension/etd:degree"/>
   </xsl:template>
 
   <!-- generic mods field : use mods name as index name -->
@@ -253,11 +254,34 @@
     </xsl:if>
   </xsl:template>
 
+  <!-- embargo duration -->
+  <xsl:template match="mods:accessCondition[@type='restrictionOnAccess']">
+    <xsl:if test=". != ''">
+      <field name="embargo_duration"><xsl:value-of select="substring-after(., 'Embargoed for ')"/></field>
+    </xsl:if>
+  </xsl:template>
+
   <!-- page count -->
   <xsl:template match="mods:physicalDescription/mods:extent">
     <xsl:if test=". != ''">	<!-- ignore when blank -->
       <!-- format with leading zeroes so a range-search will work -->
       <field name="num_pages"><xsl:value-of select="format-number(substring-before(., ' p.'), '00000')"/></field>
+    </xsl:if>
+  </xsl:template>
+
+
+
+  <!-- degree name -->
+  <xsl:template match="mods:extension/etd:degree/etd:name">
+    <xsl:if test=". != ''">                     <!-- only include if not empty -->
+      <field name="degree_name"><xsl:apply-templates/></field>
+    </xsl:if>
+  </xsl:template>
+
+  <!-- degree level -->
+  <xsl:template match="mods:extension/etd:degree/etd:level">
+    <xsl:if test=". != ''">                     <!-- only include if not empty -->
+      <field name="degree_level"><xsl:apply-templates/></field>
     </xsl:if>
   </xsl:template>
 
