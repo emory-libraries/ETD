@@ -51,7 +51,35 @@
 		  <?= date("Y-m-d h:ia", strtotime($file->fileLastModified())) ?></span>
 	 <? endif ?> 	       
 	  <br/>
+
+
        <? endif /* can view file */ ?>
     <? endforeach ?>
   <? endforeach ?>
+
+  <? if ($this->acl->isAllowed($this->role, $this->etd->pdfs[0], "edit")): ?>
+     <h3>Replace a File</h3>
+     <p>If you have made changes to a document, replace it with a new version of the file.</p>
+  <form name="updatefile" method="post" enctype="multipart/form-data"
+	action="<?= $this->url(array("controller" => "file", "action" => "update",
+ 	"etd" => $this->etd->pid), '', true, false)?>">
+  <? $file_opts = array();  /* build an array of files and pids for select box */
+     foreach ($this->etd->getAllFiles() as $file) {
+       $label = $file->dc->title;
+       if (isset($file->dc->filesize)) {
+	 $label .= " (" . $this->readableSize($file->dc->filesize) . ")";
+       }
+       $file_opts[$file->pid] = $label;
+     }   ?>
+  <p>
+    Replace <?= $this->formSelect("pid", "", null, $file_opts) ?>
+<? /* NOTE: for some reason formFile does not detect that doctype is xhtml;
+    setting again here to force it to produce valid xhtml output (required for Xforms) */ ?>
+  with <? $this->doctype('XHTML1_STRICT') ?><?= $this->formFile("file"); ?>
+   <?= $this->formSubmit("Replace", "Replace >", array("class" => "button", "style" => "margin-left:10px")); ?>
+  </p>
+</form>
+  <? endif ?>
+
+
 </div>
