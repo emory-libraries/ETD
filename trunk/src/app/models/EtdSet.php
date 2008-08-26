@@ -245,7 +245,7 @@ class EtdSet {
   }
 
   /**
-   * find unpublished records by program - used for program coordinator view
+   * find records by program - used for program coordinator view
    * (wrapper for generic etd find with some customized settings)
    *
    * @param string $dept department/program
@@ -256,14 +256,12 @@ class EtdSet {
    * @param array $facets passed by reference - Solr facets found
    * @return EtdSet
    */
-  public function findUnpublishedByDepartment($dept, $options) {
+  public function findByDepartment($dept, $options) {
     $options['facets'] = array("clear" => true,    // clear all default filters 
 			       "mincount" => 1,    // display even single facets
 			       // add the relevant facets-- status, advisor, subfield
 			       "add" => array("status", "advisor_facet", "subfield_facet"));
     $options['AND']['program_facet'] = $dept;
-    $options['NOT']['status'] = "published";
-
     return $this->find($options);
   }
 
