@@ -1,0 +1,66 @@
+<style type="text/css">
+   table { border:1px solid black;  border-collapse:collapse;}
+   td {border-top: 1px solid grey; padding-right:5px;}
+td.label {font-weight:bold; text-align:right; }
+</style>
+
+<h2>Totals by Year</h2>
+<table>
+  <tr><th>year</th> <th>total</th></tr>
+  <? foreach ($this->facets->year as $year => $count): ?>
+     <tr><td class="label"><?= $year ?></td><td><?= $count ?></td></tr>
+  <? endforeach ?>
+</table>
+
+<hr/>
+
+<h2>Totals by Program</h2>
+<table>
+  <tr><th>program</th> <th>total</th></tr>
+  <? foreach ($this->facets->program as $program => $count): ?>
+     <tr><td class="label"><?= $program ?></td><td><?= $count ?></td></tr>
+  <? endforeach ?>
+</table>
+
+<hr/>
+
+<h2>Totals by Degree type</h2>
+<table>
+  <tr><th>degree level</th> <th>total</th></tr>
+  <? foreach ($this->facets->degree_level as $degree => $count): ?>
+     <tr><td class="label"><?= $degree ?></td><td><?= $count ?></td></tr>
+  <? endforeach ?>
+  </table> 
+
+<hr/>
+
+<h2>Totals by Degree Name</h2>
+<table>
+  <tr><th>degree name</th> <th>total</th></tr>
+  <? foreach ($this->facets->degree_name as $degree => $count): ?>
+     <tr><td class="label"><?= $degree ?></td><td><?= $count ?></td></tr>
+  <? endforeach ?>
+  </table> 
+
+<hr/>
+
+
+<h2>Embargoes</h2>
+<table>
+  <tr><th>embargo duration</th> <th>total</th></tr>
+  <? foreach ($this->facets->embargo_duration as $duration => $count): ?>
+     <tr><td class="label"><?= $duration ?></td><td><?= $count ?></td></tr>
+  <? endforeach ?>
+  </table> 
+
+<hr/>
+
+<h2>Number of Pages</h2>
+<table>
+  <tr><th>Number of Pages</th> <th>total</th></tr>
+  <? foreach ($this->pages as $range => $count): ?>
+     <tr><td class="label"><?= $range ?></td><td><?= $count ?></td></tr>
+  <? endforeach ?>
+  </table>
+
+
