@@ -2,8 +2,14 @@
 
 <p><b>Filter log output</b></p>
 <form action="<?= $this->url(array("controller" => "manage", "action" => "view-log"), '', true) ?>">
-username: <input type="text" name="username" value="<?= $this->username ?>"/>
-log level:
+
+username:
+<? /* build array of usernames options for select box to filter log by user */ 
+$user_opts = array("" => "all");
+foreach ($this->log->getValues("username") as $username) {
+  $user_opts[$username] = $username;
+}   ?>		   
+<?= $this->formSelect("username", $this->username, null, $user_opts) ?>
 <?= $this->formSelect("priority", $this->priority, null,
 		     array(Zend_Log::DEBUG => "Debug",
 			   Zend_Log::INFO => "Info",
