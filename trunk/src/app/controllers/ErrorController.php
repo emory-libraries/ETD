@@ -17,6 +17,14 @@ class ErrorController extends Etd_Controller_Action {
     $logger->debug("Exception on line " . $errorHandler->exception->getLine() .
 		  " in " . $errorHandler->exception->getFile());
     $logger->debug("Backtrace:\n" . $errorHandler->exception->getTraceAsString());
+
+    // log current url and referring url if available
+    $http = $this->_request->getServer('HTTPS') ? "https://" : "http://";
+    $current_url = $http . $this->_request->getServer('HTTP_HOST') . $this->_request->getRequestUri();
+    $referrer = $this->_request->getServer('HTTP_REFERER');
+    $message = "Current url: $current_url";
+    if ($referrer) $message .= ";\n referring url: $referrer";
+    $logger->info($message);
     
 
     switch ($errorHandler->type) {
