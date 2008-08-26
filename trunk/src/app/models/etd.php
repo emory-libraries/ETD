@@ -258,6 +258,15 @@ class etd extends foxml implements etdInterface {
     $this->fedora->risearch->flush_next();
   }
 
+  /**
+   * get an array of all file objects, no matter the type
+   * @return array of etdFile objects
+   */
+  public function getAllFiles() {
+    return array_merge($this->pdfs,
+		       array_merge($this->originals, $this->supplements));
+  }
+
 
   public function save($message) {
     // cascade save to related etdfile objects
