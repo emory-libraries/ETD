@@ -307,9 +307,9 @@ class BrowseController extends Etd_Controller_Action {
     $options = array("start" => $start, "max" => $max, "AND" => $opts);
 
     $etdSet = new EtdSet();
-    $etdSet->findUnpublishedByDepartment($this->current_user->program_coord, $options);
+    $etdSet->findByDepartment($this->current_user->program_coord, $options);
     $this->view->etdSet = $etdSet;
-    $title = "Unpublished Records : " . $this->current_user->program_coord;
+    $title = "Program Records : " . $this->current_user->program_coord;
     $this->view->title = $title;
     $this->view->list_title = $title;
     $this->_helper->viewRenderer->setScriptAction("list");
