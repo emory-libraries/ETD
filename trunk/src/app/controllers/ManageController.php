@@ -27,11 +27,8 @@ class ManageController extends Etd_Controller_Action {
    public function listAction() {
      if (!$this->_helper->access->allowedOnEtd("manage")) return;
 
-     $start = $this->_getParam("start", 0);
-     $max = $this->_getParam("max", 25);
-     $opts = $this->getFilterOptions();  // pick up any facets; includes status
-     $options = array("start" => $start, "max" => $max,
-		      "AND" => $opts);
+     // pick up common parameters: paging (start/max), sort, facets (including status) 
+     $options = $this->getFilterOptions();  
 
      $etdSet = new EtdSet();
      $etdSet->find($options);
@@ -47,6 +44,8 @@ class ManageController extends Etd_Controller_Action {
      // display administrative info in short-record view
      $this->view->show_status = true;
      $this->view->show_lastaction = true;
+
+     $this->view->sort_fields[] = "modified";
 
      // don't include status in list of filters that can be removed
      unset($this->view->filters["status"]);
