@@ -70,23 +70,40 @@ abstract class Etd_Controller_Action extends Zend_Controller_Action {
    * passed to Solr or EtdSet find functions
    */
   public function getFilterOptions() {
+     $start = $this->_getParam("start", 0);
+     $max = $this->_getParam("max", 10);
+     
+     $sort = $this->_getParam("sort", "author");
+     $this->view->sort = $sort;
+     // FIXME: modified only relevant for admin views (?)
+     $this->view->sort_fields = array("author", "title");
+     $this->view->sort_display = array("author" => "author",
+				       "title" => "title",
+				       "modified" => "last modified",
+				       "relevance" => "relevance");
+
+    
     // FIXME: include other common filters, like what is repeatedly used for paging?
     //     $options = array("query" => $query, "AND" => $opts, "start" => $start, "max" => $max);
     
-    $opts = array();
-    foreach (array("status", "committee", "year", "program", "subject", "author", "keyword") as $filter) {
+    $filter_opts = array();
+    foreach (array("status", "committee", "year", "program", "subject", "author", "keyword") as
+	     $filter) {
       // only include a filter if the parameter is set and is not blank
       if ($this->_hasParam($filter))
 	if ($value = $this->_getParam($filter)) {
-	  $opts[$filter] = $value;
+	  $filter_opts[$filter] = $value;
 	}
     }
 
+    $options = array("start" => $start, "max" => $max,
+		     "AND" => $filter_opts, "sort" => $sort);
+
     // pass filters to the view to display for user
-    $this->view->filters = $opts;
+    $this->view->filters = $filter_opts;
     $this->view->url_params = array();		// may be overridden, but should always be set
 
-    return $opts;
+    return $options;
   }
 
 }
