@@ -24,9 +24,9 @@ class Etd_Service_Solr extends Emory_Service_Solr {
     return $this->query($queryString, $start, $max, $sort);
   }
 
-  public function browse($field) {
+  public function browse($field, $start = null, $max = null) {
     $this->addFilter("status:published");	// FIXME: can we assume this?
-    return parent::browse($field);
+    return parent::browse($field, $start, $max);
   }
   
 }
