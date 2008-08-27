@@ -878,3 +878,6 @@ div.relevance-label {
  font-size:8.5pt;
  padding-right:5px;
 }
+
+div.pagination { margin:8px 0px; padding-bottom:5px; border-bottom:1px solid #bcbcbc; }
+div.pagination p { margin:0px; }
