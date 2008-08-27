@@ -40,7 +40,7 @@
           <?endif ?>
 	      
 	  <? if ($this->acl->isAllowed($this->role, $file, "edit")): ?>
-	    <a href="<?= $this->url(array("controller" => "file", "action" => "edit", "pid" => $file->pid), '', true, false)?>">edit/replace</a>
+	    <a href="<?= $this->url(array("controller" => "file", "action" => "edit", "pid" => $file->pid), '', true, false)?>">edit title/description</a>
 	  <? endif ?>
 	  <? if ($this->acl->isAllowed($this->role, $file, "remove")): ?>
 	    <a href="<?= $this->url(array("controller" => "file", "action" => "remove", "pid" => $file->pid), '', true, false)?>">remove</a>
@@ -59,7 +59,7 @@
 
   <? if ($this->acl->isAllowed($this->role, $this->etd->pdfs[0], "edit")): ?>
      <h3>Replace a File</h3>
-     <p>If you have made changes to a document, replace it with a new version of the file.</p>
+     <p>If you would like to replace one of your files, upload the new version here.</p>
   <form name="updatefile" method="post" enctype="multipart/form-data"
 	action="<?= $this->url(array("controller" => "file", "action" => "update",
  	"etd" => $this->etd->pid), '', true, false)?>">
