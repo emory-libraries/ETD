@@ -18,9 +18,11 @@ class FeedsController extends Etd_Controller_Action {
 
   /* recently published ETDs */
   public function recentAction() {
-    $opts = $this->getFilterOptions();
+    $options = $this->getFilterOptions();
+    $program = $this->_getParam("program");
 
-    $options = array("max" => 10, "AND" => $opts, "return_type" => "solrEtd");
+    $options["max"] = 10;
+    $options["return_type"] = "solrEtd";
     /* NOTE: using solrEtd object here because it is significantly
        faster to load (does not pull from Fedora) and has sufficient
        information to generate feed entry.  */
@@ -29,12 +31,29 @@ class FeedsController extends Etd_Controller_Action {
     $etdset->findRecentlyPublished($options);
 
     $feed_title = "Emory ETDs: Recently published";
-    if (isset($opts["program"])) $feed_title .= " : " . ucfirst($opts["program"]);
+    if (! is_null($program)) $feed_title .= " : " . ucfirst($program);
     
 
     // pass in title for the feed, absolute url, and array of etds to be included      
     $this->feed = new Etd_Feed($feed_title,
-			       $this->_helper->absoluteUrl("recent", "feeds", null, $opts),
+			       $this->_helper->absoluteUrl("recent", "feeds", null, $this->view->url_params),
+			       // FIXME: what was $opts (last param here)
+			       $etdset->etds);
+  }
+
+
+  public function mostViewedAction() {
+    $options = $this->getFilterOptions();
+    $options["max"] = 10;
+    $etdset = new EtdSet();
+    $etdset->findMostViewed($options);
+
+    $feed_title = "Emory ETDs: Most Viewed";
+    
+    // pass in title for the feed, absolute url, and array of etds to be included      
+    $this->feed = new Etd_Feed($feed_title,
+			       $this->_helper->absoluteUrl("most-viewed", "feeds", null, $this->view->url_params),
+			       // FIXME: as above
 			       $etdset->etds);
   }
 
