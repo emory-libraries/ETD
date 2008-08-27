@@ -13,10 +13,11 @@ class SearchController extends Etd_Controller_Action {
   public function resultsAction() {
     $request = $this->getRequest();
     $query = $request->getParam("query");	// basic keyword/anywhere query
-    $start = $request->getParam("start", 0);
-    $max = $request->getParam("max", 20);
 
-    $opts = $this->getFilterOptions();
+    // override default sort of author - relevance makes more sense for a search
+    if (!$this->_hasParam("sort")) $this->_setParam("sort", "relevance");
+    $options = $this->getFilterOptions();
+    array_unshift($this->view->sort_fields, "relevance");
     // includes these fields: status, committee, year, program, subject, author, keyword
 
     
@@ -28,17 +29,16 @@ class SearchController extends Etd_Controller_Action {
       if ($this->_hasParam($field)) {
 	// only include a if the parameter is set and is not blank
 	if ($value = $this->_getParam($field)) {
-	  $opts[$field] = $this->_getParam($field);
-	  $this->view->url_params[$field] = $opts[$field];
+	  $field_value = $this->_getParam($field);
+	  $options['AND'][$field] = $field_value;
+	  $this->view->url_params[$field] = $field_value;
 	}
       }
     }
 
     if ($query) $this->view->url_params["query"] = $query;
 
-    $options = array("query" => $query,
-		     "start" => $start, "max" => $max,
-		     "AND" => $opts);
+    $options["query"] = $query;
 
     $unembargoed = $this->_hasParam("unembargoed");
     if ($unembargoed) {

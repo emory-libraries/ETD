@@ -136,9 +136,9 @@ class BrowseController extends Etd_Controller_Action {
       $query = join($queryparts, '+AND+');
     }
 
-    $opts = $this->getFilterOptions();
+    $options = $this->getFilterOptions();
+    $options["query"] = $query;
     
-    $options = array("query" => $query, "AND" => $opts, "start" => $start, "max" => $max);
     $etdSet = new EtdSet();
     $etdSet->findPublished($options);
     $this->view->etdSet = $etdSet;
@@ -164,10 +164,7 @@ class BrowseController extends Etd_Controller_Action {
 
   /* browse by program */
   public function programsAction() {
-    $start = $this->_getParam("start", 0);
-    $max = $this->_getParam("max", 10);
-    $opts = $this->getFilterOptions();
-    $options = array("start" => $start, "max" => $max, "AND" => $opts);
+    $options = $this->getFilterOptions();
     // optional name parameter - find id by full name
     $name = $this->_getParam("name", null);
     if (is_null($name)) {
@@ -203,12 +200,9 @@ class BrowseController extends Etd_Controller_Action {
   }
 
   public function researchfieldsAction() {
-    $start = $this->_getParam("start", 0);
-    $max = $this->_getParam("max", 10);	
-
     $coll = $this->_getParam("coll", "researchfields");
-    $opts = $this->getFilterOptions();
-    $options = array("start" => $start, "max" => $max, "AND" => $opts);
+    
+    $options = $this->getFilterOptions();
     
     // needed to generate remove-facet links
     $this->view->url_params = array("coll" => $coll);
@@ -248,10 +242,7 @@ class BrowseController extends Etd_Controller_Action {
       return;
     }
 
-    $start = $this->_getParam("start", 0);
-    $max = $this->_getParam("max", 5);
-    $opts = $this->getFilterOptions();
-    $options = array("start" => $start, "max" => $max, "AND" => $opts);
+    $options = $this->getFilterOptions();
     
     // if logged in user is a program coordinator, forward to the appropriate action
     if ($this->current_user->program_coord) {
@@ -300,11 +291,9 @@ class BrowseController extends Etd_Controller_Action {
       return false;
     }
 
-    $start = $this->_getParam("start", 0);
-    $max = $this->_getParam("max", 25);
-    $status = $this->_getParam("status", null);
-    $opts = $this->getFilterOptions();
-    $options = array("start" => $start, "max" => $max, "AND" => $opts);
+    $options = $this->getFilterOptions();
+    // allow program coordinators to sort on last modified
+    $this->view->sort_fields[] = "modified";
 
     $etdSet = new EtdSet();
     $etdSet->findByDepartment($this->current_user->program_coord, $options);
@@ -319,11 +308,7 @@ class BrowseController extends Etd_Controller_Action {
 
 
   public function recentAction() {
-    $start = $this->_getParam("start", 0);
-    $max = $this->_getParam("max", 25);
-    $opts = $this->getFilterOptions();
-    $options = array("start" => $start, "max" => $max, "AND" => $opts);
-
+    $options = $this->getFilterOptions();
     
     $this->view->title = "Browse Recently Published";
     $this->view->list_title = "Recently Published";
