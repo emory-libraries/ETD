@@ -174,10 +174,19 @@ class EtdSet {
    */
   public function find($options) {
     $solr = Zend_Registry::get('solr');
-    
-    $sort = isset($options['sort']) 	?  $options['sort'] : null;
+
     $start = isset($options['start']) 	? $options['start'] : null;
     $max = isset($options['max']) 	? $options['max']   : null;
+    if (isset($options['sort'])) {
+      switch($options['sort']) {
+      case "author": $sort = "author_facet asc"; break;
+      case "modified": $sort = "lastModifiedDate desc"; break;
+      case "title": $sort = "title_exact asc"; break;
+      case "relevance": $sort = "score desc"; break;
+      }
+    } else {
+      $sort = null;
+    }
 
     // preliminary starting query, if set; otherwise return all documents
     //    $query = isset($options['query']) ? $options['query'] : "*:*";
