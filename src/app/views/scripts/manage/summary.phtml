@@ -10,8 +10,12 @@
 <?= $this->render("manage/_search.phtml") ?>
 
 <hr/>
-<p><a href="<?= $this->url(array('action' => 'embargoes')) ?>">Upcoming embargo expirations</a></p>
 
-<? if ($this->acl->isAllowed($this->current_user, "log", "view")): ?>
-   <p><a href="<?= $this->url(array('action' => 'view-log')) ?>">View log</a></p>
-<? endif ?>
+<ul>
+  <li><a href="<?= $this->url(array('action' => 'embargoes')) ?>">Upcoming embargo expirations</a></li>
+  <li><a href="<?= $this->url(array('action' => 'report')) ?>">View Reports</a></li>   
+
+  <? if ($this->acl->isAllowed($this->current_user, "log", "view")): ?>
+    <li><a href="<?= $this->url(array('action' => 'view-log')) ?>">View Log</a></li>
+  <? endif ?>
+</ul>
