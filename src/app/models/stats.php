@@ -153,6 +153,23 @@ class StatObject extends Stats_Db_Table {
   }
 
 
+  public function mostViewed($limit = 10) {
+    $select = $this->_db->select();
+    $select->from($this->_name, array("COUNT(*) as count", "pid"));
+    $select->where("type = 'abstract'");
+    $select->group("pid");
+    $select->order("count DESC");
+    $select->limit($limit);
+
+    $stmt = $this->_db->query($select);
+    $result = $stmt->fetchAll();
+    $pids = array();
+    foreach ($result as $record) {
+      $pids[] = $record["pid"];
+    }
+    
+    return $pids;
+  }
 
   
 

@@ -5,6 +5,7 @@ require_once("api/risearch.php");
 
 require_once("solrEtd.php");
 require_once("etd.php");
+require_once("stats.php");
 
 /**
  * container object for a group of etds retrieved from Solr, with relevant metadata
@@ -319,8 +320,27 @@ class EtdSet {
   }
 
 
+  /**
+   * find the most viewed records (= abstract views in statistics);
+   * initializes etds as solrEtd for performance reasons
+   * 
+   * @param array $options
+   */
+  public function findMostViewed($options = array()) {
+    // get the most viewed pids from statistics db
+    $stats = new StatObject();
+    $pids = $stats->mostViewed();
 
+    // then initialize objects from Solr  (faster than Fedora)
+    $options["return_type"] = "solrEtd";
+    $pid_filter = array();
+    foreach ($pids as $pid) $pid_filter[] = 'PID:"' . $pid . '"';
+    $options["query"] = implode(" OR ", $pid_filter);
+    // set a default for returning from Solr; will need to modify when filtering by program
+    if (!isset($options['max'])) $options['max'] = 10;
 
+    return $this->find($options);
+  }
 
 
   
