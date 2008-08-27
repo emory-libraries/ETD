@@ -18,8 +18,23 @@
      </ul>
    <? endif ?>	     
 
+<div class="pagination">	     
  <p><?= $this->etdSet->numFound ?> match<? if ($this->etdSet->numFound != 1): ?>es<? endif ?>
    found<? if ($this->etdSet->numFound > 1): ?>; displaying <?= $this->etdSet->currentRange() ?><? endif ?>
  </p>
 
+ <? if (isset($this->sort) && $this->etdSet->numFound > 1): ?>
+  <p>Sort by:
+  <? foreach ($this->sort_fields as $sortfield): ?>
+     <? if ($sortfield == $this->sort): ?>
+       <b><?= $this->sort_display[$sortfield] ?></b>
+     <? else: ?>
+       <a href="<?= $this->url(array_merge($this->url_params, array('sort' => $sortfield))) ?>"><?= $this->sort_display[$sortfield] ?></a>
+     <? endif ?>
+     <? if ($sortfield != $this->sort_fields[count($this->sort_fields) - 1]): ?>|<? endif ?>
+  <? endforeach ?>
+  </p>
+ <? endif ?>       			   
+</div>
+	  
 <? endif ?>
