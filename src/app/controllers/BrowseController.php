@@ -86,13 +86,22 @@ class BrowseController extends Etd_Controller_Action {
      expects 'field' parameter to be set 
   */
   public function browsefieldAction() {
-    $request = $this->getRequest();
-    $field = $request->getParam("field");
+    $field = $this->_getParam("field");
+
+    // special functionality for alphabetical fields
+    if ($field != "year")  {
+      $this->view->alpha = true;
+      // generate an array of all the capitalized letters from A-Z
+      $this->view->letters = array();
+      for ($i = 65; $i < 91; $i++) {
+	$this->view->letters[] = chr($i);
+      } 
+    }
+    $letter = $this->_getParam("letter");
+    $this->view->letter = $letter;
 
     $solr = Zend_Registry::get('solr');
-    $results = $solr->browse($field);
-    
-    //    print "<pre>"; print_r($results); print "</pre>";
+    $results = $solr->browse($field, $letter);
     $this->view->count = count($results->facets->$field);
     $this->view->values = $results->facets->$field;
     $this->view->title = "Browse " . $this->view->browse_mode . "s";
@@ -314,6 +323,13 @@ class BrowseController extends Etd_Controller_Action {
     $this->view->list_title = "Recently Published";
     $etdSet = new EtdSet();
     $etdSet->findRecentlyPublished($options);
+    $this->view->etdSet = $etdSet;
+    $this->_helper->viewRenderer->setScriptAction("list");
+  }
+
+  public function mostViewedAction() {
+    $etdSet = new EtdSet();
+    $etdSet->findMostViewed();
     $this->view->etdSet = $etdSet;
     $this->_helper->viewRenderer->setScriptAction("list");
   }
