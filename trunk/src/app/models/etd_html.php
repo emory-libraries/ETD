@@ -77,6 +77,7 @@ class etd_html extends foxmlDatastreamAbstract {
   // return the content of the node *without* the containing node tag 
   public static function getContentXml($node) {
     $content = "";
+
     if ($node->hasChildNodes()) {
       for ($i = 0; $i < $node->childNodes->length; $i++) {
 	$child = $node->childNodes->item($i);
@@ -87,6 +88,21 @@ class etd_html extends foxmlDatastreamAbstract {
     }
     return $content;
   }
+
+  // return the text content of the nodes without any nodes (but properly escaped)
+  public static function getContentText($node) {
+    $content = "";
+    if ($node->hasChildNodes()) {
+      for ($i = 0; $i < $node->childNodes->length; $i++) {
+	$child = $node->childNodes->item($i);
+	$content .= etd_html::getContentText($child);
+      }
+    } elseif ($node instanceof DOMText) {
+      $content .= $node->ownerDocument->saveXML($node);
+    }
+    return $content;
+  }
+
 
   // utility functions for handling html-related of tasks
 
@@ -146,9 +162,10 @@ class etd_html extends foxmlDatastreamAbstract {
    */
   public static function removeTags($string) {
     $dom = new DOMDocument();
+    $string = etd_html::cleanEntities($string);
     $dom->loadXML("<div>" . $string . "</div>");
     // return the text content of this node and all its children, without node tags
-    return $dom->documentElement->nodeValue;
+    return etd_html::getContentText($dom->documentElement);
   }
 
 
