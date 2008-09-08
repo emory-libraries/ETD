@@ -67,6 +67,12 @@ try {
 } 
 Zend_Registry::set('fedora', $fedora);
 
+// set up connection to solr to find records with expiring embargoes
+require_once("Etd/Service/Solr.php");
+$solr_config = new Zend_Config_Xml("../config/solr.xml", $env_config->mode);
+$solr = new Etd_Service_Solr($solr_config->server, $solr_config->port, $solr_config->path);
+Zend_Registry::set('solr', $solr);
+
 // ESD needed to get email addresses for publication notification
 // create DB object for access to Emory Shared Data
 $esdconfig = new Zend_Config_Xml('../config/esd.xml', $env_config->mode);
@@ -738,11 +744,11 @@ function find_orphans() {
 
   $etdSet = new EtdSet();
   $etdSet->find(array("status" => "approved"));
-  $count = count($etdSet->etds);
+  $count = $etdSet->numFound;
   
   if ($count) {
     $logger->notice("Found " . $count . " approved record" . ($count != 1 ? "s" : ""));
-    foreach ($orphans as $etd) {
+    foreach ($etdSet->etds as $etd) {
       $logger->info("    " . $etd->author() . " " . $etd->pid);
     }
   } else {
