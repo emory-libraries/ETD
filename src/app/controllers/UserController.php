@@ -33,8 +33,9 @@ class UserController extends Etd_Controller_Action {
     // if pid is null, create an empty user object
     $pid = $this->_getParam("pid", null);
 
-    // etd record the user object should belong to (required)
-    if (!$this->_hasParam("etd")) throw new Exception("Required parameter 'etd' is not set");
+    // etd record the user object should belong to (required if pid is null)
+    if (!$this->_hasParam("etd") && $pid == null)
+      throw new Exception("Required parameter 'etd' is not set");
     $this->view->etd_pid = $this->_getParam("etd");	
     
     if (is_null($pid))	{ // if pid is null, action is actually create (user is not author on an object yet)
