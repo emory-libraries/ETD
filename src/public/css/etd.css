@@ -158,7 +158,7 @@ div#login {
   position:relative;
   margin-top:5px;
   border-top:7px solid #f1aa00;
-  height:35px;
+  height:25px;
   z-index:5;
   margin-left:195px;
   min-width:595px;	/* stop sliding at same point where header photo does */
