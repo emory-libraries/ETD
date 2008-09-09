@@ -129,7 +129,8 @@ class BrowseControllerTest extends ControllerTestCase {
     $this->assertTrue(isset($BrowseController->view->list_title));
     $this->assertIsA($BrowseController->view->etdSet, "EtdSet");
     $this->assertTrue($BrowseController->view->show_status);
-    $this->assertTrue($BrowseController->view->show_lastaction);
+    // not used currently (switched to solrEtd for response time)
+    //    $this->assertTrue($BrowseController->view->show_lastaction);
   }
 
   function testRecentAction() {
