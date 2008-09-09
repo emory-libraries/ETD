@@ -28,7 +28,8 @@ class ManageController extends Etd_Controller_Action {
      if (!$this->_helper->access->allowedOnEtd("manage")) return;
 
      // pick up common parameters: paging (start/max), sort, facets (including status) 
-     $options = $this->getFilterOptions();  
+     $options = $this->getFilterOptions();
+     $options["return_type"] = "solrEtd";
 
      $etdSet = new EtdSet();
      $etdSet->find($options);
@@ -43,7 +44,8 @@ class ManageController extends Etd_Controller_Action {
      $this->view->status = $status;
      // display administrative info in short-record view
      $this->view->show_status = true;
-     $this->view->show_lastaction = true;
+     // using solrEtd; last event in history not available from solr
+     //     $this->view->show_lastaction = true;
 
      $this->view->sort_fields[] = "modified";
 

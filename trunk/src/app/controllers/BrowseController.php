@@ -303,6 +303,8 @@ class BrowseController extends Etd_Controller_Action {
     }
 
     $options = $this->getFilterOptions();
+    $options["return_type"] = "solrEtd";
+	
     // allow program coordinators to sort on last modified
     $this->view->sort_fields[] = "modified";
 
@@ -314,7 +316,8 @@ class BrowseController extends Etd_Controller_Action {
     $this->view->list_title = $title;
     $this->_helper->viewRenderer->setScriptAction("list");
     $this->view->show_status = true;
-    $this->view->show_lastaction = true;
+    // using solrEtd; last event in history not available from solr
+    //    $this->view->show_lastaction = true;
   }
 
 
