@@ -298,12 +298,12 @@ function get_graduate_etds($filename, $refdate = null) {
          */
 	$logger->warn("Warning: no ETD found for $name_degree");
       } elseif ($count == 1) {			// what we expect 
-        $logger->info("Found etd record " . $etd[0]->pid . " for $name_degree");
-        if ($etd[0]->status() != "approved") {
+        $logger->info("Found etd record " . $etdSet->etds[0]->pid . " for $name_degree");
+        if ($etdSet->etds[0]->status() != "approved") {
 	  $logger->info("Record is not yet approved, skipping");
 	  continue;
         }
-        $etds[] = $etd[0];
+        $etds[] = $etdSet->etds[0];
       } else {		      // should never happen (except maybe in development)
         $logger->warn("Found more than one record for $name_degree (this shouldn't happen)");
       }
