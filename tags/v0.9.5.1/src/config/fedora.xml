@@ -1,0 +1,30 @@
+<fedora>
+  <production>
+     <server>domokun</server>
+     <port>8080</port>
+<!-- by default, site should connect to fedora as a non-privileged user -->
+     <user>guest</user>
+     <password>guest</password>
+<!-- account for automated processes that need more access -->
+     <maintenance_account>
+       <user>etdmaint</user>  
+       <password></password>   
+     </maintenance_account>
+     <protocol>https</protocol>
+     <resourceindex>risearch</resourceindex>
+  </production>
+  <development extends="production">
+     <server>wilson.library.emory.edu</server>
+     <port>6080</port>
+     <maintenance_account>
+       <password>etdmaint</password>   
+     </maintenance_account>
+     <protocol>http</protocol>
+     <resourceindex>risearch</resourceindex>
+  </development>
+  <test extends="development">
+     <port>7080</port>
+     <user>fedoraAdmin</user>  
+     <password></password>   
+  </test>
+</fedora>
