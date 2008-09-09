@@ -44,6 +44,7 @@ class EtdSet {
 
     // default return type
     if (!isset($this->options["return_type"])) $this->options["return_type"] = "etd";
+
     
     foreach ($this->solrResponse->docs as $doc) {
       if ($this->options["return_type"] == "etd") { 
@@ -71,7 +72,7 @@ class EtdSet {
 	
 	// FIXME: store relevance?  $result_doc->score;
 	
-      } else if ($return_type = "solrEtd") {
+      } else if ($this->options["return_type"] == "solrEtd") {
 	$this->etds[] =  new solrEtd($doc);	
       } else {
 	trigger_error("EtdSet return type $return_type unknown", E_USER_ERROR);
@@ -220,13 +221,15 @@ class EtdSet {
     }
 
     //    print $query . "\n";
-    if (!isset($options["return_type"])) $options["return_type"] = "etd";
+    //    if (!isset($options["return_type"])) $options["return_type"] = "etd";
 
     $this->solrResponse = $solr->query($query, $start, $max, $sort);
 
-    $this->initializeEtds();
-    // save options in case of repeat query
+    // save options in case of repeat query and for initialization return type
     $this->options = $options;
+
+    $this->initializeEtds();
+
   }
 
   /** customized find functions -- wrappers to generic find **/
