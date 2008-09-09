@@ -105,10 +105,13 @@ class EditController extends Etd_Controller_Action {
     if ($etd->mods->hasChanged()) {
       $save_result = $etd->save("updated committe chair(s) & members");
       $this->view->save_result = $save_result;
-      if ($save_result) 
+      if ($save_result) {
 	$this->_helper->flashMessenger->addMessage("Saved changes to committee chairs & members");
-      else
-      $this->_helper->flashMessenger->addMessage("Could not save changes to committee chair(s) & members (permission denied?)");
+	$this->logger->info("Updated etd " . $etd->pid . " committee chairs & members at $save_result");
+      } else {
+	$this->_helper->flashMessenger->addMessage("Could not save changes to committee chair(s) & members (permission denied?)");
+	$this->logger->err("Could not save changes to committee chairs & members on  etd " . $etd->pid);
+      }
     } else {
       $this->_helper->flashMessenger->addMessage("No changes made to committee chair(s) & members");
     }
@@ -171,10 +174,13 @@ class EditController extends Etd_Controller_Action {
     if ($etd->mods->hasChanged()) {
       $save_result = $etd->save("modified research fields");
       $this->view->save_result = $save_result;
-      if ($save_result) 
+      if ($save_result) {
 	$this->_helper->flashMessenger->addMessage("Saved changes to research fields");
-      else	// record changed but save failed for some reason
-      $this->_helper->flashMessenger->addMessage("Could not save changes to research fields");
+	$this->logger->info("Updated etd " . $etd->pid . " research fields at $save_result");
+      } else {	// record changed but save failed for some reason
+	$this->_helper->flashMessenger->addMessage("Could not save changes to research fields");
+	$this->logger->err("Could not save etd " . $etd->pid . " research fields");
+      }
     } else {
       $this->_helper->flashMessenger->addMessage("No changes made to research fields");
     }
@@ -250,10 +256,13 @@ class EditController extends Etd_Controller_Action {
     if ($etd->html->hasChanged()) {
       $save_result = $etd->save("modified $mode");
       $this->view->save_result = $save_result;
-      if ($save_result) 
+      if ($save_result) {
 	$this->_helper->flashMessenger->addMessage("Saved changes to $mode");
-      else	// record changed but save failed for some reason
-      $this->_helper->flashMessenger->addMessage("Could not save changes to $mode");
+	$this->logger->info("Updated etd " . $etd->pid . " html $mode at $save_result");
+      } else {	// record changed but save failed for some reason
+	$this->_helper->flashMessenger->addMessage("Could not save changes to $mode");
+	$this->logger->err("Could not save changes to etd " . $etd->pid . " html $mode");
+      }
     } else {
       $this->_helper->flashMessenger->addMessage("No changes made to $mode");
     }
@@ -292,10 +301,14 @@ class EditController extends Etd_Controller_Action {
       if ($etd->mods->hasChanged()) {
 	$save_result = $etd->save($log_message);
 	$this->view->save_result = $save_result;
-	if ($save_result) 
+	if ($save_result) {
 	  $this->_helper->flashMessenger->addMessage("Saved changes to $component");	// more info?
-	else	// record changed but save failed for some reason
-	  $this->_helper->flashMessenger->addMessage("Could not save changes to $component");
+	  $this->logger->info("Saved etd " . $etd->pid . " changes to $component at $save_result");
+	} else {	// record changed but save failed for some reason
+	  $message = "Could not save changes to $component";
+	  $this->_helper->flashMessenger->addMessage($message);
+	  $this->logger->err($message);
+	}
       } else {
 	$this->_helper->flashMessenger->addMessage("No changes made to $component");
       }
@@ -339,6 +352,11 @@ class EditController extends Etd_Controller_Action {
 	if ($file->rels_ext->sequence != $seq) {
 	  $file->rels_ext->sequence = $seq;
 	  $result = $file->save("re-ordered in sequence");
+	  if ($result) {
+	    $this->logger->info("Saved re-ordered file sequence on " . $file->pid);
+	  } else {
+	    $this->logger->err("Could not saved re-ordered file sequence for " . $file->pid);
+	  }
 	}
       }
     }
