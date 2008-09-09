@@ -38,6 +38,13 @@ class solrEtd implements etdInterface {
   public function keywords() { return $this->getField("keyword", true); }	//array
   public function researchfields() { return $this->getField("subject", true); } 	//array
 
+  public function ark() {
+    // FIXME: not a great way to do this
+    // should all the arks be stored in the lucene index just for this?
+    $pid = str_replace("emory:", "", $this->PID);
+    return "http://pid.emory.edu/ark:/25593/" . $pid;
+  }
+  
 
   private function getField($name, $array = false) {
     if (isset($this->$name))
