@@ -14,18 +14,18 @@ class ErrorController extends Etd_Controller_Action {
 
     $logger = Zend_Registry::get("logger");
     $logger->err("Exception of type " . get_class($errorHandler->exception) . ": " . $errorHandler->exception->getMessage());
-    $logger->debug("Exception on line " . $errorHandler->exception->getLine() .
-		  " in " . $errorHandler->exception->getFile());
-    $logger->debug("Backtrace:\n" . $errorHandler->exception->getTraceAsString());
-
     // log current url and referring url if available
     $http = $this->_request->getServer('HTTPS') ? "https://" : "http://";
     $current_url = $http . $this->_request->getServer('HTTP_HOST') . $this->_request->getRequestUri();
     $referrer = $this->_request->getServer('HTTP_REFERER');
     $message = "Current url: $current_url";
-    if ($referrer) $message .= ";\n referring url: $referrer";
+    if ($referrer) $message .= "\n referring url: $referrer";
     $logger->info($message);
-    
+
+    $logger->debug("Exception on line " . $errorHandler->exception->getLine() .
+		   " in " . $errorHandler->exception->getFile());
+    $logger->debug("Backtrace:\n" . $errorHandler->exception->getTraceAsString());
+
 
     switch ($errorHandler->type) {
     case "EXCEPTION_NO_ACTION":
