@@ -118,10 +118,6 @@ class BrowseController extends Etd_Controller_Action {
     // pass browse value to generate remove-facet links
     $this->view->url_params = array("value" => $_value);
 
-
-    $start = $this->_getParam("start", 0);
-    $max = $this->_getParam("max", 20);	   
-    
     $exact = $this->_getParam("exact", false);
     if (! $exact) {
       $value = strtolower($value);
@@ -147,6 +143,7 @@ class BrowseController extends Etd_Controller_Action {
 
     $options = $this->getFilterOptions();
     $options["query"] = $query;
+    $options["return_type"] = "solrEtd";
     
     $etdSet = new EtdSet();
     $etdSet->findPublished($options);
@@ -159,9 +156,6 @@ class BrowseController extends Etd_Controller_Action {
       						  "action" => "record", "pid" => $etdSet->etds[0]->pid), "", true);
     }
 
-    $this->view->start = $start;
-    $this->view->max = $max;
-     
     $this->view->value = $_value;
      
     $this->view->title = "Browse by " . $this->view->browse_mode . " : " . $_value;
