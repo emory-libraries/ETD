@@ -62,7 +62,22 @@ class solrEtd implements etdInterface {
 
   // bogus getUserRole function ... do we actually have enough information from Solr to do this ?
   public function getUserRole(esdPerson $user = null) {
-    return $user->role;
+    if (is_null($user)) return "guest";
+
+    // superuser should supercede all other roles
+    if ($user->role == "superuser") return $user->role;
+
+    /*** NOTE: cannot currently check author/committee ids, not being returned from solr
+     if ($user->netid == $this->rels_ext->author)
+      return "author";
+    elseif ($this->rels_ext->committee instanceof DOMElementArray
+	    && $this->rels_ext->committee->includes($user->netid))	
+	    return "committee";*/
+    
+    elseif ($user->isCoordinator($this->program()))
+      return "program coordinator";
+    else
+      return $user->role;
   }
 
   
