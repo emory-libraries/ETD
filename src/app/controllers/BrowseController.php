@@ -124,6 +124,8 @@ class BrowseController extends Etd_Controller_Action {
       $value = str_replace(",", "", $value);	// remove commas from names
     }
 
+    // add year to sort options
+    $this->view->sort_fields[] = "year";
 
     $solr = Zend_Registry::get('solr');
 
@@ -179,6 +181,9 @@ class BrowseController extends Etd_Controller_Action {
       $coll = $prog->findIdbyLabel($name);
     }
 
+    // add year to sort options
+    $this->view->sort_fields[] = "year";
+    
     try {
       $programs = new programs($coll);
     } catch (XmlObjectException $e) {
@@ -222,6 +227,9 @@ class BrowseController extends Etd_Controller_Action {
     }
 
     $this->view->collection = $fields;
+
+    // add year to sort options
+    $this->view->sort_fields[] = "year";
 
     $this->view->etdSet = $fields->findEtds($options);
     $this->view->browse_mode = "researchfield"; 
