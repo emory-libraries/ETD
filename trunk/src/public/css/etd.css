@@ -745,7 +745,7 @@ div#submission {
 }
 
 div#messages { padding-bottom:5px; }
-div#messages p { margin:0px; color:green; font-weight:bold;}
+div#messages p { margin:0px; color:green;}
 div#messages p.error { color:red; }
 div#messages p.warn { color:#ef3e15; }
 
