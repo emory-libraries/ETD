@@ -74,7 +74,17 @@ class EditController extends Etd_Controller_Action {
     $this->view->etd = $etd;
     
     $chair_ids = $this->_getParam("chair");	       
-    $committee_ids = $this->_getParam("committee");		// array
+    $committee = $this->_getParam("committee");		// array
+
+    $committee_ids = array();
+    // don't allow the same id to be added to both chair and member lists (results in duplicate ids ->  invalid xml)
+    foreach ($committee as $id) {
+      if (in_array($id, $chair_ids)) {	// don't add to committee list, display a message to the user
+	$this->_helper->flashMessenger->addMessage("Warning: cannot add '$id' as both Committee Chair and Member; adding as Chair only");
+      } else {		// add to the list of committee ids that will be processed
+	$committee_ids[] = $id;
+      }
+    }
     $this->view->committee_ids = $committee_ids;
 
     // set fields
