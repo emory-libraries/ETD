@@ -290,7 +290,12 @@ class etd extends foxml implements etdInterface {
     $this->dc->type = $this->mods->genre;
     $this->dc->date = $this->mods->date;
     $this->dc->language = $this->mods->language->text;
-    $this->dc->description = $this->mods->abstract;
+
+    // in some cases, a properly escaped ampersand in the MODS shows
+    // up not escaped in the DC, even though unit test indicates it does not
+    // -- circumvent this problem whenever possible
+    if ($this->dc->description != $this->mods->abstract)
+      $this->dc->description = $this->mods->abstract;
 
     // author
     $this->dc->creator = $this->mods->author->full;
@@ -367,14 +372,17 @@ class etd extends foxml implements etdInterface {
       // clean entities & remove all tags before saving to mods/dc
       $value = etd_html::removeTags($value); // necessary?
       // set title in multiple places (record label, dublin core, mods)
-      $this->label = $this->dc->title = $this->mods->title = $value;
+      $this->label = $value;
+      $this->dc->title = $value;
+      $this->mods->title = $value;
       break;
     case "abstract":
       // remove unwanted tags
       $this->html->abstract = $value;
       // clean & remove all tags
       $value = etd_html::removeTags($value);
-      $this->dc->description = $this->mods->abstract = $value;
+      $this->mods->abstract = $value;
+      $this->dc->description = $value;
       break;
     case "contents":
       $this->html->contents = $value;
