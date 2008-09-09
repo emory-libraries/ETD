@@ -139,8 +139,11 @@ class FileController extends Etd_Controller_Action {
        $fileresult = $etdfile->updateFile($filename, "new version of file");	// update file info, upload new file
        $xmlresult = $etdfile->save("modified metadata for new version of file");
        if ($fileresult === false || $xmlresult === false) {	// how to determine which failed?
-	 $this->_helper->flashMessenger->addMessage("Error: there was a problem saving the record.");
+	 $this->_helper->flashMessenger->addMessage("Error: there was a problem updating the file.");
+	 $this->logger->err("Problem updating etdfile " . $etdfile->pid . " with new version of file");
        } else {
+	 $this->_helper->flashMessenger->addMessage("Succesfully updated file");
+	 $this->logger->info("Updated etdfile " . $etdfile->pid . " with new file at $result");
 	 $this->view->save_result = $fileresult;
        }
 
@@ -150,7 +153,12 @@ class FileController extends Etd_Controller_Action {
 	 $etdfile->etd->mods->pages = (int)$etdfile->etd->mods->pages - (int)$old_pagecount;
 	// add new page count
 	$etdfile->etd->mods->pages = (int)$etdfile->etd->mods->pages + (int)$etdfile->dc->pages;
-	$etdfile->etd->save("updated page count for new version of pdf");
+	$result = $etdfile->etd->save("updated page count for new version of pdf");
+	if ($result) {
+	  $this->logger->info("Updated etd page count for new version of pdf");
+	} else {
+	  $this->logger->err("Problem updatign etd page count for new version of pdf");
+	}
        }
 
        // delete temporary file now that we are done with it
@@ -158,16 +166,12 @@ class FileController extends Etd_Controller_Action {
 
        $this->_helper->viewRenderer->setScriptAction("new");
 
-       // direct user to edit file info
-       $this->_helper->redirector->gotoRoute(array("controller" => "file", "action" => "edit",
-       						   "pid" => $etdfile->pid, 'etd' => $etd->pid), '', true);
-       
-     } else {
-       // FIXME: problem with file upload - redirect somewhere else? error message?
-       $this->_helper->redirector->gotoRoute(array("controller" => "file", "action" => "edit",
-       						   "pid" => $etdfile->pid, 'etd' => $etd->pid), '', true);
      }
-     
+
+     // when updating binary file, redirect to main ETD record page
+     // if update was successful or failed, flash messages will be displayed
+     $this->_helper->redirector->gotoRoute(array("controller" => "view", "action" => "record",
+						 "pid" => $etdfile->etd->pid), '', true);
    }
 
    
