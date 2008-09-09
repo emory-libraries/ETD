@@ -18,6 +18,8 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
 
   private $found_circ = false;
 
+  private $title_complete = false;
+
   public function __construct() {
     $this->initialize_fields();
     
@@ -123,7 +125,9 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
 		       "drop-font-tags" => true,
 		       "drop-proprietary-attributes" => true,
 		       "clean" => true,
-		       "join-styles" => true);
+		       "merge-divs" => true,
+		       "join-styles" => true,
+		       "join-classes" => true);
     $doc->loadHTML(tidy_repair_file($file, $tidy_opts));
 
     // looking for meta tags
@@ -302,9 +306,22 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
    */
   public function processSignaturePage(DOMDocument $page) {
     // retrieve the title
+    $this->title_complete = false;
     $this->find_title($page->documentElement);
-    // clean up title whitespace
+
+    
+    // clean up messy bold tags in the title
+    // - remove bolded whitespace or empty bold tags (caused by line breaks)
+    $this->fields['title'] = preg_replace("|<b>(\s*)</b>|", "$1", $this->fields['title']);
+    // - remove whitespace between bold tags
+    $this->fields['title'] = preg_replace("|</b>(\s*)<b>|", "$1", $this->fields['title']);
+    // - clean up any redundant whitespace
     $this->fields['title'] = preg_replace("/\s+/", " ", $this->fields['title']);
+    // - remove leading or trailing whitespace to simplify the next regexp
+    $this->fields['title'] = trim($this->fields['title']); 
+    // - if the whole title is bold, remove bold tags
+    $this->fields['title'] = preg_replace("|^<b>(.*)</b>$|", "$1", $this->fields['title']);
+
 
     // work through lines to find advisor & committee names
     $this->processSignatureLines($page);
@@ -323,27 +340,39 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
     $tags_to_keep = array("i", "b");
     // empty tags to be excluded from title
     $tags_to_skip = array("a", "br", "hr");
+
     
     for($i = 0; $i < $node->childNodes->length; $i++) {
       $subnode = $node->childNodes->item($i);
 
       // *before* recursing on subnodes: if this is a tag we want, add to the title
-      if (in_array($subnode->localName, $tags_to_keep)) {
+      /*      if (in_array($subnode->localName, $tags_to_keep)) {
 	$this->fields['title'] .= $node->ownerDocument->saveXML($subnode);
 
       // recurse on any childnodes to catch formatted text (e.g., italics)
-      } elseif ($subnode->hasChildNodes()) {
-      	$this->find_title($subnode);
+      } else*/
+      if ($subnode->hasChildNodes()) {
       	$nodeName = $subnode->localName;
+	$keeptag = (in_array($nodeName, $tags_to_keep));
+
+	if ($keeptag) $this->fields['title'] .= "<" . $nodeName . ">";
+
+	$this->find_title($subnode);
+
+	if ($keeptag) $this->fields['title'] .= "</" . $nodeName . ">";
+
+	// end of title was found in a child node
+	if ($this->title_complete == true) break;
 
       // skip (empty) tags that should not be included in the title
       } elseif (in_array($subnode->localName, $tags_to_skip)) {
 	continue;
 
       // marker for the end of the title - break out of the loop
-      } elseif (preg_match("|(.*)[Bb]y|", $subnode->textContent, $matches)) {
+      } elseif (preg_match("|^(.*)[Bb]y|", $subnode->textContent, $matches)) {
 	// preserve any content before the "by", in case it is on same line as title
 	$this->fields['title'] .= $matches[1];
+	$this->title_complete = true;
 	break;
 
       // default action: add the current node to the title
