@@ -664,6 +664,10 @@ class etd extends foxml implements etdInterface {
     return $subjects;
   }
 
+  public function ark() {
+    return $this->mods->ark;
+  }
+
 
 
   // for Zend ACL Resource

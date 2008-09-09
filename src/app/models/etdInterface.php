@@ -22,7 +22,8 @@ interface etdInterface extends Zend_Acl_Resource_Interface{
   
   public function keywords();	//array
   public function researchfields();	//array
-
+  
+  public function ark();
 
   // allow setting output mode? (html/xml) so e.g. title() can return correct version
   
