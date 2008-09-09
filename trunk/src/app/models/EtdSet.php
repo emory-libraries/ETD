@@ -179,6 +179,7 @@ class EtdSet {
 
     $start = isset($options['start']) 	? $options['start'] : null;
     $max = isset($options['max']) 	? $options['max']   : null;
+    $sort = null;
     if (isset($options['sort'])) {
       switch($options['sort']) {
       case "author": $sort = "author_facet asc"; break;
@@ -186,8 +187,6 @@ class EtdSet {
       case "title": $sort = "title_exact asc"; break;
       case "relevance": $sort = "score desc"; break;
       }
-    } else {
-      $sort = null;
     }
 
     // preliminary starting query, if set; otherwise return all documents
