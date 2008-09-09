@@ -58,7 +58,7 @@ class TestEtdHtml extends UnitTestCase {
     // non-encoded special characters should be tidied, not lost
     $this->assertEqual("Development &#x3C6;&#x3B3;&#x3C5; &#x3BB;&#x3BF;&#x3C6;&#x3B3;&#x3B2;",
 		       etd_html::removeTags("Development &phi;&gamma;&upsilon; &lambda;&omicron;&phi;&gamma;&beta;"));
-    
+
     
   }
 

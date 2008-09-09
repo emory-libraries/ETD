@@ -346,13 +346,13 @@ class TestEtd extends UnitTestCase {
     // title was not getting set in MODS
     $this->etd->title = '<p>Enantiomeric <span style="font-family: Symbol">p</span>-Complexes</p>';
     $this->assertPattern('|<p>Enantiomeric <span style="font-family: Symbol">p</span>-Complexes</p>|', $this->etd->html->title);
-    $this->assertEqual("Enantiomeric p-Complexes", $this->etd->mods->title);
-    $this->assertEqual("Enantiomeric p-Complexes", $this->etd->dc->title);
+    $this->assertPattern("/^Enantiomeric p-Complexes\s*/", $this->etd->mods->title);
+    $this->assertPattern("/^Enantiomeric p-Complexes\s*/", $this->etd->dc->title);
 
     $this->etd->abstract = '<p>Pure TpMo(CO)<sub>2</sub>(<span style="font-family: Symbol;">h</span><sup>3</sup>-pyranyl)...</p>';
     $this->assertPattern('|<p>Pure TpMo\(CO\)<sub>2</sub>\(<span style="font-family: Symbol;">h</span><sup>3</sup>-pyranyl\)...</p>|', $this->etd->html->abstract);
-    $this->assertEqual("Pure TpMo(CO)2(h3-pyranyl)...", $this->etd->mods->abstract);
-    $this->assertEqual("Pure TpMo(CO)2(h3-pyranyl)...", $this->etd->dc->description);
+    $this->assertPattern("/Pure TpMo\(CO\)2\(h3-pyranyl\)...\s*/", $this->etd->mods->abstract);
+    $this->assertPattern("/Pure TpMo\(CO\)2\(h3-pyranyl\)...\s*/", $this->etd->dc->description);
 
 
     $this->etd->contents = '<p style="margin: 0cm 0cm 0pt 21pt;">Introduction</p>
