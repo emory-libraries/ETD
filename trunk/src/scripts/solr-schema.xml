@@ -246,8 +246,8 @@
    <field name="committee" type="text" indexed="true" stored="true" multiValued="true"/> 
    <field name="keyword" type="text" indexed="true" stored="true" multiValued="true"/> 
    <field name="subject" type="text" indexed="true" stored="true" multiValued="true"/> 
-   <field name="language" type="string" indexed="true" stored="true" required="false"/> 
-   <field name="num_pages" type="integer" indexed="true" stored="true" required="false"/> 
+   <field name="language" type="string" indexed="true" stored="false" required="false"/> 
+   <field name="num_pages" type="integer" indexed="true" stored="false" required="false"/> 
    <field name="program" type="text" indexed="true" stored="true" required="true" /> 
    <field name="subfield" type="text" indexed="true" stored="true" required="false" /> 
    <field name="status" type="string" indexed="true" stored="true" required="true" /> 
@@ -255,15 +255,15 @@
    <field name="title" type="text" indexed="true" stored="true" required="true"/> 
    <field name="year" type="string" indexed="true" stored="true"/> 
    <field name="dateIssued" type="string" indexed="true" stored="true"/> 
-   <field name="date_embargoedUntil" type="string" indexed="true" stored="true"/>
+   <field name="date_embargoedUntil" type="string" indexed="true" stored="false"/>
    <field name="document_type" type="string" indexed="true" stored="true"/> 
-   <field name="note_admin" type="string" indexed="true" stored="true"/>
+   <field name="note_admin" type="string" indexed="true" stored="false"/>
    <field name="embargo_requested" type="string" indexed="true" stored="false" required="false" /> 
    <field name="embargo_duration" type="string" indexed="true" stored="true" required="false" /> 
    <field name="embargo_notice" type="text" indexed="true" stored="false" required="false" /> 
    <field name="registering_copyright" type="text" indexed="true" stored="false" required="false" /> 
-   <field name="degree_level" type="string" indexed="true" stored="true"/>
-   <field name="degree_name" type="string" indexed="true" stored="true"/>
+   <field name="degree_level" type="string" indexed="true" stored="false"/>
+   <field name="degree_name" type="string" indexed="true" stored="false"/>
 
 
    <field name="contentModel" type="string" indexed="true" stored="true"/> 
@@ -285,14 +285,14 @@
 
 
    <!-- non-tokenized versions of terms to for sorting and/or facets -->
-   <field name="title_exact" type="string" indexed="true" stored="true"/>
-   <field name="author_facet" type="string" indexed="true" stored="true"/>
-   <field name="advisor_facet" type="string" indexed="true" stored="true" multiValued="true"/>
-   <field name="committee_facet" type="string" indexed="true" stored="true" multiValued="true"/>
-   <field name="subject_facet" type="string" indexed="true" stored="true" multiValued="true"/>
-   <field name="keyword_facet" type="string" indexed="true" stored="true" multiValued="true"/>
-   <field name="program_facet" type="string" indexed="true" stored="true" multiValued="true"/>
-   <field name="subfield_facet" type="string" indexed="true" stored="true" multiValued="true"/>
+   <field name="title_exact" type="string" indexed="true" stored="false"/>
+   <field name="author_facet" type="string" indexed="true" stored="false"/>
+   <field name="advisor_facet" type="string" indexed="true" stored="false" multiValued="true"/>
+   <field name="committee_facet" type="string" indexed="true" stored="false" multiValued="true"/>
+   <field name="subject_facet" type="string" indexed="true" stored="false" multiValued="true"/>
+   <field name="keyword_facet" type="string" indexed="true" stored="false" multiValued="true"/>
+   <field name="program_facet" type="string" indexed="true" stored="false" multiValued="true"/>
+   <field name="subfield_facet" type="string" indexed="true" stored="false" multiValued="true"/>
 
    <!-- Here, default is used to create a "timestamp" field indicating
         When each document was indexed.
