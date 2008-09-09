@@ -71,7 +71,7 @@ abstract class Etd_Controller_Action extends Zend_Controller_Action {
    */
   public function getFilterOptions() {
      $start = $this->_getParam("start", 0);
-     $max = $this->_getParam("max", 10);
+     $max = $this->_getParam("max", 15);
      
      $sort = $this->_getParam("sort", "author");
      $this->view->sort = $sort;
