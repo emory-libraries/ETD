@@ -76,7 +76,42 @@ class TestProcessPdf extends UnitTestCase {
 John H. Shugart <br/></div>");
     $this->processpdf->processSignaturePage($dom);
     $this->assertPattern("|Properties and Synthesis of Red-Ox Active Proline Mimics|", $this->processpdf->fields['title']);
-    
+
+    // FIXME: can we use tidy to clean up redundant formatting like this stuff?
+
+    // by nested in formatting we keep
+    $this->processpdf->initialize_fields();
+    $dom = new DOMDocument();
+    $dom->loadXML("<div><b>Social Networks and Adaptability to IT-Enabled Change: The Case of </b><br/>
+<b>Healthcare Information Technologies </b><br/>
+<b>                                                  </b><br/>
+<b>By</b><br/>
+<b> <br/> </b><br/>
+<b>Roopa Raman </b><br/>
+<b>Doctor of Philosophy </b><br/>
+</div>");
+    $this->processpdf->processSignaturePage($dom);
+    $this->assertPattern("|Social Networks and Adaptability to IT-Enabled Change: The Case of Healthcare Information Technologies|", $this->processpdf->fields['title']);
+
+    // committee members on the same line
+    /****  NOT YET IMPLEMENTED    
+    $this->processpdf->initialize_fields();
+    $dom = new DOMDocument();
+    $dom->loadXML("<div>
+<b> __________________________                              __________________________ <br/>
+     Benn R. Konsynski, Ph.D.                                     Anandhi Bharadwaj, Ph.D.  <br/>
+     Co-Adviser                                                   Co-Adviser <br/>
+<br/>_________________________                                  _________________________ <br/>
+     Ramnath K. Chellappa, PhD.                                    Monica C. Worline, Ph.D. <br/>
+     Committee Member                                              Committee Member <br/></b>
+</div>");
+    $this->processpdf->processSignaturePage($dom);
+    // FIXME: advisor not yet multiple field here?
+    $this->assertEqual("Benn R. Konsynski", $this->processpdf->fields['advisor']);
+    $this->assertEqual("Anandhi Bharadwaj", $this->processpdf->fields['advisor']);
+    $this->assertEqual("Ramnath K. Chellappa", $this->processpdf->fields['committee'][0]);
+    $this->assertEqual("Monica C. Worline", $this->processpdf->fields['committee'][1]);
+    */
   }
 
   function testDepartment() {
