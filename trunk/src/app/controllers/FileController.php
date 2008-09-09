@@ -77,7 +77,9 @@ class FileController extends Etd_Controller_Action {
 	 $filepid = $etdfile->save("adding new file");
        } catch (PersisServiceUnavailable $e) {
 	 // ingest relies on persistent id server to generate the pid
-	 $this->_helper->flashMessenger->addMessage("Error: could not create new record because Persistent Identifier Service is not available");
+	 $message = "could not create new record because Persistent Identifier Service is not available";
+	 $this->_helper->flashMessenger->addMessage("Error: $message");
+	 $this->logger->err($message); 
 	 // redirect to an error page
 	 $this->_helper->redirector->gotoRouteAndExit(array("controller" => "error", "action" => "unavailable"));
        }
@@ -99,9 +101,9 @@ class FileController extends Etd_Controller_Action {
 
        // note: saving etd will also save any changed related objects (etdfile rels & xacml)
        $result = $etd->save("added relation to uploaded $file_rel");
-       if ($result)
+       if ($result) {
 	 $this->logger->info("Updated etd " . $etd->pid . " at $result (adding relation to pdf)");
-       else {
+       } else {
 	 $this->_helper->flashMessenger->addMessage("Error: problem  associating new $relation file with your ETD record");
 	 $this->logger->err("Error updating etd " . $etd->pid . " (adding relation to pdf)");
        }
@@ -140,10 +142,16 @@ class FileController extends Etd_Controller_Action {
        $xmlresult = $etdfile->save("modified metadata for new version of file");
        if ($fileresult === false || $xmlresult === false) {	// how to determine which failed?
 	 $this->_helper->flashMessenger->addMessage("Error: there was a problem updating the file.");
-	 $this->logger->err("Problem updating etdfile " . $etdfile->pid . " with new version of file");
+	 if ($fileresult === false) {
+	   $this->logger->err("Problem updating etdfile " . $etdfile->pid . " with new version of file");
+	 }
+	 if ($xmlresult === false) {
+	   $this->logger->err("Problem saving modified metadata for etdfile " . $etdfile->pid);
+	 }
        } else {
 	 $this->_helper->flashMessenger->addMessage("Succesfully updated file");
-	 $this->logger->info("Updated etdfile " . $etdfile->pid . " with new file at $result");
+	 $this->logger->info("Updated etdfile " . $etdfile->pid . " with new file at $fileresult");
+	 $this->logger->info("Updated etdfile " . $etdfile->pid . " metadata at $xmlresult");
 	 $this->view->save_result = $fileresult;
        }
 
@@ -155,9 +163,10 @@ class FileController extends Etd_Controller_Action {
 	$etdfile->etd->mods->pages = (int)$etdfile->etd->mods->pages + (int)$etdfile->dc->pages;
 	$result = $etdfile->etd->save("updated page count for new version of pdf");
 	if ($result) {
-	  $this->logger->info("Updated etd page count for new version of pdf");
+	  $this->logger->info("Updated etd page count for new version of pdf " . $etdfile->etd->pid);
 	} else {
-	  $this->logger->err("Problem updatign etd page count for new version of pdf");
+	  $this->logger->err("Problem updating etd page count for new version of pdf" .
+			     $etdfile->etd->pid);
 	}
        }
 
@@ -220,10 +229,13 @@ class FileController extends Etd_Controller_Action {
 	 // fixme: needs better error checking (like in EditController)
 	 $save_result = $etdfile->save("edited file information");
 	 $this->view->save_result = $save_result;
-	 if ($save_result)
+	 if ($save_result) {
 	   $this->_helper->flashMessenger->addMessage("Saved changes to file information");
-	 else
+	   $this->logger->info("Saved changes to file metadata for " . $etdfile->pid . " at $save_result");
+	 } else {
 	   $this->_helper->flashMessenger->addMessage("Error: could not save changes to file information");
+	   $this->logger->err("Could not save changes to file metadata for " .  $etdfile->pid);
+	 }
        } else {
        	 $this->_helper->flashMessenger->addMessage("No changes made to file information");
        }

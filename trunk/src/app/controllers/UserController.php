@@ -107,10 +107,13 @@ class UserController extends Etd_Controller_Action {
 	  // redirect to an error page
 	  $this->_helper->redirector->gotoRouteAndExit(array("controller" => "error", "action" => "unavailable"));
 	}
-	if ($save_result)
+	if ($save_result) {
 	  $this->_helper->flashMessenger->addMessage("Saved changes to $resource");
-	else
+	  $this->logger->info("Saved user " . $user->pid . " at $save_result - changed to $resource");
+	} else {
 	  $this->_helper->flashMessenger->addMessage("Error: could not save changes to $resource");
+	  $this->logger->info("Could not save user " . $user->pid . " - changing $resource");
+	}
       } else {
 	$this->_helper->flashMessenger->addMessage("No changes made to $resource");
       }
@@ -122,8 +125,12 @@ class UserController extends Etd_Controller_Action {
       $etd->rels_ext->addRelationToResource("rel:hasAuthorInfo", $user->pid);
       $save_result = $etd->save("associated user object with etd");
       // only display a message if there is a problem
-      if (!$save_result)  // record changed but save failed for some reason
+      if ($save_result) {
+	$this->logger->info("Added user " . $user->pid . " to etd " . $etd->pid . " at $save_result");
+      } else {  // record changed but save failed for some reason
 	$this->_helper->flashMessenger->addMessage("Error: problem associating contact information with your ETD record");
+	$this->logger->err("Problem adding user " . $user->pid . " to etd " . $etd->pid);
+      }
     }
 
     //redirect to user view

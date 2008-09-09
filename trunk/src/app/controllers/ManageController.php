@@ -82,9 +82,15 @@ class ManageController extends Etd_Controller_Action {
 			    "success",  array("netid", $this->current_user->netid));
      
      $result = $etd->save("set status to '$newstatus'");
+     if ($result) {
+       $this->logger->info("Saved etd status change to '$newstatus' on " . $etd->pid . " at $result");
+       // set flash message
+       $this->_helper->flashMessenger->addMessage("Record status changed to <b>$newstatus</b>; record saved at $result");
+     } else {
+       $this->logger->info("Could not save etd status change to '$newstatus' on " . $etd->pid);
+       $this->_helper->flashMessenger->addMessage("Error: Could not set record status to <b>$newstatus</b>");
+     }
      
-     // set flash message, forward to ...
-     $this->_helper->flashMessenger->addMessage("Record status changed to <b>$newstatus</b>; record saved at $result");
      // forward to .. main admin page ?
      $this->_helper->redirector->gotoRoute(array("controller" => "manage",
 						 "action" => "summary"), "", true);
@@ -110,10 +116,13 @@ class ManageController extends Etd_Controller_Action {
      
      $result = $etd->save("set status to '$newstatus'");
 
-     if ($result) 
+     if ($result) {
        $this->_helper->flashMessenger->addMessage("Changes requested; record status changed to <b>$newstatus</b>");
-     else
+       $this->logger->info("Updated etd " . $etd->pid . " - changes requested, status set to $newstatus at $result");
+     } else {
        $this->_helper->flashMessenger->addMessage("Error: could not update record status");
+       $this->logger->err("Could not save etd " . $etd->pid . " - changes requested, status change to $newstatus");
+     }
    }
 
    /* approve workflow  (approve, doapprove) */
@@ -156,10 +165,14 @@ class ManageController extends Etd_Controller_Action {
 			    "success",  array("software", "etd system"));
      $result = $etd->save("approved");
 
-     if ($result)
+     if ($result) {
        $this->_helper->flashMessenger->addMessage("Record <b>approved</b> with an access restriction of $embargo");
-     else
+       $this->logger->info("Updated etd " . $etd->pid . " - record approved and embargo set to $embargo");
+     } else {
        $this->_helper->flashMessenger->addMessage("Error: problem approving and setting access restricton of $embargo");
+       $this->logger->err("Could not update etd " . $etd->pid . " - attempting to approve and set embargo to $embargo");
+     }
+     
      $this->_helper->flashMessenger->addMessage("Approval notification email sent to " . implode(', ', array_keys($to)));
      $this->_helper->redirector->gotoRoute(array("controller" => "manage",
 						 "action" => "summary"), "", true); 
@@ -189,9 +202,14 @@ class ManageController extends Etd_Controller_Action {
 			    "Marked inactive - $reason",	// by whom ?
 			    "success",  array("netid", $this->current_user->netid));
      $result = $etd->save("marked inactivate");
-     
-     $this->_helper->flashMessenger->addMessage("Record status changed to <b>$newstatus</b>; saved at $result");
-     // user information also, for email address ?
+     if ($result) {
+       $this->_helper->flashMessenger->addMessage("Record status changed to <b>$newstatus</b>; saved at $result");
+       // user information also, for email address ?
+       $this->logger->info("Updated etd " . $etd->pid . " at $result - set status to $newstatus");
+     } else {
+       $this->logger->err("Could not save etd " . $etd->pid . " - attempting to change status to $newstatus");
+       $this->_helper->flashMessenger->addMessage("Error: Could not set record status to <b>$newstatus</b>");
+     }
      
      $this->_helper->redirector->gotoRoute(array("controller" => "manage",
 						 "action" => "summary"), "", true); 
