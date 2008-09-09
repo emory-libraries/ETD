@@ -63,8 +63,8 @@ ETD system manually. To proceed with the manual process, upload your file below.
    
 <? if ($this->debug): ?>
   <pre>
-   <?= htmlentities($this->xml) ?>
-     <? if (isset($this->file_xml)): ?><?= htmlentities($this->file_xml) ?><? endif ?>
+   <?= $this->xml ?>
+     <? if (isset($this->file_xml)): ?><?= $this->file_xml ?><? endif ?>
   </pre>
 <? endif ?>
 
