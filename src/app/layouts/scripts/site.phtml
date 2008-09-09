@@ -17,7 +17,7 @@
   <?= $this->css('etd.css'); ?>
   <? if (isset($this->dc)): ?>
     <?= $this->render('dc_header.phtml'); ?>
-  <? elseif (isset($this->etd) && !isset($this->etds)): /* only if display if this is a single-etd page */?>
+  <? elseif (isset($this->etd) && !isset($this->etdSet)): /* only if display if this is a single-etd page */?>
     <?= $this->render('view/etd_dcheader.phtml'); ?>
   <? endif ?>
 
