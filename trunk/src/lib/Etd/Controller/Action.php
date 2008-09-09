@@ -80,6 +80,7 @@ abstract class Etd_Controller_Action extends Zend_Controller_Action {
      $this->view->sort_display = array("author" => "author",
 				       "title" => "title",
 				       "modified" => "last modified",
+				       "year"   => "year",
 				       "relevance" => "relevance");
 
     

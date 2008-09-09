@@ -186,6 +186,7 @@ class EtdSet {
       case "modified": $sort = "lastModifiedDate desc"; break;
       case "title": $sort = "title_exact asc"; break;
       case "relevance": $sort = "score desc"; break;
+      case "year": $sort = "dateIssued asc"; break;
       }
     }
 

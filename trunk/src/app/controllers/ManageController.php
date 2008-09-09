@@ -108,7 +108,7 @@ class ManageController extends Etd_Controller_Action {
      
      $result = $etd->save("set status to '$newstatus'");
 
-     if ($result)
+     if ($result) 
        $this->_helper->flashMessenger->addMessage("Changes requested; record status changed to <b>$newstatus</b>");
      else
        $this->_helper->flashMessenger->addMessage("Error: could not update record status");
