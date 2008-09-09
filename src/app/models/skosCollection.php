@@ -141,6 +141,7 @@ class collectionHierarchy extends XmlObject {
       }*/
 
      $options["query"] = $query;
+     
      /* don't retrieve etd records at top level of hierarchy */ 
      if (! isset($this->parent)) $options["max"] = 0;  // NOTE: setting to no returns speeds things up substantially
 
@@ -150,8 +151,7 @@ class collectionHierarchy extends XmlObject {
      //     $results = $solr->queryPublished($query, $start, $return_num);
 
      // return minimal solrEtd for quicker browse results
-     //     $options["return_type"] = "solrEtd";
-     // FIXME: solrEtd no longer useful/ functional enough (?)
+     $options["return_type"] = "solrEtd";
 
      $etdSet = new EtdSet();
      $etdSet->findPublished($options);
