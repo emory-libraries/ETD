@@ -316,6 +316,14 @@ class TestEtd extends UnitTestCase {
     $this->assertEqual($etd->mods->genre, $etd->dc->type);
 
     // need to test setting arks for related objects (pdf/supplement)
+
+
+    // losing escaped & from mods to dc
+    $etd->mods->abstract = "this &amp; that";
+    $etd->updateDC();
+    $this->assertEqual("this & that", $etd->dc->description);
+    $this->assertPattern("|<dc:description>this &amp; that</dc:description>|",
+			 $etd->dc->saveXML());
   }
 
 

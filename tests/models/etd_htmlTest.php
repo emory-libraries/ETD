@@ -59,6 +59,9 @@ class TestEtdHtml extends UnitTestCase {
     $this->assertEqual("Development &#x3C6;&#x3B3;&#x3C5; &#x3BB;&#x3BF;&#x3C6;&#x3B3;&#x3B2;",
 		       etd_html::removeTags("Development &phi;&gamma;&upsilon; &lambda;&omicron;&phi;&gamma;&beta;"));
 
+    // ampersand
+    $this->assertEqual("Masquerading Politics: Power &amp; Transformation",
+		       etd_html::removeTags("Masquerading Politics: Power & Transformation"));
     
   }
 
