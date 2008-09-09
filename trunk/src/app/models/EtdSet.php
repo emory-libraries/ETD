@@ -273,7 +273,10 @@ class EtdSet {
     $options['facets'] = array("clear" => true,    // clear all default filters 
 			       "mincount" => 1,    // display even single facets
 			       // add the relevant facets-- status, advisor, subfield
-			       "add" => array("status", "advisor_facet", "subfield_facet"));
+			       "add" => array("status",
+					      "advisor_facet",
+					      "subfield_facet",
+					      "year"));
     $options['AND']['program_facet'] = $dept;
     return $this->find($options);
   }
