@@ -274,7 +274,7 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
       // if next page is not set, try to figure out where we are
 
       // look for expected first page: Distribution (formerly Circulation) Agreement
-      if (preg_match("/Distribution Agreement/", $content) ||	// new text, fall 2008
+      if (preg_match("/Distribution Agreement/i", $content) ||	// new text, fall 2008
 	  preg_match("/grant\s+to\s+Emory\s+University.*non-exclusive\s+license/", $content) ||
 	  // old version of Circ Agreement text
 	  preg_match("/Circulation Agreement/", $content) ||
