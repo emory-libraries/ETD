@@ -47,6 +47,7 @@
 	   isset($this->etd->mods->nonemory_committee[0]) && 
 	   $this->etd->mods->nonemory_committee[0]->full): ?>
       <? foreach ($this->etd->mods->nonemory_committee as $cm): ?>
+	   <? if ($cm->first == "" && $cm->last == "") continue; /* skip blank names */ ?>
         <? if ($published): ?>  
          <a href="<?= $this->url(array('controller' => 'browse', 'action' => 'committee',
   	'value' => urlencode($cm->full)),'', true)?>"><?= $cm->full ?></a> (<?= $cm->affiliation ?>);
