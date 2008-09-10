@@ -3,8 +3,8 @@
 
 <p>This is to inform you that your <?= $this->etd->document_type() ?> entitled:
 <blockquote><?= $this->etd->title() ?></blockquote>
-can now be accessed in the Emory University ETD Repository at
-<a href="<?= $this->etd->mods->ark ?>"><?= $this->etd->mods->ark ?></a>.</p>
+can now be accessed in the Emory University ETD Repository at:
+<a href="<?= $this->etd->mods->ark ?>"><?= $this->etd->mods->ark ?></a></p>
 
 <? if ($this->etd->mods->embargo_request == "no"): ?>
 <p>Upon submission, you agreed to grant open access to your work via the
