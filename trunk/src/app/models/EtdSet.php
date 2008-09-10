@@ -187,6 +187,9 @@ class EtdSet {
       case "title": $sort = "title_exact asc"; break;
       case "relevance": $sort = "score desc"; break;
       case "year": $sort = "dateIssued asc"; break;
+      default:
+	// certain searches use custom sorting (e.g., embargoes or finding recently published records)
+	$sort = $options['sort'];
       }
     }
 
