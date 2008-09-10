@@ -330,6 +330,9 @@ class BrowseController extends Etd_Controller_Action {
     $etdSet->findRecentlyPublished($options);
     $this->view->etdSet = $etdSet;
     $this->_helper->viewRenderer->setScriptAction("list");
+
+    // don't allow re-sorting by other fields (doesn't make sense)
+    $this->view->sort = null;
   }
 
   public function mostViewedAction() {
