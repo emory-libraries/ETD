@@ -125,6 +125,25 @@ class ManageController extends Etd_Controller_Action {
      }
    }
 
+   // send an email with more information about changes requested
+   public function changesEmailAction() {
+     // send email about changes requested
+     $etd = $this->_helper->getFromFedora("pid", "etd");
+     $subject = $this->_getParam("subject");
+     $content = $this->_getParam("content");
+
+     $notify = new etd_notifier($etd);
+     $to = $notify->request_changes($subject, $content);
+
+     $this->_helper->flashMessenger->addMessage("Email sent to <b>" . implode(', ', array_keys($to)) . "</b>");
+
+     // forward to main admin page 
+     $this->_helper->redirector->gotoRoute(array("controller" => "manage",
+						 "action" => "summary"), "", true);
+   }
+
+   
+
    /* approve workflow  (approve, doapprove) */
 
    public function approveAction() {
@@ -218,14 +237,14 @@ class ManageController extends Etd_Controller_Action {
    public function embargoesAction() {
      if (!$this->_helper->access->allowedOnEtd("manage")) return false;
 
-     $options["start"] = $this->_getParam("start", null);
-     $options["max"] = $this->_getParam("max", null);
-
+     $options = $this->getFilterOptions();
      $etdSet = new EtdSet();
      $etdSet->findEmbargoed($options);
      $this->view->title = "Expiring Embargoes";
      $this->view->etdSet = $etdSet;
      $this->view->show_lastaction = true;
+     // don't allow re-sorting by other fields (doesn't make sense)
+     $this->view->sort = null;
    }
 
 
