@@ -24,6 +24,7 @@
 	    <user>pogrady</user>
 	    <user>croddy</user>
 	  </superusers>
+	 <!-- tech support : must also be listed as etdadmins in fedora policy -->
 	  <techsupport>
             <user/>
 	    <user/>
