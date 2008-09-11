@@ -338,7 +338,7 @@ class EtdSet {
   public function findMostViewed($options = array()) {
     // get the most viewed pids from statistics db
     $stats = new StatObject();
-    $pids = $stats->mostViewed();
+    $pids = $stats->mostViewed(20);
 
     // then initialize objects from Solr  (faster than Fedora)
     $options["return_type"] = "solrEtd";
@@ -348,10 +348,17 @@ class EtdSet {
     // set a default for returning from Solr; will need to modify when filtering by program
     if (!isset($options['max'])) $options['max'] = 10;
 
-    return $this->find($options);
+    $this->find($options);
+
+    // sort etds according to most viewed (order returned from statistics query)
+    $sorted_etds = array();
+    foreach ($pids as $pid) {
+      foreach ($this->etds as $etd) {
+	if ($etd->pid() == $pid) $sorted_etds[] = $etd;
+      }
+    }
+    $this->etds = $sorted_etds;
   }
-
-
   
 }
 
