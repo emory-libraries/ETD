@@ -169,7 +169,9 @@
   </xsl:template>
 
   <xsl:template match="mods:name[@type='personal']">
-    <xsl:if test="mods:displayForm != ''">    <!-- Fez adds empty committee members; skip them -->
+    <!-- Fez adds empty committee members; skip them -->
+    <!-- also skip empty names that are showing up as ", " in the display form -->
+    <xsl:if test="mods:displayForm != '' and normalize-space(mods:displayForm) != ','"> 
       <xsl:variable name="person-type">
         <xsl:choose>
           <xsl:when test="mods:role/mods:roleTerm = 'author'">author</xsl:when>
