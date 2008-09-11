@@ -41,12 +41,14 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
     // set the fields to be filled in 
     $this->fields = array("title" => "",
 			  "department" => "",
-			  "advisor" => "",
+			  "advisor" => array(),
 			  "committee" => array(),
 			  "abstract" => "",
 			  "toc" => "",
 			  "keywords" => array(),
 			  "filename" => "");
+
+    $this->found_circ = false;
   }
   
 
@@ -415,23 +417,45 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
 
     /** Advisor **/
     //	 look for advisor on the same line, either as "Name, Advisor" or Advisor: Name"
-    if (preg_match("/Advis[eo]r:\s*(.+)/m", $content, $matches)
-	|| preg_match("/([^_]+),?\s*Advis[eo]r/m", $content, $matches)) {
-      $this->fields['advisor'] = $this->clean_name($matches[1]);
-      if ($this->debug) print "DEBUG: found advisor: " . $this->fields['advisor'] . "\n";
+    if (preg_match("/(Co-?)?Advis[eo]r:\s*(.+)/m", $content, $matches)
+	|| preg_match("/([^_]+),?\s*(Co-?)?Advis[eo]r/m", $content, $matches)) {
+
+      // two co-advisors labels on one line - look for names on the previous line
+      if (preg_match("/Advis[eo]r.*Advis[eo]r/", $content)) {
+	$names = $this->clean_name($this->previous_line);
+	// split on a large white-space gap between the two names
+	$namelist = preg_split("/\s{4,}/", $names, 2);
+	foreach ($namelist as $name) {
+	  $this->fields['advisor'][] = $name;
+	}
+	// FIXME: advisor + committee on same line?
+      } else {
+	$this->fields['advisor'][] = $this->clean_name($matches[1]);
+      }
+      if ($this->debug) print "DEBUG: found advisor(s): " . implode(', ', $this->fields['advisor']) . "\n";
 
     //  look for advisor on two lines: Name (line 1), Advisor (line 2)
-    } elseif (preg_match("/^ *Advis[eo]r/", $content)) {
+    } elseif (preg_match("/^\s*(Co-?)?[Aa]dvis[eo]r/", $content)) {
       // pick up name from the preceding line 
-      $this->fields['advisor'] = $this->clean_name($this->previous_line);
+      $this->fields['advisor'][] = $this->clean_name($this->previous_line);
 
       
       /** Committee Members **/
       //  look on two lines: Name (line 1), Committee Member or Reader (line 2)
-    } elseif (preg_match("/^ *Committee/", $content) || preg_match("/^ *Reader/", $content)) {
-      $name = $this->clean_name($this->previous_line); // pick up the committee from the line before
-      if ($name != "Committee Member" && $name != "") {	// in some cases getting false matches
-	array_push($this->fields['committee'], $name);
+    } elseif (preg_match("/^\s*Committee/", $content) || preg_match("/^\s*Reader/", $content)) {
+      // two committee labels on one line - look for names on the previous line
+      if (preg_match("/(Committee|Reader).*(Committee|Reader)/", $content)) {
+	$names = $this->clean_name($this->previous_line);
+	// split on a large white-space gap between the two names
+	$namelist = preg_split("/\s{4,}/", $names, 2);
+	foreach ($namelist as $name) {
+	  $this->fields['committee'][] = $name;
+	}
+      } else {
+	$name = $this->clean_name($this->previous_line); // pick up the committee from the line before
+	if ($name != "Committee Member" && $name != "") {	// in some cases getting false matches
+	  array_push($this->fields['committee'], $name);
+	}
       }
       // look on a single line: "Name, Committee Member"
     } elseif (preg_match("/^([^_]+), Committee/", $content, $matches)
