@@ -97,10 +97,13 @@ class esdPerson implements Zend_Acl_Role_Interface {
     // etd superuser - override role for users listed in config file, if set
     if (Zend_Registry::isRegistered('config')) {
       $config = Zend_Registry::get('config');
-      $superusers = explode(',', $config->superusers);
-      if (in_array($this->netid, $superusers)) {
+      if (in_array($this->netid, $config->techsupport->user->toArray())) {
+	$this->role = "techsupport";
+      }
+      if (in_array($this->netid, $config->superusers->user->toArray())) {
 	$this->role = "superuser";
       }
+
     }
   }
 
