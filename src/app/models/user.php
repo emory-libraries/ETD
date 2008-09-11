@@ -112,7 +112,6 @@ class user extends foxml {
     $perm_addr = $this->mads->permanent->address;
     if ($perm_addr->street[0] == "" ||
 	$perm_addr->city == "" ||
-	$perm_addr->state == "" ||
 	$perm_addr->country == "" ||
 	$perm_addr->postcode == "" ||
 	$this->mads->permanent->date == "") {
