@@ -14,6 +14,18 @@ td.label {font-weight:bold; text-align:right; }
 
 <hr/>
 
+<h2>Totals by Date Published (semester)</h2>
+<table> 
+  <tr><th>date</th> <th>total</th></tr>
+<? /* FIXME: convert date to semester  ... */ ?>
+  <? foreach ($this->facets->dateIssued as $date => $count): ?>
+     <tr><td class="label"><?= $date ?></td><td><?= $count ?></td></tr>
+  <? endforeach ?>
+</table>
+
+<hr/>
+
+
 <h2>Totals by Program</h2>
 <table>
   <tr><th>program</th> <th>total</th></tr>

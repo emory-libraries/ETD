@@ -277,13 +277,14 @@ class ManageController extends Etd_Controller_Action {
      
      $solr = Zend_Registry::get('solr');
      $solr->clearFacets();
-     $solr->addFacets(array("program_facet", "year", "embargo_duration", "num_pages",
+     $solr->addFacets(array("program_facet", "year", "dateIssued", "embargo_duration", "num_pages",
 			    "degree_level", "degree_name"));
      // would be nice to also have: degree (level?), embargo duration
      $solr->setFacetLimit(-1);	// no limit
      $solr->setFacetMinCount(1);	// minimum one match
      $result = $solr->query("*:*", 0, 0);	// find facets on all records, return none
      $this->view->facets = $result->facets;
+     uksort($this->view->facets->embargo_duration, "sort_embargoes");
 
      // how to do page counts by range?
      for ($i = 0; $i < 1000; $i += 100) {
@@ -307,6 +308,35 @@ class ManageController extends Etd_Controller_Action {
      
    }
 
+   public function embargoReportAction() {
+     $this->view->title = "Embargo Trends";
+
+     $solr = Zend_Registry::get('solr');
+     $solr->clearFacets();
+     
+     $result = $solr->browse("dateIssued");	// if desired, sort by most recent and return last 3 (?) only
+     $semesters = $result->facets->dateIssued;
+
+     $data = array();
+     foreach ($semesters as $sem => $count) {
+       $solr->addFacets(array("embargo_duration"));
+       $solr->setFacetLimit(-1);	// no limit
+       $solr->setFacetMinCount(0);	// minimum one match
+       $result = $solr->query("dateIssued:$sem", 0, 0);	// find facets on all records, return none
+       // FIXME: how to sort by duration low to high ?
+
+       // FIXME: convert semester date to human-readable format, e.g. spring/summer/fall 2007 
+       $data[$sem] = $result->facets->embargo_duration;
+       uksort($data[$sem], "sort_embargoes");
+
+       // FIXME: segment by humanities / social sciences / natural sciences (how?)
+     }
+
+     $this->view->data = $data;
+   }
+
+   
+
    
    public function exportemailsAction() {
      if (!$this->_helper->access->allowedOnEtd("manage")) return false;
@@ -326,5 +356,40 @@ class ManageController extends Etd_Controller_Action {
    }
 
    
+}
+
+
+// sort embargo durations logically (days/months/years)
+function sort_embargoes($a, $b) {
+  // check if either is blank
+  if (trim($a) == "") return -1; // a is less than b
+  if (trim($b) == "") return 1; // a is greater than b
+
+  // split into number & time unit
+  list($a_num, $a_time) = explode(' ', $a);
+  list($b_num, $b_time) = explode(' ', $b);
+
+  // convert time unit to numeric for easy comparison
+  // days = 1, months = 2, years = 3
+  foreach (array($a_time, $b_time) as $time) {
+    switch ($time) {
+    case "years":
+    case "year":
+      $t = 3; break;
+    case "months":
+      $t = 2; break;
+    case "days":
+      $t = 1; break;
+    }
+  }
+
+  if ($a_time == $b_time) { 
+    // same time duration - compare by numbers only
+    if ($a_num == $b_num) return 0;
+    return ($a_num < $b_num) ? -1 : 1;
+  } else {
+    // otherwise, compare by time unit only
+    return ($a_time < $b_time) ? -1 : 1;
+  }
 }
 ?>
