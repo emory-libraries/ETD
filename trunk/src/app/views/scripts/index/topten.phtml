@@ -26,8 +26,16 @@
 
 <?= $leftcorner ?>
 
-<div class="types"> 
-<a class="current">Recently Published</a>
+<? /* FIXME: how to actually switch which feed type is displayed?
+    - would be better if NOT included in url...
+    - store in user session?
+    - can this switch be done with ajax ?  */ ?>
+<div class="types">
+<a <? if ($this->feed_type == "recent"): ?>class="current"
+   <? else: ?> href="<?= $this->url(array('feed' => 'recent')) ?>"<? endif ?>>Recently Published</a>
+<a <? if ($this->feed_type == "most-viewed"): ?>class="current"
+    <? else: ?> href="<?= $this->url(array('feed' => 'most-viewed')) ?>"
+     <? endif ?> >Most Viewed</a>
 </div>
 
 <ol>
@@ -38,6 +46,10 @@
 <? endforeach ?>
 </ol>
 
+<p><a href="<?= $this->url(array('controller' => 'browse',
+   'action' => $this->feed_type)) ?>">More records...</a></p>
+
+  <? /* FIXME: link to RSS feed  here... 	<?= $this->feed->link ?>   */ ?>
 
 
 <div class="leftrightcorner bottom">
@@ -46,5 +58,5 @@
  <div class="c3 c"></div>
  <div class="c4 c"></div>
 </div>
-
+   					  
 </div> 	<!-- end of top-ten section -->
