@@ -71,17 +71,20 @@ class SubmissionController extends Etd_Controller_Action {
       $esd = new esdPersonObject();
       // only look up advisor if a name was found
       if (isset($etd_info['advisor']) && $etd_info['advisor'] != '') {
-	try {
-	  $advisor = $esd->findFacultyByName($this->view->etd_info['advisor']);
-	} catch (Exception $e) {
-	  $this->ESDerror();
-	}
-	if ($advisor) {
-	  // FIXME: need to do through etd so xacml will get updated
-	  $etd->setCommittee(array($advisor), "chair");
-	} else {
-	  $this->_helper->flashMessenger->addMessage("Couldn't find directory match for " .
-						     $this->view->etd_info['advisor'] . "; please enter manually");
+	foreach ($etd_info['advisor'] as $name) {
+	  $advisor = null;
+	  try {
+	    $advisor = $esd->findFacultyByName($name);
+	  } catch (Exception $e) {
+	    $this->ESDerror();
+	  }
+	  if ($advisor) {
+	    // FIXME: need to do through etd so xacml will get updated
+	    $etd->setCommittee(array($advisor), "chair");
+	  } else {
+	    $this->_helper->flashMessenger->addMessage("Couldn't find directory match for " .
+						       $name . "; please enter manually");
+	  }
 	}
       }
       
@@ -244,17 +247,21 @@ class SubmissionController extends Etd_Controller_Action {
     
 
     $esd = new esdPersonObject();
+    $this->view->advisor = array();
     // only look up advisor if a name was found
-    if (isset($etd_info['advisor']) && $etd_info['advisor'] != '') {
-      try {
-	$advisor = $esd->findFacultyByName($this->view->etd_info['advisor']);
-      } catch (Exception $e) {
-	$this->ESDerror();
+    if (isset($etd_info['advisor']) && $etd_info['advisor'][0] != '') {
+      foreach ($etd_info['advisor'] as $name) {
+	$advisor = null;
+	try {
+	  $advisor = $esd->findFacultyByName($name);
+	} catch (Exception $e) {
+	  $this->ESDerror();
+	}
+	if ($advisor)
+	  $this->view->advisor[] = $advisor;
+	else 
+	  $this->_helper->flashMessenger->addMessage("Couldn't find directory match for " . $name . "; please enter manually");
       }
-      if ($advisor)
-	$this->view->advisor = $advisor;
-      else 
-	$this->_helper->flashMessenger->addMessage("Couldn't find directory match for " . $this->view->etd_info['advisor'] . "; please enter manually");
     }
     $this->view->committee = array();
     if (isset($this->view->etd_info['committee'])) {
