@@ -328,17 +328,23 @@ class BrowseController extends Etd_Controller_Action {
     $this->view->list_title = "Recently Published";
     $etdSet = new EtdSet();
     $etdSet->findRecentlyPublished($options);
+	
     $this->view->etdSet = $etdSet;
     $this->_helper->viewRenderer->setScriptAction("list");
 
     // don't allow re-sorting by other fields (doesn't make sense)
     $this->view->sort = null;
-  }
+   }
 
   public function mostViewedAction() {
+    $this->view->title = "Most Viewed Records";
+    $this->view->list_title = "Most Viewed Records";
+
+    $options = $this->getFilterOptions();
     $etdSet = new EtdSet();
-    $etdSet->findMostViewed();
+    $etdSet->findMostViewed($options);
     $this->view->etdSet = $etdSet;
+	
     $this->_helper->viewRenderer->setScriptAction("list");
   }
 
