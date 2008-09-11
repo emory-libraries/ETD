@@ -10,16 +10,29 @@
 	    <test>rsutton@emory.edu</test>
 	  </email>
 	  <tmpdir>/tmp/etd</tmpdir>
-	  <logfile>/home/rsutton/public_html/etdnew/tmp/logfile.xml</logfile>
+          <logfile>/home/rsutton/public_html/etdnew/tmp/logfile.xml</logfile>  
   	  <!-- executable for pdftohtml; supply full path if necessary -->
 	  <pdftohtml>/usr/local/bin/pdftohtml</pdftohtml>	
 	   <!-- browsers supported for submission process  
 		Note: this should match the "parent" field returned by get_browser() -->
- 	  <supported_browsers>IE 7.0,Firefox 2.0,Iceweasel</supported_browsers>
+ 	  <supported_browsers>IE 7.0,Firefox 2.0,Firefox 3.0,Iceweasel</supported_browsers>
 
 	<!-- override default role for superusers only here:
 	     note that these people must also be listed permit-etds-to-etdadmins policy -->
-	  <superusers>rsutton,pogrady,croddy</superusers>
+	  <superusers>
+            <user>rsutton</user> 
+	    <user>pogrady</user>
+	    <user>croddy</user>
+	  </superusers>
+	  <techsupport>
+            <user/>
+	    <user/>
+	  </techsupport>
+
+ 	  <!-- NOTE: for both superusers and techsupport, there must
+	       be at least 2 user entries so Zend_Config_Xml will
+	       treat it as a multiple field -->
+
 	</development>
 
 	<test extends="development">
