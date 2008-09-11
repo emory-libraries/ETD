@@ -54,7 +54,7 @@
 
     <role name="techsupport" inherits="view_all">
       <!-- view/edit any record, view log, but no workflow steps -->
-      <allow resource="etd">edit metadata, add file, order files, manage</allow>
+      <allow resource="etd">edit metadata, order files, manage</allow>
       <allow resource="file">edit, view modified</allow>
       <allow resource="user">view, edit</allow>
 
