@@ -4,16 +4,23 @@
    and updated by the author. Please contact the author to inform him/her that changes
    need to be made before the submission process can be successfully completed.</p>
 
+<div style="padding:15px;border:1px solid grey;background-color:#efefef;">
 <p><b>To:</b> <?= $this->etd->author() ?>
    (<i><?= $this->etd->authorInfo->mads->current->email ?>,
     <?= $this->etd->authorInfo->mads->permanent->email ?></i> )
    </p>
 
-<form method="post" action="<?= $this->url(array('action' => 'changes-email')) ?>">
+
+<form method="POST" action="<?= $this->url(array('action' => 'changes-email')) ?>">
    <?= $this->formHidden("pid", $this->etd->pid()) ?>
    <p><b><?= $this->formLabel("subject", "Subject:") ?></b>
    <?= $this->formText("subject", "Changes Requested to your ETD $this->changetype",
 		       array("style" => "width:500px")) ?></p>
-   <?= $this->FckEditor("content", "test", array("toolbar" => "Basic", "height" => "150")) ?>
+
+   <?= $this->render("email/_rqstchange_head.phtml") ?>
+   <?= $this->FckEditor("content", "", array("toolbar" => "Basic", "height" => "150")) ?>
+   <?= $this->render("email/_rqstchange_foot.phtml") ?>
    <p><?= $this->formSubmit("send", "Send >", array("class" => "button")) ?></p>
 </form>
+
+</div>

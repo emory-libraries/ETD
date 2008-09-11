@@ -1,8 +1,7 @@
 <?=  $this->render('email/_debug.phtml'); ?>
-<p>Dear <?= $this->etd->mods->author->first ?>,</p>
 
-<p><?= $this->text ?></p>
+<?= $this->render("email/_rqstchange_head.phtml") ?>
+     
+<?= $this->text ?>
 
-<p>instructions about how to update files go here</p>
-
-<p>link to record for convenience?</p>
+<?= $this->render("email/_rqstchange_foot.phtml") ?>
