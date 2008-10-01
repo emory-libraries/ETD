@@ -247,6 +247,16 @@ class EtdSet {
     return $this->find($options);
   }
 
+  /**
+   * find approved records 
+   * @param array $options any filter options to be passed to etd find function
+   * @return EtdSet
+   */
+  public function findApproved($options = array()) {
+    $options['AND']['status'] = "approved";
+    return $this->find($options);
+  }
+
   
   /**
    * find unpublished records by author's netid
