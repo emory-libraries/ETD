@@ -438,6 +438,7 @@ function confirm_graduation(array $etds) {
  * do everything needed to publish etds (most of the logic is handled in etd model class)
  * 
  * @param array $etds etd objects
+ * @return array of etds that were successfully published
  */
 function publish(array $etds) {
   global $opts, $publish_date, $logger;
@@ -477,6 +478,12 @@ function publish(array $etds) {
     
     try {
       $notify->publication();
+    } catch (Zend_Db_Adapter_Exception $e) {
+      // if ESD is not accessible, cannot look up faculty email addresses - notification will fail
+      $logger->crit("Error accessing ESD (needed for faculty email addresses); cannot proceed");
+      // if ESD is down, this will most likely fail for *ALL* records being processed
+      // skip to the next record
+      continue;
     } catch (Zend_Exception $ex) {
       $logger->err("There was a problem sending the publication notification email for " . $etd->pid . ": "
 		   .  $ex->getMessage());
