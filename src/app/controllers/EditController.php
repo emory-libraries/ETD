@@ -72,9 +72,9 @@ class EditController extends Etd_Controller_Action {
     if (!$this->_helper->access->allowedOnEtd("edit metadata", $etd)) return;
     
     $this->view->etd = $etd;
-    
-    $chair_ids = $this->_getParam("chair");	       
-    $committee = $this->_getParam("committee");		// array
+
+    $chair_ids = $this->_getParam("chair", array());	       
+    $committee = $this->_getParam("committee", array());
 
     $committee_ids = array();
     // don't allow the same id to be added to both chair and member lists (results in duplicate ids ->  invalid xml)
