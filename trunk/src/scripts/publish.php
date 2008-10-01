@@ -750,7 +750,7 @@ function find_orphans() {
   $logger->info("Checking for 'orphaned' ETD records");
 
   $etdSet = new EtdSet();
-  $etdSet->find(array("status" => "approved"));
+  $etdSet->findApproved();
   $count = $etdSet->numFound;
   
   if ($count) {
