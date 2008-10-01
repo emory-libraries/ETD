@@ -134,7 +134,16 @@ while ($etdSet->hasResults()) {
     if (!$opts->noact) {
       $notify = new etd_notifier($etd);
       // send email about embargo expiration
-      $notify->embargo_expiration();
+      try {
+	$notify->embargo_expiration();
+      } catch (Zend_Db_Adapter_Exception $e) {
+	 // if ESD is not accessible, cannot look up faculty email addresses - notification will fail
+	$logger->crit("Error accessing ESD (needed for faculty email addresses); cannot proceed");
+
+	// if ESD is down, it will fail for *ALL* records being processed
+	// -- exit now, don't mark any records as embargoed, etc.
+	return;
+      }
       
       // add an administrative note that embargo expiration notice has been sent,
       // and add notification event to record history log
