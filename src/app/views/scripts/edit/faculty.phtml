@@ -17,6 +17,7 @@ $inputopts = array("size" => "55", "autocomplete" => "off", "id" => "chair_autoc
   /* create a hidden input with faculty's netid, and display name */
       new Insertion.Bottom('chair_list', '<li id="'+li.id+'"><input type="hidden" name="chair[]" value="' + li.id + '"/>' + text.value + '<a class="remove" href="#" onClick="javascript:removeChair(\''+li.id+'\')">remove</a></li>');
       text.value = '';   // blank out suggestor for more entries
+      Sortable.create("chair_list");
   }
   function addFaculty(text, li) {
     /* create a hidden input with faculty's netid, and display name */
@@ -46,10 +47,10 @@ function addNonemory() {
 
 <p>Your PDF submission indicates that the following faculty members
 comprise your committee chair(s) and members.  If any of the selections are
-incorrect, click on remove and reenter the name in the box provided.
-The name should appear from the suggestor, but if you cannot find the
-correct name on the list, enter the name in Non-Emory Committee
-Members below.  You may rearrange the order of your committee by
+incorrect, click on remove and re-enter the name in the box provided.
+The name should appear from the suggestor. If you have any Non-Emory Committee
+Members, select yes below and you will be provided with boxes to enter their names and
+affiliation.  You may rearrange the order of your committee by
 clicking on and dragging the names.</p>
 <p> Enter last name of faculty member(s) below and <b>wait a moment</b> while the system retrieves names.</p>
 
@@ -69,6 +70,10 @@ clicking on and dragging the names.</p>
      <? endif ?>
      <? endforeach ?>
    </ul>
+  <? if (count($chairs) > 1): ?>
+      <?= $projax->sortable_element("chair_list", array("url" => null)); ?>     
+  <? endif ?>	      
+	  
 	  <div id="chair_autocomplete">
       <?=  $projax->text_field_with_auto_complete('advisor', $inputopts, $ajaxopts); ?>
 	<span id="chair-loading" style="display:none;">Searching...</span>
@@ -95,6 +100,22 @@ clicking on and dragging the names.</p>
      <span id="cm-loading" style="display:none;">Searching...</span>
 
  <hr/>
+ <? if (count($this->etd->mods->nonemory_committee) > 1 || 
+	(isset($this->etd->mods->nonemory_committee[0]) &&
+	 $this->etd->mods->nonemory_committee[0]->first != "")) {
+	  $has_nonemory = true;
+	} else {
+	  $has_nonemory = false;
+	}
+?>
+
+<? if (! $has_nonemory): ?>     
+  <p>Do you have any Non-Emory Committee Members?
+     <a class="button" onClick="Element.show('nonemory')">yes</a> 
+     </p>
+<? endif ?>
+     
+ <div id="nonemory" <? if (! $has_nonemory): ?> style="display:none" <? endif ?> >     
  <h2>Non-Emory Committee Members</h2>
 <table>
 <tbody id="nonemory_list">						       
@@ -122,7 +143,7 @@ clicking on and dragging the names.</p>
      
 <p><input class="button" type="submit" value="save"/></p>
 </form>
-
+</div>
 						       
 </div>
 
