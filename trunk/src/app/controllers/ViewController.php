@@ -14,7 +14,7 @@ class ViewController extends Etd_Controller_Action {
        if (!$this->_helper->access->allowedOnEtd("view metadata", $etd)) return false;
        
        $this->view->etd = $etd;
-       $this->view->title = $etd->dc->title;
+       $this->view->title = $etd->title();
        //$this->view->dc = $etd->dc;		/* DC not as detailed as MODS; using etd DC header template */
        $this->view->messages = $this->_helper->flashMessenger->getMessages();
 
