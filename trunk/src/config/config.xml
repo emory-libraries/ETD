@@ -9,6 +9,10 @@
 	    </etd>
 	    <test>rsutton@emory.edu</test>
 	  </email>
+	  <contact>
+	    <!-- contact email to be listed on faq / help pages -->
+	    <email>etd-help@listserv.cc.emory.edu</email>
+	  </contact>
 	  <tmpdir>/tmp/etd</tmpdir>
           <logfile>/home/rsutton/public_html/etdnew/tmp/logfile.xml</logfile>  
   	  <!-- executable for pdftohtml; supply full path if necessary -->
