@@ -19,6 +19,13 @@ class DocsControllerTest extends ControllerTestCase {
   }
   function tearDown() {}
 
+  function testIndexAction() {
+    $DocsController = new DocsControllerForTest($this->request,$this->response);
+    $DocsController->indexAction();
+    $this->assertNotNull($DocsController->view->title);
+    $this->assertFalse($DocsController->view->printable);
+  }
+
   function testAboutAction() {
     $DocsController = new DocsControllerForTest($this->request,$this->response);
     $DocsController->aboutAction();
@@ -69,7 +76,7 @@ class DocsControllerForTest extends DocsController {
   
   public function initView() {
     $this->view = new Zend_View();
-    Zend_Controller_Action_HelperBroker::addPrefix('TestEtd_Controller_Action_Helper');
+    Zend_Controller_Action_HelperBroker::addPrefix('Test_Controller_Action_Helper');
   }
   
   public function render() {

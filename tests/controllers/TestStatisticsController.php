@@ -93,7 +93,7 @@ class StatisticsControllerForTest extends StatisticsController {
   
   public function initView() {
     $this->view = new Zend_View();
-    Zend_Controller_Action_HelperBroker::addPrefix('TestEtd_Controller_Action_Helper');
+    Zend_Controller_Action_HelperBroker::addPrefix('Test_Controller_Action_Helper');
   }
   
   public function render() {

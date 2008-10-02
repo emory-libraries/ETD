@@ -24,6 +24,7 @@ class ViewControllerTest extends ControllerTestCase {
     // use mock etd object to simplify permissions/roles/etc
     $this->mock_etd = &new MockEtd();
     $this->mock_etd->label = "Test Etd";
+    $this->mock_etd->setReturnValue("title", "Test Etd");
     $this->mock_etd->pid = "testetd:1";
     $gff = $ViewController->getHelper("GetFromFedora");
     $gff->setReturnObject($this->mock_etd);
@@ -94,7 +95,7 @@ class ViewControllerForTest extends ViewController {
   
   public function initView() {
     $this->view = new Zend_View();
-    Zend_Controller_Action_HelperBroker::addPrefix('TestEtd_Controller_Action_Helper');
+    Zend_Controller_Action_HelperBroker::addPrefix('Test_Controller_Action_Helper');
   }
   
   public function render() {
