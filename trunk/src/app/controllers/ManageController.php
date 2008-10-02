@@ -323,10 +323,10 @@ class ManageController extends Etd_Controller_Action {
        $solr->setFacetLimit(-1);	// no limit
        $solr->setFacetMinCount(0);	// minimum one match
        $result = $solr->query("dateIssued:$sem", 0, 0);	// find facets on all records, return none
-       // FIXME: how to sort by duration low to high ?
 
        // FIXME: convert semester date to human-readable format, e.g. spring/summer/fall 2007 
        $data[$sem] = $result->facets->embargo_duration;
+       // sort durations from low to high 
        uksort($data[$sem], "sort_embargoes");
 
        // FIXME: segment by humanities / social sciences / natural sciences (how?)
