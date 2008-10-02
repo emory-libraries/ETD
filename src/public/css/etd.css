@@ -885,3 +885,5 @@ div.pagination p { margin:0px; }
 div.letters { text-align:center; border:1px solid grey; padding:2px; }
 div.letters a { text-decoration:none; font-size:115%; padding:0px 2px;}
 div.letters a.current { font-weight:bold; }
+
+span.permalink { background-color: #ffda82; /*#fffdee; /* very faint yellow */ }
