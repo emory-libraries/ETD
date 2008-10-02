@@ -1,0 +1,28 @@
+<? include "js/FCKeditor/fckeditor.php"; ?>
+
+<h1>Edit <?= $this->mode_label ?></h1>
+<p><b><?= $this->etd->title() ?></b></p>
+
+<p><b>If you are using special/foreign language characters</b>
+please use the special character <?= $this->img("images/fck_specialchar.gif") ?> 
+or universal keyboard <?= $this->img("images/fck_keyboard.gif") ?> tools.
+The system may not accept special characters imported using a cut-and-paste
+function from your processor, so we recommend that you insert these special
+characters using the tools provided.</p>
+
+<form name="edit" method="post"
+    action="<?= $this->url(array("action" => "save" . ucfirst($this->mode), "mode" => $this->mode))?>">
+<? /* configuration options for FCK editor */ 
+$editor_opts = array("config" => (string)$this->linkTo("js/FCKconfig.js"),
+			    "height" => "400", "toolbar" => "etd" );
+if ( $this->mode == "title") {
+  $editor_opts["toolbar"] = "etd-title";
+  $editor_opts["height"] = "etd-title";
+}
+if ($this->current_user->role == "superuser") $editor_opts["toolbar"] = "etd-admin";
+?>
+
+<?= $this->FckEditor("edit_content", (string)$this->edit_content, $editor_opts) ?>
+
+<?= $this->formSubmit("Save", "Save", array("class" => "button")); ?>
+</form>

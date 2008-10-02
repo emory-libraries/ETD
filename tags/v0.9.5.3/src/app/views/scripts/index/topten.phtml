@@ -1,0 +1,62 @@
+<? /* curved css corner - used multiple times */
+ $leftcorner = '<div class="leftcorner">
+ <div class="c4 c"></div>
+ <div class="c3 c"></div>
+ <div class="c2 c"></div>
+ <div class="c1 c"></div>
+</div>' ?>
+<?= $this->css('topten.css'); ?>
+<div id="topten-bar">
+</div>
+
+<div id="topten-curve">
+ <div class="c10 c"></div>
+ <div class="c9 c"></div>
+ <div class="c8 c"></div>
+ <div class="c7 c"></div>
+ <div class="c6 c"></div>
+ <div class="c5 c"></div>
+ <div class="c4 c"></div>
+ <div class="c3 c"></div>
+ <div class="c2 c"></div>
+ <div class="c1 c"></div>
+</div>
+
+<div id="topten">
+
+<?= $leftcorner ?>
+
+<? /* FIXME: how to actually switch which feed type is displayed?
+    - would be better if NOT included in url...
+    - store in user session?
+    - can this switch be done with ajax ?  */ ?>
+<div class="types">
+<a <? if ($this->feed_type == "recent"): ?>class="current"
+   <? else: ?> href="<?= $this->url(array('feed' => 'recent')) ?>"<? endif ?>>Recently Published</a>
+<a <? if ($this->feed_type == "most-viewed"): ?>class="current"
+    <? else: ?> href="<?= $this->url(array('feed' => 'most-viewed')) ?>"
+     <? endif ?> >Most Viewed</a>
+</div>
+
+<ol>
+<? foreach ($this->feed as $entry): ?>
+<li><a href="<?= $entry->link() ?>"><div class="etdtitle"><?= $entry->title() ?></div>
+     <?= $entry->author() ?>
+</a></li>
+<? endforeach ?>
+</ol>
+
+<p><a href="<?= $this->url(array('controller' => 'browse',
+   'action' => $this->feed_type)) ?>">More records...</a></p>
+
+  <? /* FIXME: link to RSS feed  here... 	<?= $this->feed->link ?>   */ ?>
+
+
+<div class="leftrightcorner bottom">
+ <div class="c1 c"></div>
+ <div class="c2 c"></div>
+ <div class="c3 c"></div>
+ <div class="c4 c"></div>
+</div>
+   					  
+</div> 	<!-- end of top-ten section -->
