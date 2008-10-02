@@ -9,8 +9,17 @@ class DocsController extends Etd_Controller_Action {
     $this->view->printable = true;
   }
 
+  public function preDispatch() {
+    // contact information used in multiple documents
+    $config = Zend_Registry::get('config');
+    $this->view->contact = $config->contact;
+  }
+
+
   public function indexAction() {
     $this->view->title = "ETD Documents";
+    // this is the only page that doesn't make sense to be printable
+    $this->view->printable = false;
   }
   
   public function aboutAction() {
