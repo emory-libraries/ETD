@@ -34,9 +34,7 @@ class TestEsdPerson extends UnitTestCase {
     $this->assertEqual($user->email, "rsutton@emory.edu");
     $this->assertEqual($user->academic_plan_id, "ENGLISHMA");
     $this->assertEqual($user->academic_plan, "English");
-
-    // FIXME: temporary data in ESD to simulate grad program coordinator stuff
-    $this->assertEqual($user->program_coord, "English");
+    $this->assertNull($user->program_coord);
 
     $this->assertEqual($user->role, "superuser");
   }
@@ -48,6 +46,7 @@ class TestEsdPerson extends UnitTestCase {
 
   function testRole() {
     $user = new esdPerson();
+    $user->netid = "jsmith";
     // various student types (includes student/staff)
     $user->type = "B";
     $user->setRole();
