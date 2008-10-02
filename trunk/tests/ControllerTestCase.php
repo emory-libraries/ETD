@@ -35,7 +35,7 @@ class ControllerTestCase extends UnitTest {
 
 
 /* bypass the real redirector helper because routes aren't defined */
-class TestEtd_Controller_Action_Helper_Redirector extends Zend_Controller_Action_Helper_Abstract {
+class Test_Controller_Action_Helper_Redirector extends Zend_Controller_Action_Helper_Abstract {
   public function gotoRoute(array $urlOptions = array(), $name = null, $reset = false) {
     $this->_actionController->_redirect();
   }
@@ -50,7 +50,7 @@ class TestEtd_Controller_Action_Helper_Redirector extends Zend_Controller_Action
 }
 
 /* bypass real flashmessenger helper to simplify; clear out messages once they are retrieved */
-class TestEtd_Controller_Action_Helper_FlashMessenger extends Zend_Controller_Action_Helper_Abstract {
+class Test_Controller_Action_Helper_FlashMessenger extends Zend_Controller_Action_Helper_Abstract {
   private $messages;
   public function __construct() { $this->messages = array(); }
   public function addMessage($text) {  $this->messages[] = $text;  }
@@ -61,14 +61,14 @@ class TestEtd_Controller_Action_Helper_FlashMessenger extends Zend_Controller_Ac
   }
 }
 
-class TestEtd_Controller_Action_Helper_Layout extends Zend_Controller_Action_Helper_Abstract {
+class Test_Controller_Action_Helper_Layout extends Zend_Controller_Action_Helper_Abstract {
   public $enabled = true;
   public $name;
   public function disableLayout() { $this->enabled = false; }
   public function setLayout($name) { $this->name = $name; }
 }
 
-class TestEtd_Controller_Action_Helper_GetFromFedora extends Etd_Controller_Action_Helper_GetFromFedora {
+class Test_Controller_Action_Helper_GetFromFedora extends Etd_Controller_Action_Helper_GetFromFedora {
   protected $object = null;
   public function direct($pid, $type) {
     if ($this->object == null)  return $this->find_or_error($pid, $type);
