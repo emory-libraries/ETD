@@ -86,3 +86,5 @@
      <? if ($this->etd->subfield()): ?>(<?= $this->etd->subfield() ?>)<? endif ?>
         <? /* in published mode, subfield should link to program browse */ ?>
      <br/>
+
+<span class="permalink"><b>Permanent url:</b> <a href="<?= $this->etd->ark() ?>"><?= $this->etd->ark() ?></a></span>
