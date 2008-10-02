@@ -4,8 +4,13 @@ class IndexController extends Etd_Controller_Action {
 
   
   public function indexAction() {	
-    $this->view->assign("title", "Welcome");
+    $this->view->title = "Welcome";
 
+    // contact information for news section
+    $config = Zend_Registry::get('config');
+    $this->view->contact = $config->contact;
+
+    
     $feed = $this->_getParam("feed", "recent");	// by default, show recently published
     $this->view->feed_type = $feed;
     // FIXME: check that requested feed type is a valid option (?)
