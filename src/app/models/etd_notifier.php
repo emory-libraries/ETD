@@ -36,6 +36,8 @@ class etd_notifier extends notifier {
     $environment = Zend_Registry::get('env-config');
     $this->view->environment = $environment->mode;
     $config = Zend_Registry::get('config');
+    // contact information - where questions should be directed
+    $this->view->contact = $config->contact;
     
     $this->mail->setFrom($config->email->etd->address,
 			 $config->email->etd->name);
