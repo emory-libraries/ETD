@@ -1,5 +1,8 @@
 <?php
 
+// include etd html class for getContentXml function
+require_once("models/etd_html.php");
+
 class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Helper_Abstract {
 
   // run pdftohtml on pdf
@@ -174,12 +177,10 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
 	// number of the current page
 	$this->current_page = $node->getAttribute("name");
 
-
 	// empty out the current page doc
 	$page->removeChild($page->documentElement);
 	$div = $page->createElement("div", "");
 	$page->appendChild($div);
-	
       }
 
       // deep import and append node into temporary current page doc
@@ -194,15 +195,15 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
     // minor cleaning on fields that need it
     /* FIXME: some dom equivalent for this? */
     $this->fields['toc'] = preg_replace("|<hr/?>|", "",  $this->fields['toc']);
-    $this->fields['toc'] = preg_replace("|^\s*(<b>)?Table of Contents\s*(</b>)?\s*(<br/>)?\s*|i", "",
-					     $this->fields['toc']);
-    $this->fields['toc'] = preg_replace("|<a name=\"\d\"\/>|", "",  $this->fields['toc']);
+    $this->fields['toc'] = preg_replace("|^\s*(<b>)?Table\s+of\s+Contents\s*(</b>)?\s*(<br/>)?\s*|i", "",
+					$this->fields['toc']);
+    $this->fields['toc'] = preg_replace("|<a name=\"\d+\"\/>|", "",  $this->fields['toc']);
 
     $this->fields['abstract'] = preg_replace("|<hr/?>|", "",  $this->fields['abstract']);
-    $this->fields['abstract'] = preg_replace("|<a name=\"\d\"\/>|", "",  $this->fields['abstract']);
-    $this->fields['abstract'] = preg_replace("|^\s*(<b>)?abstract\s*(</b>)?\s*(<br/>)?\s*|i", "",  $this->fields['abstract']);
-
-
+    $this->fields['abstract'] = preg_replace("|<a name=\"?\d+\"?\/>|", "",  $this->fields['abstract']);
+    $this->fields['abstract'] = preg_replace("|^\s*(<br/>)?\s*(<b>)?\s*abstract\s*(</b>)?\s*(<br/>)?\s*|i", "",  $this->fields['abstract']);
+    // consolidate repeating line breaks into a single line break
+    $this->fields['abstract'] = preg_replace("|(<br/>){2,}|", "<br/>",  $this->fields['abstract']);
 
     // some error-checking to display useful messages to the user
     if ($this->found_circ == false)
@@ -247,8 +248,8 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
       break;
 
     case "abstract":
-      // save as xml to preserve formatting
-      $this->fields['abstract'] .= $page->saveXML($page->documentElement);
+      // save as xml to preserve formatting (xml without wrapping div node)
+      $this->fields['abstract'] .= etd_html::getContentXml($page->documentElement);
 
       // abstract could be two pages, so next page may be more abstract
       $this->next = "abstract-cont";	// possibly 
@@ -266,9 +267,26 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
 	if ($this->debug) print "DEBUG: abstract continues on second page<br>\n";
 	$this->_actionController->view->log[] = "Found Abstract on pages " .
 	  ($this->current_page - 1) . "-" . $this->current_page;
-	$this->fields['abstract'] .= $page->saveXML($page->documentElement);
+	$this->fields['abstract'] .= etd_html::getContentXml($page->documentElement);
 	$this->next = "";
       }
+      break;
+
+    case "toc-cont":
+      // possible continuation of Table of Contents
+
+      // attempt to detect table of contents:
+      //  -  includes more than one chapter label
+      //  OR has multiple dots followed by a number
+      // (Note that this may also match table of figures, appendices, etc)
+      if (preg_match("/Chapter.*Chapter/", $content) ||
+	  preg_match("/\.{4,}\s*[0-9]{2,}/", $content)) {
+	$this->fields['toc'] .= etd_html::getContentXml($page->documentElement);
+	$this->next = "toc-cont";
+      } else {
+	$this->next = "";
+      }
+	  
       break;
 
 
@@ -294,7 +312,11 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
 	if ($this->debug) print "* found table of contents - page " . $this->current_page . "\n";
 	$this->_actionController->view->log[] = "Found Table of Contents on page " . $this->current_page;
 
-	$this->fields['toc'] .= $page->saveXML($page->documentElement);
+	$this->fields['toc'] .= etd_html::getContentXml($page->documentElement);
+
+	// table of contents may be more than page, so next page may continue it
+	$this->next = "toc-cont";	// possibly 
+	
 	// FIXME: cleaning for dashes/dots in table of contents ?
       }
       
