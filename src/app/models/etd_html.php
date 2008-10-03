@@ -120,6 +120,15 @@ class etd_html extends foxmlDatastreamAbstract {
     if ($clean_whitespace) {
       $string = str_replace("&nbsp;", " ", $string);
     }
+
+    // remove Microsoft class names
+    $string = preg_replace('/class="Mso[a-zA-Z]+"/', '', $string);
+
+    // FIXME:    need to test cleaning up stuff like this
+    /*
+     <p class="MsoNormal?" style="margin: 0cm 0cm 0pt; font-weight: bold; line-height: 200%;"><span lang="EN-US" xml:lang="EN-US">Chapter 1 Introduction</span></p>
+    */
+
     
     // use Tidy to clean up the formatting, tags, etc.
     $tidy_opts = array("output-xhtml" => true,
@@ -128,6 +137,9 @@ class etd_html extends foxmlDatastreamAbstract {
 		       "join-styles" => false,
 		       "numeric-entities" => true,
 		       "show-body-only" => true,
+		       // strip out MS Word junk 
+		       //"word-2000" => true,	-- breaks things
+		       //"clean" => true,	-- generates classes, requires css
 		       );
     /** NOTE: cannot use  option "clean" because it converts inline styles to
         css styles, which is much harder to manage & display correctly.
