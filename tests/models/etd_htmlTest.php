@@ -44,6 +44,16 @@ class TestEtdHtml extends UnitTestCase {
     
     $this->assertEqual("some text",
 		       etd_html::cleanTags("<strong/>some text", true));
+
+
+    // microsoft junk formatting $355
+    $this->assertPattern("|<p>text</p>|",
+		       etd_html::cleanTags('<p class="MsoNormal">text</p>', true));
+
+    // FIXME:    need to test cleaning up stuff like this
+    /*
+     <p class="MsoNormal?" style="margin: 0cm 0cm 0pt; font-weight: bold; line-height: 200%;"><span lang="EN-US" xml:lang="EN-US">Chapter 1 Introduction</span></p>
+    */
   }
 
   function testRemoveTags() {
