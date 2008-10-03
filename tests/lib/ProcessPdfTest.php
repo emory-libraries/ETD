@@ -183,7 +183,6 @@ John H. Shugart <br/></div>");
     $this->assertPattern("/long\s+been\s+recognized\s+for\s+their\s+capacity\s+to\s+grow/",
 			 $fields['abstract'], "abstract");
     $this->assertPattern("/Introduction: Rice, Rain, and Response/", $fields['toc']);
-
     }
   function testGetInformation_strickland() {
     $this->processpdf->getInformation("../fixtures/strickland_sample.html");
@@ -208,7 +207,6 @@ John H. Shugart <br/></div>");
 			 $fields['abstract']);
     $this->assertPattern("/The\s+Importance\s+of\s+Nomenclature\s+for\s+Congenital\s+Heart\s+Disease/",
 			 $fields['toc']);
-
   }
   function testGetInformation_tinker() {
     $this->processpdf->getInformation("../fixtures/tinker_sample.html");
@@ -230,8 +228,13 @@ John H. Shugart <br/></div>");
     $this->assertEqual("Epidemiology", $fields['department']);
     $this->assertPattern("/municipal\s+drinking\s+water\s+may\s+contribute\s+to/", $fields['abstract']);
     $this->assertPattern("/Causes of Gastrointestinal Illness/", $fields['toc']);
+    // TOC continues to second page
+    $this->assertPattern("/7 DRINKING WATER TREATMENT PLANTS AND EMERGENCY/", $fields['toc']);
+    // TOC continues to third page
+    $this->assertPattern("/ADDITIONAL ANALYSIS OF DRINKING WATER TURBIDITY/", $fields['toc']);
   }
 
+  
 }
 
 
