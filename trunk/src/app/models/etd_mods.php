@@ -44,6 +44,9 @@ class etd_mods extends mods {
     $this->xmlconfig["embargo_end"] = array("xpath" => "mods:originInfo/mods:dateOther[@type='embargoedUntil']");
     $this->xmlconfig["embargo_notice"] = array("xpath" => "mods:note[@type='admin'][@ID='embargo_expiration_notice']");
 
+
+    $this->xmlconfig["pq_submit"] = array("xpath" => "mods:note[@type='admin'][@ID='pq_submit']");
+    
     // FIXME: may need mods_date class to set keyDate, start/end, qualifier attributes
     
     $this->xmlconfig["rights"] = array("xpath" => "mods:accessCondition[@type='useAndReproduction']");
@@ -463,6 +466,7 @@ class etd_mods extends mods {
     return $missing;
   }
 
+  
   function hasCopyright() {
     return ($this->copyright != "");
     //    return preg_match("/applying for copyright\? (yes|no)/", $this->copyright);
@@ -476,7 +480,23 @@ class etd_mods extends mods {
     return ($this->rights != "");
   }
 
+  /**
+   * Checks if submission to ProQuest required for this record
+   * @return boolean (true = required)
+   */
+  function ProquestRequired() {
+    return ($this->mods->degree->name == "PhD");
+  }
+  
+  // is submit to proquest set (yes/no)
+  function hasSubmitToProquest() {
+    return (isset($this->pq_submit) && $this->pq_submit != "");
+  }
 
+  // is the record set to be submitted to proquest?
+  function submitToProquest() {
+    return ($this->degree->name == "PhD" || $this->pq_submit == "yes");
+  }
   
 }
 
