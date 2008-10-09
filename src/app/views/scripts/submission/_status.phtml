@@ -50,13 +50,26 @@
 
 <?/* FIXME: should this be grouped as rights/restrictions since they are edited on the same page? */ ?>
   <? $rights_url = $this->url(array('controller' => 'edit', 'action' => 'rights')); ?>
+
+  <? if ($etd->mods->degree->name != "PhD" && $etd->mods->degree->name != ""): ?>
+    <? /* since PQ submission is not optional for PhDs, hide this from them */ ?>
+    <? $pq_submit = $etd->mods->hasSubmitToProquest() ?>
+    <?= $pq_submit ? $ok : $incomplete; ?> <a href="<?= $rights_url ?>">send to ProQuest</a>
+    <?= $pq_submit ? ": <b>" . $etd->mods->pq_submit . "</b>" : "";	/* display choice if set */ ?>
+    <br/>
+  <? endif ?>
+
+  <? /* if not submitting to PQ and copyright is set, suppress (redundant) */ ?>
   <? $copyright = $etd->mods->hasCopyright(); ?>
-  <?= $copyright ? $ok : $incomplete; ?> <a href="<?= $rights_url ?>">copyright</a>
-  <?= $copyright ? "(" . $etd->mods->copyright . ")" : "";	/* display choice if set */ ?>
-  <br/>
+  <? if ($etd->mods->submitToProquest() && $copyright): ?>
+    <?= $copyright ? $ok : $incomplete; ?> <a href="<?= $rights_url ?>">copyright</a>
+    <?= $copyright ? ": <b>" . $etd->mods->copyright . "</b>" : "";	/* display choice if set */ ?>
+    <br/>
+  <?endif ?>
+  
   <? $embargo = $etd->mods->hasEmbargoRequest(); ?>
   <?= $embargo ? $ok : $incomplete; ?> <a href="<?= $rights_url ?>">embargo request</a>
-  <?= $embargo ? "(" . $etd->mods->embargo_request . ")" : "" ?>
+  <?= $embargo ? ": <b>" . $etd->mods->embargo_request . "</b>" : "" ?>
   <br/>
   <?= $etd->mods->hasSubmissionAgreement() ? $ok : $incomplete; ?>
   	<a href="<?= $rights_url ?>">submission agreement</a><br/>
