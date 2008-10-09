@@ -135,7 +135,8 @@ class EditController extends Etd_Controller_Action {
     // xforms setting - so layout can include needed code in the header
     $this->view->xforms = true;
     $this->view->xforms_bind_script = "edit/_rights_bind.phtml";
-    $this->view->namespaces = array("mods" => "http://www.loc.gov/mods/v3");
+    $this->view->namespaces = array("mods" => "http://www.loc.gov/mods/v3",
+				    "etd" => "http://www.ndltd.org/standards/metadata/etdms/1.0/");
     // link to xml rather than embedding directly in the page
     $this->view->xforms_model_uri = $this->_helper->url->url(array("controller" => "view", "action" => "mods",
 								   "pid" => $etd->pid),

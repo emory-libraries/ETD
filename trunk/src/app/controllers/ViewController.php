@@ -49,6 +49,17 @@ class ViewController extends Etd_Controller_Action {
      }
 
      $datastream = $this->_getParam("datastream");
+
+     // new field added to make PQ submission optional for Masters students (add field if not present)
+     // used in edit/rights action
+     if (($type == "etd" && $datastream == "mods") && !isset($object->mods->pq_submit)) {
+       $object->mods->addNote("", "admin", "pq_submit");
+       // PhDs are required to submit to ProQuest
+       if ($object->mods->degree->name == "PhD") {
+	 $object->mods->pq_submit = "yes";
+       }
+     }
+
      $mode = $this->_getParam("mode");
      
      if (isset($object->$datastream)) {	// check that it is the correct type, also?
