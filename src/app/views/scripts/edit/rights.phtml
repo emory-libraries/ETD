@@ -22,6 +22,34 @@ Graduate School for approval.</p>
   <?= $this->xformSelect("Access Restriction (Embargo)", "instance('tmp')/embargo", $embargo_opts, $opts); ?>
 </div>
 
+<xf:group bind="pq_submit">
+<hr/>
+    <? if ($this->etd->mods->degree->name != ''): ?>
+    <p>Because you are receiving a(n) <b><?= $this->etd->mods->degree->name ?></b> degree,
+       submission to ProQuest/UMI is optional for you.</p>
+    <? else: ?>
+    <p>Submitting to ProQuest/UMI is optional for students who are not receiving PhDs.
+    You have not yet entered your degree information; you should
+    <a href="<?= $this->url(array("action" => "record")) ?>">edit your thesis information</a>
+       before proceeding.</p>
+    <? endif ?>
+									   
+<? $pqsubmit_opts = array("yes" => "Yes, I intend to submit to ProQuest",
+			   "no" => "No, I do not wish to submit to ProQuest");
+/* if not submitting, registering copyright is automatically set to no */ 
+  $action = '<xf:action ev:event="xforms-value-changed">
+       <xf:setvalue ref="instance(\'tmp\')/copyright"
+      	value="if(instance(\'main\')/mods:note[@ID=\'pq_submit\'] = \'no\', \'no\', instance(\'tmp\')/copyright)"/>
+      </xf:action>'; 
+?>
+
+<div class="xfselect">  
+    <?= $this->xformSelect("Submit to ProQuest/UMI?", "instance('main')/mods:note[@ID='pq_submit']", $pqsubmit_opts, $opts, $action); ?>
+<? /* FIXME: if set to no, should copyright be auto-set to no as well? */ ?>
+</div>
+</xf:group>
+
+<xf:group bind="ask_copyright">
 <hr/>
 <p>Indicate below whether you would like Proquest/UMI to register your copyright.  (Note that this service requires the submission of a fee and the appropriate Proquest/UMI form.)</p>
 
@@ -32,12 +60,13 @@ Agreement, page 5.)",
 <div class="xfselect">  
   <?= $this->xformSelect("Registering Copyright?", "instance('tmp')/copyright", $copyright_opts, $opts); ?>
 </div>
+</xf:group>
 
 <hr/>
 <p>Check the box below to indicate that you agree to the terms of
 Emory's general submission agreement.  (Note that this merely
 supplements the paper form signed by you and your Committee Chair.)</p>
-
+<? /* FIXME: convert to xformSelect helper call as above for pq_submit */ ?>
 <div class="xfselect">
   <xf:select ref="instance('tmp')/agreement" appearance="full">
     <xf:label>Submission Agreement</xf:label>
