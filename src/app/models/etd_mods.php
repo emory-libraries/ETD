@@ -485,7 +485,7 @@ class etd_mods extends mods {
    * @return boolean (true = required)
    */
   function ProquestRequired() {
-    return ($this->mods->degree->name == "PhD");
+    return ($this->degree->name == "PhD");
   }
   
   // is submit to proquest set (yes/no)
