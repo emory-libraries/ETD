@@ -16,6 +16,11 @@ class TestEtdMods extends UnitTestCase {
   function testBasicProperties() {
     $this->assertIsA($this->mods, "etd_mods");
     $this->assertIsA($this->mods->chair, "Array");
+    $this->assertIsA($this->mods->degree, "etd_degree");
+    $this->assertEqual("PhD", $this->mods->degree->name);
+    $this->assertEqual("Doctoral", $this->mods->degree->level);
+    $this->assertEqual("subfield", $this->mods->degree->discipline);
+    $this->assertEqual("subfield", $this->mods->subfield);
   }
   
   function testKeywords() {
@@ -199,6 +204,37 @@ class TestEtdMods extends UnitTestCase {
     $this->mods->remove("embargo_notice");
     $this->assertFalse(isset($this->mods->embargo_notice));
     $this->assertNoPattern("|<mods:note type='admin' ID='embargo_expiration_notice'>|", $this->mods->saveXML());
+  }
+
+  function testPQSubmitNote() {
+    // won't be present initially (on records created before it was added)
+    $this->assertFalse(isset($this->mods->pq_submit));
+    $this->mods->addNote("yes", "admin", "pq_submit");	// add
+    $this->assertTrue(isset($this->mods->pq_submit));
+    $this->assertPattern('|<mods:note type="admin" ID="pq_submit">|',  $this->mods->saveXML());
+
+    //convenience functions
+    // - required?
+    $this->mods->degree->name = "PhD";
+    $this->assertTrue($this->mods->ProquestRequired());
+    $this->mods->degree->name = "MA";
+    $this->assertFalse($this->mods->ProquestRequired());
+    // - PQ submit field is filled in
+    $this->mods->remove("pq_submit");
+    $this->assertFalse($this->mods->hasSubmitToProquest());
+    $this->mods->addNote("yes", "admin", "pq_submit");
+    $this->assertNotNull($this->mods->pq_submit);
+    $this->assertEqual("yes", $this->mods->pq_submit);
+    $this->assertTrue($this->mods->hasSubmitToProquest(), "submit to PQ is set");
+    //    $this->xmlconfig["pq_submit"] = array("xpath" => "mods:note[@type='admin'][@ID='pq_submit']");
+    // - send to PQ?
+    $this->mods->degree->name = "PhD";
+    $this->assertTrue($this->mods->submitToProquest());
+    $this->mods->degree->name = "MA";
+    $this->mods->pq_submit = "yes";
+    $this->assertTrue($this->mods->submitToProquest());
+    $this->mods->pq_submit = "no";
+    $this->assertFalse($this->mods->submitToProquest());
   }
 
 }
