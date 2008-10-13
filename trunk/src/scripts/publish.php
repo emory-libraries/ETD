@@ -224,7 +224,9 @@ if (count($etds)) {
     $actions = array();
     // construct a save message based on what was actually done
     if ($opts->confirmgrad)  $actions[] = "confirmed graduation";
-    if ($opts->proquest)     $actions[] = "submitted to ProQuest";
+    if ($opts->proquest && $etd->mods->submitToProquest())
+      // not all records will be submitted to ProQuest (optional for Masters)
+      $actions[] = "submitted to ProQuest";
     if ($opts->publish)      $actions[] = "published";
     $etd->save(implode('; ', $actions));
   }
@@ -499,7 +501,11 @@ function publish(array $etds) {
 }
 
 /**
- * create a proquest submission package (zip of PQ submission xml + files), ftp to PQ, and send email
+ * Create a proquest submission package (zip of PQ submission xml + files),
+ * ftp to PQ, and send email.
+ * Because submission is optional for non-PhDs, if record is not set
+ * to be submitted to ProQuest, it will be skipped.
+ *
  * @param array $etds etd objects
  */
 function submit_to_proquest(array $etds) {
@@ -526,6 +532,13 @@ function submit_to_proquest(array $etds) {
 		    $etd->status() . " instead of approved or published");
       continue;	// skip to next etd
     }
+
+    // submission optional for non-PhDs - do not submit if not required/requested
+    if (!$etd->mods->submitToProquest()) {
+      $logger->info("Record " . $etd->pid . " will not be sent to ProQuest (not required and not requested by student)");
+      continue;
+    }
+    
 
     $logger->info("Preparing ProQuest submission file for " . $etd->pid);	// debug instead of info?
     $submission = new ProQuestSubmission();
