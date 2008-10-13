@@ -24,8 +24,18 @@ class solrEtd implements etdInterface {
   public function subfield() { return $this->getField("subfield"); }
   // advisor renamed to chair to handle multiple names
   public function chair() { return $this->getField("advisor"); }
-  // advisor also indexed in committee index; exclude from output here to avoid redundancy
-  public function committee() { return array_diff($this->getField("committee", true), $this->chair()); }
+
+  // advisor is also indexed in committee index; exclude from output here to avoid redundancy
+  public function committee() {
+    // NOTE: not using array_diff because it resulted in numeric keys not starting with 0
+    $result = array();
+    $committee = $this->getField("committee", true);
+    $chairs = $this->chair();
+    foreach ($committee as $cm) {
+      if (!in_array($cm, $chairs)) $result[] = $cm;
+    }
+    return $result;
+  }
         // how to handle non-emory committee?
   	// dissertation/thesis/etc
   public function document_type() { return $this->getField("document_type"); }
