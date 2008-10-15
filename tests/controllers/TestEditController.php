@@ -169,7 +169,7 @@ class EditControllerTest extends ControllerTestCase {
     $EditController->rightsAction();
     $this->assertTrue($EditController->redirectRan);	// redirects back to record
     $messages = $EditController->getHelper('FlashMessenger')->getMessages();
-    $this->assertEqual("Please select your degree before editing Rights and Access Restrictions", $messages[0]);
+    $this->assertEqual("You must select your degree before editing Rights and Access Restrictions", $messages[0]);
       
   }
 
