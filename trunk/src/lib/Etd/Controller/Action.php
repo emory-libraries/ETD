@@ -62,6 +62,19 @@ abstract class Etd_Controller_Action extends Zend_Controller_Action {
 
   public function postDispatch() {
     $this->view->messages = $this->_helper->flashMessenger->getMessages();
+
+    /*  For some reason, xforms get loaded twice (FormFaces oddity),
+        and on the second load the flash message is no longer current,
+        so the message appears briefly and then disappears.
+
+       Re-adding the messages on xforms pages so they will show up on the reload.
+       (May result in messages being shown to user twice)     */
+    if ($this->view->xforms) {
+      foreach ($this->view->messages as $msg) {
+	$this->_helper->flashMessenger->addMessage($msg);
+      }
+    }
+    
   }
 
 
