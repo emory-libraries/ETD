@@ -128,6 +128,14 @@ class EditController extends Etd_Controller_Action {
     $etd = $this->_helper->getFromFedora("pid", "etd");
     if (!$this->_helper->access->allowedOnEtd("edit metadata", $etd)) return;
 
+    // PQ submission question depends on degree name; if not set, forward to main edit page
+    if ($etd->mods->degree->name == "") {
+      $this->_helper->flashMessenger->addMessage("Please select your degree before editing Rights and Access Restrictions");
+      // forward to main record edit page (includes degree)
+      $this->_helper->redirector->gotoRoute(array("controller" => "edit", "action" => "record",
+    						"pid" => $etd->pid), '', true);
+    } 
+
     $this->view->title = "Edit Author Rights/Access Restrictions";
 
     $this->view->etd = $etd;
