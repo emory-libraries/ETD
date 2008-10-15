@@ -87,4 +87,11 @@
         <? /* in published mode, subfield should link to program browse */ ?>
      <br/>
 
+<? if ($this->acl->isAllowed($this->etd->getUserRole($this->current_user), "etd", "view mods")): ?>
+  <span style="float:right;padding-right:5px;">					 
+    <a href="<?= $this->url(array("controller" => "view", "action" => "mods", "pid" => $this->etd->pid())) ?>">MODS</a>  
+  | <a href="<?= $this->url(array("controller" => "view", "action" => "dc", "pid" => $this->etd->pid())) ?>">DC</a>
+  </span>
+<? endif ?>
+					 
 <span class="permalink"><b>Permanent url:</b> <a href="<?= $this->etd->ark() ?>"><?= $this->etd->ark() ?></a></span>
