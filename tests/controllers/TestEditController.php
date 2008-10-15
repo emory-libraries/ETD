@@ -160,7 +160,17 @@ class EditControllerTest extends ControllerTestCase {
     $viewVars = $EditController->view->getVars();
     $this->assertIsA($EditController->view->etd, "etd");
     $this->assertTrue(isset($EditController->view->namespaces['mods']));
-    $this->assertEqual("/view/mods/pid/test:etd2", $EditController->view->xforms_model_uri);  
+    $this->assertEqual("/view/mods/pid/test:etd2", $EditController->view->xforms_model_uri);
+
+    // if degree is blank, should redirect to main edit page
+    $etd = new etd("test:etd2");
+    $etd->mods->degree->name = "";
+    $etd->save("blank degree to test rights edit page");
+    $EditController->rightsAction();
+    $this->assertTrue($EditController->redirectRan);	// redirects back to record
+    $messages = $EditController->getHelper('FlashMessenger')->getMessages();
+    $this->assertEqual("Please select your degree before editing Rights and Access Restrictions", $messages[0]);
+      
   }
 
   function testResearchfieldAction() {
