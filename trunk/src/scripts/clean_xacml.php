@@ -6,6 +6,8 @@
 	- remove draft rule if status is not draft
 	- remove view rule and add new one from current template, to
   	  update graduate coordinator portion of the rule (August 2008)
+        - update draft and published rules to latest version of
+	  xacml policy rules, as appropriate for etd status  (October 2008)
    */
 
 
@@ -147,12 +149,23 @@ function clean_xacml(etd $etd) {
       $obj->policy->view->condition->department = $etd->mods->department;
     }
   }
-  
-  // if etd is no longer in draft status, make sure draft rule is removed from etd files
-  if ($etd->status() != "draft") {
+
+  if ($etd->status() == "draft") {
+    // remove the old draft policy and add the latest version (in case it has changed)
+    $etd->removePolicyRule("draft");
+    $etd->addPolicyRule("draft");
+  }  else {
+    // if etd is no longer in draft status, make sure draft rule is removed from etd files
     // draft rule could be present in one of the etdfiles (hard to detect); just force removal
     $logger->debug("Record is not in draft status; removing any draft policy rules.");
     $etd->removePolicyRule("draft");		// remove draft policy on etd & all files
+  }
+
+
+  // if pubished, remove the old published policy and add the latest version
+  if ($etd->status() == "published") {
+    $etd->removePolicyRule("published");
+    $etd->addPolicyRule("published");
   }
   
   // check if anything has been changed (for reporting purposes)
