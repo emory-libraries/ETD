@@ -38,7 +38,7 @@ foreach ($this->log->getValues("username") as $username) {
     <? endif ?>
     <div class="timestamp"><?= $entry->timestamp ?></div>
     <div class="message <? if (preg_match("/^Backtrace:/", $entry->message)): ?>backtrace<? endif ?>">
-      <?= $entry->message ?>
+	<?= $this->escape($entry->message) ?>
     </div>
   </div>
 <? endforeach ?>
