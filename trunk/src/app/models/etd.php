@@ -310,12 +310,12 @@ class etd extends foxml implements etdInterface {
     $this->dc->setSubjects($subjects);
 
     // ark for this object
-    $this->dc->setArk($this->mods->ark);
+    if (isset($this->mods->ark)) $this->dc->setArk($this->mods->ark);
 
     // related objects : arks for public etd files (pdfs and supplements)
     $relations = array();
     foreach (array_merge($this->pdfs, $this->supplements) as $file) {
-      $relations[] = $file->dc->ark;
+      if (isset($file->dc->ark)) $relations[] = $file->dc->ark;
     }
     $this->dc->setRelations($relations);
 
