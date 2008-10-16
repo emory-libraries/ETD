@@ -334,7 +334,7 @@ class TestEtdXacml extends UnitTestCase {
 
   function testGradCoordinator() {
     setFedoraAccount("gradcoord");
-    //    $this->expectException(new FedoraNotAuthorized("getObjectProfile for test:etd1"));
+    $this->expectException(new FedoraNotAuthorized("getObjectProfile for test:etd1"));
     // FIXME: why are we getting this warning? everything seems to work okay...
     $etd = new etd($this->pid);
 
