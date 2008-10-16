@@ -53,6 +53,7 @@ class FileControllerTest extends ControllerTestCase {
     $gff->clearReturnObject();
 
     Zend_Registry::set('solr', null);
+    Zend_Registry::set('current_user', null);
   }
 
   public function testViewAction() {
@@ -150,6 +151,31 @@ class FileControllerTest extends ControllerTestCase {
   // not sure how to test saving... (only testing non-xml saves in testing edit controller)
 
   // not sure how to test removing... depends on etdfile relation to etd
+
+  public function testRemoveAction() {
+    $FileController = new FileControllerForTest($this->request,$this->response);
+    $this->setUpGet(array('pid' => $this->filepid));
+	
+    // guest should not be allowed to remove
+    $this->test_user->role = "guest";
+    $this->assertFalse($FileController->removeAction());
+    $this->assertFalse($FileController->redirectRan);
+
+    // remove depends on relation to etd
+    $this->mock_etdfile->etd = new MockEtd();
+    $this->mock_etdfile->setReturnValue('delete', 'timestamp');
+    // set role to author and status to draft so delete will be allowed
+    $this->mock_etdfile->etd->setReturnValue("status", "draft");
+    $this->mock_etdfile->etd->setReturnValue("getUserRole", "author");
+    $FileController->current_user = $this->test_user;
+    $this->setUpGet(array('pid' => $this->filepid));
+    $FileController->removeAction();
+    $this->assertTrue($FileController->redirectRan);
+    $messages = $FileController->getHelper('FlashMessenger')->getMessages();
+    $this->assertPattern("/Successfully removed file/", $messages[0]);
+
+
+  }
   
 }
 
