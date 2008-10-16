@@ -260,22 +260,18 @@ class FileController extends Etd_Controller_Action {
      if (!$this->_helper->access->allowedOnEtdFile("remove", $etdfile)) return;
 
      $etd_pid = $etdfile->etd->pid;
-     $etdfile->etd->removeFile($etdfile);	// remove from the etd it belongs to
-     
-     $result = $etdfile->purge("removed by user");
+     // delete - removes from etd it belongs to and marks as deleted, but does not purge     
+     $result = $etdfile->delete("removed by user");
      if ($result) {	// fixme: filename?
+       $this->logger->info("Marked etdFile " . $etdfile->pid . " as deleted at $result");
        $this->_helper->flashMessenger->addMessage("Successfully removed file <b>" . $etdfile->label . "</b>");
      } else {
        $this->_helper->flashMessenger->addMessage("Error: could not remove file <b>" . $etdfile->label . "</b>");
+       $this->logger->error("Error marking etdFile " . $etdfile->pid . " as deleted");
      }
 
      // redirect to etd record
      $this->_helper->redirector->gotoRoute(array("controller" => "view", "action" => "record",
 						 "pid" => $etd_pid), '', true);
-
-     // shouldn't be necessary ...
-     $this->view->etd_pid = $etd_pid;
-     $this->view->title = "remove file";
-     $this->view->result = $result;
    }
 }
