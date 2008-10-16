@@ -326,7 +326,8 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
 
     if (isset($this->etd)) {
       $this->etd->removeFile($this);
-
+      $this->etd->save("removed relation to etdFile " . $this->pid . "; $message");
+      
       // fall-back way to get owner id since Fedora doesn't supply it properly
       $owner = $this->etd->rels_ext->author;
     } elseif (isset($this->policy) && isset($this->policy->draft)) {
