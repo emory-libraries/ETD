@@ -20,7 +20,7 @@ class IndexControllerTest extends ControllerTestCase {
     $IndexController = new IndexControllerForTest($this->request,$this->response);
 
     // NOTE: currently loading feed from another url
-    $this->expectError("Could not parse Feed of recently published records");
+    $this->expectError("Could not parse Feed 'recent'");
     $IndexController->indexAction();
     
     $viewVars = $IndexController->view->getVars();	
