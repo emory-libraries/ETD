@@ -310,6 +310,37 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
     return parent::purge($message);
   }
 
+  /**
+   * Mark a record as deleted 
+   * (does NOT actually purge, but makes inaccessible to non-admin users)
+   * First removes relation to parent ETD record, then sets object status.
+   * 
+   * @param string $message
+   * @return string date modified
+   */
+  public function delete($message) {
+    $rel = "rel:has" . ucfirst($this->type);	
+    if ($this->type == "pdf")
+      $rel = "rel:hasPDF";
+    // maybe add removePdf, removeSupplement, etc. functions for etd_rels ?
+
+    if (isset($this->etd)) {
+      $this->etd->removeFile($this);
+
+      // fall-back way to get owner id since Fedora doesn't supply it properly
+      $owner = $this->etd->rels_ext->author;
+    } elseif (isset($this->policy) && isset($this->policy->draft)) {
+      // secondary fall-back to get owner id if possible
+      $owner = $this->policy->draft->condition->user;
+    } 
+
+    return $this->fedora->modifyObject($this->pid, $this->label, $message,
+				       "D",	// set status to Deleted
+				       $owner);
+  }
+
+
+  
   public function updateFile($filename, $message) {
     $this->setFileInfo($filename);   // update mimetype, filesize, and pages if appropriate       
     $upload_id = $this->fedora->upload($filename);
