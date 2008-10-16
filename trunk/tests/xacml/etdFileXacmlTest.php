@@ -121,8 +121,16 @@ class TestEtdFileXacml extends UnitTestCase {
 
     $this->expectException(new FedoraAccessDenied("purge test:etdfile1"));
     $this->assertNull($etdfile->purge("testing author permissions - purge draft etdfile"));
+  }
 
+  function testAuthorDeleteDraft() {
+    // set user account to author
+    setFedoraAccount("author");
+    // record starts out as a draft
+    $etdfile = new etd_file($this->pid);
+    
     // delete (changes status, does not purge)
+    $this->assertNotNull($etdfile->delete("testing delete xacml"));
   }
 
 
@@ -155,6 +163,18 @@ class TestEtdFileXacml extends UnitTestCase {
     $this->expectException(new FedoraAccessDenied("purge test:etdfile1"));
     $this->assertNull($etdfile->purge("testing author permissions - purge non-draft etdfile"));
 
+  }
+
+  function testAuthorDeleteNonDraft() {
+    // set user account to author
+    setFedoraAccount("author");
+    // record starts out as a draft - remove
+    $etdfile = new etd_file($this->pid);
+    $etdfile->policy->removeRule("draft");  
+    $etdfile->save("remove draft policy for testing");
+    
+    $this->expectException(new FedoraAccessDenied("modifyObject for test:etdfile1"));
+    $this->assertNull($etdfile->delete("testing delete xacml"));
   }
 
 
