@@ -1,4 +1,8 @@
-<mods:mods xmlns:mods="http://www.loc.gov/mods/v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema">
+<mods:mods 
+  xmlns:mods="http://www.loc.gov/mods/v3" 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema"
+  xmlns:etd="http://www.ndltd.org/standards/metadata/etdms/1.0/"
+ >
   <mods:titleInfo>
     <mods:title>Why I Like Cheese</mods:title>
   </mods:titleInfo>
@@ -50,4 +54,12 @@
   <mods:physicalDescription>
     <mods:extent/>
   </mods:physicalDescription>
+
+  <mods:extension>
+    <etd:degree>
+      <etd:name>PhD</etd:name>
+      <etd:level>Doctoral</etd:level>
+      <etd:discipline>subfield</etd:discipline>
+    </etd:degree>
+  </mods:extension>
 </mods:mods>
