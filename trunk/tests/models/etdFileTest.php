@@ -51,7 +51,7 @@ class TestEtdFile extends UnitTestCase {
     // add relation between objects
     $etdfile->rels_ext->addRelationToResource("rel:isSupplementOf", $etd->pid);
     // fixture has a blank dummy relation; remove
-    $etdfile->rels_ext->removeRelation("rel:isPDFOf", "");
+    //    $etdfile->rels_ext->removeRelation("rel:isPDFOf", "");
     $etd->addSupplement($etdfile);
     // confirm that etdfile is added
     $this->assertTrue(in_array($etdfile, $etd->supplements));
@@ -59,6 +59,7 @@ class TestEtdFile extends UnitTestCase {
     // use new etdfile->delete function - should return date modified
     $this->assertNotNull($etdfile->delete("testing new delete function"));
     // 3. check that etd object no longer has relation to etdfile
+    $etd = new etd($etdpid);	// re-init from Fedora
     $this->assertFalse($etd->rels_ext->supplement->includes($etdfile->pid));
     //		 Note: using DOMElementArray equivalent function for in_array
 
