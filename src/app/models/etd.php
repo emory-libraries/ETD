@@ -253,6 +253,7 @@ class etd extends foxml implements etdInterface {
     case "original": $relation = "hasOriginal"; break;
     case "supplement"; $relation = "hasSupplement"; break;
     }
+    $this->rels_ext->removeRelation("rel:$relation", $etdfile->pid);
   }
 
   /**
