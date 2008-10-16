@@ -66,7 +66,7 @@ class EditControllerTest extends ControllerTestCase {
     // required namespaces for this xform
     $this->assertTrue(isset($EditController->view->namespaces['mods']));
     $this->assertTrue(isset($EditController->view->namespaces['etd']));
-    $this->assertEqual("/view/mods/pid/test:etd2/mode/edit", $EditController->view->xforms_model_uri);
+    $this->assertPattern("|/view/mods/pid/test:etd2/mode/edit$|", $EditController->view->xforms_model_uri);
 
     // set status to non-draft to test access controls
     $etd = new etd("test:etd2");
@@ -94,7 +94,7 @@ class EditControllerTest extends ControllerTestCase {
     $this->assertTrue(isset($EditController->view->program));
     $this->assertIsA($EditController->view->program, 'programs');
     $this->assertIsA($EditController->view->program, 'collectionHierarchy');
-    $this->assertEqual("/view/mods/pid/test:etd2", $EditController->view->xforms_model_uri);
+    $this->assertPattern("|/view/mods/pid/test:etd2$|", $EditController->view->xforms_model_uri);
     $this->assertTrue(isset($EditController->view->namespaces['mods']));
     $this->assertTrue(isset($EditController->view->namespaces['etd']));
     // needed for programs
@@ -160,7 +160,7 @@ class EditControllerTest extends ControllerTestCase {
     $viewVars = $EditController->view->getVars();
     $this->assertIsA($EditController->view->etd, "etd");
     $this->assertTrue(isset($EditController->view->namespaces['mods']));
-    $this->assertEqual("/view/mods/pid/test:etd2", $EditController->view->xforms_model_uri);
+    $this->assertPattern("|/view/mods/pid/test:etd2$|", $EditController->view->xforms_model_uri);
 
     // if degree is blank, should redirect to main edit page
     $etd = new etd("test:etd2");
