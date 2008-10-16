@@ -121,7 +121,8 @@ class TestEtdFileXacml extends UnitTestCase {
 
     $this->expectException(new FedoraAccessDenied("purge test:etdfile1"));
     $this->assertNull($etdfile->purge("testing author permissions - purge draft etdfile"));
-    
+
+    // delete (changes status, does not purge)
   }
 
 
@@ -142,7 +143,7 @@ class TestEtdFileXacml extends UnitTestCase {
     $this->assertNull($etdfile->save("test author permissions - modify DC on non-draft etdfile"));
     $etdfile->dc->calculateChecksum();	// mark as unmodified
     
-    $etdfile->rels_ext->pdfOf = "test:etd1";    // RELS-EXT
+    $etdfile->rels_ext->supplementOf = "test:etd1";    // RELS-EXT
     $this->expectError("Access Denied to modify datastream RELS-EXT");
     $this->assertNull($etdfile->save("test author permissions - modify RELS-EXT on non-draft etdfile"));
     $etdfile->rels_ext->calculateChecksum();       
@@ -176,7 +177,7 @@ class TestEtdFileXacml extends UnitTestCase {
     $this->assertNull($etdfile->save("test committee permissions - modify DC"));
     $etdfile->dc->calculateChecksum();  // set as not modified so it won't attempt to save again
     
-    $etdfile->rels_ext->pdfOf = "test:etd1";    // RELS-EXT
+    $etdfile->rels_ext->supplementOf = "test:etd1";    // RELS-EXT
     $this->expectError("Access Denied to modify datastream RELS-EXT");
     $this->assertNull($etdfile->save("test committee permissions - modify RELS-EXT"));
     $etdfile->rels_ext->calculateChecksum();
@@ -208,7 +209,7 @@ class TestEtdFileXacml extends UnitTestCase {
     $etdfile = new etd_file($this->pid);
 
     // should be able to modify these datastreams
-    //    $etdfile->rels_ext->pdfOf = "test:etd1";    // RELS-EXT  (set status)
+    //    $etdfile->rels_ext->supplementOf = "test:etd1";    // RELS-EXT  (set status)
     $etdfile->rels_ext->addRelation("rel:status", "draft");    // RELS-EXT  (set status)
     $saveresult = $etdfile->save("test etdadmin permissions - modify RELS-EXT on draft etdfile");
     $this->assertNotNull($saveresult,
