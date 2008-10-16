@@ -241,7 +241,7 @@ class etd extends foxml implements etdInterface {
   }
 
 
-  // remove relation to a file (when file is purged)
+  // remove relation to a file (when file is purged or deleted)
   public function removeFile(etd_file $etdfile) {
     switch ($etdfile->type) {
     case "pdf":
@@ -253,9 +253,6 @@ class etd extends foxml implements etdInterface {
     case "original": $relation = "hasOriginal"; break;
     case "supplement"; $relation = "hasSupplement"; break;
     }
-
-    //    risearch::flush($this->pid);
-    $this->fedora->risearch->flush_next();
   }
 
   /**
