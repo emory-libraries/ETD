@@ -14,7 +14,7 @@
 	  <rdf:description rdf:about="info:fedora/test:etdfile1">
 		<!-- NOTE: just adding a dummy relation here to avoid
 		     errors about not belonging to  an etd  -->
-	      <rel:isPDFOf rdf:resource=""/>
+	      <rel:isPDFOf rdf:resource="info:fedora/"/>
 	  </rdf:description>
 	</rdf:RDF>
       </foxml:xmlContent>

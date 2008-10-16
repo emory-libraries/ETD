@@ -36,6 +36,45 @@ class TestEtdFile extends UnitTestCase {
     $this->assertIsA($this->etdfile->policy->draft, "PolicyRule");
     $this->assertIsA($this->etdfile->policy->view, "PolicyRule");
   }
+
+  function testDelete() {
+    // Need an etd related to an etdfile both loaded to fedora
+    $fedora = Zend_Registry::get("fedora");
+    
+    // load test objects to repository
+    $etdpid = $fedora->ingest(file_get_contents('../fixtures/etd2.xml'), "loading test etd");
+    $filepid = $fedora->ingest(file_get_contents('../fixtures/etdfile.xml'), "loading test etdfile");
+    
+    $etd = new etd($etdpid);
+    $etdfile = new etd_file($filepid, $etd);
+    $etdfile->policy->addRule("view");	// needed by addSupplement
+    // add relation between objects
+    $etdfile->rels_ext->addRelationToResource("rel:isSupplementOf", $etd->pid);
+    // fixture has a blank dummy relation; remove
+    $etdfile->rels_ext->removeRelation("rel:isPDFOf", "");
+    $etd->addSupplement($etdfile);
+    // confirm that etdfile is added
+    $this->assertTrue(in_array($etdfile, $etd->supplements));
+
+    // use new etdfile->delete function - should return date modified
+    $this->assertNotNull($etdfile->delete("testing new delete function"));
+    // 3. check that etd object no longer has relation to etdfile
+    $this->assertFalse($etd->rels_ext->supplement->includes($etdfile->pid));
+    //		 Note: using DOMElementArray equivalent function for in_array
+
+    // There is no good way to test only the desired properties using
+    // Fedora API calls; getting entire object XML and testing that.
+    $filexml = $fedora->getXml($filepid);
+    
+    // check that etdfile has status Deleted 
+    $this->assertPattern('|foxml:property NAME="info:fedora/fedora-system:def/model#state" VALUE="Deleted"|', $filexml);
+    // check that owner was preserved 
+    $this->assertPattern('|foxml:property NAME="info:fedora/fedora-system:def/model#ownerId" VALUE="author"|', $filexml);	// (picked up from ETD object)
+
+    // remove test objects from fedora
+    $fedora->purge($etdpid, "completed test");
+    $fedora->purge($filepid, "completed test");
+  }
 }
 
 
