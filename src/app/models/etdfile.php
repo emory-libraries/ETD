@@ -333,7 +333,15 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
     } elseif (isset($this->policy) && isset($this->policy->draft)) {
       // secondary fall-back to get owner id if possible
       $owner = $this->policy->draft->condition->user;
-    } 
+    } else {
+      // no way to determine owner-- record will lose ownerId (this bad)
+      $owner = "";
+      
+      if (Zend_Registry::isRegistered('logger')) {
+	$logger = Zend_Registry::get('logger');
+	$logger->warn("Could not determine owner for etdFile " . $this->pid . "; owner will be lost in marking object as deleted");
+      }
+    }
 
     return $this->fedora->modifyObject($this->pid, $this->label, $message,
 				       "D",	// set status to Deleted
