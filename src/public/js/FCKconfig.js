@@ -8,14 +8,14 @@ FCKConfig.JustifyClasses = [ 'JustifyLeft', 'JustifyCenter', 'JustifyRight', 'Ju
 FCKConfig.Plugins.Add('universalkey');
 
 FCKConfig.ToolbarSets["etd-title"] = [
-      ['Preview','-', 'Bold','Italic','Underline','-','Subscript','Superscript','-','Link','Unlink',
+      ['Bold','Italic','Underline','-','Subscript','Superscript','-','Link','Unlink',
        '-', 'SpecialChar', 'UniversalKey', 
        '-', 'Paste', 'PasteText', 'PasteWord',
        '-', 'SpellCheck', 'About']
 ];
 
 FCKConfig.ToolbarSets["etd"] = [
-	['Preview','-', 'Bold','Italic','Underline','-','Subscript','Superscript','-','Link','Unlink',
+	['Bold','Italic','Underline','-','Subscript','Superscript','-','Link','Unlink',
 	 '-', 'SpecialChar', 'UniversalKey', 
 	 '-', 'Paste', 'PasteText', 'PasteWord',
 	 '-', 'SpellCheck', 'About'],
@@ -24,7 +24,7 @@ FCKConfig.ToolbarSets["etd"] = [
   ];
 /* same as etd + view source */
 FCKConfig.ToolbarSets["etd-admin"] = [
-	['Preview','-', 'Bold','Italic','Underline','-','Subscript','Superscript','-','Link','Unlink',
+	['Bold','Italic','Underline','-','Subscript','Superscript','-','Link','Unlink',
 	 '-', 'SpecialChar', 'UniversalKey',
 	 '-', 'Paste', 'PasteText', 'PasteWord',
 	 '-', 'SpellCheck', 'About', '-', 'Source'],
