@@ -46,14 +46,21 @@ class TestEtdHtml extends UnitTestCase {
 		       etd_html::cleanTags("<strong/>some text", true));
 
 
-    // microsoft junk formatting $355
+    // remove microsoft junk formatting (Trac ticket #355)
     $this->assertPattern("|<p>text</p>|",
 		       etd_html::cleanTags('<p class="MsoNormal">text</p>', true));
+    $this->assertPattern("|<p>text</p>|",
+		       etd_html::cleanTags('<p style="margin: 0cm 0cm 0pt; font-weight:bold;line-height:200%">text</p>', true));
+    $this->assertPattern("|<p>text</p>|",
+		       etd_html::cleanTags('<p><span lang="EN-US" xml:lang="EN-US">text</p>', true));
 
-    // FIXME:    need to test cleaning up stuff like this
-    /*
-     <p class="MsoNormal?" style="margin: 0cm 0cm 0pt; font-weight: bold; line-height: 200%;"><span lang="EN-US" xml:lang="EN-US">Chapter 1 Introduction</span></p>
-    */
+    // MS classes mixed with FCKeditor classes: remove only the unwanted MS classname
+    $this->assertPattern("|<p class=\"Indent1\">text</p>|",
+		       etd_html::cleanTags('<p class="Indent1 MsoNormal">text</p>', true));
+    $this->assertPattern("|<p class=\"JustifyLeft\">text</p>|",
+		       etd_html::cleanTags('<p class="MsoNormal JustifyLeft">text</p>', true));
+    $this->assertPattern("|<p class=\"Indent2 JustifyRight\">text</p>|",
+		       etd_html::cleanTags('<p class="Indent2 MsoNormal JustifyRight">text</p>', true));
   }
 
   function testRemoveTags() {
