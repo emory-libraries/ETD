@@ -10,6 +10,11 @@ The system may not accept special characters imported using a cut-and-paste
 function from your processor, so we recommend that you insert these special
 characters using the tools provided.</p>
 
+<p><b>If you are copying and pasting from Microsoft Word</b> please use the
+paste from Word tool <?= $this->img("images/fck_pasteword.gif") ?>.  If special
+characters are causing problems, please use the paste as plain text tool
+<?= $this->img("images/fck_pastetext.gif") ?>.
+
 <form name="edit" method="post"
     action="<?= $this->url(array("action" => "save" . ucfirst($this->mode), "mode" => $this->mode))?>">
 <? /* configuration options for FCK editor */ 
@@ -18,7 +23,11 @@ $editor_opts = array("config" => (string)$this->linkTo("js/FCKconfig.js"),
 if ( $this->mode == "title") {
   $editor_opts["toolbar"] = "etd-title";
   $editor_opts["height"] = "etd-title";
+} elseif ($this->mode == "abstract") {
+  $editor_opts["BodyId"] = "abstract";
 }
+
+$editor_opts["css"] = $this->linkTo("css/etd.css");
 if ($this->current_user->role == "superuser") $editor_opts["toolbar"] = "etd-admin";
 ?>
 
