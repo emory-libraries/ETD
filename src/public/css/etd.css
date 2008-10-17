@@ -440,7 +440,7 @@ div.record_title p {
   margin: 0px;
 }
 
-div#abstract p { 
+#abstract p {  /* div or body (in FCKeditor) */
  margin: 1em 0;
 }
 
@@ -473,7 +473,7 @@ div.listrecord h3 {
   margin-top:0px;
   margin-bottom:5px;
 }
-div.listrecord p, div.fullrecord p { 
+div.listrecord p, .fullrecord p { /* div or body (in FCKeditor) */
   margin:0px;
 }
 div.fullrecord { 
@@ -887,3 +887,12 @@ div.letters a { text-decoration:none; font-size:115%; padding:0px 2px;}
 div.letters a.current { font-weight:bold; }
 
 span.permalink { background-color: #ffda82; /*#fffdee; /* very faint yellow */ }
+
+/* formatting used by FCKeditor */
+.Indent1 { margin-left: 40px !important; }
+.Indent2 { margin-left: 80px !important; }
+.Indent3 { margin-left: 120px !important;}
+.JustifyLeft { text-align: left; }
+.JustifyRight {	text-align: right; }
+.JustifyCenter { text-align: center; }
+.JustifyFull { text-align: justify; }
