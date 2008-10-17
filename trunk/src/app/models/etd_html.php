@@ -121,14 +121,13 @@ class etd_html extends foxmlDatastreamAbstract {
       $string = str_replace("&nbsp;", " ", $string);
     }
 
-    // remove Microsoft class names
-    $string = preg_replace('/class="Mso[a-zA-Z]+"/', '', $string);
-
-    // FIXME:    need to test cleaning up stuff like this
-    /*
-     <p class="MsoNormal?" style="margin: 0cm 0cm 0pt; font-weight: bold; line-height: 200%;"><span lang="EN-US" xml:lang="EN-US">Chapter 1 Introduction</span></p>
-    */
-
+    // remove Microsoft class names (by themselves or mixed with classes we want to preserve)
+    $string = preg_replace(array('/ *class="Mso[a-zA-Z]+"/', '/class="([^"]*)?Mso[a-zA-Z]+([^"]*)?"/'),
+			   array('', 'class="$1$2"'),  $string);
+    // remove style attributes (all FCKeditor formatting should now use css classes)
+    $string = preg_replace('/ *style="[^"]+"/', '', $string);
+    // remove Microsoft language encoding  (FIXME: any case where we would want to preserve this?)
+    $string = preg_replace('/ *(xml:)?lang="[^"]+"/', '', $string);
     
     // use Tidy to clean up the formatting, tags, etc.
     $tidy_opts = array("output-xhtml" => true,
