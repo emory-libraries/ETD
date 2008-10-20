@@ -493,6 +493,10 @@ div.fullrecord h2 {
   clear:both;
 }
 
+div.fullrecord div.use { 
+ margin:10px 0px;
+ font-style:italic;
+}
 div.contact_info h2 { 
   margin:2px;
   border:none;
