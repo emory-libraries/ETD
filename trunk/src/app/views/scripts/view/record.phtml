@@ -16,6 +16,9 @@
       <?=  $this->render('view/_statistics.phtml'); ?>
     <? endif ?>
   <?=  $this->render('view/_history.phtml'); ?>
+  <? if (isset($this->etd->mods->useAndReproduction)): ?>
+    <div class="use"><?=  $this->etd->mods->useAndReproduction ?></div>
+  <? endif ?>
 </div>
 
 <? if ($this->etd->status() == "draft"): ?></div><? endif /* end submission div */?>
