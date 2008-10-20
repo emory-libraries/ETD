@@ -47,7 +47,7 @@ class FileController extends Etd_Controller_Action {
      $etd = $this->_helper->getFromFedora("etd", "etd");     // etd record the file belongs to
 
      // creating a new etdfile is part of adding a file to an etd
-     if (!$this->_helper->access->allowedOnEtd("add file", $etd)) return;
+     if (!$this->_helper->access->allowedOnEtd("add file", $etd)) return false;
      $this->view->etd = $etd;
      
      // how this file is related to the to the etd record
@@ -122,7 +122,7 @@ class FileController extends Etd_Controller_Action {
    // upload and save a new version of the binary file
    public function updateAction() {
      $etdfile = $this->_helper->getFromFedora("pid", "etd_file");
-     if (!$this->_helper->access->allowedOnEtdFile("edit", $etdfile)) return;
+     if (!$this->_helper->access->allowedOnEtdFile("edit", $etdfile)) return false;
 
      // pass on pids for links to etdfile and etd record
      $this->view->file_pid = $etdfile->pid;
@@ -188,7 +188,7 @@ class FileController extends Etd_Controller_Action {
    public function editAction() {
      $etdfile = $this->_helper->getFromFedora("pid", "etd_file");
      
-     if (!$this->_helper->access->allowedOnEtdFile("edit", $etdfile)) return;
+     if (!$this->_helper->access->allowedOnEtdFile("edit", $etdfile)) return false;
 
      $this->view->title = "Edit File Information";
      $this->view->etdfile = $etdfile;
@@ -212,7 +212,7 @@ class FileController extends Etd_Controller_Action {
    // save file metadata 
    public function saveAction() {
      $etdfile = $this->_helper->getFromFedora("pid", "etd_file");
-     if (!$this->_helper->access->allowedOnEtdFile("edit", $etdfile)) return;
+     if (!$this->_helper->access->allowedOnEtdFile("edit", $etdfile)) return false;
 
      global $HTTP_RAW_POST_DATA;
      $xml = $HTTP_RAW_POST_DATA;
@@ -257,8 +257,8 @@ class FileController extends Etd_Controller_Action {
 
    public function removeAction() {
      $etdfile = $this->_helper->getFromFedora("pid", "etd_file");
-     if (!$this->_helper->access->allowedOnEtdFile("remove", $etdfile)) return;
-
+     if (!$this->_helper->access->allowedOnEtdFile("remove", $etdfile)) return false;
+     
      $etd_pid = $etdfile->etd->pid;
      // delete - removes from etd it belongs to and marks as deleted, but does not purge     
      $result = $etdfile->delete("removed by user");
@@ -267,7 +267,7 @@ class FileController extends Etd_Controller_Action {
        $this->_helper->flashMessenger->addMessage("Successfully removed file <b>" . $etdfile->label . "</b>");
      } else {
        $this->_helper->flashMessenger->addMessage("Error: could not remove file <b>" . $etdfile->label . "</b>");
-       $this->logger->error("Error marking etdFile " . $etdfile->pid . " as deleted");
+       $this->logger->err("Error marking etdFile " . $etdfile->pid . " as deleted");
      }
 
      // redirect to etd record
