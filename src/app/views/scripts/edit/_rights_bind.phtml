@@ -3,7 +3,7 @@
      <copyright><?= $this->etd->mods->copyright ?></copyright>
      <embargo><?= $this->etd->mods->embargo_request ?></embargo>
     <agreement><?= $this->etd->mods->hasSubmissionAgreement() ? "yes" : "" ?></agreement>
-     <rights id="yes">Permission granted by the author to include this thesis or dissertation in this repository. All rights reserved by the author. Please contact the author for information regarding the reproduction and use of this thesis or dissertation.</rights>
+     <rights id="yes"><?= $this->rights_stmt ?></rights>
      <rights id="no"/>
      <ask_pq_submit/>
      <ask_copyright/>
