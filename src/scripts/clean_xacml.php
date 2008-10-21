@@ -10,34 +10,9 @@
 	  xacml policy rules, as appropriate for etd status  (October 2008)
    */
 
-
-  // ZendFramework, etc.
-ini_set("include_path", "../app/:../config:../app/models:../app/modules/:../lib:../lib/fedora:../lib/xml-utilities:js/:/home/rsutton/public_html:" . ini_get("include_path")); 
-
-require("Zend/Loader.php");
-Zend_Loader::registerAutoload();
-
-require_once("models/etd.php");
-require_once("models/etd_notifier.php");
-require_once("api/FedoraConnection.php");
-
-$env_config = new Zend_Config_Xml("../config/environment.xml", "environment");
-Zend_Registry::set('env-config', $env_config);
-$config = new Zend_Config_Xml("../config/config.xml", $env_config->mode);
-Zend_Registry::set('config', $config);
-$fedora_cfg = new Zend_Config_Xml("../config/fedora.xml", $env_config->mode);
-// needs to connect to Fedora using maintenance account to view and modify unpublished records
-$fedora = new FedoraConnection($fedora_cfg->maintenance_account->user,
-			       $fedora_cfg->maintenance_account->password,
-			       $fedora_cfg->server, $fedora_cfg->port,
-			       $fedora_cfg->protocol, $fedora_cfg->resourceindex);
-Zend_Registry::set('fedora', $fedora);
- 
-// set up connection to solr to find records with expiring embargoes
-$solr_config = new Zend_Config_Xml("../config/solr.xml", $env_config->mode);
-$solr = new Etd_Service_Solr($solr_config->server, $solr_config->port, $solr_config->path);
-$solr->addFacets($solr_config->facet->toArray());
-Zend_Registry::set('solr', $solr);
+// set paths, load config files;
+// set up connection objects for fedora, solr, ESD, and stats db
+require_once("bootstrap.php");
 
 $opts = new Zend_Console_Getopt(
 	array(
@@ -53,14 +28,12 @@ $usage = $opts->getUsageMessage() . "
  $scriptname goes through all etd records and cleans object xacml policy
 ";
 
-
 try {
   $opts->parse();
 } catch (Zend_Console_Getopt_Exception $e) {
   echo $usage;
   exit;
 }
-
 
 $writer = new Zend_Log_Writer_Stream("php://output");
 // minimal output format - don't display timestamp or numeric priority

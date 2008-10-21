@@ -1,22 +1,16 @@
 #!/usr/bin/php -q
 <?php
 
-// ZendFramework, etc.
-ini_set("include_path", "../app/::../app/models:../app/modules/:../lib:../lib/fedora:../lib/xml-utilities:js/:/home/rsutton/public_html:" . ini_get("include_path")); 
-
-require("Zend/Loader.php");
-Zend_Loader::registerAutoload();
+// set paths, load config files;
+// set up connection objects for fedora, solr, ESD, and stats db
+require_once("bootstrap.php");
 
 require_once("models/stats.php");
-require_once("models/etd.php");
-require_once("models/etdfile.php");
-require_once("api/FedoraConnection.php");
 
   /* what parameters are needed?
      - base url?
      - path to access log?
    */
-
 
 $opts = new Zend_Console_Getopt(
   array(
@@ -44,20 +38,6 @@ if (!$logfile) {
   print "Error: logfile parameter required\n";
   exit;
 }
-
-$env_config = new Zend_Config_Xml("../config/environment.xml", "environment");
-
-// sqlite db for statistics data
-$config = new Zend_Config_Xml('../config/statistics.xml', $env_config->mode);
-$db = Zend_Db::factory($config);
-Zend_Registry::set('stat-db', $db);	
-
-$fedora_cfg = new Zend_Config_Xml("../config/fedora.xml", $env_config->mode);
-$fedora = new FedoraConnection($fedora_cfg->user, $fedora_cfg->password,
-			       $fedora_cfg->server, $fedora_cfg->port,
-			       $fedora_cfg->protocol, $fedora_cfg->resourceindex);
-Zend_Registry::set('fedora', $fedora);
-
 
 $start_time = date('Y-m-d H:i:s');
 $count = 0;
