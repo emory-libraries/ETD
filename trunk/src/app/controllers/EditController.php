@@ -150,6 +150,10 @@ class EditController extends Etd_Controller_Action {
 								   "pid" => $etd->pid),
 							     // no route name, reset, don't url-encode
 							     '', true, false);
+
+    $config = Zend_Registry::get('config');
+    $this->view->rights_stmt = $config->useAndReproduction;
+    
   }
 
 
