@@ -8,13 +8,7 @@
 // set paths, load config files, set up connection objects for fedora, solr, and ESD
 require_once("bootstrap.php");
 
-
-$opts = new Zend_Console_Getopt(
-  array(
-    'verbose|v=s'      => 'Output level/verbosity; one of error, warn, notice, info, debug (default: error)',
-    'noact|n'	       => "Test/simulate - don't actually do anything (no actions)",
-    )
-  );
+$opts = new Zend_Console_Getopt($common_getopts);
 
 // extended usage information - based on option list above, but with explanation/examples
 $scriptname = basename($_SERVER{"SCRIPT_NAME"});
@@ -30,26 +24,8 @@ try {
   exit;
 }
 
-// output logging
-$writer = new Zend_Log_Writer_Stream("php://output");
-// minimal output format - don't display timestamp or numeric priority
-$format = '%priorityName%: %message%' . PHP_EOL;
-$formatter = new Zend_Log_Formatter_Simple($format);
-$writer->setFormatter($formatter);
-$logger = new Zend_Log($writer);
-
-// set level of output to be displayed based on command line parameter
-switch ($opts->verbose) {
- case "warn":    $verbosity = Zend_Log::WARN; break;
- case "notice":  $verbosity = Zend_Log::NOTICE; break;
- case "info":    $verbosity = Zend_Log::INFO; break;
- case "debug":   $verbosity = Zend_Log::DEBUG; break;   
- case "error": 
- default:
-   $verbosity = Zend_Log::ERR; break;
- }
-$filter = new Zend_Log_Filter_Priority($verbosity);
-$logger->addFilter($filter);
+// output logging - common setup function in bootstrap
+$logger = setup_logging($opts->verbose);
 
 // get rights statement from config file
 $config = Zend_Registry::get("config");
