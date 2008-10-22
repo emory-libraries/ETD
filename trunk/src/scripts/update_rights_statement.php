@@ -67,7 +67,7 @@ $unchanged = 0;
 $blank = 0;
 $error = 0;
 
-while ($etdSet->hasResults()) {
+for ( ;$etdSet->hasResults(); $etdSet->next()) {
   $plural = ($etdSet->numFound == "1") ? "" : "s";
   $logger->info("Processing record{$plural} " . $etdSet->currentRange() . " of " . $etdSet->numFound);
 
@@ -99,7 +99,7 @@ while ($etdSet->hasResults()) {
     }
   } // end looping through current set of etds
   
-  $etdSet->next();	// retrieve the next batch
+  //  $etdSet->next();	// retrieve the next batch
 }
 
 // summary of what was done
