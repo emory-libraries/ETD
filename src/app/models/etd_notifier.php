@@ -2,12 +2,33 @@
 
 include("Emory/notifier.php");
 
+/**
+ * notification class for sending etd-related emails
+ */
 class etd_notifier extends notifier {
 
+  /**
+   * @var array $to addresses email will be sent to
+   * @access private
+   */
   private $to;
+  /**
+   * @var array $cc addresses to be copied on the email
+   * @access private
+   */
   private $cc;
+  /**
+   * @var array $send_to who should be included in constructing to and cc
+   * @access private
+   */
   private $send_to;
-  
+
+  /**
+   * create an etd notification object in order to send out an
+   * ETD-related email; recipients pulled from etd object
+   * 
+   * @param etd $etd
+   */
   public function __construct(etd $etd) {
     parent::__construct();
     $this->to = array();
@@ -17,6 +38,15 @@ class etd_notifier extends notifier {
 
   }
 
+  /**
+   * set the recipients on the mail object
+   * @access private
+   * @param string $who emails to include, options are:
+   *   - author : send to both author email addresses (current and permanent)
+   *   - author-permanent : send only to author's permanent address
+   *   - permanent : send to author's permanent address and to committee
+   *   - all : (default) send to both author's email addresses and to committee
+   */
   private function setRecipients($who = "all") {
 
     // configure who should receive this email
@@ -57,7 +87,12 @@ class etd_notifier extends notifier {
 
   }
 
-
+  /**
+   * get requested email addresses from the ETD object (author [emory/permanent],
+   * committee; inclusion determined by send_to array) and add to recipient variables 
+   * @access private
+   * @param etd $etd
+   */
   private function getEmailAddresses(etd $etd) {
     // author - send to both current & permanent addresses
     if (isset($etd->authorInfo)) {
@@ -91,7 +126,12 @@ class etd_notifier extends notifier {
   }
 
   /* Note: returning "to" addresses so flash message can display more information to user */
+  
 
+  /**
+   * email to be sent when an ETD is successfully submitted
+   * @return array of addresses email was sent to
+   */
   public function submission() {
     // default recipients ?
     $this->setRecipients();
@@ -101,6 +141,10 @@ class etd_notifier extends notifier {
     return $this->to;
   }
 
+  /**
+   * email to be sent when an ETD is approved by the Dean
+   * @return array of addresses email was sent to
+   */
   public function approval() {
     // default recipients ?
     $this->setRecipients();
@@ -110,6 +154,10 @@ class etd_notifier extends notifier {
     return $this->to;
   }
 
+  /**
+   * email to be sent when an ETD is published in the repository
+   * @return array of addresses email was sent to
+   */
   public function publication() {
     // NOT default recipients - send to author's permanent address
     $this->setRecipients();
@@ -119,6 +167,10 @@ class etd_notifier extends notifier {
     return $this->to;
   }
 
+  /**
+   * email to be sent 60 days before embargo expires
+   * @return array of addresses email was sent to
+   */
   public function embargo_expiration() {
     $this->setRecipients("permanent");	// send to author's permanent address + committee
     $this->mail->setSubject("Your ETD Access Restriction will Expire in 60 Days");
@@ -126,7 +178,11 @@ class etd_notifier extends notifier {
     $this->send();
     return $this->to;
   }
-  
+
+  /**
+   * quick-fix email: apologizing for mistaken embargo expirations getting sent out
+   * @return array of addresses email was sent to
+   */
   public function embargo_expiration_error() {
     $this->setRecipients();
     $this->mail->setSubject("Please Disregard Automated Message from ETD system sent out today");
@@ -135,6 +191,25 @@ class etd_notifier extends notifier {
     return $this->to;
   }
 
+  /**
+   * email to be sent on the actual day when an embargo expires
+   * @return array of addresses email was sent to
+   */
+  public function embargo_end() {
+    $this->setRecipients("permanent");	// send to author's permanent address + committee
+    $this->mail->setSubject("Your ETD Access Restriction Expires Today");
+    $this->setBodyHtml($this->view->render("email/embargo_end.phtml"));
+    $this->send();
+    return $this->to;
+  }
+
+  /**
+   * email sent when Graduate School administrator requests changes;
+   * template includes text input by administrator from a website form.
+   * @param string $subject subject for the email
+   * @param string $text email content to include in the output
+   * @return array of addresses email was sent to
+   */
   public function request_changes($subject, $text) {
     // don't send to committee
     $this->setRecipients("author");
@@ -144,7 +219,58 @@ class etd_notifier extends notifier {
     $this->send();
     return $this->to;
   }
+}
 
+class etdSet_notifier extends notifier {
+
+  /**
+   * create an notification object in order to send out an
+   * email related to a group of etds
+   * 
+   * @param EtdSet $etdSet
+   */
+  public function __construct(EtdSet $etdSet) {
+    parent::__construct();
+    $this->to = array();
+    $this->cc = array();
+    
+    $this->view->etdSet = $etdSet;
+    $this->setRecipients();
+  }
+
+  /**
+   * set the recipients on the mail object
+   * @access private
+   */
+  private function setRecipients() {
+    $environment = Zend_Registry::get('env-config');
+    $this->view->environment = $environment->mode;
+    $config = Zend_Registry::get('config');
+    // contact information - where questions should be directed
+    $this->view->contact = $config->contact;
+    
+    $this->mail->setFrom($config->email->etd->address,
+			 $config->email->etd->name);
+    if ($environment->mode != "production") {
+      // use a configured debug email address when in development mode
+      $this->mail->addTo($config->email->test);
+    } else {
+      // send to ETD admin
+      $this->mail->addTo($config->email->etd->address);
+    }
+  }
+
+
+  /**
+   * send a list of embargoes expiring in seven days
+   * @return array of addresses email was sent to
+   */
+  public function embargoes_expiring_oneweek(){
+    $this->mail->setSubject("ETD embargoes expiring in 7 days");
+    $this->setBodyHtml($this->view->render("email/embargoes_expiring_oneweek.phtml"));
+    $this->send();
+    return $this->to;
+  }
   
 }
 
