@@ -14,13 +14,12 @@
 // set up connection objects for fedora, solr, ESD, and stats db
 require_once("bootstrap.php");
 
-$opts = new Zend_Console_Getopt(
-	array(
-	      'pid|p=s'	    => 'Clean xacml on one etd record only',
-	      'verbose|v=s' => 'Output level/verbosity; one of error, warn, notice, info, debug (default: error)',
-	      'noact|n'	    => "Test/simulate - don't actually do anything (no actions)",
-	      )
-	);
+$getopts = array_merge(
+		       array('pid|p=s'	    => 'Clean xacml on one etd record only'),
+		       $common_getopts	// use default verbose and noact opts from bootstrap
+		       );
+
+$opts = new Zend_Console_Getopt($getopts);
 
 // extended usage information - based on option list above, but with explanation/examples
 $scriptname = basename($_SERVER{"SCRIPT_NAME"});
@@ -35,28 +34,8 @@ try {
   exit;
 }
 
-$writer = new Zend_Log_Writer_Stream("php://output");
-// minimal output format - don't display timestamp or numeric priority
-$format = '%priorityName%: %message%' . PHP_EOL;
-$formatter = new Zend_Log_Formatter_Simple($format);
-$writer->setFormatter($formatter);
-$logger = new Zend_Log($writer);
-
-// set level of output to be displayed based on command line parameter
-switch ($opts->verbose) {
- case "warn":    $verbosity = Zend_Log::WARN; break;
- case "notice":  $verbosity = Zend_Log::NOTICE; break;
- case "info":    $verbosity = Zend_Log::INFO; break;
- case "debug":   $verbosity = Zend_Log::DEBUG; break;   
- case "error":   $verbosity = Zend_Log::ERR; break;
- default:
-   print "Bad verbose level: must be one of error, warn, notice, info, or debug\n";
-   echo $usage;
-   exit;
- }
-$filter = new Zend_Log_Filter_Priority($verbosity);
-$logger->addFilter($filter);
-
+// output logging - common setup function in bootstrap
+$logger = setup_logging($opts->verbose);
 
 // if pid is specified, run single record mode
 if ($opts->pid) {
