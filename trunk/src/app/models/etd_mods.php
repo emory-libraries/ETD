@@ -7,6 +7,14 @@ require_once("models/esdPerson.php");
 class etd_mods extends mods {
 
   protected $etd_namespace = "http://www.ndltd.org/standards/metadata/etdms/1.0/";
+
+  // auto-magic variables
+  /**
+   * @var author
+   * @var committee
+   * @var nonemory_committee
+   */
+  
   
   // add etd-specific mods mappings
   protected function configure() {
@@ -81,6 +89,10 @@ class etd_mods extends mods {
       break;
     case "embargo":
       $value = str_replace("Embargoed for ", "", $value);
+      break;
+    case "embargo_notice":
+      $value = str_replace("sent ", "", $value);    // return date only
+      break;
     }
     return $value;
   }
