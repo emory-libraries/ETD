@@ -58,9 +58,6 @@ $filter = new Zend_Log_Filter_Priority($verbosity);
 $logger->addFilter($filter);
 
 
-$count = 0;
-
-
 // if pid is specified, run single record mode
 if ($opts->pid) {
   $etd = new etd($opts->pid);
@@ -74,14 +71,12 @@ $options = array("start" => 0, "max" => 100);
 $etdSet = new EtdSet();
 $etdSet->find($options);
 
-while ($etdSet->hasResults()) {
+for ($count = 0; $etdSet->hasResults(); $etdSet->next()) {
   $logger->info("Processing records " . $etdSet->currentRange() . " of " . $etdSet->numFound);
   
   foreach ($etdSet->etds as $etd) {
     if (clean_xacml($etd)) $count++;
   }
-  
-  $etdSet->next();
 }
 
 $logger->info($count . " records changed");
