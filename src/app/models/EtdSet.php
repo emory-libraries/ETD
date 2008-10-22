@@ -301,19 +301,33 @@ class EtdSet {
    * (the extra checks are to ensure that no records are missed if the cron script fails to run)
    *
    * @param string $date expiration date in YYYYMMDD format (e.g., 60 days from today)
+   * @param array $options options as passed to EtdSet::find function
+   * @param array $config additional configuration options
+   * 	- notice_unsent : filter on embargo notice unsent? (default : true)
+   *	- exact_date    : true = exact date, false = date range from today (default)
    * @return EtdSet
    */
-  public function findExpiringEmbargoes($date, $options = array()) {
+  public function findExpiringEmbargoes($date, $options = array(), $config = array()) {
     // date *must* be in YYYYMMDD format	(FIXME: check date format)
+
+    // use default configuration if not specified
+    if (!isset($config["notice_unsent"])) $config["notice_unsent"] = true;
+    if (!isset($config["exact_date"])) $config["exact_date"] = false;
     
     // search for any records with embargo expiring between now and specified embargo end date
     // where an embargo notice has not been sent and an embargo was approved by the graduate school
-    $options["query"] = "date_embargoedUntil:[" . date("Ymd") . " TO $date]";
-    $options["NOT"] = array("embargo_notice" => "sent", "embargo_duration" => "0 days");
+    if ($config["exact_date"]) {
+      $options["query"] = "date_embargoedUntil:$date";
+    } else {
+      $options["query"] = "date_embargoedUntil:[" . date("Ymd") . " TO $date]";
+    }
+    $options["NOT"] = array("embargo_duration" => "0 days");
     $options["AND"]["status"] = "published";
     
+    // optionally filter on records where embargo notice has not been sent
+    if ($config["notice_unsent"]) $options["NOT"]["embargo_notice"] = "sent";
+    
     return $this->find($options);
-    // FIXME: add paging-- need a way to get all results
   }
 
   /**
