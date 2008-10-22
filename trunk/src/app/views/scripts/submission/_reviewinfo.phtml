@@ -15,7 +15,8 @@
       <a class="action" href="<?= $this->url(array("controller" => "edit", "action" => "rights")) ?>">edit copyright</a>
     <? endif ?>
 
-   Applying for copyright? <b><?= $this->etd->mods->copyright ?></b>
+   <p>Sending to ProQuest? <b><?= $this->etd->mods->submitToProquest() ? "yes" : "no"; ?></b></p>
+   <p>Applying for copyright? <b><?= $this->etd->mods->copyright ?></b></p>
   </div>
 
   <div id="contact">
