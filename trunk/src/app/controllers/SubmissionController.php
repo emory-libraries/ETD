@@ -305,6 +305,7 @@ class SubmissionController extends Etd_Controller_Action {
       $this->_helper->redirector->gotoRoute(array("controller" => "view",
 						  "action" => "record",
 						  "pid" => $etd->pid));
+      return;
     }
     
     
