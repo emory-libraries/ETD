@@ -281,19 +281,31 @@ class SubmissionController extends Etd_Controller_Action {
   }
 
   public function reviewAction() {
-    // double-check that etd is ready to submit?
-    $etd = $this->_helper->getFromFedora("pid", "etd");
+     $etd = $this->_helper->getFromFedora("pid", "etd");
     if (!$this->_helper->access->allowedOnEtd("submit", $etd)) return false;
-    
+    // double-check that etd is ready to submit
+    if (! $etd->readyToSubmit()) {
+      $this->_helper->flashMessenger->addMessage("Your record is not ready to submit; first complete any missing portions before you review and submit");
+      $this->_helper->redirector->gotoRoute(array("controller" => "view",
+						  "action" => "record",
+						  "pid" => $etd->pid));
+    }
+   
     $this->view->etd = $etd;
     $this->view->title = "Final Review";
   }
 
   public function submitAction() {
-    // fixme: double-check that etd is ready to submit
-    
     $etd = $this->_helper->getFromFedora("pid", "etd");
     if (!$this->_helper->access->allowedOnEtd("submit", $etd)) return false;
+    
+    // double-check that etd is ready to submit
+    if (! $etd->readyToSubmit()) {
+      $this->_helper->flashMessenger->addMessage("Your record is not ready to submit; first complete any missing portions before you review and submit");
+      $this->_helper->redirector->gotoRoute(array("controller" => "view",
+						  "action" => "record",
+						  "pid" => $etd->pid));
+    }
     
     
     $newstatus = "submitted";
