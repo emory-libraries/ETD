@@ -51,6 +51,7 @@
   <mods:subject authority="keyword">
     <mods:topic>cheese</mods:topic>
   </mods:subject>
+  <mods:identifier type="ark"/>
   <mods:physicalDescription>
     <mods:extent/>
   </mods:physicalDescription>
@@ -62,4 +63,6 @@
       <etd:discipline>subfield</etd:discipline>
     </etd:degree>
   </mods:extension>
+
+  <mods:note type="admin" ID="embargo">embargo requested? </mods:note>
 </mods:mods>

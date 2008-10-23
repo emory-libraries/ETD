@@ -9,6 +9,8 @@ class SubmissionControllerTest extends ControllerTestCase {
   // array of test foxml files & their pids 
   private $etdxml;
   private $test_user;
+
+  private $mock_etd;
   
   function setUp() {
     $this->test_user = new esdPerson();
@@ -36,6 +38,11 @@ class SubmissionControllerTest extends ControllerTestCase {
       $pid = fedora::ingest(file_get_contents('../fixtures/' . $etdfile . '.xml'), "loading test etd");
     }
 
+    // use mock etd object for some tests
+    $this->mock_etd = &new MockEtd();
+    $this->mock_etd->status = "draft";
+    $this->mock_etd->user_role = "author";
+    $this->mock_etd->setReturnValue("save", "datestamp");	// mimic successful save
   }
   
   function tearDown() {
@@ -43,6 +50,11 @@ class SubmissionControllerTest extends ControllerTestCase {
       fedora::purge($pid, "removing test etd");
     
     Zend_Registry::set('current_user', null);
+
+    // in case any mock-object has been used, clear it
+    $SubmissionController = new SubmissionControllerForTest($this->request,$this->response);
+    $gff = $SubmissionController->getHelper("GetFromFedora");
+    $gff->clearReturnObject();
   }
 
 
@@ -85,11 +97,23 @@ class SubmissionControllerTest extends ControllerTestCase {
     $etd->setStatus("draft");
     $etd->save("setting status to draft to test review");
     
+    // etd is not ready to submit; should complain and redirect
     $SubmissionController = new SubmissionControllerForTest($this->request,$this->response);
+    $SubmissionController->reviewAction();
+    $this->assertTrue($SubmissionController->redirectRan);
+    $messages = $SubmissionController->getHelper('FlashMessenger')->getMessages();
+    $this->assertPattern("/record is not ready to submit/", $messages[0]);
+
+    // use a mock etd to simulate ready for submission without having all the separate objects
+    $SubmissionController = new SubmissionControllerForTest($this->request,$this->response);
+    $this->mock_etd->setReturnValue("readyToSubmit", true);
+    $gff = $SubmissionController->getHelper("GetFromFedora");
+    $gff->clearReturnObject();
+    $gff->setReturnObject($this->mock_etd);
+    
     $SubmissionController->reviewAction();
     $this->assertFalse($SubmissionController->redirectRan);
     $this->assertTrue(isset($SubmissionController->view->etd), "etd variable set for review");
-    $messages = $SubmissionController->getHelper('FlashMessenger')->getMessages();
   }
 
   function testSubmitAction() {
@@ -108,19 +132,35 @@ class SubmissionControllerTest extends ControllerTestCase {
     $etd->setStatus("draft");
     $etd->save("changing status to test submit");
 
+    // etd is not ready to submit, should be redirected
+    $SubmissionController->reviewAction();
+    $this->assertTrue($SubmissionController->redirectRan);
+    $messages = $SubmissionController->getHelper('FlashMessenger')->getMessages();
+    $this->assertPattern("/record is not ready to submit/", $messages[0]);
+
+
+    // use a mock etd to simulate ready for submission without having all the separate objects
+    $this->mock_etd->setReturnValue("readyToSubmit", true);
+    $this->mock_etd->mods->chair[0]->id = "nobody";
+    $this->mock_etd->mods->committee[0]->id = "nobodytoo";
+    $SubmissionController = new SubmissionControllerForTest($this->request,$this->response);
+    $gff = $SubmissionController->getHelper("GetFromFedora");
+    $gff->clearReturnObject();
+    $gff->setReturnObject($this->mock_etd);
+
     // notices for non-existent users in metadata
     $this->expectError("Committee member/chair (nobody) not found in ESD");
     $this->expectError("Committee member/chair (nobodytoo) not found in ESD");
     $SubmissionController->submitAction();
-    $etd = new etd("test:etd2");
-    $this->assertEqual("submitted", $etd->status());
+    //    $etd = new etd("test:etd2");
+    //    $this->assertEqual("submitted", $etd->status());
     $this->assertTrue($SubmissionController->redirectRan);	// currently redirects to my etds page...
     $messages = $SubmissionController->getHelper('FlashMessenger')->getMessages();
     $this->assertPattern("/status changed/", $messages[0]);
-    $this->assertPattern("/Submission notification email sent to mmouse@emory.edu, mmouse@disney.com/",
+    $this->assertPattern("/Submission notification email sent to/",
 	 $messages[1]);	        // 	   current & permanent email addresses in user information
-    $this->assertEqual("Submitted for Approval by " . $this->test_user->fullname, $etd->premis->event[1]->detail);
-    $this->assertEqual("author", $etd->premis->event[1]->agent->value);
+    $this->assertEqual("Submitted for Approval by " . $this->test_user->fullname, $this->mock_etd->premis->event[1]->detail);
+    $this->assertEqual("author", $this->mock_etd->premis->event[1]->agent->value);
 
     // NOTE: currently no way to test generation of the email, but it may be added in the future
   }

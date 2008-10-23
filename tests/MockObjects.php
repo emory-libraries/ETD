@@ -35,16 +35,43 @@ require_once('models/etd_dc.php');
 Mock::generate('etd', 'BasicMock_Etd');
 Mock::generate('etd_file', "BasicMock_EtdFile");
 Mock::generate('etd_dc', "BasicMock_etd_dc");
+Mock::generate('etd_html', "Mock_etd_html");
+Mock::generate('etd_mods', "BasicMock_etd_mods");
+Mock::generate('premis', "Mock_premis");
 Mock::generate('user',  'BasicMock_User');
 
 class MockEtd extends BasicMock_Etd {
   public $pid;
   public $label;
   public $dc;
+  public $mods;
+  public $html;
+  public $premis;
+
+  public $status;
+  public $user_role;
   
   public function __construct() {
     $this->BasicMock_Etd();
     $this->dc = &new Mocketd_dc();
+
+    $xml = new DOMDocument();
+    $xml->load("../fixtures/mods.xml");
+    $this->mods = new etd_mods($xml);
+
+    $xml->load("../fixtures/premis.xml");
+    $this->premis = new premis($xml);
+    $this->html = &new Mock_etd_html();
+
+    $this->setReturnValue("chair", array());
+    $this->setReturnValue("committee", array());
+  }
+
+  public function getResourceId() {
+    return (($this->status == "") ? "" : $this->status . " ") . "etd";
+  }
+  public function getUserRole() {
+    return ($this->user_role == "") ? "guest" : $this->user_role;
   }
 
 }
@@ -52,14 +79,26 @@ class MockEtd extends BasicMock_Etd {
 
 class MockEtd_dc extends BasicMock_etd_dc {
   public $mimetype;
+  public $title;
 }
+class Mocketd_mods extends BasicMock_etd_mods {
+  public $chair;
+  public $committee;
+  public function __construct() {
+    $this->chair = array();
+    $this->committee = array();
+  }
+}
+
 
 class MockEtdFile extends BasicMock_EtdFile {
   public $dc;
   public $pid;
+  public $etd;
   public function __construct() {
     $this->BasicMock_EtdFile();
     $this->dc = &new Mocketd_dc();
+    //    $this->etd = &new MockEtd();
   }
 }
 
