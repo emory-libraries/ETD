@@ -13,7 +13,14 @@ class FeedsController extends Etd_Controller_Action {
   public $feed;
   
   public function postDispatch() {
-    $this->_helper->displayXml($this->feed->saveXml());
+    if (isset($this->feed)) {
+      $this->_helper->displayXml($this->feed->saveXml());
+    }
+  }
+
+  public function indexAction() {
+    $this->view->title = "RSS Feeds";
+
   }
 
   /* recently published ETDs */
