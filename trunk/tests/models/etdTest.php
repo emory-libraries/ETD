@@ -332,7 +332,7 @@ class TestEtd extends UnitTestCase {
     $this->etd->embargo_expiration_notice();
     // admin note in mods should be set
     $this->assertTrue(isset($this->etd->mods->embargo_notice));
-    $this->assertPattern("/sent/", $this->etd->mods->embargo_notice);
+    $this->assertEqual(date("Y-m-d"), $this->etd->mods->embargo_notice);
     // premis event for record history
     $this->assertEqual($event_count + 1, count($this->etd->premis->event), "additional event added");
     $this->assertEqual("Embargo Expiration 60-Day Notification sent by ETD system",
@@ -353,19 +353,19 @@ class TestEtd extends UnitTestCase {
   function testTitleAbstractToc() {
     // title was not getting set in MODS
     $this->etd->title = '<p>Enantiomeric <span style="font-family: Symbol">p</span>-Complexes</p>';
-    $this->assertPattern('|<p>Enantiomeric <span style="font-family: Symbol">p</span>-Complexes</p>|', $this->etd->html->title);
+    $this->assertPattern('|<p>Enantiomeric <span.*>p</span>-Complexes</p>|', $this->etd->html->title);
     $this->assertPattern("/^Enantiomeric p-Complexes\s*/", $this->etd->mods->title);
     $this->assertPattern("/^Enantiomeric p-Complexes\s*/", $this->etd->dc->title);
 
     $this->etd->abstract = '<p>Pure TpMo(CO)<sub>2</sub>(<span style="font-family: Symbol;">h</span><sup>3</sup>-pyranyl)...</p>';
-    $this->assertPattern('|<p>Pure TpMo\(CO\)<sub>2</sub>\(<span style="font-family: Symbol;">h</span><sup>3</sup>-pyranyl\)...</p>|', $this->etd->html->abstract);
-    $this->assertPattern("/Pure TpMo\(CO\)2\(h3-pyranyl\)...\s*/", $this->etd->mods->abstract);
-    $this->assertPattern("/Pure TpMo\(CO\)2\(h3-pyranyl\)...\s*/", $this->etd->dc->description);
+    $this->assertPattern('|<p>Pure\s+TpMo\(CO\)<sub>2</sub>\(<span.*>h</span><sup>3</sup>-pyranyl\)...</p>|', $this->etd->html->abstract);
+    $this->assertPattern("/Pure\s+TpMo\(CO\)2\(h3-pyranyl\)...\s*/", $this->etd->mods->abstract);
+    $this->assertPattern("/Pure\s+TpMo\(CO\)2\(h3-pyranyl\)...\s*/", $this->etd->dc->description);
 
 
     $this->etd->contents = '<p style="margin: 0cm 0cm 0pt 21pt;">Introduction</p>
     <p style="margin: 0cm 0cm 0pt 21pt;">Zirconium Complexes</p>';
-    $this->assertPattern('|<p style="margin: 0cm 0cm 0pt 21pt;">Introduction</p>\s*<p style="margin: 0cm 0cm 0pt 21pt;">Zirconium Complexes</p>|', $this->etd->html->contents);
+    $this->assertPattern('|<p>Introduction</p>\s*<p>Zirconium Complexes</p>|', $this->etd->html->contents);
     $this->assertEqual("Introduction -- Zirconium Complexes", $this->etd->mods->tableOfContents);
 
     
