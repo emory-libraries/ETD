@@ -47,14 +47,14 @@ class Etd_Feed_Builder implements Zend_Feed_Builder_Interface {
 
       // add program, research fields, and keywords as categories (appropriate/useful?)
       if ($etd->program())
-	$entry->addCategory(array("term" => $etd->program(),
+	$entry->addCategory(array("term" => htmlentities($etd->program()),
 				  "scheme" => "Program"));
       foreach ($etd->researchfields() as $subject) {
-	$entry->addCategory(array("term" => $subject,
+	$entry->addCategory(array("term" => htmlentities($subject),
 				  "scheme" => "ProQuest Research Field"));
       }
       foreach ($etd->keywords() as $subject) {
-	$entry->addCategory(array("term" => $subject,
+	$entry->addCategory(array("term" => htmlentities($subject),
 				  "scheme" => "keyword"));
       }
 
