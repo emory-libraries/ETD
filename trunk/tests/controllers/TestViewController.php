@@ -24,6 +24,7 @@ class ViewControllerTest extends ControllerTestCase {
     // use mock etd object to simplify permissions/roles/etc
     $this->mock_etd = &new MockEtd();
     $this->mock_etd->label = "Test Etd";
+    $this->mock_etd->dc->title = "Test Etd";
     $this->mock_etd->setReturnValue("title", "Test Etd");
     $this->mock_etd->pid = "testetd:1";
     $gff = $ViewController->getHelper("GetFromFedora");
@@ -40,8 +41,8 @@ class ViewControllerTest extends ControllerTestCase {
   }
 
   function testRecordAction_guest() {
-    $this->mock_etd->setReturnValue("getUserRole", "guest");
-    $this->mock_etd->setReturnValue("getResourceId", "draft etd");
+    $this->mock_etd->user_role = "guest";
+    $this->mock_etd->status = "draft";
     $ViewController = new ViewControllerForTest($this->request,$this->response);
     // guest on draft etd - not allowed
     $this->assertFalse($ViewController->recordAction());
@@ -49,8 +50,8 @@ class ViewControllerTest extends ControllerTestCase {
   
   function testRecordAction_author() {
     $ViewController = new ViewControllerForTest($this->request,$this->response);
-    $this->mock_etd->setReturnValue("getUserRole", "author");
-    $this->mock_etd->setReturnValue("getResourceId", "published etd");
+    $this->mock_etd->user_role = "author";
+    $this->mock_etd->status = "published";
     
     $ViewController->recordAction();
     $this->assertTrue(isset($ViewController->view->title));
@@ -63,8 +64,8 @@ class ViewControllerTest extends ControllerTestCase {
 
   function testXmlAction() {
     $ViewController = new ViewControllerForTest($this->request,$this->response);
-    $this->mock_etd->setReturnValue("getUserRole", "author");
-    $this->mock_etd->setReturnValue("getResourceId", "published etd");
+    $this->mock_etd->user_role = "author";
+    $this->mock_etd->status = "published";
     $this->mock_etd->dc->setReturnValue("saveXML", "<oai_dc:dc/>");
 
     $this->setUpGet(array('datastream' => 'dc'));

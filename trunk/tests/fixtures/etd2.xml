@@ -41,6 +41,7 @@
 	    <mods:description>Emory Committee Member</mods:description>
 	   </mods:name>
 	  <mods:abstract>milk curdles and goes sour</mods:abstract>
+	  <mods:tableOfContents>chapter 1 -- part two</mods:tableOfContents>
 	  <mods:subject ID="id0123" authority="proquestresearchfield">
 	    <mods:topic>Disney Studies</mods:topic>
 	  </mods:subject>

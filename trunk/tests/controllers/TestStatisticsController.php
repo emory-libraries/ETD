@@ -25,7 +25,7 @@ class StatisticsControllerTest extends ControllerTestCase {
   function tearDown() {
     // remove stats
     $db = Zend_Registry::get("stat-db");
-    $db->delete("stats");
+    //    $db->delete("stats");
   }
 
   function testCountryAction() {
@@ -45,7 +45,7 @@ class StatisticsControllerTest extends ControllerTestCase {
     $this->assertTrue(isset($statsController->view->title));
     $this->assertTrue(isset($statsController->view->month));
     $this->assertEqual("2008-01", $statsController->view->month[0]["month"]);
-    $this->assertEqual(1, $statsController->view->month[0]["abstract"]);
+    $this->assertEqual(2, $statsController->view->month[0]["abstract"]);
     $this->assertEqual(0, $statsController->view->month[0]["file"]);
   }
 
