@@ -113,9 +113,12 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
 
       }
 
+
+      // pass whether or not the distribution agreement was found
+      $this->fields["distribution_agreement"] = $this->found_circ;
+      
       // return fields even if there was an error, so we at least have original filename
       return $this->fields;
-
     }
 
   }
@@ -297,7 +300,7 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
       if (!$this->found_circ && (preg_match("/Distribution Agreement/i", $content) ||	// new text, fall 2008
 	  preg_match("/grant\s+to\s+Emory\s+University.*non-exclusive\s+license/", $content) ||
 	  // old version of Circ Agreement text
-	  preg_match("/Circulation Agreement/", $content) ||
+	  preg_match("/Circulation Agreement/i", $content) ||
   	  preg_match("/available\s+for\s+inspection\s+and\s+circulation/m", $content)) ) {
 	// part of boiler-plate grad-school circ agreement text
 	if ($this->debug) print "* found circ agreement\n";
