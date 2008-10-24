@@ -34,27 +34,30 @@ class Etd_Controller_Action_Helper_GetFromFedora extends Zend_Controller_Action_
     try {
       $object = new $type($id);
     } catch (FedoraObjectNotFound $e) {
-      $message = "Error: Record not found";
+      $message = "Record not found";
+      $log_message = $message . " - " . $e->getMessage();
       if ($this->_actionController->view->env != "production")
 	$message .= " (message from Fedora: <b>" . $e->getMessage() . "</b>)";
       $flashMessenger->addMessage($message);
       $redirector->gotoRoute(array("controller" => "error", "action" => "notfound"), "", true);
-      
       return null;
     } catch (FedoraAccessDenied $e) {
       $denied = true;
-      $message = "Error: access denied to $id";
+      $message = "access denied to $id";
+      $log_message = $message . " - " . $e->getMessage();
       if ($this->_actionController->view->env != "production")
 	$message .= " (message from Fedora: <b>" . $e->getMessage() . "</b>)";
     } catch (FedoraNotAuthorized $e) {
       $denied = true;
-      $message = "Error: not authorized to view $id";
+      $message = "not authorized to view $id";
+      $log_message = $message . " - " . $e->getMessage();
       if ($this->_actionController->view->env != "production")
 	$message .= " (message from Fedora: <b>" . $e->getMessage() . "</b>)";
     } catch (FoxmlException $e) {
       // another access denied, but at a different level ...
       $denied = true;
-      $message = "Error: " . $e->getMessage();
+      $message = $e->getMessage();
+      $log_message = $message;
     }
 
     // if resources is denied, NOT redirecting - that way logging in can reload
@@ -68,8 +71,14 @@ class Etd_Controller_Action_Helper_GetFromFedora extends Zend_Controller_Action_
       $viewRenderer->setNoRender();		// don't render normally
       // instead display an access denied page - still at the denied url
       $viewRenderer->view->title = "Access Denied";
-      $viewRenderer->view->deny_message = $message;
+      $viewRenderer->view->deny_message = "Error: " . $message;
       print $viewRenderer->renderScript("auth/denied.phtml");
+
+
+      // log denial info
+      $logger = Zend_Registry::get('logger');
+      $logger->warn($log_message);
+      
       return null;
     }
 
