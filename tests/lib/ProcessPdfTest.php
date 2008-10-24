@@ -147,7 +147,7 @@ John H. Shugart <br/></div>");
     $this->assertPattern("/assembled\s+peptide\s+nanotubes,\s+with\s+such\s+ordered\s+and\s+dense\s+packed/",
 			 $fields['abstract'], "second page of abstract");
     $this->assertPattern("/ZINC EFFECT IN AMYLOID\s+FORMATION/m", $fields['toc'], "table of contents");
-
+    $this->assertTrue($fields["distribution_agreement"]);
   }
   
   function testGetInformation_li() {
@@ -167,7 +167,7 @@ John H. Shugart <br/></div>");
     $this->assertPattern("/catalytic mechanism of xanthine hydroxylation/",
 			 $fields['abstract']);
     $this->assertPattern("/XOR cofactors/", $fields['toc']);
-
+    $this->assertTrue($fields["distribution_agreement"]);
   }
 
   function testGetInformation_davidson() {
@@ -183,6 +183,7 @@ John H. Shugart <br/></div>");
     $this->assertPattern("/long\s+been\s+recognized\s+for\s+their\s+capacity\s+to\s+grow/",
 			 $fields['abstract'], "abstract");
     $this->assertPattern("/Introduction: Rice, Rain, and Response/", $fields['toc']);
+    $this->assertTrue($fields["distribution_agreement"]);
     }
   function testGetInformation_strickland() {
     $this->processpdf->getInformation("../fixtures/strickland_sample.html");
@@ -207,6 +208,7 @@ John H. Shugart <br/></div>");
 			 $fields['abstract']);
     $this->assertPattern("/The\s+Importance\s+of\s+Nomenclature\s+for\s+Congenital\s+Heart\s+Disease/",
 			 $fields['toc']);
+    $this->assertTrue($fields["distribution_agreement"]);
   }
   function testGetInformation_tinker() {
     $this->processpdf->getInformation("../fixtures/tinker_sample.html");
@@ -232,6 +234,13 @@ John H. Shugart <br/></div>");
     $this->assertPattern("/7 DRINKING WATER TREATMENT PLANTS AND EMERGENCY/", $fields['toc']);
     // TOC continues to third page
     $this->assertPattern("/ADDITIONAL ANALYSIS OF DRINKING WATER TURBIDITY/", $fields['toc']);
+    $this->assertTrue($fields["distribution_agreement"]);
+  }
+
+  function testGetInformation_nodistagreement() {
+    $this->processpdf->getInformation("../fixtures/nocirc_sample.html");
+    $fields = $this->processpdf->fields;
+    $this->assertFalse($fields["distribution_agreement"]);
   }
 
   
