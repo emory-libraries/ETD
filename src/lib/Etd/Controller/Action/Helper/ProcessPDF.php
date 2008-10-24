@@ -112,10 +112,6 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
 	unlink($_html);		// unlink empty tmp file created by tempnam()
 
       }
-
-
-      // pass whether or not the distribution agreement was found
-      $this->fields["distribution_agreement"] = $this->found_circ;
       
       // return fields even if there was an error, so we at least have original filename
       return $this->fields;
@@ -219,6 +215,11 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
     
     // FIXME: what other fields should be checked?
 
+
+
+    // pass whether or not the distribution agreement was found
+    $this->fields["distribution_agreement"] = $this->found_circ;
+    
   }
 
 
