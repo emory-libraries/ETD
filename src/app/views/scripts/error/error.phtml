@@ -1,6 +1,6 @@
 <p><b>Error: <?= $this->error ?></b></p>
 
-<? if ($this->env == "development"): ?>
+<? if ($this->env == "development" && isset($this->exception)): ?>
   <p>Exception of type <?= get_class($this->exception) ?>:  <?= $this->exception->getMessage() ?></p>
   <p>Line <b><?= $this->exception->getLine() ?></b> in <b><?= $this->exception->getFile() ?></b></p>
   <pre><?= $this->exception->getTraceAsString() ?></pre>
