@@ -23,7 +23,7 @@ class solrEtd implements etdInterface {
   public function program() { return $this->getField("program"); }
   public function subfield() { return $this->getField("subfield"); }
   // advisor renamed to chair to handle multiple names
-  public function chair() { return $this->getField("advisor"); }
+  public function chair() { return $this->getField("advisor", true); }
 
   // advisor is also indexed in committee index; exclude from output here to avoid redundancy
   public function committee() {
