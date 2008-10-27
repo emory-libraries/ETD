@@ -84,11 +84,13 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
 
     $fileUpload = $this->_actionController->getHelper('FileUpload');
 
+    // define errors so it can be treated as an array even if things go wrong
+    $this->_actionController->view->errors = array();
+    
     // verify that the upload succeeded and file is correct type
     if($fileUpload->check_upload($fileinfo, array("application/pdf"))) {
 
       // errors to be displayed to the user
-      $this->_actionController->view->errors = array();
       // log of what was found where
       $this->_actionController->view->log = array();
       $_html = tempnam($tmpdir, "html_");
