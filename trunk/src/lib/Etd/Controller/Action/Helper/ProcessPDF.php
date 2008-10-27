@@ -19,8 +19,6 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
   private $doc;
   private $debug;
 
-  private $found_circ = false;
-
   private $title_complete = false;
 
   public function __construct() {
@@ -49,9 +47,8 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
 			  "abstract" => "",
 			  "toc" => "",
 			  "keywords" => array(),
-			  "filename" => "");
-
-    $this->found_circ = false;
+			  "filename" => "",
+			  "distribution_agreement" => false);
   }
   
 
@@ -207,7 +204,7 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
     $this->fields['abstract'] = preg_replace("|(<br/>){2,}|", "<br/>",  $this->fields['abstract']);
 
     // some error-checking to display useful messages to the user
-    if ($this->found_circ == false)
+    if ($this->fields["distribution_agreement"] == false)
       $this->_actionController->view->errors[] = "Distribution Agreement not detected";
     // FIXME: only true essential is title - should we fall back to filename as title?
     if (!isset($this->fields['title']) || $this->fields['title'] == "") 
@@ -217,11 +214,6 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
     
     // FIXME: what other fields should be checked?
 
-
-
-    // pass whether or not the distribution agreement was found
-    $this->fields["distribution_agreement"] = $this->found_circ;
-    
   }
 
 
@@ -300,7 +292,7 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
       // if next page is not set, try to figure out where we are
 
       // look for expected first page: Distribution (formerly Circulation) Agreement
-      if (!$this->found_circ && (preg_match("/Distribution Agreement/i", $content) ||	// new text, fall 2008
+      if (!$this->fields["distribution_agreement"] && (preg_match("/Distribution Agreement/i", $content) ||	// new text, fall 2008
 	  preg_match("/grant\s+to\s+Emory\s+University.*non-exclusive\s+license/", $content) ||
 	  // old version of Circ Agreement text
 	  preg_match("/Circulation Agreement/i", $content) ||
@@ -309,7 +301,7 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
 	if ($this->debug) print "* found circ agreement\n";
 	$this->_actionController->view->log[] = "Found Distribution Agreement on page " . $this->current_page;
 	$this->next = "signature";	// next page expected
-	$this->found_circ = true;
+	$this->fields["distribution_agreement"] = true;
 	return;
       } elseif ($this->current_page == 1) {
 	// page 1 and no circ agreement - probably signature page
