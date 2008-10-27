@@ -57,7 +57,13 @@
     <? endforeach ?>
   <? endforeach ?>
 
-  <? if ($this->acl->isAllowed($this->role, $this->etd->pdfs[0], "edit")): ?>
+<? /* if there are files and user has permission to edit, allow to replace files */
+  if (isset($this->etd->pdfs[0]) &&
+       $this->acl->isAllowed($this->role, $this->etd->pdfs[0], "edit") ||
+       isset($this->etd->originals[0]) &&
+       $this->acl->isAllowed($this->role, $this->etd->originals[0], "edit") ||
+       isset($this->etd->supplements[0]) &&
+       $this->acl->isAllowed($this->role, $this->etd->supplements[0], "edit") ): ?>
      <h3>Replace a File</h3>
      <p>If you would like to replace one of your files, upload the new version here.</p>
   <form name="updatefile" method="post" enctype="multipart/form-data"
