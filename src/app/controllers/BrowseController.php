@@ -208,15 +208,23 @@ class BrowseController extends Etd_Controller_Action {
   }
 
   public function researchfieldsAction() {
-    $coll = $this->_getParam("coll", "researchfields");
-    
     $options = $this->getFilterOptions();
-    
-    // needed to generate remove-facet links
-    $this->view->url_params = array("coll" => $coll);
+
+    // optional name parameter - find id by full name
+    $name = $this->_getParam("name", null);
+    if (is_null($name)) {
+      $coll = $this->_getParam("coll", "researchfields");
+
+      // needed to generate remove-facet links
+      $this->view->url_params = array("coll" => $coll);
+      $coll = "#$coll";
+    } else {
+      $fields = new researchfields();
+      $coll = $fields->findIdbyLabel($name);
+    }
     
     try {
-      $fields = new researchfields("#$coll");
+      $fields = new researchfields("$coll");
     } catch (XmlObjectException $e) {
       $message = "Error: Research Field not found";
       if ($this->env != "production")
