@@ -244,7 +244,7 @@ class FileController extends Etd_Controller_Action {
 
 
      $this->view->etd_pid = $etdfile->etd->pid;
-    $this->view->pid = $pid;
+     //$this->view->pid = $pid;	  // FIXME: what is this supposed to be? (is not defined) unused (?)
     //    $this->view->xml = $xml;
     $this->view->xml = $etdfile->dc->saveXML();
     $this->view->title = "save file information";
