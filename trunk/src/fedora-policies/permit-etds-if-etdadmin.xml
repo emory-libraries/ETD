@@ -109,6 +109,8 @@ access and modify (with some limitations) etd objects (etd, etdfile, user)</Desc
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">MODS</AttributeValue>
 	  <!-- dc : auto-generated from mods, so may change if mods changes -->
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">DC</AttributeValue>
+	  <!-- xhtml : formatted fields, needs to be editable by techsupport -->
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">XHTML</AttributeValue>
         </Apply> 	<!-- end string bag -->
       </Apply>		<!-- end at least one member -->
 
