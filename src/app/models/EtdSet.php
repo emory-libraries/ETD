@@ -54,7 +54,7 @@ class EtdSet {
 	  $this->etds[] = $etd;
 	  
 	} catch (FedoraObjectNotFound $e) {
-	  trigger_error("Record not found: $pid", E_USER_WARNING);
+	  trigger_error("Record not found: " . $doc->PID, E_USER_WARNING);
 	} catch (FoxmlBadContentModel $e) {
 	  // should only get this if query is bad or (in some cases) when Fedora is not responding
 	  trigger_error($doc->PID . " is not an etd", E_USER_NOTICE);
@@ -81,7 +81,8 @@ class EtdSet {
   }
 
   public function __get($name) {
-    if (isset($this->solrResponse->$name)) return $this->solrResponse->$name;
+    if (isset($this->solrResponse) && isset($this->solrResponse->$name))
+      return $this->solrResponse->$name;
     else trigger_error("Unknown attribute $name", E_USER_NOTICE);
   }
 
@@ -116,7 +117,9 @@ class EtdSet {
    * @return boolean 
    */
   public function hasMoreResults() {
-    return ($this->solrResponse->rows < $this->solrResponse->numFound);
+    if (isset($this->solrResponse))
+      return ($this->solrResponse->rows < $this->solrResponse->numFound);
+    else return false;
   }
 
   /**
