@@ -271,7 +271,7 @@ class BrowseController extends Etd_Controller_Action {
     }
 
     $username = strtolower($this->current_user->netid);
-    
+
     // expand to find by role, depending on current user - faculty, dept. staff, etc.
     switch ($this->current_user->role) {
     case "student":
@@ -287,17 +287,17 @@ class BrowseController extends Etd_Controller_Action {
       // something like: "Records on which you are listed as committee chair or member"
       break;
     default:
-      // no records to display for this user; simulate an empty result set 
-      $etds = array();	
+      // no records to display for this user
+      return;	// exit now-- don't perform a search
     }
 
     $etdSet = new EtdSet();
     $etdSet->find($options); 
     $this->view->etdSet = $etdSet;
-      
-    $this->_helper->viewRenderer->setScriptAction("list");
     $this->view->show_status = true;
     $this->view->show_lastaction = true;
+    $this->_helper->viewRenderer->setScriptAction("list");
+
   }
 
 
