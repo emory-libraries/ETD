@@ -272,6 +272,8 @@ class BrowseController extends Etd_Controller_Action {
 
     $username = strtolower($this->current_user->netid);
 
+    $pluralize = false;		// pluralize list description based on results found? (default is not)
+    
     // expand to find by role, depending on current user - faculty, dept. staff, etc.
     switch ($this->current_user->role) {
     case "student":
