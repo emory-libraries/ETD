@@ -1,0 +1,97 @@
+<? /* summary ETD information - displayed in both full and short record views */ ?>
+<? $published = ($this->etd->status() == "published"); ?>
+
+<? if ($published): ?>
+<a href="<?= $this->url(array('controller' => 'browse', 'action' => 'author',
+	'value' => urlencode($this->etd->author())), '', true)?>"><?= $this->etd->author() ?></a>
+<? else: ?>   <?= $this->etd->author() ?> <? endif ?>
+
+   <? if ($year = $this->etd->year()): ?>
+     <? if ($published): ?>		    
+   (<a href="<?= $this->url(array('controller' => 'browse', 'action' => 'year',
+	'value' => $year), '', true)?>"><?= $year ?></a>)
+     <? else: ?>   <?= $year ?> <? endif ?>
+   <? endif ?>
+
+     <? if ($this->acl->isAllowed($this->etd->getUserRole($this->current_user), "user", "view") && 
+	    isset($this->etd->authorInfo)): /* check acl first so we don't initialize unnecessarily  */?>
+      <span class="userinfo">[<a href="<?= $this->url(array('controller' => 'user', 'action' => 'view',
+		'pid' => $this->etd->authorInfo->pid), '', true, false) ?>">contact info</a>]</span>
+     <? endif ?>     
+
+  <br/>
+ <? if ($doctype = $this->etd->document_type()): ?><b><?= $doctype ?></b><? endif ?>
+ <? if ($num_pages = $this->etd->num_pages()): ?>(<?= $num_pages ?> pages)<? endif ?>
+   <br/>
+<b>Committee Chair<? if (count($this->etd->chair()) > 1): ?>s<? endif ?>:</b>
+ <? foreach ($this->etd->chair() as $chair): ?>
+   <? if ($chair == "") continue; ?>
+   <? $last = ($chair == $chair[count($chair)-1]); ?>
+   <? if ($published): ?>
+     <a href="<?= $this->url(array('controller' => 'browse', 'action' => 'committee',
+	'value' => urlencode($chair)), '', true)?>"><?= $chair ?></a><? if (!$last):?>; <? endif ?>
+   <? else: ?>   <?= $chair ?><? if (!$last):?>; <? endif ?> <? endif ?>
+ <? endforeach ?>	
+<br/>
+     
+<b>Committee Members:</b> <? $committee = $this->etd->committee(); ?>
+    <? foreach ($committee as $cm): ?>
+        <? if ($published): ?>
+	 <a href="<?= $this->url(array('controller' => 'browse', 'action' => 'committee','value' => urlencode($cm)),
+	'', true)?>"><?= $cm ?></a><? else: ?><?= $cm ?><? endif ?><?
+	    if ($cm != $committee[count($committee)-1] ||
+		(isset($this->etd->mods) && count($this->etd->mods->nonemory_committee)) ): ?>; <? endif ?>
+    <? endforeach ?>
+    
+    <? if (isset($this->etd->mods->nonemory_committee) &&
+	   isset($this->etd->mods->nonemory_committee[0]) && 
+	   $this->etd->mods->nonemory_committee[0]->full): ?>
+      <? foreach ($this->etd->mods->nonemory_committee as $cm): ?>
+	   <? if ($cm->first == "" && $cm->last == "") continue; /* skip blank names */ ?>
+        <? if ($published): ?>  
+         <a href="<?= $this->url(array('controller' => 'browse', 'action' => 'committee',
+  	'value' => urlencode($cm->full)),'', true)?>"><?= $cm->full ?></a> (<?= $cm->affiliation ?>);
+	 <? else: ?><?= $cm->full ?> (<?= $cm->affiliation ?>);<? endif ?>     
+      <? endforeach ?> 
+    <? endif ?>
+    <? // linebreak only after both sets of committee members ?> <br/>
+      
+  <b>Research Fields:</b>
+   <? $fields = $this->etd->researchfields(); ?>
+   <? foreach ($fields as $field): ?>
+	<? if ($field instanceof etdmods_subject): ?>
+	    <? $label = $field->topic; ?>
+   <? $url = $this->url(array('controller' => 'browse', 'action' => 'researchfields', 'coll' => $field->id), '', true); ?>
+       <? else: ?>
+	 <? $label = $field; ?>
+         <? $url = $this->url(array('controller' => 'browse', 'action' => 'researchfields', 'name' => $field), '', true); ?>
+       <? endif ?>
+       <? if ($published): ?>
+	    <a href="<?= $url ?>"><?= $label ?></a><? else: ?><?= $label ?><? endif ?><? if ($field != $fields[count($fields) - 1]): ?>; <? endif ?>
+   <? endforeach ?><br/>
+	 
+  <b>Keywords:</b>
+    <? $keywords = $this->etd->keywords(); ?>
+    <? foreach ($keywords as $keyword): ?>
+      <? if ($published): ?>  
+         <a href="<?= $this->url(array('controller' => 'search', 'action' => 'results',
+	'keyword' => urlencode(strtolower($keyword))),
+	'', true) ?>"><?= $keyword ?></a><? else: ?><?= $keyword ?><? endif ?><? if ($keyword != $keywords[count($keywords)-1]): ?>; <? endif ?>
+    <? endforeach ?><br/>
+  <b>Program:</b>
+      <? if ($published): ?>  
+	<a href="<?= $this->url(array('controller' => 'browse', 'action' => 'programs',
+	'name' => $this->etd->program()), '', true) ?>"><?= $this->etd->program() ?></a>
+	   <? else: ?><?= $this->etd->program() ?><? endif ?>
+     <? if ($this->etd->subfield()): ?>(<?= $this->etd->subfield() ?>)<? endif ?>
+        <? /* in published mode, subfield should link to program browse */ ?>
+     <br/>
+
+<? if ($this->acl->isAllowed($this->etd->getUserRole($this->current_user), "etd", "view mods")): ?>
+  <span style="float:right;padding-right:5px;">					 
+    <a href="<?= $this->url(array("controller" => "view", "action" => "mods", "pid" => $this->etd->pid())) ?>">MODS</a>  
+  | <a href="<?= $this->url(array("controller" => "view", "action" => "dc", "pid" => $this->etd->pid())) ?>">DC</a>
+  </span>
+<? endif ?>
+					 
+<span class="permalink"><b>Permanent url:</b> <a href="<?= $this->etd->ark() ?>"><?= $this->etd->ark() ?></a></span>
