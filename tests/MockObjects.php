@@ -9,6 +9,7 @@ Mock::generate('Etd_Service_Solr', "Basic_Mock_Etd_Service_Solr");
 Mock::generate('Emory_Service_Solr_Response', "Basic_Mock_Emory_Service_Solr_Response");
 
 class Mock_Emory_Service_Solr_Response extends Basic_Mock_Emory_Service_Solr_Response {
+  public $numFound;
   public function __construct() {
     $this->docs = array();
     $this->facets = array();
