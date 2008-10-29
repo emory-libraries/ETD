@@ -16,6 +16,7 @@ class Etd_Controller_Action_Helper_PdfPageTotal extends Zend_Controller_Action_H
     //split output of pdfinfo by line and then by field (currently only using Pages)
     $pdfi_lines = explode("\n", $pdfinfo_output);
     foreach ($pdfi_lines as $pl) {
+      // FIXME: add error-checking for case when pdfinfo can't read the PDF
       list($key,$val) =  preg_split("/:\s+/", $pl, 2);
       $pdfinfo{$key} = $val;
     }
