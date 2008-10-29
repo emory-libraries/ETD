@@ -20,7 +20,7 @@ class BrowseControllerTest extends ControllerTestCase {
     $this->test_user->netid = "test_user";
     Zend_Registry::set('current_user', $this->test_user);
 
-    $this->solr = &new Mock_Etd_Service_Solr(); 
+    $this->solr = &new Mock_Etd_Service_Solr();
     Zend_Registry::set('solr', $this->solr);
 
   }
@@ -100,14 +100,40 @@ class BrowseControllerTest extends ControllerTestCase {
   }
     	
   function testMyAction() {
+    // initial role set to student
     $BrowseController = new BrowseControllerForTest($this->request,$this->response);
+    $this->solr->response->numFound = 1;
     $BrowseController->myAction();
     $this->assertTrue(isset($BrowseController->view->title));
     $this->assertIsA($BrowseController->view->etdSet, "EtdSet");
+    $this->assertEqual("Your document", $BrowseController->view->list_description);
+    // check that view is correctly set to use list template
+    $viewRenderer = $BrowseController->getHelper("viewRenderer");
+    $this->assertEqual("list", $viewRenderer->getScriptAction());
+    // test pluralization of label
+    $this->solr->response->numFound = 2;
+    $BrowseController->myAction();
+    $this->assertEqual("Your documents", $BrowseController->view->list_description);
+
+    // test faculty version of my etds page
+    $this->test_user->role = "faculty";
+    $BrowseController->myAction();
+    $this->assertEqual("Your students' documents", $BrowseController->view->list_description);
+    // check that view is correctly set to use list template
+    $viewRenderer = $BrowseController->getHelper("viewRenderer");
+    $this->assertEqual("list", $viewRenderer->getScriptAction());
+
+    // staff - no records to find for my etds page
+    $this->test_user->role = "staff";
+    $BrowseController = new BrowseControllerForTest($this->request,$this->response);
+    $BrowseController->myAction();
+    $this->assertFalse(isset($BrowseController->view->etdSet));
+    $viewRenderer = $BrowseController->getHelper("viewRenderer");
+    // not rendering list view script - using default 
+    $this->assertEqual("", $viewRenderer->getScriptAction());
+
+    // NOTE: no easy way to test forwarding from my to myProgram for grad coordinator
   }
-
-  // FIXME: test forwarding to grad coord view, records for faculty view, etc. (?)
-
 
   function testMyProgramAction() {
     // user is not a program coordinator
