@@ -280,9 +280,14 @@ class BrowseController extends Etd_Controller_Action {
       $options["AND"]["ownerId"] = $username;
       // FIXME: is this filter necessary/useful ?
       $options["NOT"]["status"] = "published";		// any status other than published
+      $this->view->list_description = "Your document";
+      // in almost all cases, a student will only have 1 record; 
+      // add a flag to pluralize if necessary
+      $pluralize = true;
       break;
     case "faculty":
       $options["OR"]["advisor_id"] = $options["OR"]["committee_id"] = $username;
+      $this->view->list_description = "Your students' documents";
       // FIXME: display add some kind of label in this mode?
       // something like: "Records on which you are listed as committee chair or member"
       break;
@@ -292,12 +297,15 @@ class BrowseController extends Etd_Controller_Action {
     }
 
     $etdSet = new EtdSet();
-    $etdSet->find($options); 
+    $etdSet->find($options);
+    // if there is more than one record and pluralize is set, pluralize the list label
+    if ($etdSet->numFound != 1 && $pluralize) {
+      $this->view->list_description .= "s";
+    }
     $this->view->etdSet = $etdSet;
     $this->view->show_status = true;
     $this->view->show_lastaction = true;
     $this->_helper->viewRenderer->setScriptAction("list");
-
   }
 
 
@@ -310,6 +318,8 @@ class BrowseController extends Etd_Controller_Action {
       return false;
     }
 
+    $this->view->list_description = "Documents in your program";
+    
     $options = $this->getFilterOptions();
     $options["return_type"] = "solrEtd";
 	
