@@ -2,6 +2,10 @@
     <h2>Files</h2>
 <? if ($this->etd->isEmbargoed()): ?>
     <p>Access restricted until <b><?= $this->etd->mods->embargo_end ?></b></p>
+<? elseif ($this->etd->status() == "published" && count($this->etd->pdfs) == 0): ?>
+<? /* work-around for etdFile xacml glitch:
+    if not embargoed, but published and no pdfs are found, display an error. */ ?>
+   <p>File(s) temporarily unavailable.</p>
 <? endif ?>       
 
      <? if ($this->acl->isAllowed($this->role, $this->etd, "add file")): ?>
