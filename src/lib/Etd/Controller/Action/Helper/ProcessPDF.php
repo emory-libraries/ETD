@@ -293,7 +293,7 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
 
       // look for expected first page: Distribution (formerly Circulation) Agreement
       if (!$this->fields["distribution_agreement"] && (preg_match("/Distribution Agreement/i", $content) ||	// new text, fall 2008
-	  preg_match("/grant\s+to\s+Emory\s+University.*non-exclusive\s+license/", $content) ||
+	  preg_match("/grant.+to.+Emory.+University.+non-exclusive.+license/s", $content) ||
 	  // old version of Circ Agreement text
 	  preg_match("/Circulation Agreement/i", $content) ||
   	  preg_match("/available\s+for\s+inspection\s+and\s+circulation/m", $content)) ) {
