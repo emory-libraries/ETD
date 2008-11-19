@@ -8,7 +8,11 @@
 
     <!-- base roles determined by person type in ESD; must be defined for ACL -->
     <role name="staff" inherits="guest"/>
-    <role name="faculty" inherits="guest"/>
+
+    <!-- allow faculty to create ETD records to handle faculty/students -->
+    <role name="faculty" inherits="guest">
+      <allow resource="etd">create</allow>
+    </role>
 
     <role name="student" inherits="guest">
       <allow resource="etd">create</allow>
