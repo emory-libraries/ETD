@@ -23,6 +23,13 @@
       <allow resource="user">create</allow>
     </role>
 
+    <!-- faculty/student with submission (cannot create second record,
+  	 but still gets faculty/student view on MyEtds page) -->
+    <role name="faculty with submission" inherits="guest">
+      <allow resource="user">create</allow>
+    </role>
+
+
 <!-- pseudo-role with view privileges inherited by author, committee, dept. staff -->
     <role name="view_all" inherits="guest">	
       <allow resource="etd">view metadata, view history, view status</allow>
