@@ -289,6 +289,7 @@ class BrowseController extends Etd_Controller_Action {
       $pluralize = true;
       break;
     case "faculty":
+    case "faculty with submission":
       /* NOTE: searching both advisor and committee fields.
          Advisor field is boosted in the Solr index, and results are
          being sorted by relevance, so advisor matches should be
