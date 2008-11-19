@@ -273,6 +273,7 @@ class BrowseController extends Etd_Controller_Action {
     $username = strtolower($this->current_user->netid);
 
     $pluralize = false;		// pluralize list description based on results found? (default is not)
+    $viewscript = "list";	// default view script to use
     
     // expand to find by role, depending on current user - faculty, dept. staff, etc.
     switch ($this->current_user->role) {
@@ -281,23 +282,43 @@ class BrowseController extends Etd_Controller_Action {
       // records for this action : owned by current user (author) and not published
       $options["AND"]["ownerId"] = $username;
       // FIXME: is this filter necessary/useful ?
-      $options["NOT"]["status"] = "published";		// any status other than published
+      //  $options["NOT"]["status"] = "published";		// any status other than published
       $this->view->list_description = "Your document";
       // in almost all cases, a student will only have 1 record; 
-      // add a flag to pluralize if necessary
+      // setting a flag to pluralize if necessary
       $pluralize = true;
       break;
     case "faculty":
-      $options["OR"]["advisor_id"] = $options["OR"]["committee_id"] = $username;
+      /* NOTE: searching both advisor and committee fields.
+         Advisor field is boosted in the Solr index, and results are
+         being sorted by relevance, so advisor matches should be
+         listed before committee member matches.       */
+      $options["query"] = "(advisor_id:$username OR committee_id:$username)";
+      // 2nd NOTE: using this syntax so that facets will work properly
+      $options['sort'] = "relevance";
       $this->view->list_description = "Your students' documents";
-      // FIXME: display add some kind of label in this mode?
-      // something like: "Records on which you are listed as committee chair or member"
+
+      /**  NOTE: faculty could also be students
+           (either recently changed status or finishing a second degree)
+	   Also find and list any records where the user is author/owner.  */
+      $myEtds = new EtdSet();
+      $myopts = $this->getFilterOptions();
+      $myopts["AND"]["ownerId"] = $username;
+      $myEtds->find($myopts);
+      $this->view->myEtds = $myEtds;
+      $this->view->my_description = "Your document";
+      if ($myEtds->numFound != 1) $this->view->my_description .= "s";
+
+      // use an alternate view script to display both sets of etd results
+      $viewscript = "faculty-my";
       break;
     default:
       // no records to display for this user
       return;	// exit now-- don't perform a search
     }
 
+    
+    // find records using options set above, according to user role
     $etdSet = new EtdSet();
     $etdSet->find($options);
     // if there is more than one record and pluralize is set, pluralize the list label
@@ -307,7 +328,7 @@ class BrowseController extends Etd_Controller_Action {
     $this->view->etdSet = $etdSet;
     $this->view->show_status = true;
     $this->view->show_lastaction = true;
-    $this->_helper->viewRenderer->setScriptAction("list");
+    $this->_helper->viewRenderer->setScriptAction($viewscript);
   }
 
 
