@@ -170,17 +170,19 @@ class esdPerson implements Zend_Acl_Role_Interface {
     return $this->_etds;
   }
 
-  // so esdPerson can act as a Zend_Acl_Role
+  // this function allows esdPerson to act as a Zend_Acl_Role
   public function getRoleId(){
-    if ($this->role == "student") {
+    if ($this->role == "student" || $this->role == "faculty") {
       if ($this->hasUnpublishedEtd())
-	$this->role = "student with submission";
-    } 
+	$this->role .= " with submission";
+    }
     return $this->role;
   }
 
   public function hasUnpublishedEtd() {
-    if ($this->role != "student" && $this->role != "student with submission") return false;
+    // only student and faculty roles can have unpublished etds
+    if (! preg_match("/^(student|faculty)/", $this->role)) // with or without submission
+      return false; 
     elseif (count($this->getEtds())) return true;
     else return false;
   }
