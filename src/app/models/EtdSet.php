@@ -351,7 +351,10 @@ class EtdSet {
    */ 
   public function findRecentlyPublished($options) {
     $options["AND"]["status"] = "published";
-    $options["sort"] = "dateIssued desc";	// date published, most recent first
+    // sort by publication date with the most recent first
+    // (NOTE: this date will be the same for all documents in each semester)
+    // secondary sort on last modified, most recent first
+    $options["sort"] = "dateIssued desc,lastModifiedDate desc";
     return $this->find($options);
   }
 
