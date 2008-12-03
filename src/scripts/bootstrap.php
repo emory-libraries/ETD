@@ -48,8 +48,8 @@ Zend_Registry::set('esd-db', $esd);
 Zend_Db_Table_Abstract::setDefaultAdapter($esd);
 
 // sqlite db for statistics data
-$config = new Zend_Config_Xml('../config/statistics.xml', $env_config->mode);
-$db = Zend_Db::factory($config);
+$stat_config = new Zend_Config_Xml('../config/statistics.xml', $env_config->mode);
+$db = Zend_Db::factory($stat_config);
 Zend_Registry::set('stat-db', $db);	
 
 

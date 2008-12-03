@@ -632,7 +632,9 @@ function proquest_ftp(array $submissions) {
  * @return boolean|string true on success, packing list content in when testing
  */
 function proquest_email(array $submissions) {
-  global $opts, $proquest, $config, $env_config, $logger;
+  global $opts, $proquest, $logger;
+  $config = Zend_Registry::get('config');
+  $env_config = Zend_Registry::get('env-config');
 
   // if there are no records, don't send an email
   if (!count($submissions)) return;	
@@ -647,6 +649,7 @@ function proquest_email(array $submissions) {
   sort($lines);		// sort alphabetically by author
   $text = implode("\n", $lines);
 
+  // in no-act mode, return the text of the email for debug output
   if ($opts->noact) return $text;
   
   $mail = new Zend_Mail();
