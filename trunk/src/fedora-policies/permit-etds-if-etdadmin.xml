@@ -130,13 +130,14 @@ access and modify (with some limitations) etd objects (etd, etdfile, user)</Desc
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">elfarr</AttributeValue>
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">etdadmin</AttributeValue>
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">etdmaint</AttributeValue>
-	  <!-- tech support users -->
+	  <!-- tech support users - THESE NEED TO BE IN APP CONFIG TOO! -->
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">cboswel</AttributeValue>
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">jfenton</AttributeValue>
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">mrodri5</AttributeValue>
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">libfct</AttributeValue>
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">phornsb</AttributeValue>
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">ekoffsk</AttributeValue>
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">aafonja</AttributeValue>
         </Apply>
       </Apply>
 
