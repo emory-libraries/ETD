@@ -25,12 +25,16 @@
 
   <? if ($readyToSubmit = $etd->mods->readyToSubmit()): ?>
     <?= $ok ?> thesis information<br/>
- <? else: ?> 
+  <? elseif ($etd->mods->thesisInfoComplete()):?>
+  <? /* mods is not ready to submit, but thesis info is complete */ ?>
+    <?= $ok ?> thesis information<br/>
+  <? else: ?> 
    <?= $incomplete; ?> thesis information
      <? /* display which required fields are missing, if any */   ?>
      <ul id="mods_missing" class="missing">
        <? if (count($etd->mods->checkRequired())): ?>
          <? foreach ($etd->mods->checkRequired() as $missing => $action): ?>
+     	   <? if ($action == "rights") continue;  /* displayed separately */ ?>
            <li><a href="<?= $this->url(array('controller' => 'edit', 'action' => $action)) ?>"><?= $missing ?></a>
            </li>
          <? endforeach ?>
