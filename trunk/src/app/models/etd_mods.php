@@ -474,8 +474,36 @@ class etd_mods extends mods {
     // other required fields?
     // genre/etd type (?)
     // degree
-    
+
+
+    // required rights/admin fields
+    if (! $this->hasEmbargoRequest())
+      $missing["embargo request"] = "rights";
+    if (! $this->hasSubmissionAgreement())
+      $missing["submission agreement"] = "rights";
+    if (! $this->hasSubmitToProquest())
+      $missing["send to ProQuest"] = "rights";
+    // if record will be sent to PQ, copyright request is required
+    if ($this->submitToProquest() && ! $this->hasCopyright())
+      $missing["copyright"] = "rights";
+
+
     return $missing;
+  }
+
+  // specialized version of check required - disregards rights completion status
+  function thesisInfoComplete() {
+    $missing = $this->checkRequired();
+    // nothing is missing
+    if (count($missing) == 0) return true;
+
+    // the value of the array is the action needed to edit it;
+    // thesis info does not include rights values
+    $uniq_values = array_unique(array_values($missing));
+    foreach ($uniq_values as $val) {
+      if ($val != "rights") return false;
+    }
+    return true;
   }
 
   
