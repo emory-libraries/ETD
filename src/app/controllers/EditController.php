@@ -134,7 +134,9 @@ class EditController extends Etd_Controller_Action {
       // forward to main record edit page (includes degree)
       $this->_helper->redirector->gotoRoute(array("controller" => "edit", "action" => "record",
     						"pid" => $etd->pid), '', true);
-    } 
+    }
+
+    //note: additions to MODS must be made in view controller
 
     $this->view->title = "Edit Author Rights/Access Restrictions";
 
