@@ -14,7 +14,7 @@
 	    <email>etd-help@listserv.cc.emory.edu</email>
 	  </contact>
 	  <tmpdir>/tmp/etd</tmpdir>
-          <logfile>/home/rsutton/public_html/etdnew/tmp/logfile.xml</logfile>  
+	  <logfile>/var/log/httpd/etd_log.xml</logfile>
   	  <!-- executable for pdftohtml; supply full path if necessary -->
 	  <pdftohtml>/usr/local/bin/pdftohtml</pdftohtml>	
 	   <!-- browsers supported for submission process  
@@ -25,13 +25,21 @@
 	     note that these people must also be listed permit-etds-to-etdadmins policy -->
 	  <superusers>
             <user>rsutton</user> 
-	    <user>pogrady</user>
 	    <user>croddy</user>
+	    <user>liblna</user>
+	    <user>elfarr</user>
+	    <user>fpici</user>
+	    <user>libmhk</user>
 	  </superusers>
 	 <!-- tech support : must also be listed as etdadmins in fedora policy -->
 	  <techsupport>
-            <user/>
-	    <user/>
+	    <user>jfenton</user>
+            <user>cboswel</user>
+            <user>mrodri5</user>
+            <user>libfct</user>
+            <user>phornsb</user>
+            <user>ekoffsk</user>
+            <user>aafonja</user>
 	  </techsupport>
 
  	  <!-- NOTE: for both superusers and techsupport, there must
