@@ -157,6 +157,13 @@ class SubmissionController extends Etd_Controller_Action {
       $this->view->errors[] = "Could not create record.";
       $this->view->xml = $etd->saveXML();
       $this->logger->err("Could not create etd record : FedoraObjectNotValid");
+    } catch (FedoraObjectNotFound $e) {
+      if ($this->debug) print $e->getMessage() . "<br/>\n";
+      $error = false;
+      $debug_msg = $e->getMessage();
+      $this->view->errors[] = "Could not create record.";
+      $this->view->xml = $etd->saveXML();
+      $this->logger->err("Could not create etd record : FedoraObjectNotFound");
     }
     
     // any of the Persis Service errors
