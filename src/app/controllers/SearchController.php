@@ -1,7 +1,6 @@
 <?php
 
 require_once("models/etd.php");
-require_once("Pager/Pager.php");
 
 class SearchController extends Etd_Controller_Action {
   protected $requires_fedora = true;
