@@ -1,0 +1,51 @@
+<h1>Edit Contact Information</h1>
+
+<?=  $this->render('edit/_xforms_key.phtml'); ?>
+
+<p>The personal information below will be collected and sent to
+Proquest with an electronic copy of your thesis or dissertation.
+(Proquest/UMI collects this information so that they can contact you
+regarding the payment of royalties, etc.)  We collect a non-Emory
+email address to inform you of the impending expiration of access
+restrictions you have placed on your document.  Your personal
+information will not be available publicly or shared with anyone
+without your consent.</p>
+
+<xf:group nodeset="mads:authority/mads:name"> 
+  <xf:label>name</xf:label> 
+
+   <?= $this->xformText("last", "mads:namePart[@type='family']"); ?>
+   <?= $this->xformText("first and middle", "mads:namePart[@type='given']"); ?>
+   <?//= $this->xformText("birth year", "mads:namePart[@type='date']"); ?>
+</xf:group> 
+<br/>
+<xf:group nodeset="mads:affiliation[mads:position != 'permanent resident' or not(mads:position)]">
+   <xf:label>current address</xf:label>
+   <?=  $this->render('user/_mads_address.phtml'); ?>
+   <?= $this->xformText("phone", "mads:phone"); ?> <br/>
+   <?= $this->xformText("email", "mads:email"); ?> <br/>
+   <? /* suppress date valid for current address (confusing) */ ?>
+</xf:group>
+
+<hr/>
+
+<xf:group nodeset="mads:affiliation[mads:position = 'permanent resident']">
+   <xf:label>permanent address</xf:label>
+   <?=  $this->render('user/_mads_address.phtml'); ?>
+   <?= $this->xformText("phone", "mads:phone"); ?> <br/>
+   <?= $this->xformText("non-emory email", "mads:email"); ?> <br/>
+   <?= $this->xformText("date valid", "mads:dateValid"); ?> <br/>
+</xf:group>
+<br/>
+
+<?= $this->xformOutput("netid", "mads:identifier[@type='netid']"); ?> <br/>
+
+<xf:submit submission="submission">
+  <xf:label>Save</xf:label>
+</xf:submit>
+
+
+<? if ($this->site_mode == 'development'): ?>
+  <p id="status"></p>
+<? endif ?>   
+
