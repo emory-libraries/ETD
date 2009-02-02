@@ -63,6 +63,14 @@
        <allow resource="user">view</allow>
     </role>
 
+    <!-- administrator for undergraduate honors ETDs -->
+    <role name="honors_admin" inherits="view_all">
+       <allow resource="etd">edit history, edit status, manage</allow>
+	<!-- workflow actions TBD -->
+       <allow resource="file">view modified</allow>
+       <allow resource="user">view</allow>
+    </role>
+
     <role name="techsupport" inherits="view_all">
       <!-- view/edit any record, view log, but no workflow steps -->
       <allow resource="etd">edit metadata, order files, manage</allow>
