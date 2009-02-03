@@ -16,11 +16,30 @@ class ManageController extends Etd_Controller_Action {
      // for faculty, list records where they are on the committee as chair or member
    }
 
+
+
+   // generate filter needed (if any) based on type of administrator
+   private function getAdminFilter() {
+     switch ($this->current_user->role) {
+     case "honors_admin":
+       return "degree_name:(BA or BS)";
+     case "grad_admin":
+       return "degree_name:(PHD or MA or MS)";
+     default:
+       return null;
+	
+     }
+   }
+
    public function summaryAction() {
      if (!$this->_helper->access->allowedOnEtd("manage")) return;
      $this->view->title = "Manage : Summary";
-     $this->view->status_totals = etd::totals_by_status();
+     $etdset = new EtdSet();
+
+     $filter = $this->getAdminFilter();
+     $this->view->status_totals = $etdset->totals_by_status($filter);
      $this->view->messages = $this->_helper->flashMessenger->getMessages();
+
    }
 
    // list records by status; uses browse list template for paging & facet functionality
@@ -31,6 +50,10 @@ class ManageController extends Etd_Controller_Action {
      $options = $this->getFilterOptions();
      $options["return_type"] = "solrEtd";
 
+     // optionally limit to undergrad or grad records only based on user's role
+     $filter = $this->getAdminFilter();
+     if ($filter) $options["query"] = $filter;
+     
      $etdSet = new EtdSet();
      $etdSet->find($options);
      $this->view->etdSet = $etdSet;
