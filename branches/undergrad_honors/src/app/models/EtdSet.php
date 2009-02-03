@@ -389,6 +389,32 @@ class EtdSet {
     }
     $this->etds = $sorted_etds;
   }
-  
+
+
+ 
+  /**
+   * Get totals for etds by status, with optional filter.
+   * Result includes all statuses (with zeroes if no matches were found); statuses are
+   * returned in the order given by etd_rels getStatusList 
+   *
+   * @param string solr query to filter results (optional)   
+   * @return array of statuses and counts for each
+   */
+  public function totals_by_status($filter = null) {
+    $solr = Zend_Registry::get('solr');
+    if ($filter) {
+      $solr->addFilter($filter);
+    }
+    $results = $solr->_browse("status");  
+
+    $totals = array();
+    $statuses = $results->facets->status;
+    foreach (etd_rels::getStatusList() as $status) {
+      $totals[$status] = isset($statuses[$status]) ? $statuses[$status] : 0;
+    }
+     
+    return $totals;
+  }
+
 }
 

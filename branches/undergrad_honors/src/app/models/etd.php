@@ -8,6 +8,7 @@ require_once("etdInterface.php");
 // etd datastreams
 require_once("etd_mods.php");
 require_once("etd_html.php");
+require_once("etd_rels.php");
 require_once("premis.php");
 require_once("policy.php");
 
@@ -602,25 +603,6 @@ class etd extends foxml implements etdInterface {
   }
 
 
-  /** static functions for finding (or counting) ETDs by various criteria **/
-  
-  public static function totals_by_status() {
-    $fedora = Zend_Registry::get('fedora');
-    $totals = array();
-    
-    // foreach status, do a triple-query and then count the number of matches
-    foreach (etd_rels::getStatusList() as $status) {
-      $query = '* <fedora-rels-ext:etdStatus> \'' . $status . '\'';
-      $rdf = $fedora->risearch->triples($query);
-      $ns = $rdf->getNamespaces();
-      $totals[$status] = count($rdf->children($ns['rdf']));
-    }
-    
-    return $totals;
-  }
-
-
-  
   public function pid() { return $this->pid; }
   public function status() { return isset($this->rels_ext->status) ? $this->rels_ext->status : ""; }
   public function title() { return $this->html->title; }	// how to know which?
