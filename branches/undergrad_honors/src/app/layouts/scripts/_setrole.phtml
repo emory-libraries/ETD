@@ -5,7 +5,11 @@ $projax = new Projax(); ?>
  		<form name="set_role" method="post" 
 		  action="<?= $this->url(array('controller' => 'auth', 'action' => 'setrole'), '', true) ?>">
 		Set role:
-		<? $role_opts = array("student" => "student", "admin" => "admin", "superuser" => "superuser",
+		<? $role_opts = array("student" => "student",
+				      "admin" => "admin",
+				      "grad_admin" => "grad admin",
+				      "honors_admin" => "honors admin",
+				      "superuser" => "superuser",
 				      "faculty" => "faculty",
 				      "coordinator:Chemistry" => "grad coord - Chem",
 				      "coordinator:English" => "grad coord - Eng",
