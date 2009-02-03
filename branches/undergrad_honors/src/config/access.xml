@@ -63,6 +63,12 @@
        <allow resource="user">view</allow>
     </role>
 
+    <!-- administrator for graduate school etds -->
+    <role name="grad_admin" inherits="admin"/>
+<!-- NOTE: for now, permissions are the same as admin, but that will
+	probably need to change -->
+
+
     <!-- administrator for undergraduate honors ETDs -->
     <role name="honors_admin" inherits="view_all">
        <allow resource="etd">edit history, edit status, manage</allow>
