@@ -87,7 +87,7 @@ class esdPerson implements Zend_Acl_Role_Interface {
     
     // determine roles for special cases
     if ($this->department == "Graduate School Administration")
-      $this->role = "admin";	// graduate school administrator
+      $this->role = "grad_admin";	// graduate school administrator
     if (!is_null($this->grad_coord)) {
       // role is graduate program coordinator ?
       // **** - not a separate role but a role in relation to particular ETDs
