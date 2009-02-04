@@ -8,6 +8,7 @@ class ManageControllerTest extends ControllerTestCase {
   // array of test foxml files & their pids 
   private $etdxml;
   private $test_user;
+  private $solr;
   
   function setUp() {
     $this->test_user = new esdPerson();
@@ -35,8 +36,8 @@ class ManageControllerTest extends ControllerTestCase {
       $pid = fedora::ingest(file_get_contents('../fixtures/' . $etdfile . '.xml'), "loading test etd");
     }
 
-    $solr = &new Mock_Etd_Service_Solr();
-    Zend_Registry::set('solr', $solr);
+    $this->solr = &new Mock_Etd_Service_Solr();
+    Zend_Registry::set('solr', $this->solr);
   }
   
   function tearDown() {
@@ -48,14 +49,19 @@ class ManageControllerTest extends ControllerTestCase {
   }
   
   function testSummaryAction() {
+
+    $this->solr->response->facets = new Emory_Service_Solr_Response_Facets(array("status" =>
+										 array("published" => 2,
+										       "reviewed" => 1)));
+    
+    // no param - should start at top-level
+    
     $ManageController = new ManageControllerForTest($this->request,$this->response);
     $ManageController->summaryAction();
     $status_totals = $ManageController->view->status_totals;
 
-    // FIXME: there is an error in Resource Index...  counts 1 published record when nothing is in the repository
-
-    // totals based on test objects loaded
-    $this->assertEqual(2, $status_totals['published']);	// FIXME: should be 1... ignore this error for now
+    // should match what is passed to mock solr object above
+    $this->assertEqual(2, $status_totals['published']);
     $this->assertEqual(0, $status_totals['approved']);
     $this->assertEqual(1, $status_totals['reviewed']);
     $this->assertEqual(0, $status_totals['submitted']);
@@ -318,6 +324,31 @@ class ManageControllerTest extends ControllerTestCase {
     $this->assertFalse($ManageController->viewLogAction());
   }
 
+  public function testAdminFilter() {
+    // totals on summary pages and records on list views based on what kind of admin user is
+
+    $ManageController = new ManageControllerForTest($this->request,$this->response);
+    
+    // generic admin sees everything (no filter)
+    $this->test_user->role = "admin";
+    $this->assertNull($ManageController->testGetAdminFilter());
+
+    // grad admin - phds and masters only
+    $this->test_user->role = "grad_admin";
+    $filter = $ManageController->testGetAdminFilter();
+    $this->assertPattern("/PHD/", $filter);
+    $this->assertPattern("/M[AS]/", $filter);
+    $this->assertNoPattern("/B[AS]/", $filter);
+
+    // undergrad honors admin - bachelors only
+    $this->test_user->role = "honors_admin";
+    $filter = $ManageController->testGetAdminFilter(); 
+    $this->assertNoPattern("/PHD/", $filter);
+    $this->assertNoPattern("/M[AS]/", $filter);
+    $this->assertPattern("/B[AS]/", $filter);
+    
+  }
+  
 }
 
 
@@ -337,6 +368,11 @@ class ManageControllerForTest extends ManageController {
   
   public function _redirect() {
     $this->redirectRan = true;
+  }
+
+  // expose private function for testing
+  public function testGetAdminFilter() {
+    return $this->getAdminFilter();
   }
 } 	
 

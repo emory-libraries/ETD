@@ -19,7 +19,7 @@ class ManageController extends Etd_Controller_Action {
 
 
    // generate filter needed (if any) based on type of administrator
-   private function getAdminFilter() {
+   protected function getAdminFilter() {
      switch ($this->current_user->role) {
      case "honors_admin":
        return "degree_name:(BA or BS)";

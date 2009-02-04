@@ -24,6 +24,8 @@ class Mock_Etd_Service_Solr extends Basic_Mock_Etd_Service_Solr {
 
     $this->setReturnReference('query', $this->response);
     $this->setReturnReference('suggest', $this->response);
+    $this->setReturnReference('browse', $this->response);
+    $this->setReturnReference('_browse', $this->response);
   }
 }
 
