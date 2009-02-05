@@ -36,6 +36,9 @@
 	  src="<?= $this->linkTo("images/emory.gif") ?>" alt="EMORY" title="EMORY"/></a>
       </div>
 <div id="title"><a href="<?= $this->url(array(), '', true) ?>">Electronic Theses and Dissertations</a></div>
+<? if ($this->env == "development"): ?>
+    svn revision <?= $this->svnversion ?>; <?= $this->svnpath ?>
+<? endif ?>
 
   <div id="photo">
 	<img src="<?= $this->linkto("images/woodruff-path.jpg") ?>" alt="path to the library"/>
