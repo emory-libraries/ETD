@@ -39,6 +39,8 @@ class esdPerson implements Zend_Acl_Role_Interface {
 			 "department" => "DPRT_N",
 			 "academic_plan_id" => "ACPL_I",
 			 "academic_plan" => "ACPL_N",
+			 /** y/n flag for undergrad honors program **/
+			 "honors_student" => "STDN_F_HONR",
 			 /* graduate program coordinator
 			    - if not null, user is a program coordinator 
 			    - field contains the program name
@@ -83,6 +85,12 @@ class esdPerson implements Zend_Acl_Role_Interface {
       $this->role = "staff"; break;
     default:
       $this->role = "guest";		// fixme: what should the default be?
+    }
+
+
+    // subset of standard student role - if honors flag is set
+    if ($this->role == "student" && $this->honors_student == "Y") {
+      $this->role = "honors_student";
     }
     
     // determine roles for special cases
