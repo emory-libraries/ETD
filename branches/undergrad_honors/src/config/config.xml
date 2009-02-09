@@ -41,10 +41,14 @@
             <user>ekoffsk</user>
             <user>aafonja</user>
 	  </techsupport>
+ 	  <honors_admin>
+	    <user>mabell</user>
+	    <user/>
+ 	  </honors_admin>
 
- 	  <!-- NOTE: for both superusers and techsupport, there must
-	       be at least 2 user entries so Zend_Config_Xml will
-	       treat it as a multiple field -->
+ 	  <!-- NOTE: for superusers, techsupport, and honors_admin,
+ 	  there must be at least 2 user entries so Zend_Config_Xml
+ 	  will treat it as a multiple field -->
 
 <!-- rights statement to be used in the MODS record -->
 	   <useAndReproduction>Permission granted by the author to include this thesis or dissertation in this repository. All rights reserved by the author. Please contact the author for information regarding the reproduction and use of this thesis or dissertation.</useAndReproduction>
