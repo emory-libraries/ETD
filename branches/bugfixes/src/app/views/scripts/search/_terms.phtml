@@ -5,10 +5,13 @@
     <? if (isset($this->url_params['query'])): ?>
       <li><?= $this->url_params['query'] ?></li>
     <? endif ?>
+    <? if ($this->url_params['unembargoed']): /* special advanced search filter */ ?>
+      <li>full text available</li>
+    <? endif ?>
     <? foreach ($this->search_fields as $field): ?>
       <? if (isset($this->url_params[$field])): ?>
- <? $label = ($field == "tableOfContents") ? "Table of Contents" : ucfirst($field) ?>
-         <li><b><?= $label ?>: </b> <?= $this->url_params[$field] ?></li>
+	 <? $label = ($field == "tableOfContents") ? "Table of Contents" : ucfirst($field) ?>
+	 <li><b><?= $label ?>: </b> <?= $this->url_params[$field] ?></li>
       <? endif ?>
     <? endforeach ?>
   </ul>		
