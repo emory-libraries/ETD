@@ -21,8 +21,9 @@
 		Note: this should match the "parent" field returned by get_browser() -->
  	  <supported_browsers>IE 7.0,Firefox 2.0,Firefox 3.0,Iceweasel</supported_browsers>
 
-	<!-- override default role for superusers only here:
-	     note that these people must also be listed permit-etds-to-etdadmins policy -->
+<!-- NOTE: all users listed here as superuser, techsupport, and honor_admin 
+     MUST also be added to permit-etds-to-etdadmins Fedora XACML policy -->
+	 <!-- override default role for superusers only here -->
 	  <superusers>
             <user>rsutton</user> 
 	    <user>croddy</user>
@@ -41,6 +42,7 @@
             <user>ekoffsk</user>
             <user>aafonja</user>
 	  </techsupport>
+	 <!-- undergraduate honors administrators -->
  	  <honors_admin>
 	    <user>mabell</user>
 	    <user/>
