@@ -41,6 +41,8 @@ class SearchController extends Etd_Controller_Action {
 
     $unembargoed = $this->_hasParam("unembargoed");
     if ($unembargoed) {
+      // set so it will carry over onto next pages, filtered searches
+      $this->view->url_params['unembargoed'] = true;
       // restrict to records that have files available - any embargo has ended
       $today = date("Ymd");	// today's date
       // any embargoes that have ended today or before
