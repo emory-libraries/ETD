@@ -93,8 +93,9 @@ class esdPerson implements Zend_Acl_Role_Interface {
       // **** - not a separate role but a role in relation to particular ETDs
       // a user should have this role only if grad_coord matches ETD's department field...
    } 
-    
-    // etd superuser - override role for users listed in config file, if set
+
+    // special roles that must be set in config file
+    // etd superuser, techsupport, and honors admin
     if (Zend_Registry::isRegistered('config')) {
       $config = Zend_Registry::get('config');
       if (in_array($this->netid, $config->techsupport->user->toArray())) {
@@ -103,7 +104,9 @@ class esdPerson implements Zend_Acl_Role_Interface {
       if (in_array($this->netid, $config->superusers->user->toArray())) {
 	$this->role = "superuser";
       }
-
+      if (in_array($this->netid, $config->honors_admin->user->toArray())) {
+	$this->role = "honors_admin";
+      }
     }
   }
 
@@ -276,6 +279,8 @@ class esdPersonObject extends Emory_Db_Table {
    * find a list of matching faculty based on name - used for suggestor
    */
   public function match_faculty($name) {
+    // NOTE: this table is a dump of the data local on proxy esd,
+    // rather than using the view which was too slow for a suggestor    
     $sql = "SELECT * FROM ESDV.v_etd_prsn_tabl WHERE PRSN_C_TYPE='F' ";
 
     $name = str_replace(",", "", $name);	// ignore commas
