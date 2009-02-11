@@ -10,6 +10,12 @@ class StatisticsController extends Etd_Controller_Action {
   // (esp. country - currently called three times for a single page to build the maps)
   // stats aren't updated that frequently, so caching would make sense...
 
+  private $default_max;
+  
+  public function preDispatch() {
+    $this->view->graph_width =  500 ;  
+    $this->default_max = 100;	// initial/default maximum
+  }
   
   public function indexAction() {
     $this->view->title = "Access Statistics";
@@ -83,13 +89,12 @@ class StatisticsController extends Etd_Controller_Action {
      $this->view->countries = new CountryNames;
      $this->view->title = "Access Statistics by Country";
 
-     $max = 100;
+     $max = $this->default_max;
      foreach ($this->view->country as $c) {
        $max = max($max, $c['abstract'], $c['file']);
      }
 
      $this->view->graph_max = $max;
-     $this->view->graph_width = "500";
      
    }
     
@@ -102,14 +107,12 @@ class StatisticsController extends Etd_Controller_Action {
      
      $this->view->params =  $this->_getAllParams();
 
-          $max = 100;
+     $max = $this->default_max;
      foreach ($this->view->month as $row) {
        $max = max($max, $row['abstract'], $row['file']);
      }
 
      $this->view->graph_max = $max;
-     $this->view->graph_width = "500";
-
    }
 
    // statistics for a single record
@@ -130,6 +133,15 @@ class StatisticsController extends Etd_Controller_Action {
      $this->view->countries = new CountryNames;
 
      $this->view->month = $stats->countByMonthYear($pids);
+
+     $max = $this->default_max;
+     foreach ($this->view->month as $row) {
+       $max = max($max, $row['abstract'], $row['file']);
+     }
+     foreach ($this->view->country as $c) {
+       $max = max($max, $c['abstract'], $c['file']);
+     }
+     $this->view->graph_max = $max;
      
      $this->view->etd = $etd;
      $this->view->title = "Access Statistics for " . $etd->label;
