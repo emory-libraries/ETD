@@ -9,21 +9,21 @@
     <? else: ?>
 	<? foreach ($this->country as $country): ?>
 	<tr>
-	  <td>
-	     <img src="<?= $this->linkTo("images/flags/" . $country['country'] . ".gif") ?>" style="border:1px solid black"/>
+	  <td>	 
+	     <img class="flag" src="<?= $this->linkTo("images/flags/" . $country['country'] . ".gif") ?>"/>
 	     <?/* FIXME: should be image helper, but it thinks these images don't exist */ ?>
 	     
 	     <?= $this->countries->$country['country'] /* FIXME: country name instead of code */ ?>
  	  </td>
 	  <td class="count abstract"><?= $country['abstract'] ?></td>
 	  <td class="count download"><?= $country['file'] ?></td>
-	  <td>
-  	       <div class="abstractviews" style="width:<?= $country['abstract'] ?>px">
-		<?= $country['abstract'] ?></div>
+	  <td> 
+  	       <div class="abstractviews" style="width:<?= $this->scaleGraphValue($country['abstract'])?>px">
+	     <?= $country['abstract'] ?></div>
   	       <div class="downloads"
-	    style="width:<?= $country['file'] ?>px">
+	    style="width:<?= $this->scaleGraphValue($country['file']) ?>px">
 	     <?= $country['file'] ?></div>
-	  </td>
+	     </td> 
 	</tr>								
        <? endforeach ?>
    <? endif ?>
