@@ -5,7 +5,7 @@
     <? if (isset($this->url_params['query'])): ?>
       <li><?= $this->url_params['query'] ?></li>
     <? endif ?>
-    <? if ($this->url_params['unembargoed']): /* special advanced search filter */ ?>
+    <? if (isset($this->url_params['unembargoed']) && $this->url_params['unembargoed']): /* special advanced search filter */ ?>
       <li>full text available</li>
     <? endif ?>
     <? foreach ($this->search_fields as $field): ?>
