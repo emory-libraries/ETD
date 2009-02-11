@@ -1,13 +1,19 @@
 <?= $this->render("statistics/_links.phtml"); ?>
 <h1>Access Statistics by Country</h1>
 
-<table class="statistics">
- <tr>
-   <td class="label"></td>
-    <th class="abstract">Abstracts</th>
-    <th class="download">Downloads</th>
- </tr>
+<div style="float:left">
+<h2>Abstract Views</h2>
+<img src="<?= $this->url(array('action' => 'country-map', 'show' => 'abstract')) ?>"/>
+</div>
 
+<div style="float:left">
+<h2>File Downloads</h2>
+<img src="<?= $this->url(array('action' => 'country-map', 'show' => 'file')) ?>"/>
+</div>
+
+
+<table class="statistics">
+<?= $this->render("statistics/_statkey.phtml") ?>
 <?= $this->render("statistics/_country.phtml") ?>
 
 </table>
