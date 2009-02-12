@@ -52,6 +52,9 @@ class FileControllerTest extends ControllerTestCase {
     $gff = $FileController->getHelper("GetFromFedora");
     $gff->clearReturnObject();
 
+    $this->mock_etdfile->type = null;
+    $this->mock_etdfile->etd = null;    
+
     Zend_Registry::set('solr', null);
     Zend_Registry::set('current_user', null);
   }
@@ -120,15 +123,57 @@ class FileControllerTest extends ControllerTestCase {
     $etd->rels_ext->status = "draft";
     $etd->save("status -> draft to test editing");
 
-    // attempting to simulate file upload
-    $_FILES['file'] = array("tmp_name" => "php123", "size" => 150,
-			    "type" => "application/pdf", "error" => UPLOAD_ERR_OK, "name" => "original.pdf");
-    // NOTE: too much actual file-handling logic is in the constructor; how to abstract/mock/test ?
-    //    $FileController->newAction();
-    //    $this->assertTrue($FileController->redirectRan);
+    $tmpfile = tempnam("/tmp", "etdtest-");
+  
+    // uploading a non-pdf for pdf file should fail
+    $_FILES['file'] = array("tmp_name" => $tmpfile, "size" => 150,
+			    "type" => "text/plain", "error" => UPLOAD_ERR_OK,
+			    "name" => "original.txt");
+    $this->setUpGet(array('etd' => $this->etdpid, "filetype" => "pdf"));
+    $this->assertFalse($FileController->newAction());
+    $this->assertFalse(isset($FileController->view->file_pid));
+    $messages = $FileController->getHelper('FlashMessenger')->getMessages();
+    $this->assertPattern("/file is not an allowed type./", $messages[0]);
+
+    // NOTE: too much actual file-handling logic is in the constructor;
+    // how to abstract/mock/test this?
+
+    /*** actual ingest of test etd_file fails; not sure why
+    file_put_contents($tmpfile, "test file");
+    $_FILES['file']["type"] = "application/pdf";
+
+    $FileController->newAction();
+    $messages = $FileController->getHelper('FlashMessenger')->getMessages();
+    print "<pre>"; print_r($messages); print "</pre>";
+    */
+    unlink($tmpfile);
   }
 
-  // can't test update - same file-handling problems as new
+  public function testUpdateAction() {
+    $this->mock_etdfile->type = "pdf";
+    $this->mock_etdfile->etd = new Etd($this->etdpid);
+
+    $FileController = new FileControllerForTest($this->request, $this->response);
+    
+    $tmpfile = tempnam("/tmp", "etdtest-");
+  
+    // uploading a non-pdf to update pdf object should fail
+    $_FILES['file'] = array("tmp_name" => $tmpfile, "size" => 150,
+			    "type" => "text/plain", "error" => UPLOAD_ERR_OK,
+			    "name" => "original.txt");
+    $this->setUpGet(array('pid' => "mock_etdfilepid"));
+    $this->assertFalse($FileController->updateAction());
+    $this->assertFalse(isset($FileController->view->file_pid));
+    $messages = $FileController->getHelper('FlashMessenger')->getMessages();
+    $this->assertPattern("/file is not an allowed type./", $messages[0]);
+
+    // updating mock etdfile object
+    $_FILES['file']["type"] = "application/pdf";
+    $this->assertFalse($FileController->updateAction());
+    $messages = $FileController->getHelper('FlashMessenger')->getMessages();
+    $this->assertPattern("/Successfully updated file/", $messages[0]); 
+  }
+
 
   public function testEditAction() {
     $FileController = new FileControllerForTest($this->request,$this->response);
