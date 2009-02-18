@@ -321,7 +321,7 @@ class etd_mods extends mods {
     foreach ($values as $id => $text) {
       if (array_key_exists($i, $this->researchfields)) {
 	$this->researchfields[$i]->id = $id;
-	  $this->researchfields[$i]->topic = $text;
+	$this->researchfields[$i]->topic = $text;
       } else {
 	$this->addResearchField($text, $id);
       }
@@ -508,16 +508,16 @@ class etd_mods extends mods {
 
   
   function hasCopyright() {
-    return ($this->copyright != "");
+    return (isset($this->copyright) && $this->copyright != "");
     //    return preg_match("/applying for copyright\? (yes|no)/", $this->copyright);
   }
 
   function hasEmbargoRequest() {
-    return ($this->embargo_request != "");
+    return (isset($this->embargo_request) && $this->embargo_request != "");
   }
 
   function hasSubmissionAgreement() {
-    return ($this->rights != "");
+    return (isset($this->rights) && $this->rights != "");
   }
 
   /**
