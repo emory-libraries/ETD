@@ -132,6 +132,7 @@ class TestEtd extends UnitTestCase {
     $this->assertEqual($this->etd->policy->draft->condition->user, "mmouse");	// owner from etd
     $this->assertFalse(isset($this->etd->policy->published));
     // draft rule should also be added to related etdfile objects
+    $this->assertTrue(isset($this->etd->pdfs[0]->policy->draft));
     $this->assertIsA($this->etd->pdfs[0]->policy->draft, "PolicyRule");
     $this->assertFalse(isset($this->etd->pdfs[0]->policy->published));
     $this->assertIsA($this->etd->originals[0]->policy->draft, "PolicyRule");
@@ -200,6 +201,8 @@ class TestEtd extends UnitTestCase {
   }
 
   function testAddCommittee() {	// committee chairs and members
+    $errlevel = error_reporting(E_ALL ^ E_NOTICE);
+    
     // attach an etd file to test that chair/committee are set on etdFile view policy
     $fname = '../fixtures/etdfile.xml';
     $dom = new DOMDocument();
@@ -228,6 +231,8 @@ class TestEtd extends UnitTestCase {
     $this->assertTrue($this->etd->policy->view->condition->users->includes("jfenton"));
     $this->assertTrue($this->etd->supplements[0]->policy->view->condition->users->includes("ahickco"));
     $this->assertTrue($this->etd->supplements[0]->policy->view->condition->users->includes("jfenton"));
+
+    error_reporting($errlevel);	    // restore prior error reporting
   }
 
 
@@ -238,6 +243,8 @@ class TestEtd extends UnitTestCase {
   }
 
   function testPublish() {
+    $errlevel = error_reporting(E_ALL ^ E_NOTICE);
+    
     $pubdate = "2008-01-01";
     $this->etd->mods->embargo = "6 months";	// specify an embargo duration
     $this->etd->mods->chair[0]->id = "nobody";	// set ids for error messages
@@ -263,12 +270,16 @@ class TestEtd extends UnitTestCase {
     // simulate bad data / incomplete record to test exception
     $this->etd->mods->embargo = "";	// empty duration - results in zero-time unix
     $this->expectException(new XmlObjectException("Calculated embargo date does not look correct (timestamp:, 1969-12-31)"));
-    $this->etd->publish($pubdate, $pubdate);	      
+    $this->etd->publish($pubdate, $pubdate);
+
+    error_reporting($errlevel);	    // restore prior error reporting
   }
 
 
   // test adding files to an etd
   function testAddFile() {
+    $errlevel = error_reporting(E_ALL ^ E_NOTICE);
+    
     $fname = '../fixtures/etdfile.xml';
     $dom = new DOMDocument();
     $dom->load($fname);
@@ -292,6 +303,8 @@ class TestEtd extends UnitTestCase {
     $this->assertTrue($this->etd->supplements[0]->policy->view->condition->users->includes("jsmith"));
     $this->assertTrue($this->etd->supplements[0]->policy->view->condition->users->includes("kjones"));
     $this->assertEqual("Disney", $this->etd->supplements[0]->policy->view->condition->department);
+
+    error_reporting($errlevel);	    // restore prior error reporting
   }
 
 

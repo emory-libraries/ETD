@@ -178,6 +178,9 @@ class TestPQSubmission extends UnitTestCase {
   }
 
   function testSetFiles() {
+    // ignore php errors - "indirect modification of overloaded property"
+    $errlevel = error_reporting(E_ALL ^ E_NOTICE);
+
     $pdfs = array();
     $pdfs[] = &new Mocketd_file();
     $pdfs[0]->setReturnValue('prettyFilename', 'smith_dissertation.pdf');
@@ -199,6 +202,7 @@ class TestPQSubmission extends UnitTestCase {
     $this->assertEqual($supplements[1]->prettyFilename(), $this->pq->supplements[1]->filename);
     $this->assertEqual($supplements[1]->description(), $this->pq->supplements[1]->description);
 
+    error_reporting($errlevel);	    // restore prior error reporting
   }
 
   function testAddSupplement() {

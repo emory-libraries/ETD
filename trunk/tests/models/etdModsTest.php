@@ -6,6 +6,7 @@ class TestEtdMods extends UnitTestCase {
   private $mods;
 
   function setUp() {
+    // error_reporting(E_ALL ^ E_NOTICE);
     $xml = new DOMDocument();
     $xml->load("../fixtures/mods.xml");
     $this->mods = new etd_mods($xml);
@@ -64,7 +65,10 @@ class TestEtdMods extends UnitTestCase {
   }
 
   function testSetResearchFields() {
-
+    // NOTE: php is now outputting a notice when using __set on arrays
+    // (actual logic seems to work properly)
+    $errlevel = error_reporting(E_ALL ^ E_NOTICE);
+    
     // set all fields from an array 
     $newfields = array("7334" => "Animated Arts", "8493" => "Cheese and Mice",
 		       "8593" => "Disney Studies");
@@ -91,10 +95,14 @@ class TestEtdMods extends UnitTestCase {
     $newfields = array("7024" => "Cheese Studies");
     $this->mods->setResearchFields($newfields);
     $this->assertEqual(1, count($this->mods->researchfields));
-    
+
+    error_reporting($errlevel);	    // restore prior error reporting
   }
 
   function testCheckRequirements() {
+    // ignore php errors - "indirect modification of overloaded property
+    $errlevel = error_reporting(E_ALL ^ E_NOTICE);
+
     $missing = $this->mods->checkRequired();
     $this->assertTrue(in_array("table of contents", array_keys($missing)));
     $this->assertFalse($this->mods->readyToSubmit());
@@ -105,8 +113,19 @@ class TestEtdMods extends UnitTestCase {
 
     $this->assertTrue(in_array("committee members", array_keys($missing)));
     $this->mods->committee[0]->id = "dduck";
-    
+
+    // does not have rights or copyright yet - not ready  
+    $this->assertFalse($this->mods->readyToSubmit());
+
+    // add embargo, pq, copyright & rights
+    $this->mods->addNote("no", "admin", "copyright");
+    //    $this->mods->addNote("embargo requested? yes", "admin", "embargo");
+    $this->mods->embargo_request = "yes";
+    $this->mods->addNote("no", "admin", "pq_submit");
+    $this->mods->rights = "rights statement";
     $this->assertTrue($this->mods->readyToSubmit());
+    
+    error_reporting($errlevel);	    // restore prior error reporting
   }
 
   function testPageNumbers() {
@@ -119,6 +138,8 @@ class TestEtdMods extends UnitTestCase {
   }
 
   function testAddCommittee() {
+    $errlevel = error_reporting(E_ALL ^ E_NOTICE);
+
     $count = count($this->mods->committee);
     $this->mods->addCommittee("Duck", "Donald");
     $this->assertEqual($count + 1, count($this->mods->committee));
@@ -138,6 +159,8 @@ class TestEtdMods extends UnitTestCase {
     $this->mods->addCommittee("Duck", "Donald");
     $this->assertEqual(1, count($this->mods->committee));
     $this->assertEqual("Duck", $this->mods->committee[0]->last);
+
+    error_reporting($errlevel);	    // restore prior error reporting
   }
 
   function testRemoveCommittee() {
@@ -173,6 +196,8 @@ class TestEtdMods extends UnitTestCase {
   }
 
   function testSetCommitteeById() {
+    $errlevel = error_reporting(E_ALL ^ E_NOTICE);
+    
     $this->mods->setCommittee(array("mhalber"), "chair"); // NOTE: testing against real ESD, so data could change...
     $this->assertEqual("mhalber", $this->mods->chair[0]->id);
     $this->assertEqual("Halbert", $this->mods->chair[0]->last);
@@ -182,6 +207,8 @@ class TestEtdMods extends UnitTestCase {
     $this->assertEqual("Hickcox", $this->mods->committee[0]->last);
     $this->assertEqual("jfenton", $this->mods->committee[1]->id);
     $this->assertEqual("Fenton", $this->mods->committee[1]->last);
+
+    error_reporting($errlevel);	    // restore prior error reporting
   }
 
   // testing adding a second chair

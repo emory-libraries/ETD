@@ -55,7 +55,7 @@
   <mods:physicalDescription>
     <mods:extent/>
   </mods:physicalDescription>
-
+  <mods:accessCondition type="useAndReproduction"/>
   <mods:extension>
     <etd:degree>
       <etd:name>PhD</etd:name>

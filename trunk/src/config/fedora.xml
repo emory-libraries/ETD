@@ -25,6 +25,6 @@
   <test extends="development">
      <port>7080</port>
      <user>fedoraAdmin</user>  
-     <password></password>   
+     <password>fedoraAdmin</password>   
   </test>
 </fedora>

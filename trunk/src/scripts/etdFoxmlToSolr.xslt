@@ -283,7 +283,7 @@
   <!-- degree level -->
   <xsl:template match="mods:extension/etd:degree/etd:level">
     <xsl:if test=". != ''">                     <!-- only include if not empty -->
-      <field name="degree_level"><xsl:apply-templates/></field>
+      <field name="degree_level"><xsl:value-of select="normalize-space(.)"/></field>
     </xsl:if>
   </xsl:template>
 

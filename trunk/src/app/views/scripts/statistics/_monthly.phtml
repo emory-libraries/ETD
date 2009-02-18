@@ -16,10 +16,10 @@
 	  <td class="count abstract"><?= $row['abstract'] ?></td>
 	  <td class="count download"><?= $row['file'] ?></td>
 	  <td>
-  	       <div class="abstractviews" style="width:<?= $row['abstract'] ?>px">
+  	       <div class="abstractviews" style="width:<?= $this->scaleGraphValue($row['abstract']) ?>px">
 		<?= $row['abstract'] ?></div>
   	       <div class="downloads"
-	    style="width:<?= $row['file'] ?>px">
+	    style="width:<?= $this->scaleGraphValue($row['file']) ?>px">
 	     <?= $row['file'] ?></div>
 	  </td>
 	</tr>								

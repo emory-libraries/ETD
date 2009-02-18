@@ -7,6 +7,7 @@
      </params>
   </development>
   <test extends="development">
+     <adapter>Pdo_Sqlite</adapter>
      <params>
        <dbname>/home/rsutton/public_html/etdnew/tmp/test-stats.db</dbname>  
      </params>

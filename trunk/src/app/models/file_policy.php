@@ -33,6 +33,21 @@ class EtdFileXacmlPolicy extends XacmlPolicy {
     }
   }
 
+  // customize validation to check date format 
+  public function isValid() {
+
+    // Check date format in published conditon, if present
+    // -- If the date in the embargo condition is not in YYYY-MM-DD format,
+    //    Fedora will choke on the xacml, even though it is technically
+    //    valid according to the schema
+    if (isset($this->published)) {
+      if (! preg_match("/^\d{4}-\d{2}-\d{2}$/",
+		       $this->published->condition->embargo_end))
+	return false;
+    }
+    return parent::isValid();
+  }
+
   // override to get correct draft policy
   public static function getTemplate() {
     $xml = new DOMDocument();

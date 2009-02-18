@@ -96,6 +96,7 @@ class MockEtdFile extends BasicMock_EtdFile {
   public $dc;
   public $pid;
   public $etd;
+  public $type;
   public function __construct() {
     $this->BasicMock_EtdFile();
     $this->dc = &new Mocketd_dc();

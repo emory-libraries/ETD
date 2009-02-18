@@ -117,6 +117,8 @@ class SubmissionControllerTest extends ControllerTestCase {
   }
 
   function testSubmitAction() {
+    $errlevel = error_reporting(E_ALL ^ E_NOTICE);
+	
     $this->test_user->role = "student";	// set to non-student
     Zend_Registry::set('current_user', $this->test_user);
     $SubmissionController = new SubmissionControllerForTest($this->request,$this->response);
@@ -163,6 +165,8 @@ class SubmissionControllerTest extends ControllerTestCase {
     $this->assertEqual("author", $this->mock_etd->premis->event[1]->agent->value);
 
     // NOTE: currently no way to test generation of the email, but it may be added in the future
+
+    error_reporting($errlevel);	    // restore prior error reporting
   }
 
 

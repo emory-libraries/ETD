@@ -10,11 +10,11 @@
   </production>
   <development extends="production">
     <ftp>
-      <server></server>
-      <user></user>
-      <password></password>
+      <server>ftp.mdc2.org</server>
+      <user>rsk</user>
+      <password>pass1234</password>
     </ftp>
-    <email></email>
+    <email>rsutton@emory.edu</email>
   </development>
   <test extends="production">
   </test>

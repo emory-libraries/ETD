@@ -27,10 +27,12 @@
  <? foreach ($this->etd->chair() as $chair): ?>
    <? if ($chair == "") continue; ?>
    <? $last = ($chair == $chair[count($chair)-1]); ?>
+   <? /* FIXME: don't have access to affiliation here ?!? */ ?>
+   <? $affiliation = (isset($chair->affiliation)) ? " (" . $chair->affiliation . ")" : ""; ?>
    <? if ($published): ?>
      <a href="<?= $this->url(array('controller' => 'browse', 'action' => 'committee',
-	'value' => urlencode($chair)), '', true)?>"><?= $chair ?></a><? if (!$last):?>; <? endif ?>
-   <? else: ?>   <?= $chair ?><? if (!$last):?>; <? endif ?> <? endif ?>
+	'value' => urlencode($chair)), '', true)?>"><?= $chair ?></a><?= $affiliation ?><? if (!$last):?>; <? endif ?>
+    <? else: ?>   <?= $chair ?><?= $affiliation ?><? if (!$last):?>; <? endif ?> <? endif ?>
  <? endforeach ?>	
 <br/>
      

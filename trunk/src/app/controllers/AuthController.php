@@ -54,10 +54,6 @@ class AuthController extends Etd_Controller_Action {
      } else {	
        $this->_helper->flashMessenger->addMessage("Login successful");
 
-       // store username for newly logged in user
-       $this->logger->setEventItem('username', $username);
-       $this->logger->debug("login");
-
        // find this user in ESD and save their user information
        $esd = new esdPersonObject();
        try {
@@ -69,6 +65,11 @@ class AuthController extends Etd_Controller_Action {
 	 
 	 $this->_helper->flashMessenger->addMessage("Warning: could not access Emory Shared Data; some functionality may not be available");
        }
+
+       // store username for newly logged in user
+       $this->logger->setEventItem('username', $username);
+       $this->logger->debug("login (role = " . $current_user->role . ")");
+
        
        // store the password for accessing Fedora
        $current_user->setPassword($password);

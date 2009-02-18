@@ -31,7 +31,8 @@ class BrowseControllerTest extends ControllerTestCase {
   }
 
   function testAuthorAction() {
-
+    $errlevel = error_reporting(E_ALL ^ E_NOTICE);
+    
     $BrowseController = new BrowseControllerForTest($this->request,$this->response);
 
     $this->setUpGet(array('nametype' => 'author', 'value' => 'smith'));
@@ -46,6 +47,8 @@ class BrowseControllerTest extends ControllerTestCase {
     $this->assertIsA($BrowseController->view->etdSet, "EtdSet");
 
     // FIXME: test browsefieldAction ?
+
+    error_reporting($errlevel);	    // restore prior error reporting
   }
   
   // committee and year browse are basically the same as author browse
@@ -121,7 +124,7 @@ class BrowseControllerTest extends ControllerTestCase {
     $this->assertEqual("Your students' documents", $BrowseController->view->list_description);
     // check that view is correctly set to use list template
     $viewRenderer = $BrowseController->getHelper("viewRenderer");
-    $this->assertEqual("list", $viewRenderer->getScriptAction());
+    $this->assertEqual("faculty-my", $viewRenderer->getScriptAction());
 
     // staff - no records to find for my etds page
     $this->test_user->role = "staff";

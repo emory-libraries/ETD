@@ -243,6 +243,17 @@ John H. Shugart <br/></div>");
     $this->assertFalse($fields["distribution_agreement"]);
   }
 
+  function testDistributionAgreement() {
+    // formatting and white space should not keep the distribution
+    // agreement from being detected when the text is present
+    
+    $dom = new DOMDocument();
+    // fake sample with messed up formatting in the middle of the text
+    $dom->loadXML("<div><p>I hereby grant to Emory University</p> <br/>
+ 	<p>non-exclusive license <hr/> to do stuff with my etd.</p></div>");
+    $this->processpdf->process_page($dom);
+    $this->assertTrue($this->processpdf->fields["distribution_agreement"]);
+  }
   
 }
 
