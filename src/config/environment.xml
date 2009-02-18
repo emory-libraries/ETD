@@ -2,6 +2,6 @@
   <environment>
      <mode>development</mode>
      <debug>1</debug>
-     <display_exception>true</display_exception>
+     <display_exception>0</display_exception>
   </environment>	
 </config>

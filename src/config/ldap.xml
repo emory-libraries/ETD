@@ -4,15 +4,14 @@
     <host>ldap-proxy.service.emory.edu</host>
     <port>636</port>
     <baseDn>dc=emory,dc=edu</baseDn>  
-    <username>uid=,ou=services,dc=eu,dc=emory,dc=edu</username>   
-    <password></password>
+    <username>uid=libetd,ou=services,dc=eu,dc=emory,dc=edu</username>   
+    <password>WeAllLiveInAYellowSubmarine!</password>
     <accountCanonicalForm>2</accountCanonicalForm>
     <bindRequiresDn>1</bindRequiresDn>  
     <useSsl>1</useSsl>
    </server>
   </development>
-  <test extends="development">
-  </test>
+  <test extends="development"/>
   <production extends="development">
   </production>
 </ldap>

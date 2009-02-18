@@ -237,5 +237,12 @@ class CountryNames {
  public function __get($name) {
    return "(unknown)";
  }
-  }
+
+
+ public function hasCode($code) {
+   return (isset($this->$code));
+ }
+
+
+}
 ?>

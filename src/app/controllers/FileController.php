@@ -53,7 +53,7 @@ class FileController extends Etd_Controller_Action {
      // how this file is related to the to the etd record
      $file_rel = $this->_getParam("filetype");
      switch($file_rel) {
-     case "pdf":  $relation = "PDF"; break;
+     case "pdf":  $relation = "PDF"; $allowed_types = array("application/pdf"); break;
      case "original": 
      case "supplement":
        $relation = ucfirst($file_rel);
@@ -64,7 +64,13 @@ class FileController extends Etd_Controller_Action {
      
      $fileinfo = $_FILES['file'];
      $filename = $fileinfo['tmp_name'];
-     $uploaded = $this->_helper->FileUpload->check_upload($fileinfo);
+
+     // if there is a list of allowed mimetypes for this type of file, include in the file check
+     if (isset($allowed_types)) {
+       $uploaded = $this->_helper->FileUpload->check_upload($fileinfo, $allowed_types);
+     } else {
+       $uploaded = $this->_helper->FileUpload->check_upload($fileinfo);
+     }
      
      if ($uploaded) {
        $etdfile = new etd_file(null, $etd);	// initialize from template, but associate with parent etd
@@ -130,10 +136,17 @@ class FileController extends Etd_Controller_Action {
      $this->view->etd = $etdfile->etd;
 
      $fileinfo = $_FILES['file'];
-
+     
      Zend_Controller_Action_HelperBroker::addPrefix('Etd_Controller_Action_Helper');
      $filename = $fileinfo['tmp_name'];
-     $uploaded = $this->_helper->FileUpload->check_upload($fileinfo);
+
+     // if file object is a pdf, it should only be updated with a pdf
+     if ($etdfile->type == "pdf") {
+       $allowed_types = array("application/pdf");
+       $uploaded = $this->_helper->FileUpload->check_upload($fileinfo, $allowed_types);
+     } else {
+       $uploaded = $this->_helper->FileUpload->check_upload($fileinfo);
+     }
      
      if ($uploaded) {
        $old_pagecount = $etdfile->dc->pages;	// save current page count
@@ -149,7 +162,7 @@ class FileController extends Etd_Controller_Action {
 	   $this->logger->err("Problem saving modified metadata for etdfile " . $etdfile->pid);
 	 }
        } else {
-	 $this->_helper->flashMessenger->addMessage("Succesfully updated file");
+	 $this->_helper->flashMessenger->addMessage("Successfully updated file");
 	 $this->logger->info("Updated etdfile " . $etdfile->pid . " with new file at $fileresult");
 	 $this->logger->info("Updated etdfile " . $etdfile->pid . " metadata at $xmlresult");
 	 $this->view->save_result = $fileresult;

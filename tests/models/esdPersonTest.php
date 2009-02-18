@@ -32,7 +32,7 @@ class TestEsdPerson extends UnitTestCase {
     // NOTE: this test is useless; value returned by ESD oscillates between MA and PHD for no apparent reason
     //    $this->assertEqual($user->degree, "PHD");	// FIXME: why does this change?
     $this->assertEqual($user->term_complete, "5061");
-    $this->assertEqual($user->email, "rsutton@emory.edu");
+    $this->assertEqual($user->email, "rebecca.s.koeser@emory.edu");
     $this->assertEqual($user->academic_plan_id, "ENGLISHMA");
     $this->assertEqual($user->academic_plan, "English");
     $this->assertNull($user->program_coord);

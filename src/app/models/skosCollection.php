@@ -105,7 +105,8 @@ class collectionHierarchy extends XmlObject {
     // look for an exact match first
     $xpath = "//skos:Collection[rdfs:label = '$string']"; 
     $nodeList = $this->xpath->query($xpath, $this->domnode);
-    if ($nodeList->length == 1) {
+    if ($nodeList->length >= 1) {
+      // NOTE: if multiple matches are found, returns the first only (not ideal)
       return $nodeList->item(0)->getAttributeNS($this->rdf_namespace, "about");
     } 
 

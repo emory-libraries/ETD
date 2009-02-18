@@ -31,24 +31,25 @@ try {
   return;
 } 
 Zend_Registry::set('fedora', $fedora);
+$config_dir = "../config/";
 
 // set up connection to solr to find records with expiring embargoes
 require_once("Etd/Service/Solr.php");
-$solr_config = new Zend_Config_Xml("../config/solr.xml", $env_config->mode);
+$solr_config = new Zend_Config_Xml($config_dir . "solr.xml", $env_config->mode);
 $solr = new Etd_Service_Solr($solr_config->server, $solr_config->port, $solr_config->path);
 $solr->addFacets($solr_config->facet->toArray());
-$solr->setFacetLimit($solr_config->facet_limit);
+//$solr->setFacetLimit($solr_config->facet_limit);
 Zend_Registry::set('solr', $solr);
 
 // ESD needed to get email addresses for publication notification
 // create DB object for access to Emory Shared Data
-$esdconfig = new Zend_Config_Xml('../config/esd.xml', $env_config->mode);
+$esdconfig = new Zend_Config_Xml($config_dir . 'esd.xml', $env_config->mode);
 $esd = Zend_Db::factory($esdconfig);
 Zend_Registry::set('esd-db', $esd);
 Zend_Db_Table_Abstract::setDefaultAdapter($esd);
 
 // sqlite db for statistics data
-$stat_config = new Zend_Config_Xml('../config/statistics.xml', $env_config->mode);
+$stat_config = new Zend_Config_Xml($config_dir . 'statistics.xml', $env_config->mode);
 $db = Zend_Db::factory($stat_config);
 Zend_Registry::set('stat-db', $db);	
 
