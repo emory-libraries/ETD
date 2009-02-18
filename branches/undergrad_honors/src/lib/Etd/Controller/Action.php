@@ -58,6 +58,19 @@ abstract class Etd_Controller_Action extends Zend_Controller_Action {
       $this->_helper->redirector->gotoRouteAndExit(array("controller" => "error",
       							 "action" => "fedoraUnavailable"), "", true);
 
+    // display additional info when in development 
+    if ($this->env == "development") {
+      $this->view->svnversion = shell_exec("svnversion");
+      $svninfo = array();
+      // slight hack to get current checked out version (trunk/branch/tag)
+      // (svn info requires authentication ?)
+      $svnpath = shell_exec("grep svn/etd .svn/entries");
+      if (preg_match("<svn/etd/((trunk|tags|branches)/?([^/]+)?)/?/>",
+		     $svnpath, $matches)) {
+	$this->view->svnpath = $matches[1];
+      }
+    }
+
   }
 
   public function postDispatch() {

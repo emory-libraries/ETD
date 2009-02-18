@@ -53,6 +53,9 @@ copy("../../src/data/stats.db", $db_config->params->dbname);
 $db = Zend_Db::factory($db_config);
 Zend_Registry::set('stat-db', $db);	
 
+//Zend_Registry::set('persis-config',
+//		   new Zend_Config_Xml($config_dir . "persis.xml", $mode));
+
 
 $front = Zend_Controller_Front::getInstance();
 //$front = $this->view->getFrontController();

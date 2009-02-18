@@ -13,6 +13,7 @@ class SearchController extends Etd_Controller_Action {
     $request = $this->getRequest();
     $query = $request->getParam("query");	// basic keyword/anywhere query
 
+
     // override default sort of author - relevance makes more sense for a search
     if (!$this->_hasParam("sort")) $this->_setParam("sort", "relevance");
     $options = $this->getFilterOptions();
@@ -37,10 +38,16 @@ class SearchController extends Etd_Controller_Action {
 
     if ($query) $this->view->url_params["query"] = $query;
 
+
+    // escape special charaters that have meaning to solr/lucene
+    $query = preg_replace("/:/", "\:", $query);
+    
     $options["query"] = $query;
 
     $unembargoed = $this->_hasParam("unembargoed");
     if ($unembargoed) {
+      // set so it will carry over onto next pages, filtered searches
+      $this->view->url_params['unembargoed'] = true;
       // restrict to records that have files available - any embargo has ended
       $today = date("Ymd");	// today's date
       // any embargoes that have ended today or before

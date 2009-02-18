@@ -8,11 +8,7 @@
 </p>
 
 <table class="statistics">
- <tr>
-   <td class="label"></td>
-    <th class="abstract">Abstracts</th>
-    <th class="download">Downloads</th>
- </tr>
+  <?= $this->render("statistics/_statkey.phtml") ?>
 <? if ($this->total['abstract'] == 0 && $this->total['file'] == 0): ?>
   <tr><td colspan="4">This record has not been viewed during this period.</td></tr>
 <? else: ?>  
