@@ -1,7 +1,0 @@
-<config>
-  <environment>
-     <mode>development</mode>
-     <debug>1</debug>
-     <display_exception>true</display_exception>
-  </environment>	
-</config>
