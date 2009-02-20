@@ -2,7 +2,7 @@
 
 require_once("models/etd.php");
 require_once("models/etd_notifier.php");
-
+require_once("models/honors_etd.php");
 
 class SubmissionController extends Etd_Controller_Action {
   protected $requires_fedora = true;
@@ -57,13 +57,20 @@ class SubmissionController extends Etd_Controller_Action {
     }
 
     /** found sufficient information to create fedora record, pdf seems ok **/
-    
+	
     // create new etd record and save all the fields
-    $etd = new etd();
+    if ($this->current_user->role == "honors_student") {
+      // if user is an honors student, create new record as honors etd
+      $etd = new honors_etd();
+    } else {
+      // for all other users, use default etd
+      $etd = new etd();
+    }
+    
     $etd->title = $etd_info['title'];
     
-    $current_user = $this->current_user;
     // use netid for object ownership and author relation
+    $current_user = $this->current_user;
     $etd->owner = $current_user->netid;
     // set author info
     $etd->mods->setAuthorFromPerson($current_user);
@@ -131,53 +138,31 @@ class SubmissionController extends Etd_Controller_Action {
       else 
 	$etd->mods->addKeyword($keyword);
     }
-    
-    $error = true;
-    // FIXME: consolidate error handling here with duplicated code below when saving etdFile object
-    try {
-      // create an etd file object for uploaded PDF and associate with etd record
-      $pid = $etd->save("creating preliminary record from uploaded pdf");
+
+
+
+
+
+    $etd_info = $this->_helper->processPDF($_FILES['pdf']);
+
+    $pid = $this->_helper->ingestOrError($etd,
+					 "creating preliminary record from uploaded pdf",
+					 "etd record", $errtype);
+
+    if ($pid == false) {
+      // any special handling based on error type
+      switch ($errtype) {
+      case "FedoraObjectNotValid":
+      case "FedoraObjectNotFound":
+	$this->view->errors[] = "Could not create record.";
+	$this->_helper->flashMessenger->addMessage("Error saving record");
+	if ($this->debug) $this->view->xml = $etd->saveXML();
+	break;
+      }
+    } else {	// valid pid was returned
       $this->logger->info("Created new etd record with pid $pid");
-      $error = false;
-    } catch (PersisServiceUnavailable $e) {
-      // if Persis is down this would probably already be caught when attempting to save new etd
-      $message = "Could not create new record because Persistent Identifier Service is not available";
-      $debug_msg = $e->getMessage();
-    } catch (PersisServiceUnauthorized $e) {
-      // not authorized - most likely misconfigured, bad password
-      $message = "Could not create new record because of an authorization error with Persistent Identifier Service";
-      $debug_msg = $e->getMessage();
-    } catch (PersisServiceException $e) {
-      // generic persis error - most likely misconfigured, bad password
-      $message = "Could not create new record because of an error accessing Persistent Identifier Service";
-      $debug_msg = $e->getMessage();
-    } catch (FedoraObjectNotValid $e) {
-      if ($this->debug) print $e->getMessage() . "<br/>\n";
-      $debug_msg = $e->getMessage();
-      $this->view->errors[] = "Could not create record.";
-      $this->view->xml = $etd->saveXML();
-      $this->logger->err("Could not create etd record : FedoraObjectNotValid");
-    } catch (FedoraObjectNotFound $e) {
-      if ($this->debug) print $e->getMessage() . "<br/>\n";
-      $error = false;
-      $debug_msg = $e->getMessage();
-      $this->view->errors[] = "Could not create record.";
-      $this->view->xml = $etd->saveXML();
-      $this->logger->err("Could not create etd record : FedoraObjectNotFound");
-    }
-    
-    // any of the Persis Service errors
-    if ($error) {
-      $this->logger->err($message);
-      $this->logger->debug($debug_msg);
-      $this->_helper->flashMessenger->addMessage("Error: $message");
-      // redirect to an error page
-      $this->_helper->redirector->gotoRouteAndExit(array("controller" => "error", "action" => "unavailable"));
-    }
-    
-    // FIXME: convert this to logging
-    if ($this->debug) $this->_helper->flashMessenger->addMessage("Saved etd as $pid");
-    if ($pid) {
+      if ($this->debug) $this->_helper->flashMessenger->addMessage("Saved etd as $pid");
+	
       // need to retrieve record from fedora so datastreams can be saved, etc.
       $etd = $this->_helper->getFromFedora->findById($pid, "etd");
       
@@ -190,6 +175,7 @@ class SubmissionController extends Etd_Controller_Action {
 	$this->logger->info("Updated etd " . $etd->pid . " at $result ($message)");
       else
 	$this->logger->err("Error updating etd " . $etd->pid . " ($message)");
+
       
       // only create the etdfile object if etd was successfully created
       $etdfile = new etd_file(null, $etd);	// initialize from template, but associate with parent etd
@@ -198,68 +184,47 @@ class SubmissionController extends Etd_Controller_Action {
       // add relations between objects
       $etdfile->rels_ext->addRelationToResource("rel:isPDFOf", $etd->pid);
       
-      $error = true;
-      try {
-	$filepid = $etdfile->save("creating record from uploaded pdf");	// save and get pid
-	$this->logger->info("Created new etdFile $filepid");
-	$error = false;
-      } catch (PersisServiceUnavailable $e) {
-	// if Persis is down this would probably already be caught when attempting to save new etd
-	$message = "Could not create file record because Persistent Identifier Service is not available";
-	$debug_msg = $e->getMessage();
-      } catch (PersisServiceUnauthorized $e) {
-	// not authorized - most likely misconfigured, bad password
-	$message = "Could not create file record because of an authorization error with Persistent Identifier Service";
-	$debug_msg = $e->getMessage();
-      } catch (PersisServiceException $e) {
-	// generic persis error - most likely misconfigured, bad password
-	$message = "Could not create file record because of an error accessing Persistent Identifier Service";
-	$debug_msg = $e->getMessage();
-      } catch (FedoraObjectNotValid $e) {
-	if ($this->debug) print $e->getMessage() . "<br/>\n";
-	$debug_msg = $e->getMessage();
-	$this->view->errors[] = "Could not save PDF to Fedora.";	// FIXME: better error message?
-	if ($this->debug) $this->view->filexml = $etdfile->saveXML();
-	// FIXME: should it bail out here? or let them continue? ... letting them continue for now
-	$this->logger->err("Could not ingest etdFile : FedoraObjectNotValid");
-      }
-
-      if ($error) {
-	$this->_helper->flashMessenger->addMessage("Error: $message");
-	$this->logger->err($message);
-	$this->logger->debug($debug_msg);
-	// redirect to an error page
-	$this->_helper->redirector->gotoRouteAndExit(array("controller" => "error", "action" => "unavailable"));
-      }
-
-
-      // delete temporary file now that we are done with it
-      unlink($etd_info['pdf']);
+      $filepid = $this->_helper->ingestOrError($etdfile,
+					       "creating record from uploaded pdf",
+					       "file record", $errtype);
+      if ($filepid == false) {
+	// any special handling based on error type
+	switch ($errtype) {
+	case "FedoraObjectNotValid":
+	case "FedoraObjectNotFound":
+	  $this->view->errors[] = "Could not save PDF to Fedora.";
+	  if ($this->debug) $this->view->filexml = $etdfile->saveXML();
+	  break;
+	}
+      } else {	// valid pid returned for file
+	$this->logger->info("Created new etd file record with pid $filepid");
 	
-      // add relation to etdfile object and save changes
-      $etd->addPdf($etdfile);
-      $result = $etd->save("added relation to uploaded pdf");	// also saves changed etdfile
-      if ($result)
-	$this->logger->info("Updated etd " . $etd->pid . " at $result (adding relation to pdf)");
-      else
-	$this->logger->err("Error updating etd " . $etd->pid . " (adding relation to pdf)");
+	// delete temporary file now that we are done with it
+	unlink($etd_info['pdf']);
+	
+	// add relation to etdfile object and save changes
+	$etd->addPdf($etdfile);
+	$result = $etd->save("added relation to uploaded pdf");	// also saves changed etdfile
+	if ($result)
+	  $this->logger->info("Updated etd " . $etd->pid . " at $result (adding relation to pdf)");
+	else
+	  $this->logger->err("Error updating etd " . $etd->pid . " (adding relation to pdf)");
+	
+	if ($this->debug) $this->_helper->flashMessenger->addMessage("Saved etd file as $filepid");
+	
+	$this->_helper->redirector->gotoRoute(array("controller" => "view",
+						    "action" => "record",
+						    "pid" => $etd->pid));
+	
+      }  // end file successfully ingested
 
-      if ($this->debug) $this->_helper->flashMessenger->addMessage("Saved etd file as $filepid");
-	
-      $this->_helper->redirector->gotoRoute(array("controller" => "view",
-						  "action" => "record",
-						  "pid" => $etd->pid));
-	
-    } else {
-      $this->_helper->flashMessenger->addMessage("Error saving record");
-      $this->view->foxml = $etd->saveXML();
-    }
-      
-    /* If record cannot be created or there was an error extracting
-     information from the PDF, the processpdf view script will be
-     displayed, including any error messages, along with a list of
-     suggested trouble-shooting steps to try.
-    */
+    } // end etd successfully ingested
+    
+      /* If record cannot be created or there was an error extracting
+       information from the PDF, the processpdf view script will be
+       displayed, including any error messages, along with a list of
+       suggested trouble-shooting steps to try.
+      */
   }
 
   public function debugpdfAction() {
