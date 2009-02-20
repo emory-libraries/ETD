@@ -1,21 +1,20 @@
 <proquest>
-  <production>
-    <ftp>
-      <server></server>
-      <user></user>
-      <password></password>
-    </ftp>
-    <email>dissepubl@il.proquest.com</email>
-    <abstract_max_words>350</abstract_max_words>
-  </production>
-  <development extends="production">
+  <development>
     <ftp>
       <server></server>
       <user></user>
       <password></password>
     </ftp>
     <email></email>
+    <abstract_max_words>350</abstract_max_words>
   </development>
-  <test extends="production">
-  </test>
+  <test extends="development"/>
+  <production extends="development">
+    <ftp>
+      <server></server>
+      <user></user>
+      <password></password>
+    </ftp>
+    <email></email>
+  </production>
 </proquest>		
