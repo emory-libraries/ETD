@@ -53,6 +53,8 @@ class MockEtd extends BasicMock_Etd {
 
   public $status;
   public $user_role;
+
+  public $fedora;
   
   public function __construct() {
     $this->BasicMock_Etd();
@@ -76,6 +78,12 @@ class MockEtd extends BasicMock_Etd {
   public function getUserRole() {
     return ($this->user_role == "") ? "guest" : $this->user_role;
   }
+
+  public function save($message) {
+    $this->fedora->ingest($message);
+    return "testpid";
+  }
+   
 
 }
 
@@ -111,6 +119,7 @@ class MockUser extends BasicMock_User {
 }
 
 require_once('fedora/api/FedoraConnection.php');
+require_once('Emory/Service/Persis.php');	// for persis exceptions
 Mock::generate('FedoraConnection', 'BasicMockFedoraConnection');
 
 class MockFedoraConnection extends BasicMockFedoraConnection {
@@ -121,7 +130,7 @@ class MockFedoraConnection extends BasicMockFedoraConnection {
     
   }
 
-  public function getObjectProfile() {
+  private function throw_exception() {
     switch($this->exception) {
     case "NotFound":
       throw new FedoraObjectNotFound();
@@ -129,16 +138,36 @@ class MockFedoraConnection extends BasicMockFedoraConnection {
       throw new FedoraAccessDenied();
     case "NotAuthorized":
       throw new FedoraNotAuthorized();
+    case "NotValid":
+      throw new FedoraObjectNotValid();
+          case "NotValid":
+      throw new FedoraObjectNotValid();
+
+      // persis errors may be triggered on fedora ingest
+    case "PersisUnavail":
+      throw new PersisServiceUnavailable();
+    case "PersisUnauth":
+      throw new PersisServiceUnauthorized();
+    case "Persis":
+      throw new PersisServiceException();
     case "generic":
       throw new FoxmlException();
     }
-
+  }
+  
+  public function getObjectProfile() {
+    $this->throw_exception();
+    
     $response = new getObjectProfileResponse();
     $response->objectProfile->objContentModel = "etd";
     $response->objectProfile->objLabel = "title";
     $response->objectProfile->objLastModDate = "today";
     return $response->objectProfile;
     
+  }
+
+  public function ingest($msg) {
+    $this->throw_exception();
   }
   
 }

@@ -1,5 +1,6 @@
 <?php
 require_once("../bootstrap.php");
+require_once("../ControllerTestCase.php");
 
 class TestGetFromFedora extends ControllerTestCase {
   
@@ -84,25 +85,6 @@ class TestGetFromFedora extends ControllerTestCase {
   //  - FoxmlException
 
 }
-
-
-class ControllerForTest extends Etd_Controller_Action {
-  public $renderRan = false;
-  public $redirectRan = false;
-  
-  public function initView() {
-    $this->view = new Zend_View();
-    Zend_Controller_Action_HelperBroker::addPrefix('Test_Controller_Action_Helper');
-  }
-  
-  public function render() {
-    $this->renderRan = true;
-  }
-  
-  public function _redirect() {
-    $this->redirectRan = true;
-  }
-} 	
 
 
 

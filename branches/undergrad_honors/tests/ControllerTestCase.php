@@ -34,6 +34,28 @@ class ControllerTestCase extends UnitTest {
 }
 
 
+
+// used to test controller helpers
+class ControllerForTest extends Etd_Controller_Action {
+  public $renderRan = false;
+  public $redirectRan = false;
+  
+  public function initView() {
+    $this->view = new Zend_View();
+    Zend_Controller_Action_HelperBroker::addPrefix('Test_Controller_Action_Helper');
+  }
+  
+  public function render() {
+    $this->renderRan = true;
+  }
+  
+  public function _redirect() {
+    $this->redirectRan = true;
+  }
+} 	
+
+
+
 /* bypass the real redirector helper because routes aren't defined */
 class Test_Controller_Action_Helper_Redirector extends Zend_Controller_Action_Helper_Abstract {
   public function gotoRoute(array $urlOptions = array(), $name = null, $reset = false) {
