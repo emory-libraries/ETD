@@ -19,7 +19,8 @@ Zend_Registry::set('env-config', $env);
 Zend_Registry::set('environment', $mode);
 Zend_Registry::set('debug', false);
 
-$config_dir = "../../src/config/";
+$src_dir = "../../src";
+$config_dir = $src_dir . "/config/";
 Zend_Registry::set("config-dir", $config_dir);
 
 // needed for notifier
@@ -49,7 +50,7 @@ Zend_Registry::set('acl', $acl);
 // sqlite db for statistics data
 $db_config = new Zend_Config_Xml($config_dir . 'statistics.xml', $mode);
 // copy over an empty version of the stats db with all tables set up
-copy("../../src/data/stats.db", $db_config->params->dbname);
+copy($src_dir . "/data/stats.db", $db_config->params->dbname);
 $db = Zend_Db::factory($db_config);
 Zend_Registry::set('stat-db', $db);	
 
@@ -59,9 +60,10 @@ Zend_Registry::set('stat-db', $db);
 
 $front = Zend_Controller_Front::getInstance();
 //$front = $this->view->getFrontController();
-$front->setControllerDirectory(array("default" => "../app/controllers", "emory" => "../lib/ZendFramework/Emory"));
-$front->addModuleDirectory("../app/modules");
-$front->setControllerDirectory("../../src/app/controllers", "default");
+$front->setControllerDirectory(array("default" => $src_dir . "/app/controllers",
+				     "emory" => $src_dir . "/lib/ZendFramework/Emory"));
+$front->addModuleDirectory($src_dir . "/app/modules");
+$front->setControllerDirectory($src_dir . "/app/controllers", "default");
 // set a dummy request for any functionality that requires it
 $front->setRequest(new Zend_Controller_Request_Http());
 
