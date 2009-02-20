@@ -81,6 +81,29 @@ class SubmissionControllerTest extends ControllerTestCase {
 
   /* FIXME: not sure how to test processPdf action - LOTS of stuff going on, hard to simulate... */
 
+  function testProcessPdfAction() {
+    $SubmissionController = new SubmissionControllerForTest($this->request,
+							    $this->response);
+    // unauthorized user
+    $this->test_user->role = "guest";
+    Zend_Registry::set('current_user', $this->test_user);
+    $this->assertFalse($SubmissionController->processpdfAction());
+
+    $this->test_user->role = "student";
+    // uploading a non-pdf for pdf file should fail
+    $testfile = "../fixtures/tinker_sample.pdf";
+    $_FILES['pdf'] = array("tmp_name" => $testfile,
+			   "size" => filesize($testfile),
+			    "type" => "application/pdf", "error" => UPLOAD_ERR_OK,
+			    "name" => "diss.pdf");
+    $SubmissionController->processpdfAction();
+    
+    $messages = $SubmissionController->getHelper('FlashMessenger')->getMessages();
+    //    print "<pre>" . print_r($messages, true) . "</pre>";
+    
+    
+  }
+
 
   function testReviewAction() {
     $this->test_user->role = "student";	// set to non-student

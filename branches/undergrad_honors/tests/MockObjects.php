@@ -80,8 +80,10 @@ class MockEtd extends BasicMock_Etd {
   }
 
   public function save($message) {
-    $this->fedora->ingest($message);
-    return "testpid";
+    if (isset($this->fedora)) {
+      $this->fedora->ingest($message);
+    }
+    return "saved";
   }
    
 

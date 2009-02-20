@@ -85,7 +85,7 @@ class TestIngestOrError extends ControllerTestCase {
     $etd->fedora->setException(null);
     $this->controller->redirectRan = false;
     $err = null;
-    $this->assertEqual("testpid",
+    $this->assertEqual("saved",
 		       $this->helper->direct($etd, "saving etd", "etd record", $err));
     $this->assertNull($err);	// unchanged
     $this->assertFalse($this->controller->redirectRan);
