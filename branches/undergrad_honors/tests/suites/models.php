@@ -28,6 +28,8 @@ class ModelGroupTest extends GroupTest {
 
     $this->addTestFile('models/ProQuestSubmissionTest.php');
     $this->addTestFile('models/esdPersonTest.php');
+
+    $this->addTestFile('models/honorsEtdTest.php');
   }
 }
 
