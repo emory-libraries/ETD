@@ -329,7 +329,7 @@ class SubmissionController extends Etd_Controller_Action {
       $this->_helper->flashMessenger->addMessage("Submission notification email sent to " . implode(', ', array_keys($to)));
     }
     else {
-      $logger->err("Problem submitting " . $etd->pid);
+      $this->logger->err("Problem submitting " . $etd->pid);
       $this->_helper->flashMessenger->addMessage("Error: there was a problem submitting your record");
     }
     
