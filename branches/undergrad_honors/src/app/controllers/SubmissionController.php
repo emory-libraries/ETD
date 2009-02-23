@@ -57,7 +57,99 @@ class SubmissionController extends Etd_Controller_Action {
     }
 
     /** found sufficient information to create fedora record, pdf seems ok **/
+
+    $etd =  $this->initialize_etd($etd_info);
+
+    $errtype = "";
+    $pid = $this->_helper->ingestOrError($etd,
+					 "creating preliminary record from uploaded pdf",
+					 "etd record", &$errtype);
+
+    if ($pid == false) {
+      // any special handling based on error type
+      switch ($errtype) {
+      case "FedoraObjectNotValid":
+      case "FedoraObjectNotFound":
+	$this->view->errors[] = "Could not create record.";
+	$this->_helper->flashMessenger->addMessage("Error saving record");
+	if ($this->debug) $this->view->xml = $etd->saveXML();
+	break;
+      }
+    } else {	// valid pid was returned
+      $this->logger->info("Created new etd record with pid $pid");
+      if ($this->debug) $this->_helper->flashMessenger->addMessage("Saved etd as $pid");
 	
+      // need to retrieve record from fedora so datastreams can be saved, etc.
+      $etd = $this->_helper->getFromFedora->findById($pid, "etd");
+      
+      // could use fullname as agent id, but netid seems more useful
+      $etd->premis->addEvent("ingest", "Record created by " .
+			     $this->current_user->fullname, "success",
+			     array("netid", $this->current_user->netid));
+      $message = "added ingest history event";
+      $result = $etd->save($message);
+      if ($result)
+	$this->logger->info("Updated etd " . $etd->pid . " at $result ($message)");
+      else
+	$this->logger->err("Error updating etd " . $etd->pid . " ($message)");
+
+      
+      // only create the etdfile object if etd was successfully created
+      $etdfile = new etd_file(null, $etd);	// initialize from template, but associate with parent etd
+      $etdfile->initializeFromFile($etd_info['pdf'], "pdf",
+				   $this->current_user, $etd_info['filename']);
+      
+      // add relations between objects
+      $etdfile->rels_ext->addRelationToResource("rel:isPDFOf", $etd->pid);
+      
+      $filepid = $this->_helper->ingestOrError($etdfile,
+					       "creating record from uploaded pdf",
+					       "file record", $errtype);
+      if ($filepid == false) {
+	// any special handling based on error type
+	switch ($errtype) {
+	case "FedoraObjectNotValid":
+	case "FedoraObjectNotFound":
+	  $this->view->errors[] = "Could not save PDF to Fedora.";
+	  if ($this->debug) $this->view->filexml = $etdfile->saveXML();
+	  break;
+	}
+      } else {	// valid pid returned for file
+	$this->logger->info("Created new etd file record with pid $filepid");
+	
+	// add relation to etdfile object and save changes
+	$etd->addPdf($etdfile);
+	$result = $etd->save("added relation to uploaded pdf");	// also saves changed etdfile
+	if ($result)
+	  $this->logger->info("Updated etd " . $etd->pid . " at $result (adding relation to pdf)");
+	else
+	  $this->logger->err("Error updating etd " . $etd->pid . " (adding relation to pdf)");
+	
+	if ($this->debug) $this->_helper->flashMessenger->addMessage("Saved etd file as $filepid");
+	
+	$this->_helper->redirector->gotoRoute(array("controller" => "view",
+						    "action" => "record",
+						    "pid" => $etd->pid));
+	
+      }  // end file successfully ingested
+
+    } // end etd successfully ingested
+    
+      /* If record cannot be created or there was an error extracting
+       information from the PDF, the processpdf view script will be
+       displayed, including any error messages, along with a list of
+       suggested trouble-shooting steps to try.
+      */
+  }
+
+
+  /**
+   * Create and initialize a new etd object based on info from ProcessPDF
+   *
+   * @param array $etd_info info as returned by ProcessPDF helper
+   * @return etd or honors_etd
+   */
+  public function initialize_etd(array $etd_info) {
     // create new etd record and save all the fields
     if ($this->current_user->role == "honors_student") {
       // if user is an honors student, create new record as honors etd
@@ -139,93 +231,9 @@ class SubmissionController extends Etd_Controller_Action {
 	$etd->mods->addKeyword($keyword);
     }
 
-
-
-
-
-    $etd_info = $this->_helper->processPDF($_FILES['pdf']);
-
-    $pid = $this->_helper->ingestOrError($etd,
-					 "creating preliminary record from uploaded pdf",
-					 "etd record", $errtype);
-
-    if ($pid == false) {
-      // any special handling based on error type
-      switch ($errtype) {
-      case "FedoraObjectNotValid":
-      case "FedoraObjectNotFound":
-	$this->view->errors[] = "Could not create record.";
-	$this->_helper->flashMessenger->addMessage("Error saving record");
-	if ($this->debug) $this->view->xml = $etd->saveXML();
-	break;
-      }
-    } else {	// valid pid was returned
-      $this->logger->info("Created new etd record with pid $pid");
-      if ($this->debug) $this->_helper->flashMessenger->addMessage("Saved etd as $pid");
-	
-      // need to retrieve record from fedora so datastreams can be saved, etc.
-      $etd = $this->_helper->getFromFedora->findById($pid, "etd");
-      
-      // could use fullname as agent id, but netid seems more useful
-      $etd->premis->addEvent("ingest", "Record created by " . $current_user->fullname, "success",
-			     array("netid", $current_user->netid));
-      $message = "added ingest history event";
-      $result = $etd->save($message);
-      if ($result)
-	$this->logger->info("Updated etd " . $etd->pid . " at $result ($message)");
-      else
-	$this->logger->err("Error updating etd " . $etd->pid . " ($message)");
-
-      
-      // only create the etdfile object if etd was successfully created
-      $etdfile = new etd_file(null, $etd);	// initialize from template, but associate with parent etd
-      $etdfile->initializeFromFile($etd_info['pdf'], "pdf", $current_user, $etd_info['filename']);
-      
-      // add relations between objects
-      $etdfile->rels_ext->addRelationToResource("rel:isPDFOf", $etd->pid);
-      
-      $filepid = $this->_helper->ingestOrError($etdfile,
-					       "creating record from uploaded pdf",
-					       "file record", $errtype);
-      if ($filepid == false) {
-	// any special handling based on error type
-	switch ($errtype) {
-	case "FedoraObjectNotValid":
-	case "FedoraObjectNotFound":
-	  $this->view->errors[] = "Could not save PDF to Fedora.";
-	  if ($this->debug) $this->view->filexml = $etdfile->saveXML();
-	  break;
-	}
-      } else {	// valid pid returned for file
-	$this->logger->info("Created new etd file record with pid $filepid");
-	
-	// delete temporary file now that we are done with it
-	unlink($etd_info['pdf']);
-	
-	// add relation to etdfile object and save changes
-	$etd->addPdf($etdfile);
-	$result = $etd->save("added relation to uploaded pdf");	// also saves changed etdfile
-	if ($result)
-	  $this->logger->info("Updated etd " . $etd->pid . " at $result (adding relation to pdf)");
-	else
-	  $this->logger->err("Error updating etd " . $etd->pid . " (adding relation to pdf)");
-	
-	if ($this->debug) $this->_helper->flashMessenger->addMessage("Saved etd file as $filepid");
-	
-	$this->_helper->redirector->gotoRoute(array("controller" => "view",
-						    "action" => "record",
-						    "pid" => $etd->pid));
-	
-      }  // end file successfully ingested
-
-    } // end etd successfully ingested
-    
-      /* If record cannot be created or there was an error extracting
-       information from the PDF, the processpdf view script will be
-       displayed, including any error messages, along with a list of
-       suggested trouble-shooting steps to try.
-      */
+    return $etd;
   }
+  
 
   public function debugpdfAction() {
     
@@ -327,8 +335,7 @@ class SubmissionController extends Etd_Controller_Action {
       $notify = new etd_notifier($etd);
       $to = $notify->submission();
       $this->_helper->flashMessenger->addMessage("Submission notification email sent to " . implode(', ', array_keys($to)));
-    }
-    else {
+    }     else {
       $this->logger->err("Problem submitting " . $etd->pid);
       $this->_helper->flashMessenger->addMessage("Error: there was a problem submitting your record");
     }
