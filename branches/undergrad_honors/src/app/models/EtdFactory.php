@@ -33,15 +33,22 @@ class EtdFactory {
     $query = "<" . $query_pid . "> <fedora-rels-ext:isMemberOf> <" . $collection_pid . ">";
     
     $rdf = $fedora->risearch->triples($query);
+
+    if ($rdf == null) {
+        // no response from risearch - fall back to generic etd
+        trigger_error("No response returned from risearch; cannot determine if $pid is an honors etd", E_USER_WARNING);
+        return new etd($pid);
+    }
+
     $ns = $rdf->getNamespaces();  // get the namespaces directly from the simplexml object
     $descriptions = $rdf->children($ns['rdf']);
-    
+      
     if (count($descriptions) == 0) {
-      // no matches found - NOT a member of honors collection, therefore regular etd
-      return new etd($pid);
+        // no matches found - NOT a member of honors collection, therefore regular etd
+        return new etd($pid);
     } else {
-      // pid is a member if honors collection - return an honors etd
-      return new honors_etd($pid);
+        // pid is a member if honors collection - return an honors etd
+        return new honors_etd($pid);
     }
 
   }
