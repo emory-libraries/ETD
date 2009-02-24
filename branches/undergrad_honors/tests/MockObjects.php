@@ -45,6 +45,7 @@ Mock::generate('user',  'BasicMock_User');
 
 class MockEtd extends BasicMock_Etd {
   public $pid;
+  public $PID;		// not ideal... using for solr results
   public $label;
   public $dc;
   public $mods;
