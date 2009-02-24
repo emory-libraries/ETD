@@ -1,7 +1,6 @@
 <?php
 require_once("../bootstrap.php");
 require_once("../ControllerTestCase.php");
-
 class TestGetFromFedora extends ControllerTestCase {
   
   private $helper;
@@ -9,6 +8,9 @@ class TestGetFromFedora extends ControllerTestCase {
 
   private $_fedora;
   private $mock_fedora;
+
+  private $etdpid;
+  private $hons_etdpid;
 
   function setUp() {
     $_GET = array();
@@ -21,16 +23,34 @@ class TestGetFromFedora extends ControllerTestCase {
     $this->helper = $this->controller->getHelper("GetFromFedora");
 
     $this->_fedora = Zend_Registry::get('fedora');
-    $this->mock_fedora = new MockFedoraConnection();
+    $this->mock_fedora = &new MockFedoraConnection();
+    $this->mock_fedora->risearch = $this->_fedora->risearch; // FIXME: why doesn't mock work?
     Zend_Registry::set('fedora', $this->mock_fedora);
+
+
+    // ingest etd and honors etd to test factory init
+    $etd = new etd();
+    $etd->pid = "demo:15";
+    $etd->title = "test obj";
+    $this->etdpid = $this->_fedora->ingest($etd->saveXML(), "ingesting test object");
+    
+    $hons_etd = new honors_etd();
+    $hons_etd->pid = "demo:16";
+    $hons_etd->title = "test honors obj";
+    $this->hons_etdpid = $this->_fedora->ingest($hons_etd->saveXML(), "ingesting test object");
   }
   
   function tearDown() {
     $this->resetGet();
     Zend_Registry::set('fedora', $this->_fedora);
+
+    $this->_fedora->purge($this->etdpid, "removing test obj");
+    $this->_fedora->purge($this->hons_etdpid, "removing test obj");
   }
 
-  function testDirect(){
+
+  // testing with mock objects
+  function testDirect_mock(){
     // no value for id param
     $this->assertNull($this->helper->direct("id", "etd"));
     $messages = $this->controller->getHelper("flashMessenger")->getMessages();
@@ -40,6 +60,8 @@ class TestGetFromFedora extends ControllerTestCase {
     $this->setUpGet(array("id" => "test:1"));
     // simulated etd object has no rels_ext; ignore the error
     $this->expectError("Object does not have configured datastream: rels_ext");
+    // no results returned from risearch for simulated etd
+    $this->expectError("No response returned from risearch; cannot determine if test:1 is an honors etd");
     $result = $this->helper->direct("id", "etd");
     $this->assertIsA($result, "etd");
     
@@ -47,12 +69,14 @@ class TestGetFromFedora extends ControllerTestCase {
     // test various exceptions
     // - not found
     $this->mock_fedora->setException("NotFound");
+    $this->expectError("No response returned from risearch; cannot determine if test:1 is an honors etd");
     $this->helper->direct("id", "etd");
     $messages = $this->controller->getHelper("flashMessenger")->getMessages();
     $this->assertPattern("/Record not found/", $messages[0]);
     // - access denied
     $this->setUpGet(array("id" => "test:1"));
     $this->mock_fedora->setException("AccessDenied");
+    $this->expectError("No response returned from risearch; cannot determine if test:1 is an honors etd");
     $this->helper->direct("id", "etd");
     $response = $this->controller->getResponse();
     $this->assertEqual("403", $response->getHttpResponseCode());
@@ -60,6 +84,7 @@ class TestGetFromFedora extends ControllerTestCase {
     // - not authorized
     $this->setUpGet(array("id" => "test:1"));
     $this->mock_fedora->setException("NotAuthorized");
+    $this->expectError("No response returned from risearch; cannot determine if test:1 is an honors etd");
     $this->helper->direct("id", "etd");
     $response = $this->controller->getResponse();
     $this->assertEqual("403", $response->getHttpResponseCode());
@@ -71,19 +96,26 @@ class TestGetFromFedora extends ControllerTestCase {
     $response = $this->controller->getResponse();
     $this->assertEqual("403", $response->getHttpResponseCode());
     $this->assertPattern('/Permission Denied/', $response->getBody());
-    
-    //    $this->assertPattern("/Record not found/", $messages[0]);
-    
   }
 
-  // other cases to test:
-  // FIXME: how to get a mock object to throw an exception ?
-  // exceptions:
-  //  - FedoraObjectNotFound 
-  //  - FedoraAccessDenied
-  //  - FedoraNotAuthorized
-  //  - FoxmlException
+ function testFactoryInit() {
+    // use real fedora connection for honors etd init
+    Zend_Registry::set('fedora', $this->_fedora);
+   
 
+    $this->setUpGet(array("id" => $this->etdpid));
+    $etd = $this->helper->direct("id", "etd");
+    $this->assertIsA($etd, "etd");
+    $this->assertNotA($etd, "honors_etd");
+
+    $this->setUpGet(array("id" => $this->hons_etdpid));
+    $etd2 = $this->helper->direct("id", "etd");
+    $this->assertIsA($etd2, "etd");
+    $this->assertIsA($etd2, "honors_etd");
+ 
+  }
+ 
+  
 }
 
 
