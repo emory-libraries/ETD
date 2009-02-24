@@ -3,14 +3,15 @@
 require_once("api/fedora.php");
 require_once("api/risearch.php");
 
+require_once("EtdFactory.php");
 require_once("solrEtd.php");
 require_once("etd.php");
 require_once("stats.php");
 
 /**
  * container object for a group of etds retrieved from Solr, with relevant metadata
+ * find functions for retrieving etds
  *
- ************ FIXME:  would it make sense to move the find functions here and make them non-static ?
  */
 class EtdSet {
   
@@ -49,7 +50,7 @@ class EtdSet {
     foreach ($this->solrResponse->docs as $doc) {
       if ($this->options["return_type"] == "etd") { 
 	try {
-	  $etd = new etd($doc->PID);
+	  $etd = EtdFactory::etdByPid($doc->PID);
 	  $etd->relevance = $doc->score;
 	  $this->etds[] = $etd;
 	  
@@ -67,10 +68,6 @@ class EtdSet {
 	} catch (FedoraNotAuthorized $e) {
 	  trigger_error("Not Authorized to view " . $doc->PID, E_USER_WARNING);
 	}
-	
-	// FIXME: catch other errors (access denied, not authorized, etc)
-	
-	// FIXME: store relevance?  $result_doc->score;
 	
       } else if ($this->options["return_type"] == "solrEtd") {
 	$this->etds[] =  new solrEtd($doc);	
