@@ -900,11 +900,11 @@ div.letters a.current { font-weight:bold; }
 
 span.permalink { background-color: #ffda82; /*#fffdee; /* very faint yellow */ }
 
-/* formatting used by FCKeditor */
-.Indent1 { margin-left: 40px !important; }
-.Indent2 { margin-left: 80px !important; }
-.Indent3 { margin-left: 120px !important;}
-.JustifyLeft { text-align: left; }
-.JustifyRight {	text-align: right; }
-.JustifyCenter { text-align: center; }
-.JustifyFull { text-align: justify; }
+/* formatting used by FCKeditor -- explicitly include divs to override other formatting */
+.Indent1, div.Indent1 { margin-left: 40px !important; }
+.Indent2, div.Indent2 { margin-left: 80px !important; }
+.Indent3, div.Indent3 { margin-left: 120px !important;}
+.JustifyLeft, div.JustifyLeft { text-align: left; }
+.JustifyRight, div.JustifyRight { text-align: right; }
+.JustifyCenter, div.JustifyCenter { text-align: center; }
+.JustifyFull, div.JustifyFull { text-align: justify; }
