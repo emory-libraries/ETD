@@ -17,7 +17,6 @@ require_once("etdfile.php");
 require_once("user.php");
 
 require_once("solrEtd.php");
-require_once("EtdSet.php");
 
 // email notifier
 require_once("etd_notifier.php");
