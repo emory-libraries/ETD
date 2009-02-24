@@ -122,15 +122,18 @@ class MockUser extends BasicMock_User {
 }
 
 require_once('fedora/api/FedoraConnection.php');
+require_once('fedora/api/risearch.php');
 require_once('Emory/Service/Persis.php');	// for persis exceptions
 Mock::generate('FedoraConnection', 'BasicMockFedoraConnection');
+Mock::generate('risearch', 'MockRisearch');
 
 class MockFedoraConnection extends BasicMockFedoraConnection {
   private $exception;
+  public $risearch;
   
   public function setException($name) {
     $this->exception = $name;
-    
+    $this->risearch = &new MockRisearch();
   }
 
   private function throw_exception() {
