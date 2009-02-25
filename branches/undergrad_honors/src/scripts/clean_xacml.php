@@ -39,7 +39,7 @@ $logger = setup_logging($opts->verbose);
 
 // if pid is specified, run single record mode
 if ($opts->pid) {
-  $etd = new etd($opts->pid);
+  $etds = EtdFactory::etdByPid($opts->pid);
   clean_xacml($etd);
   return;
 }

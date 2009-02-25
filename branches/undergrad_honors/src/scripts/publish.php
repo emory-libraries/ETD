@@ -40,6 +40,7 @@
 require_once("bootstrap.php");
 
 require_once("models/ProQuestSubmission.php");
+require_once("models/EtdFactory.php");
 $proquest = new Zend_Config_Xml("../config/proquest.xml", $env_config->mode);
 
 $getopts = array_merge(
@@ -139,7 +140,7 @@ if ($do_all) {
   $etds = array();
   foreach ($pids as $pid) {
     try {
-      $etds[] = new etd($pid);
+      $etds[] = EtdFactory::etdByPid($pid);
     } catch (FedoraObjectNotFound $e) {
       $logger->warn("Record not found: $pid");
       //      trigger_error("Record not found: $pid", E_USER_WARNING);
