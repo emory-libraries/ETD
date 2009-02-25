@@ -60,7 +60,7 @@ class SubmissionControllerTest extends ControllerTestCase {
   }
 
 
-  function NOtestStartAction() {
+  function testStartAction() {
     $this->test_user->role = "staff";	// set to non-student
     Zend_Registry::set('current_user', $this->test_user);
     $SubmissionController = new SubmissionControllerForTest($this->request,$this->response);
@@ -166,7 +166,7 @@ class SubmissionControllerTest extends ControllerTestCase {
     
 
 
-  function NOtestReviewAction() {
+  function testReviewAction() {
     $this->test_user->role = "student";	// set to non-student
     Zend_Registry::set('current_user', $this->test_user);
     $SubmissionController = new SubmissionControllerForTest($this->request,$this->response);
@@ -200,7 +200,7 @@ class SubmissionControllerTest extends ControllerTestCase {
     $this->assertTrue(isset($SubmissionController->view->etd), "etd variable set for review");
   }
 
-  function NOtestSubmitAction() {
+  function testSubmitAction() {
     $errlevel = error_reporting(E_ALL ^ E_NOTICE);
 	
     $this->test_user->role = "student";	// set to non-student
@@ -265,6 +265,8 @@ class SubmissionControllerForTest extends SubmissionController {
   public function initView() {
     $this->view = new Zend_View();
     Zend_Controller_Action_HelperBroker::addPrefix('Test_Controller_Action_Helper');
+    // enable test version of ingestOrError helper
+    Zend_Controller_Action_HelperBroker::addPrefix('TestEtd_Controller_Action_Helper');
   }
   
   public function render() {

@@ -24,7 +24,7 @@ class TestGetFromFedora extends ControllerTestCase {
 
     $this->_fedora = Zend_Registry::get('fedora');
     $this->mock_fedora = &new MockFedoraConnection();
-    $this->mock_fedora->risearch = $this->_fedora->risearch; // FIXME: why doesn't mock work?
+    $this->mock_fedora->risearch = $this->_fedora->risearch; 
     Zend_Registry::set('fedora', $this->mock_fedora);
 
 
@@ -61,7 +61,7 @@ class TestGetFromFedora extends ControllerTestCase {
     // simulated etd object has no rels_ext; ignore the error
     $this->expectError("Object does not have configured datastream: rels_ext");
     // no results returned from risearch for simulated etd
-    $this->expectError("No response returned from risearch; cannot determine if test:1 is an honors etd");
+    //    $this->expectError("No response returned from risearch; cannot determine if test:1 is an honors etd");
     $result = $this->helper->direct("id", "etd");
     $this->assertIsA($result, "etd");
     
@@ -69,14 +69,12 @@ class TestGetFromFedora extends ControllerTestCase {
     // test various exceptions
     // - not found
     $this->mock_fedora->setException("NotFound");
-    $this->expectError("No response returned from risearch; cannot determine if test:1 is an honors etd");
     $this->helper->direct("id", "etd");
     $messages = $this->controller->getHelper("flashMessenger")->getMessages();
     $this->assertPattern("/Record not found/", $messages[0]);
     // - access denied
     $this->setUpGet(array("id" => "test:1"));
     $this->mock_fedora->setException("AccessDenied");
-    $this->expectError("No response returned from risearch; cannot determine if test:1 is an honors etd");
     $this->helper->direct("id", "etd");
     $response = $this->controller->getResponse();
     $this->assertEqual("403", $response->getHttpResponseCode());
@@ -84,7 +82,6 @@ class TestGetFromFedora extends ControllerTestCase {
     // - not authorized
     $this->setUpGet(array("id" => "test:1"));
     $this->mock_fedora->setException("NotAuthorized");
-    $this->expectError("No response returned from risearch; cannot determine if test:1 is an honors etd");
     $this->helper->direct("id", "etd");
     $response = $this->controller->getResponse();
     $this->assertEqual("403", $response->getHttpResponseCode());

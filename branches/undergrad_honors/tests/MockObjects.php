@@ -131,9 +131,13 @@ class MockFedoraConnection extends BasicMockFedoraConnection {
   private $exception;
   public $risearch;
   
+  public function __construct(){
+    $this->BasicMockFedoraConnection();
+    $this->risearch = &new MockRisearch();
+  }
+  
   public function setException($name) {
     $this->exception = $name;
-    $this->risearch = &new MockRisearch();
   }
 
   private function throw_exception() {

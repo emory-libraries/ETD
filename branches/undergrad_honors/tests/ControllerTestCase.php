@@ -113,7 +113,10 @@ class Test_Controller_Action_Helper_ProcessPDF
   public function clearReturnResult() { $this->info = null; }
 }
 
-class Test_Controller_Action_Helper_IngestOrError
+
+// NOTE: using TestEtd prefix so this can be selectively enabled;
+// otherwise, it is very difficult to test the actual IngestOrErrror helper
+class TestEtd_Controller_Action_Helper_IngestOrError
 	extends Etd_Controller_Action_Helper_IngestOrError {
   protected $err = null;
 
