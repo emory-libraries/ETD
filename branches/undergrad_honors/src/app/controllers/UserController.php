@@ -121,7 +121,7 @@ class UserController extends Etd_Controller_Action {
     }
 
     if ($etd_pid) {
-      $etd = new etd($etd_pid);
+      $etd = EtdFactory::etdByPid($etd_pid);
       $etd->rels_ext->addRelationToResource("rel:hasAuthorInfo", $user->pid);
       $save_result = $etd->save("associated user object with etd");
       // only display a message if there is a problem
