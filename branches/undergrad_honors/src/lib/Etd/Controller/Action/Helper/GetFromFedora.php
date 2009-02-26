@@ -35,12 +35,8 @@ class Etd_Controller_Action_Helper_GetFromFedora extends Zend_Controller_Action_
     }
 
     try {
-      if ($type == "etd") {
-	// if requested type is etd, use factory method to initialize correct type
-	$object = EtdFactory::etdByPid($id);
-      } else {
-	$object = new $type($id);
-      }
+      // use factory method to initialize correct type - honors variants
+      $object = EtdFactory::init($id, $type);
     } catch (FedoraObjectNotFound $e) {
       $message = "Record not found";
       $log_message = $message . " - " . $e->getMessage();
