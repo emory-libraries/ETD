@@ -3,17 +3,20 @@ require_once("../bootstrap.php");
 require_once('models/honors_user.php');
 
 class TestHonorsUser extends UnitTestCase {
-    private $honors_user;
+  private $honors_user;
 
   function setUp() {
-    //$fname = '../fixtures/user.xml';
-    //$dom = new DOMDocument();
-    //    $dom->load($fname);
-    //$dom->loadXML(file_get_contents($fname));
     $this->honors_user = new honors_user();
   }
   
   function tearDown() {
+  }
+
+  function testBasicProperties() {
+    // test that foxml properties are accessible
+    $this->assertIsA($this->honors_user, "honors_user");
+    $this->assertIsA($this->honors_user->dc, "dublin_core");
+    $this->assertIsA($this->honors_user->mads, "mads");
   }
 
  
