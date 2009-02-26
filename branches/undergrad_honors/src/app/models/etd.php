@@ -453,6 +453,21 @@ class etd extends foxml implements etdInterface {
       return false;
   }
 
+  /**
+   * check if a field is required
+   * 
+   * @param string $field field name
+   * @return boolean
+   */
+  public function isRequired($field) {
+    // for now, all required fields are either in the mods or user contact info,
+    // so a field is required here if it is required by either of them
+    if (isset($this->authorInfo))
+      return ($this->mods->isRequired($field) || $this->authorInfo->isRequired($field));
+    else
+      return $this->mods->isRequired($field);
+  }
+
   public function readyToSubmit() {
     if (! $this->mods->readyToSubmit()) return false;
     if (! $this->hasPDF()) return false;
