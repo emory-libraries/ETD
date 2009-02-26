@@ -5,21 +5,15 @@ require_once("user.php");
 
 class honors_user extends user {
 
-public function checkRequired() {
-    $missing = array();
+  public function __construct($arg = null, etd $parent = null) {
+    parent::__construct($arg, $parent);
 
-    // permanent non-emory email address
-    if ($this->mads->permanent->email == "") {
-      $missing[] = "permanent (non-emory) email address";
-    }
-
-	 // current email address
-    if ($this->mads->current->email == "") {
-      $missing[] = "current email address";
-    }
-
-
-    return $missing;
+    // override required fields - only current and permanent email, not address
+    $this->required_fields = array("email", "permanent email");
   }
 
+  /* functions for checking required and complete fields are
+     inherited-- the logic is the same, and actual tests are based on
+     the list of required fields. */
+  
 }
