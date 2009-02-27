@@ -1,6 +1,7 @@
 <?php
 
 require_once("models/user.php");
+require_once("models/honors_user.php");
 
 class UserController extends Etd_Controller_Action {
   protected $requires_fedora = true;
@@ -38,10 +39,21 @@ class UserController extends Etd_Controller_Action {
       throw new Exception("Required parameter 'etd' is not set");
     $this->view->etd_pid = $this->_getParam("etd");	
     
-    if (is_null($pid))	{ // if pid is null, action is actually create (user is not author on an object yet)
-      $user = new user();	// create new empty user object
+    if (is_null($pid))	{
+      // if pid is null, action is actually create (user is not author on an object yet)
       if (!$this->_helper->access->allowedOnUser("create")) return false;
-    } else { 		// if pid is defined, action is editing an existing object
+
+      // create new empty user object
+      if (preg_match("/^honors student/", $this->current_user->role)) {
+	// if user is an honors student, create new record as honors user
+	$user = new honors_user();
+      } else {
+	// for all other users, use default user object
+	$user = new user();
+      }
+    } else { 		// if pid is defined, action is editing a particular, existing object
+
+      // FIXME:  need to initialize as honors user here too...
       $user = $this->_helper->getFromFedora("pid", "user");	  
       if (!$this->_helper->access->allowedOnUser("edit", $user)) return false;
     }
