@@ -48,6 +48,7 @@
 
 	   <!-- pid of the honors collection object in fedora -->
 	   <honors_collection></honors_collection>
+	   <programs_pid></programs_pid>
 
 	</development>
 
