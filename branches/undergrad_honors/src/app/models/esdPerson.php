@@ -90,7 +90,7 @@ class esdPerson implements Zend_Acl_Role_Interface {
 
     // subset of standard student role - if honors flag is set
     if ($this->role == "student" && $this->honors_student == "Y") {
-      $this->role = "honors_student";
+      $this->role = "honors student";
     }
     
     // determine roles for special cases
@@ -183,7 +183,7 @@ class esdPerson implements Zend_Acl_Role_Interface {
 
   // this function allows esdPerson to act as a Zend_Acl_Role
   public function getRoleId(){
-    if ($this->role == "student" || $this->role == "faculty") {
+    if (preg_match("/student$/", $this->role) || $this->role == "faculty") {
       if ($this->hasUnpublishedEtd())
 	$this->role .= " with submission";
     }
@@ -192,7 +192,7 @@ class esdPerson implements Zend_Acl_Role_Interface {
 
   public function hasUnpublishedEtd() {
     // only student and faculty roles can have unpublished etds
-    if (! preg_match("/^(student|faculty)/", $this->role)) // with or without submission
+    if (! preg_match("/^(student|faculty|honors student)/", $this->role)) // with or without submission
       return false; 
     elseif (count($this->getEtds())) return true;
     else return false;
