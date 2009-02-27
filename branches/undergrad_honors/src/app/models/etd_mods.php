@@ -20,9 +20,9 @@ class etd_mods extends mods {
   
   // add etd-specific mods mappings
   protected function configure() {
-    // FIXME: should these correspond to the fields as set here ?
-    // how do we correlate this info with *where* the stuff is edited? (NOT HERE...?)
-    // NOTE: putting edit page here for now, figure out where it should go later
+    /** NOTE: this data is edited on several different pages;
+        each required field has a value of the edit action
+	where that field is edited. */
     $this->required_fields = array("title" => "title",
 				   "author" => "record",
 				   "program" => "program",
@@ -459,23 +459,23 @@ class etd_mods extends mods {
 
   /**
    * check required fields; returns an array with problems, missing data
-   * @return array missing fields
+   * @return array associative array of missing fields with the action where they are edited
    */
   public function checkRequired() {
     $missing = array();
 
-    // check everything in the array of required fields
+    // check everything that is specified as required 
     foreach ($this->required_fields as $field => $action) {
       if (! $this->isComplete($field)) $missing[$field] = $action;
     }
-    // note - key is display of what is missing, value is edit action (where should this logic be?)
+    // NOTE: key is  missing field, value is edit action
 
     return $missing;
   }
 
   /**
-   * check if a required field is filled in completely
-   * (part of submission-ready check)
+   * check if a required field is filled in completely (part of submission-ready check)
+   * 
    * @param string $field name
    * @return boolean
    */
