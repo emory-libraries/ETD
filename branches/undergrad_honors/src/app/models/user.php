@@ -27,7 +27,7 @@ class user extends foxml {
     }
 
 
-    $this->required_fields = array("email", "permanent email", "permanent address");
+    $this->required_fields = array("name", "email", "permanent email", "permanent address");
 				       
   }
 
@@ -126,6 +126,8 @@ class user extends foxml {
    */
   public function isComplete($field) {
     switch($field) {
+    case "name":
+      return ((trim($this->mads->name->first) != "") && (trim($this->mads->name->last) != ""));
     case "email":
       return (trim($this->mads->current->email) != "");
     case "permanent email":

@@ -49,6 +49,7 @@ class TestUser extends UnitTestCase {
     
     $missing = $user->checkRequired();
     // check that these are present anywhere in the list (order not important)
+    $this->assertTrue(in_array("name", $missing),"missing name detected");
     $this->assertTrue(in_array("permanent address", $missing),
 		      "incomplete permanent address detected");
     $this->assertTrue(in_array("email", $missing),
@@ -88,6 +89,19 @@ class TestUser extends UnitTestCase {
     $missing = $user->checkRequired();
     $this->assertFalse(in_array("permanent address", $missing),
 		     "complete permanent address is not missing");
+    //  - name
+    $user->mads->name->first =  "Someone";
+    $missing = $user->checkRequired();
+    $this->assertTrue(in_array("name", $missing), "incomplete name detected");
+    $user->mads->name->first =  "";
+    $user->mads->name->last =  "Else";
+    $missing = $user->checkRequired();
+    $this->assertTrue(in_array("name", $missing), "incomplete name detected");
+    $user->mads->name->first =  "Someone";    
+    $user->mads->name->last =  "Else";
+    $missing = $user->checkRequired();
+    $this->assertFalse(in_array("name", $missing), "complete name - not missing");
+    
   }
 
   function testIsRequired() {
