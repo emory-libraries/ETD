@@ -1,16 +1,25 @@
 <xf:instance id="countries" xmlns="" src="<?= $this->url(array("controller" => "config", "action" => "view",
  "id" => "countries"), "", true) ?>"/>
 
-<xf:bind nodeset="//mads:namePart[@type='family' or @type='given']" type="xsd:string"  constraint=". != ''" required="true()"/>
-<xf:bind nodeset="//mads:affiliation[mads:position = 'permanent resident']/mads:address/*" type="xsd:string" required="true()"/> 
-<xf:bind nodeset="//mads:affiliation[mads:position = 'permanent resident']/mads:dateValid" type="xsd:date" required="true()"/> 
+<xf:bind nodeset="//mads:namePart[@type='family' or @type='given']" type="xsd:string"  constraint=". != ''"
+   <? if ($this->user->isRequired("name")): ?> required="true()" <? endif ?>/>
+
+<? if ($this->user->isRequired("permanent address")): ?>
+  <xf:bind nodeset="//mads:affiliation[mads:position = 'permanent resident']/mads:address/*" type="xsd:string" required="true()"/> 
+  <xf:bind nodeset="//mads:affiliation[mads:position = 'permanent resident']/mads:dateValid" type="xsd:date" required="true()"/>
+<? endif ?>
 
 <xf:bind nodeset="//mads:dateValid" type="xsd:date"/>
 
 <? /* require that permanent email not contain emory.edu */ ?>
 <xf:bind nodeset="/mads:mads/mads:affiliation[mads:position = 'permanent resident']/mads:email"
-   constraint="not(contains(., 'emory.edu'))"   type="xsd:string"  required="true()"/> 
+   constraint="not(contains(., 'emory.edu'))"   type="xforms:email"
+  <? if ($this->user->isRequired("permanent email")): ?> required="true()" <? endif ?> /> 
 
+<xf:bind nodeset="/mads:mads/mads:affiliation[mads:position != 'permanent resident']/mads:email"
+   type="xforms:email"
+  <? if ($this->user->isRequired("email")): ?> required="true()" <? endif ?> /> 
+						 
 <xf:bind nodeset="mads:email" type="xforms:email"/>
 
  <xf:submission id="submission" action="<?= $this->url(array('controller' => 'user',
