@@ -155,7 +155,7 @@ class SubmissionControllerTest extends ControllerTestCase {
 
     // if student is honors, etd should be initialized the same but as
     // an instance of honors_etd variant
-    $this->test_user->role = "honors_student";
+    $this->test_user->role = "honors student";
     $etd = $SubmissionController->initialize_etd($test_info);
     $this->assertIsA($etd, "etd");
     $this->assertIsA($etd, "honors_etd");

@@ -18,13 +18,15 @@
       <allow resource="etd">create</allow>
     </role>
 
-    <!-- undergrad honors student -->
-    <role name="honors_student" inherits="student"/>
-
     <!-- a student who already has a submission should not submit another one -->
     <role name="student with submission" inherits="guest">
       <allow resource="user">create</allow>
     </role>
+
+    <!-- undergrad honors student -->
+    <role name="honors student" inherits="student"/>
+    <role name="honors student with submission" inherits="student with submission"/>
+
 
     <!-- faculty/student with submission (cannot create second record,
   	 but still gets faculty/student view on MyEtds page) -->

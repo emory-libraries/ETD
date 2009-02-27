@@ -151,7 +151,7 @@ class SubmissionController extends Etd_Controller_Action {
    */
   public function initialize_etd(array $etd_info) {
     // create new etd record and save all the fields
-    if ($this->current_user->role == "honors_student") {
+    if ($this->current_user->role == "honors student") {
       // if user is an honors student, create new record as honors etd
       $etd = new honors_etd();
     } else {
