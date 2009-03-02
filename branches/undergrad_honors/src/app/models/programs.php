@@ -4,16 +4,23 @@ require_once("skosCollection.php");
 
 class programs extends collectionHierarchy  {
   protected $collection_class = "programCollection";
-  
+
   public function __construct($id = "#programs") {
-    
+    /*
     $xml = file_get_contents("programs.xml", FILE_USE_INCLUDE_PATH); 
     $dom = new DOMDocument();
     $dom->loadXML($xml);
-    
-    parent::__construct($dom, $id);
+    */
+	$config = Zend_Registry::get("config");
+	$pid=$config->programs_pid;
+    $fedora = Zend_Registry::get("fedora");
+	$dom = new DOMDocument();
+    $dom->loadXML($fedora->getDatastream($pid, "SKOS"));
+
+	parent::__construct($dom, $id);
 
     $this->index_field = "program_facet";
+
   }
 }
 
