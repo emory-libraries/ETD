@@ -95,7 +95,7 @@ class esdPerson implements Zend_Acl_Role_Interface {
     
     // determine roles for special cases
     if ($this->department == "Graduate School Administration")
-      $this->role = "grad_admin";	// graduate school administrator
+      $this->role = "grad admin";	// graduate school administrator
     if (!is_null($this->grad_coord)) {
       // role is graduate program coordinator ?
       // **** - not a separate role but a role in relation to particular ETDs
@@ -113,7 +113,7 @@ class esdPerson implements Zend_Acl_Role_Interface {
 	$this->role = "superuser";
       }
       if (in_array($this->netid, $config->honors_admin->user->toArray())) {
-	$this->role = "honors_admin";
+	$this->role = "honors admin";
       }
     }
   }

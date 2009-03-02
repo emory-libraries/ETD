@@ -334,14 +334,14 @@ class ManageControllerTest extends ControllerTestCase {
     $this->assertNull($ManageController->testGetAdminFilter());
 
     // grad admin - phds and masters only
-    $this->test_user->role = "grad_admin";
+    $this->test_user->role = "grad admin";
     $filter = $ManageController->testGetAdminFilter();
     $this->assertPattern("/PHD/", $filter);
     $this->assertPattern("/M[AS]/", $filter);
     $this->assertNoPattern("/B[AS]/", $filter);
 
     // undergrad honors admin - bachelors only
-    $this->test_user->role = "honors_admin";
+    $this->test_user->role = "honors admin";
     $filter = $ManageController->testGetAdminFilter(); 
     $this->assertNoPattern("/PHD/", $filter);
     $this->assertNoPattern("/M[AS]/", $filter);

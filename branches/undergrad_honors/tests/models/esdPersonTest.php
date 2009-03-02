@@ -72,19 +72,19 @@ class TestEsdPerson extends UnitTestCase {
     // graduate school administration
     $user->department = "Graduate School Administration";
     $user->setRole();
-    $this->assertEqual($user->role, "grad_admin");
+    $this->assertEqual($user->role, "grad admin");
 
     // honors undergrad student
     $user->department = "Anthropology";
     $user->type = "S";
     $user->honors_student = "Y";
     $user->setRole();
-    $this->assertEqual($user->role, "honors_student");
+    $this->assertEqual($user->role, "honors student");
 
     // honors program administrator - based on config file
     $user->netid = "mabell";
     $user->setRole();
-    $this->assertEqual($user->role, "honors_admin");
+    $this->assertEqual($user->role, "honors admin");
 
     // etd superuser - based on config file
     $user->netid = "rsutton";
