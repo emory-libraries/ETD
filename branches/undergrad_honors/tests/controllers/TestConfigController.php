@@ -38,11 +38,6 @@ class ConfigControllerTest extends ControllerTestCase {
     $response = $configController->getResponse();
     $this->assertPattern('|<level name="doctoral" genre="Dissertation">|', $response->getBody());
 
-    $this->setUpGet(array('id' => 'programs'));
-    $configController->viewAction();
-    $response = $configController->getResponse();
-    $this->assertPattern('|<skos:Collection rdf:about="#programs">|', $response->getBody());
-
     $this->setUpGet(array('id' => 'languages'));
     $configController->viewAction();
     $response = $configController->getResponse();
