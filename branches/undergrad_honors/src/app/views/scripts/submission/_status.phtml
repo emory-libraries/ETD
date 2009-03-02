@@ -35,14 +35,23 @@
        <? if (count($etd->mods->checkRequired())): ?>
          <? foreach ($etd->mods->checkRequired() as $missing => $action): ?>
      	   <? if ($action == "rights") continue;  /* displayed separately */ ?>
-           <li><a href="<?= $this->url(array('controller' => 'edit', 'action' => $action)) ?>"><?= $missing ?></a>
+           <li><a href="<?= $this->url(array('controller' => 'edit', 'action' => $action)) ?>">
+	       <?= $etd->mods->fieldLabel($missing) ?></a>
            </li>
          <? endforeach ?>
       <? else : /* not ready to submit but no missing fields = xml is invalid */ ?>
         <li>XML invalid; please contact ETD Administrator</li>
       <? endif ?>       
      </ul>
-  <? endif ?>       
+  <? endif ?>
+  <? if (count($missing = $etd->mods->checkOptional())): ?>
+     <ul id="mods_optional" class="missing">
+	<? foreach ($missing as $field => $action): ?>
+	<li><a href="<?= $this->url(array('controller' => 'edit', 'action' => $action)) ?>">
+	<?= $etd->mods->fieldLabel($field) ?></a></li>
+	<? endforeach ?>
+     </ul>
+  <? endif ?>
 
   <?= $etd->hasPDF() ? $ok : $incomplete ?> PDF file<br/>
   <?if ($etd->hasOriginal()) : ?>
