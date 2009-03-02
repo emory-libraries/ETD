@@ -43,6 +43,18 @@ access and modify (with some limitations) etd objects (etd, etdfile, user)</Desc
         </ResourceMatch>
       </Resource>
 
+      <!-- programs hierarchy -->
+      <Resource>
+        <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+            <AttributeValue 
+		DataType="http://www.w3.org/2001/XMLSchema#string">emory:17r1x</AttributeValue>
+            <ResourceAttributeDesignator 
+		AttributeId="urn:fedora:names:fedora:2.1:resource:object:pid" 
+                DataType="http://www.w3.org/2001/XMLSchema#string"/>
+        </ResourceMatch>
+      </Resource>
+
+
     </Resources>    
     <Actions>
       <AnyAction/>
@@ -111,6 +123,10 @@ access and modify (with some limitations) etd objects (etd, etdfile, user)</Desc
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">DC</AttributeValue>
 	  <!-- xhtml : formatted fields, needs to be editable by techsupport -->
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">XHTML</AttributeValue>
+
+	  <!-- SKOS : rdf hierarchy for programs -->
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">SKOS</AttributeValue>
+
         </Apply> 	<!-- end string bag -->
       </Apply>		<!-- end at least one member -->
 
@@ -194,6 +210,32 @@ access and modify (with some limitations) etd objects (etd, etdfile, user)</Desc
         <Action>
           <ActionMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
             <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">urn:fedora:names:fedora:2.1:action:id-listDatastreams</AttributeValue>
+            <ActionAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:action:id" DataType="http://www.w3.org/2001/XMLSchema#string"/>
+          </ActionMatch>
+        </Action>
+      </Actions>
+    </Target>
+
+  </Rule>
+
+  <Rule RuleId="permit-programs" Effect="Permit">
+  <!-- permit access to programs hierarchy -->
+    <Target>
+      <Subjects>
+        <AnySubject/>
+      </Subjects>
+      <Resources>
+	 <Resource>
+	    <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+              <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">SKOS</AttributeValue>
+              <ResourceAttributeDesignator DataType="http://www.w3.org/2001/XMLSchema#string" AttributeId="urn:fedora:names:fedora:2.1:resource:datastream:id" MustBePresent="false"/>
+	    </ResourceMatch>
+        </Resource>
+      </Resources>
+      <Actions>
+ 	<Action>
+          <ActionMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">urn:fedora:names:fedora:2.1:action:id-getDatastream</AttributeValue>
             <ActionAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:action:id" DataType="http://www.w3.org/2001/XMLSchema#string"/>
           </ActionMatch>
         </Action>
