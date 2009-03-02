@@ -69,17 +69,18 @@
     </role>
 
     <!-- administrator for graduate school etds -->
-    <role name="grad_admin" inherits="admin"/>
+    <role name="grad admin" inherits="admin"/>
 <!-- NOTE: for now, permissions are the same as admin, but that will
 	probably need to change -->
 
 
     <!-- administrator for undergraduate honors ETDs -->
-    <role name="honors_admin" inherits="view_all">
+    <role name="honors admin" inherits="view_all">
        <allow resource="etd">edit history, edit status, manage</allow>
 	<!-- workflow actions TBD -->
        <allow resource="file">view modified</allow>
        <allow resource="user">view</allow>
+       <allow resource="undergrad programs">edit</allow>
     </role>
 
     <role name="techsupport" inherits="view_all">
@@ -87,7 +88,6 @@
       <allow resource="etd">edit metadata, order files, manage</allow>
       <allow resource="file">edit, view modified</allow>
       <allow resource="user">view, edit</allow>
-
       <allow resource="log">view</allow>
     </role>
 
@@ -118,6 +118,10 @@
    <resource name="statistics"/>
 
    <resource name="log"/>
+
+   <resource name="programs">
+     <resource name="undergrad programs"/>
+   </resource>
 
   </resources>
 
