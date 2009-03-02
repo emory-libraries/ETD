@@ -193,8 +193,20 @@ class TestEtdMods extends UnitTestCase {
     $missing = $this->mods->checkRequired();
     $this->assertTrue(in_array("abstract", array_keys($missing)), "incomplete abstract detected");
     
-u    
+    
     error_reporting($errlevel);	    // restore prior error reporting
+  }
+
+  function testCheckOptional() {
+    // functionality for classes that inherit and have different requirements
+    $optional = $this->mods->checkOptional();
+    $this->assertIsA($optional, "Array");
+    $this->assertEqual(0, count($optional));
+  }
+
+  function testFieldLabels() {
+    $this->assertEqual("committee chair", $this->mods->fieldLabel("chair"));
+    $this->assertEqual("ProQuest research fields", $this->mods->fieldLabel("researchfields"));
   }
 
   function testPageNumbers() {

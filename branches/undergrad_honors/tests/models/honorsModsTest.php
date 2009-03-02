@@ -55,6 +55,21 @@ class TestHonorsMods extends UnitTestCase {
     $this->assertTrue($this->mods->isRequired("abstract"), "abstract is required");
   }
 
+  function testCheckOptional() {
+    $errlevel = error_reporting(E_ALL ^ E_NOTICE);
+    
+    // optional field that is required by base etd_mods class
+
+    // blank out researchfields - checkOptional only returns *missing* optional fields
+    $this->mods->researchfields[0]->id =  $this->mods->researchfields[0]->topic =  "";
+    $optional = $this->mods->checkOptional();
+    $this->assertTrue(in_array("researchfields", array_keys($optional)),
+		      "researchfields is marked optional");
+
+    error_reporting($errlevel);	    // restore prior error reporting
+  }
+
+
 }
 
 

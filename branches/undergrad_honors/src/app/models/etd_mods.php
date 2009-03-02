@@ -9,6 +9,7 @@ class etd_mods extends mods {
   protected $etd_namespace = "http://www.ndltd.org/standards/metadata/etdms/1.0/";
 
   protected $required_fields;
+  protected $optional_fields;
   
   // auto-magic variables
   /**
@@ -38,6 +39,8 @@ class etd_mods extends mods {
 				   "submission agreement" => "rights",
 				   "send to ProQuest" => "rights",
 				   "copyright" => "rights");
+    // no optional fields in base etd_mods 
+    $this->optional_fields = array();
     
     parent::configure();
 
@@ -474,6 +477,23 @@ class etd_mods extends mods {
   }
 
   /**
+   * check optional fields; returns an array with fields that are empty
+   * (equivalent to checkRequired but for optional fields)
+   * @return array associative array of missing fields with the action where they are edited
+   */
+  public function checkOptional() {
+    $missing = array();
+
+    // check everything that is specified as required 
+    foreach ($this->optional_fields as $field => $action) {
+      if (! $this->isComplete($field)) $missing[$field] = $action;
+    }
+    // NOTE: key is  missing field, value is edit action
+
+    return $missing;
+  }
+
+  /**
    * check if a required field is filled in completely (part of submission-ready check)
    * 
    * @param string $field name
@@ -491,7 +511,7 @@ class etd_mods extends mods {
       return ($this->chair[0]->id != "");
     case "committee members":
       // complete if there is at least one committee member (valid faculty, same as chair test)
-      return ($this->committee[0]->id != "");
+      return (isset($this->committee[0]) && $this->committee[0]->id != "");
     case "researchfields":
       // complete if there is at least one non-blank research field
       return ((count($this->researchfields) != 0) &&
@@ -527,6 +547,36 @@ class etd_mods extends mods {
       else
 	// otherwise, complain
 	trigger_error("Cannot determine if '$field' is complete", E_USER_NOTICE);
+    }
+  }
+
+  /**
+   * get the display label for required/optional fields
+   * @param string $field field name
+   * @return string label
+   */
+  public function fieldLabel($field) {
+    switch ($field) {
+    case "chair":
+      return "committee chair";
+    case "researchfields":
+      return "ProQuest research fields";
+
+      // in most cases, field = label
+    case "author":
+    case "program":
+    case "committee members":
+    case "keywords":
+    case "language":
+    case "table of contents":
+    case "embargo request":
+    case "submission agreement":
+    case "send to ProQuest":
+    case "copyright":
+    case "title":
+    case "abstract":
+    case "degree":
+      return $field;
     }
   }
 
@@ -570,12 +620,12 @@ class etd_mods extends mods {
   }
   
   // is submit to proquest set (yes/no)
-  function hasSubmitToProquest() {
+  public function hasSubmitToProquest() {
     return (isset($this->pq_submit) && $this->pq_submit != "");
   }
 
   // is the record set to be submitted to proquest?
-  function submitToProquest() {
+  public function submitToProquest() {
     return ($this->degree->name == "PhD" || $this->pq_submit == "yes");
   }
 

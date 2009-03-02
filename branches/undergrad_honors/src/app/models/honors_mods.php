@@ -12,11 +12,20 @@ class honors_mods extends etd_mods {
 
     // override required fields - shares etd fields with these exceptions:
     // PQ researchfields are optional
-    unset($this->required_fields["researchfields"]);
-    // Honors ETDs are not sent to PQ
+    $this->makeOptional("researchfields");
+    
+    // Honors ETDs are not sent to PQ -- ignore these fields completely
     unset($this->required_fields["send to ProQuest"]);
     unset($this->required_fields["copyright"]);
   }
+
+  private function makeOptional($field) {
+    // copy field value into optional list
+    $this->optional_fields[$field] = $this->required_fields[$field];
+    // then remove from required list
+    unset($this->required_fields[$field]);
+  }
+    
     
   /* NOTE: functions for checking required and complete fields are
      inherited-- the logic is the same, and actual tests are based on
@@ -26,7 +35,7 @@ class honors_mods extends etd_mods {
    * check if the record should  be sent to ProQuest-- never, for honors etds
    * @return boolean
    */
-  function submitToProquest() {
+  public function submitToProquest() {
     return false;
   }
 
