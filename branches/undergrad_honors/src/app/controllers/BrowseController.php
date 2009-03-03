@@ -281,6 +281,8 @@ class BrowseController extends Etd_Controller_Action {
     switch ($this->current_user->role) {
     case "student":
     case "student with submission":
+    case "honors student":
+    case "honors student with submission":
       // records for this action : owned by current user (author) and not published
       $options["AND"]["ownerId"] = $username;
       // FIXME: is this filter necessary/useful ?
