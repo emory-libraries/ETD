@@ -114,8 +114,7 @@ if (isset($current_user)) {
 
 
 // set up access controls
-require_once("xml_acl.php");
-$acl = new Xml_Acl();
+$acl = new Emory_Acl_Xml($config_dir . "access.xml");
 Zend_Registry::set('acl', $acl);
 
 

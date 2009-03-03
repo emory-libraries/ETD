@@ -1,5 +1,4 @@
 <?php
-require_once("xml_acl.php");
 
 abstract class Etd_Controller_Action extends Zend_Controller_Action {
 
@@ -23,7 +22,6 @@ abstract class Etd_Controller_Action extends Zend_Controller_Action {
 
     $this->logger = Zend_Registry::get('logger');
 
-    //        $this->acl = $this->view->acl;	// FIXME: which is better? Zend_Registry::get("acl");
     $this->acl = Zend_Registry::get('acl');
     if (Zend_Registry::isRegistered('current_user'))
       $this->current_user = Zend_Registry::get('current_user');
