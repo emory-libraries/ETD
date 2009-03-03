@@ -190,6 +190,32 @@ class esdPerson implements Zend_Acl_Role_Interface {
     return $this->role;
   }
 
+
+  /**
+   * Certain (admin) roles have a generic agent label used for the
+   * descriptive history line when they perform actions on an ETD. Get
+   * the generic label here based on user's role.
+   * @return string
+   */
+  public function getGenericAgent() {
+    switch ($this->role) {
+    case "honors admin":
+      return "Honors Program";
+    case "grad admin":
+      return "Graduate School";
+    case "admin":
+    case "superuser":
+       // generic administrator (e.g., for superuser)
+       // -- should only actually show up in development/testing
+       return "ETD Administrator";
+    default:
+      trigger_error("This role (" . $this->role . ") does not have a generic agent defined",
+		    E_USER_WARNING);
+      return "?";
+     }
+   }
+
+
   public function hasUnpublishedEtd() {
     // only student and faculty roles can have unpublished etds
     if (! preg_match("/^(student|faculty|honors student)/", $this->role)) // with or without submission

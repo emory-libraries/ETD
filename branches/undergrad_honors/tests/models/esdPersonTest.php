@@ -99,8 +99,28 @@ class TestEsdPerson extends UnitTestCase {
     $this->assertFalse($user->isCoordinator("Chemistry"));
   }
 
-  // FIXME: add tests for functions that find faculty names
+  function testGetGenericAgent() {
+    $user = new esdPerson();
+    $user->role = "grad admin";
+    $this->assertEqual("Graduate School", $user->getGenericAgent());
+    $user->role = "honors admin";
+    $this->assertEqual("Honors Program", $user->getGenericAgent());
+    $user->role = "admin";
+    $this->assertEqual("ETD Administrator", $user->getGenericAgent());
+    $user->role = "superuser";
+    $this->assertEqual("ETD Administrator", $user->getGenericAgent());
+
+    // role with no generic agent
+    $user->role = "guest";
+    // should get a warning about this
+    $this->expectError("This role (guest) does not have a generic agent defined");
+    $this->assertEqual("?", $user->getGenericAgent());
     
+  }
+
+  // FIXME: add tests for functions that find faculty names
+
+
 }
 
 runtest(new TestEsdPerson());
