@@ -415,6 +415,14 @@ class TestEtd extends UnitTestCase {
 		       "permanent address is required");
     
   }
+
+  function testGetResourceId() {
+    // resource id used for all ACL checks
+    $this->assertEqual("published etd", $this->etd->getResourceId());
+    $this->etd->rels_ext->status = "draft";
+    $this->assertEqual("draft etd", $this->etd->getResourceId());
+  }
+
   
 
 }

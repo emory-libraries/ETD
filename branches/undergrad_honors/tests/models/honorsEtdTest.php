@@ -55,6 +55,13 @@ class TestHonorsEtd extends UnitTestCase {
     $fedora->purge($etdpid, "removing test etd");
     $fedora->purge($userpid, "removing test user");
   }
+
+  function testGetResourceId() {
+    // resource id used for all ACL checks
+    $this->assertEqual("published honors etd", $this->etd->getResourceId());
+    $this->etd->rels_ext->status = "draft";
+    $this->assertEqual("draft honors etd", $this->etd->getResourceId());
+  }
   
 }
 
