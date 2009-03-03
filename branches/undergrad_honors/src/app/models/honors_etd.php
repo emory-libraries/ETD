@@ -6,8 +6,12 @@ require_once("honors_user.php");
 
 class honors_etd extends etd {
 
+
   public function __construct($arg = null) {
     parent::__construct($arg);
+    
+    // variant ACL resource base id (has variants by status, same as generic etd)
+    $this->acl_id = "honors etd";
 
     // all new honors_etd object must be added to honors collection object
     if ($this->init_mode == "template") {
