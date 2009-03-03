@@ -3,6 +3,7 @@
 require_once("models/etd.php");
 require_once("models/etd_notifier.php");
 require_once("models/honors_etd.php");
+require_once("models/programs.php");
 
 class SubmissionController extends Etd_Controller_Action {
   protected $requires_fedora = true;
@@ -171,7 +172,8 @@ class SubmissionController extends Etd_Controller_Action {
     $etd->contents = $etd_info['toc'];
     
     // attempt to find a match for department from program list
-    $programs = new programs();
+    $programObject = new foxmlPrograms();
+    $programs = $programObject->skos;
     
     // first try to use "academic plan" from ESD to set department
     if ($current_user->academic_plan) {
@@ -240,7 +242,8 @@ class SubmissionController extends Etd_Controller_Action {
     $this->view->messages = array();
     $this->view->etd_info = $this->_helper->processPDF($_FILES['pdf']);
 
-    $programs = new programs();
+    $programObject = new foxmlPrograms();
+    $programs = $programObject->skos;
     $this->view->department =  $programs->findLabel($this->view->etd_info['department']);
     
 

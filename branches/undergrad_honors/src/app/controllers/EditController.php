@@ -36,12 +36,15 @@ class EditController extends Etd_Controller_Action {
     $this->view->title = "Edit Program";
     $this->view->etd = $etd;
 
-    $programs = new programs();
+    $programObject = new foxmlPrograms();
+    $programs = $programObject->skos;
     $id = $programs->findIdbyLabel(trim($etd->mods->department));
-    if ($id)	// FIXME: what if id is not found ?
-      $this->view->program = new programs($id);
+    if ($id) {	// FIXME: what if id is not found ?
+      $programObject = new foxmlPrograms($id);
+      // FIXME: inefficient to re-initialize the whole object...
+      $this->view->program = $programObject->skos;
+    }
 
-    
     // xforms setting - so layout can include needed code in the header
     $this->view->xforms = true;
     $this->view->xforms_bind_script = "edit/_program_bind.phtml";
