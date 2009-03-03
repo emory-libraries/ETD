@@ -31,6 +31,7 @@ class ManageController extends Etd_Controller_Action {
      }
    }
 
+
    public function summaryAction() {
      if (!$this->_helper->access->allowedOnEtd("manage")) return;
      $this->view->title = "Manage : Summary";
@@ -101,7 +102,8 @@ class ManageController extends Etd_Controller_Action {
      $etd->setStatus($newstatus);
      
      // log event in record history 
-     $etd->premis->addEvent("status change", "Record reviewed by Graduate School",
+     $etd->premis->addEvent("status change", "Record reviewed by " .
+			    $this->current_user->getGenericAgent(),
 			    "success",  array("netid", $this->current_user->netid));
      
      $result = $etd->save("set status to '$newstatus'");
@@ -134,7 +136,8 @@ class ManageController extends Etd_Controller_Action {
      
      // log event in record history 
      $etd->premis->addEvent("status change",
-			    "Changes to $changetype requested by Graduate School",
+			    "Changes to $changetype requested by " .
+			    $this->current_user->getGenericAgent(),
 			    "success",  array("netid", $this->current_user->netid));
      
      $result = $etd->save("set status to '$newstatus'");
@@ -191,7 +194,7 @@ class ManageController extends Etd_Controller_Action {
      // log event in record history 
      // log record approval
      $etd->premis->addEvent("status change",
-			    "Record approved by Graduate School",	// by whom ?
+			    "Record approved by " . $this->current_user->getGenericAgent(),
 			    "success",  array("netid", $this->current_user->netid));
      // log embargo duration
      // FIXME: should this not be logged if embargo is 0 days ?
