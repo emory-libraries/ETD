@@ -77,7 +77,9 @@
     <!-- administrator for undergraduate honors ETDs -->
     <role name="honors admin" inherits="view_all">
        <allow resource="etd">edit history, edit status, manage</allow>
-	<!-- workflow actions TBD -->
+       <allow resource="submitted honors etd">review, request record changes</allow>
+       <allow resource="reviewed honors etd">approve, request document changes</allow>
+       <allow resource="published honors etd">inactivate</allow> 
        <allow resource="file">view modified</allow>
        <allow resource="user">view</allow>
        <allow resource="undergrad programs">edit</allow>
@@ -97,13 +99,30 @@
   </roles>
   <resources>
    <resource name="etd">
+      <!-- honors variants also in all states -->	
+      <resource name="honors etd">
+
       <!-- etds in various states -->
-      <resource name="draft etd"/>
-      <resource name="submitted etd"/>
-      <resource name="reviewed etd"/>
-      <resource name="approved etd"/>
-      <resource name="published etd"/>
-      <resource name="inactive etd"/>
+      <resource name="draft etd">
+        <resource name="draft honors etd"/>
+       </resource>
+      <resource name="submitted etd">
+        <resource name="submitted honors etd"/>
+       </resource>
+      <resource name="reviewed etd">
+        <resource name="reviewed honors etd"/>
+       </resource>
+      <resource name="approved etd">
+        <resource name="approved honors etd"/>
+       </resource>
+      <resource name="published etd">
+	 <resource name="published honors etd"/>
+       </resource>
+      <resource name="inactive etd">
+        <resource name="inactive honors etd"/>
+      </resource>
+
+      </resource>
     </resource>
 
    <resource name="file">
