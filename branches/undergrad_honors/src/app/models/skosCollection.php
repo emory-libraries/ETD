@@ -1,11 +1,16 @@
 <?
 
 require_once("xml-utilities/XmlObject.class.php");
+require_once("fedora/models/foxml.php");
 
 /**
  * xml object mapping for a collection defined with skos and rdf
  */
 class collectionHierarchy extends XmlObject {
+  const RDF = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
+  const RDFS = "http://www.w3.org/2000/01/rdf-schema#";
+  const SKOS = "http://www.w3.org/2004/02/skos/core#";
+
   protected $rdf_namespace = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
   protected $rdfs_namespace = "http://www.w3.org/2000/01/rdf-schema#";
   protected $skos_namespace = "http://www.w3.org/2004/02/skos/core#";
@@ -40,7 +45,7 @@ class collectionHierarchy extends XmlObject {
       }
     } else {
       // collection not found - bad initialization
-      throw new XmlObjectException("Error in constructor: collection id " . $id . " not found");
+      throw new XmlObjectException("Error in constructor: collection id '" . $id . "' not found");
     }
 	  
     // if this collection has a parent initialize parent as another collection object
@@ -271,3 +276,22 @@ class skosMember extends XmlObject {
 
 }
 
+
+/**
+ * minimal fedora object with collectionHierarchy SKOS datastream 
+ */
+class foxmlSkosCollection extends foxml {
+
+  // configure additional datastreams here 
+  protected function configure() {
+    parent::configure();
+
+    $this->addNamespace("rdf", collectionHierarchy::RDF);
+    $this->addNamespace("rdfs", collectionHierarchy::RDFS);
+    $this->addNamespace("skos", collectionHierarchy::SKOS);
+    
+    // add mappings for xmlobject
+    $this->xmlconfig["skos"] = array("xpath" => "//foxml:datastream[@ID='SKOS']/foxml:datastreamVersion/foxml:xmlContent/rdf:RDF",
+				     "class_name" => "collectionHierarchy", "dsID" => "SKOS");
+  }
+}
