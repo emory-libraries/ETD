@@ -35,6 +35,11 @@ class etd extends foxml implements etdInterface {
    * @var float $relevance score when found via Solr
    */
   public $relevance;
+
+  /**
+   * @var string $acl_id basic ACL resource id (has subresource variants that inherit)
+   */
+  protected $acl_id;
   
   
   public function __construct($arg = null) {
@@ -56,6 +61,9 @@ class etd extends foxml implements etdInterface {
       // all new etds should start out as drafts
       $this->rels_ext->addRelation("rel:etdStatus", "draft");
     }
+
+    // base ACL resource id is etd
+    $this->acl_id = "etd";
   }
 
 
@@ -675,9 +683,9 @@ class etd extends foxml implements etdInterface {
   // for Zend ACL Resource
   public function getResourceId() {
     if ($this->status() != "") {
-      return $this->status() . " etd";
+      return $this->status() . " " . $this->acl_id;
     } else {
-      return "etd";
+      return $this->acl_id;
     }
   }
 
