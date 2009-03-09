@@ -155,9 +155,11 @@ class SubmissionController extends Etd_Controller_Action {
     if ($this->current_user->role == "honors student") {
       // if user is an honors student, create new record as honors etd
       $etd = new honors_etd();
+      $honors = true;
     } else {
       // for all other users, use default etd
       $etd = new etd();
+      $honors = false;
     }
     
     $etd->title = $etd_info['title'];
@@ -172,20 +174,26 @@ class SubmissionController extends Etd_Controller_Action {
     $etd->contents = $etd_info['toc'];
     
     // attempt to find a match for department from program list
-    $programObject = new foxmlPrograms();
+    $section = $honors ? "#undergrad" : "#grad";  // limit to relevant section
+    $programObject = new foxmlPrograms($section);	
     $programs = $programObject->skos;
     
     // first try to use "academic plan" from ESD to set department
     if ($current_user->academic_plan) {
       $department = $programs->findLabel($current_user->academic_plan);
-      if ($department)
-	$etd->department = $department;
     } elseif (isset($this->view->etd_info['department'])) {
       // otherwise, use department picked up from the PDF (if any)
       $department = $programs->findLabel($this->view->etd_info['department']);
-      if ($department)
-	$etd->department = $department;
     }
+    // if we found a department either way, set text in mods and id in rels-ext
+    if ($department) {
+      $etd->department = $department;
+      // find program id and store in rels
+      $prog_id = $programs->findIdByLabel($department);
+      if ($prog_id) $etd->rels_ext->program = $prog_id;
+    }
+
+    
     
     // match faculty names found in the PDF to persons in ESD
     $esd = new esdPersonObject();
