@@ -85,23 +85,42 @@ class EditControllerTest extends ControllerTestCase {
   // Note: not testing access on all of these because they are exactly the same
   
   function testProgramAction() {
+    // ignore php errors - "indirect modification of overloaded property"
+    $errlevel = error_reporting(E_ALL ^ E_NOTICE);
+
     $EditController = new EditControllerForTest($this->request,$this->response);
 
     $this->setUpGet(array('pid' => 'test:etd2'));	   
     $EditController->programAction();
     $viewVars = $EditController->view->getVars();
     $this->assertIsA($EditController->view->etd, "etd");
-    $this->assertTrue(isset($EditController->view->program));
-    $this->assertIsA($EditController->view->program, 'programs');
-    $this->assertIsA($EditController->view->program, 'collectionHierarchy');
-    $this->assertPattern("|/view/mods/pid/test:etd2$|", $EditController->view->xforms_model_uri);
-    $this->assertTrue(isset($EditController->view->namespaces['mods']));
-    $this->assertTrue(isset($EditController->view->namespaces['etd']));
-    // needed for programs
-    $this->assertTrue(isset($EditController->view->namespaces['skos']));
-    $this->assertTrue(isset($EditController->view->namespaces['rdf']));
-    $this->assertTrue(isset($EditController->view->namespaces['rdfs']));
+    $this->assertTrue(isset($EditController->view->programs));
+    $this->assertIsA($EditController->view->programs, 'programs');
+    $this->assertIsA($EditController->view->programs, 'collectionHierarchy');
+    $this->assertFalse($EditController->view->honors, 'not in honors mode');
+
+    error_reporting($errlevel);	    // restore prior error reporting
   }
+
+  function testSaveProgramsAction() {
+    $EditController = new EditControllerForTest($this->request,$this->response);
+    $this->setUpPost(array('pid' => 'test:etd2',
+			   'program_id' => 'religion',
+			   'subfield_id' => 'american'));
+    $EditController->saveProgramAction();
+    $viewVars = $EditController->view->getVars();
+    $messages = $EditController->getHelper('FlashMessenger')->getMessages();
+    $this->assertEqual("Saved changes to program", $messages[0]);
+    $this->assertTrue($EditController->redirectRan);	// redirects back to record
+
+    // check for updated values - text & id
+    $etd = new etd("test:etd2");
+    $this->assertEqual("religion", $etd->rels_ext->program);
+    $this->assertEqual("american", $etd->rels_ext->subfield);
+    $this->assertEqual("Religion", $etd->mods->department);
+    $this->assertPattern("/American Religio/", $etd->mods->subfield);
+  }
+  
 
 
   function testFacultyAction() {
