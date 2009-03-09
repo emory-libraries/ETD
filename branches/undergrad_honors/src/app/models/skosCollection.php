@@ -6,17 +6,18 @@ require_once("fedora/models/foxml.php");
 /**
  * xml object mapping for a collection defined with skos and rdf
  */
-class collectionHierarchy extends XmlObject {
+class collectionHierarchy extends foxmlDatastreamAbstract {
   const RDF = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
   const RDFS = "http://www.w3.org/2000/01/rdf-schema#";
   const SKOS = "http://www.w3.org/2004/02/skos/core#";
 
+  const dslabel = "Collection Hierarchy";
+    
   protected $rdf_namespace = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
   protected $rdfs_namespace = "http://www.w3.org/2000/01/rdf-schema#";
   protected $skos_namespace = "http://www.w3.org/2004/02/skos/core#";
 
   public $id;
-  protected $members_by_id;
   protected $collection_class = "skosCollection";
 
   protected $index_field;
@@ -37,13 +38,7 @@ class collectionHierarchy extends XmlObject {
 				       ));
     parent::__construct($dom, $config, null);	// no xpath
 
-    $this->members_by_id = array();
-    if (isset($this->collection)) {
-      foreach ($this->collection->members as $mem) {
-	$id = str_replace("#", "", $mem->id);
-	$this->members_by_id[$id] = $mem;
-      }
-    } else {
+    if (! isset($this->collection)) {
       // collection not found - bad initialization
       throw new XmlObjectException("Error in constructor: collection id '" . $id . "' not found");
     }
@@ -57,19 +52,29 @@ class collectionHierarchy extends XmlObject {
   }
 
   // shortcuts to fields that are really attributes of the collection 
-  public function __get($name) {
-    if (isset($this->members_by_id[$name]))
-	return $this->members_by_id[$name];
+  public function &__get($name) {
+    // label, members, count, and members by id
+    if (isset($this->collection->{$name}))
+      return $this->collection->{$name};
     
     switch($name) {
     case "label":
-      return $this->collection->label;
+      if (isset($this->collection->label)) return $this->collection->label;      
     case "members":
-      return $this->collection->members;
+      if (isset($this->collection->members)) return $this->collection->members;
     case "count":
       return $this->collection->count;
-    default:
+      default:
       return parent::__get($name);
+    }
+  }
+
+  public function __set($name, $value) {
+    switch($name) {
+    case "label":
+      return $this->collection->label = $value;
+    default:
+      return parent::__set($name, $value);
     }
   }
 
@@ -169,6 +174,36 @@ class collectionHierarchy extends XmlObject {
      return $etdSet;
   }
 
+
+  public static function getNamespaces() {
+    return array("rdf" => collectionHierarchy::RDF,
+		 "rdfs" => collectionHierarchy::RDFS,
+		 "skos" => collectionHierarchy::SKOS);
+  }
+
+
+
+  /** required to extend foxmlDatastreamAbstract - but not currently used **/
+  public static function getFedoraTemplate(){
+    return foxml::xmlDatastreamTemplate("SKOS", collectionHierarchy::dslabel,
+					'<rdf:RDF
+  xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+  xmlns:skos="http://www.w3.org/2004/02/skos/core#"
+  xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"/>');
+  }
+  
+  public function datastream_label() {
+    return collectionHierarchy::dslabel;
+  }
+
+  public function getId() {
+    if (isset($this->id)) return preg_replace("/^#/", '', $this->id);
+  }
+
+  public function setMembers($ids) {
+    if (isset($this->collection))
+      $this->collection->setMembers($ids);
+  }
   
 }
 
@@ -189,17 +224,25 @@ class skosCollection extends XmlObject {
       
       ));
     parent::__construct($dom, $config, $xpath);
-
+    $this->set_members_by_id();
+  }
+  
+  protected function set_members_by_id() {
     $this->members_by_id = array();
     foreach ($this->members as $mem) {
       $id = str_replace("#", "", $mem->id);
       $this->members_by_id[$id] = $mem;
     }
+  }
 
- }
+  // after updating in memory map, re-initialize members by id map
+  protected function update() {
+    parent::update();
+    $this->set_members_by_id();
+  }
 
   // shortcuts to fields that are really attributes of the collection 
-  public function __get($name) {
+  public function &__get($name) {
     if (isset($this->members_by_id[$name]))
       return $this->members_by_id[$name];
 
@@ -222,7 +265,59 @@ class skosCollection extends XmlObject {
     return $this->count;
   }
 
+  public function getId() {
+    if (isset($this->id)) return preg_replace("/^#/", '', $this->id);
+  }
+
+  public function hasMember($id) {
+    if (in_array($id, array_keys($this->members_by_id))) return true;
+    else return false;
+  }
   
+  public function setMembers($ids) {
+    // convert ids to the expected format if they are not already that way
+    $ids = preg_replace("/^([^#])/", "#$1", $ids);
+    
+    for ($i = 0; $i < count($ids); $i++) {
+      // FIXME: warn if id does not correspond to a rdf:resource somewhere in the DOM
+      if (isset($this->members[$i])) {
+	// update id in existing member nodes
+	$this->members[$i]->id = $ids[$i];
+      } else {
+	// add new member node with new order
+	$this->addMember($ids[$i]);
+      }
+    }
+
+    // remove any current members that are beyond the list of ids
+    $rm_ids = array();
+    for ($i = count($ids); $i < count($this->members); $i++) {
+      $rm_ids[] = $this->members[$i]->id;
+    }
+    // NOTE: removing after getting ids to avoid iterating over a disappearing list
+    foreach ($rm_ids as $id) $this->removeMember($id);
+    // update memory mappings, etc.
+    $this->update();
+  }
+
+  public function removeMember($id) {
+    // find requested member under this node
+    $nodelist = $this->xpath->query("//skos:member[@rdf:resource='$id']", $this->domnode);
+    // FIXME: warn if length != 1 ?
+    for ($i = 0; $i < $nodelist->length; $i++) {
+      $node = $nodelist->item($i);      
+      $node->parentNode->removeChild($node);
+    }
+    $this->update();
+  }
+    
+  public function addMember($id) {
+    $newnode = $this->dom->createElementNS(collectionHierarchy::SKOS, "skos:member");
+    $newnode->setAttributeNS(collectionHierarchy::RDF, "rdf:resource", $id);
+    $this->domnode->appendChild($newnode);
+    $this->update();
+  }
+
 }
 
 class skosMember extends XmlObject {
@@ -239,10 +334,17 @@ class skosMember extends XmlObject {
   }
 
   // shortcuts to fields that are really attributes of the collection 
-  public function __get($name) {
-    if (isset($this->collection->$name))
+  public function &__get($name) {   
+    if (isset($this->collection->$name)) {
       return $this->collection->$name;
-      return parent::__get($name);
+    }
+    return parent::__get($name);
+  } 
+
+  public function __set($name, $value) {
+    if (isset($this->collection->$name))
+      return $this->collection->$name = $value;
+    return parent::__set($name, $value);
   }
 
   public function getFields($mode) {
@@ -273,6 +375,14 @@ class skosMember extends XmlObject {
   public function hasChildren() {
     
   }
+  public function getId() {
+    if (isset($this->id)) return preg_replace("/^#/", '', $this->id);
+  }
+  public function setMembers($ids) {
+    if (isset($this->collection))
+      $this->collection->setMembers($ids);
+  }
+
 
 }
 
