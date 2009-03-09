@@ -130,6 +130,18 @@ class collectionHierarchy extends foxmlDatastreamAbstract {
    
   }
 
+  public function findLabelbyId($id) {
+    $xpath = "//skos:Collection[@rdf:about = '$id']/rdfs:label"; 
+    $nodeList = $this->xpath->query($xpath, $this->domnode);
+    if ($nodeList->length >= 1) {
+      // NOTE: if multiple matches are found, returns the first only (not ideal)
+      return $nodeList->item(0)->nodeValue;
+    }
+    else return null;
+  }
+
+  
+
 
   
   public function findEtds($options = array()) {
