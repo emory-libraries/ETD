@@ -1,0 +1,40 @@
+<? /* recursive partial template to generate hierarchy list; expects these variables:
+      collection - skosCollection for this level of the tree
+      acl 	 - ACL object
+      current_user - logged in user, for checking acl
+      can_edit	 - boolean: can the current user edit this portion of the subtree   */ ?>
+<? if ($this->can_edit ||
+       ($this->collection->id == "#undergrad" && 
+	$this->acl->isAllowed($this->current_user, "undergrad programs", "edit"))) {
+     $this->can_edit = true;
+} ?>
+
+   <li id="item_<?= $this->collection->getId() ?>">
+    <? if ($this->can_edit): ?>
+    <a><?= $this->img("images/draggable.png", array("class" => "hdl", "alt" => "click to drag")) ?></a>
+    <? endif ?>
+
+   <? if (count($this->collection->members)): ?>
+      <a class="toggle" id="<?= $this->collection->getId() ?>_txt" onClick="Element.toggle('<?= $this->collection->getId() ?>_list')">&gt;</a>
+   <? endif ?>
+
+   <? if ($this->can_edit): ?>
+     <input type="text" value="<?= $this->collection->label ?>" name="<?= $this->collection->getId() ?>"/>
+   <? else: ?>
+       <?= $this->collection->label ?>
+   <? endif ?>
+	
+    <input type="hidden" id="<?= $this->collection->getId() ?>_members" name="<?= $this->collection->getId() ?>_members" value=""/>
+     <ul id="<?= $this->collection->getId() ?>_list"
+     <? foreach ($this->collection->members as $subcollection): ?>
+      <?=  $this->partial('program/_tree.phtml', array("collection" => $subcollection,
+						       "acl" => $this->acl,
+						       "current_user" => $this->current_user,
+						       "can_edit" => $this->can_edit)); ?>
+     <? endforeach ?>
+     </ul>
+ </li>
+
+
+
+
