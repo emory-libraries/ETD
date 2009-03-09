@@ -19,4 +19,9 @@
   <? if ($this->acl->isAllowed($this->current_user, "log", "view")): ?>
     <li><a href="<?= $this->url(array('action' => 'view-log')) ?>">View Log</a></li>
   <? endif ?>
+
+  <? if ($this->acl->isAllowed($this->current_user, "programs", "edit") ||
+	 $this->acl->isAllowed($this->current_user, "undergrad programs", "edit")): ?>
+       <li><a href="<?= $this->url(array('controller' => 'program', 'action' => 'index')) ?>">View/edit Programs</a></li>
+  <? endif ?>
 </ul>
