@@ -87,6 +87,12 @@ class TestSkosCollection extends UnitTestCase {
     $this->assertEqual("#three", $this->skos->findIdbylabel("third-level member"));
   }
 
+  public function testfindLabelById() {
+    $this->assertEqual("Top Level", $this->skos->findLabelbyId("#toplevel"));
+    $this->assertEqual("a member", $this->skos->findLabelbyId("#one"));
+    $this->assertEqual("third-level member", $this->skos->findLabelbyId("#three"));
+  }
+
   public function testCalculateTotals() {
     $totals = array("a member" => 2, "third-level member" => 1);
     $this->skos->collection->calculateTotal($totals);
