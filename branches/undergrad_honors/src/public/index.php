@@ -14,6 +14,10 @@ require("Zend/Loader.php");
 Zend_Loader::registerAutoload();
 
 
+// NOTE: php is now outputting a notice when using __set on arrays / objects
+// (actual logic seems to work properly)
+error_reporting(E_ALL ^ E_NOTICE);
+
 require_once("api/FedoraConnection.php");
 
 $config_dir = "../config/";
