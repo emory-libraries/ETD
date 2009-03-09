@@ -62,6 +62,15 @@ Sortable.create('<?= $this->programs->getId() ?>_list', {  tree:true, dropOnEmpt
 		   });
 // update once at the beginning
 updateListMembers('<?= $this->programs->getId() ?>_list');
+
+function hdlOn(id) {  
+ $(id).src= <?= "'" . $this->linkTo("images/draggable-on.png")  ."'"?>;
+}
+
+function hdlOff(id) {
+  $(id).src= '<?= $this->linkTo("images/draggable.png"); ?>';
+}
+
 </script>
 
 <?= $this->formSubmit("submit", "save") ?>
