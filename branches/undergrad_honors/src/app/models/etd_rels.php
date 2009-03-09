@@ -45,21 +45,15 @@ class etd_rels extends rels_ext {
     $this->xmlconfig["hasAuthorInfo"] = array("xpath" => "rdf:description/rel:hasAuthorInfo/@rdf:resource");
 
     
-    /*    $this->xmlconfig["pdf"] = array("xpath" => "rdf:description/emoryrel:hasPDF/@rdf:resource",
-				    "is_series" => true);
-    $this->xmlconfig["original"] = array("xpath" => "rdf:description/emoryrel:hasOriginal/@rdf:resource",
-					 "is_series" => true);
-    $this->xmlconfig["supplement"] = array("xpath" => "rdf:description/emoryrel:hasSupplement/@rdf:resource",
-				    "is_series" => true);
-    */
-
-
     // relationships to users
     $this->xmlconfig["author"] = array("xpath" => "rdf:description/rel:author");
     $this->xmlconfig["advisor"] = array("xpath" => "rdf:description/rel:advisor");
     $this->xmlconfig["committee"] = array("xpath" => "rdf:description/rel:committee",
 					    "is_series" => true);
-    
+
+    // rels to program & subfield (by id)
+    $this->xmlconfig["program"] = array("xpath" => "rdf:description/rel:program");
+    $this->xmlconfig["subfield"] = array("xpath" => "rdf:description/rel:subfield");
     
     // rels from etd file to etd
     $this->xmlconfig["pdfOf"] = array("xpath" => "rdf:description/rel:isPDFOf/@rdf:resource");
@@ -82,6 +76,18 @@ class etd_rels extends rels_ext {
 	//otherwise: warn user
 	throw new XmlObjectException("'$value' is not a recognized etd status");
       }
+      break;
+    case "program":
+      if (!isset($this->program)) {
+	$this->addRelation("rel:program", $value);
+	$this->update();
+      } else { parent::__set($name, $value); }
+      break;
+    case "subfield":
+      if (!isset($this->subfield)) {
+	$this->addRelation("rel:subfield", $value);
+	$this->update();
+      } else { parent::__set($name, $value); }
       break;
     default:
       return parent::__set($name, $value);
