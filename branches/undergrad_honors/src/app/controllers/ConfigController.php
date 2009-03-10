@@ -17,6 +17,9 @@ class ConfigController extends Etd_Controller_Action {
 
       $this->_helper->displayXml($xml);
       break;
+    case "programs":
+      $this->_forward("xml", "program");
+      break;
     default:
       // should generate error message here- invalid config id 
     }
