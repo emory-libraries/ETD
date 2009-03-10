@@ -158,7 +158,38 @@ class TestSkosCollection extends UnitTestCase {
     $this->assertEqual("another member", $this->skos->collection->two->label);
     $this->assertEqual("third-level member", $this->skos->three->label);
   }
-    
+
+
+  public function testMembersById() {
+    // reference by id short-cut
+    $this->assertIsA($this->skos->one, "skosMember");
+    $this->assertEqual("a member", $this->skos->one->label);
+    $this->assertIsA($this->skos->two, "skosMember");
+    $this->assertEqual("another member", $this->skos->two->label);
+    $this->assertIsA($this->skos->two->three, "skosMember");
+    $this->assertEqual("third-level member", $this->skos->two->three->label);
+
+    // modify when referencing this way
+    $this->skos->two->label = "new label";
+    $this->assertEqual("new label", $this->skos->two->label);
+  }
+
+  public function testFindOrphans() {
+    $orphans = $this->skos->findOrphans();
+    $this->assertIsA($orphans, "Array");
+    $this->assertEqual(0, count($orphans));
+
+    $this->skos->collection->setMembers(array());
+    $orphans = $this->skos->findOrphans();
+    $this->assertIsA($orphans, "Array");
+    $this->assertEqual(2, count($orphans));
+    $this->assertIsA($orphans[0], "skosCollection");
+    $this->assertIsA($orphans[1], "skosCollection");
+    $this->assertEqual("#toplevel", $orphans[0]->id);
+    $this->assertEqual("#one", $orphans[1]->id);
+    $this->assertEqual("toplevel", $orphans[0]->getId());
+    $this->assertEqual("one", $orphans[1]->getId());
+  }
 
 
 }
