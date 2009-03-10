@@ -63,6 +63,7 @@
 	  <mods:extension>
 	    <etd:degree>
 	      <etd:name>PhD</etd:name>
+	      <etd:discipline/>
 	    </etd:degree>
 	  </mods:extension>
 	  <mods:note type="admin" ID="embargo">embargo requested? no</mods:note>
