@@ -53,20 +53,8 @@ class collectionHierarchy extends foxmlDatastreamAbstract {
 
   // shortcuts to fields that are really attributes of the collection 
   public function &__get($name) {
-    // label, members, count, and members by id
-    if (isset($this->collection->{$name}))
-      return $this->collection->{$name};
-    
-    switch($name) {
-    case "label":
-      if (isset($this->collection->label)) return $this->collection->label;      
-    case "members":
-      if (isset($this->collection->members)) return $this->collection->members;
-    case "count":
-      return $this->collection->count;
-      default:
-      return parent::__get($name);
-    }
+    if (isset($this->collection->{$name})) return $this->collection->{$name};      
+    else return parent::__get($name);
   }
 
   public function __set($name, $value) {
@@ -301,7 +289,12 @@ class skosCollection extends XmlObject {
     $ids = preg_replace("/^([^#])/", "#$1", $ids);
     
     for ($i = 0; $i < count($ids); $i++) {
-      // FIXME: warn if id does not correspond to a rdf:resource somewhere in the DOM
+      // do not set a collection as a member of itself as
+      // _bad_ things will happen (circular)
+      if ($ids[$i] == $this->id) continue;
+
+      
+      // FIXME: warn if id does not correspond to a rdf:resource somewhere in the DOM?
       if (isset($this->members[$i])) {
 	// update id in existing member nodes
 	$this->members[$i]->id = $ids[$i];

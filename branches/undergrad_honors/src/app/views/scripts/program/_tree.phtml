@@ -35,6 +35,20 @@
 						       "current_user" => $this->current_user,
 						       "can_edit" => $this->can_edit)); ?>
      <? endforeach ?>
+
+     
+     <? /* special case */ ?>
+     <? if ($id == "programs" && count($this->collection->findOrphans())): ?>
+	  <? foreach ($this->collection->findOrphans() as $orphan): ?>
+	       <?=  $this->partial('program/_tree.phtml' ,
+				   array("collection" => $orphan,
+					 "acl" => $this->acl,
+					 "current_user" => $this->current_user,
+					 "can_edit" => $this->can_edit)); ?>
+  
+     <? endforeach ?>
+     <? endif ?>
+
      </ul>
  </li>
 
