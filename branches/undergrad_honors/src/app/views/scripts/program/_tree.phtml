@@ -28,7 +28,7 @@
    <? endif ?>
 	
     <input type="hidden" id="<?= $id ?>_members" name="<?= $id ?>_members" value=""/>
-     <ul id="<?= $id ?>_list"
+     <ul id="<?= $id ?>_list">
      <? foreach ($this->collection->members as $subcollection): ?>
       <?=  $this->partial('program/_tree.phtml', array("collection" => $subcollection,
 						       "acl" => $this->acl,
