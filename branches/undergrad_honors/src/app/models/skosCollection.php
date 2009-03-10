@@ -142,6 +142,15 @@ class collectionHierarchy extends foxmlDatastreamAbstract {
 
   
 
+  public function findOrphans() {
+    $xpath = "//skos:Collection[not(@rdf:about = //skos:Collection/skos:member/@rdf:resource)][count(skos:member) = 0]";
+    $nodeList = $this->xpath->query($xpath, $this->domnode);
+    $orphans = array();
+    for ($i = 0; $i < $nodeList->length; $i++) {
+      $orphans[] = new skosCollection($nodeList->item($i), $this->xpath);
+    }
+    return $orphans;
+  }
 
   
   public function findEtds($options = array()) {
@@ -226,9 +235,10 @@ class skosCollection extends XmlObject {
   public $count;
 
   protected $member_class = "skosMember";
+  public $id;
   
   public function __construct($dom, $xpath) {
-    $id = $dom->getAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "about");
+    $this->id = $dom->getAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "about");
     $config = $this->config(array(
 	"label" => array("xpath" => "rdfs:label"), 
 	"members" => array("xpath" => "skos:member", "is_series" => true,
@@ -257,7 +267,7 @@ class skosCollection extends XmlObject {
   public function &__get($name) {
     if (isset($this->members_by_id[$name]))
       return $this->members_by_id[$name];
-
+    
     return parent::__get($name);
   }
 
@@ -347,14 +357,14 @@ class skosMember extends XmlObject {
 
   // shortcuts to fields that are really attributes of the collection 
   public function &__get($name) {   
-    if (isset($this->collection->$name)) {
+    if (isset($this->collection->$name) && $name != "id") {
       return $this->collection->$name;
     }
     return parent::__get($name);
   } 
 
   public function __set($name, $value) {
-    if (isset($this->collection->$name))
+    if (isset($this->collection->$name) &&  $name != "id")
       return $this->collection->$name = $value;
     return parent::__set($name, $value);
   }
