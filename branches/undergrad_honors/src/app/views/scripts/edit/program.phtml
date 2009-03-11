@@ -16,7 +16,7 @@ If your program has an applicable subfield, please select that as well.</p>
 			    value="<?= $this->etd->mods->department ?>"/>
   <span id="prog_success" class="success" style="display:none">Success: valid program id</span>
   <input id="program_id" name="program_id" type="hidden"
-			    value="<?= $this->etd->rels_ext->program ?>"/>
+    value="<?= isset($this->etd->rels_ext->program) ? $this->etd->rels_ext->program : "" ?>"/>
   <div class="autocomplete" id="program_list" style="display:none"> </div>
 </div>
 <div id="subfield_form"
@@ -111,7 +111,8 @@ function afterSelect() {
 }
 
 <?  /* if program already set, populate any subfield select and pre-set it correctly */
-if ($this->etd->rels_ext->program != "" || $this->etd->mods->department != ""): ?>
+if ((isset($this->etd->rels_ext->program) && $this->etd->rels_ext->program  != "")
+    || $this->etd->mods->department != ""): ?>
      afterSelect();
 <? endif ?>
 </script>
