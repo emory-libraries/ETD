@@ -53,7 +53,7 @@ class collectionHierarchy extends foxmlDatastreamAbstract {
 
   // shortcuts to fields that are really attributes of the collection 
   public function &__get($name) {
-    if (isset($this->collection->{$name})) return $this->collection->{$name};      
+    if (isset($this->collection->{$name})) return $this->collection->__get($name);      
     else return parent::__get($name);
   }
 
@@ -101,7 +101,7 @@ class collectionHierarchy extends foxmlDatastreamAbstract {
 
   public function findIdbyLabel($string) {
     // look for an exact match first
-    $xpath = "//skos:Collection[rdfs:label = '$string']"; 
+    $xpath = '//skos:Collection[rdfs:label = "' . $string . '"]'; 
     $nodeList = $this->xpath->query($xpath, $this->domnode);
     if ($nodeList->length >= 1) {
       // NOTE: if multiple matches are found, returns the first only (not ideal)
@@ -297,7 +297,7 @@ class skosCollection extends XmlObject {
       // FIXME: warn if id does not correspond to a rdf:resource somewhere in the DOM?
       if (isset($this->members[$i])) {
 	// update id in existing member nodes
-	$this->members[$i]->id = $ids[$i];
+	$this->members[$i]->__set("id", $ids[$i]);
       } else {
 	// add new member node with new order
 	$this->addMember($ids[$i]);
@@ -333,6 +333,25 @@ class skosCollection extends XmlObject {
     $this->update();
   }
 
+
+
+  /**
+   * find a member of this collection or ANY sub-collection by label and return id
+   * (recurses to any sub-collections)
+   * @param string $label label to match
+   * @param string id on success, null if no match is found
+   */
+  public function findDescendantIdbyLabel($label) {
+    foreach ($this->members as $member) {
+      if ($label == $member->label) return $member->id;
+      if (count($member->members)) {
+	$id = $member->findDescendantIdbyLabel($label);
+	if ($id) return $id;
+      }
+    }
+    return null;  // no match found
+  }
+
 }
 
 class skosMember extends XmlObject {
@@ -351,7 +370,7 @@ class skosMember extends XmlObject {
   // shortcuts to fields that are really attributes of the collection 
   public function &__get($name) {   
     if (isset($this->collection->$name) && $name != "id") {
-      return $this->collection->$name;
+      return $this->collection->__get($name);
     }
     return parent::__get($name);
   } 
@@ -398,6 +417,9 @@ class skosMember extends XmlObject {
       $this->collection->setMembers($ids);
   }
 
+  public function findDescendantIdbyLabel($label) {
+    return $this->collection->findDescendantIdbyLabel($label);
+  }
 
 }
 
