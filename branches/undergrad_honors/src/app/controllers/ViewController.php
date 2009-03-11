@@ -35,6 +35,11 @@ class ViewController extends Etd_Controller_Action {
      $this->_forward("xml");
    }
    
+   // show rels-ext xml 
+   public function relsAction() {
+     $this->_setParam("datastream", "rels_ext");
+     $this->_forward("xml");
+   }
 
    // show an xml datastream from etd or etdFile object
    public function xmlAction() {
