@@ -1,8 +1,7 @@
 #!/usr/bin/php -q
 <?php
 
-set_include_path('.:../lib:../lib/ZendFramework:../lib/fedora:../lib/xml-utilities:../app:../app/models/:' . get_include_path());
-//set_include_path('.:../lib:../app/models/:' . get_include_path());
+set_include_path('.:../../lib:../../lib/ZendFramework:../../lib/fedora:../../lib/xml-utilities:../../app:../../app/models/:' . get_include_path());
 
 include 'Zend/Loader.php';
 Zend_Loader::registerAutoload();

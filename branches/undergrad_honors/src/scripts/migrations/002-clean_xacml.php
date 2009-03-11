@@ -12,6 +12,11 @@
 
 // set paths, load config files;
 // set up connection objects for fedora, solr, ESD, and stats db
+
+// run as if in the main scripts directory so all the paths work;
+  // FIXME: better way to do this?
+$current_dir = getcwd();
+chdir("..");
 require_once("bootstrap.php");
 
 $getopts = array_merge(
@@ -25,6 +30,7 @@ $opts = new Zend_Console_Getopt($getopts);
 $scriptname = basename($_SERVER{"SCRIPT_NAME"});
 $usage = $opts->getUsageMessage() . "
  $scriptname goes through all etd records and cleans object xacml policy
+ 
 ";
 
 try {

@@ -6,6 +6,11 @@
   */
 
 // set paths, load config files, set up connection objects for fedora, solr, and ESD
+
+// run as if in the main scripts directory so all the paths work;
+// FIXME: better way to do this?
+$current_dir = getcwd();
+chdir("..");
 require_once("bootstrap.php");
 
 $opts = new Zend_Console_Getopt($common_getopts);
