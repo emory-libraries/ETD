@@ -39,7 +39,7 @@ class EditController extends Etd_Controller_Action {
 
     $programObject = new foxmlPrograms();
     $this->view->programs = $programObject->skos;
-    if (preg_match("/honors student/", $this->current_user->role)) {
+    if ($etd->isHonors()) {
       $this->view->honors = true;
       $this->view->prog_section = $programObject->skos->undergrad;
     } else {
