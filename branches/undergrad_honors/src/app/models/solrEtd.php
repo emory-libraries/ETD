@@ -21,7 +21,9 @@ class solrEtd implements etdInterface {
   public function title() { return $this->getField("title"); }
   public function author() { return $this->getField("author"); }
   public function program() { return $this->getField("program"); }
+  public function program_id() { return $this->getField("program_id"); }
   public function subfield() { return $this->getField("subfield"); }
+  public function subfield_id() { return $this->getField("subfield_id"); }
   // advisor renamed to chair to handle multiple names
   public function chair() { return $this->getField("advisor", true); }
 

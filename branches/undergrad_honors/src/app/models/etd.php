@@ -635,7 +635,13 @@ class etd extends foxml implements etdInterface {
   public function title() { return $this->html->title; }	// how to know which?
   public function author() { return $this->mods->author->full; }
   public function program() { return $this->mods->department; }
+  public function program_id() {
+    return isset($this->rels_ext->program) ? $this->rels_ext->program : null;
+  }
   public function subfield() { return isset($this->mods->subfield) ? $this->mods->subfield : ""; }
+  public function subfield_id() {
+    return isset($this->rels_ext->subfield) ? $this->rels_ext->subfield : null;
+  }
   public function chair() {
     $chairs = array();
     foreach ($this->mods->chair as $c) {

@@ -8,7 +8,9 @@ interface etdInterface extends Zend_Acl_Resource_Interface{
   public function title();
   public function author();
   public function program();
+  public function program_id();
   public function subfield();
+  public function subfield_id();
   public function chair();
   public function committee();	// array
 			  // how to handle non-emory committee?
