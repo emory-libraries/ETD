@@ -156,30 +156,32 @@ class collectionHierarchy extends foxmlDatastreamAbstract {
 
      $query = "(" . join($queryparts, " OR ") . ")"; 
 
-     /*     foreach ($options as $filter => $value) {
-      $query .= "AND $filter:($value)";	
-      }*/
-
      $options["query"] = $query;
      
      /* don't retrieve etd records at top level of hierarchy */ 
-     if (! isset($this->parent)) $options["max"] = 0;  // NOTE: setting to no returns speeds things up substantially
+     if (! isset($this->parent)) $options["max"] = 0;
+     // (setting to no returns speeds things up substantially)
 
 
-     
-     //     $solr->setFacetLimit(-1);		// no limit - return all facets
-     //     $results = $solr->queryPublished($query, $start, $return_num);
+     // for the count to work properly, we need ALL facets for this
+     // field where there is at least one item
+     $options['facets'] = array("clear" => true,	// clear all other facets
+				"limit" => -1,		// no limit - return all facets
+				"mincount" => 1,	// any facet with at least one match
+				"add" => array($this->index_field));
 
      // return minimal solrEtd for quicker browse results
      $options["return_type"] = "solrEtd";
 
      $etdSet = new EtdSet();
      $etdSet->findPublished($options);
+     // use the facet counts on the indexed field to get totals
      $totals = $etdSet->facets->{$this->index_field};
-
      // sum up totals recursively
      $this->collection->calculateTotal($totals);
 
+     // now blank out facets so they won't be displayed in the view
+     $etdSet->facets = null;
      return $etdSet;
   }
 
@@ -267,7 +269,7 @@ class skosCollection extends XmlObject {
 
 
   public function calculateTotal($totals) {
-    $sum = isset($totals[$this->label]) ? $totals[$this->label] : 0;
+    $sum = isset($totals[$this->getIndexedData()]) ? $totals[$this->getIndexedData()] : 0;
     foreach ($this->members as $mem) {
       $sum += $mem->calculateTotal($totals);
     }
@@ -352,6 +354,12 @@ class skosCollection extends XmlObject {
     return null;  // no match found
   }
 
+  // return whatever data is expected to be stored in the search field
+  // defaults to label
+  protected function getIndexedData() {
+    return (string)$this->label;
+  }
+  
 }
 
 class skosMember extends XmlObject {
@@ -387,7 +395,7 @@ class skosMember extends XmlObject {
     // add current element if appropriate
     if ($mode == "all" ||
 	($mode == "indexed" && $this->isIndexed())) {
-	array_push($fields, (string)$this->label);
+      array_push($fields, $this->getIndexedData());
     }
 
     // add any collection members
@@ -395,6 +403,12 @@ class skosMember extends XmlObject {
       foreach ($this->collection->members as $member)
 	$fields = array_merge($fields, $member->getFields($mode));
     return $fields;
+  }
+
+  // return whatever data is expected to be stored in the search field
+  // defaults to label
+  protected function getIndexedData() {
+    return (string)$this->label;
   }
 
   // by default, assume indexed-- override this function only when needed

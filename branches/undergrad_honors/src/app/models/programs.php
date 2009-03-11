@@ -48,6 +48,19 @@ class programs extends collectionHierarchy  {
     $this->index_field = "program_facet";
   }
 
+  public function getFields($mode) {
+    $fields = array();
+
+    array_push($fields, (string)$this->getId());
+
+    foreach ($this->members as $member)
+      $fields = array_merge($fields, $member->getFields($mode));
+
+    return $fields;
+  }
+
+
+
 }
 
 /* Using custom program collection & member classes in order to
@@ -58,6 +71,12 @@ class programs extends collectionHierarchy  {
 
 class programCollection extends skosCollection {
   protected $member_class = "programMember";
+
+  // indexed on id instead of label
+  protected function getIndexedData() {
+    return (string)$this->getId();
+  }
+  
 }
 
 class programMember extends skosMember {
@@ -76,5 +95,11 @@ class programMember extends skosMember {
     // otherwise, this item is not indexed
     return false; 
   }
+
+  // indexed on id instead of label
+  protected function getIndexedData() {
+    return (string)$this->getId();
+  }
+    
 
 }
