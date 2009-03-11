@@ -62,6 +62,12 @@ class TestHonorsEtd extends UnitTestCase {
     $this->etd->rels_ext->status = "draft";
     $this->assertEqual("draft honors etd", $this->etd->getResourceId());
   }
+
+  
+  function testIsHonors() {
+    $this->assertTrue($this->etd->isHonors(), "honors etd is honors");
+  }
+    
   
 }
 

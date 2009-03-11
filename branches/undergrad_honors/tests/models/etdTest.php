@@ -423,6 +423,11 @@ class TestEtd extends UnitTestCase {
     $this->assertEqual("draft etd", $this->etd->getResourceId());
   }
 
+
+  function testIsHonors() {
+    $this->assertFalse($this->etd->isHonors(), "etd is not honors etd");
+  }
+
   
 
 }

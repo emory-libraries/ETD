@@ -494,6 +494,11 @@ class etd extends foxml implements etdInterface {
     return (count($this->originals) > 0);
   }
 
+  // easy way to check if this object (or inherited object) is honors or not
+  public function isHonors() {
+    return ($this instanceof honors_etd);
+  }
+
   
   /**  override default foxml ingest function to use arks for object pids
    *
