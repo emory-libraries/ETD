@@ -43,6 +43,12 @@ class TestEtdRels extends UnitTestCase {
     $this->rels->subfield = "subfldid";
     $this->assertEqual("subfldid", $this->rels->subfield);
     $this->assertPattern("|<rel:subfield>subfldid</rel:subfield>|", $this->rels->saveXML());
+
+    // when setting with #, # should be stripped off
+    $this->rels->program = "#progid";
+    $this->assertEqual("progid", $this->rels->program);
+    $this->rels->subfield = "#subfldid";
+    $this->assertEqual("subfldid", $this->rels->subfield);
   }
 
   function testStatusList() {

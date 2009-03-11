@@ -78,14 +78,11 @@ class etd_rels extends rels_ext {
       }
       break;
     case "program":
-      if (!isset($this->program)) {
-	$this->addRelation("rel:program", $value);
-	$this->update();
-      } else { parent::__set($name, $value); }
-      break;
     case "subfield":
-      if (!isset($this->subfield)) {
-	$this->addRelation("rel:subfield", $value);
+      // if value begins with #, strip the # off; otherwise leave as is
+      $value = preg_replace("/^#/", '', $value);
+      if (!isset($this->{$name})) {
+	$this->addRelation("rel:$name", $value);
 	$this->update();
       } else { parent::__set($name, $value); }
       break;
