@@ -2,15 +2,13 @@
 <?php
 
   /**
-   Update all ETD records with new useAndReproduction statement.
-  */
-
-// set paths, load config files, set up connection objects for fedora, solr, and ESD
+   * Update all ETD records with new useAndReproduction statement.
+   */
 
 // run as if in the main scripts directory so all the paths work;
-// FIXME: better way to do this?
-$current_dir = getcwd();
 chdir("..");
+
+// set paths, load config files, set up connection objects for fedora, solr, and ESD
 require_once("bootstrap.php");
 
 $opts = new Zend_Console_Getopt($common_getopts);

@@ -10,13 +10,11 @@
 	  xacml policy rules, as appropriate for etd status  (October 2008)
    */
 
+// set working directory to the main scripts directory so all the paths work the same
+chdir("..");
+
 // set paths, load config files;
 // set up connection objects for fedora, solr, ESD, and stats db
-
-// run as if in the main scripts directory so all the paths work;
-  // FIXME: better way to do this?
-$current_dir = getcwd();
-chdir("..");
 require_once("bootstrap.php");
 
 $getopts = array_merge(
