@@ -81,12 +81,18 @@
 	'', true) ?>"><?= $keyword ?></a><? else: ?><?= $keyword ?><? endif ?><? if ($keyword != $keywords[count($keywords)-1]): ?>; <? endif ?>
     <? endforeach ?><br/>
   <b>Program:</b>
-      <? if ($published): ?>  
+    <? if ($published && $this->etd->program_id()): ?>  
 	<a href="<?= $this->url(array('controller' => 'browse', 'action' => 'programs',
-	'name' => $this->etd->program()), '', true) ?>"><?= $this->etd->program() ?></a>
-	   <? else: ?><?= $this->etd->program() ?><? endif ?>
-     <? if ($this->etd->subfield()): ?>(<?= $this->etd->subfield() ?>)<? endif ?>
-        <? /* in published mode, subfield should link to program browse */ ?>
+	'coll' => $this->etd->program_id()), '', true) ?>"><?= $this->etd->program() ?></a>
+    <? else: ?><?= $this->etd->program() ?><? endif ?>
+    <? if ($this->etd->subfield()): ?>
+       <? if ($published && $this->etd->subfield_id()): ?>
+	    (<a href="<?= $this->url(array('controller' => 'browse', 'action' => 'programs',
+ 	   'coll' => $this->etd->subfield_id()), '', true) ?>"><?= $this->etd->subfield() ?></a>)
+	<? else: ?>
+           <?= $this->etd->subfield() ?>
+        <? endif ?>
+     <? endif /* has subfield */ ?>
      <br/>
 
 <? if ($this->acl->isAllowed($this->etd->getUserRole($this->current_user), "etd", "view mods")): ?>
