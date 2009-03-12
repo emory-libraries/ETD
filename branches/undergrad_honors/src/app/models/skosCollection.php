@@ -119,10 +119,13 @@ class collectionHierarchy extends foxmlDatastreamAbstract {
   }
 
   public function findLabelbyId($id) {
+    // if id does not have leading #, prepend it since all ids should
+    $id = preg_replace("/^([^#])/", '#$1', $id);
     $xpath = "//skos:Collection[@rdf:about = '$id']/rdfs:label"; 
     $nodeList = $this->xpath->query($xpath, $this->domnode);
     if ($nodeList->length >= 1) {
-      // NOTE: if multiple matches are found, returns the first only (not ideal)
+      // NOTE: if multiple matches are found, returns the first only without error/warning
+      // (perhaps not ideal, but ids should be unique)
       return $nodeList->item(0)->nodeValue;
     }
     else return null;

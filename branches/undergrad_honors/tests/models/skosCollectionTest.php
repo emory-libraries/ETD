@@ -93,6 +93,10 @@ class TestSkosCollection extends UnitTestCase {
     $this->assertEqual("Top Level", $this->skos->findLabelbyId("#toplevel"));
     $this->assertEqual("a member", $this->skos->findLabelbyId("#one"));
     $this->assertEqual("third-level member", $this->skos->findLabelbyId("#three"));
+
+    // should also work without leading #
+    $this->assertEqual("third-level member", $this->skos->findLabelbyId("three"));
+    $this->assertEqual("another member", $this->skos->findLabelbyId("#two"));
   }
 
   public function testfindDescendantIdByLabel() {
