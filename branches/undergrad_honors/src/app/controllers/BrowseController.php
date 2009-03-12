@@ -117,7 +117,7 @@ class BrowseController extends Etd_Controller_Action {
 
     // pass browse value to generate remove-facet links
     $this->view->url_params = array("value" => $_value);
-
+    
     $exact = $this->_getParam("exact", false);
     if (! $exact) {
       $value = strtolower($value);

@@ -129,7 +129,10 @@ abstract class Etd_Controller_Action extends Zend_Controller_Action {
 
     // pass filters to the view to display for user
     $this->view->filters = $view_filter_opts;
-    $this->view->url_params = array();		// may be overridden, but should always be set
+    if (!isset($this->view->url_params)) {
+      // this may be overridden, but should always be set because facet template expects it
+      $this->view->url_params = array();
+    }
 
     // now required to display program facet labels
     $programObj = new foxmlPrograms();
