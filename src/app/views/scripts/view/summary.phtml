@@ -23,12 +23,14 @@
  <? if ($doctype = $this->etd->document_type()): ?><b><?= $doctype ?></b><? endif ?>
  <? if ($num_pages = $this->etd->num_pages()): ?>(<?= $num_pages ?> pages)<? endif ?>
    <br/>
-<b>Committee Chair<? if (count($this->etd->chair()) > 1): ?>s<? endif ?>:</b>
- <? foreach ($this->etd->chair() as $chair): ?>
+						      
+ <? $chairs = $this->etd->chair(); // use simple array to determine last   ?>
+ <b>Committee Chair<? if (count($chairs) > 1): ?>s<? endif ?>:</b>
+ <? $chairs_w_aff = $this->etd->chair_with_affiliation(); ?>
+ <? foreach ($chairs_w_aff as $chair => $affiliation): ?>
    <? if ($chair == "") continue; ?>
-   <? $last = ($chair == $chair[count($chair)-1]); ?>
-   <? /* FIXME: don't have access to affiliation here ?!? */ ?>
-   <? $affiliation = (isset($chair->affiliation)) ? " (" . $chair->affiliation . ")" : ""; ?>
+   <? $last = ($chair == $chairs[count($chairs)-1]); ?>
+   <? $affiliation = ($affiliation) ? " (" . $affiliation . ")" : ""; ?>
    <? if ($published): ?>
      <a href="<?= $this->url(array('controller' => 'browse', 'action' => 'committee',
 	'value' => urlencode($chair)), '', true)?>"><?= $chair ?></a><?= $affiliation ?><? if (!$last):?>; <? endif ?>
