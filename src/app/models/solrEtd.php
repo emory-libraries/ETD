@@ -24,6 +24,14 @@ class solrEtd implements etdInterface {
   public function subfield() { return $this->getField("subfield"); }
   // advisor renamed to chair to handle multiple names
   public function chair() { return $this->getField("advisor", true); }
+  public function chair_with_affiliation() {
+    // affiliation not currently stored in solr, return hash with keys but no values
+    $chairs = array();
+    foreach ($this->chair() as $c) {
+      $chairs[$c] = "";
+    }
+    return $chairs;
+  }
 
   // advisor is also indexed in committee index; exclude from output here to avoid redundancy
   public function committee() {

@@ -634,6 +634,20 @@ class etd extends foxml implements etdInterface {
     }
     return $chairs;
   }
+  // return hash of committe chair name and affiliation (if any)
+  public function chair_with_affiliation() {
+    $chairs = array();
+    foreach ($this->mods->chair as $c) {
+      if (isset($c->affiliation)) 
+	$chairs[$c->full] = $c->affiliation;
+      else
+	$chairs[$c->full] = "";
+    }
+    return $chairs;
+  }
+
+
+
 
   // note: doesn't handle non-emory committee members
   public function committee() {
