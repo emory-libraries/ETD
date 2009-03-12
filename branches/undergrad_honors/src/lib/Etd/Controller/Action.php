@@ -1,5 +1,7 @@
 <?php
 
+require_once("models/programs.php");
+
 abstract class Etd_Controller_Action extends Zend_Controller_Action {
 
   protected $debug;
@@ -108,15 +110,16 @@ abstract class Etd_Controller_Action extends Zend_Controller_Action {
 				       "relevance" => "relevance");
 
     
-    // FIXME: include other common filters, like what is repeatedly used for paging?
-    //     $options = array("query" => $query, "AND" => $opts, "start" => $start, "max" => $max);
-    
-    $filter_opts = array();
-    foreach (array("status", "committee", "year", "program", "subject", "author", "keyword") as
-	     $filter) {
+     $filter_opts = array();	// filters in format to pass to solr
+     $view_filter_opts = array(); // filters in format to display in facet template
+     foreach (array("status", "committee", "year", "program", "subject",
+		   "author", "keyword", "document_type") as $filter) {
       // only include a filter if the parameter is set and is not blank
       if ($this->_hasParam($filter))
 	if ($value = $this->_getParam($filter)) {
+	  $view_filter_opts[$filter] = $value;
+	  // now that we are using program_id, program search must be on the facet field
+	  if ($filter == "program") $filter = "program_facet";
 	  $filter_opts[$filter] = $value;
 	}
     }
@@ -125,8 +128,12 @@ abstract class Etd_Controller_Action extends Zend_Controller_Action {
 		     "AND" => $filter_opts, "sort" => $sort);
 
     // pass filters to the view to display for user
-    $this->view->filters = $filter_opts;
+    $this->view->filters = $view_filter_opts;
     $this->view->url_params = array();		// may be overridden, but should always be set
+
+    // now required to display program facet labels
+    $programObj = new foxmlPrograms();
+    $this->view->programHierarchy = $programObj->skos;
 
     return $options;
   }
