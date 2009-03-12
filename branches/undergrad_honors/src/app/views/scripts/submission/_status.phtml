@@ -1,8 +1,8 @@
 <?= $this->javascript("projax/js/prototype.js"); ?>
 <?
  $etd = $this->etd; 
- $ok = "<span style='color:green'>&#x2714;</span>"; // green check mark 
- $incomplete = "<span style='color:red'>&#x2717;</span>"; // red x
+ $ok = "<span class='ok'>&#x2714;</span>"; // green check mark 
+ $incomplete = "<span class='incomplete'>&#x2717;</span>"; // red x
 ?>
 <h2>submission status</h2>
 <? if (isset($etd->authorInfo)): ?>
