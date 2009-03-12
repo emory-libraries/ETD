@@ -943,3 +943,6 @@ div.autocomplete ul li {
   list-style-type:none;
   cursor:pointer;
 }
+
+span.ok { color:green;  }
+span.incomplete { color:red; }
