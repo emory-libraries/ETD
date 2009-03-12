@@ -14,7 +14,7 @@ If your program has an applicable subfield, please select that as well.</p>
 <b>Department/Graduate Program *</b><br/>
   <input id="program" name="program" autocomplete="off" size="60" type="text"
 			    value="<?= $this->etd->mods->department ?>"/>
-  <span id="prog_success" class="success" style="display:none">Success: valid program id</span>
+    <span id="status"> </span>
   <input id="program_id" name="program_id" type="hidden"
     value="<?= isset($this->etd->rels_ext->program) ? $this->etd->rels_ext->program : "" ?>"/>
   <div class="autocomplete" id="program_list" style="display:none"> </div>
@@ -58,10 +58,23 @@ foreach ($this->prog_section->members as $division) {
   var subfields = <?= json_encode($subfields) ?>;
 <? if (isset($this->etd->rels_ext->subfield)): ?>
    var init_subfield = '<?= $this->etd->rels_ext->subfield ?>';
-<? endif ?>     
-new Autocompleter.Local('program', 'program_list', program_names, {
+<? endif ?>
+// extend auto-complete to indicate when no matches are found
+Autocompleter.LocalNoMatches = Class.create();
+Object.extend(Autocompleter.LocalNoMatches.prototype, Autocompleter.Local.prototype);
+Object.extend(Autocompleter.LocalNoMatches.prototype, {
+  getUpdatedChoices: function() {
+   	var choices = this.options.selector(this);
+	// if no choices matched, display that
+	if (choices == "<ul></ul>") { choices = "<ul><li>No matches found</li><ul>"; }
+	this.updateChoices(choices);
+  },
+			 		  });
+
+ac = new Autocompleter.LocalNoMatches('program', 'program_list', program_names, {
     partialSearch: true,
-    afterUpdateElement: afterSelect
+				   afterUpdateElement: afterSelect,
+			   
 			    });
 
 function afterSelect() {
@@ -77,24 +90,23 @@ function afterSelect() {
   }
   // store program id in hidden input (if no match is found, blanks it out)
   Form.Element.setValue("program_id", prog_id);
-  if (prog_id != "") {
-    $('prog_success').show();
-    Effect.Fade('prog_success', { duration: 3.0 });
-  }
+  showStatus();
 
   // check if this program has subfields
   var has_subfield = false;
-  for (var prog in subfields) {
-    if (prog == prog_id) {
-      has_subfield = true;
-      // populate subfield select box with program's subfields
-      $('subfield_id').options.length=0;
-      var count = 0;
-      $('subfield_id').options[count] = new Option("", "");	// add blank (optional)
-      for (var id in subfields[prog]) {
-	count++;
-	var selected = (init_subfield && (init_subfield == id));
-	$('subfield_id').options[count] = new Option(subfields[prog][id], id, false, selected);
+  if (prog_id) {
+    for (var prog in subfields) {
+      if (prog == prog_id) {
+	has_subfield = true;
+	// populate subfield select box with program's subfields
+	$('subfield_id').options.length=0;
+	var count = 0;
+	$('subfield_id').options[count] = new Option("", "");	// add blank (optional)
+	for (var id in subfields[prog]) {
+	  count++;
+	  var selected = (init_subfield && (init_subfield == id));
+	  $('subfield_id').options[count] = new Option(subfields[prog][id], id, false, selected);
+	}
       }
     }
   }
@@ -110,9 +122,26 @@ function afterSelect() {
   init_subfield = null;
 }
 
+// show whether or not program id is set properly
+function showStatus() {
+  var ok = '&#x2714;';
+  var err = '&#x2717;';
+  if ($F('program_id') == '') {
+    $('status').update(err);
+    $('status').removeClassName("ok");
+    $('status').addClassName("incomplete");
+  } else {
+    $('status').update(ok);
+    $('status').removeClassName("incomplete");
+    $('status').addClassName("ok");
+  }
+}
+ 
+
+
 <?  /* if program already set, populate any subfield select and pre-set it correctly */
 if ((isset($this->etd->rels_ext->program) && $this->etd->rels_ext->program  != "")
     || $this->etd->mods->department != ""): ?>
-     afterSelect();
+afterSelect();
 <? endif ?>
 </script>
