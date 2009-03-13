@@ -1,0 +1,95 @@
+<div id="files">
+    <h2>Files</h2>
+<? if ($this->etd->isEmbargoed()): ?>
+    <p>Access restricted until <b><?= $this->etd->mods->embargo_end ?></b></p>
+<? elseif ($this->etd->status() == "published" && count($this->etd->pdfs) == 0): ?>
+<? /* work-around for etdFile xacml glitch:
+    if not embargoed, but published and no pdfs are found, display an error. */ ?>
+   <p>File(s) temporarily unavailable.</p>
+<? endif ?>       
+
+     <? if ($this->acl->isAllowed($this->role, $this->etd, "add file")): ?>
+       <p><a class="action" href="<?= $this->url(array("controller" => "file",
+		"action" => "add", "etd" => $this->etd->pid), null, true, false)?>">add another file</a></p>
+	  <? /* FIXME: only show this link if at least one category has more than one file */ ?>
+	  <? if ($this->acl->isAllowed($this->role, $this->etd, "order files")
+		 && (count($this->etd->pdfs) > 1 || count($this->etd->originals) > 1
+		     || count($this->etd->supplements) > 1)): ?>
+         <p><a class="action" href="<?= $this->url(array("controller" => "edit",
+		"action" => "fileorder", "pid" => $this->etd->pid), null, true, false)?>">re-order files</a></p>
+       <? endif ?>
+     <? endif ?>					   
+
+
+  <? foreach (array("pdfs", "originals", "supplements") as $filetype): ?>
+     <?	 /* display a label for supplemental files, if appropriate */
+       if ($filetype == "supplements" && count($this->etd->$filetype)
+	   && $this->acl->isAllowed($this->role, $this->etd->{$filetype}[0], "view")): ?>
+	    <b>Supplemental Files</b><br/><? endif ?>
+    <? foreach ($this->etd->$filetype as $file) : ?>
+      <? if ($this->acl->isAllowed($this->role, $file, "view")): ?>
+	    <? if (isset($file->dc->mimetype)): ?>
+		 <?= $this->FiletypeIcon($file->dc->mimetype) ?>
+	     <? endif ?>
+	     <? if ($this->acl->isAllowed($this->role, $file, "download")): ?>
+		    <a href="<?= $this->url(array("controller" => "file", "action" => "view",
+ 				     "pid" => $file->pid), '', true, false)?>/<?= $file->prettyFilename() ?>"><?= $file->dc->title ?></a>
+      	     <? else: /* view but not download */?>
+		  <?= $file->dc->title ?>
+	     <? endif ?>
+	  <? if (isset($file->dc->pages)): ?><?= $file->dc->pages ?> pages<? endif ?>
+	  <? if (isset($file->dc->filesize)): ?>(<?= $this->readableSize($file->dc->filesize) ?>) <?endif ?>
+	   <? if ($file->dc->description): ?>
+	    <span class="description">[<?= $file->dc->description ?>]</span>
+          <?endif ?>
+	      
+	  <? if ($this->acl->isAllowed($this->role, $file, "edit")): ?>
+	    <a href="<?= $this->url(array("controller" => "file", "action" => "edit", "pid" => $file->pid), '', true, false)?>">edit title/description</a>
+	  <? endif ?>
+	  <? if ($this->acl->isAllowed($this->role, $file, "remove")): ?>
+	    <a href="<?= $this->url(array("controller" => "file", "action" => "remove", "pid" => $file->pid), '', true, false)?>">remove</a>
+	  <? endif ?>
+          <? if ($this->acl->isAllowed($this->role, $file, "view modified")
+		 && isset($file->lastModified)): ?>	       
+	       <br/><span class="lastmodified">Last modified
+		  <?= date("Y-m-d h:ia", strtotime($file->fileLastModified())) ?></span>
+	 <? endif ?> 	       
+	  <br/>
+
+
+       <? endif /* can view file */ ?>
+    <? endforeach ?>
+  <? endforeach ?>
+
+<? /* if there are files and user has permission to edit, allow to replace files */
+  if (isset($this->etd->pdfs[0]) &&
+       $this->acl->isAllowed($this->role, $this->etd->pdfs[0], "edit") ||
+       isset($this->etd->originals[0]) &&
+       $this->acl->isAllowed($this->role, $this->etd->originals[0], "edit") ||
+       isset($this->etd->supplements[0]) &&
+       $this->acl->isAllowed($this->role, $this->etd->supplements[0], "edit") ): ?>
+     <h3>Replace a File</h3>
+     <p>If you would like to replace one of your files, upload the new version here.</p>
+  <form name="updatefile" method="post" enctype="multipart/form-data"
+	action="<?= $this->url(array("controller" => "file", "action" => "update",
+ 	"etd" => $this->etd->pid), '', true, false)?>">
+  <? $file_opts = array();  /* build an array of files and pids for select box */
+     foreach ($this->etd->getAllFiles() as $file) {
+       $label = $file->dc->title;
+       if (isset($file->dc->filesize)) {
+	 $label .= " (" . $this->readableSize($file->dc->filesize) . ")";
+       }
+       $file_opts[$file->pid] = $label;
+     }   ?>
+  <p>
+    Replace <?= $this->formSelect("pid", "", null, $file_opts) ?>
+<? /* NOTE: for some reason formFile does not detect that doctype is xhtml;
+    setting again here to force it to produce valid xhtml output (required for Xforms) */ ?>
+  with <? $this->doctype('XHTML1_STRICT') ?><?= $this->formFile("file"); ?>
+   <?= $this->formSubmit("Replace", "Replace >", array("class" => "button", "style" => "margin-left:10px")); ?>
+  </p>
+</form>
+  <? endif ?>
+
+
+</div>
