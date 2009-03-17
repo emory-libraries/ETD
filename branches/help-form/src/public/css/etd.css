@@ -908,3 +908,40 @@ span.permalink { background-color: #ffda82; /*#fffdee; /* very faint yellow */ }
 .JustifyRight, div.JustifyRight { text-align: right; }
 .JustifyCenter, div.JustifyCenter { text-align: center; }
 .JustifyFull, div.JustifyFull { text-align: justify; }
+
+
+.formLabel {
+	display:block;
+	margin-left: 10px;
+	width: 150px;
+	float: left;
+}
+.formInput {
+	vertical-align: top;
+	margin-right: 20px;
+/*	width: 250px; */
+}
+.formInputArea {
+	clear: right;
+	width: 75%; 
+	vertical-align: top;
+	border: 1px solid #9B9B9B;
+	font-family:Verdana,Arial,Sans Serif;
+	font-size:10pt;	
+}
+.formRow {
+	clear: none;
+	vertical-align: top;
+	margin-top: 15px;
+	margin-bottom: 15px;
+}
+#helpFormButtons {
+	clear: none;
+	white-space: nowrap;
+/*	margin: 20px; */
+}
+#helpFormFields {
+	margin: 20px;
+	border-color: 0xcccccc;
+	border-width: 0px;
+}
