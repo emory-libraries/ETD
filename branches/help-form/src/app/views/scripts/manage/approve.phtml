@@ -1,0 +1,22 @@
+<h1>Approve Record</h1>
+
+<p>
+  <b>Title:</b> <?= $this->etd->title() ?><br/>
+  <b>Author:</b> <?= $this->etd->author() ?><br/>
+  <b>Access restrictions requested by student?</b> <?= $this->etd->mods->embargo_request ?>
+</p>
+
+<form name="approve" method="post"
+   action="<?= $this->url(array("action" => "doApprove"))?>">
+  <?= $this->formHidden("pid", $this->etd->pid()) ?>
+  <p>The author has requested, and the Graduate school has approved
+     an access restriction of the following duration:<p>
+  <?  $durations = array("0 days" => "none",
+		     "6 months" => "6 months",
+		     "1 year" => "1 year",
+		     "2 years" => "2 years",
+		     "6 years" => "6 years"); ?>
+  <?= $this->formSelect("embargo", "", "", $durations); ?></p>
+
+  <?= $this->formSubmit("approve", "approve >", array("class" => "button")); ?>
+</form>
