@@ -23,7 +23,7 @@ class EtdFactory {
     case "user": return EtdFactory::userByPid($pid);
     default:
       // attempt to initialize return whatever class was specified
-      new $clas($pid);
+      return new $class($pid);
     }
   }
    
