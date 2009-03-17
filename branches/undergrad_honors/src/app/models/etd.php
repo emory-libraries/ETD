@@ -40,6 +40,12 @@ class etd extends foxml implements etdInterface {
    * @var string $acl_id basic ACL resource id (has subresource variants that inherit)
    */
   protected $acl_id;
+
+
+  /**
+   * @var string generic name for admin/agency responsible for this type of etd
+   */
+  public $admin_agent;
   
   
   public function __construct($arg = null) {
@@ -64,6 +70,9 @@ class etd extends foxml implements etdInterface {
 
     // base ACL resource id is etd
     $this->acl_id = "etd";
+
+    // for default etds, admin agent is grad school
+    $this->admin_agent = "the Graduate School";
   }
 
 

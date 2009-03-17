@@ -19,6 +19,9 @@ class honors_etd extends etd {
       $this->rels_ext->addRelationToResource("rel:isMemberOf",
 					     $config->honors_collection);
     }
+
+    // for honors etds, admin agent is the college
+    $this->admin_agent = "Emory College";
   }
 
 
