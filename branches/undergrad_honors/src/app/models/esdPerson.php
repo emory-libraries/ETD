@@ -200,9 +200,9 @@ class esdPerson implements Zend_Acl_Role_Interface {
   public function getGenericAgent() {
     switch ($this->role) {
     case "honors admin":
-      return "Honors Program";
+      return "Emory College";
     case "grad admin":
-      return "Graduate School";
+      return "the Graduate School";
     case "admin":
     case "superuser":
        // generic administrator (e.g., for superuser)
