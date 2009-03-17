@@ -17,6 +17,7 @@ class honors_mods extends etd_mods {
     // Honors ETDs are not sent to PQ -- ignore these fields completely
     unset($this->required_fields["send to ProQuest"]);
     unset($this->required_fields["copyright"]);
+
   }
 
   private function makeOptional($field) {
@@ -24,6 +25,11 @@ class honors_mods extends etd_mods {
     $this->optional_fields[$field] = $this->required_fields[$field];
     // then remove from required list
     unset($this->required_fields[$field]);
+
+    // now actually remove from the xml
+    // NOTE: this *has* to be done for research fields because if it is
+    // present and left blank, the xml is invalid
+    if (isset($this->field)) $this->remove($field);
   }
     
     
