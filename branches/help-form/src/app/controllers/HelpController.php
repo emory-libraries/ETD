@@ -28,8 +28,10 @@ class HelpController extends Etd_Controller_Action {
 			$list_addr = $config->email->test;
 		} else {
 			$list_addr = $config->email->etd->address;
-		}
+	    }
 	   
+//	  	$list_addr = "rwrober@emory.edu";
+	  	
 	  	$etd_ark = (isset($this->$_GET['etd_link']) && !empty($this->$_GET['etd_link']))?($this->$_GET['etd_link']):"NOT ATTAINABLE";
 	  	$grad_date = (isset($this->$_GET['grad_date']) && !empty($this->$_GET['grad_date']))?($this->$_GET['grad_date']):"NOT SPECIFIED";
 	  	
