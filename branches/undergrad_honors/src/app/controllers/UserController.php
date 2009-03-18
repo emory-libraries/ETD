@@ -51,11 +51,17 @@ class UserController extends Etd_Controller_Action {
 	// for all other users, use default user object
 	$user = new user();
       }
+      // need access to etd in the view for displaying correct set of instructions
+      $this->view->etd = EtdFactory::etdByPid($this->view->etd_pid);
     } else { 		// if pid is defined, action is editing a particular, existing object
 
       // FIXME:  need to initialize as honors user here too...
       $user = $this->_helper->getFromFedora("pid", "user");	  
       if (!$this->_helper->access->allowedOnUser("edit", $user)) return false;
+
+      // configure view so etd object will be available in the same
+      // place when editing new or existing user info
+      $this->view->etd = $user->etd;
     }
     $this->view->user = $user;
 
