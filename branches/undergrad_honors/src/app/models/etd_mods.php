@@ -405,9 +405,13 @@ class etd_mods extends mods {
       $node = $nodelist->item($i);      
       $node->parentNode->removeChild($node);*/
 
-    if ($this->map[$mapname] instanceof DOMElementArray) {
-      foreach ($this->map[$mapname] as $node) {
-	$node->parentNode->removeChild($node);
+    if ($this->map[$mapname] instanceof DOMElementArray ||
+      	$this->xmlconfig[$mapname]["is_series"]) {
+      foreach ($this->map[$mapname] as $el) {
+	if ($el instanceof XmlObject) 
+	  $el->domnode->parentNode->removeChild($el->domnode);
+	else
+	  $el->parentNode->removeChild($el->domnode);
       }
     } else if ($this->map[$mapname] instanceof XmlObject) {
       $this->map[$mapname]->domnode->parentNode->removeChild($this->map[$mapname]->domnode);

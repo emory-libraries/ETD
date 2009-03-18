@@ -19,7 +19,17 @@ class TestHonorsEtd extends UnitTestCase {
     $this->assertIsA($this->etd, "honors_etd");
     $this->assertIsA($this->etd, "etd");		// inherits 
     $this->assertIsA($this->etd->mods, "honors_mods");
-    $this->assertIsA($this->etd->mods, "etd_mods");	// inherits 
+    $this->assertIsA($this->etd->mods, "etd_mods");	// inherits
+
+
+    // researchfields should not be deleted for any non-template init
+    $this->assertEqual(1, count($this->etd->mods->researchfields),
+		       "researchfields present");
+    $this->assertTrue(isset($this->etd->mods->researchfields[0]->id),
+		      "researchfield id is set");
+    $this->assertPattern('|<mods:subject ID=".*" authority="proquestresearchfield">|',
+			 $this->etd->mods->saveXML(), "researchfields present in MODS");
+	
   }
 
   function testInitializeByTemplate() {
@@ -30,6 +40,12 @@ class TestHonorsEtd extends UnitTestCase {
     $this->assertPattern('|<rel:isMemberOf.*rdf:resource="info:fedora/' .
 			 $config->honors_collection . '".*/>|',
 			 $etd->rels_ext->saveXML());
+
+    // researchfields should not be present when initializing from template
+    $this->assertEqual(0, count($etd->mods->researchfields),
+		       "no researchfields mapped");
+    $this->assertNoPattern('|<mods:subject ID="" authority="proquestresearchfield">|',
+			   $etd->mods->saveXML(), "researchfields not present in MODS");
   }
 
   function testAuthorInfo() {
