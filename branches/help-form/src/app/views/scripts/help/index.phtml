@@ -5,7 +5,7 @@
 <p>For problems with the ETD submission software, please submit your questions using the form below or send an email to <a href="mailto:etd-help@listserv.cc.emory.edu">etd-help@listserv.cc.emory.edu</a>.</p>
 
 	<script type="text/javascript"
-		djConfig="isDebug: true, parseOnLoad: true"
+		djConfig="isDebug: false, parseOnLoad: true"
 		src="http://o.aolcdn.com/dojo/1.2.3/dojo/dojo.xd.js"></script>
 	<script type="text/javascript">
 		dojo.require("dijit.form.Form");
@@ -13,6 +13,7 @@
 		dojo.require("dijit.form.ValidationTextBox");
 		dojo.require("dijit.form.Textarea");
 		dojo.require("dijit.form.Button");
+		dojo.require("dijit.form.CheckBox");
 		dojo.require("dojox.validate.regexp");
 		dojo.require("dojo.parser");
 			
@@ -34,15 +35,25 @@
 
 <form dojoType="dijit.form.Form" id="helpSubmissionForm" action="<?= $this->url(array("action" => "submit"))?>">
 <fieldset id="helpFormFields"><legend ="helpLegend">ETD Help Submission Form</legend>
-<div class="formRow"><input type="hidden" id="etd_link" name="etd_link" value="<?= $this->$current_user->fullname ?>"></input></div>
-<div class="formRow"><label class="formLabel" for="username">Full Name:</label><input dojoType="dijit.form.TextBox" class="formInput" type="text" id="username" name="username" value="<?= $this->$current_user->fullname ?>"></input></div>
-<div class="formRow"><label class="formLabel" for="email">Net ID Email:</label><input dojoType="dijit.form.ValidationTextBox" class="formInput" type="text" id="email" name="email" value="<?= $this->$current_user->netid ?>"regExpGen="dojox.regexp.emailAddress" trim="true" required="true" invalidMessage="Invalid Email Address."></input></div>
-<div class="formRow"><label class="formLabel" for="grad_date">Graduation Date:</label><input class="formInput" type="text" id="grad_date" name="grad_date" value="" dojoType="dijit.form.DateTextBox" constraints="{datePattern:'MM/yyyy'}" required="true" trim="true" promptMessage="mm/yyyy" invalidMessage="Invalid date. Use mm/yyyy format."></input></div>
-<div class="formRow"><label class="formLabel" for="message">Message:</label><textarea dojoType="dijit.form.Textarea" class="formInputArea" type="text" id="message" name="message" value=""></textarea></div>
-<div id="helpFormButtons">
-<button dojoType="dijit.form.Button" class="formInput" type="submit" id="submitButton" title="Submit">Submit</button>
-<button dojoType="dijit.form.Button" class="formInput" type="reset" id="resetButton" title="Reset">Reset</button>
-</div>
+	<div class="formRow">
+		<input type="hidden" id="etd_link" name="etd_link" value="<?= $this->$current_user->fullname ?>" required="true" title="User's Full Name" promptMessage="User's Full Name"></input></div>
+	<div class="formRow">
+		<label class="formLabel" for="username">Full Name:</label>
+		<input dojoType="dijit.form.TextBox" class="formInput" type="text" id="username" name="username" value="<?= $this->$current_user->fullname ?>" required="true" title="User's netid email address" promptMessage="User's netid email address"></input></div>
+	<div class="formRow">
+		<label class="formLabel" for="email">Net ID Email:</label>
+		<input dojoType="dijit.form.ValidationTextBox" class="formInput" type="text" id="email" name="email" value="<?= $this->$current_user->netid ?>"regExpGen="dojox.regexp.emailAddress" trim="true" required="true" invalidMessage="Invalid Email Address."></input></div>
+	<div class="formRow">
+		<label class="formLabel" for="grad_date">Graduation Date:</label>
+		<input class="formInput" type="text" id="grad_date" name="grad_date" value="" dojoType="dijit.form.DateTextBox" value="new Date();" constraints="{datePattern:'MM/yyyy'}" required="true" trim="true" promptMessage="Please use this format: mm/yyyy" invalidMessage="Invalid date. Use mm/yyyy format."></input>
+		or N/A <input class="formInput" type="checkbox" id="grad_date_appl" name="grad_date_appl" value="true" dojoType="dijit.form.CheckBox" onClick="dijit.byId('grad_date').setDisabled(dijit.byId('grad_date_appl').getValue()); dijit.byId('grad_date').setValue('');" title="No specific graduation date"></input></div>
+	<div class="formRow">
+		<label class="formLabel" for="message">Message:</label>
+		<textarea dojoType="dijit.form.Textarea" class="formInputArea" minSize="250px" type="text" id="message" name="message" value=""></textarea></div>
+	<div id="helpFormButtons">
+		<button dojoType="dijit.form.Button" class="formInput" type="submit" id="submitButton" title="Submit">Submit</button>
+		<button dojoType="dijit.form.Button" class="formInput" type="reset" id="resetButton" title="Reset">Reset</button>
+	</div>
 </fieldset>
 </form>
 

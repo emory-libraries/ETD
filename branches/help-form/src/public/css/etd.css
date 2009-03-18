@@ -923,17 +923,28 @@ span.permalink { background-color: #ffda82; /*#fffdee; /* very faint yellow */ }
 }
 .formInputArea {
 	clear: right;
-	width: 75%; 
 	vertical-align: top;
-	border: 1px solid #9B9B9B;
-	font-family:Verdana,Arial,Sans Serif;
-	font-size:10pt;	
+	_height: 300px;
+	min-height:300px;
+	_width:300px;
+	min-width:300px;
 }
 .formRow {
 	clear: none;
 	vertical-align: top;
 	margin-top: 15px;
 	margin-bottom: 15px;
+}
+.formRow #message {
+	display: block;
+	clear: none;
+	vertical-align: top;
+	height: 250px;
+	width: 250px;
+	_height: 250px;
+	_width: 250px;
+	min-height: 250px;
+	min-width: 250px;
 }
 #helpFormButtons {
 	clear: none;
@@ -943,5 +954,5 @@ span.permalink { background-color: #ffda82; /*#fffdee; /* very faint yellow */ }
 #helpFormFields {
 	margin: 20px;
 	border-color: 0xcccccc;
-	border-width: 0px;
+	border-width: 1px;
 }

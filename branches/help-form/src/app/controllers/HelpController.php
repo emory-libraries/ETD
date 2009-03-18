@@ -15,6 +15,7 @@ class HelpController extends Etd_Controller_Action {
    
   // display success message with more information
   public function successAction() {
+  	/**/
   }
   
   public function submitAction() {
@@ -22,11 +23,15 @@ class HelpController extends Etd_Controller_Action {
 	  	$notify = new Zend_Mail();
 	  	
 	    $config = Zend_Registry::get('config');
-	  	//$list_addr = $config->email->etd->address
-	    //$list_addr = "etd-help@listserv.cc.emory.edu";
-	  	$list_addr = "rwrober@emory.edu";
-	  	
-	  	$etd_ark = isset($this->$_GET['etd_link'])?($this->$_GET['etd_link']):"NOT ";
+	    if ($environment->mode != "production") {
+	    	// use a configured debug email address when in development mode
+			$list_addr = $config->email->test;
+		} else {
+			$list_addr = $config->email->etd->address;
+		}
+	   
+	  	$etd_ark = (isset($this->$_GET['etd_link']) && !empty($this->$_GET['etd_link']))?($this->$_GET['etd_link']):"NOT ATTAINABLE";
+	  	$grad_date = (isset($this->$_GET['grad_date']) && !empty($this->$_GET['grad_date']))?($this->$_GET['grad_date']):"NOT SPECIFIED";
 	  	
 	  	$notify->addTo($list_addr);
 	  	$notify->setFrom(array("netid", $this->$_GET['email']), $this->$_GET['username']);
@@ -36,7 +41,7 @@ class HelpController extends Etd_Controller_Action {
 	  		  "Contact: " . $this->$_GET['username'] . "\n"
 	  		. "Email Address: " . $this->$_GET['email'] . "\n"
 	  		. "ETD: " . $etd_ark . "\n"
-	  		. "Expected Graduation Date: " . $this->$_GET['grad_date'] . "\n\n"
+	  		. "Expected Graduation Date: " . $grad_date . "\n\n"
 	  		. $tagfilter->filter($this->$_GET['message'])
 	  		);
 	    $notify->send();
@@ -62,16 +67,11 @@ class HelpController extends Etd_Controller_Action {
   }
   
   protected function verifyParms() {
-/*  	
-    return (
-    		   (isset($this->$_GET['etd_link']))
-    		&& (isset($this->$_GET['username']))
-    		&& (isset($this->$_GET['email']))
-    		&& (isset($this->$_GET['grad_date']))
-    		&& (isset($this->$_GET['message']))
-    		);
-*/
-  	return true;
+  	return (
+  		isset($_GET["username"]) && !empty($_GET["username"]) && 
+  		isset($_GET["email"]) && !empty($_GET["email"]) && 
+  		isset($_GET["message"]) && !empty($_GET["message"])
+  		);
   }
 
 }
