@@ -218,6 +218,31 @@ class TestEtdMods extends UnitTestCase {
     $this->assertEqual("Harrison", $this->mods->chair[1]->last);
   }
 
+  function testCommitteeAffiliation() {
+    $errlevel = error_reporting(E_ALL ^ E_NOTICE);
+	
+    // set affiliation by id
+    $this->mods->committee[0]->id = "testid";
+    $this->mods->setCommitteeAffiliation("testid", "Harvard");
+    $this->assertEqual("Harvard", $this->mods->committee[0]->affiliation);
+
+    //    print "<pre>" . htmlentities($this->mods->saveXML()) . "</pre>";
+    $this->assertPattern("|<mods:affiliation>Harvard</mods:affiliation>|",
+			 $this->mods->saveXML());
+
+
+    // setting name should remove affiliation
+    $user = new esdPerson();
+    $user->netid = "dokey";
+    $user->lastname = "Dokey";
+    $user->first = "Okey";
+    $this->mods->setCommitteeFromPersons(array($user));
+
+    $this->assertFalse(isset($this->mods->committee[0]->affiliation));
+    $this->assertNoPattern('|<mods:name ID="dokey".*<mods:affiliation>Harvard</mods:affiliation>|', $this->mods->saveXML());
+
+    error_reporting($errlevel);	    // restore prior error reporting
+  }
 
   function testAddNote() {
     $this->mods->addNote("test adding note", "admin", "embargo_expiration_notice");
