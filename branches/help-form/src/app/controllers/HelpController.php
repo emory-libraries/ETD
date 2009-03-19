@@ -13,7 +13,8 @@ class HelpController extends Etd_Controller_Action {
   	if(isset($this->current_user)) {
 	  	$this->view->fullname = $this->current_user->fullname;
 	  	$this->view->email    = $this->current_user->netid . "@emory.edu";
-	  	$this->view->etd_link = "";
+	  	$user_etds = $this->current_user->getEtds();
+	  	$this->view->etd_link = $user_etds[0]->ark();
   	} else {
 	  	unset($this->view->fullname);
 	  	unset($this->view->email);
