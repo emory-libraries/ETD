@@ -205,19 +205,20 @@ class etd_mods extends mods {
 
 
   public function setAuthorFromPerson(esdPerson $person) {
-    $this->setNameFromPerson($this->author, $person);
+    $this->setNameFromPerson($this->author, $person, true);
   }
 
   // generic function to set name fields from an esdPerson object
-  private function setNameFromPerson(mods_name $name, esdPerson $person) {
+  private function setNameFromPerson(mods_name $name, esdPerson $person, $preserve_aff = false) {
     $name->id    = trim($person->netid);
     $name->last  = trim($person->lastname);
     $name->first = trim($person->name);	// directory name OR first+middle
     $name->full  = trim($person->lastnamefirst);
 
     // remove any prior affiliation so people and affiliations don't get mixed up
-    if (isset($name->affiliation)) {
+    if (isset($name->affiliation) && !$preserve_aff) {
       $name->domnode->removeChild($name->map["affiliation"]);
+      $this->update();
     }
   }
 
@@ -331,6 +332,7 @@ class etd_mods extends mods {
 	}
       }
     }
+    $this->update();
   }
 
   
