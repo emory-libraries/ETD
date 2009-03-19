@@ -112,8 +112,10 @@ class etd_notifier extends notifier {
       $esd = new esdPersonObject();
       
       foreach (array_merge($etd->mods->chair, $etd->mods->committee) as $committee) {
+	// skip former faculty, as we can't rely on any email address ESD has for them
+	if (preg_match("/^esdid/", $committee->id)) continue;
 	$person = $esd->findByUsername($committee->id);
-	if ($person)
+	if ($person && $person->email != "")
 	  $this->cc[$person->email] = $person->fullname;
 	else
 	  trigger_error("Committee member/chair (" . $committee->id . ") not found in ESD", E_USER_NOTICE);
