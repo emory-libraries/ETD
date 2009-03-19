@@ -31,6 +31,8 @@ class HelpController extends Etd_Controller_Action {
 		// use a configured debug email address when in development mode
 		$this->view->list_addr = $config->email->test;
 	}
+
+	$this->view->title = "Help Request";
   }
    
   // display success message with more information
