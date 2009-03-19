@@ -19,6 +19,13 @@ class HelpController extends Etd_Controller_Action {
 	  	unset($this->view->netid);
 	  	unset($this->view->etd_link);
 	}
+	
+	$config = Zend_Registry::get('config');
+	$environment = Zend_Registry::get('env-config');
+	if ($environment->mode != "production") {
+		// use a configured debug email address when in development mode
+		$this->view->list_addr = $config->email->test;
+	}
   }
    
   // display success message with more information
@@ -34,7 +41,7 @@ class HelpController extends Etd_Controller_Action {
 	    $environment = Zend_Registry::get('env-config');
 	    if ($environment->mode != "production") {
 	    	// use a configured debug email address when in development mode
-			$list_addr = $config->email->test;
+			$list_addr = $request->getParam("list_addr", $config->email->test);
 		} else {
 			$list_addr = $config->email->etd->address;
 	    }
