@@ -11,7 +11,7 @@ class HelpController extends Etd_Controller_Action {
   
   public function indexAction() {
   	if(isset($this->current_user)) {
-	  	$this->view->fullname = $this->current_user;
+	  	$this->view->fullname = $this->current_user->fullname;
 	  	$this->view->email    = $this->current_user->netid . "@emory.edu";
 	  	$this->view->etd_link = "";
   	} else {
