@@ -1,5 +1,6 @@
 <?= $this->javascript("projax/js/prototype.js"); ?>
 <?= $this->javascript("projax/js/scriptaculous.js"); ?>
+<?= $this->javascript("projax/js/controls.js"); ?>
 
 <? //php ajax/scriptaculous
 include("projax/projax.php");
@@ -7,17 +8,28 @@ $projax = new Projax();
 
 $ajaxopts = array("url" => $this->url(array("controller" => "search", "action" => "facultysuggestor"), "", true),
 		  "indicator" => "chair-loading", "value" => "id", "select" => "value",
-		  "after_update_element" => "setChair",
+		  "after_update_element" => "setChair", "callback" => "updateQuery"
 		  );
 $inputopts = array("size" => "55", "autocomplete" => "off", "id" => "chair_autocomplete");
 ?>
-
 <script language="Javascript" type="text/javascript">
+  // update autocomplete query to include former faculty setting
+  function updateQuery(input, qs) {
+  // qs comes in as advisor_autocomplete=value or faculty_autocomplete, convert...
+  qs = qs.replace(/_autocomplete/, "");
+  // if former setting is selected, add param to query
+  if (qs.match("advisor") && $("former_chair").checked) qs += "&former=1";
+  if (qs.match("faculty") && $("former_member").checked) qs += "&former=1";
+  return qs;
+}
   function setChair(text, li) {
   /* create a hidden input with faculty's netid, and display name */
       new Insertion.Bottom('chair_list', '<li id="'+li.id+'"><input type="hidden" name="chair[]" value="' + li.id + '"/>' + text.value + '<a class="remove" href="#" onClick="javascript:removeChair(\''+li.id+'\')">remove</a></li>');
       text.value = '';   // blank out suggestor for more entries
       Sortable.create("chair_list");
+      // if former is selected, add optional affiliation
+      if ($("former_chair").checked) 
+	new Insertion.Bottom(li.id, ' <b>Current affiliation:</b> <input type="text" name="'+li.id + '_affiliation"> <i>(optional)</i>');
   }
   function addFaculty(text, li) {
     /* create a hidden input with faculty's netid, and display name */
@@ -26,6 +38,10 @@ $inputopts = array("size" => "55", "autocomplete" => "off", "id" => "chair_autoc
     // make the faculty list sortable (needs to be updated when new fields are added)
     Sortable.create("faculty_list");
     text.value = '';	// blank out suggestor for more entries
+    // if former was selected, add optional affiliation
+    if ($("former_member").checked) 
+      new Insertion.Bottom(li.id, ' <b>Current affiliation:</b> <input type="text" name="'+li.id + '_affiliation"> <i>(optional)</i>');
+
   }
  function removeChair(id) { Element.remove(id); Element.show("chair_autocomplete"); }
 
@@ -75,8 +91,20 @@ clicking on and dragging the names.</p>
   <? endif ?>	      
 	  
 	  <div id="chair_autocomplete">
-      <?=  $projax->text_field_with_auto_complete('advisor', $inputopts, $ajaxopts); ?>
-	<span id="chair-loading" style="display:none;">Searching...</span>
+       <?= $this->formText("advisor_autocomplete", "",
+			   array("size" => "55", "autocomplete" => "off")); ?>
+	<div id="chair_choices" class="autocomplete"> </div>
+	<script>new Ajax.Autocompleter("advisor_autocomplete", "chair_choices",
+				       "<?= $this->url(array("controller" => "search",
+ 					"action" => "facultysuggestor"), "", true) ?>",
+				       { indicator: "chair-loading",
+					   value: "id",
+					   select: "value",
+					   afterUpdateElement: setChair,
+					   callback: updateQuery});</script>
+  	<span id="chair-loading" style="display:none;">Searching...</span>
+	<p><input type="checkbox" name="former_chair" id="former_chair" value="0">
+		search for former Emory faculty</p>		    
     </div>
     <hr/>
    <h2>Committee Members</h2>
@@ -94,10 +122,21 @@ clicking on and dragging the names.</p>
   <? if (count($committeeMembers) > 1): ?>
       <?= $projax->sortable_element("faculty_list", array("url" => null)); ?>     
   <? endif ?>	      
- 
-<? $ajaxopts["after_update_element"] = "addFaculty"; $ajaxopts["indicator"] = "cm-loading"; ?>
-<?= $projax->text_field_with_auto_complete('faculty', $inputopts, $ajaxopts); ?>
+
+  <?= $this->formText("faculty_autocomplete", "",
+		      array("size" => "55", "autocomplete" => "off")); ?>
+	<div id="faculty_choices" class="autocomplete"> </div>
+	<script>new Ajax.Autocompleter("faculty_autocomplete", "faculty_choices",
+				       "<?= $this->url(array("controller" => "search",
+ 					"action" => "facultysuggestor"), "", true) ?>",
+				       { indicator: "cm-loading",
+					   value: "id",
+					   select: "value",
+					   afterUpdateElement: addFaculty,
+					   callback: updateQuery});</script>
      <span id="cm-loading" style="display:none;">Searching...</span>
+    <p><input type="checkbox" name="former_member" id="former_member" value="0">
+		search for former Emory faculty</p>		    
 
  <hr/>
  <? if (count($this->etd->mods->nonemory_committee) > 1 || 
@@ -146,5 +185,3 @@ clicking on and dragging the names.</p>
 </form>
 						       
 </div>
-
-
