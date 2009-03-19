@@ -919,7 +919,6 @@ span.permalink { background-color: #ffda82; /*#fffdee; /* very faint yellow */ }
 .formInput {
 	vertical-align: top;
 	margin-right: 20px;
-/*	width: 250px; */
 }
 .formInputArea {
 	clear: right;
@@ -940,11 +939,11 @@ span.permalink { background-color: #ffda82; /*#fffdee; /* very faint yellow */ }
 	clear: none;
 	vertical-align: top;
 	height: 250px;
-	width: 250px;
+	width: 500px;
 	_height: 250px;
-	_width: 250px;
+	_width: 500px;
 	min-height: 250px;
-	min-width: 250px;
+	min-width: 500px;
 }
 #helpFormButtons {
 	clear: none;
