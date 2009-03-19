@@ -1,6 +1,6 @@
 <?php
 
-include("models/programs.php");
+require_once("models/programs.php");
 
 class ProgramController extends Etd_Controller_Action {
 
