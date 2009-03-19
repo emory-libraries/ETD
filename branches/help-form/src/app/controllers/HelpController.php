@@ -12,11 +12,11 @@ class HelpController extends Etd_Controller_Action {
   public function indexAction() {
   	if(isset($this->current_user)) {
 	  	$this->view->fullname = $this->current_user;
-	  	$this->view->netid    = $this->current_user->netid;
+	  	$this->view->email    = $this->current_user->netid . "@emory.edu";
 	  	$this->view->etd_link = "";
   	} else {
 	  	unset($this->view->fullname);
-	  	unset($this->view->netid);
+	  	unset($this->view->email);
 	  	unset($this->view->etd_link);
 	}
 	
@@ -37,7 +37,9 @@ class HelpController extends Etd_Controller_Action {
   	if($this->verifyParms()) {
 	  	$notify = new Zend_Mail();
 	  	
-	    $config = Zend_Registry::get('config');
+    	$request = $this->getRequest();
+	  	
+    	$config = Zend_Registry::get('config');
 	    $environment = Zend_Registry::get('env-config');
 	    if ($environment->mode != "production") {
 	    	// use a configured debug email address when in development mode
@@ -46,7 +48,6 @@ class HelpController extends Etd_Controller_Action {
 			$list_addr = $config->email->etd->address;
 	    }
 	   
-    	$request = $this->getRequest();
     	$etd_ark = $request->getParam("etd_link", null)!=null?($request->getParam("etd_link")):"NOT ATTAINABLE";
     	$grad_date = $request->getParam("grad_date", null)!=null?($request->getParam("grad_date")):"NOT SPECIFIED";
 	  	
