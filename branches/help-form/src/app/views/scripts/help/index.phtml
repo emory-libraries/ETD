@@ -40,10 +40,10 @@
 	$environment = Zend_Registry::get('env-config');
 	if ($environment->mode != "production") {
 ?>
-	<div class="formRow" style="border: 1px red ">
-		<label class="formLabel" for="list_addr">DEBUG To:</label>
+	<div class="formRow">
+		<label class="formLabel" for="list_addr"><strong>DEBUG</strong> To:</label>
 		<input dojoType="dijit.form.ValidationTextBox" regExpGen="dojox.regexp.emailAddress" class="formInput" type="text" id="list_addr" name="list_addr" value="<?= isset($this->list_addr)?$this->list_addr:"" ?>"  required="true" title="DEBUG: Send this email to this address" promptMessage="DEBUG: Send this email to this address"></input></div>
-<?php 
+<?php
 	}
 ?>
 	<div class="formRow">
