@@ -44,6 +44,9 @@ class esdPerson implements Zend_Acl_Role_Interface {
 			    - field contains the program name
 			  */
 			 "program_coord" => "ACPL8GPCO_N",
+
+			 // flag for current/former faculty (Y/N)
+			 "current_faculty" => "PRSN_F_FCLT_CRNT",
 			 );
 
     // determine the user's role in the system
@@ -137,7 +140,7 @@ class esdPerson implements Zend_Acl_Role_Interface {
       
     case "name":	// directory name or first and middle name
       // fixme: directory name doesn't seem to be working properly in some cases....
-      if ($this->directory_name) {
+      if (trim($this->directory_name) != "") {
 	return $this->directory_name;
       } else {
 	$name = $this->firstname;
@@ -145,6 +148,9 @@ class esdPerson implements Zend_Acl_Role_Interface {
 	return $name;
       }
     case "netid":	// netid is stored in all caps, but we will always use it lower case
+      // can't rely on netid for former faculty, using esd dbid as pseudo-netid instead
+      if ($this->current_faculty == "N")
+	return "esdid" . $this->id;
       return strtolower($this->{$this->alias["netid"]});
     default:
       if (isset($this->alias[$field]) && isset($this->{$this->alias[$field]}))
@@ -253,10 +259,23 @@ class esdPersonObject extends Emory_Db_Table {
   }
 
   public function findByUsername($netid) {
+    // for former faculty, using ESD id as a pseudo-netid, since netid not reliably available
+    if (preg_match("/^esdid[0-9]+$/", $netid)) {
+      $id = preg_replace("/^esdid/", "", $netid);
+      return $this->findById($id);
+    }
+
     $sql = "select * from ESDV.v_etd_prsn where LOGN8NTWR_I = ?";
     $stmt = $this->_db->query($sql, array(strtoupper($netid)));
     return $stmt->fetchObject("esdPerson");
   }
+
+  public function findById($id) {
+    $sql = "select * from ESDV.v_etd_prsn where PRSN_I = ?";
+    $stmt = $this->_db->query($sql, array($id));
+    return $stmt->fetchObject("esdPerson");
+  }
+
 
   /**
    * create a minimal esdPerson when ESD is unavailable
@@ -274,9 +293,15 @@ class esdPersonObject extends Emory_Db_Table {
 
   /**
    * find a list of matching faculty based on name - used for suggestor
+   * @param string $name text to match
+   * @param boolean $current search for current or former faculty (default: current)
+   * @return array of esdPerson objects
    */
-  public function match_faculty($name) {
-    $sql = "SELECT * FROM ESDV.v_etd_prsn_tabl WHERE PRSN_C_TYPE='F' ";
+  public function match_faculty($name, $current = true) {
+    $current_flag = $current ? "Y" : "N";
+    //    $sql = "SELECT * FROM ESDV.v_etd_prsn_tabl WHERE PRSN_C_TYPE='F' "prsn_f_fclt_crnt
+    // search either for current or former faculty, relying solely on the current faculty flag
+    $sql = "SELECT * FROM ESDV.v_etd_prsn_tabl WHERE PRSN_F_FCLT_CRNT='$current_flag' ";
 
     $name = str_replace(",", "", $name);	// ignore commas
     $name = strtolower($name);	// convert to lower case for case-insensitive comparison

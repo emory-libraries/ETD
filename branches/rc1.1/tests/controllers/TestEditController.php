@@ -131,6 +131,18 @@ class EditControllerTest extends ControllerTestCase {
     $this->assertEqual(1, count($etd->mods->committee));
     $this->assertEqual("Mars Polytechnic", $etd->mods->nonemory_committee[0]->affiliation);
 
+    // test setting affiliation for former faculty
+    $this->setUpPost(array('pid' => 'test:etd2', 'chair' => array('mhalber'),
+			   'committee' => array('jfenton'),
+			   "mhalber_affiliation" => "grants",
+			   "jfenton_affiliation" => "preservation"));
+    $EditController->savefacultyAction();
+    $etd = new etd("test:etd2");
+    $this->assertEqual("grants", $etd->mods->chair[0]->affiliation);
+    $this->assertEqual("preservation", $etd->mods->committee[0]->affiliation);
+    
+
+    
     // simulate bad input (nonexistent ids - shouldn't happen in real life)
     $this->setUpPost(array('pid' => 'test:etd2', 'chair' => array('nobody'), 'committee' => array('nobodytoo'),
 			   'nonemory_firstname' => array(), 'nonemory_lastname' => array(),
@@ -150,6 +162,8 @@ class EditControllerTest extends ControllerTestCase {
     $this->assertEqual("Fenton", $etd->mods->committee[0]->last);
     // no non-emory info sent- should be empty
     $this->assertFalse(isset($etd->mods->nonemory_committee[0]));
+
+
   }
 
   function testRightsAction() {

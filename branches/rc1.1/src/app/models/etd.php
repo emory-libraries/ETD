@@ -645,6 +645,17 @@ class etd extends foxml implements etdInterface {
     }
     return $chairs;
   }
+  // return hash of committe member name and affiliation (if any)
+  public function committee_with_affiliation() {
+    $committee = array();
+    foreach ($this->mods->committee as $c) {
+      if (isset($c->affiliation)) 
+	$committee[$c->full] = $c->affiliation;
+      else
+	$committee[$c->full] = "";
+    }
+    return $committee;
+  }
 
 
 

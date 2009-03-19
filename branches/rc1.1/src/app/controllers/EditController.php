@@ -91,6 +91,20 @@ class EditController extends Etd_Controller_Action {
     $etd->setCommittee($chair_ids, "chair");
     $etd->setCommittee($committee_ids);
 
+    // any of these could now be former faculty; loop through and check for affiliation
+    foreach ($chair_ids as $id) {
+      if ($this->_hasParam($id . "_affiliation") &&
+	  ($affiliation = $this->_getParam($id . "_affiliation", "")) != "") {
+	$etd->mods->setCommitteeAffiliation($id, $affiliation, "chair");
+      }
+    }
+    foreach ($committee_ids as $id) {
+      if ($this->_hasParam($id . "_affiliation") &&
+	  ($affiliation = $this->_getParam($id . "_affiliation", "")) != "") {
+	$etd->mods->setCommitteeAffiliation($id, $affiliation);
+      }
+    }
+
     // handle non-emory committee members as well
     $etd->mods->clearNonEmoryCommittee();
     $nonemory_first = $this->_getParam("nonemory_firstname");
@@ -115,7 +129,6 @@ class EditController extends Etd_Controller_Action {
     } else {
       $this->_helper->flashMessenger->addMessage("No changes made to committee chair(s) & members");
     }
-
 
     $this->_helper->redirector->gotoRoute(array("controller" => "view", "action" => "record",
     						"pid" => $etd->pid), '', true);
