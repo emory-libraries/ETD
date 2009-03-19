@@ -955,3 +955,6 @@ span.permalink { background-color: #ffda82; /*#fffdee; /* very faint yellow */ }
 	border-color: 0xcccccc;
 	border-width: 1px;
 }
+#helpPageContent {
+	margin-left: 75px;	
+}
