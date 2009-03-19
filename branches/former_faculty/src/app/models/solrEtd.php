@@ -44,6 +44,16 @@ class solrEtd implements etdInterface {
     }
     return $result;
   }
+
+  public function committee_with_affiliation() {
+    // affiliation not currently stored in solr, return hash with keys but no values
+    $committee = array();
+    foreach ($this->committee() as $c) {
+      $committee[$c] = "";
+    }
+    return $committee;
+  }
+
         // how to handle non-emory committee?
   	// dissertation/thesis/etc
   public function document_type() { return $this->getField("document_type"); }
