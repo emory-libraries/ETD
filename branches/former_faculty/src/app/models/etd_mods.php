@@ -214,6 +214,11 @@ class etd_mods extends mods {
     $name->last  = trim($person->lastname);
     $name->first = trim($person->name);	// directory name OR first+middle
     $name->full  = trim($person->lastnamefirst);
+
+    // remove any prior affiliation so people and affiliations don't get mixed up
+    if (isset($name->affiliation)) {
+      $name->domnode->removeChild($name->map["affiliation"]);
+    }
   }
 
   /**
@@ -259,6 +264,7 @@ class etd_mods extends mods {
 	$i++;
 	continue;
       }
+
       $person = $esd->findByUsername($id);
       if ($person) {
 	if (isset($this->map[$type][$i])) {
@@ -311,6 +317,20 @@ class etd_mods extends mods {
       $node->parentNode->removeChild($node);
     }
     $this->update();
+  }
+
+  public function setCommitteeAffiliation($id, $affiliation, $type = "committee") {
+    foreach ($this->{$type} as $member) {
+      if ($member->id == $id) {
+	if (isset($member->affiliation)) {
+	  $member->affiliation = $affiliation;
+	} else {
+	  $newnode = $this->dom->createElementNS($this->namespace, "mods:affiliation",
+						 $affiliation);
+	  $member->domnode->appendChild($newnode);
+	}
+      }
+    }
   }
 
   
