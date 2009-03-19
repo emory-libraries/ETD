@@ -48,6 +48,9 @@
 		<input class="formInput" type="text" id="grad_date" name="grad_date" value="" dojoType="dijit.form.DateTextBox" value="new Date();" constraints="{datePattern:'MM/yyyy'}" required="true" trim="true" promptMessage="Please use this format: mm/yyyy" invalidMessage="Invalid date. Use mm/yyyy format."></input>
 		or N/A <input class="formInput" type="checkbox" id="grad_date_appl" name="grad_date_appl" value="true" dojoType="dijit.form.CheckBox" onClick="dijit.byId('grad_date').setDisabled(dijit.byId('grad_date_appl').getValue()); dijit.byId('grad_date').setValue('');" title="No specific graduation date"></input></div>
 	<div class="formRow">
+		<label class="formLabel" for="subject">Subject:</label>
+		<input dojoType="dijit.form.TextBox" class="formInput" type="text" id="subject" name="subject" value=""  required="true" title="Please enter the subject of the assistance needed." promptMessage="Please enter the subject of the assistance needed."></input></div>
+	<div class="formRow">
 		<label class="formLabel" for="message">Message:</label>
 		<textarea dojoType="dijit.form.Textarea" class="formInputArea" minSize="250px" type="text" id="message" name="message" required="true" title="Please be as descriptive as possible" promptMessage="Please be as descriptive as possible"value=""></textarea></div>
 	<div id="helpFormButtons">

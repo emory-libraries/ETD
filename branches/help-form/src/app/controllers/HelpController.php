@@ -23,6 +23,7 @@ class HelpController extends Etd_Controller_Action {
 	  	$notify = new Zend_Mail();
 	  	
 	    $config = Zend_Registry::get('config');
+	    $environment = Zend_Registry::get('env-config');
 	    if ($environment->mode != "production") {
 	    	// use a configured debug email address when in development mode
 			$list_addr = $config->email->test;
@@ -30,21 +31,20 @@ class HelpController extends Etd_Controller_Action {
 			$list_addr = $config->email->etd->address;
 	    }
 	   
-//	  	$list_addr = "rwrober@emory.edu";
-	  	
-	  	$etd_ark = (isset($this->$_GET['etd_link']) && !empty($this->$_GET['etd_link']))?($this->$_GET['etd_link']):"NOT ATTAINABLE";
-	  	$grad_date = (isset($this->$_GET['grad_date']) && !empty($this->$_GET['grad_date']))?($this->$_GET['grad_date']):"NOT SPECIFIED";
+    	$request = $this->getRequest();
+    	$etd_ark = $request->getParam("etd_link", null)!=null?($request->getParam("etd_link")):"NOT ATTAINABLE";
+    	$grad_date = $request->getParam("grad_date", null)!=null?($request->getParam("grad_date")):"NOT SPECIFIED";
 	  	
 	  	$notify->addTo($list_addr);
-	  	$notify->setFrom(array("netid", $this->$_GET['email']), $this->$_GET['username']);
-	  	$notify->setSubject("Automated ETD Help Request");
+	  	$notify->setFrom($request->getParam("email"), $request->getParam("username"));
+	  	$notify->setSubject($request->getParam("subject"));
     	$tagfilter = new Zend_Filter_StripTags();
 	  	$notify->setBodyText(
-	  		  "Contact: " . $this->$_GET['username'] . "\n"
-	  		. "Email Address: " . $this->$_GET['email'] . "\n"
+	  		  "Contact: " . $request->getParam("username") . "\n"
+	  		. "Email Address: " . $request->getParam("email") . "\n"
 	  		. "ETD: " . $etd_ark . "\n"
 	  		. "Expected Graduation Date: " . $grad_date . "\n\n"
-	  		. $tagfilter->filter($this->$_GET['message'])
+	  		. $tagfilter->filter($request->getParam("message"))
 	  		);
 	    $notify->send();
     		
@@ -55,24 +55,24 @@ class HelpController extends Etd_Controller_Action {
 	    $this->_helper->redirector->gotoRoute(array("controller" => "help", "action" => "success"), "", true);
     	$this->_forward("success");
   	} else {
-      $this->logger->err("Problem submitting your message to the help list");
-      $this->_helper->flashMessenger->addMessage("Validation Error: there was a problem submitting your message for help.");
-      
-      // Validation Errors
-//      $this->_helper->flashMessenger->addMessage("Validation Error: ");
-      
-      /*
-       * TODO: Should we suggest manually submit with mailto:  by redirecting to failure page within controller?
-       */
-    	$this->_forward("index");
+		$this->logger->err("Problem submitting your message to the help list");
+		$this->_helper->flashMessenger->addMessage("Validation Error: there was a problem submitting your message for help.");
+// TODO: would like to forward these back to the index page so they can be filled in on the form
+//		$request->getParam("username", null)!=null && 
+//  		$request->getParam("email", null)!=null && 
+//  		$request->getParam("message", null)!=null && 
+//  		$request->getParam("subject", null)!=null 
+		$this->_forward("index");
   	}
   }
   
   protected function verifyParms() {
+    $request = $this->getRequest();
   	return (
-  		isset($_GET["username"]) && !empty($_GET["username"]) && 
-  		isset($_GET["email"]) && !empty($_GET["email"]) && 
-  		isset($_GET["message"]) && !empty($_GET["message"])
+  		$request->getParam("username", null)!=null && 
+  		$request->getParam("email", null)!=null && 
+  		$request->getParam("message", null)!=null && 
+  		$request->getParam("subject", null)!=null 
   		);
   }
 

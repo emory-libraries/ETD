@@ -37,7 +37,7 @@ class HelpControllerTest extends ControllerTestCase {
 	$this->assertNotNull($list_addr);
     	
     // assert perfect
-    $this->setUpGet(array("email" => "email@emory.edu", "username" => "Test User", "message" => "some message"));
+    $this->setUpGet(array("email" => "email@emory.edu", "username" => "Test User","subject"=>"Test message", "message" => "some message"));
     $HelpController->submitAction();
     $messages = $HelpController->getHelper('FlashMessenger')->getMessages();
     $this->assertPattern("/Help email sent/", $messages[0]);
