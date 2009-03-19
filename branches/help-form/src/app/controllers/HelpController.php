@@ -10,7 +10,15 @@ class HelpController extends Etd_Controller_Action {
   private $message;
   
   public function indexAction() {
-  	/**/
+  	if(isset($this->current_user)) {
+	  	$this->view->fullname = $this->current_user;
+	  	$this->view->netid    = $this->current_user->netid;
+	  	$this->view->etd_link = "";
+  	} else {
+	  	unset($this->view->fullname);
+	  	unset($this->view->netid);
+	  	unset($this->view->etd_link);
+	}
   }
    
   // display success message with more information
@@ -37,7 +45,7 @@ class HelpController extends Etd_Controller_Action {
 	  	
 	  	$notify->addTo($list_addr);
 	  	$notify->setFrom($request->getParam("email"), $request->getParam("username"));
-	  	$notify->setSubject($request->getParam("subject"));
+	  	$notify->setSubject("ETD Help: " . $request->getParam("subject"));
     	$tagfilter = new Zend_Filter_StripTags();
 	  	$notify->setBodyText(
 	  		  "Contact: " . $request->getParam("username") . "\n"
