@@ -262,7 +262,6 @@ class esdPersonObject extends Emory_Db_Table {
     // for former faculty, using ESD id as a pseudo-netid, since netid not reliably available
     if (preg_match("/^esdid[0-9]+$/", $netid)) {
       $id = preg_replace("/^esdid/", "", $netid);
-      print "DEBUG: searching for db id $id<br/>\n";
       return $this->findById($id);
     }
 
