@@ -1,0 +1,32 @@
+<?=  $this->render('email/_debug.phtml'); ?>
+<p>Dear <?= $this->etd->mods->author->first ?>,</p>
+
+<p>Congratulations! Your <?= $this->etd->document_type() ?> has been reviewed and approved by
+the Graduate School. You have, therefore, successfully submitted your
+<?= $this->etd->document_type() ?> in partial fulfillment of the requirements for
+your degree.</p>
+
+<p>This notification is not intended to communicate information
+regarding your graduation status. Please contact the registrar or
+consult OPUS to confirm that you have satisfied all the requirements
+for graduation.</p>
+
+<p>Your ETD will now be processed by the library for inclusion in the Emory ETD Repository. After your
+graduation status has been confirmed, you will receive notice shortly
+that your ETD is
+<? if ($this->etd->mods->embargo_request == "no"): ?>
+available for immediate access via the World Wide Web.  
+<? else: ?>  
+unavailable for a period of <?= $this->etd->mods->embargo ?> according to
+the terms of the access restriction application to which you, your
+committee and the Graduate School have previously agreed.
+<? endif ?>
+</p>
+
+<p>You will soon receive an email
+invitation to take a Graduate School Exit Survey.  The survey is
+anonymous, and the Graduate School will not know or be able to reveal
+the identity of any individual responder.  Please take this
+opportunity to provide the Graduate School with your valuable insights
+on your graduate career experiences.  Your feedback will be most
+helpful to us in our efforts to improve programs for future students.</p>
