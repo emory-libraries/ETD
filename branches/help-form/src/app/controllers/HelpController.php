@@ -45,6 +45,10 @@ class HelpController extends Etd_Controller_Action {
 	  	
 	  	$notify->addTo($list_addr);
 	  	$notify->setFrom($request->getParam("email"), $request->getParam("username"));
+	  	$copy_netid = $request->getParam("copy_netid", null);
+	  	if($copy_netid!=null) {
+	  		$notify->addCc($request->getParam("email"), $request->getParam("username"));
+	  	}
 	  	$notify->setSubject("ETD Help: " . $request->getParam("subject"));
     	$tagfilter = new Zend_Filter_StripTags();
 	  	$notify->setBodyText(
