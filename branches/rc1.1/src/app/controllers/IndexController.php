@@ -19,7 +19,9 @@ class IndexController extends Etd_Controller_Action {
     try {
       $this->view->feed = new Zend_Feed_Rss($this->_helper->absoluteUrl($feed, 'feeds'));
     } catch (Exception $e) {
-      trigger_error("Could not parse Feed '$feed'", E_USER_NOTICE);
+      $message = "Could not parse RSS feed '$feed' - " . $e->getMessage();
+       trigger_error($message, E_USER_NOTICE);
+      $this->logger->err($message);
     }
   }
 
