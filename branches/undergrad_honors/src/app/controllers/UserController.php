@@ -52,7 +52,7 @@ class UserController extends Etd_Controller_Action {
 	$user = new user();
       }
       // need access to etd in the view for displaying correct set of instructions
-      $this->view->etd = EtdFactory::etdByPid($this->view->etd_pid);
+      $this->view->etd = $this->_helper->getFromFedora("etd", "etd");	  
     } else { 		// if pid is defined, action is editing a particular, existing object
 
       // FIXME:  need to initialize as honors user here too...

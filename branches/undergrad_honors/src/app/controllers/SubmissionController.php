@@ -186,7 +186,7 @@ class SubmissionController extends Etd_Controller_Action {
       $department = $programs->findLabel($this->view->etd_info['department']);
     }
     // if we found a department either way, set text in mods and id in rels-ext
-    if ($department) {
+    if (isset($department) && $department) {
       $etd->department = $department;
       // find program id and store in rels
       $prog_id = $programs->findIdByLabel($department);

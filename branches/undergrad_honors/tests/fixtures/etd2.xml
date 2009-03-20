@@ -14,7 +14,7 @@
 	  <mods:titleInfo>
 	    <mods:title>Why I Hate Milk</mods:title>
 	  </mods:titleInfo>
-	  <mods:name type="personal">
+	  <mods:name type="personal" ID="dduck">
 	    <mods:namePart type="given">Daffy</mods:namePart>
 	    <mods:namePart type="family">Duck</mods:namePart>
 	    <mods:displayForm>Duck, Daffy</mods:displayForm>
@@ -59,6 +59,7 @@
 	  <mods:accessCondition type="restrictionOnAccess">Embargoed for 0 days</mods:accessCondition>
 	  <mods:language>
 	    <mods:languageTerm authority="iso639-2b" type="text">English</mods:languageTerm>
+	    <mods:languageTerm authority="iso639-2b" type="code">eng</mods:languageTerm>
 	  </mods:language>
 	  <mods:extension>
 	    <etd:degree>

@@ -136,7 +136,7 @@ class ManageControllerTest extends ControllerTestCase {
     $etd->save("set status to submitted to test review - grad admin");
     $ManageController->acceptAction();
     $etd = new etd("test:etd2");	// get from fedora to check changes
-    $this->assertEqual("Record reviewed by Graduate School", $etd->premis->event[2]->detail);
+    $this->assertEqual("Record reviewed by the Graduate School", $etd->premis->event[2]->detail);
 
 
     // FIXME: not allowed to do this on hon-honors etd
@@ -189,7 +189,7 @@ class ManageControllerTest extends ControllerTestCase {
     $etd->save("set status to submitted to test request changes - grad admin");
     $ManageController->requestchangesAction();
     $etd = new etd("test:etd2");	// get from fedora to check changes
-    $this->assertEqual("Changes to record requested by Graduate School", $etd->premis->event[2]->detail);
+    $this->assertEqual("Changes to record requested by the Graduate School", $etd->premis->event[2]->detail);
     
     /*$this->test_user->role = "honors admin";
     // reset status on etd
@@ -238,7 +238,7 @@ class ManageControllerTest extends ControllerTestCase {
     $etd->save("set status to reviewed to test request changes - grad admin");
     $ManageController->requestchangesAction();
     $etd = new etd("test:etd2");	// get from fedora to check changes
-    $this->assertEqual("Changes to document requested by Graduate School", $etd->premis->event[2]->detail);
+    $this->assertEqual("Changes to document requested by the Graduate School", $etd->premis->event[2]->detail);
 
     /*
     $this->test_user->role = "honors admin";

@@ -512,7 +512,7 @@ class etd_mods extends mods {
       return ($this->author->affiliation != "");
     case "chair":
       // complete if there is at least one valid chair (all should have an emory id)
-      return ($this->chair[0]->id != "");
+      return (isset($this->chair[0]) && $this->chair[0]->id != "");
     case "committee members":
       // complete if there is at least one committee member (valid faculty, same as chair test)
       return (isset($this->committee[0]) && $this->committee[0]->id != "");
