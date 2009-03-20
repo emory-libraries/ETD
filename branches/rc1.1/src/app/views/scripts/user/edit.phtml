@@ -2,10 +2,13 @@
 
 <?=  $this->render('edit/_xforms_key.phtml'); ?>
 
-<p>The personal information below will be collected and sent to
+<p> <? if ($this->etd->isRequired("send to ProQuest")): ?>
+   The personal information below will be collected and sent to
 Proquest with an electronic copy of your thesis or dissertation.
 (Proquest/UMI collects this information so that they can contact you
-regarding the payment of royalties, etc.)  We collect a non-Emory
+regarding the payment of royalties, etc.)
+<? endif ?>
+We collect a non-Emory
 email address to inform you of the impending expiration of access
 restrictions you have placed on your document.  Your personal
 information will not be available publicly or shared with anyone

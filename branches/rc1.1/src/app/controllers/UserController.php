@@ -1,6 +1,7 @@
 <?php
 
 require_once("models/user.php");
+require_once("models/honors_user.php");
 
 class UserController extends Etd_Controller_Action {
   protected $requires_fedora = true;
@@ -38,12 +39,29 @@ class UserController extends Etd_Controller_Action {
       throw new Exception("Required parameter 'etd' is not set");
     $this->view->etd_pid = $this->_getParam("etd");	
     
-    if (is_null($pid))	{ // if pid is null, action is actually create (user is not author on an object yet)
-      $user = new user();	// create new empty user object
+    if (is_null($pid))	{
+      // if pid is null, action is actually create (user is not author on an object yet)
       if (!$this->_helper->access->allowedOnUser("create")) return false;
-    } else { 		// if pid is defined, action is editing an existing object
+
+      // create new empty user object
+      if (preg_match("/^honors student/", $this->current_user->role)) {
+	// if user is an honors student, create new record as honors user
+	$user = new honors_user();
+      } else {
+	// for all other users, use default user object
+	$user = new user();
+      }
+      // need access to etd in the view for displaying correct set of instructions
+      $this->view->etd = $this->_helper->getFromFedora("etd", "etd");	  
+    } else { 		// if pid is defined, action is editing a particular, existing object
+
+      // FIXME:  need to initialize as honors user here too...
       $user = $this->_helper->getFromFedora("pid", "user");	  
       if (!$this->_helper->access->allowedOnUser("edit", $user)) return false;
+
+      // configure view so etd object will be available in the same
+      // place when editing new or existing user info
+      $this->view->etd = $user->etd;
     }
     $this->view->user = $user;
 
@@ -121,7 +139,7 @@ class UserController extends Etd_Controller_Action {
     }
 
     if ($etd_pid) {
-      $etd = new etd($etd_pid);
+      $etd = EtdFactory::etdByPid($etd_pid);
       $etd->rels_ext->addRelationToResource("rel:hasAuthorInfo", $user->pid);
       $save_result = $etd->save("associated user object with etd");
       // only display a message if there is a problem

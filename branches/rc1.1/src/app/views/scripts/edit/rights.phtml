@@ -12,11 +12,11 @@
 
 <p>Indicate below whether you and your Committee Chair are requesting that
 access to the full text of your thesis or dissertation be restricted
-for a period of time.  (The Graduate School will enter the term of the
+for a period of time.  (An administrator will enter the term of the
 access restriction after it is approved.)</p>
 <p><b>NOTE:</b> requests for an access restriction must be made on the
-paper ETD Submission Agreement Form which you will present to the
-Graduate School for approval.</p>
+paper ETD Submission Agreement Form which you will present to 
+<?= $this->etd->admin_agent ?> for approval.</p>
 
 <div class="xfselect">
   <?= $this->xformSelect("Access Restriction (Embargo)", "instance('tmp')/embargo", $embargo_opts, $opts); ?>
@@ -71,7 +71,7 @@ supplements the paper form signed by you and your Committee Chair.)</p>
   <xf:select ref="instance('tmp')/agreement" appearance="full">
     <xf:label>Submission Agreement</xf:label>
       <xf:item>
-      <xf:label>I hereby grant to Emory University and its agents the non-exclusive license to archive, make accessible, and display, (subject to the conditions agreed upon in the separate written agreement I have submitted to the graduate school,) my thesis or dissertation in whole or in part in all forms of media, now or hereafter known, including the display of the thesis or dissertation on the world wide web. I retain all ownership rights to the copyright of the thesis or dissertation. I also retain the right to use in future works (such as articles or books) all or part of this thesis or dissertation. I certify that my electronic submission is the version of my thesis/dissertation that was approved by my committee.</xf:label>
+      <xf:label>I hereby grant to Emory University and its agents the non-exclusive license to archive, make accessible, and display (subject to the conditions agreed upon in the separate written agreement I have submitted to <?= $this->etd->admin_agent ?>) my thesis or dissertation in whole or in part in all forms of media, now or hereafter known, including the display of the thesis or dissertation on the world wide web. I retain all ownership rights to the copyright of the thesis or dissertation. I also retain the right to use in future works (such as articles or books) all or part of this thesis or dissertation. I certify that my electronic submission is the version of my thesis/dissertation that was approved by my committee.</xf:label>
       <xf:value>yes</xf:value>
       </xf:item>
 

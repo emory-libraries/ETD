@@ -1,9 +1,9 @@
 <?=  $this->render('email/_debug.phtml'); ?>
 <p>Dear <?= $this->etd->mods->author->first ?>,</p>
 
-<p>When you submitted your dissertation to the Emory University ETD 
-repository, you requested that the full text of your document remain 
-inaccessible for <?= $this->etd->mods->embargo ?>.</p>
+<p>When you submitted your <?= $this->etd->document_type() ?> to the
+Emory University ETD repository, you requested that the full text of
+your document remain inaccessible for <?= $this->etd->mods->embargo ?>.</p>
 
 <p>Unless the library is informed otherwise, the full text of your thesis 
 will be available via our website on <?= $this->etd->mods->embargo_end ?>.  

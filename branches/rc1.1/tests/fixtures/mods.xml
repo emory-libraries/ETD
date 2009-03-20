@@ -56,6 +56,10 @@
     <mods:extent/>
   </mods:physicalDescription>
   <mods:accessCondition type="useAndReproduction"/>
+  <mods:language>
+    <mods:languageTerm authority="iso639-2b" type="text">English</mods:languageTerm>
+    <mods:languageTerm authority="iso639-2b" type="code">eng</mods:languageTerm>
+  </mods:language>
   <mods:extension>
     <etd:degree>
       <etd:name>PhD</etd:name>

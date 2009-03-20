@@ -24,6 +24,8 @@ class Mock_Etd_Service_Solr extends Basic_Mock_Etd_Service_Solr {
 
     $this->setReturnReference('query', $this->response);
     $this->setReturnReference('suggest', $this->response);
+    $this->setReturnReference('browse', $this->response);
+    $this->setReturnReference('_browse', $this->response);
   }
 }
 
@@ -43,6 +45,7 @@ Mock::generate('user',  'BasicMock_User');
 
 class MockEtd extends BasicMock_Etd {
   public $pid;
+  public $PID;		// not ideal... using for solr results
   public $label;
   public $dc;
   public $mods;
@@ -51,6 +54,8 @@ class MockEtd extends BasicMock_Etd {
 
   public $status;
   public $user_role;
+
+  public $fedora;
   
   public function __construct() {
     $this->BasicMock_Etd();
@@ -74,6 +79,14 @@ class MockEtd extends BasicMock_Etd {
   public function getUserRole() {
     return ($this->user_role == "") ? "guest" : $this->user_role;
   }
+
+  public function save($message) {
+    if (isset($this->fedora)) {
+      $this->fedora->ingest($message);
+    }
+    return "saved";
+  }
+   
 
 }
 
@@ -109,17 +122,25 @@ class MockUser extends BasicMock_User {
 }
 
 require_once('fedora/api/FedoraConnection.php');
+require_once('fedora/api/risearch.php');
+require_once('Emory/Service/Persis.php');	// for persis exceptions
 Mock::generate('FedoraConnection', 'BasicMockFedoraConnection');
+Mock::generate('risearch', 'MockRisearch');
 
 class MockFedoraConnection extends BasicMockFedoraConnection {
   private $exception;
+  public $risearch;
+  
+  public function __construct(){
+    $this->BasicMockFedoraConnection();
+    $this->risearch = &new MockRisearch();
+  }
   
   public function setException($name) {
     $this->exception = $name;
-    
   }
 
-  public function getObjectProfile() {
+  private function throw_exception() {
     switch($this->exception) {
     case "NotFound":
       throw new FedoraObjectNotFound();
@@ -127,16 +148,36 @@ class MockFedoraConnection extends BasicMockFedoraConnection {
       throw new FedoraAccessDenied();
     case "NotAuthorized":
       throw new FedoraNotAuthorized();
+    case "NotValid":
+      throw new FedoraObjectNotValid();
+          case "NotValid":
+      throw new FedoraObjectNotValid();
+
+      // persis errors may be triggered on fedora ingest
+    case "PersisUnavail":
+      throw new PersisServiceUnavailable();
+    case "PersisUnauth":
+      throw new PersisServiceUnauthorized();
+    case "Persis":
+      throw new PersisServiceException();
     case "generic":
       throw new FoxmlException();
     }
-
+  }
+  
+  public function getObjectProfile() {
+    $this->throw_exception();
+    
     $response = new getObjectProfileResponse();
     $response->objectProfile->objContentModel = "etd";
     $response->objectProfile->objLabel = "title";
     $response->objectProfile->objLastModDate = "today";
     return $response->objectProfile;
     
+  }
+
+  public function ingest($msg) {
+    $this->throw_exception();
   }
   
 }

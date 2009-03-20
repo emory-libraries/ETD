@@ -997,3 +997,6 @@ div.autocomplete ul li {
 #helpPageContent {
 	margin-left: 75px;	
 }
+
+span.ok { color:green;  }
+span.incomplete { color:red; }

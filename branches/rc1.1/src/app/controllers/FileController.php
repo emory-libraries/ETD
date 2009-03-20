@@ -79,48 +79,44 @@ class FileController extends Etd_Controller_Action {
        // add relation to etd
        // FIXME: this should probably be a function of etdfile or rels
        $etdfile->rels_ext->addRelationToResource("rel:is{$relation}Of", $etd->pid);
-       try {
-	 $filepid = $etdfile->save("adding new file");
-       } catch (PersisServiceUnavailable $e) {
-	 // ingest relies on persistent id server to generate the pid
-	 $message = "could not create new record because Persistent Identifier Service is not available";
-	 $this->_helper->flashMessenger->addMessage("Error: $message");
-	 $this->logger->err($message); 
-	 // redirect to an error page
-	 $this->_helper->redirector->gotoRouteAndExit(array("controller" => "error", "action" => "unavailable"));
-       }
-       // FIXME: catch other errors here - permission? what else?
-       
-       $this->view->file_pid = $filepid;
 
-       // delete temporary file now that we are done with it
-       unlink($filename);
-
-       // add relation to etd object as well
-       switch($file_rel) {
-       case "pdf": 	  $etd->addPdf($etdfile); break;
-       case "original":   $etd->addOriginal($etdfile); break;
-       case "supplement": $etd->addSupplement($etdfile); break;
-       default:	
-	 trigger_warning("relation '$relation' not recognized - not adding to etd", E_USER_WARNING);
-       }
-
-       // note: saving etd will also save any changed related objects (etdfile rels & xacml)
-       $result = $etd->save("added relation to uploaded $file_rel");
-       if ($result) {
-	 $this->logger->info("Updated etd " . $etd->pid . " at $result (adding relation to pdf)");
-       } else {
-	 $this->_helper->flashMessenger->addMessage("Error: problem  associating new $relation file with your ETD record");
-	 $this->logger->err("Error updating etd " . $etd->pid . " (adding relation to pdf)");
-       }
+       $filepid = $this->_helper->ingestOrError($etdfile,
+						"adding new file",
+						"file record", $errtype);
+       if ($filepid) {
+	 $this->logger->info("Created new etd file record with pid $filepid");
+	 $this->view->file_pid = $filepid;
+	 
+	 // delete temporary file now that we are done with it
+	 unlink($filename);
+	 
+	 // add relation to etd object as well
+	 switch($file_rel) {
+	 case "pdf": 	  $etd->addPdf($etdfile); break;
+	 case "original":   $etd->addOriginal($etdfile); break;
+	 case "supplement": $etd->addSupplement($etdfile); break;
+	 default:	
+	   trigger_warning("relation '$relation' not recognized - not adding to etd", E_USER_WARNING);
+	 }
+	 
+	 // note: saving etd will also save any changed related objects (etdfile rels & xacml)
+	 $result = $etd->save("added relation to uploaded $file_rel");
+	 if ($result) {
+	   $this->logger->info("Updated etd " . $etd->pid . " at $result (adding relation to pdf)");
+	 } else {
+	   $this->_helper->flashMessenger->addMessage("Error: problem  associating new $relation file with your ETD record");
+	   $this->logger->err("Error updating etd " . $etd->pid . " (adding relation to pdf)");
+	 }
 
        
-       // direct user to edit file info
-       $this->_helper->redirector->gotoRoute(array("controller" => "file", "action" => "edit",
-       						   "pid" => $etdfile->pid, 'etd' => $etd->pid), '', true);
+	 // direct user to edit file info
+	 $this->_helper->redirector->gotoRoute(array("controller" => "file", "action" => "edit",
+						     "pid" => $etdfile->pid, 'etd' => $etd->pid), '', true);
+       }  // end successfully ingested file
+       
        
      } else {
-       // upload failed (what should happen here?)  - there should be error messages from file upload failure
+       // upload failed - should be error messages from file upload helper
        $this->_forward("add");
      }
    }

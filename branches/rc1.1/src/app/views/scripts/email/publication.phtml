@@ -29,15 +29,18 @@ restriction for any reason.</p>
 <? endif ?>
 
 <p>The library no longer requires that you create bound paper copies
-of your thesis or dissertation.  Please contact your department or
+of your thesis.  Please contact your department or
 program regarding their requirements for the production of paper
 copies for department/program libraries or committee members.  To have
-personal copies of your thesis or dissertation produced, there are a <a
+personal copies of your thesis produced, there are a <a
 href="http://etd.library.emory.edu/docs/boundcopies">number of
 vendors</a> who you may wish to contact, and their contact information
-is listed on the ETD website.  (Paper copies of your dissertation will
-also be available through UMI/Proquest once your thesis or
-dissertation has been processed by them.)</p>
+is listed on the ETD website.
+<? if (! $this->etd->isHonors()): /* PQ-specific, not relevant for undergrad */ ?>
+(Paper copies of your thesis will also be available through UMI/Proquest
+once your thesis has been processed by them.)
+<? endif ?>
+</p>
 
 <p>Congratulations!</p>
 

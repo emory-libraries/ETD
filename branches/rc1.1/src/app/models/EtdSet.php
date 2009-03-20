@@ -3,14 +3,15 @@
 require_once("api/fedora.php");
 require_once("api/risearch.php");
 
+require_once("EtdFactory.php");
 require_once("solrEtd.php");
 require_once("etd.php");
 require_once("stats.php");
 
 /**
  * container object for a group of etds retrieved from Solr, with relevant metadata
+ * find functions for retrieving etds
  *
- ************ FIXME:  would it make sense to move the find functions here and make them non-static ?
  */
 class EtdSet {
   
@@ -49,7 +50,7 @@ class EtdSet {
     foreach ($this->solrResponse->docs as $doc) {
       if ($this->options["return_type"] == "etd") { 
 	try {
-	  $etd = new etd($doc->PID);
+	  $etd = EtdFactory::etdByPid($doc->PID);
 	  $etd->relevance = $doc->score;
 	  $this->etds[] = $etd;
 	  
@@ -67,10 +68,6 @@ class EtdSet {
 	} catch (FedoraNotAuthorized $e) {
 	  trigger_error("Not Authorized to view " . $doc->PID, E_USER_WARNING);
 	}
-	
-	// FIXME: catch other errors (access denied, not authorized, etc)
-	
-	// FIXME: store relevance?  $result_doc->score;
 	
       } else if ($this->options["return_type"] == "solrEtd") {
 	$this->etds[] =  new solrEtd($doc);	
@@ -389,6 +386,32 @@ class EtdSet {
     }
     $this->etds = $sorted_etds;
   }
-  
+
+
+ 
+  /**
+   * Get totals for etds by status, with optional filter.
+   * Result includes all statuses (with zeroes if no matches were found); statuses are
+   * returned in the order given by etd_rels getStatusList 
+   *
+   * @param string solr query to filter results (optional)   
+   * @return array of statuses and counts for each
+   */
+  public function totals_by_status($filter = null) {
+    $solr = Zend_Registry::get('solr');
+    if ($filter) {
+      $solr->addFilter($filter);
+    }
+    $results = $solr->_browse("status");  
+
+    $totals = array();
+    $statuses = $results->facets->status;
+    foreach (etd_rels::getStatusList() as $status) {
+      $totals[$status] = isset($statuses[$status]) ? $statuses[$status] : 0;
+    }
+     
+    return $totals;
+  }
+
 }
 

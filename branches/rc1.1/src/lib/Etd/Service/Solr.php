@@ -28,6 +28,11 @@ class Etd_Service_Solr extends Emory_Service_Solr {
     $this->addFilter("status:published");	// FIXME: can we assume this?
     return parent::browse($field, $prefix, $start, $max);
   }
+
+ // unfiltered browse (only used in special cases)
+  public function _browse($field, $prefix = "", $start = null, $max = null) {
+    return parent::browse($field, $prefix, $start, $max);
+  }
   
 }
 

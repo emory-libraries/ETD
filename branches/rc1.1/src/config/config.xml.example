@@ -1,3 +1,4 @@
+<<<<<<< .working
 <config>
 	<development>
   	  <timezone></timezone>
@@ -33,6 +34,11 @@
 	    <user></user>
             <user></user>
 	  </techsupport>
+	 <!-- undergraduate honors administrators -->
+ 	  <honors_admin>
+	    <user></user>
+	    <user/>
+ 	  </honors_admin>
 
  <!-- NOTE: for both superusers and techsupport, there must
       be at least 2 user entries so Zend_Config_Xml will

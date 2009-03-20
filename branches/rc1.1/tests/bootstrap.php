@@ -41,8 +41,7 @@ Zend_Registry::set('esd-db', $esd);
 Zend_Db_Table_Abstract::setDefaultAdapter($esd);
 
 // set up access controls
-require_once("xml_acl.php");
-$acl = new Xml_Acl($config_dir . "access.xml");
+$acl = new Emory_Acl_Xml($config_dir . "access.xml");
 Zend_Registry::set('acl', $acl);
 // store acl for use within view also
 //$viewRenderer->view->acl = $acl;
