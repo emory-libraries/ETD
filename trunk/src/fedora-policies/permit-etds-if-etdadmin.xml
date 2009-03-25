@@ -138,6 +138,7 @@ access and modify (with some limitations) etd objects (etd, etdfile, user)</Desc
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">phornsb</AttributeValue>
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">ekoffsk</AttributeValue>
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">aafonja</AttributeValue>
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">rwrober</AttributeValue>
         </Apply>
       </Apply>
 
