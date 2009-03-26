@@ -55,17 +55,4 @@ class ReportController extends Etd_Controller_Action {
 		$last_year_grad_date = date("Ymd", mktime(0, 0, 0, 6, 1, date("Y")-10)); 
 		return "[" . $last_year_grad_date . " TO " . $next_grad_date ."]";
 	}
-		
-	public 	function getSemesterDecorator($grad_date) {
-		$date_grad_date = strtotime($grad_date);
-		$decorator = "";
-		if(intval(date("m", $date_grad_date))>=1 && intval(date("m", $date_grad_date))<=5) { // SPRING!
-			$decorator = "";
-		} else if(intval(date("m", $date_grad_date))>5 && intval(date("m", $date_grad_date))<=8) { // SUMMER!
-			$decorator = "*";
-		} else if(intval(date("m", $date_grad_date))>8 && intval(date("m", $date_grad_date))<=12) { // FALL!
-			$decorator = "**";
-		}
-		return $decorator;
-	}
 }
