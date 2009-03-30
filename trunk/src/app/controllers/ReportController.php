@@ -18,6 +18,8 @@ class ReportController extends Etd_Controller_Action {
 		$optionsArray['query'] = "(degree_name:PhD AND (dateIssued:" . $this->getLastYearDateRange() . ") OR (-dateIssued:[* TO *] AND -status:'inactive'))";
 		$optionsArray['sort'] = "author";
 		$optionsArray['NOT']['status'] = "draft";
+		// show ALL records on a single page 
+		$optionsArray['max'] = 1000;
 		//DEBUG
 		$this->view->searchQuery = $optionsArray['query'];
 		
