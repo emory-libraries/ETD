@@ -5,7 +5,7 @@
 <div class="listrecord">
     <div class="record_label"></div><div class="record_author"><?= getSemesterDecorator($this->etd->mods->date) ?><?= $this->etd->author() ?></div>
 	<? foreach ($this->etd->chair() as $advisor): ?>
-		<div class="record_label"></div><div class="record_advisor"><?= $advisor ?>, Adviser</div>
+		<div class="record_label"></div><div class="record_advisor"><?= $this->etd->program() ?>, <?= $advisor ?>, Adviser</div>
 	<? endforeach ?>
     <div class="record_label">Dissertation: </div><div class="record_title"><?= $this->etd->title() ?></div>
     <hr><br/>
