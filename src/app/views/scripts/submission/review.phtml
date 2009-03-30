@@ -8,7 +8,12 @@ then proceed to review/submit again.</p>
 Thesis/Dissertation to the ETD Repository.  Please review the document
 thoroughly.  After the document is deposited, you will NOT be able to
 access the file to make changes of any kind without authorization from
-the Graduate School.</p>
+the Graduate School.
+   <? if ($this->etd->document_type() == "Dissertation"): ?>
+<br/>Please note, the author name and title as it appears here will be
+reproduced in the commencement program.
+   <? endif ?>
+</p>
 
 <? $this->role = $this->etd->getUserRole($this->current_user);  ?>
 <style type="text/css">  <? /* hide a few divs that are not relevant for this page */ ?>
