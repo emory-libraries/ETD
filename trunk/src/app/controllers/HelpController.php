@@ -41,10 +41,12 @@ class HelpController extends Etd_Controller_Action {
   }
   
   public function submitAction() {
-  	if($this->verifyParms()) {
+    	
+  	$request = $this->getRequest();
+  	
+    if($this->verifyParms()) {
 	  	$notify = new Zend_Mail();
 	  	
-    	$request = $this->getRequest();
 	  	
     	$config = Zend_Registry::get('config');
 	    $environment = Zend_Registry::get('env-config');
@@ -73,16 +75,26 @@ class HelpController extends Etd_Controller_Action {
 	  		. "Expected Graduation Date: " . $grad_date . "\n\n"
 	  		. $tagfilter->filter($request->getParam("message"))
 	  		);
-	    $notify->send();
+
+	  	try {
+		    $notify->send();
+  		} catch (Exception $exception) {
+			$this->view->errorMessage = "There was an error sending your message. [" . $exception->getMessage() . "]";
+			$this->view->submittedUsername = $request->getParam("username", "");
+			$this->view->submittedEmail = $request->getParam("email", "");
+			$this->view->submittedMessage = $request->getParam("message", "");
+			$this->view->submittedSubject = $request->getParam("subject", "");
+			$this->_helper->viewRenderer->setScriptAction("index");   	
+  		}
     		
 	    // send notification only if submit succeeded 
 	    $this->_helper->flashMessenger->addMessage("Help email sent.");
+	    $this->logger->info("Help request sent - '" .  $request->getParam("subject") . "'");
 	    
 	    // forward to success message
 	    $this->_helper->redirector->gotoRoute(array("controller" => "help", "action" => "success"), "", true);
     	$this->_forward("success");
   	} else {
-		$this->logger->err("Problem submitting your message to the help list");
 		$this->view->errorMessage = "Validation Error: there was a problem submitting your message for help.  Ensure that the Name, email, subject and message fields are populated before clicking submit.";
 		$this->view->submittedUsername = $request->getParam("username", "");
 		$this->view->submittedEmail = $request->getParam("email", "");
