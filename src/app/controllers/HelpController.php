@@ -54,7 +54,7 @@ class HelpController extends Etd_Controller_Action {
 	    	// use a configured debug email address when in development mode
 			$list_addr = $request->getParam("list_addr", $config->email->test);
 		} else {
-			$list_addr = $config->email->etd->address;
+			$list_addr = $config->contact->email;
 	    }
 	   
     	$etd_ark = $request->getParam("etd_link", null)!=null?($request->getParam("etd_link")):"NO RECORD FOUND";
