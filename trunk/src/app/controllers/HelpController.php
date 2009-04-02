@@ -57,7 +57,7 @@ class HelpController extends Etd_Controller_Action {
 			$list_addr = $config->email->etd->address;
 	    }
 	   
-    	$etd_ark = $request->getParam("etd_link", null)!=null?($request->getParam("etd_link")):"NOT ATTAINABLE";
+    	$etd_ark = $request->getParam("etd_link", null)!=null?($request->getParam("etd_link")):"NO RECORD FOUND";
     	$grad_date = $request->getParam("grad_date", null)!=null?($request->getParam("grad_date")):"NOT SPECIFIED";
 	  	
 	  	$notify->addTo($list_addr);
@@ -89,7 +89,10 @@ class HelpController extends Etd_Controller_Action {
     		
 	    // send notification only if submit succeeded 
 	    $this->_helper->flashMessenger->addMessage("Help email sent.");
-   	    $this->logger->info("Help request sent - '" .  $request->getParam("subject") . "' from " . $this->view->fullname . " <" . $this->view->email . "emory.edu>");
+   	    $this->logger->info("Help request sent - '" 
+   	    	.  $request->getParam("subject") 
+   	    	. "' from " . $request->getParam("username", "")
+			. " <" . $request->getParam("email", "") . ">");
 	    
 	    // forward to success message
 	    $this->_helper->redirector->gotoRoute(array("controller" => "help", "action" => "success"), "", true);
