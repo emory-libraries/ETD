@@ -6,6 +6,18 @@
 <p>&nbsp</p>
 <p>For problems with the ETD submission software, please submit your questions using the form below:</p>
 
+<p>&nbsp</p>
+<?php if(isset($this->errorMessage)) {?>
+<div id="messages">
+	<p class="error"><?= $this->errorMessage ?></p>
+</div>
+<?php } ?>
+<?php 
+	$this->submittedUsername = (isset($this->submittedUsername))?$this->submittedUsername:"";
+	$this->submittedEmail = (isset($this->submittedEmail))?$this->submittedEmail:"";
+	$this->submittedMessage = (isset($this->submittedMessage))?$this->submittedMessage:"";
+	$this->submittedSubject = (isset($this->submittedSubject))?$this->submittedSubject:"";
+?>
 	<script type="text/javascript"
 		djConfig="isDebug: false, parseOnLoad: true"
 		src="<?= $this->linkTo('js/dojo/dojo/dojo.js') ?>"></script>
@@ -52,10 +64,10 @@
 		<input type="hidden" id="etd_link" name="etd_link" value="<?= isset($this->etd_link)?$this->etd_link:"" ?>"></input></div>
 	<div class="formRow">
 		<label class="formLabel" for="username">Full Name:</label>
-		<input dojoType="dijit.form.TextBox" class="formInput" type="text" id="username" name="username" value="<?= isset($this->fullname)?$this->fullname:"" ?>"  required="true" title="User's Full Name" promptMessage="User's Full Name"></input></div>
+		<input dojoType="dijit.form.TextBox" class="formInput" type="text" id="username" name="username" value="<?= isset($this->fullname)?$this->fullname:$this->submittedUsername ?>"  required="true" title="User's Full Name" promptMessage="User's Full Name"></input></div>
 	<div class="formRow">
 		<label class="formLabel" for="email">Net ID Email:</label>
-		<input dojoType="dijit.form.ValidationTextBox" class="formInput" type="text" id="email" name="email" value="<?= isset($this->email)?$this->email:"" ?>" regExpGen="dojox.regexp.emailAddress" trim="true" required="true" title="User's netid email address" promptMessage="User's netid email address" invalidMessage="Invalid Email Address."></input>
+		<input dojoType="dijit.form.ValidationTextBox" class="formInput" type="text" id="email" name="email" value="<?= isset($this->email)?$this->email:$this->submittedEmail ?>" regExpGen="dojox.regexp.emailAddress" trim="true" required="true" title="User's netid email address" promptMessage="User's netid email address" invalidMessage="Invalid Email Address."></input>
 		<input class="formInput" type="checkbox" id="copy_netid" name="copy_netid" value="true" dojoType="dijit.form.CheckBox" title="Send a copy to yourself?"></input> Send me a copy</div>
 	<div class="formRow">
 		<label class="formLabel" for="grad_date">Graduation Date:</label>
@@ -63,10 +75,10 @@
 		or N/A <input class="formInput" type="checkbox" id="grad_date_appl" name="grad_date_appl" value="true" dojoType="dijit.form.CheckBox" onClick="dijit.byId('grad_date').setDisabled(dijit.byId('grad_date_appl').getValue()); dijit.byId('grad_date').setValue('');" title="No specific graduation date"></input></div>
 	<div class="formRow">
 		<label class="formLabel" for="subject">Subject:</label>
-		<input dojoType="dijit.form.TextBox" class="formInput" type="text" id="subject" name="subject" value=""  required="true" title="Please enter the subject of the assistance needed." promptMessage="Please enter the subject of the assistance needed."></input></div>
+		<input dojoType="dijit.form.TextBox" class="formInput" type="text" id="subject" name="subject" value="<?= $this->submittedSubject ?>"  required="true" title="Please enter the subject of the assistance needed." promptMessage="Please enter the subject of the assistance needed."></input></div>
 	<div class="formRow">
 		<label class="formLabel" for="message">Message:</label>
-		<textarea dojoType="dijit.form.Textarea" class="formInputArea" minSize="250px" type="text" id="message" name="message" required="true" title="Please be as descriptive as possible" promptMessage="Please be as descriptive as possible"value=""></textarea></div>
+		<textarea dojoType="dijit.form.Textarea" class="formInputArea" minSize="250px" type="text" id="message" name="message" required="true" title="Please be as descriptive as possible" promptMessage="Please be as descriptive as possible"><?= $this->submittedMessage ?></textarea></div>
 	<div id="helpFormButtons">
 		<button dojoType="dijit.form.Button" class="formInput" type="submit" id="submitButton" title="Submit">Submit</button>
 		<button dojoType="dijit.form.Button" class="formInput" type="reset" id="resetButton" title="Reset">Reset</button>
