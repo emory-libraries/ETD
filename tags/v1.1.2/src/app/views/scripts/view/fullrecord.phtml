@@ -1,0 +1,57 @@
+<div class="fullrecord" >
+    <?=  $this->render('manage/_actions.phtml'); ?>
+    <? if ($this->etd->status() != "published"): ?>
+     <p class="note">This record is not published. Current status: <b><?= $this->etd->status() ?></b></p>
+    <? endif ?>
+
+<? if ($this->acl->isAllowed($this->role, "user", "edit")): ?>
+ <? if (isset($this->etd->authorInfo)): ?>
+   <a class="action" href="<?= $this->url(array("controller" => "user", "action" => "edit",
+				 "pid" => $this->etd->authorInfo->pid), '', true, false); ?>">edit contact information</a>
+ <? else: ?>
+   <a class="action" href="<?= $this->url(array('controller' => 'user', 'action' => 'new',
+			'etd' => $this->etd->pid), '', true, false) ?> ">enter contact information</a>
+ <? endif ?>
+<? endif ?>      
+
+	
+<? if ($this->acl->isAllowed($this->role, $this->etd, "edit metadata")): ?>
+  <a class="action" href="<?= $this->url(array("controller" => "edit", "action" => "title")) ?>">edit title</a>
+ <? endif ?>
+  <h1><?= $this->etd->html->title ?></a></h1>
+ 	<? if ($this->acl->isAllowed($this->role, $this->etd, "edit metadata")): ?>
+<a class="action" href="<?= $this->url(array("controller" => "edit", "action" => "record")) ?>">edit thesis information</a>
+   <a class="action" href="<?= $this->url(array("controller" => "edit", "action" => "faculty")) ?>">edit committee chair &amp; members</a>
+
+   <a class="action" href="<?= $this->url(array("controller" => "edit", "action" => "rights")) ?>">edit rights/restrictions</a>
+
+   <a class="action" href="<?= $this->url(array("controller" => "edit", "action" => "researchfield")) ?>">edit research fields</a>
+   <a class="action" href="<?= $this->url(array("controller" => "edit", "action" => "program")) ?>">edit program</a>
+   <? endif ?>
+  <?=  $this->render('view/summary.phtml'); ?>
+
+  <h2>Abstract</h2>
+   <? if ($this->acl->isAllowed($this->role, $this->etd, "edit metadata")): ?>
+     <? $pq = Zend_Registry::get("proquest-config"); ?>
+     <? if ($this->etd->abstract_word_count() > $pq->abstract_max_words): ?>
+	<p class="warning">Warning: ProQuest maximum length for abstracts is <?= $pq->abstract_max_words ?> words.
+	   (current word count: <?= $this->etd->abstract_word_count() ?>)</p>
+     <? endif ?>
+     <a class="action" href="<?= $this->url(array("controller" => "edit", "action" => "abstract")) ?>">edit</a>
+
+   <? endif ?>
+  <div id="abstract">
+     <?= $this->etd->html->abstract ?>
+  </div>
+
+  <h2>Table of Contents</h2>
+   	<? if ($this->acl->isAllowed($this->role, $this->etd, "edit metadata")): ?>
+  <a class="action" href="<?= $this->url(array("controller" => "edit", "action" => "contents")) ?>">edit</a>
+     <? endif ?>
+  <div id="toc">
+    <?= $this->etd->html->contents ?>
+  </div>
+     
+  <?=  $this->render('view/_files.phtml'); ?>
+
+</div>
