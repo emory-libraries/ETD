@@ -83,13 +83,12 @@ class HelpController extends Etd_Controller_Action {
     	$this->_forward("success");
   	} else {
 		$this->logger->err("Problem submitting your message to the help list");
-		$this->_helper->flashMessenger->addMessage("Validation Error: there was a problem submitting your message for help.");
-// TODO: would like to forward these back to the index page so they can be filled in on the form
-//		$request->getParam("username", null)!=null && 
-//  		$request->getParam("email", null)!=null && 
-//  		$request->getParam("message", null)!=null && 
-//  		$request->getParam("subject", null)!=null 
-		$this->_forward("index");
+		$this->view->errorMessage = "Validation Error: there was a problem submitting your message for help.  Ensure that the Name, email, subject and message fields are populated before clicking submit.";
+		$this->view->submittedUsername = $request->getParam("username", "");
+		$this->view->submittedEmail = $request->getParam("email", "");
+		$this->view->submittedMessage = $request->getParam("message", "");
+		$this->view->submittedSubject = $request->getParam("subject", "");
+		$this->_helper->viewRenderer->setScriptAction("index");   	
   	}
   }
   
