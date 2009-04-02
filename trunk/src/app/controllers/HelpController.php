@@ -89,11 +89,7 @@ class HelpController extends Etd_Controller_Action {
     		
 	    // send notification only if submit succeeded 
 	    $this->_helper->flashMessenger->addMessage("Help email sent.");
-	    $messageToLog = "";
-  		if(!isset($this->current_user)) {
-  			$messageToLog = $messageToLog . " from " . $this->view->fullname . " <" . $this->view->email . "emory.edu>";
-  		}
-   	    $this->logger->info($messageToLog);
+   	    $this->logger->info("Help request sent - '" .  $request->getParam("subject") . "' from " . $this->view->fullname . " <" . $this->view->email . "emory.edu>");
 	    
 	    // forward to success message
 	    $this->_helper->redirector->gotoRoute(array("controller" => "help", "action" => "success"), "", true);
