@@ -196,7 +196,7 @@ class etd_mods extends mods {
     if (isset($contextnode))
       $newnode = $contextnode->parentNode->insertBefore($newnode, $contextnode);
     else	// if no context is found, just add at the end of xml
-      $newnode = $contextnode->parentNode->appendChild($newnode);
+      $newnode = $this->domnode->appendChild($newnode);
     
 
     $this->update();

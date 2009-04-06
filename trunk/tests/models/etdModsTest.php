@@ -149,19 +149,24 @@ class TestEtdMods extends UnitTestCase {
     // should probably check xml with regexp, but mods:name is complicated and it seems to be working...
 
     
-    // test adding committee after all committee members have been removed
+    // test adding committee after all committee members AND advisor have been removed
     // FIXME: this section is TIMING OUT for some reason...
     // ids need to be set so names can be removed
     $this->mods->committee[0]->id = "test";	
     $this->mods->committee[1]->id = "dduck";
+    $this->mods->chair[0]->id = "wdisney";
+    $this->mods->setCommittee(array(), "chair");
     $this->mods->setCommittee(array());
     $this->assertEqual(0, count($this->mods->committee));
     $this->mods->addCommittee("Duck", "Donald");
     $this->assertEqual(1, count($this->mods->committee));
     $this->assertEqual("Duck", $this->mods->committee[0]->last);
 
+
+    
     error_reporting($errlevel);	    // restore prior error reporting
   }
+
 
   function testRemoveCommittee() {
     $this->expectException(new XmlObjectException("Can't remove committee member/chair with non-existent id"));
@@ -171,6 +176,7 @@ class TestEtdMods extends UnitTestCase {
     $this->mods->removeCommitteeMember("testid");
     $this->assertEqual(0, count($this->mods->committee));
   }
+
 
   function testAddNonemoryCommittee() {
     $count = count($this->mods->nonemory_committee);
