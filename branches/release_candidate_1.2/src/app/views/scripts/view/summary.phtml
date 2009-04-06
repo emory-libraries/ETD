@@ -39,10 +39,13 @@
 <br/>
      
 <b>Committee Members:</b> <? $committee = $this->etd->committee(); ?>
-    <? foreach ($committee as $cm): ?>
+    <? $committee_w_aff = $this->etd->committee_with_affiliation(); ?>
+    <? foreach ($committee_w_aff as $cm => $affiliation): ?>
+       <? $affiliation = ($affiliation) ? " (" . $affiliation . ")" : ""; ?>
         <? if ($published): ?>
 	 <a href="<?= $this->url(array('controller' => 'browse', 'action' => 'committee','value' => urlencode($cm)),
-	'', true)?>"><?= $cm ?></a><? else: ?><?= $cm ?><? endif ?><?
+	'', true)?>"><?= $cm ?></a><?= $affiliation ?>
+	    <? else: ?><?= $cm ?><?= $affiliation?><? endif ?><?
 	    if ($cm != $committee[count($committee)-1] ||
 		(isset($this->etd->mods) && count($this->etd->mods->nonemory_committee)) ): ?>; <? endif ?>
     <? endforeach ?>

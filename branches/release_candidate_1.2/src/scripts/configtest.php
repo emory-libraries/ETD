@@ -151,7 +151,7 @@ $tester->ok();
 $tester->load_xmlconfig($config_dir . "config.xml", $env_mode);
 $tester->check_notblank(array("session_name", "tmpdir", "logfile", "pdftohtml",
 			      "supported_browsers", "useAndReproduction",
-			      //			      "honors_collection", "programs_pid",
+			      "honors_collection", "programs_pid",
 			      "email" => array("test", "etd/address", "etd/name"),
 			      "contact" => array("email")
 			      )
@@ -165,5 +165,5 @@ $tester->check_file("logfile", "rwf");
 $tester->check_file("pdftohtml", "fx");
 $tester->plural("superusers/user");
 $tester->plural("techsupport/user");
-//$tester->plural("honors_admin/user");
+$tester->plural("honors_admin/user");
 $tester->ok();

@@ -757,7 +757,7 @@ div#submission {
 }
 
 div#messages { padding-bottom:5px; }
-div#messages p { margin:0px; color:green;}
+div#messages p, .success { margin:0px; color:green;}
 div#messages p.error { color:red; }
 div#messages p.warn { color:#ef3e15; }
 
@@ -957,3 +957,40 @@ span.permalink { background-color: #ffda82; /*#fffdee; /* very faint yellow */ }
 #helpPageContent {
 	margin-left: 75px;	
 }
+
+ul.tree li{ list-style-type:none; }
+ul.tree input { width:350px; border:0px; }
+ul.tree input:focus { background-color:#FFFF99; border:1px solid gray;}
+.toggle { color:blue; font-weight:bold; font-size:12pt; }
+.hdl { /*height:13px; width:13px; */ margin-top:5px; padding-right: 4px; vertical-align:middle;}
+a:hover .hdl {}
+
+/* autocomplete styles (FIXME: overlap with faculty suggestor?) */
+div.autocomplete {
+  margin:0px;  
+  padding:0px;  
+  width:250px;
+  background:#fff;
+  border:1px solid #888;
+  position:absolute;
+  z-index:3;
+}
+
+div.autocomplete ul {
+  margin:0px;
+  padding:0px;
+  list-style-type:none;
+}
+
+div.autocomplete ul li.selected { 
+  background-color:#ffb;
+}
+
+div.autocomplete ul li {
+  margin:0;
+  padding:2px;
+  display:block;
+  list-style-type:none;
+  cursor:pointer;
+}
+
