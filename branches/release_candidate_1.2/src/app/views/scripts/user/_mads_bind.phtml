@@ -13,8 +13,9 @@
 
 <? /* require that permanent email not contain emory.edu */ ?>
 <xf:bind nodeset="/mads:mads/mads:affiliation[mads:position = 'permanent resident']/mads:email"
-   constraint="not(contains(., 'emory.edu'))"   type="xforms:email"
-  <? if ($this->user->isRequired("permanent email")): ?> required="true()" <? endif ?> /> 
+   constraint="not(contains(., 'emory.edu')) or contains(., '@alum.emory.edu')"   type="xforms:email"
+  <? if ($this->user->isRequired("permanent email")): ?> required="true()" <? endif ?> />
+     <? /*        constraint="not(contains(., 'emory.edu')) or contains(., '@alum.emory.edu')"   type="xforms:email" */ ?>
 
 <xf:bind nodeset="/mads:mads/mads:affiliation[mads:position != 'permanent resident']/mads:email"
    type="xforms:email"
