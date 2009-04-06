@@ -121,7 +121,7 @@ class TestEsdPerson extends UnitTestCase {
     $user->role = "grad admin";
     $this->assertEqual("the Graduate School", $user->getGenericAgent());
     $user->role = "honors admin";
-    $this->assertEqual("Emory College", $user->getGenericAgent());
+    $this->assertEqual("the College Honors Program", $user->getGenericAgent());
     $user->role = "admin";
     $this->assertEqual("ETD Administrator", $user->getGenericAgent());
     $user->role = "superuser";

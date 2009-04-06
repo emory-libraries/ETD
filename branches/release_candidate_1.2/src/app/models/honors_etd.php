@@ -26,7 +26,7 @@ class honors_etd extends etd {
     }
 
     // for honors etds, admin agent is the college
-    $this->admin_agent = "Emory College";
+    $this->admin_agent = "the College Honors Program";
   }
 
 
