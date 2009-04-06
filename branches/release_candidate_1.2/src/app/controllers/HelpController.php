@@ -77,7 +77,7 @@ class HelpController extends Etd_Controller_Action {
 	  		);
 
 	  	try {
-	    	if ($environment->mode == "production") {
+	    	if ($environment->mode != "test") {
 	  			$notify->send();
 	    	}
   		} catch (Exception $exception) {
@@ -96,9 +96,13 @@ class HelpController extends Etd_Controller_Action {
    	    	. "' from " . $request->getParam("username", "")
 			. " <" . $request->getParam("email", "") . ">");
 	    
-	    // forward to success message
-	    $this->_helper->redirector->gotoRoute(array("controller" => "help", "action" => "success"), "", true);
-    	$this->_forward("success");
+    	if ($environment->mode != "test") {
+			// forward to success message
+		    $this->_helper->redirector->gotoRoute(array("controller" => "help", "action" => "success"), "", true);
+    		$this->_forward("success");
+    	} else { // is test mode.
+    		return $notify;
+    	}
   	} else {
 		$this->view->errorMessage = "Validation Error: there was a problem submitting your message for help.  Ensure that the Name, email, subject and message fields are populated before clicking submit.";
 		$this->view->submittedUsername = $request->getParam("username", "");
