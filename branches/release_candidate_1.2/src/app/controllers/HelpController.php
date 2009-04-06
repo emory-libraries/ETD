@@ -77,7 +77,9 @@ class HelpController extends Etd_Controller_Action {
 	  		);
 
 	  	try {
-		    $notify->send();
+	    	if ($environment->mode == "production") {
+	  			$notify->send();
+	    	}
   		} catch (Exception $exception) {
 			$this->view->errorMessage = "There was an error sending your message. [" . $exception->getMessage() . "]";
 			$this->view->submittedUsername = $request->getParam("username", "");
