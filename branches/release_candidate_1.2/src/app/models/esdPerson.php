@@ -39,6 +39,8 @@ class esdPerson implements Zend_Acl_Role_Interface {
 			 "department" => "DPRT_N",
 			 "academic_plan_id" => "ACPL_I",
 			 "academic_plan" => "ACPL_N",
+			 /** y/n flag for undergrad honors program **/
+			 "honors_student" => "STDN_F_HONR",
 			 /* graduate program coordinator
 			    - if not null, user is a program coordinator 
 			    - field contains the program name
@@ -87,17 +89,24 @@ class esdPerson implements Zend_Acl_Role_Interface {
     default:
       $this->role = "guest";		// fixme: what should the default be?
     }
+
+
+    // subset of standard student role - if honors flag is set
+    if ($this->role == "student" && $this->honors_student == "Y") {
+      $this->role = "honors student";
+    }
     
     // determine roles for special cases
     if ($this->department == "Graduate School Administration")
-      $this->role = "admin";	// graduate school administrator
+      $this->role = "grad admin";	// graduate school administrator
     if (!is_null($this->grad_coord)) {
       // role is graduate program coordinator ?
       // **** - not a separate role but a role in relation to particular ETDs
       // a user should have this role only if grad_coord matches ETD's department field...
    } 
-    
-    // etd superuser - override role for users listed in config file, if set
+
+    // special roles that must be set in config file
+    // etd superuser, techsupport, and honors admin
     if (Zend_Registry::isRegistered('config')) {
       $config = Zend_Registry::get('config');
       if (in_array($this->netid, $config->techsupport->user->toArray())) {
@@ -106,7 +115,9 @@ class esdPerson implements Zend_Acl_Role_Interface {
       if (in_array($this->netid, $config->superusers->user->toArray())) {
 	$this->role = "superuser";
       }
-
+      if (in_array($this->netid, $config->honors_admin->user->toArray())) {
+	$this->role = "honors admin";
+      }
     }
   }
 
@@ -178,16 +189,42 @@ class esdPerson implements Zend_Acl_Role_Interface {
 
   // this function allows esdPerson to act as a Zend_Acl_Role
   public function getRoleId(){
-    if ($this->role == "student" || $this->role == "faculty") {
+    if (preg_match("/student$/", $this->role) || $this->role == "faculty") {
       if ($this->hasUnpublishedEtd())
 	$this->role .= " with submission";
     }
     return $this->role;
   }
 
+
+  /**
+   * Certain (admin) roles have a generic agent label used for the
+   * descriptive history line when they perform actions on an ETD. Get
+   * the generic label here based on user's role.
+   * @return string
+   */
+  public function getGenericAgent() {
+    switch ($this->role) {
+    case "honors admin":
+      return "Emory College";
+    case "grad admin":
+      return "the Graduate School";
+    case "admin":
+    case "superuser":
+       // generic administrator (e.g., for superuser)
+       // -- should only actually show up in development/testing
+       return "ETD Administrator";
+    default:
+      trigger_error("This role (" . $this->role . ") does not have a generic agent defined",
+		    E_USER_WARNING);
+      return "?";
+     }
+   }
+
+
   public function hasUnpublishedEtd() {
     // only student and faculty roles can have unpublished etds
-    if (! preg_match("/^(student|faculty)/", $this->role)) // with or without submission
+    if (! preg_match("/^(student|faculty|honors student)/", $this->role)) // with or without submission
       return false; 
     elseif (count($this->getEtds())) return true;
     else return false;
@@ -298,6 +335,9 @@ class esdPersonObject extends Emory_Db_Table {
    * @return array of esdPerson objects
    */
   public function match_faculty($name, $current = true) {
+    // NOTE: this table is a dump of the data local on proxy esd,
+    // rather than using the view which was too slow for a suggestor    
+
     $current_flag = $current ? "Y" : "N";
     //    $sql = "SELECT * FROM ESDV.v_etd_prsn_tabl WHERE PRSN_C_TYPE='F' "prsn_f_fclt_crnt
     // search either for current or former faculty, relying solely on the current faculty flag

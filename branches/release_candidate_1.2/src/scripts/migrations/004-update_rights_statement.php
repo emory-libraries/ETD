@@ -2,8 +2,11 @@
 <?php
 
   /**
-   Update all ETD records with new useAndReproduction statement.
-  */
+   * Update all ETD records with new useAndReproduction statement.
+   */
+
+// run as if in the main scripts directory so all the paths work;
+chdir("..");
 
 // set paths, load config files, set up connection objects for fedora, solr, and ESD
 require_once("bootstrap.php");

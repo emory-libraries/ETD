@@ -10,6 +10,9 @@
 	  xacml policy rules, as appropriate for etd status  (October 2008)
    */
 
+// set working directory to the main scripts directory so all the paths work the same
+chdir("..");
+
 // set paths, load config files;
 // set up connection objects for fedora, solr, ESD, and stats db
 require_once("bootstrap.php");
@@ -25,6 +28,7 @@ $opts = new Zend_Console_Getopt($getopts);
 $scriptname = basename($_SERVER{"SCRIPT_NAME"});
 $usage = $opts->getUsageMessage() . "
  $scriptname goes through all etd records and cleans object xacml policy
+ 
 ";
 
 try {
@@ -39,7 +43,7 @@ $logger = setup_logging($opts->verbose);
 
 // if pid is specified, run single record mode
 if ($opts->pid) {
-  $etd = new etd($opts->pid);
+  $etds = EtdFactory::etdByPid($opts->pid);
   clean_xacml($etd);
   return;
 }

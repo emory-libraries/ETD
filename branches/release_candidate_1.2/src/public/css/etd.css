@@ -994,3 +994,5 @@ div.autocomplete ul li {
   cursor:pointer;
 }
 
+span.ok { color:green;  }
+span.incomplete { color:red; }

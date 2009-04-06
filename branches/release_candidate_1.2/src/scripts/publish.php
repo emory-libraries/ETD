@@ -40,6 +40,7 @@
 require_once("bootstrap.php");
 
 require_once("models/ProQuestSubmission.php");
+require_once("models/EtdFactory.php");
 $proquest = new Zend_Config_Xml("../config/proquest.xml", $env_config->mode);
 
 $getopts = array_merge(
@@ -139,7 +140,7 @@ if ($do_all) {
   $etds = array();
   foreach ($pids as $pid) {
     try {
-      $etds[] = new etd($pid);
+      $etds[] = EtdFactory::etdByPid($pid);
     } catch (FedoraObjectNotFound $e) {
       $logger->warn("Record not found: $pid");
       //      trigger_error("Record not found: $pid", E_USER_WARNING);
@@ -189,7 +190,7 @@ function get_graduate_etds($filename, $refdate = null) {
   global $opts, $logger;
 
   // degrees for which we should expect an ETD
-  $etd_degrees = array("PHD", "MA", "MS");
+  $etd_degrees = array("PHD", "MA", "MS", "BA", "BS");
 
   // field order in registrar feed
   $netid 		=  0;
@@ -236,10 +237,15 @@ function get_graduate_etds($filename, $refdate = null) {
       // only allowing one unpublished record per student at a time, so this should be safe
       $count = count($etdSet->etds);
       if ($count == 0) {
-         /* NOTE: no longer filtering by pilot departments; we will probably get lots of warnings
-          from now until electronic submission becomes mandatory 
-         */
-	$logger->warn("Warning: no ETD found for $name_degree");
+	// no unpublished etd found; has student's record already been published?
+	// look for any etd for this user
+	// FIXME: filter for recently published?!?
+	$etdSet->find(array('AND' =>
+			    array('ownerId' => strtolower($data[$netid])))
+		      );
+	// only warn if nothing found
+	if (! count($etdSet->etds))
+	  $logger->warn("Warning: no ETD found for $name_degree");
       } elseif ($count == 1) {			// what we expect 
         $logger->info("Found etd record " . $etdSet->etds[0]->pid . " for $name_degree");
         if ($etdSet->etds[0]->status() != "approved") {
@@ -521,18 +527,18 @@ function submit_to_proquest(array $etds) {
   if ($opts->noact) {
     $logger->info("Test mode, so not ftping submission zip files to ProQuest");
     foreach ($submissions as $sub) $sub->ftped = true;		// pretend ftp worked
-  } else {
+
+    $logger->info("Test mode, so not emailing submission list to ProQuest");
+    // generate & display email 
+    $logger->debug("Packing list email:\n" . proquest_email($submissions));
+
+  } elseif (count($submissions)) {
+    // only do ftp & email if there are submissions to send
+    
     //  - ftp all zip files to PQ	(with error checking)
     $logger->info("Ftping all submission zip files to ProQuest");
     // ftp 
     proquest_ftp($submissions);
-  }
-    
-  if ($opts->noact) {
-    $logger->info("Test mode, so not emailing submission list to ProQuest");
-    // generate & display email 
-    $logger->debug("Packing list email:\n" . proquest_email($submissions));
-  } else {
     //  - send email with packing list
     $logger->info("Sending submission list email to ProQuest");
     proquest_email($submissions);
@@ -545,7 +551,10 @@ function submit_to_proquest(array $etds) {
 	// FIXME: more error checking here?
       }
     }
+  } else {
+    $logger->info("No records to send to ProQuest");
   }
+    
 }
 
 

@@ -8,6 +8,9 @@ class etd_mods extends mods {
 
   protected $etd_namespace = "http://www.ndltd.org/standards/metadata/etdms/1.0/";
 
+  protected $required_fields;
+  protected $optional_fields;
+  
   // auto-magic variables
   /**
    * @var author
@@ -18,6 +21,27 @@ class etd_mods extends mods {
   
   // add etd-specific mods mappings
   protected function configure() {
+    /** NOTE: this data is edited on several different pages;
+        each required field has a value of the edit action
+	where that field is edited. */
+    $this->required_fields = array("title" => "title",
+				   "author" => "record",
+				   "program" => "program",
+				   "chair" => "faculty",
+				   "committee members" => "faculty",
+				   "researchfields" => "researchfield",
+				   "keywords" => "record",
+				   "degree" => "record",
+				   "language" => "record",
+				   "abstract" => "abstract",
+				   "table of contents" => "contents",
+				   "embargo request" => "rights",
+				   "submission agreement" => "rights",
+				   "send to ProQuest" => "rights",
+				   "copyright" => "rights");
+    // no optional fields in base etd_mods 
+    $this->optional_fields = array();
+    
     parent::configure();
 
     $this->addNamespace("etd", $this->etd_namespace);
@@ -403,9 +427,13 @@ class etd_mods extends mods {
       $node = $nodelist->item($i);      
       $node->parentNode->removeChild($node);*/
 
-    if ($this->map[$mapname] instanceof DOMElementArray) {
-      foreach ($this->map[$mapname] as $node) {
-	$node->parentNode->removeChild($node);
+    if ($this->map[$mapname] instanceof DOMElementArray ||
+      	isset($this->xmlconfig[$mapname]["is_series"]) && $this->xmlconfig[$mapname]["is_series"]) {
+      foreach ($this->map[$mapname] as $el) {
+	if ($el instanceof XmlObject) 
+	  $el->domnode->parentNode->removeChild($el->domnode);
+	else
+	  $el->parentNode->removeChild($el->domnode);
       }
     } else if ($this->map[$mapname] instanceof XmlObject) {
       $this->map[$mapname]->domnode->parentNode->removeChild($this->map[$mapname]->domnode);
@@ -460,61 +488,128 @@ class etd_mods extends mods {
 
   /**
    * check required fields; returns an array with problems, missing data
-   * @return array missing fields
+   * @return array associative array of missing fields with the action where they are edited
    */
   public function checkRequired() {
     $missing = array();
 
-    // note - key is display of what is missing, value is edit action (where should this logic be?)
-    
-    // must have at elast one valid chair - should have an emory id
-    if ($this->chair[0]->id == "") $missing["chair"] = "faculty";
-
-    // at least one committee member (valid faculty, same as chair test)
-    if ($this->committee[0]->id == "") $missing["committee members"] = "faculty";
-
-    // at least one research field (filled out, not blank)
-    if (!count($this->researchfields) ||
-	$this->researchfields[0]->id == "" || $this->researchfields[0]->topic == "") {
-      $missing["ProQuest research fields"] = "researchfield";
+    // check everything that is specified as required 
+    foreach ($this->required_fields as $field => $action) {
+      if (! $this->isComplete($field)) $missing[$field] = $action;
     }
-    // fixme: check if there are too many? app should not let them set too many
-
-    // author's department 
-    if ($this->department == "") $missing["program"] = "program";
-
-    // abstract
-    if ($this->abstract == "")   $missing["abstract"] = "abstract";
-
-    // table of contents
-    if ($this->tableOfContents == "")  $missing["table of contents"] = "contents";
-
-    // keywords
-    if (!count($this->keywords) || $this->keywords[0]->topic == "")
-      $missing["keywords"] = "record";
-    
-    // other required fields?
-    // genre/etd type (?)
-    // degree
-
-
-    // required rights/admin fields
-    if (! $this->hasEmbargoRequest())
-      $missing["embargo request"] = "rights";
-    if (! $this->hasSubmissionAgreement())
-      $missing["submission agreement"] = "rights";
-    if (! $this->hasSubmitToProquest())
-      $missing["send to ProQuest"] = "rights";
-    // if record will be sent to PQ, copyright request is required
-    if ($this->submitToProquest() && ! $this->hasCopyright())
-      $missing["copyright"] = "rights";
-
+    // NOTE: key is  missing field, value is edit action
 
     return $missing;
   }
 
+  /**
+   * check optional fields; returns an array with fields that are empty
+   * (equivalent to checkRequired but for optional fields)
+   * @return array associative array of missing fields with the action where they are edited
+   */
+  public function checkOptional() {
+    $missing = array();
+
+    // check everything that is specified as required 
+    foreach ($this->optional_fields as $field => $action) {
+      if (! $this->isComplete($field)) $missing[$field] = $action;
+    }
+    // NOTE: key is  missing field, value is edit action
+
+    return $missing;
+  }
+
+  /**
+   * check if a required field is filled in completely (part of submission-ready check)
+   * 
+   * @param string $field name
+   * @return boolean
+   */
+  public function isComplete($field) {
+    switch($field) {
+    case "author":
+      return ($this->author->id != "" &&
+	      trim($this->author->first) != "" && trim($this->author->last) != "");
+    case "program":
+      return ($this->author->affiliation != "");
+    case "chair":
+      // complete if there is at least one valid chair (all should have an emory id)
+      return (isset($this->chair[0]) && $this->chair[0]->id != "");
+    case "committee members":
+      // complete if there is at least one committee member (valid faculty, same as chair test)
+      return (isset($this->committee[0]) && $this->committee[0]->id != "");
+    case "researchfields":
+      // complete if there is at least one non-blank research field
+      return ((count($this->researchfields) != 0) &&
+	      ($this->researchfields[0]->id != "" || $this->researchfields[0]->topic != ""));
+    case "keywords":
+      // complete if there is at least one non-blank keyword
+      return ((count($this->keywords) != 0) && (trim($this->keywords[0]->topic) != ""));
+    case "language":
+      return ($this->language->text != "" && $this->language->code != "");
+    case "table of contents":
+      return (trim($this->tableOfContents) != "");
+    case "embargo request":
+      return $this->hasEmbargoRequest();
+    case "submission agreement":
+      return $this->hasSubmissionAgreement();
+    case "send to ProQuest":
+      return $this->hasSubmitToProquest();
+    case "copyright":
+      // if record will be sent to PQ, copyright request is required
+      if ($this->submitToProquest()) return $this->hasCopyright();
+      else return true;		// not required = not incomplete (?)
+
+      // simple cases where field name matches class variable name
+    case "title":
+    case "abstract":
+    case "degree":
+      return (trim($this->$field) != "");  	// complete if not empty (not just whitespace)
+      
+    default:
+      // if requested field matches a mapped variable, do a simple check
+      if (isset($this->$field))
+	return (trim($this->$field) != ""); 
+      else
+	// otherwise, complain
+	trigger_error("Cannot determine if '$field' is complete", E_USER_NOTICE);
+    }
+  }
+
+  /**
+   * get the display label for required/optional fields
+   * @param string $field field name
+   * @return string label
+   */
+  public function fieldLabel($field) {
+    switch ($field) {
+    case "chair":
+      return "committee chair";
+    case "researchfields":
+      return "ProQuest research fields";
+
+      // in most cases, field = label
+    case "author":
+    case "program":
+    case "committee members":
+    case "keywords":
+    case "language":
+    case "table of contents":
+    case "embargo request":
+    case "submission agreement":
+    case "send to ProQuest":
+    case "copyright":
+    case "title":
+    case "abstract":
+    case "degree":
+      return $field;
+    }
+  }
+
+  
+
   // specialized version of check required - disregards rights completion status
-  function thesisInfoComplete() {
+  public function thesisInfoComplete() {
     $missing = $this->checkRequired();
     // nothing is missing
     if (count($missing) == 0) return true;
@@ -551,13 +646,22 @@ class etd_mods extends mods {
   }
   
   // is submit to proquest set (yes/no)
-  function hasSubmitToProquest() {
+  public function hasSubmitToProquest() {
     return (isset($this->pq_submit) && $this->pq_submit != "");
   }
 
   // is the record set to be submitted to proquest?
-  function submitToProquest() {
+  public function submitToProquest() {
     return ($this->degree->name == "PhD" || $this->pq_submit == "yes");
+  }
+
+  /**
+   * check if a field is required
+   * @param string $field name of the field
+   * @return boolean
+   */
+  function isRequired($field) {
+    return in_array($field, array_keys($this->required_fields));
   }
   
 }
@@ -596,5 +700,11 @@ class etd_degree extends XmlObject {
 	 ));
     parent::__construct($xml, $config, $xpath);
   }
+
+  // default conversion to string-- used for checking field is complete 
+  public function __toString() {
+    return $this->name;
+  }
+    
 }
 

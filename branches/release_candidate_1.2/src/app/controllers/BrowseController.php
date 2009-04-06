@@ -117,7 +117,7 @@ class BrowseController extends Etd_Controller_Action {
 
     // pass browse value to generate remove-facet links
     $this->view->url_params = array("value" => $_value);
-
+    
     $exact = $this->_getParam("exact", false);
     if (! $exact) {
       $value = strtolower($value);
@@ -177,7 +177,8 @@ class BrowseController extends Etd_Controller_Action {
       $this->view->url_params = array("coll" => $coll);
       $coll = "#$coll";
     } else {
-      $prog = new programs();
+      $programObject = new foxmlPrograms();
+      $prog = $programObject->skos;
       $coll = $prog->findIdbyLabel($name);
     }
 
@@ -185,7 +186,8 @@ class BrowseController extends Etd_Controller_Action {
     $this->view->sort_fields[] = "year";
     
     try {
-      $programs = new programs($coll);
+      $programObject = new foxmlPrograms($coll);
+      $programs = $programObject->skos;
     } catch (XmlObjectException $e) {
       $message = "Error: Program not found";
       if ($this->env != "production") $message .= " (<b>" . $e->getMessage() . "</b>)";
@@ -279,6 +281,8 @@ class BrowseController extends Etd_Controller_Action {
     switch ($this->current_user->role) {
     case "student":
     case "student with submission":
+    case "honors student":
+    case "honors student with submission":
       // records for this action : owned by current user (author) and not published
       $options["AND"]["ownerId"] = $username;
       // FIXME: is this filter necessary/useful ?

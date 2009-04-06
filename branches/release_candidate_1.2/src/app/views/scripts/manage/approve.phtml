@@ -9,7 +9,7 @@
 <form name="approve" method="post"
    action="<?= $this->url(array("action" => "doApprove"))?>">
   <?= $this->formHidden("pid", $this->etd->pid()) ?>
-  <p>The author has requested, and the Graduate school has approved
+  <p>The author has requested, and <?= $this->etd->admin_agent ?> has approved
      an access restriction of the following duration:<p>
   <?  $durations = array("0 days" => "none",
 		     "6 months" => "6 months",

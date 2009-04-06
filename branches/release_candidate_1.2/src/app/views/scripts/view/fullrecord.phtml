@@ -34,7 +34,8 @@
    <? if ($this->acl->isAllowed($this->role, $this->etd, "edit metadata")): ?>
      <? $pq = Zend_Registry::get("proquest-config"); ?>
      <? if ($this->etd->abstract_word_count() > $pq->abstract_max_words): ?>
-	<p class="warning">Warning: ProQuest maximum length for abstracts is <?= $pq->abstract_max_words ?> words.
+	<p class="warning">Warning:
+	   <? if (! $this->etd->isHonors()): ?>ProQuest<? endif ?> maximum length for abstracts is <?= $pq->abstract_max_words ?> words.
 	   (current word count: <?= $this->etd->abstract_word_count() ?>)</p>
      <? endif ?>
      <a class="action" href="<?= $this->url(array("controller" => "edit", "action" => "abstract")) ?>">edit</a>

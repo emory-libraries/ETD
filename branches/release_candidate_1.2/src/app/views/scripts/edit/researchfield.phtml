@@ -4,7 +4,8 @@
 include("projax/projax.php");
 $projax = new Projax(); ?>
 
-<? $blank = ($this->etd->mods->researchfields[0]->id == ""); ?>     
+<? $blank = (! isset($this->etd->mods->researchfields) &&
+	       $this->etd->mods->researchfields[0]->id == ""); ?>     
 <script type="text/javascript">
 var field_count = <?= $blank ? 0 : count($this->etd->mods->researchfields); ?>;
 var field_max = 3;
@@ -42,7 +43,10 @@ function updatePrimary(listitem) {
 <h1>Edit Research Fields</h1>
 <p><b><?= $this->etd->title() ?></b></p>
 
-<p>Proquest requests that you supply at least one and up to a maximum
+<p>
+<? if ($this->etd->isRequired("researchfields")): ?>
+Proquest requests that you supply at least one and
+<? else: /* language if optional */ ?>Please supply <? endif ?>up to a maximum
 of three research fields which describe the field for your work.
 Choose each (numbered) field below by clicking on it. Your primary
 field should be chosen first but you can rearrange the order of the
@@ -51,7 +55,8 @@ page.</p>
 
 <form method="post" id="fields_form"  action="<?= $this->url(array("action" => "saveResearchfield"))?>">
   <ul id="user_fields">
-  <? if ($this->etd->mods->researchfields[0]->id != ""): ?>
+  <? if (isset($this->etd->mods->researchfields[0]) &&
+	 $this->etd->mods->researchfields[0]->id != ""): ?>
    <? foreach ($this->etd->mods->researchfields as $field): ?>
      <li id="#<?= $field->id ?>_list"><?= $field->topic ?>
        <input type="hidden" name="fields[]"

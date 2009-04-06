@@ -49,6 +49,9 @@
 	    <mods:dateIssued keyDate="yes"/>
 	    <mods:dateOther type="embargoedUntil"/> 
 	  </mods:originInfo>
+  	  <mods:subject ID="0123" authority="proquestresearchfield">
+	    <mods:topic>Area studies</mods:topic>
+	  </mods:subject>
 	  <mods:genre authority="aat">Dissertation</mods:genre>
 	  <mods:identifier type="ark">http://purl.bogus.com/ark:123/etd2</mods:identifier>
 	  <mods:accessCondition type="restrictionOnAccess">Embargoed for </mods:accessCondition>

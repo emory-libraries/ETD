@@ -10,6 +10,8 @@ require_once("etd_dc.php");
 
 class user extends foxml {
 
+  protected $required_fields;
+
   public function __construct($arg = null, etd $parent = null) {
     parent::__construct($arg);
 
@@ -23,6 +25,10 @@ class user extends foxml {
     if (!is_null($parent)) {
       $this->related_objects["etd"] = $parent;
     }
+
+
+    $this->required_fields = array("name", "email", "permanent email", "permanent address");
+				       
   }
 
   // configure additional datastreams here 
@@ -97,29 +103,58 @@ class user extends foxml {
   
 
   /**
-   * check required fields; returns an array with problems, missing data
+   * check required fields; returns an array of incomplete fields
    * @return array missing fields
    */
   public function checkRequired() {
     $missing = array();
 
-    // permanent non-emory email address
-    if ($this->mads->permanent->email == "") {
-      $missing[] = "permanent (non-emory) email address";
+    // check everything in the array of required fields
+    foreach ($this->required_fields as $field) {
+      if (! $this->isComplete($field)) $missing[] = $field;
     }
 
-    // permanent mailing address
-    $perm_addr = $this->mads->permanent->address;
-    if ($perm_addr->street[0] == "" ||
-	$perm_addr->city == "" ||
-	$perm_addr->country == "" ||
-	$perm_addr->postcode == "" ||
-	$this->mads->permanent->date == "") {
-      $missing[] = "permanent mailing address";
-    }
-    
     return $missing;
   }
+
+  
+  /**
+   * check if a required field is filled in completely (part of submission-ready check)
+   * 
+   * @param string $field name
+   * @return boolean
+   */
+  public function isComplete($field) {
+    switch($field) {
+    case "name":
+      return ((trim($this->mads->name->first) != "") && (trim($this->mads->name->last) != ""));
+    case "email":
+      return (trim($this->mads->current->email) != "");
+    case "permanent email":
+      return (trim($this->mads->permanent->email) != "");
+    case "permanent address":
+      // for permanent address to be filled in, all these fields must be complete
+      return (trim($this->mads->permanent->address->street[0]) != "" &&
+	      trim($this->mads->permanent->address->city) != "" &&
+	      trim($this->mads->permanent->address->country) != "" &&
+	      trim($this->mads->permanent->address->postcode) != "" &&
+	      trim($this->mads->permanent->date) != "");
+
+    default:
+      trigger_error("Cannot determine if '$field' is complete", E_USER_NOTICE);
+    }
+  }
+
+  /**
+   * check if a field is required
+   * 
+   * @param string $field name of the field
+   * @return boolean
+   */
+  function isRequired($field) {
+    return in_array($field, $this->required_fields);
+  }
+
 
 
   // user's role in relation to this object
