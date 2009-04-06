@@ -27,7 +27,7 @@ class HelpControllerTest extends ControllerTestCase {
     $HelpController->indexAction();
     $this->assertNotNull($HelpController->view->url(array("action" => "submit")));
 /* ? */$this->assertFalse($HelpController->view->printable);
-  }
+	}
 
   function testSubmitAction() {
     $HelpController = new HelpControllerForTest($this->request,$this->response);
@@ -37,7 +37,7 @@ class HelpControllerTest extends ControllerTestCase {
 	$this->assertNotNull($list_addr);
     	
     // assert perfect
-    $this->setUpGet(array("list_addr"=>"rwrober@emory.edu", "email" => "unit.test@emory.edu", "username" => "Test User","subject"=>"Test message", "message" => "some message"));
+    //$this->setUpGet(array("list_addr"=>"rwrober@emory.edu", "email" => "unit.test@emory.edu", "username" => "Test User","subject"=>"Test message", "message" => "some message"));
     $HelpController->submitAction();
     $messages = $HelpController->getHelper('FlashMessenger')->getMessages();
     $this->assertPattern("/Help email sent/", $messages[0]);
@@ -45,8 +45,7 @@ class HelpControllerTest extends ControllerTestCase {
     $this->resetGet();
     $this->setUpGet(array("email" => "", "username" => "", "message" => ""));
     $HelpController->submitAction();
-    $messages = $HelpController->getHelper('FlashMessenger')->getMessages();
-    $this->assertPattern("/Validation Error/", $messages[0]);
+    assertNotNull($HelpController->view->errorMessage);
   }
 }
 
