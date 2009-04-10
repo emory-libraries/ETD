@@ -45,4 +45,19 @@ class honors_mods extends etd_mods {
     return false;
   }
 
+
+  /**
+   * Override to remove reference to ProQuest
+   * @param string $field field name
+   * @return string label
+   */
+  public function fieldLabel($field) {
+    switch ($field) {
+    case "researchfields":
+      return "research fields";
+    default:
+      return parent::fieldLabel($field);
+    }
+  }
+
 }
