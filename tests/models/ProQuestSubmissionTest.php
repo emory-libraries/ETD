@@ -51,8 +51,9 @@ class TestPQSubmission extends UnitTestCase {
     
     // load test objects to repository
     // NOTE: for risearch queries to work, syncupdates must be turned on for test fedora instance
+    $pids = array();
     foreach (array_keys($this->etdxml) as $etdfile) {
-	$pid = $fedora->ingest(file_get_contents('../fixtures/' . $etdfile . '.xml'), "loading test object");
+	$pids[] = $fedora->ingest(file_get_contents('../fixtures/' . $etdfile . '.xml'), "loading test object");
     }
     
     $etd = new etd('test:etd2');
@@ -110,6 +111,12 @@ class TestPQSubmission extends UnitTestCase {
 
     // test validation
     $this->assertTrue($this->pq->isValid());
+
+
+    // remove test object
+    foreach ($pids as $pid) {
+      $fedora->purge($pid, "removing test object");
+    }
   }
 
   function testSetAbstract() {

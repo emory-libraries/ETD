@@ -1,5 +1,8 @@
 <?php
 
+require_once("EtdFactory.php");
+
+
 class Etd_Controller_Action_Helper_GetFromFedora extends Zend_Controller_Action_Helper_Abstract {
 
   public function direct($param, $type) {
@@ -32,7 +35,8 @@ class Etd_Controller_Action_Helper_GetFromFedora extends Zend_Controller_Action_
     }
 
     try {
-      $object = new $type($id);
+      // use factory method to initialize correct type - honors variants
+      $object = EtdFactory::init($id, $type);
     } catch (FedoraObjectNotFound $e) {
       $message = "Record not found";
       $log_message = $message . " - " . $e->getMessage();

@@ -78,6 +78,7 @@ try {
 					   $tester->config->port,
 					   $tester->config->protocol,
 					   $tester->config->resourceindex);
+  Zend_Registry::set("fedora", $fedoraConnection);
 } catch (FedoraNotAvailable $e) {
   $tester->logger->err("Fedora is not available as configured: "  .$e->getMessage());
 } 
@@ -151,7 +152,7 @@ $tester->ok();
 $tester->load_xmlconfig($config_dir . "config.xml", $env_mode);
 $tester->check_notblank(array("session_name", "tmpdir", "logfile", "pdftohtml",
 			      "supported_browsers", "useAndReproduction",
-			      //			      "honors_collection", "programs_pid",
+			      "honors_collection", "programs_pid",
 			      "email" => array("test", "etd/address", "etd/name"),
 			      "contact" => array("email")
 			      )
@@ -165,5 +166,29 @@ $tester->check_file("logfile", "rwf");
 $tester->check_file("pdftohtml", "fx");
 $tester->plural("superusers/user");
 $tester->plural("techsupport/user");
-//$tester->plural("honors_admin/user");
+$tester->plural("honors_admin/user");
+
+// if fedoraConnection was initialized, test that collection pids are valid
+if ($fedoraConnection) {
+  
+    require_once("models/foxml.php");
+    foreach (array("honors collection" => $tester->config->honors_collection,
+		   "program hierarchy" => $tester->config->programs_pid)
+	     as $label => $pid) {
+      if (! trim($pid)) continue;
+        // test that configured objects are actually in fedora
+        try {
+            $obj = new foxml($pid);
+        } catch (FedoraObjectNotFound $e) {
+            $tester->err("Fedora Object $label '" . $pid .
+			 "' not found in configured Fedora instance");
+        } catch (Exception $e) {        // could be not authorized, access denied, etc.
+            $tester->err("Could not access Fedora object $label '" . $pid ."' in Fedora:" .
+                get_class($e) . " " . $e->getMessage());
+        }
+    }
+} else {
+    $tester->warn("Fedora connection not available, can not check that configured pids exist in Fedora");
+}
+
 $tester->ok();

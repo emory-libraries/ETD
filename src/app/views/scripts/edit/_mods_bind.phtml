@@ -13,16 +13,23 @@
    calculate="concat(../mods:namePart[@type='family'], ', ', ../mods:namePart[@type='given'])"/>
     
 <xf:bind nodeset="mods:extension/etd:degree/etd:level" type="xsd:string" calculate="concat(instance('degrees')/level[degree/@name = instance('main')/mods:extension/etd:degree/etd:name]/@name, ' (', ../etd:name, ') ')"/>
- <xf:bind nodeset="mods:extension/etd:degree/etd:name" type="xsd:string" constraint=". != 'select one' and . != ''"
-   	required="true()"/>
-   <? /* at least one keyword - so only require the first one */ ?>
- <xf:bind nodeset="mods:subject[@authority='keyword']/mods:topic[position() = '1']" type="xsd:string" required="true()"/>
+ <xf:bind nodeset="mods:extension/etd:degree/etd:name" type="xsd:string"
+   constraint=". != 'select one' and . != ''"
+   <? if ($this->etd->isRequired("degree")): ?>required="true()" <? endif ?>  />
+	  
+<? /* at least one keyword - so only require the first one */ ?>
+ <xf:bind nodeset="mods:subject[@authority='keyword']/mods:topic[position() = '1']"
+  type="xsd:string"
+  <? if ($this->etd->isRequired("keywords")): ?>required="true()" <? endif ?>  />
 <? /* only show delete trigger when there is more than one keyword - don't allow deleting all of them */ ?>
 <xf:bind id="keyword-delete-trigger" nodeset="instance('keywords')/item-delete-trigger" relevant="count(instance('main')/mods:subject[@authority='keyword']) &gt; 1"/>  
 
-   
- <xf:bind nodeset="mods:language/mods:languageTerm" type="xsd:string" required="true()"/>
- <xf:bind nodeset="mods:name[mods:role/mods:roleTerm='author']/mods:namePart" type="xsd:string" required="true()"/>
+ <xf:bind nodeset="mods:language/mods:languageTerm" type="xsd:string"
+    <? if ($this->etd->isRequired("language")): ?>required="true()" <? endif ?>  />
+
+ <xf:bind nodeset="mods:name[mods:role/mods:roleTerm='author']/mods:namePart"
+						  type="xsd:string"
+   <? if ($this->etd->isRequired("author")): ?>required="true()" <? endif ?>  />
 
    
  <?/* FIXME: seems like a hack; can't get degree genre without including etd:level in the expression */ ?>

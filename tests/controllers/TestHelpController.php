@@ -32,20 +32,30 @@ class HelpControllerTest extends ControllerTestCase {
   function testSubmitAction() {
     $HelpController = new HelpControllerForTest($this->request,$this->response);
 
-	$config = Zend_Registry::get('config');
-	$list_addr = $config->email->etd->address;
-	$this->assertNotNull($list_addr);
-    	
-    // assert perfect
-    //$this->setUpGet(array("list_addr"=>"rwrober@emory.edu", "email" => "unit.test@emory.edu", "username" => "Test User","subject"=>"Test message", "message" => "some message"));
-    $HelpController->submitAction();
-    $messages = $HelpController->getHelper('FlashMessenger')->getMessages();
-//	/$this->assertPattern("/Help email sent/", $messages[0]);
+    $config = Zend_Registry::get('config');
+    $list_addr = $config->email->etd->address;
+    $this->assertNotNull($list_addr);
     
+    // assert perfect
+    $address_to = "rwrober@emory.edu";
+    $address_from = "unit.test@emory.edu" ;
+    $name_from = "Test User";
+    $subject = "Test message";
+    $message = "some message";
+
+    $this->setUpGet(array("list_addr"=>$address_to, "email" => $address_from,
+			  "username" => $name_from ,"subject"=>$subject, "message" => $message));
+    // for test mode, the action will return the email notify object
+    $notify = $HelpController->submitAction();
+    $this->assertIsA($notify, "Zend_Mail");
+    $this->assertEqual($address_from, $notify->getFrom(), "From address is not the same.");
+    $this->assertEqual("ETD Help: " . $subject, $notify->getSubject(), "Subject is not the same.[" . $subject . "," . $notify->getSubject() . "]");
+        
     $this->resetGet();
     $this->setUpGet(array("email" => "", "username" => "", "message" => ""));
     $HelpController->submitAction();
     $this->assertNotNull($HelpController->view->errorMessage);
+
   }
 }
 

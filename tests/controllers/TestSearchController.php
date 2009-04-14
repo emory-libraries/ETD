@@ -55,7 +55,7 @@ class SearchControllerTest extends ControllerTestCase {
 
   public function testFacultySuggestorAction() {
     $searchController = new SearchControllerForTest($this->request,$this->response);
-    $this->setUpGet(array("faculty" => "Halb"));	// Halbert (NOTE: relying on actual data in ESD)
+    $this->setUpGet(array("faculty" => "Fa"));	// (NOTE: this test relies on actual data in ESD)
     $searchController->facultysuggestorAction();
     $this->assertIsA($searchController->view->faculty, "Array");
     $this->assertIsA($searchController->view->faculty[0], "esdPerson");
@@ -67,11 +67,18 @@ class SearchControllerTest extends ControllerTestCase {
     $this->assertEqual("Content-Type", $headers[0]["name"]);
     $this->assertEqual("text/xml", $headers[0]["value"]);
 
+    // new parameter for new feature - search for former faculty
+    $this->setUpGet(array("faculty" => "Fa", "former" => 1));
+    $searchController->facultysuggestorAction();
+    $this->assertIsA($searchController->view->faculty, "Array");
+    $this->assertIsA($searchController->view->faculty[0], "esdPerson");
+
     // error: no parameter
     $this->resetGet();
     $searchController = new SearchControllerForTest($this->request,$this->response);
     $this->expectException(new Exception("Either faculty or advisor parameter must be specified"));
     $searchController->facultysuggestorAction();
+
 
     // FIXME: test error condition when ESD is not accessible (how?)
   }

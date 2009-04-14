@@ -383,7 +383,51 @@ class TestEtd extends UnitTestCase {
 
     
   }
-  
+
+  function testIsRequired() {
+    $this->assertTrue($this->etd->isRequired("title"), "title is required");
+    $this->assertTrue($this->etd->isRequired("author"), "author is required");
+    $this->assertTrue($this->etd->isRequired("program"), "program is required");
+    $this->assertTrue($this->etd->isRequired("chair"), "chair is required");
+    $this->assertTrue($this->etd->isRequired("committee members"),
+		      "committee members are required");
+    $this->assertTrue($this->etd->isRequired("researchfields"), "researchfields are required");
+    $this->assertTrue($this->etd->isRequired("keywords"), "keywords are required");
+    $this->assertTrue($this->etd->isRequired("degree"), "degree is required");
+    $this->assertTrue($this->etd->isRequired("language"), "language is required");
+    $this->assertTrue($this->etd->isRequired("abstract"), "abstract is required");
+    $this->assertTrue($this->etd->isRequired("table of contents"), "contents is required");
+    $this->assertTrue($this->etd->isRequired("embargo request"), "embargo request is required");
+    $this->assertTrue($this->etd->isRequired("submission agreement"),
+		      "submission agreement is required");
+    $this->assertTrue($this->etd->isRequired("send to ProQuest"), "send to PQ is required");
+    $this->assertTrue($this->etd->isRequired("copyright"), "copyright is required");
+
+    // associated user object to test required fields in contact info
+    $authorinfo = new user();
+    $this->etd->related_objects['authorInfo'] = $authorinfo;
+
+    // user object not available - user fields required 
+    $this->assertTrue($this->etd->isRequired("email"), "email is required");
+    $this->assertTrue($this->etd->isRequired("permanent email"),
+		      "permanent email is required");
+    $this->assertTrue($this->etd->isRequired("permanent address"),
+		       "permanent address is required");
+    
+  }
+
+  function testGetResourceId() {
+    // resource id used for all ACL checks
+    $this->assertEqual("published etd", $this->etd->getResourceId());
+    $this->etd->rels_ext->status = "draft";
+    $this->assertEqual("draft etd", $this->etd->getResourceId());
+  }
+
+
+  function testIsHonors() {
+    $this->assertFalse($this->etd->isHonors(), "etd is not honors etd");
+  }
+
   
 
 }

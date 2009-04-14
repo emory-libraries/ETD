@@ -15,6 +15,8 @@
 	   <? /* build up url for this page _without_ this facet */ ?>
 	   <? $url_opts = array_merge(array('controller' => $this->controller, 'action' => $this->action), $this->url_params); ?>
 <?		foreach ($this->filters as $f => $t) if ($f != $facet) $url_opts[$f] = $t; ?>
+	   <? if ($facet == "program")	// convert program id to text label
+		$term = $this->programHierarchy->findLabelbyId($term) ?>
 	    <li><a href="<?= $this->url($url_opts, '', true) ?>"><?= $term ?></a></li>
           <? endforeach ?>
 	</ul>
@@ -23,13 +25,14 @@
    
    <b>Filter your results:</b>
    
-    <? foreach (array("status", "year", "subject", "advisor", "committee", "program", "author", "keyword", "subfield") as $facet): ?>
+     <? foreach (array("status", "year", "subject", "advisor", "committee", "program", "author", "keyword", "subfield", "document_type") as $facet): ?>
     <? if ($this->browse_mode == "committee" && $facet == "advisor") continue; ?>
     <? if ($this->browse_mode == "researchfield" && $facet == "subject") continue; ?>
      <? if (isset($this->etdSet->facets->$facet) && count($this->etdSet->facets->$facet)
 	    && !isset($this->filters[$facet]) && $this->browse_mode != $facet): ?>
    <p class="label">
       <? if ($facet == "advisor"): ?>Committee Chair
+      <? elseif ($facet == "document_type"): ?>Document type
       <? else: ?><?= ucfirst($facet) ?>
       <? endif ?>		      
    </p>
@@ -39,6 +42,8 @@
 <? /* include url params when generating links (needed for facets on search query) */ ?>
 <? $url_opts = array_merge(array('controller' => $this->controller, 'action' => $this->action), $this->url_params); ?>
      <? $url_opts[$facet] = $label; ?>
+     <? if ($facet == "program")	// convert program id to text label
+	  $label = $this->programHierarchy->findLabelbyId($label); ?>
   	        <a href="<?= $this->url($url_opts) ?>"><?= $label ?></a>
 	       (<?= $count ?>)</li>
  	    <? endforeach ?>

@@ -4,13 +4,19 @@ require_once('models/programs.php');
 
 class TestPrograms extends UnitTestCase {
   private $programs;
+  private $programObj;
 
   function setUp() {
-    $xml = new DOMDocument();
-    $this->programs = new programs();
+    $this->programObj = new foxmlPrograms();
+    $this->programs = $this->programObj->skos;
   }
 
-  function tearDown() {}
+  function tearDown() {
+    // a couple of tests mess with the config in the registry; restore it here
+    global $config_dir;
+    $config = new Zend_Config_Xml($config_dir . "config.xml", "test");
+    Zend_Registry::set('config', $config);
+  }
 
   function testBasicProperties() {
     $this->assertIsA($this->programs, "programs");
@@ -29,9 +35,23 @@ class TestPrograms extends UnitTestCase {
 
     // still program-extended members & collections at deeper level of hierarchy?
     $this->assertIsA($this->programs->members[0]->collection, "programCollection");
+
+    $this->assertIsA($this->programObj, "foxml");
+    $this->assertIsA($this->programObj, "foxmlSkosCollection");
+    $this->assertIsA($this->programObj, "foxmlPrograms");
   }
 
-  public function testGetIndexedFields() {
+  function testInitSubCollection() {
+    // initialize programs with an id for a collection other than the top level
+    $programObj = new foxmlPrograms("#grad");
+    $this->assertEqual("Graduate", $programObj->skos->label);
+    $this->assertEqual(3, count($programObj->skos->members));
+    $this->assertEqual("Humanities", $programObj->skos->members[0]->label);
+    $this->assertEqual("Programs", $programObj->skos->parent->label);
+    
+  }
+
+  function testGetIndexedFields() {
     $fields = $this->programs->getIndexedFields();
     $this->assertIsA($fields, "array");
 
@@ -43,6 +63,23 @@ class TestPrograms extends UnitTestCase {
     $this->assertTrue(in_array("Psychology", $fields), "program with subfields");
     $this->assertTrue(in_array("Immunology", $fields), "subfield of a program");
   }
+
+  function testInitWithBadConfig() {
+    Zend_Registry::set("config", new Zend_Config());
+    // test with an empty config that has no program pid
+    $this->expectException(new FoxmlException("Configuration does not contain program pid, cannot initialize"));
+    $programObj = new foxmlPrograms();
+  }
+
+  function testInitWithoutConfig() {
+    // if config is not registered, should get an exception (object cannot be initialized)
+    // save config and then unset in the registry
+    $reg = Zend_Registry::getInstance();
+    unset($reg["config"]);
+    $this->expectException(new FoxmlException("Configuration not registered, cannot retrieve pid"));
+    $programObj = new foxmlPrograms();
+  }
+
 
 }
 

@@ -27,11 +27,10 @@ class TestEsdPerson extends UnitTestCase {
     $this->assertEqual($user->directory_name, "Rebecca Sutton");
     $this->assertEqual($user->department_code, "2870");
     $this->assertEqual($user->department, "University Libraries");
-    $this->assertEqual($user->academic_program, null);
     $this->assertEqual($user->email, "rebecca.s.koeser@emory.edu");
+
     // NOTE: this test is useless; value returned by ESD oscillates between MA and PHD for no apparent reason
     //    $this->assertEqual($user->degree, "PHD");	// FIXME: why does this change?
-
     // these fields are now empty in ESD (?) - find better test subject ? 
     // OR figure out how to mock the data (? is that a useful test?) 
     //    $this->assertEqual($user->term_complete, "5061");
@@ -75,7 +74,19 @@ class TestEsdPerson extends UnitTestCase {
     // graduate school administration
     $user->department = "Graduate School Administration";
     $user->setRole();
-    $this->assertEqual($user->role, "admin");
+    $this->assertEqual($user->role, "grad admin");
+
+    // honors undergrad student
+    $user->department = "Anthropology";
+    $user->type = "S";
+    $user->honors_student = "Y";
+    $user->setRole();
+    $this->assertEqual($user->role, "honors student");
+
+    // honors program administrator - based on config file
+    $user->netid = "mabell";
+    $user->setRole();
+    $this->assertEqual($user->role, "honors admin");
 
     // etd superuser - based on config file
     $user->netid = "rsutton";
@@ -90,8 +101,43 @@ class TestEsdPerson extends UnitTestCase {
     $this->assertFalse($user->isCoordinator("Chemistry"));
   }
 
-  // FIXME: add tests for functions that find faculty names
+  function testFormerFaculty_id() {
+    $user = new esdPerson();
+    $user->current_faculty = "N";
+    $user->id = "007";
+    $this->assertEqual("esdid007", $user->netid);
+  }
+
+  function testfindById() {
+    $user = $this->esd->findByUsername("rsutton");
+    $user2 = $this->esd->findByUsername("esdid" . $user->id);
+    $this->assertEqual($user, $user2);
     
+  }
+
+  
+  function testGetGenericAgent() {
+    $user = new esdPerson();
+    $user->role = "grad admin";
+    $this->assertEqual("the Graduate School", $user->getGenericAgent());
+    $user->role = "honors admin";
+    $this->assertEqual("the College Honors Program", $user->getGenericAgent());
+    $user->role = "admin";
+    $this->assertEqual("ETD Administrator", $user->getGenericAgent());
+    $user->role = "superuser";
+    $this->assertEqual("ETD Administrator", $user->getGenericAgent());
+
+    // role with no generic agent
+    $user->role = "guest";
+    // should get a warning about this
+    $this->expectError("This role (guest) does not have a generic agent defined");
+    $this->assertEqual("?", $user->getGenericAgent());
+    
+  }
+
+  // FIXME: add tests for functions that find faculty names
+
+
 }
 
 runtest(new TestEsdPerson());

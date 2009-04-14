@@ -9,6 +9,7 @@
 
   </div>
 
+ <? if ($this->etd->isRequired("send to ProQuest")): ?>	   
   <div id="proquest">
    <h2>ProQuest Submission Information</h2>
     <? if ($this->acl->isAllowed($this->role, $this->etd, "edit metadata")): ?>
@@ -18,7 +19,8 @@
    <p>Sending to ProQuest? <b><?= $this->etd->mods->submitToProquest() ? "yes" : "no"; ?></b></p>
    <p>Applying for copyright? <b><?= $this->etd->mods->copyright ?></b></p>
   </div>
-
+<? endif ?>
+     
   <div id="contact">
     <h2>Contact information</h2>
    <? if ($this->acl->isAllowed($this->role, "user", "edit")): ?>

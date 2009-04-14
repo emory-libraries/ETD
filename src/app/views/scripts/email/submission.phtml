@@ -4,10 +4,12 @@
 <p>Congratulations!  You have successfully submitted your ETD to
 Emory's repository.</p>
 
-<p>Your next step is to print a paper copy of the document you deposited for
-the Dean's review.  To ensure that the Dean will be reviewing the final
-version of your document, click the link below to visit your record in the
-ETD repository, open your PDF file, and print a paper copy.</p>
+<? if (! $this->etd->isHonors()): /* not applicable to honors etds */ ?>
+  <p>Your next step is to print a paper copy of the document you deposited for
+  the Dean's review.  To ensure that the Dean will be reviewing the final
+  version of your document, click the link below to visit your record in the
+  ETD repository, open your PDF file, and print a paper copy.</p>
+<? endif ?>
 
 <p>View your record:
 <a href="<?= $this->etd->mods->ark ?>"><?= $this->etd->mods->ark ?></a></p>
@@ -16,8 +18,8 @@ ETD repository, open your PDF file, and print a paper copy.</p>
 paper copy of their dissertation. In part 2 of that form, you must
 choose between the "Open" or "Restricted" Access options.
 <? if ($this->etd->mods->embargo_request == "yes"): ?>
-   You have requested <b>Restricted Access</b> (pending the approval of the
-   Graduate School). The full text of your work will be published in
+   You have requested <b>Restricted Access</b> (pending the approval of 
+   <?= $this->etd->admin_agent ?>). The full text of your work will be published in
    the repository immediately after the expiration of your access
    restriction period.
 <? elseif ($this->etd->mods->embargo_request == "no"): ?>
@@ -27,8 +29,8 @@ choose between the "Open" or "Restricted" Access options.
 </p>     
 
 <p>You will receive written notification confirming whether or not your
-<?= $this->etd->document_type() ?> has been approved by the Graduate School.  Upon approval
-you will receive further information regarding the publication of your
+<?= $this->etd->document_type() ?> has been approved by <?= $this->etd->admin_agent ?>.
+  Upon approval you will receive further information regarding the publication of your
 ETD in our repository, as well as your opportunity to order bound
 copies.</p>
 

@@ -1,98 +1,147 @@
 <h1>Edit Program/Department</h1>
 <p><b><?= $this->etd->title() ?></b></p>
-
-<?=  $this->render('edit/_xforms_key.phtml'); ?>
-
 <p>Your Emory record indicates that you are currently enrolled in the
-following Graduate Program (or undergraduate department).</p>
+following
+<? if ($this->honors): ?> Undergraduate Honors Program<? else: ?>  Graduate Program<? endif ?>.</p>
 
-<p>  
-  <?= $this->xformOutput("Department/Graduate Program",
-			 "instance('main')/mods:name[mods:role/mods:roleTerm='author']/mods:affiliation"); ?>
-</p>
-<p>
-  <?= $this->xformOutput("Subfield", "instance('main')/mods:extension/etd:degree/etd:discipline"); ?>
-</p>
+<p>If this information is incorrect, re-enter your program below.  Begin typing
+the name of your program and select from the supplied list.
+If your program has an applicable subfield, please select that as well.</p> 
 
-<p>If this information is incorrect, reenter your program or
-department below.  Choose Graduate or Undergraduate, then Humanities,
-Natural/Health Sciences or Social Sciences, and then your particular
-program/department.</p>
+<form action="<?= $this->url(array("action" => "save-program")) ?>" method="post">
+			    
+<div>
+<b>Department/Graduate Program *</b><br/>
+  <input id="program" name="program" autocomplete="off" size="60" type="text"
+			    value="<?= $this->etd->mods->department ?>"/>
+    <span id="status"> </span>
+  <input id="program_id" name="program_id" type="hidden"
+    value="<?= isset($this->etd->rels_ext->program) ? $this->etd->rels_ext->program : "" ?>"/>
+  <div class="autocomplete" id="program_list" style="display:none"> </div>
+</div>
+<div id="subfield_form"
+<? if (!isset($this->etd->rels_ext->subfield) || $this->etd->rels_ext->subfield == ''): ?>
+   style="display:none" <? endif ?> >
+ <b>Subfield</b><br/>
+  <select id="subfield_id" name="subfield_id">
+  </select>
+</div>
 
-<br/>
- <xf:select1 ref="instance('tmp')/program/level1">
-   <xf:label>Division</xf:label>
-   <xf:itemset nodeset="instance('tmp')/none|instance('programs')/skos:Collection[@rdf:about = '#programs']/skos:member">
-   <xf:label ref="instance('programs')/skos:Collection[@rdf:about = current()/@rdf:resource]/rdfs:label"/>
-   <xf:value ref="@rdf:resource"/>
-   </xf:itemset>
+<p><input class="button" type="submit" value="save"/></p>
+</form>
 
-   <xf:action ev:event="xforms-value-changed"> 
-     <xf:setvalue ref="../level2"/>
-     <xf:rebuild model="model"/> 
-   </xf:action>
-  </xf:select1>
-  <br/>
+<? // build an array of program id and name and an array of subfield
+   // id and name by program id  (for use in javascript)
+$program_names = array();
+$subfields = array();
+foreach ($this->prog_section->members as $division) {
+  if (count($division->members)) {
+    foreach ($division->members as $program) {
+      $program_names[$program->getId()] = $program->label;
+      if (count($program->members)) {	// this program has subfields
+	$prog_id = $program->getId();
+	$subfields[$prog_id] = array();
+	foreach ($program->members as $subfield) {
+	  $subfields[$prog_id][$subfield->getId()] = $subfield->label;
+	}  // subfield loop
+      }  // program with subfield
+    }  // program loop
+  }
+}  ?>
 
- <xf:select1 ref="instance('tmp')/program/level2">
-   <xf:label>Discipline</xf:label>
-   <xf:itemset nodeset="instance('tmp')/none|instance('programs')/skos:Collection[@rdf:about = instance('tmp')/program/level1]/skos:member">
-   <xf:label ref="instance('programs')/skos:Collection[@rdf:about = current()/@rdf:resource]/rdfs:label"/>
-   <xf:value ref="@rdf:resource"/>
-   </xf:itemset>
+<?= $this->javascript("projax/js/scriptaculous.js"); ?>
+<?= $this->javascript("projax/js/effects.js"); ?>
+<?= $this->javascript("projax/js/prototypeUtils.js"); ?>
+<script language="JavaScript">
+  var program_names = <?= json_encode(array_values($program_names)) ?>;
+  var programs_by_id = <?= json_encode($program_names) ?>;
+  var subfields = <?= json_encode($subfields) ?>;
+<? if (isset($this->etd->rels_ext->subfield)): ?>
+   var init_subfield = '<?= $this->etd->rels_ext->subfield ?>';
+<? endif ?>
+// extend auto-complete to indicate when no matches are found
+Autocompleter.LocalNoMatches = Class.create();
+Object.extend(Autocompleter.LocalNoMatches.prototype, Autocompleter.Local.prototype);
+Object.extend(Autocompleter.LocalNoMatches.prototype, {
+  getUpdatedChoices: function() {
+   	var choices = this.options.selector(this);
+	// if no choices matched, display that
+	if (choices == "<ul></ul>") { choices = "<ul><li>No matches found</li><ul>"; }
+	this.updateChoices(choices);
+  },
+			 		  });
 
-   <xf:action ev:event="xforms-value-changed">
-     <xf:setvalue ref="../department"/>
-    <xf:rebuild model="model"/> 
-   </xf:action>
-  </xf:select1>
-  <br/>
-  
- <xf:select1 ref="instance('tmp')/program/department">
-   <xf:label>Program/Department</xf:label>
-   <xf:itemset nodeset="instance('tmp')/none|instance('programs')/skos:Collection[@rdf:about = instance('tmp')/program/level2]/skos:member">
-   <xf:label ref="instance('programs')/skos:Collection[@rdf:about = current()/@rdf:resource]/rdfs:label"/>
-   <xf:value ref="@rdf:resource"/>
-   </xf:itemset>
+ac = new Autocompleter.LocalNoMatches('program', 'program_list', program_names, {
+    partialSearch: true,
+				   afterUpdateElement: afterSelect,
+			   
+			    });
 
-   <xf:action ev:event="xforms-value-changed">
-     <xf:setvalue ref="../subfield"/>
-     <xf:setvalue nodeset="instance('main')/mods:name[mods:role/mods:roleTerm='author']/mods:affiliation"
-      value="instance('programs')/skos:Collection[@rdf:about = instance('tmp')/program/department]/rdfs:label"/>
-   <xf:setvalue nodeset="instance('main')/mods:name[mods:role/mods:roleTerm='author']/mods:affiliation[.='--']" value="''"/>
-     <xf:setvalue nodeset="instance('main')/mods:extension/etd:degree/etd:discipline" value="''"/>
-       <xf:rebuild model="model"/> 
-   </xf:action>
-  </xf:select1>
-  <br/>
+function afterSelect() {
+  // find and set id in hidden field
+  var prog_name = $F('program');
 
-  <xf:group ref="instance('tmp')/program/subfield">
-  
- <xf:select1 ref=".">
-   <xf:label>Subfield</xf:label>
-   <xf:itemset nodeset="instance('tmp')/none|instance('programs')/skos:Collection[@rdf:about = instance('tmp')/program/department]/skos:member">
-   <xf:label ref="instance('programs')/skos:Collection[@rdf:about = current()/@rdf:resource]/rdfs:label"/>     
-   <xf:value ref="@rdf:resource"/>
-   </xf:itemset>
+  // find program id
+  var prog_id = '';
+  for (var i in programs_by_id) {
+    if (programs_by_id[i] == prog_name) {
+      prog_id = i;
+    }
+  }
+  // store program id in hidden input (if no match is found, blanks it out)
+  Form.Element.setValue("program_id", prog_id);
+  showStatus();
 
-   <xf:action ev:event="xforms-value-changed">
-     <xf:setvalue nodeset="instance('main')/mods:extension/etd:degree/etd:discipline"
-      value="instance('programs')/skos:Collection[@rdf:about = instance('tmp')/program/subfield]/rdfs:label[. != '--']"/>
-   </xf:action>
-  </xf:select1>
-  
-  </xf:group>
+  // check if this program has subfields
+  var has_subfield = false;
+  if (prog_id) {
+    for (var prog in subfields) {
+      if (prog == prog_id) {
+	has_subfield = true;
+	// populate subfield select box with program's subfields
+	$('subfield_id').options.length=0;
+	var count = 0;
+	$('subfield_id').options[count] = new Option("", "");	// add blank (optional)
+	for (var id in subfields[prog]) {
+	  count++;
+	  var selected = (init_subfield && (init_subfield == id));
+	  $('subfield_id').options[count] = new Option(subfields[prog][id], id, false, selected);
+	}
+      }
+    }
+  }
+  // show or  hide the subfield section of the form as appropriate
+  if (has_subfield) {
+    $("subfield_form").show();
+  } else {
+    $('subfield_id').options.length=0;		// unset any value
+    $("subfield_form").hide();
+  }
 
-   
-<br/>
+  // blank out initial subfield
+  init_subfield = null;
+}
 
-  
-<p> <xf:submit submission="submission">
-<xf:label>Save</xf:label>
-</xf:submit></p>
+// show whether or not program id is set properly
+function showStatus() {
+  var ok = '&#x2714;';
+  var err = '&#x2717;';
+  if ($F('program_id') == '') {
+    $('status').update(err);
+    $('status').removeClassName("ok");
+    $('status').addClassName("incomplete");
+  } else {
+    $('status').update(ok);
+    $('status').removeClassName("incomplete");
+    $('status').addClassName("ok");
+  }
+}
+ 
 
-<? if ($this->env == 'development'): ?>
-  <p id="status"></p>
-<? endif ?>   
 
-
+<?  /* if program already set, populate any subfield select and pre-set it correctly */
+if ((isset($this->etd->rels_ext->program) && $this->etd->rels_ext->program  != "")
+    || $this->etd->mods->department != ""): ?>
+afterSelect();
+<? endif ?>
+</script>
