@@ -8,6 +8,7 @@ class ManageControllerTest extends ControllerTestCase {
   // array of test foxml files & their pids 
   private $etdxml;
   private $test_user;
+  private $solr;
   
   function setUp() {
     $this->test_user = new esdPerson();
@@ -35,8 +36,8 @@ class ManageControllerTest extends ControllerTestCase {
       $pid = fedora::ingest(file_get_contents('../fixtures/' . $etdfile . '.xml'), "loading test etd");
     }
 
-    $solr = &new Mock_Etd_Service_Solr();
-    Zend_Registry::set('solr', $solr);
+    $this->solr = &new Mock_Etd_Service_Solr();
+    Zend_Registry::set('solr', $this->solr);
   }
   
   function tearDown() {
@@ -48,14 +49,19 @@ class ManageControllerTest extends ControllerTestCase {
   }
   
   function testSummaryAction() {
+
+    $this->solr->response->facets = new Emory_Service_Solr_Response_Facets(array("status" =>
+										 array("published" => 2,
+										       "reviewed" => 1)));
+    
+    // no param - should start at top-level
+    
     $ManageController = new ManageControllerForTest($this->request,$this->response);
     $ManageController->summaryAction();
     $status_totals = $ManageController->view->status_totals;
 
-    // FIXME: there is an error in Resource Index...  counts 1 published record when nothing is in the repository
-
-    // totals based on test objects loaded
-    $this->assertEqual(2, $status_totals['published']);	// FIXME: should be 1... ignore this error for now
+    // should match what is passed to mock solr object above
+    $this->assertEqual(2, $status_totals['published']);
     $this->assertEqual(0, $status_totals['approved']);
     $this->assertEqual(1, $status_totals['reviewed']);
     $this->assertEqual(0, $status_totals['submitted']);
@@ -119,9 +125,31 @@ class ManageControllerTest extends ControllerTestCase {
     $this->assertTrue($ManageController->redirectRan);	// redirects to admin summary page on success
     $messages = $ManageController->getHelper('FlashMessenger')->getMessages();
     $this->assertPattern("/status changed/", $messages[0]);
-    $this->assertEqual("Record reviewed by Graduate School", $etd->premis->event[1]->detail);
+    $this->assertEqual("Record reviewed by ETD Administrator", $etd->premis->event[1]->detail);
     $this->assertEqual("test_user", $etd->premis->event[1]->agent->value);
+
+    // agent in description should vary according to admin role
+    $this->test_user->role = "grad admin";
+    // reset status on etd
+    $etd = new etd("test:etd2");
+    $etd->setStatus("submitted");
+    $etd->save("set status to submitted to test review - grad admin");
+    $ManageController->acceptAction();
+    $etd = new etd("test:etd2");	// get from fedora to check changes
+    $this->assertEqual("Record reviewed by the Graduate School", $etd->premis->event[2]->detail);
+
+
+    // FIXME: not allowed to do this on hon-honors etd
+    /*    $this->test_user->role = "honors admin";
+    $etd = new etd("test:etd2");
+    $etd->setStatus("submitted");
+    $etd->save("set status to submitted to test review - honors");
+    $ManageController->acceptAction();
+    $etd = new etd("test:etd2");	// get from fedora to check changes
+    $this->assertEqual("Record reviewed by Honors Program", $etd->premis->event[3]->detail);
+    */
   }
+
 
   /* test request _record_ (metadata) changes */
   public function testRequestRecordChangesAction() {
@@ -141,15 +169,37 @@ class ManageControllerTest extends ControllerTestCase {
     $etd->save("set status to submitted to test review");
 
     $ManageController = new ManageControllerForTest($this->request,$this->response);
+    // clear out any messages (?)
+    $ManageController->getHelper('FlashMessenger')->getMessages();
     $ManageController->requestchangesAction();
     $etd = new etd("test:etd2");	// get from fedora to check changes
     $this->assertEqual("draft", $etd->status(), "status set correctly");	
     $messages = $ManageController->getHelper('FlashMessenger')->getMessages();
     $this->assertPattern("/Changes requested;.*status changed/", $messages[0]);
-    $this->assertEqual("Changes to record requested by Graduate School", $etd->premis->event[1]->detail);
+    $this->assertEqual("Changes to record requested by ETD Administrator", $etd->premis->event[1]->detail);
     $this->assertEqual("test_user", $etd->premis->event[1]->agent->value);
     $this->assertTrue(isset($ManageController->view->title));
     $this->assertEqual("record", $ManageController->view->changetype);
+
+    // variant admins
+    $this->test_user->role = "grad admin";
+    // reset status on etd
+    $etd = new etd("test:etd2");
+    $etd->setStatus("submitted");
+    $etd->save("set status to submitted to test request changes - grad admin");
+    $ManageController->requestchangesAction();
+    $etd = new etd("test:etd2");	// get from fedora to check changes
+    $this->assertEqual("Changes to record requested by the Graduate School", $etd->premis->event[2]->detail);
+    
+    /*$this->test_user->role = "honors admin";
+    // reset status on etd
+    $etd = new etd("test:etd2");
+    $etd->setStatus("submitted");
+    $etd->save("set status to submitted to test request changes - honors admin");
+    $ManageController->requestchangesAction();
+    $etd = new etd("test:etd2");	// get from fedora to check changes
+    $this->assertEqual("Changes to record requested by Honors Program", $etd->premis->event[3]->detail);
+    */
   }
 
 
@@ -169,7 +219,7 @@ class ManageControllerTest extends ControllerTestCase {
     //$this->assertEqual("document", $ManageController->view->changetype);
     $messages = $ManageController->getHelper('FlashMessenger')->getMessages();
     $this->assertPattern("/Changes requested;.*status changed/", $messages[0]);
-    $this->assertEqual("Changes to document requested by Graduate School", $etd->premis->event[1]->detail);
+    $this->assertEqual("Changes to document requested by ETD Administrator", $etd->premis->event[1]->detail);
     $this->assertEqual("test_user", $etd->premis->event[1]->agent->value);
 
     // try again now that etd is in draft status
@@ -178,6 +228,29 @@ class ManageControllerTest extends ControllerTestCase {
     // 	 - should be redirected, no etd set, and get a not authorized message (but can't test)
     $this->assertFalse($ManageController->redirectRan);
     // can't test error messages, since they are handled by the Access Helper
+
+
+    // variant admins
+    $this->test_user->role = "grad admin";
+    // reset status on etd
+    $etd = new etd("test:etd2");
+    $etd->setStatus("reviewed");
+    $etd->save("set status to reviewed to test request changes - grad admin");
+    $ManageController->requestchangesAction();
+    $etd = new etd("test:etd2");	// get from fedora to check changes
+    $this->assertEqual("Changes to document requested by the Graduate School", $etd->premis->event[2]->detail);
+
+    /*
+    $this->test_user->role = "honors admin";
+    // reset status on etd
+    $etd = new etd("test:etd2");
+    $etd->setStatus("reviewed");
+    $etd->save("set status to reviewed to test request changes - honors admin");
+    $ManageController->requestchangesAction();
+    $etd = new etd("test:etd2");	// get from fedora to check changes
+    $this->assertEqual("Changes to document requested by Honors Program", $etd->premis->event[3]->detail);
+
+    */
   }
 
   
@@ -219,6 +292,8 @@ class ManageControllerTest extends ControllerTestCase {
     // notices for non-existent users in metadata
     $this->expectError("Committee member/chair (nobody) not found in ESD");
     $this->expectError("Committee member/chair (nobodytoo) not found in ESD");
+    // clear out any old messages (?)
+    $ManageController->getHelper('FlashMessenger')->getMessages();
     $ManageController->doapproveAction();
     $etd = new etd("test:etd2");
     $this->assertEqual("approved", $etd->status(), "status set correctly");
@@ -227,9 +302,19 @@ class ManageControllerTest extends ControllerTestCase {
     $messages = $ManageController->getHelper('FlashMessenger')->getMessages();
     $this->assertPattern("/approved.*access restriction of 3 months/", $messages[0]);
     $this->assertPattern("/notification email sent/", $messages[1]);
-    $this->assertEqual("Record approved by Graduate School", $etd->premis->event[1]->detail);
+    $this->assertEqual("Record approved by ETD Administrator", $etd->premis->event[1]->detail);
     $this->assertEqual("test_user", $etd->premis->event[1]->agent->value);
     $this->assertEqual("Access restriction of 3 months approved", $etd->premis->event[2]->detail);
+
+    // variant admins
+    /* FIXME: offset is off?
+    $etd = new etd("test:etd1");
+    $etd->setStatus("reviewed");
+    $etd->save("set status to reviewed to test doApprove");
+    $ManageController->doapproveAction();
+    $etd = new etd("test:etd2");
+    $this->assertEqual("Record approved by Graduate School", $etd->premis->event[3]->detail);
+    */
   }
 
   public function testInactivateAction() {
@@ -318,6 +403,31 @@ class ManageControllerTest extends ControllerTestCase {
     $this->assertFalse($ManageController->viewLogAction());
   }
 
+  public function testAdminFilter() {
+    // totals on summary pages and records on list views based on what kind of admin user is
+
+    $ManageController = new ManageControllerForTest($this->request,$this->response);
+    
+    // generic admin sees everything (no filter)
+    $this->test_user->role = "admin";
+    $this->assertNull($ManageController->testGetAdminFilter());
+
+    // grad admin - phds and masters only
+    $this->test_user->role = "grad admin";
+    $filter = $ManageController->testGetAdminFilter();
+    $this->assertPattern("/PHD/", $filter);
+    $this->assertPattern("/M[AS]/", $filter);
+    $this->assertNoPattern("/B[AS]/", $filter);
+
+    // undergrad honors admin - bachelors only
+    $this->test_user->role = "honors admin";
+    $filter = $ManageController->testGetAdminFilter(); 
+    $this->assertNoPattern("/PHD/", $filter);
+    $this->assertNoPattern("/M[AS]/", $filter);
+    $this->assertPattern("/B[AS]/", $filter);
+    
+  }
+  
 }
 
 
@@ -337,6 +447,12 @@ class ManageControllerForTest extends ManageController {
   
   public function _redirect() {
     $this->redirectRan = true;
+  }
+
+  // expose private function for testing
+  public function testGetAdminFilter() {
+  
+    return $this->getAdminFilter();
   }
 } 	
 

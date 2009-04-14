@@ -21,7 +21,9 @@ class solrEtd implements etdInterface {
   public function title() { return $this->getField("title"); }
   public function author() { return $this->getField("author"); }
   public function program() { return $this->getField("program"); }
+  public function program_id() { return $this->getField("program_id"); }
   public function subfield() { return $this->getField("subfield"); }
+  public function subfield_id() { return $this->getField("subfield_id"); }
   // advisor renamed to chair to handle multiple names
   public function chair() { return $this->getField("advisor", true); }
   public function chair_with_affiliation() {
@@ -44,6 +46,16 @@ class solrEtd implements etdInterface {
     }
     return $result;
   }
+
+  public function committee_with_affiliation() {
+    // affiliation not currently stored in solr, return hash with keys but no values
+    $committee = array();
+    foreach ($this->committee() as $c) {
+      $committee[$c] = "";
+    }
+    return $committee;
+  }
+
         // how to handle non-emory committee?
   	// dissertation/thesis/etc
   public function document_type() { return $this->getField("document_type"); }
@@ -78,10 +90,13 @@ class solrEtd implements etdInterface {
 
   // for Zend ACL Resource
   public function getResourceId() {
+    $base_type = "etd";
+    if ($this->document_type == "Honors Thesis")
+      $base_type = "honors etd";
     if (isset($this->status) && $this->status != "") {
-      return $this->status() . " etd";
+      return $this->status() . " " . $base_type;
     } else {
-      return "etd";
+      return $base_type;
     }
   }
 

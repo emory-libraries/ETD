@@ -6,6 +6,7 @@
 require_once("bootstrap.php");
 
 require_once("models/stats.php");
+require_once("models/EtdFactory.php");
 
   /* what parameters are needed?
      - base url?
@@ -214,7 +215,7 @@ function etdPublishedDate($pid) {
   global $etd_published;
   if (!isset($etd_published[$pid])) {	// if publication status/date not already found, retrieve and cache
     try {
-      $etd = new etd($pid);
+      $etd = EtdFactory::etdByPid($pid);
     } catch (FedoraObjectNotFound $e) {
       return $etd_published[$pid] = false;	// object no longer exists - we don't care about it
     } catch (FedoraAccessDenied $e) {

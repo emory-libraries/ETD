@@ -110,11 +110,14 @@ class SearchController extends Etd_Controller_Action {
     else 	// no search parameter : can't proceed
       throw new Exception("Either faculty or advisor parameter must be specified");
 
+    $former = $this->_getParam("former", 0);
+    $this->view->former = $former;
+    $current_only = $former ? false : true;
     
     $p = new esdPersonObject();
 
     try {
-      $this->view->faculty = $p->match_faculty(stripslashes($name));
+      $this->view->faculty = $p->match_faculty(stripslashes($name),  $current_only);
     } catch (Exception $e) {
       $this->view->esd_error = true;
     }

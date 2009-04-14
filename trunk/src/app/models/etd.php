@@ -8,6 +8,7 @@ require_once("etdInterface.php");
 // etd datastreams
 require_once("etd_mods.php");
 require_once("etd_html.php");
+require_once("etd_rels.php");
 require_once("premis.php");
 require_once("policy.php");
 
@@ -16,7 +17,6 @@ require_once("etdfile.php");
 require_once("user.php");
 
 require_once("solrEtd.php");
-require_once("EtdSet.php");
 
 // email notifier
 require_once("etd_notifier.php");
@@ -35,6 +35,17 @@ class etd extends foxml implements etdInterface {
    * @var float $relevance score when found via Solr
    */
   public $relevance;
+
+  /**
+   * @var string $acl_id basic ACL resource id (has subresource variants that inherit)
+   */
+  protected $acl_id;
+
+
+  /**
+   * @var string generic name for admin/agency responsible for this type of etd
+   */
+  public $admin_agent;
   
   
   public function __construct($arg = null) {
@@ -56,6 +67,12 @@ class etd extends foxml implements etdInterface {
       // all new etds should start out as drafts
       $this->rels_ext->addRelation("rel:etdStatus", "draft");
     }
+
+    // base ACL resource id is etd
+    $this->acl_id = "etd";
+
+    // for default etds, admin agent is grad school
+    $this->admin_agent = "the Graduate School";
   }
 
 
@@ -453,6 +470,21 @@ class etd extends foxml implements etdInterface {
       return false;
   }
 
+  /**
+   * check if a field is required
+   * 
+   * @param string $field field name
+   * @return boolean
+   */
+  public function isRequired($field) {
+    // for now, all required fields are either in the mods or user contact info,
+    // so a field is required here if it is required by either of them
+    if (isset($this->authorInfo))
+      return ($this->mods->isRequired($field) || $this->authorInfo->isRequired($field));
+    else
+      return $this->mods->isRequired($field);
+  }
+
   public function readyToSubmit() {
     if (! $this->mods->readyToSubmit()) return false;
     if (! $this->hasPDF()) return false;
@@ -469,6 +501,11 @@ class etd extends foxml implements etdInterface {
 
   public function hasOriginal() {
     return (count($this->originals) > 0);
+  }
+
+  // easy way to check if this object (or inherited object) is honors or not
+  public function isHonors() {
+    return ($this instanceof honors_etd);
   }
 
   
@@ -602,31 +639,18 @@ class etd extends foxml implements etdInterface {
   }
 
 
-  /** static functions for finding (or counting) ETDs by various criteria **/
-  
-  public static function totals_by_status() {
-    $fedora = Zend_Registry::get('fedora');
-    $totals = array();
-    
-    // foreach status, do a triple-query and then count the number of matches
-    foreach (etd_rels::getStatusList() as $status) {
-      $query = '* <fedora-rels-ext:etdStatus> \'' . $status . '\'';
-      $rdf = $fedora->risearch->triples($query);
-      $ns = $rdf->getNamespaces();
-      $totals[$status] = count($rdf->children($ns['rdf']));
-    }
-    
-    return $totals;
-  }
-
-
-  
   public function pid() { return $this->pid; }
   public function status() { return isset($this->rels_ext->status) ? $this->rels_ext->status : ""; }
   public function title() { return $this->html->title; }	// how to know which?
   public function author() { return $this->mods->author->full; }
   public function program() { return $this->mods->department; }
+  public function program_id() {
+    return isset($this->rels_ext->program) ? $this->rels_ext->program : null;
+  }
   public function subfield() { return isset($this->mods->subfield) ? $this->mods->subfield : ""; }
+  public function subfield_id() {
+    return isset($this->rels_ext->subfield) ? $this->rels_ext->subfield : null;
+  }
   public function chair() {
     $chairs = array();
     foreach ($this->mods->chair as $c) {
@@ -644,6 +668,17 @@ class etd extends foxml implements etdInterface {
 	$chairs[$c->full] = "";
     }
     return $chairs;
+  }
+  // return hash of committe member name and affiliation (if any)
+  public function committee_with_affiliation() {
+    $committee = array();
+    foreach ($this->mods->committee as $c) {
+      if (isset($c->affiliation)) 
+	$committee[$c->full] = $c->affiliation;
+      else
+	$committee[$c->full] = "";
+    }
+    return $committee;
   }
 
 
@@ -693,9 +728,9 @@ class etd extends foxml implements etdInterface {
   // for Zend ACL Resource
   public function getResourceId() {
     if ($this->status() != "") {
-      return $this->status() . " etd";
+      return $this->status() . " " . $this->acl_id;
     } else {
-      return "etd";
+      return $this->acl_id;
     }
   }
 

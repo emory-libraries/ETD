@@ -29,6 +29,7 @@ class EditController extends Etd_Controller_Action {
 							     '', true, false);
   }
 
+  // edit program and optional subfield
   public function programAction() {
     $etd = $this->_helper->getFromFedora("pid", "etd");
     if (!$this->_helper->access->allowedOnEtd("edit metadata", $etd)) return;
@@ -36,27 +37,59 @@ class EditController extends Etd_Controller_Action {
     $this->view->title = "Edit Program";
     $this->view->etd = $etd;
 
-    $programs = new programs();
-    $id = $programs->findIdbyLabel(trim($etd->mods->department));
-    if ($id)	// FIXME: what if id is not found ?
-      $this->view->program = new programs($id);
-
-    
-    // xforms setting - so layout can include needed code in the header
-    $this->view->xforms = true;
-    $this->view->xforms_bind_script = "edit/_program_bind.phtml";
-    $this->view->namespaces = array("mods" => "http://www.loc.gov/mods/v3",
-				    "etd" => "http://www.ndltd.org/standards/metadata/etdms/1.0/",
-				    "skos" => "http://www.w3.org/2004/02/skos/core#",
-				    "rdf" => "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
-				    "rdfs" => "http://www.w3.org/2000/01/rdf-schema#",
-				    );
-    // link to xml rather than embedding directly in the page
-    $this->view->xforms_model_uri = $this->_helper->url->url(array("controller" => "view", "action" => "mods",
-								   "pid" => $etd->pid),
-							     // no route name, reset, don't url-encode
-							     '', true, false);
+    $programObject = new foxmlPrograms();
+    $this->view->programs = $programObject->skos;
+    if ($etd->isHonors()) {
+      $this->view->honors = true;
+      $this->view->prog_section = $programObject->skos->undergrad;
+    } else {
+      $this->view->prog_section = $programObject->skos->grad;
+      $this->view->honors = false;
+    }
   }
+
+  // save program and subfield - text in MODS, ids in RELS-EXT
+  public function saveProgramAction() {
+    $etd = $this->_helper->getFromFedora("pid", "etd");
+    if (!$this->_helper->access->allowedOnEtd("edit metadata", $etd)) return;
+    
+    $this->view->etd = $etd;
+
+    $program_id = $this->_getParam("program_id", null);
+    $subfield_id = $this->_getParam("subfield_id", null);
+
+    $etd->rels_ext->program = $program_id;
+    $programObject = new foxmlPrograms();
+    $etd->department = $programObject->skos->findLabelbyId("#" . $program_id);	
+    if ($subfield_id == null) {
+      // blank out rel if already set (don't add empty relation if not needed)
+      if (isset($etd->rels_ext->subfield)) $etd->rels_ext->subfield = "";
+      // blank out mods subfield
+      $etd->mods->subfield = "";
+    } else {
+      $etd->rels_ext->subfield = $subfield_id;
+      $etd->mods->subfield = $programObject->skos->findLabelbyId("#" . $subfield_id);
+    }
+    
+    if ($etd->mods->hasChanged() || $etd->rels_ext->hasChanged()) {
+      $save_result = $etd->save("updated program");
+      $this->view->save_result = $save_result;
+      if ($save_result) {
+	$this->_helper->flashMessenger->addMessage("Saved changes to program");
+	$this->logger->info("Updated etd " . $etd->pid . " program at $save_result");
+      } else {
+	$this->_helper->flashMessenger->addMessage("Could not save changes to program (permission denied?)");
+	$this->logger->err("Could not save changes to program on  etd " . $etd->pid);
+      }
+    } else {
+      $this->_helper->flashMessenger->addMessage("No changes made to program");
+    }
+
+
+    $this->_helper->redirector->gotoRoute(array("controller" => "view", "action" => "record",
+						"pid" => $etd->pid), '', true);
+  }
+
 
 
   public function facultyAction() {
@@ -91,6 +124,20 @@ class EditController extends Etd_Controller_Action {
     $etd->setCommittee($chair_ids, "chair");
     $etd->setCommittee($committee_ids);
 
+    // any of these could now be former faculty; loop through and check for affiliation
+    foreach ($chair_ids as $id) {
+      if ($this->_hasParam($id . "_affiliation") &&
+	  ($affiliation = $this->_getParam($id . "_affiliation", "")) != "") {
+	$etd->mods->setCommitteeAffiliation($id, $affiliation, "chair");
+      }
+    }
+    foreach ($committee_ids as $id) {
+      if ($this->_hasParam($id . "_affiliation") &&
+	  ($affiliation = $this->_getParam($id . "_affiliation", "")) != "") {
+	$etd->mods->setCommitteeAffiliation($id, $affiliation);
+      }
+    }
+
     // handle non-emory committee members as well
     $etd->mods->clearNonEmoryCommittee();
     $nonemory_first = $this->_getParam("nonemory_firstname");
@@ -115,7 +162,6 @@ class EditController extends Etd_Controller_Action {
     } else {
       $this->_helper->flashMessenger->addMessage("No changes made to committee chair(s) & members");
     }
-
 
     $this->_helper->redirector->gotoRoute(array("controller" => "view", "action" => "record",
     						"pid" => $etd->pid), '', true);

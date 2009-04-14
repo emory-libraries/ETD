@@ -16,6 +16,7 @@ class LibGroupTest extends GroupTest {
     $this->addTestFile('lib/ProcessPdfTest.php');
     $this->addTestFile('lib/TestPdfPageTotal.php');
     $this->addTestFile('lib/TestGetFromFedora.php');
+    $this->addTestFile('lib/TestIngestOrError.php');
   }
 }
 

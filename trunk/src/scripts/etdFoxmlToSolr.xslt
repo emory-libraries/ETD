@@ -300,13 +300,26 @@
   <xsl:template match="rdf:RDF[ancestor::foxml:datastream/@ID='RELS-EXT']">
     <xsl:apply-templates select="rdf:description/rel:etdStatus"/>
     <xsl:apply-templates select="rdf:description/rel:hasPDF"/>
-    <!-- currently not including any rels besides status -->
+
+    <xsl:apply-templates select="rdf:description/rel:program"/>
+    <xsl:apply-templates select="rdf:description/rel:subfield"/>
   </xsl:template>
 
   <xsl:template match="rel:etdStatus">
     <field name="status"><xsl:value-of select="."/></field>
   </xsl:template>
 
+  <xsl:template match="rel:program">
+    <xsl:if test=". != ''">                     <!-- only include if not empty -->
+      <field name="program_id"><xsl:value-of select="."/></field>
+    </xsl:if>
+  </xsl:template>
+
+  <xsl:template match="rel:subfield">
+    <xsl:if test=". != ''">                     <!-- only include if not empty -->
+      <field name="subfield_id"><xsl:value-of select="."/></field>
+    </xsl:if>
+  </xsl:template>
 
   <!-- index pdf datastream for related object -->
   <xsl:template match="rel:hasPDF">

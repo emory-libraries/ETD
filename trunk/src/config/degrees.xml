@@ -9,5 +9,6 @@
   </level>
   <level name="bachelors" genre="Honors Thesis">
     <degree name="BA"/>
+    <degree name="BS"/>
   </level>
 </degrees>

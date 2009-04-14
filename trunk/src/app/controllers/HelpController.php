@@ -47,9 +47,9 @@ class HelpController extends Etd_Controller_Action {
     if($this->verifyParms()) {
 	  	$notify = new Zend_Mail();
 	  	
-	  	
     	$config = Zend_Registry::get('config');
 	    $environment = Zend_Registry::get('env-config');
+			  
 	    if ($environment->mode != "production") {
 	    	// use a configured debug email address when in development mode
 			$list_addr = $request->getParam("list_addr", $config->email->test);
@@ -77,9 +77,9 @@ class HelpController extends Etd_Controller_Action {
 	  		);
 
 	  	try {
-			if ($environment->mode == "production") {
-	  			$notify->send();
-			}
+		  if ($environment->mode != "test") {
+		    $notify->send();
+		  }
   		} catch (Exception $exception) {
 			$this->view->errorMessage = "There was an error sending your message. [" . $exception->getMessage() . "]";
 			$this->view->submittedUsername = $request->getParam("username", "");
@@ -96,17 +96,21 @@ class HelpController extends Etd_Controller_Action {
    	    	. "' from " . $request->getParam("username", "")
 			. " <" . $request->getParam("email", "") . ">");
 	    
-	    // forward to success message
-	    $this->_helper->redirector->gotoRoute(array("controller" => "help", "action" => "success"), "", true);
-    	$this->_forward("success");
-  	} else {
-		$this->view->errorMessage = "Validation Error: there was a problem submitting your message for help.  Ensure that the Name, email, subject and message fields are populated before clicking submit.";
-		$this->view->submittedUsername = $request->getParam("username", "");
-		$this->view->submittedEmail = $request->getParam("email", "");
-		$this->view->submittedMessage = $request->getParam("message", "");
-		$this->view->submittedSubject = $request->getParam("subject", "");
-		$this->_helper->viewRenderer->setScriptAction("index");   	
-  	}
+    	if ($environment->mode != "test") {
+			// forward to success message
+	  $this->_helper->redirector->gotoRoute(array("controller" => "help", "action" => "success"), "", true);
+	  $this->_forward("success");
+    	} else { // is test mode.
+	  return $notify;
+    	}
+    } else {  // missing parameters
+      $this->view->errorMessage = "Validation Error: there was a problem submitting your message for help.  Ensure that the Name, email, subject and message fields are populated before clicking submit.";
+      $this->view->submittedUsername = $request->getParam("username", "");
+      $this->view->submittedEmail = $request->getParam("email", "");
+      $this->view->submittedMessage = $request->getParam("message", "");
+      $this->view->submittedSubject = $request->getParam("subject", "");
+      $this->_helper->viewRenderer->setScriptAction("index");   	
+    }
   }
   
   protected function verifyParms() {

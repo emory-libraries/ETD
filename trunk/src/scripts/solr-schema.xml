@@ -250,6 +250,8 @@
    <field name="num_pages" type="integer" indexed="true" stored="false" required="false"/> 
    <field name="program" type="text" indexed="true" stored="true" required="true" /> 
    <field name="subfield" type="text" indexed="true" stored="true" required="false" /> 
+   <field name="program_id" type="string" indexed="true" stored="true" required="false"/> 
+   <field name="subfield_id" type="string" indexed="true" stored="true" required="false" /> 
    <field name="status" type="string" indexed="true" stored="true" required="true" /> 
    <field name="tableOfContents" type="text" indexed="true" stored="false" /> 
    <field name="title" type="text" indexed="true" stored="true" required="true"/> 
@@ -352,12 +354,11 @@
    <copyField source="advisor" dest="advisor_facet"/>
    <copyField source="advisor" dest="committee_facet"/>
    <copyField source="committee" dest="committee_facet"/>
-   <copyField source="program" dest="program_facet"/>
-   <copyField source="subfield" dest="program_facet"/>
-   <copyField source="subfield" dest="subfield_facet"/>
+   <copyField source="program_id" dest="program_facet"/>
+   <copyField source="subfield_id" dest="program_facet"/>
+   <copyField source="subfield_id" dest="subfield_facet"/>
    <copyField source="subject" dest="subject_facet"/>
    <copyField source="keyword" dest="keyword_facet"/> 
-
 
 <!-- fields that should be in default search -->
    <copyField source="author" dest="text"/>

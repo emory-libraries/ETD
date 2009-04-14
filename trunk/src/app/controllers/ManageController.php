@@ -16,11 +16,31 @@ class ManageController extends Etd_Controller_Action {
      // for faculty, list records where they are on the committee as chair or member
    }
 
+
+
+   // generate filter needed (if any) based on type of administrator
+   protected function getAdminFilter() {
+     switch ($this->current_user->role) {
+     case "honors admin":
+       return "degree_name:(BA or BS)";
+     case "grad admin":
+       return "degree_name:(PHD or MA or MS)";
+     default:
+       return null;
+	
+     }
+   }
+
+
    public function summaryAction() {
      if (!$this->_helper->access->allowedOnEtd("manage")) return;
      $this->view->title = "Manage : Summary";
-     $this->view->status_totals = etd::totals_by_status();
+     $etdset = new EtdSet();
+
+     $filter = $this->getAdminFilter();
+     $this->view->status_totals = $etdset->totals_by_status($filter);
      $this->view->messages = $this->_helper->flashMessenger->getMessages();
+
    }
 
    // list records by status; uses browse list template for paging & facet functionality
@@ -31,6 +51,10 @@ class ManageController extends Etd_Controller_Action {
      $options = $this->getFilterOptions();
      $options["return_type"] = "solrEtd";
 
+     // optionally limit to undergrad or grad records only based on user's role
+     $filter = $this->getAdminFilter();
+     if ($filter) $options["query"] = $filter;
+     
      $etdSet = new EtdSet();
      $etdSet->find($options);
      $this->view->etdSet = $etdSet;
@@ -78,7 +102,8 @@ class ManageController extends Etd_Controller_Action {
      $etd->setStatus($newstatus);
      
      // log event in record history 
-     $etd->premis->addEvent("status change", "Record reviewed by Graduate School",
+     $etd->premis->addEvent("status change", "Record reviewed by " .
+			    $this->current_user->getGenericAgent(),
 			    "success",  array("netid", $this->current_user->netid));
      
      $result = $etd->save("set status to '$newstatus'");
@@ -111,7 +136,8 @@ class ManageController extends Etd_Controller_Action {
      
      // log event in record history 
      $etd->premis->addEvent("status change",
-			    "Changes to $changetype requested by Graduate School",
+			    "Changes to $changetype requested by " .
+			    $this->current_user->getGenericAgent(),
 			    "success",  array("netid", $this->current_user->netid));
      
      $result = $etd->save("set status to '$newstatus'");
@@ -168,7 +194,7 @@ class ManageController extends Etd_Controller_Action {
      // log event in record history 
      // log record approval
      $etd->premis->addEvent("status change",
-			    "Record approved by Graduate School",	// by whom ?
+			    "Record approved by " . $this->current_user->getGenericAgent(),
 			    "success",  array("netid", $this->current_user->netid));
      // log embargo duration
      // FIXME: should this not be logged if embargo is 0 days ?

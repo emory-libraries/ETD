@@ -13,18 +13,29 @@
 <?/* use yes/no temporary settings for copyright, embargo, and submission agreement;
     once they are set, calculate or set the real fields based on  them
    */ ?>
-<xf:bind nodeset="instance('tmp')/*" required="true()"/>
+<? if ($this->etd->isRequired("embargo request")): ?>
+  <xf:bind nodeset="instance('tmp')/embargo" required="true()" />
+<? endif ?> 
+<? if ($this->etd->isRequired("submission agreement")): ?>
+   <xf:bind nodeset="instance('tmp')/agreement" required="true()"/>
+<? endif ?>
+<? if ($this->etd->isRequired("copyright")): ?>
+   <xf:bind nodeset="instance('tmp')/copyright" required="true()"/>
+<? endif ?>
+
    
 <xf:bind nodeset="mods:note[@ID='embargo']" type="xsd:string" calculate="concat('embargo requested? ', instance('tmp')/embargo)"/>
 <xf:bind nodeset="mods:note[@ID='copyright']" type="xsd:string" calculate="concat('registering copyright? ', instance('tmp')/copyright)"/> 
 
 <? /* submit to PQ optional for masters */ ?>
-<xf:bind id="pq_submit" nodeset="instance('tmp')/ask_pq_submit" relevant="instance('main')/mods:extension/etd:degree/etd:name != 'PhD'"/>
+<xf:bind id="pq_submit" nodeset="instance('tmp')/ask_pq_submit" relevant="instance('main')/mods:extension/etd:degree/etd:name = 'MA' or instance('main')/mods:extension/etd:degree/etd:name = 'MS'"/>
+      
 <? /* if degree is PhD, will submit to PQ - no need to prompt */ ?>
-<xf:bind nodeset="mods:note[@ID='pq_submit']" type="xsd:string" required="true()"/>
-   <? /*   calculate="if(mods:extension/etd:degree/etd:name = 'PhD', 'yes', '')"/>  */ ?>
+<? if ($this->etd->isRequired("send to ProQuest")): ?>
+  <xf:bind nodeset="mods:note[@ID='pq_submit']" type="xsd:string" required="true()"/>
+<? endif ?>
 
-<!-- FIXME: only ask about copyright if they are actually submitting to proquest  -->
+<? /* only ask about copyright if record will be sent to proquest  */ ?>
 <xf:bind id="ask_copyright" nodeset="instance('tmp')/ask_copyright"
 	 relevant="instance('main')/mods:note[@ID='pq_submit'] = 'yes'"/>  
 <xf:submission id="submission" 

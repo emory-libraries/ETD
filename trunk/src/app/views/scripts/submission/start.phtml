@@ -18,8 +18,13 @@ dissertation.  Click on "Browse" to locate your document and then
 
 <p>Please note that the system will be scanning your PDF document and
 extracting certain information from it.  As a result, it is important
-that your PDF document follow the format for theses and dissertations
-given by the Graduate School so that the pages are in the proper order
+that your PDF document follow the format for
+<? if ($this->current_user->getRoleId() == "honors student"): ?>
+theses given by the College Honors Program 
+<? else: /* Grad School  */ ?>
+theses and dissertations given by the Graduate School     
+<? endif ?>					     
+ so that the pages are in the proper order
 (i.e., Circulation Agreement, Approval Sheet, Dissertation/Thesis
 Abstract Cover Sheet, Abstract, etc.). </p>
 

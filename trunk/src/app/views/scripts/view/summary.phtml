@@ -31,6 +31,8 @@
    <? if ($chair == "") continue; ?>
    <? $last = ($chair == $chairs[count($chairs)-1]); ?>
    <? $affiliation = ($affiliation) ? " (" . $affiliation . ")" : ""; ?>
+   <? /* FIXME: don't have access to affiliation here ?!? */ ?>
+   <? $affiliation = (isset($chair->affiliation)) ? " (" . $chair->affiliation . ")" : ""; ?>
    <? if ($published): ?>
      <a href="<?= $this->url(array('controller' => 'browse', 'action' => 'committee',
 	'value' => urlencode($chair)), '', true)?>"><?= $chair ?></a><?= $affiliation ?><? if (!$last):?>; <? endif ?>
@@ -39,10 +41,13 @@
 <br/>
      
 <b>Committee Members:</b> <? $committee = $this->etd->committee(); ?>
-    <? foreach ($committee as $cm): ?>
+    <? $committee_w_aff = $this->etd->committee_with_affiliation(); ?>
+    <? foreach ($committee_w_aff as $cm => $affiliation): ?>
+       <? $affiliation = ($affiliation) ? " (" . $affiliation . ")" : ""; ?>
         <? if ($published): ?>
 	 <a href="<?= $this->url(array('controller' => 'browse', 'action' => 'committee','value' => urlencode($cm)),
-	'', true)?>"><?= $cm ?></a><? else: ?><?= $cm ?><? endif ?><?
+	'', true)?>"><?= $cm ?></a><?= $affiliation ?>
+	    <? else: ?><?= $cm ?><?= $affiliation?><? endif ?><?
 	    if ($cm != $committee[count($committee)-1] ||
 		(isset($this->etd->mods) && count($this->etd->mods->nonemory_committee)) ): ?>; <? endif ?>
     <? endforeach ?>
@@ -83,18 +88,25 @@
 	'', true) ?>"><?= $keyword ?></a><? else: ?><?= $keyword ?><? endif ?><? if ($keyword != $keywords[count($keywords)-1]): ?>; <? endif ?>
     <? endforeach ?><br/>
   <b>Program:</b>
-      <? if ($published): ?>  
+    <? if ($published && $this->etd->program_id()): ?>  
 	<a href="<?= $this->url(array('controller' => 'browse', 'action' => 'programs',
-	'name' => $this->etd->program()), '', true) ?>"><?= $this->etd->program() ?></a>
-	   <? else: ?><?= $this->etd->program() ?><? endif ?>
-     <? if ($this->etd->subfield()): ?>(<?= $this->etd->subfield() ?>)<? endif ?>
-        <? /* in published mode, subfield should link to program browse */ ?>
+	'coll' => $this->etd->program_id()), '', true) ?>"><?= $this->etd->program() ?></a>
+    <? else: ?><?= $this->etd->program() ?><? endif ?>
+    <? if ($this->etd->subfield()): ?>
+       <? if ($published && $this->etd->subfield_id()): ?>
+	    (<a href="<?= $this->url(array('controller' => 'browse', 'action' => 'programs',
+ 	   'coll' => $this->etd->subfield_id()), '', true) ?>"><?= $this->etd->subfield() ?></a>)
+	<? else: ?>
+           <?= $this->etd->subfield() ?>
+        <? endif ?>
+     <? endif /* has subfield */ ?>
      <br/>
 
 <? if ($this->acl->isAllowed($this->etd->getUserRole($this->current_user), "etd", "view mods")): ?>
   <span style="float:right;padding-right:5px;">					 
     <a href="<?= $this->url(array("controller" => "view", "action" => "mods", "pid" => $this->etd->pid())) ?>">MODS</a>  
   | <a href="<?= $this->url(array("controller" => "view", "action" => "dc", "pid" => $this->etd->pid())) ?>">DC</a>
+  | <a href="<?= $this->url(array("controller" => "view", "action" => "rels", "pid" => $this->etd->pid())) ?>">RELS-EXT</a>
   </span>
 <? endif ?>
 					 
