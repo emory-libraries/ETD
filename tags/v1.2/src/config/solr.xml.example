@@ -1,0 +1,17 @@
+<solr>
+  <development>
+     <server></server>
+     <path></path>
+     <port></port>
+<!-- fields which should be included as default facets -->
+     <facet></facet>
+     <facet></facet>
+  </development>
+  <test extends="development">
+     <port></port>
+  </test>
+  <production extends="development">
+     <server></server>
+     <port></port>
+  </production>
+</solr>
