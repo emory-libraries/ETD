@@ -1,9 +1,0 @@
-<? /* column headers and date/time output was generated */ ?>
-<?= $this->putCsvLine(array("Name", "Emory email address", "Permanent email address",
-			"Program", "Output Generated " . $this->date)) ?>
-<? foreach ($this->etdSet->etds as $etd): ?>
-<?= $this->putCsvLine(array($etd->authorInfo->mads->name->__toString(),
-			$etd->authorInfo->mads->current->email,
-			$etd->authorInfo->mads->permanent->email,
-			$etd->program())) ?>
-<? endforeach?>
