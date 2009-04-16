@@ -1,0 +1,14 @@
+<esd>
+  <development>
+     <adapter>Pdo_Oci</adapter>
+	<params>
+	  <username></username>
+	  <password></password>
+	  <host></host>
+	  <port></port>
+	  <dbname></dbname>
+	</params>
+  </development>
+  <test extends="development"/>
+  <production extends="development"/>
+</esd>

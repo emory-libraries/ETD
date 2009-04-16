@@ -1,0 +1,14 @@
+<degrees>
+  <level><degree name="select one"/></level>
+  <level name="doctoral" genre="Dissertation">
+    <degree name="PhD" pq_code="Ph.D."/>
+  </level>
+  <level name="masters" genre="Master's Thesis">
+    <degree name="MA" pq_code="M.A."/>
+    <degree name="MS" pq_code="M.S."/>
+  </level>
+  <level name="bachelors" genre="Honors Thesis">
+    <degree name="BA"/>
+    <degree name="BS"/>
+  </level>
+</degrees>
