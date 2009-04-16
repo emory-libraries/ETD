@@ -299,7 +299,7 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
 	   // NOTE: using element's nodeValue to get all text with no tags
 	   // (tags could be anywhere mixed in with the text we actually care
 	   // about, depending on how the document is formatted)
-	  preg_match("/grant\s+to\s+Emory\s+University\s+non-exclusive\s+license/s",
+	  preg_match("/grant\s+to\s+Emory\s+University\s+.*non-\s*exclusive\s+license/s",
 		     $page->documentElement->nodeValue) ||
 	   
 	  // old version of Circ Agreement text

@@ -253,7 +253,21 @@ John H. Shugart <br/></div>");
  	<p>non-exclusive license <hr/> to do stuff with my etd.</p></div>");
     $this->processpdf->process_page($dom);
     $this->assertTrue($this->processpdf->fields["distribution_agreement"]);
+
+    // newer version of the distribution agreement:
+    
+    $dom->loadXML("<div> <br/>In presenting this thesis or dissertation
+ as a partial fulfillment of the requirements for an advanced <br/>
+degree from Emory University, I hereby grant to Emory University and its agents 
+the non-<br/>
+exclusive license to archive, make accessible, and display my thesis or disserta
+tion in whole or in <br/> ...</div>");
+    $this->processpdf->process_page($dom);
+    $this->assertTrue($this->processpdf->fields["distribution_agreement"]);
   }
+
+
+  
   
 }
 
