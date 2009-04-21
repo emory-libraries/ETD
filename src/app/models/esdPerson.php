@@ -123,11 +123,12 @@ class esdPerson implements Zend_Acl_Role_Interface {
 
   /**
    * determine if a user is the graduate program coordinator of the specified program
+   * (if program is blank, is automatically false)
    * @param string $program program name
    * @return boolean
    */
   public function isCoordinator($program) {
-    return ($this->grad_coord == $program);
+    return ($program != "" && $this->grad_coord == $program);
   }
 
   public function __get($field) {

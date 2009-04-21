@@ -99,6 +99,12 @@ class TestEsdPerson extends UnitTestCase {
     $user->grad_coord = "English";
     $this->assertTrue($user->isCoordinator("English"));
     $this->assertFalse($user->isCoordinator("Chemistry"));
+
+    // blank coordinator & program should NOT match
+    $user->grad_coord = "";
+    $this->assertFalse($user->isCoordinator(""));
+    $user->grad_coord = null;
+    $this->assertFalse($user->isCoordinator(null));
   }
 
   function testFormerFaculty_id() {
