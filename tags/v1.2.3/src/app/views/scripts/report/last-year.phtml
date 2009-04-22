@@ -1,0 +1,61 @@
+<?php 
+	function getSemesterDecorator($grad_date) {
+		$date_grad_date = strtotime($grad_date);
+		$decorator = "";
+		if(intval(date("m", $date_grad_date))>=1 && intval(date("m", $date_grad_date))<=5) { // SPRING!
+			$decorator = "";
+		} else if(intval(date("m", $date_grad_date))>5 && intval(date("m", $date_grad_date))<=8) { // SUMMER!
+			$decorator = "*";
+		} else if(intval(date("m", $date_grad_date))>8 && intval(date("m", $date_grad_date))<=12) { // FALL!
+			$decorator = "**";
+		}
+		return $decorator;
+	}
+?>
+
+	<script type="text/javascript"
+		djConfig="isDebug: false, parseOnLoad: true"
+		src="http://o.aolcdn.com/dojo/1.2.3/dojo/dojo.xd.js"></script>
+	<script type="text/javascript">
+	dojo.require("dojo.html");
+	dojo.require("dijit._editor.RichText");
+		//Put "onload" logic in here.
+		dojo.addOnLoad(function(){
+			var theme = 'tundra';
+			if(!dojo.hasClass(dojo.body(),theme))
+			{
+			        dojo.addClass(dojo.body(),theme);
+			}
+
+
+//			dojo.html.selectElement(dijit.byId('lastYearETDReport'));
+		});
+	</script>
+	<head>
+	<style type="text/css">
+        @import "http://o.aolcdn.com/dojo/1.2.3/dijit/themes/tundra/tundra.css";
+        @import "http://o.aolcdn.com/dojo/1.2.3/dojo/resources/dojo.css";
+	</style>
+	</head>
+
+<h1>Search Results</h1>
+<?php if(Zend_Registry::get('env-config')->mode != "production") { ?>
+	<h2>MODE: <?= Zend_Registry::get('env-config')->mode ?></h2>
+	<h3>Query: <span style="color:red"><?= $this->searchQuery ?></span></h3><br/>
+<?php } ?>
+
+<!--  Based on browse/list.phtml -->
+
+<? if ($this->list_title): ?>
+     <h1><?= $this->list_title ?></h1>
+<? endif ?>
+<? if ($this->list_description): ?><h2><?= $this->list_description ?></h2><? endif ?>
+	
+<?=  $this->render('browse/_paging.phtml'); ?>	       
+
+ <textarea dojoType="dijit._editor.RichText" id="lastYearETDReport">	
+<? foreach ($this->etdSet->etds as $etd): ?>
+  <? $this->etd = $etd; ?>
+  <?=  $this->render('report/shortrecord.phtml'); ?>
+<? endforeach ?>
+</textarea>
