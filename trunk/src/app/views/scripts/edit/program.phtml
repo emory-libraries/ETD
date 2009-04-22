@@ -68,14 +68,13 @@ Object.extend(Autocompleter.LocalNoMatches.prototype, {
 	// if no choices matched, display that
 	if (choices == "<ul></ul>") { choices = "<ul><li>No matches found</li><ul>"; }
 	this.updateChoices(choices);
-  },
-			 		  });
+  }
+});
 
 ac = new Autocompleter.LocalNoMatches('program', 'program_list', program_names, {
     partialSearch: true,
-				   afterUpdateElement: afterSelect,
-			   
-			    });
+   afterUpdateElement: afterSelect
+});
 
 function afterSelect() {
   // find and set id in hidden field
