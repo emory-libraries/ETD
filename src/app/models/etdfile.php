@@ -140,8 +140,16 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
     // store original filename, mimetype, filesize, and number of pages (when appropriate)
     $this->setFileInfo($filename, $label);
 
+    // set a default document type
     $doctype = "Dissertation/Thesis";
-    if ($this->etd) $doctype = $this->etd->document_type();
+    if ($this->etd) {	// if associated etd is available, set doctype to something more accurate
+      if ($this->etd->isHonors()) {
+	$doctype = "Honors Thesis";
+      } elseif ($this->etd->document_type() != "") {
+	// ONLY override doctype if this is set, do NOT set it to blank!
+	$doctype = $this->etd->document_type();
+      }
+    }    
 
     if ($this->type == "pdf") {
       $this->dc->title = $doctype;
