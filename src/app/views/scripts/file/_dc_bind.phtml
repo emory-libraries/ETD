@@ -11,7 +11,9 @@
 </xf:instance>   
 
 <? // any bindings needed here? ?>
-
+<xf:bind nodeset="dc:title" type="xsd:string"
+   constraint=". != ''" required="true()" />
+	  
 <xf:submission id="submission" action="<?= $this->url(array('action' => 'save', 'pid' => $this->etdfile->pid))?>"
 		method="post" />
 
