@@ -97,7 +97,7 @@
 	    (<a href="<?= $this->url(array('controller' => 'browse', 'action' => 'programs',
  	   'coll' => $this->etd->subfield_id()), '', true) ?>"><?= $this->etd->subfield() ?></a>)
 	<? else: ?>
-           <?= $this->etd->subfield() ?>
+	      (<?= $this->etd->subfield() ?>)
         <? endif ?>
      <? endif /* has subfield */ ?>
      <br/>
