@@ -1,0 +1,79 @@
+<h1>Programs Hierarchy
+ <?= $this->section != "programs" ? ' (' . $this->section . ')' : '' ?></h1>
+
+<? /* determine if the user can edit at least some portion of the programs hierarchy */
+if ($this->acl->isAllowed($this->current_user, "programs", "edit")) {   
+  $this->can_edit = $this->can_edit_portion = true;
+} elseif ($this->acl->isAllowed($this->current_user, "undergrad programs", "edit")) {
+  $this->can_edit_portion = true;
+  $this->can_edit = false;
+} else {
+   $this->can_edit =  $this->can_edit_portion = false;
+}
+?>
+<? /* instructions about how to use this page */ ?>
+<p>Click on <a class="toggle">&gt;</a> to show or hide sections of the hierarchy.
+<? if ($this->can_edit_portion): ?>
+<br/>Click on <?= $this->img("images/draggable.png", array("class" => "hdl")) ?> to move an item.
+<br/>Click on text to edit the label (only available in the sections you are allowed to edit).
+<? endif ?>				      
+</p>
+
+
+<? if ($this->can_edit_portion):  /* if some portion can be edited, do necessary set up */ ?>
+  <?= $this->javascript("projax/js/scriptaculous.js"); ?>
+  <?= $this->javascript("projax/js/prototypeUtils.js"); ?>
+  
+  <form action="<?= $this->url(array("action" => "save")) ?>" method="post" name="programtree">
+<? endif ?>
+  
+<ul class="tree">
+   <?=  $this->partial('program/_tree.phtml' , array("collection" => $this->programs,
+						   "acl" => $this->acl,
+						     "current_user" => $this->current_user,
+						     "can_edit" => $this->can_edit)); ?>
+</ul>
+
+
+<? if ($this->can_edit_portion): ?>
+<script language="JavaScript">
+
+function updateListMembers(list) {
+   var members = "";
+   var li =  $(list).childNodes;
+   for (var i = 0; i < li.length; i++) {
+     if (li[i].tagName == "LI") {
+       // get shortened version of id from format item_id
+       var id = li[i].id.substring(5, li[i].id.length);  // item_*
+       members += id + " ";
+       // look for ul - if it has members, recurse
+       var ul = $(id + "_list");
+       if (ul) {
+	 updateListMembers(ul.id);
+       }
+     }
+   }
+   var membersid = $(list).id.substring(0, $(list).id.length - 5) + "_members"; // *_list
+   Form.Element.setValue(membersid, members);
+ }
+Sortable.create('<?= $this->programs->getId() ?>_list', {  tree:true, dropOnEmpty:true,
+		       handle:"hdl",
+		       onUpdate: function (container) {  updateListMembers(container); }
+		   });
+// update once at the beginning
+updateListMembers('<?= $this->programs->getId() ?>_list');
+
+function hdlOn(id) {  
+ $(id).src= <?= "'" . $this->linkTo("images/draggable-on.png")  ."'"?>;
+}
+
+function hdlOff(id) {
+  $(id).src= '<?= $this->linkTo("images/draggable.png"); ?>';
+}
+
+</script>
+
+<?= $this->formSubmit("submit", "save") ?>
+</form>
+<? endif ?>
+
