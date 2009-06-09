@@ -220,6 +220,8 @@ function etdPublishedDate($pid) {
       return $etd_published[$pid] = false;	// object no longer exists - we don't care about it
     } catch (FedoraAccessDenied $e) {
       return $etd_published[$pid] = false;	// object is not publicly available -- not published
+    } catch (FoxmlBadContentModel $e) {
+      return $etd_published[$pid] = false;	// not actually an etd (file with bad url?)
     } catch (FoxmlException $e) {
       return $etd_published[$pid] = false;	// not publicly available = not published
     }
