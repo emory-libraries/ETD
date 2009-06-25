@@ -1,0 +1,8 @@
+<? // just printing the xml to see that it was received ?>
+
+<? if ($this->save_result): ?>
+  <p>record updated on <?= $this->save_result ?></p>
+<? endif ?>
+     
+<p><a href="<?= $this->url(array("controller" => "view", "action" => "record", "pid" => $this->etd_pid), null, true) ?>">return to ETD record</a></p>
+
