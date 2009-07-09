@@ -1,7 +1,6 @@
 <?php
 
 require_once("fedora/models/foxml.php");
-require_once("fedora/api/fedora.php");
 require_once("fedora/api/risearch.php");
 
 require_once("mads.php");

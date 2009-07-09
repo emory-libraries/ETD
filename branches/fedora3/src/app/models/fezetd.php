@@ -1,7 +1,6 @@
 <?php
 
 require_once("xml-utilities/XmlObject.class.php");
-require_once("fedora/api/fedora.php");
 require_once("vcard.php");
 require_once("etd_mods.php");
 require_once("premis.php");

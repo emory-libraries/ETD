@@ -2,7 +2,6 @@
 
 require_once("XmlObject.class.php");
 require_once("models/foxml.php");
-require_once("api/fedora.php");
 
 require_once("etd.php");
 require_once("etd_rels.php");
