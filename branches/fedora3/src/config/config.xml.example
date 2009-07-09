@@ -50,6 +50,12 @@
 	   <honors_collection></honors_collection>
 	   <programs_pid></programs_pid>
 
+       <contentModels>
+           <etd>emory-control:ETD-1.0</etd>
+           <etdfile>emory-control:EtdFile-1.0</etdfile>
+           <author>emory-control:AuthorInformation-1.0</author> 
+       </contentModels>
+
 	</development>
 
 	<test extends="development"/>
