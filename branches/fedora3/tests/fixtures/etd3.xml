@@ -1,4 +1,4 @@
-<foxml:digitalObject xmlns:foxml="info:fedora/fedora-system:def/foxml#" PID="test:etd3">
+<foxml:digitalObject xmlns:foxml="info:fedora/fedora-system:def/foxml#" PID="test:etd3" VERSION="1.1">
   <foxml:objectProperties>
     <foxml:property NAME="http://www.w3.org/1999/02/22-rdf-syntax-ns#type" VALUE="FedoraObject"/>
     <foxml:property NAME="info:fedora/fedora-system:def/model#state" VALUE="Active"/>
@@ -29,10 +29,13 @@
   <foxml:datastream CONTROL_GROUP='X' ID='RELS-EXT' STATE='A' VERSIONABLE='true'>
     <foxml:datastreamVersion ID='RELS-EXT.0' LABEL='relations' MIMETYPE='text/xml'>
       <foxml:xmlContent>
-  	<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rel="info:fedora/fedora-system:def/relations-external#">
-	  <rdf:description rdf:about="info:fedora/test:etd1">
+  	<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
+        xmlns:rel="info:fedora/fedora-system:def/relations-external#"
+        xmlns:fedora-model="info:fedora/fedora-system:def/model#">
+	  <rdf:Description rdf:about="info:fedora/test:etd1">
+        <fedora-model:hasModel rdf:resource="info:fedora/emory-control:ETD-1.0"/>
 	    <rel:etdStatus>draft</rel:etdStatus>
-	  </rdf:description>
+	  </rdf:Description>
 	</rdf:RDF>
       </foxml:xmlContent>
     </foxml:datastreamVersion>
