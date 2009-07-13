@@ -30,8 +30,7 @@ Zend_Registry::set('config', $config);
 $fedora_cfg = new Zend_Config_Xml($config_dir . "fedora.xml", $mode);
 Zend_Registry::set('fedora-config', $fedora_cfg);
 
-$fedora = new FedoraConnection($fedora_cfg->user, $fedora_cfg->password,
-			       $fedora_cfg->server, $fedora_cfg->port);
+$fedora = new FedoraConnection($fedora_cfg);
 Zend_Registry::set('fedora', $fedora);
 
 // create DB object for access to Emory Shared Data - needed to test setting advisor/committee fields
@@ -101,11 +100,12 @@ function runtest($test) {
 
 // utility function used by xacml tests
 function setFedoraAccount($user) {
-  $fedora_cfg = Zend_Registry::get('fedora-config');
-  
   // create a new fedora connection with configured port & server, specified password
-  $fedora = new FedoraConnection($user, $user,	// for test accounts, username = password
-				 $fedora_cfg->server, $fedora_cfg->port);
+  $fedora_cfg = Zend_Registry::get('fedora-config');
+  $fedora_opts = $fedora_cfg->toArray();
+  // for test accounts, username = password
+  $fedora_opts["username"] = $fedora_opts["password"] = $user;
+  $fedora = new FedoraConnection($fedora_opts);
   
   // note: needs to be in registry because this is what the etd object will use
   Zend_Registry::set('fedora', $fedora);
