@@ -1,0 +1,93 @@
+<h1>Author Rights and Access Restrictions</h1>
+<p><b><?= $this->etd->title() ?></b></p>
+
+<?=  $this->render('edit/_xforms_key.phtml'); ?>
+
+<? $yesno = array(" " => "--", "no" => "no", "yes" => "yes"); ?>
+
+<? $embargo_opts = array("yes" => "Yes, I want an access restriction.",
+			   "no" => "No, my ETD can be published immediately after graduation."); 
+    $opts = array("appearance" => "full");
+?>
+
+<p>Indicate below whether you and your Committee Chair are requesting that
+access to the full text of your thesis or dissertation be restricted
+for a period of time.  (An administrator will enter the term of the
+access restriction after it is approved.)</p>
+<p><b>NOTE:</b> requests for an access restriction must be made on the
+paper ETD Submission Agreement Form which you will present to 
+<?= $this->etd->admin_agent ?> for approval.</p>
+
+<div class="xfselect">
+  <?= $this->xformSelect("Access Restriction (Embargo)", "instance('tmp')/embargo", $embargo_opts, $opts); ?>
+</div>
+
+<xf:group bind="pq_submit">
+<hr/>
+    <? if ($this->etd->mods->degree->name != ''): ?>
+    <p>Because you are receiving a(n) <b><?= $this->etd->mods->degree->name ?></b> degree,
+       submission to ProQuest/UMI is optional for you.</p>
+    <? else: ?>
+    <p>Submitting to ProQuest/UMI is optional for students who are not receiving PhDs.
+    You have not yet entered your degree information; you should
+    <a href="<?= $this->url(array("action" => "record")) ?>">edit your thesis information</a>
+       before proceeding.</p>
+    <? endif ?>
+									   
+<? $pqsubmit_opts = array("yes" => "Yes, I intend to submit to ProQuest",
+			   "no" => "No, I do not wish to submit to ProQuest");
+/* if not submitting, registering copyright is automatically set to no */ 
+  $action = '<xf:action ev:event="xforms-value-changed">
+       <xf:setvalue ref="instance(\'tmp\')/copyright"
+      	value="if(instance(\'main\')/mods:note[@ID=\'pq_submit\'] = \'no\', \'no\', instance(\'tmp\')/copyright)"/>
+      </xf:action>'; 
+?>
+
+<div class="xfselect">  
+    <?= $this->xformSelect("Submit to ProQuest/UMI?", "instance('main')/mods:note[@ID='pq_submit']", $pqsubmit_opts, $opts, $action); ?>
+<? /* FIXME: if set to no, should copyright be auto-set to no as well? */ ?>
+</div>
+</xf:group>
+
+<xf:group bind="ask_copyright">
+<hr/>
+<p>Indicate below whether you would like Proquest/UMI to register your copyright.  (Note that this service requires the submission of a fee and the appropriate Proquest/UMI form.)</p>
+
+<? $copyright_opts = array("yes" => "Yes, I intend to have Proquest
+register copyright on my behalf. (See Proquest/UMI Publishing
+Agreement, page 5.)",
+			   "no" => "No");  ?>
+<div class="xfselect">  
+  <?= $this->xformSelect("Registering Copyright?", "instance('tmp')/copyright", $copyright_opts, $opts); ?>
+</div>
+</xf:group>
+
+<hr/>
+<p>Check the box below to indicate that you agree to the terms of
+Emory's general submission agreement.  (Note that this merely
+supplements the paper form signed by you and your Committee Chair.)</p>
+<? /* FIXME: convert to xformSelect helper call as above for pq_submit */ ?>
+<div class="xfselect">
+  <xf:select ref="instance('tmp')/agreement" appearance="full">
+    <xf:label>Submission Agreement</xf:label>
+      <xf:item>
+      <xf:label>I hereby grant to Emory University and its agents the non-exclusive license to archive, make accessible, and display (subject to the conditions agreed upon in the separate written agreement I have submitted to <?= $this->etd->admin_agent ?>) my thesis or dissertation in whole or in part in all forms of media, now or hereafter known, including the display of the thesis or dissertation on the world wide web. I retain all ownership rights to the copyright of the thesis or dissertation. I also retain the right to use in future works (such as articles or books) all or part of this thesis or dissertation. I certify that my electronic submission is the version of my thesis/dissertation that was approved by my committee.</xf:label>
+      <xf:value>yes</xf:value>
+      </xf:item>
+
+      <xf:action ev:event="xforms-value-changed">
+       <xf:setvalue ref="instance('main')/mods:accessCondition[@type='useAndReproduction']"
+      	value="instance('tmp')/rights[@id = instance('tmp')/agreement]"/>
+      </xf:action>
+
+   </xf:select>     
+</div>
+
+   
+  <xf:submit submission="submission">
+<xf:label>Save</xf:label>
+</xf:submit>
+
+<? if ($this->env == 'development'): ?>
+  <p id="status"></p>
+<? endif ?>   
