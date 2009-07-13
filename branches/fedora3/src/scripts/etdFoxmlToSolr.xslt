@@ -307,6 +307,8 @@
 
     <xsl:apply-templates select="rdf:Description/rel:program"/>
     <xsl:apply-templates select="rdf:Description/rel:subfield"/>
+
+    <xsl:apply-templates select="rdf:Description/fedora-model:hasModel"/>
   </xsl:template>
 
   <xsl:template match="rel:etdStatus">
@@ -323,6 +325,10 @@
     <xsl:if test=". != ''">                     <!-- only include if not empty -->
       <field name="subfield_id"><xsl:value-of select="."/></field>
     </xsl:if>
+  </xsl:template>
+
+   <xsl:template match="fedora-model:hasModel">
+    <field name="contentModel"><xsl:value-of select="substring-after(@rdf:resource, 'info:fedora/')"/></field>
   </xsl:template>
 
   <!-- index pdf datastream for related object -->

@@ -13,7 +13,8 @@ class Etd_Service_Solr extends Emory_Service_Solr {
   public function __construct($hostname, $port, $path = "solr/select") {
     parent::__construct($hostname, $port, $path);
     // default filter query: limit to ETD records
-    $this->filter = "contentModel:etd";
+    $config = Zend_Registry::get("config");
+    $this->filter = 'contentModel:"' . $config->contentModels->etd . '"';
   }
 
   // convenience function to limit query to published records only 
