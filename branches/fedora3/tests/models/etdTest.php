@@ -32,7 +32,8 @@ class TestEtd extends UnitTestCase {
     
     $this->assertEqual("test:etd1", $this->etd->pid);
     $this->assertEqual("Why I Like Cheese", $this->etd->label);
-    $this->assertEqual("etd", $this->etd->cmodel);
+    // FIXME: should work for multiple cmodels
+    $this->assertEqual("ETD", $this->etd->contentModelName());
     $this->assertEqual("mmouse", $this->etd->owner);
   }
 
@@ -132,10 +133,13 @@ class TestEtd extends UnitTestCase {
     $this->assertEqual($this->etd->policy->draft->condition->user, "mmouse");	// owner from etd
     $this->assertFalse(isset($this->etd->policy->published));
     // draft rule should also be added to related etdfile objects
-    $this->assertTrue(isset($this->etd->pdfs[0]->policy->draft));
-    $this->assertIsA($this->etd->pdfs[0]->policy->draft, "PolicyRule");
+    $this->assertTrue(isset($this->etd->pdfs[0]->policy->draft),
+        "draft policy should be present on pdf etdFile");
+    $this->assertIsA($this->etd->pdfs[0]->policy->draft, "PolicyRule",
+        "pdf etdFile draft policy should be type 'PolicyRule'");
     $this->assertFalse(isset($this->etd->pdfs[0]->policy->published));
-    $this->assertIsA($this->etd->originals[0]->policy->draft, "PolicyRule");
+    $this->assertIsA($this->etd->originals[0]->policy->draft, "PolicyRule",
+        "original etdFile draft policy should be type 'PolicyRule'");
     $this->assertFalse(isset($this->etd->originals[0]->policy->published));
 
     // submitted - draft rule removed, no new rules
@@ -166,19 +170,27 @@ class TestEtd extends UnitTestCase {
     $this->assertFalse(isset($this->etd->policy->published->condition));
     
     // etdfile published rule should also be added to related etdfile objects 
-    $this->assertIsA($this->etd->pdfs[0]->policy->published, "PolicyRule");
-    $this->assertTrue(isset($this->etd->pdfs[0]->policy->published));
-    $this->assertTrue(isset($this->etd->pdfs[0]->policy->published->condition));
+    $this->assertTrue(isset($this->etd->pdfs[0]->policy->published),
+        "pdf etdFile published policy should be present"  );
+    $this->assertIsA($this->etd->pdfs[0]->policy->published, "PolicyRule",
+        "pdf etdFile published policy should be type 'PolicyRule'");
+    $this->assertTrue(isset($this->etd->pdfs[0]->policy->published->condition),
+        "pdf etdFile published policy should have condition");
     // embargo end should be set to today by default
-    $this->assertTrue(isset($this->etd->pdfs[0]->policy->published->condition->embargo_end));
-    $this->assertEqual($this->etd->pdfs[0]->policy->published->condition->embargo_end, date("Y-m-d"));
+    $this->assertTrue(isset($this->etd->pdfs[0]->policy->published->condition->embargo_end),
+        "pdf etdFile published policy condition should have an embargo end");
+    $this->assertEqual($this->etd->pdfs[0]->policy->published->condition->embargo_end, date("Y-m-d"),
+        "pdf etdFile published policy embargo end should be '" . date("Y-m-d") . "', got '" .
+        $this->etd->pdfs[0]->policy->published->condition->embargo_end . "'");
     // published rule should NOT be added to original
     $this->assertFalse(isset($this->etd->originals[0]->policy->published));
 
     // publish with embargo
     $this->etd->mods->embargo_end = "2010-01-01";
     $this->etd->setStatus("published");
-    $this->assertEqual($this->etd->pdfs[0]->policy->published->condition->embargo_end, "2010-01-01");
+    $this->assertEqual($this->etd->pdfs[0]->policy->published->condition->embargo_end, "2010-01-01",
+        "pdf etdFile published policy embargo end should be '2010-01-01', got '" .
+        $this->etd->pdfs[0]->policy->published->condition->embargo_end . "'");
     
   }
 
@@ -194,7 +206,7 @@ class TestEtd extends UnitTestCase {
     $this->assertIsA($etd->premis, "premis");
     $this->assertIsA($etd->policy, "XacmlPolicy");
 
-    $this->assertEqual("etd", $etd->cmodel);
+    $this->assertEqual("ETD", $this->etd->contentModelName());
     // check for error found in ticket:150
     $this->assertEqual("draft", $etd->status());
   

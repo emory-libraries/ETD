@@ -47,7 +47,7 @@ class etd extends foxml implements etdInterface {
   public $admin_agent;
   
   
-  public function __construct($arg = null) {
+  public function __construct($arg = null) {      
     parent::__construct($arg);
 
     if ($this->init_mode == "pid") {
@@ -56,13 +56,20 @@ class etd extends foxml implements etdInterface {
       $this->rels_ext;		
             
       // anything else here?
-      if ($this->cmodel != "etd")
-	throw new FoxmlBadContentModel("$arg is not an etd");
-    } elseif ($this->init_mode == "dom") {
+    //if ($this->cmodel != "etd") {
+    // FIXME: add a check that hasModel rel is present...?
+        //throw new FoxmlBadContentModel("$arg is not an etd");
+    } elseif ($this->init_mode == "dom") {    
       // anything here?
     } elseif ($this->init_mode == "template") {
-      // new etd objects
-      $this->cmodel = "etd";
+        // new etd objects - add relation to contentModel object
+        if (Zend_Registry::isRegistered("config")) {
+            $config = Zend_Registry::get("config");
+            $this->rels_ext->addContentModel($config->contentModels->etd);
+        } else {
+            trigger_error("Config is not in registry, cannot retrieve contentModel for etd");
+        }
+     
       // all new etds should start out as drafts
       $this->rels_ext->addRelation("rel:etdStatus", "draft");
     }

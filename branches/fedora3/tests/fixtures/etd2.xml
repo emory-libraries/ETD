@@ -1,9 +1,7 @@
 <foxml:digitalObject xmlns:foxml="info:fedora/fedora-system:def/foxml#" PID="test:etd2" VERSION="1.1">
-  <foxml:objectProperties>
-    <foxml:property NAME="http://www.w3.org/1999/02/22-rdf-syntax-ns#type" VALUE="FedoraObject"/>
+  <foxml:objectProperties>    
     <foxml:property NAME="info:fedora/fedora-system:def/model#state" VALUE="Active"/>
-    <foxml:property NAME="info:fedora/fedora-system:def/model#label" VALUE="Why I Hate Milk"/>
-    <foxml:property NAME="info:fedora/fedora-system:def/model#contentModel" VALUE="etd"/>
+    <foxml:property NAME="info:fedora/fedora-system:def/model#label" VALUE="Why I Hate Milk"/>    
   </foxml:objectProperties>
 
   <foxml:datastream CONTROL_GROUP='X' ID='MODS' STATE='A'	VERSIONABLE='true'>

@@ -25,8 +25,13 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
       // anything here?
       $this->getRelType();
     } else {
-      // new etd objects
-      $this->cmodel = "etdFile";
+        // add relation to contentModel new object
+        if (Zend_Registry::isRegistered("config")) {
+            $config = Zend_Registry::get("config");
+            $this->rels_ext->addContentModel($config->contentModels->etdfile);
+        } else {
+            trigger_error("Config is not in registry, cannot retrieve contentModel for etdfile");
+        }      
       
       // assume new etdFile is the first of its type in a given ETD
       $this->rels_ext->addRelation("rel:sequenceNumber", "1");
