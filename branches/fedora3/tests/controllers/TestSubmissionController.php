@@ -11,6 +11,9 @@ class SubmissionControllerTest extends ControllerTestCase {
   private $test_user;
 
   private $mock_etd;
+
+  // fedoraConnection
+  private $fedora;
   
   function setUp() {
     $this->test_user = new esdPerson();
@@ -35,9 +38,10 @@ class SubmissionControllerTest extends ControllerTestCase {
     
 
     // load a test objects to repository
+    $this->fedora = Zend_Registry::get("fedora");
     // NOTE: for risearch queries to work, syncupdates must be turned on for test fedora instance
     foreach (array_keys($this->etdxml) as $etdfile) {
-      $pid = fedora::ingest(file_get_contents('../fixtures/' . $etdfile . '.xml'), "loading test etd");
+      $pid = $this->fedora->ingest(file_get_contents('../fixtures/' . $etdfile . '.xml'), "loading test etd");
     }
 
     // use mock etd object for some tests
@@ -49,7 +53,7 @@ class SubmissionControllerTest extends ControllerTestCase {
   
   function tearDown() {
     foreach ($this->etdxml as $file => $pid)
-      fedora::purge($pid, "removing test etd");
+      $this->fedora->purge($pid, "removing test etd");
     
     Zend_Registry::set('current_user', null);
 
