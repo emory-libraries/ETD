@@ -43,6 +43,12 @@
     </mods:role>
     <mods:description>Non-Emory Committee Member</mods:description>
   </mods:name>
+  <mods:name type="corporate">
+    <mods:namePart>Emory University</mods:namePart>
+    <mods:role>
+      <mods:roleTerm authority="marcrelator" type="text">Degree grantor</mods:roleTerm>
+    </mods:role>
+  </mods:name>
   <mods:abstract>Gouda or Cheddar?</mods:abstract>
   <mods:tableOfContents/>
   <mods:subject ID="id7024" authority="proquestresearchfield">

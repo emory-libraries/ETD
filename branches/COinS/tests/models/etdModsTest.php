@@ -22,6 +22,8 @@ class TestEtdMods extends UnitTestCase {
     $this->assertEqual("Doctoral", $this->mods->degree->level);
     $this->assertEqual("subfield", $this->mods->degree->discipline);
     $this->assertEqual("subfield", $this->mods->subfield);
+    $this->assertIsA($this->mods->degree_grantor, "mods_name");
+    $this->assertEqual("Emory University", $this->mods->degree_grantor->namePart);
   }
   
   function testKeywords() {

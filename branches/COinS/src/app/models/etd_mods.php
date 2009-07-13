@@ -59,6 +59,9 @@ class etd_mods extends mods {
     $this->xmlconfig["nonemory_committee"] = array("xpath" =>
 						   "mods:name[mods:description = 'Non-Emory Committee Member']",
 						   "class_name" => "mods_name", "is_series" => "true");
+    $this->xmlconfig["degree_grantor"] = array("xpath" =>
+					       "mods:name[@type='corporate'][mods:role/mods:roleTerm='Degree grantor']",
+					       "class_name" => "mods_name");	
     
     $this->xmlconfig["researchfields"] = array("xpath" =>
 					       "mods:subject[@authority='proquestresearchfield']",
