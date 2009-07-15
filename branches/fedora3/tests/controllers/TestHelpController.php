@@ -19,15 +19,14 @@ class HelpControllerTest extends ControllerTestCase {
   }
   
   function tearDown() {
-  	/**/	
   }
 
   function testIndexAction() {
     $HelpController = new HelpControllerForTest($this->request,$this->response);
     $HelpController->indexAction();
     $this->assertNotNull($HelpController->view->url(array("action" => "submit")));
-/* ? */$this->assertFalse($HelpController->view->printable);
-	}
+    $this->assertFalse($HelpController->view->printable);
+  }
 
   function testSubmitAction() {
     $HelpController = new HelpControllerForTest($this->request,$this->response);
@@ -50,12 +49,15 @@ class HelpControllerTest extends ControllerTestCase {
     $this->assertIsA($notify, "Zend_Mail");
     $this->assertEqual($address_from, $notify->getFrom(), "From address is not the same.");
     $this->assertEqual("ETD Help: " . $subject, $notify->getSubject(), "Subject is not the same.[" . $subject . "," . $notify->getSubject() . "]");
-        
+    // check (and clear) flash message that email was sent
+    $fm = $HelpController->getHelper("FlashMessenger");
+    $messages = $fm->getMessages();
+    $this->assertEqual("Help email sent.", $messages[0]);
+    
     $this->resetGet();
     $this->setUpGet(array("email" => "", "username" => "", "message" => ""));
     $HelpController->submitAction();
     $this->assertNotNull($HelpController->view->errorMessage);
-
   }
 }
 

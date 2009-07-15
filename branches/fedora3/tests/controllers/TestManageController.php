@@ -377,6 +377,7 @@ class ManageControllerTest extends ControllerTestCase {
   }
 
   public function testViewLog() {
+    // FIXME: should a test log file be created for testing purposes?
     $this->test_user->role = "superuser";	// regular admin not allowed to view log
     $ManageController = new ManageControllerForTest($this->request,$this->response);
     $ManageController->viewLogAction();
