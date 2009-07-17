@@ -40,25 +40,31 @@ for ( ;$etdSet->hasResults(); $etdSet->next()) {
 		. " of " . $etdSet->numFound);
 
   foreach ($etdSet->etds as $etd) {
-    $etd->setOAIidentifier();
-    $logger->info("Updating " . $etd->pid . " -- " . $etd->rels_ext->oaiID);
+    try {
+      $etd->setOAIidentifier();
+      $logger->debug("Setting oai id for " . $etd->pid . " to " . $etd->rels_ext->oaiID);
     
-    if ($etd->rels_ext->hasChanged()) {
-      if (!$opts->noact) {
-        $result = $etd->save("Added OAI identifier");
-        if ($result) {
+      if ($etd->rels_ext->hasChanged()) {
+	if (!$opts->noact) {
+	  $result = $etd->save("Added OAI identifier");
+	  if ($result) {
             $updated++;
             $logger->info("Successfully updated " . $etd->pid . " at $result");
-        } else {
+	  } else {
             $error++;
             $logger->err("Could not update " . $etd->pid);
-        }
-      } else {      // noact mode - simulate save
-        $logger->info("Saving " .  $etd->pid . " (simulated)");
-        $updated++;
+	  }
+	} else {      // noact mode - simulate save
+	  $logger->info("Saving " .  $etd->pid . " (simulated)");
+	  $updated++;
+	}
+      } else {	// record was not modified
+	$logger->debug($etd->pid . " is unchanged; not saving");
+	$unchanged++;
       }
-    } else {	// record was not modified
-      $unchanged++;
+    } catch (Exception $e) {
+      $logger->err("Problem updating " . $etd->pid . " - " . $e->getMessage());
+      $err++;
     }
   } // end looping through current chunk of etds 
 } // end looping through all etdset result chunks
