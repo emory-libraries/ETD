@@ -164,6 +164,19 @@ class etd extends foxml implements etdInterface {
     $this->rels_ext->status = $new_status; 
   }
 
+  /**
+   * set OAI identifier in RELS-EXT based on full ARK 
+   */
+  public function setOAIidentifier() {
+    if (!isset($this->mods->ark) || $this->mods->ark == "")
+        throw new Exception("Cannot set OAI identifier without ARK.");
+    // use persis to parse the ark into its components
+    $persis = new Emory_Service_Persis(Zend_Registry::get('persis-config'));
+    list($nma, $naan, $noid) = $persis->parseArk($this->mods->ark);
+    // set OAI id based on ark
+    $this->rels_ext->setOAIidentifier("oai:ark:/" . $naan . "/" . $noid);
+  }
+
   /* convenience functions to add and remove policies in etd and related objects all at once
       note: the only rule that may be added and removed to original/archive copy is draft
    */

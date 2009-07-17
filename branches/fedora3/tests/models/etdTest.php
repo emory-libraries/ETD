@@ -440,6 +440,18 @@ class TestEtd extends UnitTestCase {
     $this->assertFalse($this->etd->isHonors(), "etd is not honors etd");
   }
 
+  function testSetOAIidentifier() {
+      $this->etd->mods->ark = "http://purl.bogus.com/ark:/123/bcd";
+      $this->etd->setOAIidentifier();
+      $this->assertTrue(isset($this->etd->rels_ext->oaiID), "oai id is set in RELS-EXT");
+      $this->assertEqual("oai:ark:/123/bcd", $this->etd->rels_ext->oaiID);
+
+      // should get an error if ark has not been set in the mods
+      $this->etd->mods->ark = "";
+      $this->expectException(new Exception("Cannot set OAI identifier without ARK."));
+      $this->etd->setOAIidentifier();
+      
+  }
   
 
 }
