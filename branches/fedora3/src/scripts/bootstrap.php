@@ -54,6 +54,8 @@ $stat_config = new Zend_Config_Xml($config_dir . 'statistics.xml', $env_config->
 $db = Zend_Db::factory($stat_config);
 Zend_Registry::set('stat-db', $db);	
 
+Zend_Registry::set('persis-config',
+    new Zend_Config_Xml($config_dir . "persis.xml", $env_config->mode));
 
 // common getopt configurations that used by most scripts
 $common_getopts = array('verbose|v=s'  => 'Output level/verbosity; one of error, warn, notice, info, debug (default: error)',
