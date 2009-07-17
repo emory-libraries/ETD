@@ -161,14 +161,16 @@ class TestEtd extends UnitTestCase {
     $this->assertEqual("approved", $this->etd->status());
     $this->assertEqual($etd_rulecount, count($this->etd->policy->rules));
 
-    // published - publish rule is added
+    // published - publish rule is added    
     $this->etd->setStatus("published");
     $this->assertEqual("published", $this->etd->status());
     $this->assertIsA($this->etd->policy->published, "PolicyRule");
     $this->assertTrue(isset($this->etd->policy->published));
     // etd object publish rule should have no condition
     $this->assertFalse(isset($this->etd->policy->published->condition));
-    
+    // setting to published should add OAI id
+    $this->assertTrue(isset($this->etd->rels_ext->oaiID));
+
     // etdfile published rule should also be added to related etdfile objects 
     $this->assertTrue(isset($this->etd->pdfs[0]->policy->published),
         "pdf etdFile published policy should be present"  );

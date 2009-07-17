@@ -142,7 +142,8 @@ class etd extends foxml implements etdInterface {
 
     // when leaving certain statuses, certain rules need to go away
     switch ($old_status) {
-    case "published":	$this->removePolicyRule("published"); break;
+    case "published":	$this->removePolicyRule("published");   break;
+        // FIXME: should 'unpublish' remove OAI id? ...
     case "draft":	 $this->removePolicyRule("draft");    break;
     }
     
@@ -153,6 +154,7 @@ class etd extends foxml implements etdInterface {
       break;
     case "published":
       $this->addPolicyRule("published");
+      $this->setOAIidentifier();
       // FIXME: how to handle embargos/publication ?
       // by default, set the embargo expiration to today here?
       // ... $this->policy->embargoed->condition->date = date("Y-m-d");
@@ -175,6 +177,7 @@ class etd extends foxml implements etdInterface {
     list($nma, $naan, $noid) = $persis->parseArk($this->mods->ark);
     // set OAI id based on ark
     $this->rels_ext->setOAIidentifier("oai:ark:/" . $naan . "/" . $noid);
+    unset($persis);
   }
 
   /* convenience functions to add and remove policies in etd and related objects all at once

@@ -51,7 +51,7 @@
 	    <mods:topic>Area studies</mods:topic>
 	  </mods:subject>
 	  <mods:genre authority="aat">Dissertation</mods:genre>
-	  <mods:identifier type="ark">http://purl.bogus.com/ark:123/etd2</mods:identifier>
+	  <mods:identifier type="ark">http://purl.bogus.com/ark:/123/td2</mods:identifier>
 	  <mods:accessCondition type="restrictionOnAccess">Embargoed for </mods:accessCondition>
 	  <mods:note type="admin" ID="embargo">embargo requested? no</mods:note>
 	</mods:mods>
