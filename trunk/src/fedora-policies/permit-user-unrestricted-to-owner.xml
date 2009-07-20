@@ -13,12 +13,24 @@
       <Resource>
         <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
             <AttributeValue 
-		DataType="http://www.w3.org/2001/XMLSchema#string">user</AttributeValue>
+		DataType="http://www.w3.org/2001/XMLSchema#string">info:fedora/emory-control:AuthorInformation-1.0</AttributeValue> 
             <ResourceAttributeDesignator 
 		AttributeId="urn:fedora:names:fedora:2.1:resource:object:contentModel" 
-                DataType="http://www.w3.org/2001/XMLSchema#string"/>
+                DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="false"/>
         </ResourceMatch>
       </Resource>
+
+     <!-- FIXME: only needed because cmodel was loaded/named wrong; clean up when that is fixed -->
+      <Resource>
+        <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+            <AttributeValue 
+                DataType="http://www.w3.org/2001/XMLSchema#string">info:fedora/changeme:CModel3</AttributeValue>
+            <ResourceAttributeDesignator 
+                AttributeId="urn:fedora:names:fedora:2.1:resource:object:contentModel" 
+                DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="false"/>
+        </ResourceMatch>
+      </Resource>
+
     </Resources>    
     <Actions>
       <AnyAction/>
@@ -33,13 +45,24 @@
         <AnySubject/>
       </Subjects>
       <Resources>
+       <Resource>
+        <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+            <AttributeValue 
+                DataType="http://www.w3.org/2001/XMLSchema#string">info:fedora/emory-control:AuthorInformation-1.0</AttributeValue>
+            <ResourceAttributeDesignator 
+                AttributeId="urn:fedora:names:fedora:2.1:resource:object:contentModel" 
+                DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="false"/>
+        </ResourceMatch>
+      </Resource>
+
+     <!-- FIXME: only needed because cmodel was loaded/named wrong; clean up when that is fixed -->
       <Resource>
         <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
             <AttributeValue 
-		DataType="http://www.w3.org/2001/XMLSchema#string">user</AttributeValue>
+		DataType="http://www.w3.org/2001/XMLSchema#string">info:fedora/changeme:CModel3</AttributeValue>
             <ResourceAttributeDesignator 
-		AttributeId="urn:fedora:names:fedora:2.1:resource:object:contentModel" 
-                DataType="http://www.w3.org/2001/XMLSchema#string"/>
+		AttributeId="info:fedora/fedora-system:def/model#hasModel" 
+                DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="false"/>
         </ResourceMatch>
       </Resource>
       </Resources>
