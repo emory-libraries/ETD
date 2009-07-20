@@ -22,8 +22,7 @@ class TestUserXacml extends UnitTestCase {
   function setUp() {
     if (!isset($this->fedoraAdmin)) {
       $fedora_cfg = Zend_Registry::get('fedora-config');
-      $this->fedoraAdmin = new FedoraConnection($fedora_cfg->user, $fedora_cfg->password,
-			       $fedora_cfg->server, $fedora_cfg->port);
+      $this->fedoraAdmin = new FedoraConnection($fedora_cfg);
     }
       
     $fname = '../fixtures/user.xml';
@@ -73,6 +72,7 @@ class TestUserXacml extends UnitTestCase {
   function testOwnerPermissions() {
     // using author test account as owner
     setFedoraAccount("author");
+    $fedora = Zend_Registry::get("fedora");
 
     // author should be able to view and modify
     $user = new user($this->pid);
@@ -83,9 +83,16 @@ class TestUserXacml extends UnitTestCase {
 
     // should be able to modify these datastreams
     $user->dc->title = "new title";    	//   DC
-    $this->assertNotNull($user->save("test owner permissions - modify DC"));
-    $user->mads->netid = "username";
-    $this->assertNotNull($user->save("test owner permissions - modify MADS"));
+    $this->assertNotNull($fedora->modifyXMLDatastream($user->pid, "DC",
+                                $user->dc->datastream_label(),
+                                $user->dc->saveXML(), "test etdadmin permissions - modify DC"),
+                   "test owner permissions - modify DC");
+    
+    $user->mads->netid = "username";   // MADS
+    $this->assertNotNull($fedora->modifyXMLDatastream($user->pid, "MADS",
+                                $user->mads->datastream_label(),
+                                $user->mads->saveXML(), "test etdadmin permissions - modify MADS"),
+                    "owner can modify MADS - timestamp should not be null, got '$result'");
   }
 
   function testEtdAdminPermissions() {
@@ -99,12 +106,7 @@ class TestUserXacml extends UnitTestCase {
     $this->assertIsA($user->dc, "dublin_core");
     $this->assertIsA($user->mads, "mads");
 
-    // should NOT be able to modify these datastreams
-    $user->dc->title = "new title";    	//   DC
-    $this->expectError("Access Denied to modify datastream DC");
-    $this->assertNull($user->save("test owner permissions - modify DC"));
-    $user->dc->calculateChecksum();	// mark as unmodified
-    
+    // should NOT be able to modify MADS datastream
     $user->mads->netid = "username";
     $this->expectError("Access Denied to modify datastream MADS");
     $this->assertNull($user->save("test owner permissions - modify MADS"));

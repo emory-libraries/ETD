@@ -20,8 +20,7 @@ class TestEtdFileXacml extends UnitTestCase {
   function setUp() {
     if (!isset($this->fedoraAdmin)) {
       $fedora_cfg = Zend_Registry::get('fedora-config');
-      $this->fedoraAdmin = new FedoraConnection($fedora_cfg->user, $fedora_cfg->password,
-			       $fedora_cfg->server, $fedora_cfg->port);
+      $this->fedoraAdmin = new FedoraConnection($fedora_cfg);
     }
       
     $fname = '../fixtures/etdfile.xml';
@@ -238,21 +237,17 @@ class TestEtdFileXacml extends UnitTestCase {
     $this->assertNotNull($etdfile->save("test etdadmin permissions - modify POLICY on draft etdfile"),
 			 "etdadmin can modify policy");
 
+    $etdfile->dc->title = "new title";	  //   DC    
+    $this->assertNotNull($etdfile->save("test etdadmin permissions - modify DC"), "etdadmin can modify DC");
+
   }
   
-  function testEtdAdminCannotModify() {
+  function IGNORE_testEtdAdminCannotModify() {
     // set user account to etd admin
     setFedoraAccount("etdadmin");
 
     // for etd admin, it shouldn't matter if etd is draft, published, etc.
     $etdfile = new etd_file($this->pid);
-
-    // should not be able to modify main record metadata
-    $etdfile->dc->title = "new title";	  //   DC
-    $this->expectError("Access Denied to modify datastream DC");
-    $this->assertNull($etdfile->save("test etdadmin permissions - modify DC"), "etdadmin cannot modify DC");
-    $etdfile->dc->calculateChecksum();
-
     // test modify binary file?
   }
 
