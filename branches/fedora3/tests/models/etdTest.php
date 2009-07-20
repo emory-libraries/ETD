@@ -170,6 +170,7 @@ class TestEtd extends UnitTestCase {
     $this->assertFalse(isset($this->etd->policy->published->condition));
     // setting to published should add OAI id
     $this->assertTrue(isset($this->etd->rels_ext->oaiID));
+    $this->assertEqual(FedoraConnection::STATE_ACTIVE, $this->etd->next_object_state);
 
     // etdfile published rule should also be added to related etdfile objects 
     $this->assertTrue(isset($this->etd->pdfs[0]->policy->published),
@@ -193,7 +194,11 @@ class TestEtd extends UnitTestCase {
     $this->assertEqual($this->etd->pdfs[0]->policy->published->condition->embargo_end, "2010-01-01",
         "pdf etdFile published policy embargo end should be '2010-01-01', got '" .
         $this->etd->pdfs[0]->policy->published->condition->embargo_end . "'");
-    
+   
+   
+    $this->etd->setStatus("inactive");
+    $this->assertEqual(FedoraConnection::STATE_INACTIVE, $this->etd->next_object_state);
+
   }
 
   

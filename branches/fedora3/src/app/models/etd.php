@@ -142,8 +142,7 @@ class etd extends foxml implements etdInterface {
 
     // when leaving certain statuses, certain rules need to go away
     switch ($old_status) {
-    case "published":	$this->removePolicyRule("published");   break;
-        // FIXME: should 'unpublish' remove OAI id? ...
+    case "published":	$this->removePolicyRule("published");   break;        
     case "draft":	 $this->removePolicyRule("draft");    break;
     }
     
@@ -154,11 +153,14 @@ class etd extends foxml implements etdInterface {
       break;
     case "published":
       $this->addPolicyRule("published");
+      // NOTE: embargo expiration end-date for file policy handled by publication script
       $this->setOAIidentifier();
-      // FIXME: how to handle embargos/publication ?
-      // by default, set the embargo expiration to today here?
-      // ... $this->policy->embargoed->condition->date = date("Y-m-d");
-      // fixme: split out embargo rule for etd file objects only ?
+      // ensure that object state is set to Active (e.g., if previously set inactive)
+      $this->setObjectState(FedoraConnection::STATE_ACTIVE);      
+      break;
+    case "inactive":
+      // if removing from publication, set to inactive so OAI provider can notify harvesters of removal
+      $this->setObjectState(FedoraConnection::STATE_INACTIVE);
       break;
     }
 
