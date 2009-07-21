@@ -21,10 +21,11 @@ class ManageController extends Etd_Controller_Action {
    // generate filter needed (if any) based on type of administrator
    protected function getAdminFilter() {
      switch ($this->current_user->role) {
+       // FIXME: should use degree level in degree config file to generate this list
      case "honors admin":
-       return "degree_name:(BA or BS)";
+       return "degree_name:(BA or BS or BBA)";
      case "grad admin":
-       return "degree_name:(PHD or MA or MS)";
+       return "degree_name:(PhD or MA or MS)";
      default:
        return null;
 	
