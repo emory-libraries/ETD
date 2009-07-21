@@ -1,0 +1,12 @@
+<persis>
+  <development>
+    <url></url>
+    <username></username>
+    <password></password> 
+    <domain_id></domain_id>
+  </development>
+  <test extends="development"/>
+  <production extends="development">
+    <url></url>
+  </production>
+</persis>		
