@@ -290,20 +290,22 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
 
     default:
       // if next page is not set, try to figure out where we are
-
+      
+      // include non-breaking spaces in whitespace match
+      $ws = '[\s\xa0\xc2]';
 
       // look for expected first page: Distribution (formerly Circulation) Agreement
       if (!$this->fields["distribution_agreement"] &&
-	  (preg_match("/Distribution Agreement/i", $content) ||	// new text, fall 2008
+	  (preg_match("/Distribution$ws+Agreement/i", $content) ||	// new text, fall 2008
 
 	   // NOTE: using element's nodeValue to get all text with no tags
 	   // (tags could be anywhere mixed in with the text we actually care
 	   // about, depending on how the document is formatted)
-	  preg_match("/grant\s+to\s+Emory\s+University\s+.*non-\s*exclusive\s+license/s",
+	  preg_match("/grant$ws+to$ws+Emory$ws+University$ws+.*non-$ws*exclusive$ws+license/s",
 		     $page->documentElement->nodeValue) ||
 	   
 	  // old version of Circ Agreement text
-	  preg_match("/Circulation Agreement/i", $content) ||
+	  preg_match("/Circulation$ws+Agreement/i", $content) ||
   	  preg_match("/available\s+for\s+inspection\s+and\s+circulation/m", $content)) ) {
 	// part of boiler-plate grad-school circ agreement text
 	if ($this->debug) print "* found circ agreement\n";
