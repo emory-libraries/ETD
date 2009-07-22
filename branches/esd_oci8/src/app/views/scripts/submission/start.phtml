@@ -1,0 +1,73 @@
+<? if (! in_array($this->browserInfo->parent, $this->supported_browsers)): ?>
+<p class="warning">
+   <span id="exclamation">!</span>
+   Your browser (<?= $this->browserInfo->browser ?> <?= $this->browserInfo->majorver ?>)
+   is currently not supported for the submission process.  <br/>
+   Please use one of the following:
+   <?= implode(', ', array_diff($this->supported_browsers, array("Iceweasel"))) ?>
+   <? /* Note: hiding Iceweasel to avoid confusion */ ?>
+</p>
+<? endif ?>
+
+<p>Welcome!</p>
+
+<p>To begin the submission process, please upload the PDF of your
+dissertation.  Click on "Browse" to locate your document and then
+"Begin" to start the process.</p>
+
+
+<p>Please note that the system will be scanning your PDF document and
+extracting certain information from it.  As a result, it is important
+that your PDF document follow the format for
+<? if ($this->current_user->getRoleId() == "honors student"): ?>
+theses given by the College Honors Program 
+<? else: /* Grad School  */ ?>
+theses and dissertations given by the Graduate School     
+<? endif ?>					     
+ so that the pages are in the proper order
+(i.e., Circulation Agreement, Approval Sheet, Dissertation/Thesis
+Abstract Cover Sheet, Abstract, etc.). </p>
+
+<p>Any information automatically extracted from the PDF can be edited
+later in the process, if necessary.</p>
+
+<form name="submission" method="post" enctype="multipart/form-data"
+    action="<?= $this->url(array("action" => "processpdf"))?>">
+
+<?//= $this->formHidden("MAX_FILE_SIZE", "3000000"); ?> 
+  <p><b>Your PDF</b> <?= $this->formFile("pdf"); ?>
+<?= $this->formSubmit("Begin", "Begin >", array("class" => "button", "style" => "margin-left:10px",
+						"onClick" => "Element.show('processing')")); ?>
+
+<span id="processing" style="display:none">Processing ... <span class="note">(this may take a moment)</span></span>
+</p>
+</form>
+
+<? $ok = "<span style='color:green'>&#x2714;</span>"; // green check mark 
+ $incomplete = "<span style='color:red'>&#x2717;</span>"; // red x
+?>
+
+ <hr/>
+
+ <p>After submitting your PDF, the submission page (pictured below) will appear, 
+ where you will be able to edit the information harvested from your PDF, and enter the remainder of the required data
+by using the "edit" links.  Green check marks <?= $ok ?> will appear in the Submission Status box 
+ next to each completed section (with red <?= $incomplete?>'s next to incomplete 
+ sections).  Once you have completed all the sections, a "Review and Submit" link 
+ will appear below the submission status box.</p> 
+
+<img src="<?= $this->linkTo("images/submit_preview.jpg") ?>"/>
+
+
+<? if ($this->env == "development"): ?>
+
+<form name="submission" method="post" enctype="multipart/form-data"
+    action="<?= $this->url(array("action" => "debugpdf"))?>">
+
+   <p>Test information extracted from a PDF (development only)</p>
+
+<?//= $this->formHidden("MAX_FILE_SIZE", "3000000"); ?> 
+  <p><?= $this->formFile("pdf"); ?> <?= $this->formSubmit("Debug", "Debug >", array("class" => "submitlink", "style" => "padding-left:10px")); ?></p>
+
+</form>
+<? endif ?>
