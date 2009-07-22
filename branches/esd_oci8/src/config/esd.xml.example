@@ -1,6 +1,6 @@
 <esd>
   <development>
-     <adapter>Pdo_Oci</adapter>
+     <adapter>Oracle</adapter>
 	<params>
 	  <username></username>
 	  <password></password>
