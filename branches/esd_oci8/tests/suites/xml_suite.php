@@ -8,6 +8,7 @@ require_once("../bootstrap.php");
 require_once('models.php');
 require_once('controllers.php');
 require_once('lib.php');
+require_once('xacml.php');
 
 $suite = new TestSuite('All Tests');
 
@@ -19,6 +20,9 @@ $suite->addTestCase(new ControllerGroupTest());
 
 //lib
 $suite->addTestCase(new LibGroupTest());
+
+//xacml
+$suite->addTestCase(new XacmlGroupTest());
 
 $reporter = new XmlTimeReporter();
 $suite->run($reporter);
