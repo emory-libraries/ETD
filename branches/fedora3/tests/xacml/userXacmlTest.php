@@ -92,7 +92,7 @@ class TestUserXacml extends UnitTestCase {
     $this->assertNotNull($fedora->modifyXMLDatastream($user->pid, "MADS",
                                 $user->mads->datastream_label(),
                                 $user->mads->saveXML(), "test etdadmin permissions - modify MADS"),
-                    "owner can modify MADS - timestamp should not be null, got '$result'");
+                    "owner can modify MADS");
   }
 
   function testEtdAdminPermissions() {
