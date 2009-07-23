@@ -10,6 +10,7 @@ require_once("api/FedoraConnection.php");
 
 require_once('simpletest/unit_tester.php');
 require_once('simpletest/reporter.php');
+require_once('simpletest/xmltime.php');
 include_once("MockObjects.php");
 
 
