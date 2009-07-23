@@ -10,7 +10,7 @@ require_once('controllers.php');
 require_once('lib.php');
 require_once('xacml.php');
 
-$suite = new TestSuite('All Tests');
+$suite = new TestSuite('All ETD Tests');
 
 // models
 $suite->addTestCase(new ModelGroupTest());
