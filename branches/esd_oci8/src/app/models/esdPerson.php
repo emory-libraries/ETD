@@ -3,12 +3,7 @@
 /* database modesl for user information from Emory Shared Data (ESD) view */
 require_once("etd.php");
 
-class esdPerson extends Zend_Db_Table_Row implements Zend_Acl_Role_Interface {
-    /**
-     * array mapping ESD db column names to usable names
-     * @var array
-     */
-    private $alias;
+class esdPerson extends Emory_Db_Table_Row implements Zend_Acl_Role_Interface {
     /**
      *
      * @var esdAddressObject
@@ -32,9 +27,10 @@ class esdPerson extends Zend_Db_Table_Row implements Zend_Acl_Role_Interface {
     private $password;
 
     public function __construct(array $config = array()) {
-        parent::__construct($config);
+      parent::__construct($config);
+      
         // alias ESD field names to something comprehensible
-        $this->alias = array("netid" => "LOGN8NTWR_I",
+        $this->column_alias = array("netid" => "LOGN8NTWR_I",
              "type" => "PRSN_C_TYPE",
              "lastname" => "PRSN_N_LAST",
              "firstname" => "PRSN_N_FRST",
@@ -66,7 +62,7 @@ class esdPerson extends Zend_Db_Table_Row implements Zend_Acl_Role_Interface {
         // determine the user's role in the system
        if (isset($this->type)) $this->setRole();
 
-        $this->_etds = null;
+       $this->_etds = null;
     }
 
 
@@ -108,10 +104,10 @@ class esdPerson extends Zend_Db_Table_Row implements Zend_Acl_Role_Interface {
         }
 
         // determine roles for special cases
-        if ($this->department == "Graduate School Administration") {
+        if (isset($this->department) && $this->department == "Graduate School Administration") {
             $this->role = "grad admin";	// graduate school administrator
         }
-        if (!is_null($this->grad_coord)) {
+        if (isset($this->grad_coord) && !is_null($this->grad_coord)) {
             // role is graduate program coordinator ?
             // **** - not a separate role but a role in relation to particular ETDs
             // a user should have this role only if grad_coord matches ETD's department field...
@@ -134,31 +130,29 @@ class esdPerson extends Zend_Db_Table_Row implements Zend_Acl_Role_Interface {
     }
 
     /**
-     * override magic __get function to allow accessing by aliased names
+     * override magic __get function for some custom / constructed fields
      * @param string $field
      */
     public function __get($field) {        
-        if (parent::__isset($field)) return parent::__get($field);
-
-        switch ($field) {
+      switch ($field) {
         case "address":
-            // semi-dynamic for esd person address object
-  	    if (! isset($this->_address)) {	// if not yet set, retrieve address
-	      try {
-		$this->_address = $this->findEsdAddressObject()->current();
-	      } catch (Zend_Db_Table_Row_Exception $e) {
-		// db is not connected - should only happen when testing
-		$this->_address = null;
-	      }
-            }
-	    return $this->_address;
-        // convenience attributes for two versions of full name
+	  // semi-dynamic for esd person address object
+	  if (! isset($this->_address)) {	// if not yet set, retrieve address
+	    try {
+	      $this->_address = $this->findEsdAddressObject()->current();
+	    } catch (Zend_Db_Table_Row_Exception $e) {
+	      // db is not connected - should only happen when testing
+	      $this->_address = null;
+	    }
+	  }
+	  return $this->_address;
+	  // convenience attributes for two versions of full name
         case "fullname":	// directory name or first and middle name followed by last name
-            return $this->name . " " . $this->lastname;
+	  return $this->name . " " . $this->lastname;
         case "lastnamefirst":	// lastname, firstname + middle OR lastname, directoryname
-            return $this->lastname . ", " . $this->name;
+	  return $this->lastname . ", " . $this->name;
         case "name":	// directory name or first and middle name
-            // fixme: directory name doesn't seem to be working properly in some cases....
+            // FIXME: directory name doesn't seem to be working properly in some cases....
             if (trim($this->directory_name) != "") {
                 return $this->directory_name;
             } else {
@@ -167,38 +161,25 @@ class esdPerson extends Zend_Db_Table_Row implements Zend_Acl_Role_Interface {
                 return $name;
             }
         case "netid":	// netid is stored in all caps, but we will always use it lower case
-            // can't rely on netid for former faculty, using esd dbid as pseudo-netid instead
-            if ($this->current_faculty == "N")
-                return "esdid" . $this->id;
-            return strtolower(parent::__get($this->alias["netid"]));
+	  // can't rely on netid for former faculty, using esd dbid as pseudo-netid instead
+	  if (isset($this->current_faculty) && $this->current_faculty == "N")
+	    return "esdid" . $this->id;
+	  return strtolower(parent::__get("netid"));
         default:
-            if (isset($this->alias[$field]) && parent::__isset($this->alias[$field]))
-                return parent::__get($this->alias[$field]);
-            else
-                return null;
-        }
+	  return parent::__get($field);
+      }
     }
 
     /**
-     * extend default magic set function to allow setting via aliased column names
+     * extend default magic set function to handle address object
      * @param string $field
      * @param $value
      */
     public function __set($field, $value) {
-        if (parent::__isset($field)) return parent::__get($field, $value);
-        if (isset($this->alias[$field])) return parent::__set($this->alias[$field], $value);
-	if ($field == "address") $this->_address = $value;
+      if ($field == "address") $this->_address = $value;
+      else parent::__set($field, $value);
     }
 
-    /**
-     * extend default magic osset function to allow checking via aliased column names
-     * @param string $field
-     * @param $value
-     */
-    public function __isset($field) {        
-        if (parent::__isset($this->alias[$field])) return true;
-        else return parent::__isset($field);
-    }
 
    /**
      * customize which elements should be saved for serialization (exclude etd objects)
@@ -206,8 +187,8 @@ class esdPerson extends Zend_Db_Table_Row implements Zend_Acl_Role_Interface {
      */
     public function __sleep() {
         $this->_etds = null;	// foxml objects don't recover from serialization, so reset
-        $myfields = array("alias", "_address", "role", "_etds", "password");
-        return array_merge($myfields, array_values($this->alias), parent::__sleep());
+        $myfields = array("_address", "role", "_etds", "password");
+        return array_merge($myfields, parent::__sleep());
     }
 
     /**
@@ -311,9 +292,10 @@ class esdPerson extends Zend_Db_Table_Row implements Zend_Acl_Role_Interface {
      * create an esdPerson with all fields present but empty - convenience function for testing
      * @return esdPerson
      */
-    public function getTestPerson() {
-        $data = array();
-        foreach ($this->alias as $alias => $column) $data[$column] = "";
+    public function getTestPerson($data = array()) {
+      foreach ($this->column_alias as $alias => $column) {
+	if (! isset($data[$column])) $data[$column] = "";
+      }
         $test_person = new esdPerson(array("data" => $data));
 	// set table to null to avoid errors about not being connected
 	$test_person->setTable();
@@ -367,9 +349,9 @@ class esdPersonObject extends Emory_Db_Table {
     * @param return esdPerson
     */
     public function initializeWithoutEsd($netid) {
-        return new esdPerson(array("data" => array(
-                    "LOGN8NTWR_I" => $netid,
-                    "PRSN_C_TYPE" => "U"            // unknown type - needed for role
+      return new esdPerson(array("data" => array(
+		    "LOGN8NTWR_I" => $netid,
+                    "PRSN_C_TYPE" => "U",            // unknown type - needed for role
                 )
             ));
     }
@@ -437,14 +419,14 @@ class esdPersonObject extends Emory_Db_Table {
 
 }
 
-class esdAddressInfo extends Zend_Db_Table_Row {
-    private $alias;
+class esdAddressInfo extends Emory_Db_Table_Row {
 
     public $current;
     public $permanent;
 
-    public function __construct() {
-        $this->alias = array("person_id" => "PRSN_I",
+    public function __construct($config = array()) {
+      parent::__construct($config);
+      $this->column_alias = array("person_id" => "PRSN_I",
             "local_line1" => "PRAD_A_LOCL_LIN1",
             "local_line2" => "PRAD_A_LOCL_LIN2",
              "local_line3" => "PRAD_A_LOCL_LIN3",
@@ -463,11 +445,12 @@ class esdAddressInfo extends Zend_Db_Table_Row {
              "perm_telephone" => "PRAD_A_STDN_TLPH",
             );
 
-            $this->current = new esdAddress();
-            $this->permanent = new esdAddress();
+      $this->current = new esdAddress();
+      $this->permanent = new esdAddress();
+      
+      $this->setAddress("current");
+      $this->setAddress("permanent");
 
-            $this->setAddress("current");
-            $this->setAddress("permanent");
     }
 
     public function setAddress($type) {
@@ -489,27 +472,11 @@ class esdAddressInfo extends Zend_Db_Table_Row {
             if ($this->{$prefix . "_line" . $i})
                 $address->street[] = $this->{$prefix . "_line" . $i};
         }
-        $address->city = $this->{$prefix . "_city"};
-        $address->state = $this->{$prefix . "_state"};
-        $address->zip = $this->{$prefix . "_zip"};
-        $address->country = $this->{$prefix . "_country"};
-        $address->telephone = $this->{$prefix . "_telephone"};
-    }
-
-    public function __get($field) {
-        if (parent::__isset($field)) return parent::__get($field);
-        if (isset($this->alias[$field]))
-            return $this->{$this->alias[$field]};
-    }
-
-    /**
-     * extend default magic set function to allow setting via aliased column names
-     * @param string $field
-     * @param $value
-     */
-    public function __set($field, $value) {
-        if (parent::__isset($field)) return parent::__get($field, $value);
-        if (isset($this->alias[$field])) return parent::__set($this->alias[$field], $value);
+        if (isset($this->{$prefix . "_city"})) $address->city = $this->{$prefix . "_city"};
+	if (isset($this->{$prefix . "_state"})) $address->state = $this->{$prefix . "_state"};
+        if (isset($this->{$prefix . "_zip"})) $address->zip = $this->{$prefix . "_zip"};
+        if (isset($this->{$prefix . "_country"})) $address->country = $this->{$prefix . "_country"};
+        if (isset($this->{$prefix . "_telephone"})) $address->telephone = $this->{$prefix . "_telephone"};
     }
 }
 
