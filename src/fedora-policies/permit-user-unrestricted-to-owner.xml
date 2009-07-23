@@ -15,7 +15,7 @@
             <AttributeValue 
 		DataType="http://www.w3.org/2001/XMLSchema#string">info:fedora/emory-control:AuthorInformation-1.0</AttributeValue> 
             <ResourceAttributeDesignator 
-		AttributeId="urn:fedora:names:fedora:2.1:resource:object:contentModel" 
+		AttributeId="info:fedora/fedora-system:def/model#hasModel" 
                 DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="false"/>
         </ResourceMatch>
       </Resource>
@@ -26,7 +26,7 @@
             <AttributeValue 
                 DataType="http://www.w3.org/2001/XMLSchema#string">info:fedora/changeme:CModel3</AttributeValue>
             <ResourceAttributeDesignator 
-                AttributeId="urn:fedora:names:fedora:2.1:resource:object:contentModel" 
+                AttributeId="info:fedora/fedora-system:def/model#hasModel" 
                 DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="false"/>
         </ResourceMatch>
       </Resource>
@@ -45,7 +45,7 @@
         <AnySubject/>
       </Subjects>
       <Resources>
-       <Resource>
+<!--       <Resource>
         <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
             <AttributeValue 
                 DataType="http://www.w3.org/2001/XMLSchema#string">info:fedora/emory-control:AuthorInformation-1.0</AttributeValue>
@@ -53,10 +53,10 @@
                 AttributeId="urn:fedora:names:fedora:2.1:resource:object:contentModel" 
                 DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="false"/>
         </ResourceMatch>
-      </Resource>
+      </Resource> -->
 
      <!-- FIXME: only needed because cmodel was loaded/named wrong; clean up when that is fixed -->
-      <Resource>
+      <!--<Resource>
         <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
             <AttributeValue 
 		DataType="http://www.w3.org/2001/XMLSchema#string">info:fedora/changeme:CModel3</AttributeValue>
@@ -64,7 +64,8 @@
 		AttributeId="info:fedora/fedora-system:def/model#hasModel" 
                 DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="false"/>
         </ResourceMatch>
-      </Resource>
+      </Resource> -->
+	<AnyResource/>
       </Resources>
       <Actions>
         <AnyAction/>
