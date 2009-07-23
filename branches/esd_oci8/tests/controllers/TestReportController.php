@@ -10,7 +10,8 @@ class ReportControllerTest extends ControllerTestCase {
   private $test_user;
   
   function setUp() {
-    $this->test_user = new esdPerson();
+    $ep = new esdPerson();
+    $this->test_user = $ep->getTestPerson();
     $this->test_user->role = "admin";
     $this->test_user->netid = "test_user";
     Zend_Registry::set('current_user', $this->test_user);

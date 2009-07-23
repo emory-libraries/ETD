@@ -44,7 +44,7 @@ class mads extends foxmlDatastreamAbstract {
     
     // set netid and name
     $this->netid = $person->netid;
-    $this->name->first = $person->name;
+    $this->name->first = $person->firstname;
     $this->name->last = $person->lastname;
     
     // academic/emory info
@@ -67,7 +67,7 @@ class mads extends foxmlDatastreamAbstract {
   /**
    * set address (current or permanent) from ESD
    */
-  private function setAddressFromEsd($addr, esdAddress $esdAddress) {
+  public function setAddressFromEsd($addr, esdAddress $esdAddress) {
     for ($i = 0; isset($esdAddress->street[$i]) && $i < 3; $i++)
       if ($i == 0)
 	$addr->address->street[$i] = $esdAddress->street[$i];	// fixme: multiple?

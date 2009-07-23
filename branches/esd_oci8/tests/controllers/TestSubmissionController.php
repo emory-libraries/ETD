@@ -13,10 +13,11 @@ class SubmissionControllerTest extends ControllerTestCase {
   private $mock_etd;
   
   function setUp() {
-    $this->test_user = new esdPerson();
+    $ep = new esdPerson();
+    $this->test_user = $ep->getTestPerson();
     $this->test_user->role = "student";
     $this->test_user->netid = "author";
-    $this->test_user->name = "Author";
+    $this->test_user->firstname = "Author";
     $this->test_user->lastname = "Jones";
 
     Zend_Registry::set('current_user', $this->test_user);
@@ -60,7 +61,7 @@ class SubmissionControllerTest extends ControllerTestCase {
   }
 
 
-  function NO_testStartAction() {
+  function testStartAction() {
     $this->test_user->role = "staff";	// set to non-student
     Zend_Registry::set('current_user', $this->test_user);
     $SubmissionController = new SubmissionControllerForTest($this->request,$this->response);
@@ -83,7 +84,7 @@ class SubmissionControllerTest extends ControllerTestCase {
 
   /* FIXME: not sure how to test processPdf action - LOTS of stuff going on, hard to simulate... */
 
-  function NO_testProcessPdfAction() {
+  function testProcessPdfAction() {
     $SubmissionController = new SubmissionControllerForTest($this->request,
 							    $this->response);
     // unauthorized user
@@ -130,7 +131,7 @@ class SubmissionControllerTest extends ControllerTestCase {
     $this->assertEqual(0, count($SubmissionController->view->errors));
   }
 
-  function NO_testInitializeEtd() {
+  function testInitializeEtd() {
     // ignore php errors - "indirect modification of overloaded property
     $errlevel = error_reporting(E_ALL ^ E_NOTICE);
 

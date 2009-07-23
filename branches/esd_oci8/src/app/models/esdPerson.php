@@ -99,9 +99,8 @@ class esdPerson extends Zend_Db_Table_Row implements Zend_Acl_Role_Interface {
         case "E":
             $this->role = "staff"; break;
         default:
-            $this->role = "guest";		// fixme: what should the default be?
+            $this->role = "guest";		// default role
         }
-
 
         // subset of standard student role - if honors flag is set
         if ($this->role == "student" && $this->honors_student == "Y") {
@@ -144,12 +143,15 @@ class esdPerson extends Zend_Db_Table_Row implements Zend_Acl_Role_Interface {
         switch ($field) {
         case "address":
             // semi-dynamic for esd person address object
-            if (isset($this->_address)) { return  $this->_address;  }
-            else {
-                $addressObj = new esdAddressObject();
-                $this->_address =  $addressObj->find($this->id);
-                return $this->_address;
+  	    if (! isset($this->_address)) {	// if not yet set, retrieve address
+	      try {
+		$this->_address = $this->findEsdAddressObject()->current();
+	      } catch (Zend_Db_Table_Row_Exception $e) {
+		// db is not connected - should only happen when testing
+		$this->_address = null;
+	      }
             }
+	    return $this->_address;
         // convenience attributes for two versions of full name
         case "fullname":	// directory name or first and middle name followed by last name
             return $this->name . " " . $this->lastname;
@@ -185,6 +187,7 @@ class esdPerson extends Zend_Db_Table_Row implements Zend_Acl_Role_Interface {
     public function __set($field, $value) {
         if (parent::__isset($field)) return parent::__get($field, $value);
         if (isset($this->alias[$field])) return parent::__set($this->alias[$field], $value);
+	if ($field == "address") $this->_address = $value;
     }
 
     /**
@@ -311,7 +314,10 @@ class esdPerson extends Zend_Db_Table_Row implements Zend_Acl_Role_Interface {
     public function getTestPerson() {
         $data = array();
         foreach ($this->alias as $alias => $column) $data[$column] = "";
-        return new esdPerson(array("data" => $data));
+        $test_person = new esdPerson(array("data" => $data));
+	// set table to null to avoid errors about not being connected
+	$test_person->setTable();
+	return $test_person;
     }
 
 }   // end esdPerson
@@ -327,6 +333,9 @@ class esdPersonObject extends Emory_Db_Table {
     protected $_rowClass       = 'esdPerson';
     protected $_primary        = 'PRSN_I';
 
+    protected $_dependentTables = array('esdAddressObject');
+    
+    // customize behavior of magic findBy* function
     protected $uppercase_fields = true;
 
     /**
@@ -339,10 +348,8 @@ class esdPersonObject extends Emory_Db_Table {
         if (preg_match("/^esdid[0-9]+$/", $netid)) {
             $id = preg_replace("/^esdid/", "", $netid);
             return $this->findByPrsnI($id);
-	    //	    return $this->findByPRSN_I($id);
         }
 	return $this->findByLogn8ntwrI(strtoupper($netid));
-	//	return $this->findByLOGN8NTWR_I(strtoupper($netid));
     }
 
     /**
@@ -352,7 +359,6 @@ class esdPersonObject extends Emory_Db_Table {
      */
     public function findById($id) {
         return $this->findByPrsnI($id);
-	//	return $this->findByPRSN_I($id);
     }
 
    /**
@@ -509,7 +515,7 @@ class esdAddressInfo extends Zend_Db_Table_Row {
 
 /* convenience class to access the permanent & current addresses in a more usable form */
 class esdAddress {
-    public $street;
+  public $street;	// array
     public $city;
     public $state;
     public $zip;
@@ -526,10 +532,15 @@ class esdAddressObject extends Emory_Db_Table {
     protected $_rowClass       = 'esdAddressInfo';
     protected $_primary        = 'PRSN_I';    	// person ID within ESD
 
+    /** define relation between person and address **/
+    protected $_referenceMap = array('person' => array(
+						       'columns' => array('PRSN_I'),
+						       'refTableClass' => 'esdPersonObject')
+				     );
+    
     protected $uppercase_fields = true;
 
     public function find($id) {
-      //        return $this->findByPRSN_I($id);
 	return $this->findByPrsnI($id);
     }
 }

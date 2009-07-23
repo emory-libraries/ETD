@@ -57,7 +57,7 @@ class SearchControllerTest extends ControllerTestCase {
     $searchController = new SearchControllerForTest($this->request,$this->response);
     $this->setUpGet(array("faculty" => "Fa"));	// (NOTE: this test relies on actual data in ESD)
     $searchController->facultysuggestorAction();
-    $this->assertIsA($searchController->view->faculty, "Array");
+    $this->assertIsA($searchController->view->faculty, "esdPeople");
     $this->assertIsA($searchController->view->faculty[0], "esdPerson");
     // confirm xml output settings - layout disabled, content-type set to text/xml
     $layout = $searchController->getHelper("layout");
@@ -70,7 +70,7 @@ class SearchControllerTest extends ControllerTestCase {
     // new parameter for new feature - search for former faculty
     $this->setUpGet(array("faculty" => "Fa", "former" => 1));
     $searchController->facultysuggestorAction();
-    $this->assertIsA($searchController->view->faculty, "Array");
+    $this->assertIsA($searchController->view->faculty, "esdPeople");
     $this->assertIsA($searchController->view->faculty[0], "esdPerson");
 
     // error: no parameter

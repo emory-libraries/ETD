@@ -39,6 +39,7 @@
         $this->assertEqual($user->department, "University Libraries");
         $this->assertEqual($user->email, "rebecca.s.koeser@emory.edu");
 
+	$this->assertNull($user->address);
         // NOTE: this test is useless; value returned by ESD oscillates between MA and PHD for no apparent reason
         //    $this->assertEqual($user->degree, "PHD");	// FIXME: why does this change?
         // these fields are now empty in ESD (?) - find better test subject ?
@@ -179,6 +180,22 @@
            $this->assertIsA($address->current, "esdAddress");
            $this->assertIsA($address->permanent, "esdAddress");
            // FIXME: test with actual data
+
+	   // test referencing via person shortcut
+	   $this->assertIsA($person->address, "esdAddressInfo");
+       }
+
+       function testAddressPersonRelation() {
+	 $person = $this->esd->findByUsername("roza");
+	 $address = $person->findEsdAddressObject()->current();
+	 $this->assertIsA($address, "esdAddressInfo");
+	 $this->assertIsA($address->current, "esdAddress");
+	 $this->assertIsA($address->permanent, "esdAddress");
+
+	 // non-student (no address)
+	 $person = $this->esd->findByUsername("rsutton");
+	 $address = $person->findEsdAddressObject()->current();
+	 $this->assertNull($address, "non-student should not have an address");
        }
 
 

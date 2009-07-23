@@ -5,6 +5,7 @@ require_once('models/esdPerson.php');
 
 class TestEtd extends UnitTestCase {
     private $etd;
+    private $person;
 
   function setUp() {
     $fname = '../fixtures/etd1.xml';
@@ -14,6 +15,9 @@ class TestEtd extends UnitTestCase {
 
     $this->etd->policy->addRule("view");
     $this->etd->policy->addRule("draft");
+
+    $person = new esdPerson();
+    $this->person = $person->getTestPerson();
 
   }
   
@@ -82,29 +86,27 @@ class TestEtd extends UnitTestCase {
   }
 
   function testGetUserRole() {
-    $person = new esdPerson();
-
     // netid matches the author rel in rels-ext 
-    $person->netid = "mmouse";
-    $this->assertEqual("author", $this->etd->getUserRole($person));
+    $this->person->netid = "mmouse";
+    $this->assertEqual("author", $this->etd->getUserRole($this->person));
     // netid matches one of the committee rels 
-    $person->netid = "dduck";
-    $this->assertEqual("committee", $this->etd->getUserRole($person));
+    $this->person->netid = "dduck";
+    $this->assertEqual("committee", $this->etd->getUserRole($this->person));
 
     // department matches author's department & user is staff
-    $person->netid = "someuser";
-    $person->grad_coord = "Disney";
-    $this->assertEqual("program coordinator", $this->etd->getUserRole($person));
+    $this->person->netid = "someuser";
+    $this->person->grad_coord = "Disney";
+    $this->assertEqual("program coordinator", $this->etd->getUserRole($this->person));
 
     // grad coordinator field not set
-    $person->role = "student";
-    $person->grad_coord = null;
-    $this->assertNotEqual("program coordinator", $this->etd->getUserRole($person));
+    $this->person->role = "student";
+    $this->person->grad_coord = null;
+    $this->assertNotEqual("program coordinator", $this->etd->getUserRole($this->person));
     
     // nothing matches - user's base role should be returned
-    $person->department = "Warner Brothers";
-    $person->role = "default role";
-    $this->assertEqual("default role", $this->etd->getUserRole($person));
+    $this->person->department = "Warner Brothers";
+    $this->person->role = "default role";
+    $this->assertEqual("default role", $this->etd->getUserRole($this->person));
 
   }
 

@@ -317,10 +317,11 @@ class TestEtdMods extends UnitTestCase {
 
 
     // setting name should remove affiliation
-    $user = new esdPerson();
+    $person = new esdPerson();
+    $user = $person->getTestPerson();
     $user->netid = "dokey";
     $user->lastname = "Dokey";
-    $user->first = "Okey";
+    $user->firstname = "Okey";
     $this->mods->setCommitteeFromPersons(array($user));
 
     $this->assertFalse(isset($this->mods->committee[0]->affiliation));
