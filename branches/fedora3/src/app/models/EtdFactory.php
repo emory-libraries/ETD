@@ -79,7 +79,7 @@ class EtdFactory {
     /** convert pids into format required by RIsearch
         (if already in that format, should still work)  */
     $query_pid = $this->pid_to_fedorapid($pid);
-    $collection_pid = $this->pid_to_fedorapid($config->honors_collection);
+    $collection_pid = $this->pid_to_fedorapid($config->collections->college_honors);
 
     // is the current pid is a member of the honors collection object?
     $query = "<" . $query_pid . "> <fedora-rels-ext:isMemberOf> <" . $collection_pid . ">";

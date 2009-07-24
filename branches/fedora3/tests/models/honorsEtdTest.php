@@ -36,9 +36,9 @@ class TestHonorsEtd extends UnitTestCase {
     $config = Zend_Registry::get('config');
     $etd = new honors_etd();
     $this->assertTrue(isset($etd->rels_ext->memberOf));
-    $this->assertEqual($config->honors_collection, $etd->rels_ext->memberOf);
+    $this->assertEqual($config->collections->college_honors, $etd->rels_ext->memberOf);
     $this->assertPattern('|<rel:isMemberOf.*rdf:resource="info:fedora/' .
-			 $config->honors_collection . '".*/>|',
+			 $config->collections->college_honors . '".*/>|',
 			 $etd->rels_ext->saveXML());
 
     // researchfields should not be present when initializing from template

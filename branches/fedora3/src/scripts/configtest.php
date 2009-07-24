@@ -168,7 +168,9 @@ $tester->plural("honors_admin/user");
 if ($fedoraConnection) {
   
     require_once("models/foxml.php");
-    foreach (array("honors collection" => $tester->config->honors_collection,
+    foreach (array("ETD collection" => $tester->config->collections->all_etd,
+            "grad school collection" => $tester->config->collections->grad_school,
+            "honors collection" => $tester->config->collections->college_honors,
             "program hierarchy" => $tester->config->programs_pid,
             "ETD content model" => $tester->config->contentModels->etd,
             "EtdFile content model" => $tester->config->contentModels->etdfile,

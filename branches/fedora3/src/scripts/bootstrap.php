@@ -103,7 +103,8 @@ function all_etd_pids() {
     // combine all pids into a single array
     $all_pids = array_merge($etd_pids, $etdfile_pids, $author_pids,
         // include pids for special objects
-        array($config->honors_collection, $config->programs_pid)
+        array($config->collections->all_etd, $config->collections->grad_school,
+            $config->collections->college_honors, $config->programs_pid)
     );
 
     return $all_pids;
