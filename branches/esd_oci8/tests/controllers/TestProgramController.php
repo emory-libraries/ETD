@@ -21,7 +21,9 @@ class ProgramControllerTest extends ControllerTestCase {
     $this->response = $this->makeResponse();
     $this->request  = $this->makeRequest();
   }
-  function tearDown() {}
+  function tearDown() {
+    Zend_Registry::set('current_user', null);
+  }
 
   function testXmlAction() {
     $programController = new ProgramControllerForTest($this->request,$this->response);
