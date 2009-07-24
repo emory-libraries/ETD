@@ -12,6 +12,9 @@ require_once('simpletest/unit_tester.php');
 require_once('simpletest/reporter.php');
 include_once("MockObjects.php");
 
+// required when running through the web - zend complains without this
+if (!isset($argv)) Zend_Session::start();
+
 
 $mode = "test";
 $env = new Zend_Config(array('mode' => $mode));
@@ -38,6 +41,8 @@ $esdconfig = new Zend_Config_Xml($config_dir . 'esd.xml', $mode);
 $esd = Zend_Db::factory($esdconfig->adapter, $esdconfig->params->toArray());
 Zend_Registry::set('esd-db', $esd);
 Zend_Db_Table_Abstract::setDefaultAdapter($esd);
+
+
 
 // set up access controls
 $acl = new Emory_Acl_Xml($config_dir . "access.xml");
@@ -83,9 +88,6 @@ $filter = new Zend_Log_Filter_Priority(Zend_Log::CRIT);
 $logger->addFilter($filter);
 Zend_Registry::set('logger', $logger);
 
-
-// required when running through the web - zend complains without this
-if (!isset($argv)) Zend_Session::start();
 
 // convenience function used to run tests individually when not running as a suite
 function runtest($test) {
