@@ -8,8 +8,7 @@ require_once("models/degrees.php");
 
 class ProQuestSubmission extends XmlObject {
 
-  // FIXME: temporary, just until we can get this into a better place & generate a purl for it
-  protected $schema = "http://wilson.library.emory.edu/~rsutton/etd/schemas/proquest.xsd";
+  protected $schema = "http://larson.library.emory.edu/schemas/etd/proquest.xsd";
 
   protected $xmlconfig;
 
