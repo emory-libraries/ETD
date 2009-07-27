@@ -26,3 +26,12 @@ PRDMDP =
         (SERVICE_NAME=PRDMDP.CC.EMORY.EDU)
       )
    )
+
+SLFP = (DESCRIPTION =
+     (ADDRESS_LIST = 
+       (ADDRESS = (PROTOCOL = TCP)(HOST = eudb01.cc.emory.edu)(PORT = 1521))
+     )
+     (CONNECT_DATA = 
+        (SERVICE_NAME=SLFP.CC.EMORY.EDU)
+      )
+   )
