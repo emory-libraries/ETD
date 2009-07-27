@@ -39,6 +39,7 @@ Zend_Registry::set('fedora', $fedora);
 $esdconfig = new Zend_Config_Xml($config_dir . 'esd.xml', $mode);
 $esd = Zend_Db::factory($esdconfig->adapter, $esdconfig->params->toArray());
 Zend_Registry::set('esd-db', $esd);
+Zend_Registry::set('esd-config', $esdconfig);
 Zend_Db_Table_Abstract::setDefaultAdapter($esd);
 
 // set up access controls
@@ -111,8 +112,5 @@ function setFedoraAccount($user) {
   // note: needs to be in registry because this is what the etd object will use
   Zend_Registry::set('fedora', $fedora);
 }
-
-
-
 
 ?>
