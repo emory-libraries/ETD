@@ -1,18 +1,25 @@
 <?php
 require_once("../bootstrap.php");
 require_once('models/etd_mods.php');
+require_once("fixtures/esd_data.php");
 
 class TestEtdMods extends UnitTestCase {
   private $mods;
-
+  private $data;
+  
   function setUp() {
     // error_reporting(E_ALL ^ E_NOTICE);
     $xml = new DOMDocument();
     $xml->load("../fixtures/mods.xml");
     $this->mods = new etd_mods($xml);
+
+    $this->data = new esd_test_data();
+    $this->data->loadAll();
   }
 
-  function tearDown() {}
+  function tearDown() {
+    $this->data->cleanUp();
+  }
 
   function testBasicProperties() {
     $this->assertIsA($this->mods, "etd_mods");
@@ -283,15 +290,15 @@ class TestEtdMods extends UnitTestCase {
   function testSetCommitteeById() {
     $errlevel = error_reporting(E_ALL ^ E_NOTICE);
     
-    $this->mods->setCommittee(array("mhalber"), "chair"); // NOTE: testing against real ESD, so data could change...
-    $this->assertEqual("mhalber", $this->mods->chair[0]->id);
-    $this->assertEqual("Halbert", $this->mods->chair[0]->last);
+    $this->mods->setCommittee(array("mthink"), "chair");
+    $this->assertEqual("mthink", $this->mods->chair[0]->id);
+    $this->assertEqual("Thinker", $this->mods->chair[0]->last);
 
-    $this->mods->setCommittee(array("ahickco", "jfenton"));
-    $this->assertEqual("ahickco", $this->mods->committee[0]->id);
-    $this->assertEqual("Hickcox", $this->mods->committee[0]->last);
-    $this->assertEqual("jfenton", $this->mods->committee[1]->id);
-    $this->assertEqual("Fenton", $this->mods->committee[1]->last);
+    $this->mods->setCommittee(array("engrbs", "bschola"));
+    $this->assertEqual("engrbs", $this->mods->committee[0]->id);
+    $this->assertEqual("Scholar", $this->mods->committee[0]->last);
+    $this->assertEqual("bschola", $this->mods->committee[1]->id);
+    $this->assertEqual("Scholar", $this->mods->committee[1]->last);
 
     error_reporting($errlevel);	    // restore prior error reporting
   }

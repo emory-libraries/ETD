@@ -1,17 +1,24 @@
 <?php
 require_once("../bootstrap.php");
 require_once('models/mads.php');
+require_once("fixtures/esd_data.php");
 
 class TestMads extends UnitTestCase {
   private $mads;
+  private $data;
 
   function setUp() {
     $xml = new DOMDocument();
     $xml->load("../fixtures/mads.xml");
     $this->mads = new mads($xml);
+
+    $this->data = new esd_test_data();
+    $this->data->loadAll();
   }
 
-  function tearDown() {}
+  function tearDown() {
+    $this->data->cleanUp();
+  }
 
   function testBasicProperties() {
     //types
@@ -33,19 +40,33 @@ class TestMads extends UnitTestCase {
 
   function testInitFromEsd() {
     $esd = new esdPersonObject();
-    $testuser = $esd->findByUsername("roza");
+    $testuser = $esd->findByUsername("mstuden");
     $this->mads->initializeFromEsd($testuser);
 
-    // FIXME: use test data!!!
-    $this->assertEqual("roza", $this->mads->netid);
-    $this->assertEqual("Reena", $this->mads->name->first);
-    $this->assertEqual("Oza-Frank", $this->mads->name->last);
-    // no academic plan ?
-    $this->assertEqual("", $this->mads->current->organization);
-    $this->assertEqual("roza@emory.edu", $this->mads->current->email);
-    // current address information (no data?)
-    
-    
+    $this->assertEqual("mstuden", $this->mads->netid);
+    $this->assertEqual("Mary", $this->mads->name->first);
+    $this->assertEqual("Student", $this->mads->name->last);
+    $this->assertEqual("Bioscience", $this->mads->current->organization);
+    $this->assertEqual("m.student@emory.edu", $this->mads->current->email);
+    // current address
+    $this->assertEqual("5544 Rambling Road", $this->mads->current->address->street[0]);
+    $this->assertEqual("Apt. 3C", $this->mads->current->address->street[1]);
+    $this->assertEqual("c/o Spot", $this->mads->current->address->street[2]);
+    $this->assertEqual("Atlanta", $this->mads->current->address->city);
+    $this->assertEqual("GA", $this->mads->current->address->state);
+    $this->assertEqual("30432", $this->mads->current->address->postcode);
+    $this->assertEqual("USA", $this->mads->current->address->country);
+    $this->assertEqual("4041234566", $this->mads->current->phone);
+    $this->assertEqual(date("Y-m-d"), $this->mads->current->date);
+    // permanent address
+    $this->assertEqual("346 Lamplight Trail", $this->mads->permanent->address->street[0]);
+    $this->assertEqual("Suite #2", $this->mads->permanent->address->street[1]);
+    $this->assertEqual("Rm. 323", $this->mads->permanent->address->street[2]);
+    $this->assertEqual("Cleveland", $this->mads->permanent->address->city);
+    $this->assertEqual("OH", $this->mads->permanent->address->state);
+    $this->assertEqual("99304", $this->mads->permanent->address->postcode);
+    $this->assertEqual("545234566", $this->mads->permanent->phone);
+    $this->assertEqual("CA", $this->mads->permanent->address->country);
   }
 
   function testSetAddressFromEsd() {
