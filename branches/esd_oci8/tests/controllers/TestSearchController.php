@@ -3,10 +3,12 @@
 require_once("../bootstrap.php");
 require_once('ControllerTestCase.php');
 require_once('controllers/SearchController.php');
+require_once("fixtures/esd_data.php");
 
 class SearchControllerTest extends ControllerTestCase {
 
   private $mock_solr;
+  private $data;
   
   function setUp() {
     $this->response = $this->makeResponse();
@@ -16,10 +18,16 @@ class SearchControllerTest extends ControllerTestCase {
 
     $this->mock_solr = &new Mock_Etd_Service_Solr();
     Zend_Registry::set('solr', $this->mock_solr);
+
+    
+    $this->data = new esd_test_data();
+    $this->data->loadAll();
+
   }
 
   function tearDown() {
     Zend_Registry::set('solr', null);
+    $this->data->cleanUp();
   }
 
   function testIndexAction() {
@@ -55,7 +63,7 @@ class SearchControllerTest extends ControllerTestCase {
 
   public function testFacultySuggestorAction() {
     $searchController = new SearchControllerForTest($this->request,$this->response);
-    $this->setUpGet(array("faculty" => "Fa"));	// (NOTE: this test relies on actual data in ESD)
+    $this->setUpGet(array("faculty" => "Scho"));
     $searchController->facultysuggestorAction();
     $this->assertIsA($searchController->view->faculty, "esdPeople");
     $this->assertIsA($searchController->view->faculty[0], "esdPerson");
@@ -68,7 +76,7 @@ class SearchControllerTest extends ControllerTestCase {
     $this->assertEqual("text/xml", $headers[0]["value"]);
 
     // new parameter for new feature - search for former faculty
-    $this->setUpGet(array("faculty" => "Fa", "former" => 1));
+    $this->setUpGet(array("faculty" => "Em", "former" => 1));
     $searchController->facultysuggestorAction();
     $this->assertIsA($searchController->view->faculty, "esdPeople");
     $this->assertIsA($searchController->view->faculty[0], "esdPerson");
@@ -82,8 +90,6 @@ class SearchControllerTest extends ControllerTestCase {
 
     // FIXME: test error condition when ESD is not accessible (how?)
   }
-
-  // FIXME: test suggestor action (still in process)
 
 
   public function testSuggestorAction() {

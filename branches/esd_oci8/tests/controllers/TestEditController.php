@@ -2,12 +2,14 @@
 require_once("../bootstrap.php");
 require_once('ControllerTestCase.php');
 require_once('controllers/EditController.php');
+require_once("fixtures/esd_data.php");
       
 class EditControllerTest extends ControllerTestCase {
 
   // array of test foxml files & their pids 
   private $etdxml;
   private $test_user;
+  private $data;
   
   function setUp() {
     $ep = new esdPerson();
@@ -46,6 +48,8 @@ class EditControllerTest extends ControllerTestCase {
     $etd->policy->view->condition->addUser("nobodytoo");
     $etd->save("setting status to draft to test edit");
 
+    $this->data = new esd_test_data();
+    $this->data->loadAll();
   }
   
   function tearDown() {
@@ -53,6 +57,8 @@ class EditControllerTest extends ControllerTestCase {
       fedora::purge($pid, "removing test etd");
 
     Zend_Registry::set('current_user', null);
+
+    $this->data->cleanUp();
   }
 
 
@@ -136,7 +142,7 @@ class EditControllerTest extends ControllerTestCase {
   function testSaveFacultyAction() {
     $EditController = new EditControllerForTest($this->request,$this->response);
 
-    $this->setUpPost(array('pid' => 'test:etd2', 'chair' => array('mhalber'), 'committee' => array('jfenton'),
+    $this->setUpPost(array('pid' => 'test:etd2', 'chair' => array('mthink'), 'committee' => array('engrbs'),
 			   'nonemory_firstname' => array('Marvin'), 'nonemory_lastname' => array('the Martian'),
 			   'nonemory_affiliation' => array('Mars Polytechnic')));	   
     $EditController->savefacultyAction();
@@ -146,22 +152,20 @@ class EditControllerTest extends ControllerTestCase {
     $this->assertTrue($EditController->redirectRan);	// redirects back to record
     
     $etd = new etd("test:etd2");
-    $this->assertEqual("Halbert", $etd->mods->chair[0]->last);
-    $this->assertEqual("Fenton", $etd->mods->committee[0]->last);
+    $this->assertEqual("Thinker", $etd->mods->chair[0]->last);
+    $this->assertEqual("Scholar", $etd->mods->committee[0]->last);
     $this->assertEqual(1, count($etd->mods->committee));
     $this->assertEqual("Mars Polytechnic", $etd->mods->nonemory_committee[0]->affiliation);
 
     // test setting affiliation for former faculty
-    $this->setUpPost(array('pid' => 'test:etd2', 'chair' => array('mhalber'),
-			   'committee' => array('jfenton'),
-			   "mhalber_affiliation" => "grants",
-			   "jfenton_affiliation" => "preservation"));
+    $this->setUpPost(array('pid' => 'test:etd2', 'chair' => array('mthink'),
+			   'committee' => array('engrbs'),
+			   "mthink_affiliation" => "grants",
+			   "engrbs_affiliation" => "preservation"));
     $EditController->savefacultyAction();
     $etd = new etd("test:etd2");
     $this->assertEqual("grants", $etd->mods->chair[0]->affiliation);
     $this->assertEqual("preservation", $etd->mods->committee[0]->affiliation);
-    
-
     
     // simulate bad input (nonexistent ids - shouldn't happen in real life)
     $this->setUpPost(array('pid' => 'test:etd2', 'chair' => array('nobody'), 'committee' => array('nobodytoo'),
@@ -178,11 +182,10 @@ class EditControllerTest extends ControllerTestCase {
     
     $etd = new etd("test:etd2");
     // if names are not found, values will not be changed
-    $this->assertEqual("Halbert", $etd->mods->chair[0]->last);
-    $this->assertEqual("Fenton", $etd->mods->committee[0]->last);
+    $this->assertEqual("Thinker", $etd->mods->chair[0]->last);
+    $this->assertEqual("Scholar", $etd->mods->committee[0]->last);
     // no non-emory info sent- should be empty
     $this->assertFalse(isset($etd->mods->nonemory_committee[0]));
-
 
   }
 

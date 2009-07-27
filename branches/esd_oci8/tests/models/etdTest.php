@@ -2,6 +2,7 @@
 require_once("../bootstrap.php");
 require_once('models/etd.php');
 require_once('models/esdPerson.php');
+require_once("fixtures/esd_data.php");
 
 class TestEtd extends UnitTestCase {
     private $etd;
@@ -19,9 +20,12 @@ class TestEtd extends UnitTestCase {
     $person = new esdPerson();
     $this->person = $person->getTestPerson();
 
+    $this->data = new esd_test_data();
+    $this->data->loadAll();
   }
   
   function tearDown() {
+    $this->data->cleanUp();
   }
   
   function testBasicProperties() {
@@ -214,25 +218,23 @@ class TestEtd extends UnitTestCase {
     $this->etd->addSupplement($etdfile);
 
     
-    // NOTE: if this netid goes out of ESD, this test will fail
-    $this->etd->setCommittee(array("mhalber"), "chair");
+    $this->etd->setCommittee(array("mthink"), "chair");
     // should be set in mods, rels-ext, and in view policy rule
-    $this->assertEqual("mhalber", $this->etd->mods->chair[0]->id);
-    $this->assertEqual("Halbert", $this->etd->mods->chair[0]->last);
-    $this->assertEqual("mhalber", $this->etd->rels_ext->committee[0]);
-    $this->assertTrue($this->etd->policy->view->condition->users->includes("mhalber"));
-    $this->assertTrue($this->etd->supplements[0]->policy->view->condition->users->includes("mhalber"));
+    $this->assertEqual("mthink", $this->etd->mods->chair[0]->id);
+    $this->assertEqual("Thinker", $this->etd->mods->chair[0]->last);
+    $this->assertEqual("mthink", $this->etd->rels_ext->committee[0]);
+    $this->assertTrue($this->etd->policy->view->condition->users->includes("mthink"));
+    $this->assertTrue($this->etd->supplements[0]->policy->view->condition->users->includes("mthink"));
 
-
-    $this->etd->setCommittee(array("ahickco", "jfenton"));
-    $this->assertEqual("ahickco", $this->etd->mods->committee[0]->id);
-    $this->assertEqual("jfenton", $this->etd->mods->committee[1]->id);
-    $this->assertEqual("ahickco", $this->etd->rels_ext->committee[0]);
-    $this->assertEqual("jfenton", $this->etd->rels_ext->committee[1]);
-    $this->assertTrue($this->etd->policy->view->condition->users->includes("ahickco"));
-    $this->assertTrue($this->etd->policy->view->condition->users->includes("jfenton"));
-    $this->assertTrue($this->etd->supplements[0]->policy->view->condition->users->includes("ahickco"));
-    $this->assertTrue($this->etd->supplements[0]->policy->view->condition->users->includes("jfenton"));
+    $this->etd->setCommittee(array("engrbs", "bschola"));
+    $this->assertEqual("engrbs", $this->etd->mods->committee[0]->id);
+    $this->assertEqual("bschola", $this->etd->mods->committee[1]->id);
+    $this->assertEqual("engrbs", $this->etd->rels_ext->committee[0]);
+    $this->assertEqual("bschola", $this->etd->rels_ext->committee[1]);
+    $this->assertTrue($this->etd->policy->view->condition->users->includes("engrbs"));
+    $this->assertTrue($this->etd->policy->view->condition->users->includes("bschola"));
+    $this->assertTrue($this->etd->supplements[0]->policy->view->condition->users->includes("engrbs"));
+    $this->assertTrue($this->etd->supplements[0]->policy->view->condition->users->includes("bschola"));
 
     error_reporting($errlevel);	    // restore prior error reporting
   }
