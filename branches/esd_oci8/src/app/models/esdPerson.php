@@ -196,8 +196,8 @@ class esdPerson extends Emory_Db_Table_Row implements Zend_Acl_Role_Interface {
      * @return string
      */
     public function __toString() {
-        if ($this->firstname) return $this->firstname;
-        else return $this->netid;
+      if (isset($this->firstname)) return $this->firstname;
+      else return $this->netid;
     }
 
     /**
@@ -307,7 +307,6 @@ class esdPerson extends Emory_Db_Table_Row implements Zend_Acl_Role_Interface {
 class esdPeople extends Emory_Db_Table_Rowset {}
 
 class esdPersonObject extends Emory_Db_Table {
-    protected $_schema         = 'ESDV';
     protected $_name           = 'V_ETD_PRSN_TABL';
     /* NOTE: v_etd_prsn_tabl is a nightly dump of the data on proxy esd,
        rather than using the view (v_etd_prsn) which was too slow for searching */
@@ -319,6 +318,13 @@ class esdPersonObject extends Emory_Db_Table {
     
     // customize behavior of magic findBy* function
     protected $uppercase_fields = true;
+
+    public function __construct($config = array()) {
+      $esdconfig = Zend_Registry::get('esd-config');
+      // setting schema based on config (test DB different than production)
+      if ($esdconfig->dbSchema) $this->_schema = $esdconfig->dbSchema;
+      parent::__construct($config);
+    }
 
     /**
      * find a person by network login
@@ -433,7 +439,8 @@ class esdAddressInfo extends Emory_Db_Table_Row {
              "local_city" => "PRAD_A_LOCL_CITY",
              "local_state" => "PRAD_A_LOCL_STAT",
              "local_zip" => "PRAD_A_LOCL_ZIP",
-             "local_country" => "PRAD_A_LOCL_CNTRY",
+             "local_country" => "PRAD_A_LOCL_CNTR",
+				  // FIXME: typo?  "local_country" => "PRAD_A_LOCL_CNTRY",
              "local_telephone" => "PRAD_A_LOCL_TLPH",
              "perm_line1" => "PRAD_A_STDN_LIN1",
              "perm_line2" => "PRAD_A_STDN_LIN2",
@@ -441,8 +448,12 @@ class esdAddressInfo extends Emory_Db_Table_Row {
              "perm_city"  => "PRAD_A_STDN_CITY",
              "perm_state" => "PRAD_A_STDN_STAT",
              "perm_zip"   => "PRAD_A_STDN_ZIP" ,
-             "perm_country" => "PRAD_A_STDN_CNTRY",
-             "perm_telephone" => "PRAD_A_STDN_TLPH",
+				  // FIXME: also post code ?
+             "perm_country" => "PRAD_A_STDN_CNTR",
+				  // FIXME: typo? "perm_country" => "PRAD_A_STDN_CNTRY",
+             "perm_telephone" => "PRAD_A_TDN_TLPH",
+				  // FIXME: typo in db ? in both prod & dev?
+				  //"perm_telephone" => "PRAD_A_STDN_TLPH",
             );
 
       $this->current = new esdAddress();
@@ -494,7 +505,6 @@ class esdAddresses extends Zend_Db_Table_Rowset {}
 
 class esdAddressObject extends Emory_Db_Table {
     protected $_name           = 'V_ETD_PRAD';	// table name
-    protected $_schema         = 'ESDV';
     protected $_rowsetClass    = 'esdAddresses';
     protected $_rowClass       = 'esdAddressInfo';
     protected $_primary        = 'PRSN_I';    	// person ID within ESD
@@ -506,6 +516,13 @@ class esdAddressObject extends Emory_Db_Table {
 				     );
     
     protected $uppercase_fields = true;
+
+    public function __construct($config = array()) {
+      $esdconfig = Zend_Registry::get('esd-config');
+      // setting schema based on config (test DB different than production)
+      if ($esdconfig->dbSchema) $this->_schema = $esdconfig->dbSchema;
+      parent::__construct($config);
+    }
 
     public function find($id) {
 	return $this->findByPrsnI($id);
