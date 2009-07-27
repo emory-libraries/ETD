@@ -110,7 +110,7 @@ class TestPQSubmission extends UnitTestCase {
     // files tested separately
 
     // test validation
-    $this->assertTrue($this->pq->isValid());
+    $this->assertTrue($this->pq->isValid(), "initialized PQ submission should be valid");
 
 
     // remove test object
@@ -307,8 +307,8 @@ class TestPQSubmission extends UnitTestCase {
   public function testValidation() {
     // test validation error handling on blank, invalid record
     $this->assertFalse($this->pq->isValid());
-    $this->assertEqual(6, count($this->pq->dtdValidationErrors()));
-    $this->assertEqual(9, count($this->pq->schemaValidationErrors())); 
+    $this->assertNotEqual(0, count($this->pq->dtdValidationErrors()), "un-initialized record should have dtd valiation errors; found " . count($this->pq->dtdValidationErrors()));
+    $this->assertNotEqual(0, count($this->pq->schemaValidationErrors()), "un-initialized record should have schema validation errors; found " . count($this->pq->schemaValidationErrors())); 
   }
  
 }
