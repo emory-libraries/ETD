@@ -216,7 +216,15 @@ class TestEtd extends UnitTestCase {
     $this->assertEqual("ETD", $this->etd->contentModelName());
     // check for error found in ticket:150
     $this->assertEqual("draft", $etd->status());
-  
+
+    $config = Zend_Registry::get('config');
+    // all etds should be member of etd collection
+    $this->assertTrue(isset($etd->rels_ext->isMemberOfCollection), "RELS-EXT property isMemberOfCollection is set");
+    $this->assertTrue($etd->rels_ext->isMemberOfCollections->includes($etd->rels_ext->pidToResource($config->collections->all_etd)),
+        "template etd has isMemberOfCollection relation to etd collection");
+    $this->assertPattern('|<rel:isMemberOfCollection\s+rdf:resource="info:fedora/' .
+			 $config->collections->all_etd. '".*/>|',
+			 $etd->rels_ext->saveXML()); 
   }
 
   function testAddCommittee() {	// committee chairs and members
