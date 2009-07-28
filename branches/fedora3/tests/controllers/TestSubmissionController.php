@@ -64,7 +64,7 @@ class SubmissionControllerTest extends ControllerTestCase {
   }
 
 
-  function NO_testStartAction() {
+  function testStartAction() {
     $this->test_user->role = "staff";	// set to non-student
     Zend_Registry::set('current_user', $this->test_user);
     $SubmissionController = new SubmissionControllerForTest($this->request,$this->response);
@@ -87,7 +87,7 @@ class SubmissionControllerTest extends ControllerTestCase {
 
   /* FIXME: not sure how to test processPdf action - LOTS of stuff going on, hard to simulate... */
 
-  function NO_testProcessPdfAction() {
+  function testProcessPdfAction() {
     $SubmissionController = new SubmissionControllerForTest($this->request,
 							    $this->response);
     // unauthorized user
@@ -134,7 +134,7 @@ class SubmissionControllerTest extends ControllerTestCase {
     $this->assertEqual(0, count($SubmissionController->view->errors));
   }
 
-  function NO_testInitializeEtd() {
+  function testInitializeEtd() {
     // ignore php errors - "indirect modification of overloaded property
     $errlevel = error_reporting(E_ALL ^ E_NOTICE);
 
@@ -149,6 +149,7 @@ class SubmissionControllerTest extends ControllerTestCase {
 
     $etd = $SubmissionController->initialize_etd($test_info);
     $this->assertIsA($etd, "etd");
+    $this->assertIsA($etd, "grad_etd");
     $this->assertNotA($etd, "honors_etd");
     $this->assertEqual("new etd", $etd->label);
     $this->assertEqual("my abstract", $etd->mods->abstract);
@@ -206,7 +207,7 @@ class SubmissionControllerTest extends ControllerTestCase {
     $this->assertTrue(isset($SubmissionController->view->etd), "etd variable set for review");
   }
 
-  function testSubmitAction() {
+  function NOtestSubmitAction() {
     $errlevel = error_reporting(E_ALL ^ E_NOTICE);
 	
     $this->test_user->role = "student";	// set to non-student
