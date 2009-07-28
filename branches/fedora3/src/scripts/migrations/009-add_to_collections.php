@@ -60,7 +60,7 @@ foreach ($etd_pids as $pid) {
         if ($etd->rels_ext->hasChanged()) {
             if ($opts->noact) {     // noact mode: simulate success
                 $updated++;
-                $logger->info("Saving $pid (simulated)");
+                $logger->info("Saving $pid (simulated)");                
                 $logger->debug($etd->rels_ext->saveXML());
             } else {
                 $result = $etd->save("Adding relations to ETD collections");
@@ -79,14 +79,14 @@ foreach ($etd_pids as $pid) {
 
     } catch (Exception $e) {    // object not found in fedora, etc.
         $logger->err($e->getMessage());
-        $err++;
+        $error++;
     }
 }
 
 // summary of what was done
 $logger->info("$updated records updated");
 if ($unchanged) $logger->info("$unchanged records unchanged");
-if ($err) $logger->info("$err errors");
+if ($error) $logger->info("$error errors");
 
 
 ?>
