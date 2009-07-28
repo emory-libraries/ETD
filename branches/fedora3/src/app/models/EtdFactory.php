@@ -82,7 +82,7 @@ class EtdFactory {
     $collection_pid = $this->pid_to_fedorapid($config->collections->college_honors);
 
     // is the current pid is a member of the honors collection object?
-    $query = "<" . $query_pid . "> <fedora-rels-ext:isMemberOf> <" . $collection_pid . ">";
+    $query = "<" . $query_pid . "> <fedora-rels-ext:isMemberOfCollection> <" . $collection_pid . ">";
     $rdf = $fedora->risearch->triples($query);
     if ($rdf != null) {
       $ns = $rdf->getNamespaces();  // get the namespaces directly from the simplexml object

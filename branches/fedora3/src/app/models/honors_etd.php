@@ -16,7 +16,7 @@ class honors_etd extends etd {
     // all new honors_etd object must be added to honors collection object
     if ($this->init_mode == "template") {
       $config = Zend_Registry::get('config');
-      $this->rels_ext->addRelationToResource("rel:isMemberOf",
+      $this->rels_ext->addRelationToResource("rel:isMemberOfCollection",
 					     $config->collections->college_honors);
 
       // NOTE: PQ research field is marked as optional in the honors
