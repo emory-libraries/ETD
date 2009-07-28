@@ -3,6 +3,7 @@
 require_once("models/foxml.php");
 require_once("etd.php");
 require_once("honors_etd.php");
+require_once("grad_etd.php");
 
 /**
  * Factory class to initialize etd or honors etd by pid.
@@ -38,12 +39,14 @@ class EtdFactory {
     $fedora = Zend_Registry::get("fedora");
 
     $factory = new EtdFactory();
-    if ($factory->isHonorsEtd($pid)) {
-      return new honors_etd($pid);
-    } else {
-      return new etd($pid);
-    }
-    
+    switch ($factory->getEtdType($pid)) {
+        case "honors":
+            return new honors_etd($pid);
+        case "gradschool":
+            return new grad_etd($pid);
+        default:
+            return new etd($pid);
+    }    
   }
 
    /**
@@ -58,63 +61,52 @@ class EtdFactory {
 
     $factory =  new EtdFactory();
     // if related etd is honors, re-initialize user object as honors user
-    // NOTE: using relation in rels-ext rather than going to the risearch
-    if ($factory->isHonorsEtd($user->rels_ext->etd)) {
-      $user = new honors_user($pid);
+    // FIXME: what happens when user objects become associated with more than one etd ?!?
+    switch ($factory->getEtdType($user->rels_ext->etd)) {
+        case "honors":
+            return new honors_user($pid);
+        case "gradschool":        
+        default:
+            return $user;
     }
-
-    return $user;
-
   }
 
   /**
-   * check if an ETD is a member of the honors collection
+   * determine type of ETD based on collection membership
    * @param string $pid
-   * @return boolean
+   * @return string
    */
-  public function isHonorsEtd($pid) {
+  public function getEtdType($pid) {
     $config = Zend_Registry::get("config");
     $fedora = Zend_Registry::get("fedora");
 
-    /** convert pids into format required by RIsearch
-        (if already in that format, should still work)  */
-    $query_pid = $this->pid_to_fedorapid($pid);
-    $collection_pid = $this->pid_to_fedorapid($config->collections->college_honors);
+    /** convert pid into format required by RIsearch  */
+    $query_pid = $fedora->risearch->pid_to_risearchpid($pid);
 
-    // is the current pid is a member of the honors collection object?
-    $query = "<" . $query_pid . "> <fedora-rels-ext:isMemberOfCollection> <" . $collection_pid . ">";
+    // find all collections this pid is a member of
+    $query = "<" . $query_pid . "> <fedora-rels-ext:isMemberOfCollection> *";
     $rdf = $fedora->risearch->triples($query);
     if ($rdf != null) {
       $ns = $rdf->getNamespaces();  // get the namespaces directly from the simplexml object
       $descriptions = $rdf->children($ns['rdf']);
-      
-      if (count($descriptions) == 0) {
-	// no matches found - NOT a member of honors collection
-	return false;
-      } else {
-	// pid IS a member of honors collection
-	return true;
+
+      // find collections and compare against known ETD subcollections until we find a match
+      foreach ($descriptions as $d) {
+          foreach ($d->children() as $rel) {
+              if ($rel->getName() != "isMemberOfCollection") continue;
+              $attr = $rel->attributes($ns['rdf']);
+              $collection = $fedora->risearch->risearchpid_to_pid($attr[0]);          
+              
+              switch ($collection) {
+                  case $config->collections->college_honors: return "honors";
+                  case $config->collections->grad_school: return "gradschool";
+              }
+          }
       }
-    } else {
-      return false;
-      // FIXME: should probably generate a notice or warning or something...
     }
-    
+    // no matches found - unknown/generic etd
+    return;
   }
-
-  /**
-   * convert pid to format needed for risearch, but only if not
-   * already in that format
-   *
-   * @param string $pid pid to convert
-   * @return string
-   */
-  private function pid_to_fedorapid($pid) {
-    if (!preg_match("|^info:fedora/|", $pid)) 
-      return "info:fedora/" . $pid;
-    else return $pid;
-  }
-
   
   
 }
