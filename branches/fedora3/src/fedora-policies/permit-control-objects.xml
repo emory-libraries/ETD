@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Policy xmlns="urn:oasis:names:tc:xacml:1.0:policy"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        PolicyId="permit-etds-if-etdadmin"
+        RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:first-applicable">
+  <Description>allow etd-admin users (specified here by netid) to
+access and modify (with some limitations) etd objects (etd, etdfile, user)</Description>
+  <Target>
+    <Subjects>
+      <AnySubject/>
+    </Subjects>
+    <Resources>
+<!-- etd control objects by pid - content models, service objects -->
+     <Resource>
+        <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">emory-control:ETD-1.0</AttributeValue>
+          <ResourceAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:resource:object:pid" DataType="http://www.w3.org/2001/XMLSchema#string"/>
+        </ResourceMatch>
+      </Resource>
+     <Resource>
+        <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">emory-control:EtdFile-1.0</AttributeValue>
+          <ResourceAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:resource:object:pid" DataType="http://www.w3.org/2001/XMLSchema#string"/>
+        </ResourceMatch>
+      </Resource>
+     <Resource>
+        <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">emory-control:AuthorInformation-1.0</AttributeValue>
+          <ResourceAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:resource:object:pid" DataType="http://www.w3.org/2001/XMLSchema#string"/>
+        </ResourceMatch>
+      </Resource>
+<!-- FIXME: temporary -->
+     <Resource>
+        <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">changeme:CModel13</AttributeValue>
+          <ResourceAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:resource:object:pid" DataType="http://www.w3.org/2001/XMLSchema#string"/>
+        </ResourceMatch>
+      </Resource>
+
+<!-- service definition & deployment -->
+     <Resource>
+        <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">emory-control:metadataTransform-sDef</AttributeValue>
+          <ResourceAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:resource:object:pid" DataType="http://www.w3.org/2001/XMLSchema#string"/>
+        </ResourceMatch>
+      </Resource>
+     <Resource>
+        <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">emory-control:metadataTransform-sDep</AttributeValue>
+          <ResourceAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:resource:object:pid" DataType="http://www.w3.org/2001/XMLSchema#string"/>
+        </ResourceMatch>
+      </Resource>
+    </Resources>    
+    <Actions>
+      <Action>
+        <ActionMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">urn:fedora:names:fedora:2.1:action:api-a</AttributeValue>
+          <ActionAttributeDesignator DataType="http://www.w3.org/2001/XMLSchema#string"
+            AttributeId="urn:fedora:names:fedora:2.1:action:api"/>
+        </ActionMatch>
+      </Action>
+    </Actions>    
+  </Target>
+
+  <Rule RuleId="1" Effect="Permit"/>
+
+</Policy>
