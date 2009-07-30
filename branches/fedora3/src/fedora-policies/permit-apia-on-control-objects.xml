@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Policy xmlns="urn:oasis:names:tc:xacml:1.0:policy"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        PolicyId="permit-etds-if-etdadmin"
+        PolicyId="permit-apia-on-control-objects"
         RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:first-applicable">
   <Description>allow etd-admin users (specified here by netid) to
 access and modify (with some limitations) etd objects (etd, etdfile, user)</Description>
