@@ -409,8 +409,12 @@ accepted</xs:documentation>
   </xs:element>
 
   <xs:element name="DISS_para">
-    <xs:complexType mixed="true" />	<!-- FIXMe: explicitly declare
-html tags? -->
+    <xs:complexType mixed="true">
+	<xs:choice>
+	    <xs:element name="em" minOccurs="0" maxOccurs="unbounded"/>
+	    <xs:element name="strong" minOccurs="0" maxOccurs="unbounded"/>
+	</xs:choice>
+    </xs:complexType>
   </xs:element>
 
 
