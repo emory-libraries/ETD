@@ -103,6 +103,37 @@ class TestEtdXacml extends UnitTestCase {
     $this->assertNull($etd->policy);
   }
 
+  function testGuest_getMetadata_unpublished() {
+    // use guest account to access fedora
+    setFedoraAccount("guest");
+    $fedora = Zend_Registry::get("fedora");
+
+    // permission denied on accessing MODS to create dissemination
+    $this->expectError();
+    $result = $fedora->getDisseminationSOAP($this->pid, "emory-control:metadataTransform-sDef",
+					"getMarcxml");
+    $this->assertFalse($result);
+  }
+
+  function testGuest_getMetadata_pub() {
+    // set etd as published using admin account
+    setFedoraAccount("fedoraAdmin");
+    $etd = new etd($this->pid);
+    $etd->policy->addRule("published");
+    $result = $etd->save("added published rule to test guest permissions");
+
+    // use guest account to access fedora
+    setFedoraAccount("guest");
+    $fedora = Zend_Registry::get("fedora");
+
+    // FIXME: sdef object pid should probably be stored in a config file or something...
+    $result = $fedora->getDisseminationSOAP($this->pid, "emory-control:metadataTransform-sDef",
+					"getMarcxml");
+    $this->assertIsA($result, "MIMETypedStream",
+		     "result from getDissemination should be MIMETypedStream");
+    $this->assertPattern("/<marc:record/", $result->stream,
+			 "result from getMarcxml contains marc xml");
+  }
  
   function testAuthorPermissions() {
     // set user account to author
@@ -298,7 +329,7 @@ class TestEtdXacml extends UnitTestCase {
   
 
   
-  function  testEtdAdminViewPermissions() {
+  function  NOtestEtdAdminViewPermissions() {
     // set user account to etd admin
     setFedoraAccount("etdadmin");
 
