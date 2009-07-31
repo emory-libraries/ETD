@@ -592,9 +592,10 @@ class DISS_abstract extends XmlObject {
 	   'drop-font-tags'   => true,
 	   'drop-proprietary-attributes' => true,
 	   'output-xml'		=> true,
-	   //	   'preserve-entities'  => true,	// not supported (version of tidy?)
+	   'preserve-entities'  => true,	// not supported (version of tidy?)
 	   'ascii-chars'	=> true,
 	   'char-encoding'	=> 'utf8',
+	   'logical-emphasis'  => true,		// convert i to em and b to strong
 	   
 	   );
     $tidy->parseString($html, $config, 'utf8');
@@ -602,9 +603,6 @@ class DISS_abstract extends XmlObject {
     $body = tidy_get_body($tidy);	// should be able to do $tidy->body but it doesn't work
 
     $text = $body->value;
-    // replace i and b tags with em and strong respectively
-    $text = preg_replace(array("|<(/)?[iu]>|","|<(/)?b>|"),	// replace both italic and underline with em
-		 array("<$1em>", "<$1strong>"), "$text");
     // strip out any tags that are not allowed
     $text = strip_tags($text, "<p><div><strong><em><sub><sup><body>");
     						// leave body tag-- it is the parent tag that holds all the others

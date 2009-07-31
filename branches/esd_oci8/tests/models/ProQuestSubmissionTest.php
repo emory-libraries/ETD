@@ -106,12 +106,15 @@ class TestPQSubmission extends UnitTestCase {
     // abstract tested more thoroughly separately
     $this->assertPattern("|<DISS_para>milk\s+<em>curdles</em> and goes\s+<em>sour</em></DISS_para>|",
 			 $this->pq->abstract->saveXML());
+    print "<pre>" . htmlentities($this->pq->saveXML()) . "</pre>";
 
     // files tested separately
 
     // test validation
     $this->assertTrue($this->pq->isValid(), "initialized PQ submission should be valid");
-
+    print "<pre>"; print_r($this->pq->dtdValidationErrors()); print "</pre>";
+    print "<pre>"; print_r($this->pq->schemaValidationErrors()); print "</pre>";
+	
 
     // remove test object
     foreach ($pids as $pid) {
@@ -167,8 +170,10 @@ class TestPQSubmission extends UnitTestCase {
     $this->assertEqual(1, count($pq->abstract->p));
     $this->assertEqual("Produced in the scriptorium...", $pq->abstract->p[0]);
 
-    
-    $formatting = "<p><i>Chapter 1.</i> Biomimetic ... and <u>ent</u>-Abudinol  <b>B</b></p>";
+
+    // underline tag not handled/expected
+    $formatting = "<p><i>Chapter 1.</i> Biomimetic ... and <i>ent<i>-Abudinol  <b>B</b></p>";
+    //$formatting = "<p><i>Chapter 1.</i> Biomimetic ... and <u>ent</u>-Abudinol  <b>B</b></p>";
     $pq = new ProQuestSubmission();
     $pq->abstract->set($formatting);
     $this->assertEqual(1, count($pq->abstract->p));
