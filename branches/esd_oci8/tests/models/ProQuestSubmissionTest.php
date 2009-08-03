@@ -59,7 +59,6 @@ class TestPQSubmission extends UnitTestCase {
     $etd = new etd('test:etd2');
 
     $this->pq->initializeFromEtd($etd);
-    //    print "<pre>" . htmlentities($this->pq->saveXML()) . "</pre>";
     $this->assertEqual("0", $this->pq->embargo_code);
     // author name & contact information
     $this->assertEqual($etd->mods->author->last, $this->pq->author_info->name->last);
@@ -106,15 +105,11 @@ class TestPQSubmission extends UnitTestCase {
     // abstract tested more thoroughly separately
     $this->assertPattern("|<DISS_para>milk\s+<em>curdles</em> and goes\s+<em>sour</em></DISS_para>|",
 			 $this->pq->abstract->saveXML());
-    print "<pre>" . htmlentities($this->pq->saveXML()) . "</pre>";
 
     // files tested separately
 
     // test validation
     $this->assertTrue($this->pq->isValid(), "initialized PQ submission should be valid");
-    print "<pre>"; print_r($this->pq->dtdValidationErrors()); print "</pre>";
-    print "<pre>"; print_r($this->pq->schemaValidationErrors()); print "</pre>";
-	
 
     // remove test object
     foreach ($pids as $pid) {
@@ -261,7 +256,6 @@ class TestPQSubmission extends UnitTestCase {
     $count = count($this->pq->description->categories);
     $this->pq->description->addCategory($subject);
 
-    //    print "<pre>" . htmlentities($this->pq->saveXML()) . "</pre>";
     $this->assertEqual($count + 1, count($this->pq->description->categories));
     $this->assertEqual("0545", $this->pq->description->categories[$count]->code);
     $this->assertEqual("Unit Testing", $this->pq->description->categories[$count]->text);
