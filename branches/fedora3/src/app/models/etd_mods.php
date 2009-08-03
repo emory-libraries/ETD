@@ -6,11 +6,11 @@ require_once("models/esdPerson.php");
 
 class etd_mods extends mods {
 
-  protected $etd_namespace = "http://www.ndltd.org/standards/metadata/etdms/1.0/";
+  const ETDMS_NS = "http://www.ndltd.org/standards/metadata/etdms/1.0/";
 
   protected $required_fields;
   protected $optional_fields;
-  
+
   // auto-magic variables
   /**
    * @var author
@@ -44,7 +44,7 @@ class etd_mods extends mods {
     
     parent::configure();
 
-    $this->addNamespace("etd", $this->etd_namespace);
+    $this->addNamespace("etd", etd_mods::ETDMS_NS);
     
     $this->xmlconfig["author"] = array("xpath" => "mods:name[mods:role/mods:roleTerm = 'author']",
 				       "class_name" => "mods_name");
@@ -84,8 +84,7 @@ class etd_mods extends mods {
     $this->xmlconfig["rights"] = array("xpath" => "mods:accessCondition[@type='useAndReproduction']");
 
     $this->xmlconfig["ark"] = array("xpath" => "mods:identifier[@type='ark']");
-    
-    
+
   }
   
 
@@ -691,7 +690,8 @@ class etdmods_subject extends mods_subject {
 
 
 
-class etd_degree extends XmlObject {
+class etd_degree extends modsXmlObject {
+  protected $namespace = etd_mods::ETDMS_NS;
   public function __construct($xml, $xpath) {
     $config = $this->config(array(
 	"name" => array("xpath" => "etd:name"),
