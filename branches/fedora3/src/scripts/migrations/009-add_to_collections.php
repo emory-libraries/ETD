@@ -1,7 +1,7 @@
 #!/usr/bin/php -q
 <?php
 /**
-  * Update all published ETDs with OAI ids
+  * Update all ETDs with collection memberships
   */
 
 // set working directory to the main scripts directory so all the paths work the same
