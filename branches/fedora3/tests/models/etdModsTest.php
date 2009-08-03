@@ -374,6 +374,22 @@ class TestEtdMods extends UnitTestCase {
     $this->assertFalse($this->mods->submitToProquest());
   }
 
+  function testSetMarcGenre() {
+      $this->mods->setMarcGenre();
+      $this->assertTrue(isset($this->mods->marc_genre), "marc genre is set");
+      $this->assertEqual("thesis", $this->mods->marc_genre,
+        "marc genre is set correctly; should be 'thesis', got '" . $this->mods->marc_genre . "'");
+      $this->assertPattern('|<mods:genre authority="marc">thesis</mods:genre>|',
+            $this->mods->saveXML(), "marc genre present in xml");
+
+      // adding again shouldn't break anything
+      $this->mods->setMarcGenre();
+      $this->assertNoPattern('|<mods:genre authority="marc">.*<mods:genre authority="marc">|',
+            $this->mods->saveXML(), "only one marc genre present in xml");
+
+
+  }
+
 }
 
 runtest(new TestEtdMods());

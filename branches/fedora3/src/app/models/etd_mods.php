@@ -85,6 +85,10 @@ class etd_mods extends mods {
 
     $this->xmlconfig["ark"] = array("xpath" => "mods:identifier[@type='ark']");
 
+    // only use aat genre for normal usage; add mapping for marc-specific genre term
+    $this->xmlconfig["genre"] = array("xpath" => "mods:genre[@authority='aat']");
+    $this->xmlconfig["marc_genre"] = array("xpath" => "mods:genre[@authority='marc']");
+
   }
   
 
@@ -414,6 +418,16 @@ class etd_mods extends mods {
     $note->setAttribute("type", $type);
     $note->setAttribute("ID", $id);
     $this->update();
+  }
+
+  public function setMarcGenre() {
+      if (! isset($this->marc_genre)) {
+          $genre = $this->dom->createElementNS(mods::MODS_NS, "mods:genre");
+          $genre->setAttribute("authority", "marc");
+          $this->domnode->appendChild($genre);
+          $this->update();
+      }
+      $this->marc_genre = "thesis";
   }
 
 
