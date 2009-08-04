@@ -266,31 +266,13 @@ tion in whole or in <br/> ...</div>");
     $this->assertTrue($this->processpdf->fields["distribution_agreement"]);
   }
 
-  function test_nonbreaking_spaces() {
-    $dom = new DOMDocument();
-    // fake sample with non-breaking spaces everywhere
-    //$dom->loadXML("<div><p><b>Distribution&#xA0;Agreement&#xA0;</b></p></div>");
-    $dom->loadXML("<div><p><b>Distribution&#xA0;Agreement&#xA0;</b></p></div>");
-    $this->processpdf->process_page($dom);
-    $this->assertTrue($this->processpdf->fields["distribution_agreement"], "distribution agreement with non-breaking spaces found by 'distribution agreement' label");
+  function testGetInformation_nonbreakingspaces() {
+    $this->processpdf->getInformation("../fixtures/kramer_sample.html");
+    $fields = $this->processpdf->fields;
+    $this->assertTrue($fields["distribution_agreement"]);
 
-    $dom->loadXML("<div><p>In presenting&#xA0;this&#xA0;dissertation&#xA0;as&#xA0;a&#xA0;partial&#xA0;fulfillment&#xA0;of&#xA0;the&#xA0;requirements&#xA0;for&#xA0;an advanced&#xA0;degree&#xA0; from&#xA0; Emory&#xA0; University,&#xA0; I&#xA0; hereby&#xA0;grant&#xA0; to&#xA0; Emory&#xA0; University non-&#xA0;exclusive&#xA0; license</p></div>");
-
-    $this->processpdf->process_page($dom);
-    $this->assertTrue($this->processpdf->fields["distribution_agreement"], "distribution agreement with non-breaking spaces found by distribution agreement text");    
-
-    // old version of agreement text
-    $dom->loadXML("<div><p><b>Circulation&#xA0;Agreement&#xA0;</b></p></div>");
-    $this->processpdf->process_page($dom);
-    $this->assertTrue($this->processpdf->fields["distribution_agreement"], "distribution agreement with non-breaking spaces found by 'circulation agreement' label");
-
-    $dom->loadXML("<div><p><b>available&#xA0; for&#xA0;inspection&#xA0;and&#xA0; circuliation</b></p></div>");
-    $this->processpdf->process_page($dom);
-    $this->assertTrue($this->processpdf->fields["distribution_agreement"], "distribution agreement with non-breaking spaces found by old circulation agreement text");
-
+    // NOTE: removed tests for non-breaking spaces in process_page because they are now handled by tidy
   }
-
-
   
   
 }
