@@ -280,7 +280,7 @@ class TestEtdMods extends UnitTestCase {
 
   }
 
-  function testSetCommitteeById() {
+  function NOtestSetCommitteeById() {
     $errlevel = error_reporting(E_ALL ^ E_NOTICE);
     
     $this->mods->setCommittee(array("mhalber"), "chair"); // NOTE: testing against real ESD, so data could change...
@@ -386,8 +386,41 @@ class TestEtdMods extends UnitTestCase {
       $this->mods->setMarcGenre();
       $this->assertNoPattern('|<mods:genre authority="marc">.*<mods:genre authority="marc">|',
             $this->mods->saveXML(), "only one marc genre present in xml");
+  }
 
+  function testSetRecordIdentifier() {
+      $this->mods->setRecordIdentifier("id123");
+      $this->assertTrue(isset($this->mods->recordInfo), "recordInfo is set");
+      $this->assertTrue(isset($this->mods->recordInfo->identifier), "recordInfo/identifier is set");
+      $this->assertEqual("id123", $this->mods->recordInfo->identifier);
+      $this->assertPattern("|<mods:recordInfo>.*<mods:recordIdentifier>id123</mods:recordIdentifier>|",
+          $this->mods->saveXML());
 
+      // set again
+      $this->mods->setRecordIdentifier("id454");
+      $this->assertEqual("id454", $this->mods->recordInfo->identifier);
+      $this->assertNoPattern("|<mods:recordIdentifier>.*<mods:recordIdentifier>|",
+          $this->mods->saveXML(), "mods:recordIdentifier only appears once in xml");
+
+  }
+
+  function testCleanIdentifiers() {
+      $this->mods->cleanIdentifiers();
+      $this->assertTrue(isset($this->mods->identifier), "mods identifier is set");
+      $this->assertPattern("|^http://[a-z.]+/ark:/[0-9]+/[a-z0-9]+|", $this->mods->identifier,
+        "identifier is resolvable ark uri");
+      $this->assertPattern("|^ark:/[0-9]+/[a-z0-9]+|", $this->mods->ark,
+        "ark identifier is non-resolvable short-form ark");
+      $this->assertPattern('|<mods:identifier type="uri">http|', $this->mods->saveXML());
+
+      // running cleanIdentifiers on an already-clean record should not break anything
+      $ark = $this->mods->ark;
+      $uri = $this->mods->identifier;
+      $this->mods->cleanIdentifiers();
+      $this->assertEqual($ark, $this->mods->ark, "already cleaned ark is unchanged");
+      $this->assertEqual($uri, $this->mods->identifier, "already cleaned identifier is unchanged");
+      $this->assertNoPattern('|<mods:identifier type="uri">.*<mods:identifier type="uri"|',
+          $this->mods->saveXML(), "uri identifier only present once in xml");
   }
 
 }

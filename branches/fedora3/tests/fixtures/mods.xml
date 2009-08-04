@@ -51,10 +51,10 @@
   <mods:subject authority="keyword">
     <mods:topic>cheese</mods:topic>
   </mods:subject>
-  <mods:identifier type="ark"/>
+  <mods:identifier type="ark">http://pid.emory.edu/ark:/25593/197vt</mods:identifier>
   <mods:physicalDescription>
     <mods:extent/>
-  </mods:physicalDescription>
+  </mods:physicalDescription>  
   <mods:accessCondition type="useAndReproduction"/>
   <mods:accessCondition type="useAndReproduction"/>
   <mods:language>
