@@ -81,11 +81,11 @@ $tester->ok();
 
 // ESD
 $tester->load_xmlconfig($config_dir . "esd.xml", $env_mode);
-$tester->check_notblank(array("adapter",
-			      "params" => array("username", "password",
-						"host", "port", "dbname")
+$tester->check_notblank(array("adapter", "dbSchema",
+			      "params" => array("username", "password", "dbname")
 			      )
 			);
+$tester->check_recommended("apater", "Oracle");
 // fixme: try to initialize esd & check connection? how to test?
 $tester->ok();
 

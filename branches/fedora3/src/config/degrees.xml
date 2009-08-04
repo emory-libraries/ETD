@@ -10,5 +10,6 @@
   <level name="bachelors" genre="Honors Thesis">
     <degree name="BA"/>
     <degree name="BS"/>
+    <degree name="BBA"/>
   </level>
 </degrees>

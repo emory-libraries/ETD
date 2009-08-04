@@ -14,7 +14,8 @@ class ManageControllerTest extends ControllerTestCase {
   private $fedora;
 
   function setUp() {
-    $this->test_user = new esdPerson();
+    $ep = new esdPerson();
+    $this->test_user = $ep->getTestPerson();
     $this->test_user->role = "admin";
     $this->test_user->netid = "test_user";
     Zend_Registry::set('current_user', $this->test_user);
@@ -420,7 +421,7 @@ class ManageControllerTest extends ControllerTestCase {
     // grad admin - phds and masters only
     $this->test_user->role = "grad admin";
     $filter = $ManageController->testGetAdminFilter();
-    $this->assertPattern("/PHD/", $filter);
+    $this->assertPattern("/PhD/", $filter);	
     $this->assertPattern("/M[AS]/", $filter);
     $this->assertNoPattern("/B[AS]/", $filter);
 

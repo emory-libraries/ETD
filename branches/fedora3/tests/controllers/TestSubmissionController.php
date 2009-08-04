@@ -16,10 +16,11 @@ class SubmissionControllerTest extends ControllerTestCase {
   private $fedora;
   
   function setUp() {
-    $this->test_user = new esdPerson();
+    $ep = new esdPerson();
+    $this->test_user = $ep->getTestPerson();
     $this->test_user->role = "student";
     $this->test_user->netid = "author";
-    $this->test_user->name = "Author";
+    $this->test_user->firstname = "Author";
     $this->test_user->lastname = "Jones";
 
     Zend_Registry::set('current_user', $this->test_user);
@@ -207,7 +208,7 @@ class SubmissionControllerTest extends ControllerTestCase {
     $this->assertTrue(isset($SubmissionController->view->etd), "etd variable set for review");
   }
 
-  function NOtestSubmitAction() {
+  function testSubmitAction() {
     $errlevel = error_reporting(E_ALL ^ E_NOTICE);
 	
     $this->test_user->role = "student";	// set to non-student

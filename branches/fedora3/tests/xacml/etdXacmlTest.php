@@ -4,7 +4,7 @@ require_once('models/etd.php');
 
 
 /* NOTE: this test depends on having these user accounts defined in the test fedora instance:
-  author, committee, etdadmin, guest
+  author, committee, etdadmin, guest, gradcoord (with attribute deptCoordinator=department)
  - and ETD repository-wide policies must be installed, with unwanted default policies removed
  (and of course xacml must be enabled)
 
@@ -46,6 +46,7 @@ class TestEtdXacml extends UnitTestCase {
     $etd->policy->view->condition->department = "department";
     $etd->policy->addRule("draft");
     $etd->policy->draft->condition->user = "author";
+    if (isset($etd->policy->published)) $etd->policy->removeRule("published");
     $this->pid =  $etd->pid;
     
     try {
@@ -76,7 +77,7 @@ class TestEtdXacml extends UnitTestCase {
     setFedoraAccount("guest");
 
     // test draft etd - guest shouldn't be able to see anything
-    //    $this->expectException(new FoxmlException("Access Denied to {$this->pid}"));
+    //$this->expectException(new FoxmlException("Access Denied to {$this->pid}"));
     $this->expectException(new FedoraAccessDenied("getDatastream for {$this->pid}/RELS-EXT"));
     new etd($this->pid);
 
@@ -186,7 +187,6 @@ class TestEtdXacml extends UnitTestCase {
     $this->assertNull($etd->save("test author permissions - modify RELS-EXT on non-draft etd"));
     $etd->rels_ext->calculateChecksum();
 
-
     $etd->premis->addEvent("test", "testing permissions", "success",
                             array("testid", "author"));    	// PREMIS
     $result = null;
@@ -215,8 +215,6 @@ class TestEtdXacml extends UnitTestCase {
     $this->assertNull($result, "POLICY not updated - timestamp should be null, got '$result'");
     $this->assertIsA($exception, "FedoraAccessDenied");
     $this->assertPattern("/modify datastream.*POLICY/", $exception->getMessage());
-    
-
   }
 
   function testCommitteePermissions() {
@@ -267,8 +265,23 @@ class TestEtdXacml extends UnitTestCase {
     $this->assertPattern("/modify datastream.*MODS/", $exception->getMessage());
     unset($exception);
     $result = null;
+
+    $etd->mods->title = "newer title";    //   MODS
+    // save just the datastream we want to test
+    try {        
+        $result = $this->fedora->modifyXMLDatastream($etd->pid, "MODS",
+						    $etd->mods->datastream_label(),
+						    $etd->mods->saveXML(), "test committee permissions - modify MODS");
+    } catch (Exception $e) {
+        $exception = $e;
+    }
+    $this->assertNull($result, "MODS not updated - timestamp should be null, got '$result'");
+    $this->assertIsA($exception, "FedoraAccessDenied");
+    $this->assertPattern("/modify datastream.*MODS/", $exception->getMessage());
+    unset($exception);
+    $result = null;
     
-    $etd->html->title = "new title";    //   XHTML
+    $etd->html->title = "newest title";    //   XHTML
     try {        
         $result = $this->fedora->modifyXMLDatastream($etd->pid, "XHTML",
 						    $etd->html->datastream_label(),
@@ -281,7 +294,7 @@ class TestEtdXacml extends UnitTestCase {
     $this->assertPattern("/modify datastream.*XHTML/", $exception->getMessage());
     unset($exception);
     $result = null;
-    
+
     $etd->rels_ext->status = "reviewed";    // RELS-EXT    
     try {
         $result = $this->fedora->modifyXMLDatastream($etd->pid, "RELS-EXT",
@@ -297,6 +310,7 @@ class TestEtdXacml extends UnitTestCase {
     //$etd->rels_ext->calculateChecksum();
     unset($exception);
     $result = null;
+
 
     $etd->premis->addEvent("test", "testing permissions", "success",
                             array("testid", "author"));    	// PREMIS
@@ -332,6 +346,8 @@ class TestEtdXacml extends UnitTestCase {
   function  NOtestEtdAdminViewPermissions() {
     // set user account to etd admin
     setFedoraAccount("etdadmin");
+    // update to latest fedora connection with etdadmin credentials
+    $this->fedora = Zend_Registry::get('fedora');
 
     // for etd admin, it shouldn't matter if etd is draft, published, etc.
     $etd = new etd($this->pid);
@@ -434,8 +450,6 @@ class TestEtdXacml extends UnitTestCase {
 
   function testGradCoordinator() {
     setFedoraAccount("gradcoord");
-    $this->expectException(new FedoraNotAuthorized("getObjectProfile for test:etd1"));
-    // FIXME: why are we getting this warning? everything seems to work okay...
     $etd = new etd($this->pid);
 
     $this->assertIsA($etd, "etd");
@@ -446,7 +460,7 @@ class TestEtdXacml extends UnitTestCase {
     // view mods
     $this->assertEqual("Why I Like Cheese", $etd->mods->title);
     // view rels
-    $this->assertEqual("mmouse", $etd->rels_ext->author);
+    $this->assertEqual("author", $etd->rels_ext->author);
     // view dc
     $this->assertEqual("Gouda or Cheddar?", $etd->dc->description);
     // view policy

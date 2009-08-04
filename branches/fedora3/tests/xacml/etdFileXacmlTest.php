@@ -248,7 +248,9 @@ class TestEtdFileXacml extends UnitTestCase {
 
     // for etd admin, it shouldn't matter if etd is draft, published, etc.
     $etdfile = new etd_file($this->pid);
-    // test modify binary file?
+
+    // can modify DC generically on ETD objects
+    // test modifying binary file?
   }
 
   function testEmbargoNotExpired() {

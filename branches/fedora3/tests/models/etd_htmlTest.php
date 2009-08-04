@@ -64,17 +64,18 @@ class TestEtdHtml extends UnitTestCase {
   }
 
   function testRemoveTags() {
-    $this->assertPattern("/^content in divs\s+$/",
+    $this->assertPattern("/^content in divs\s*$/",
 		       etd_html::removeTags("<div>content in divs</div>", true));
     // no top-level wrapping element
     $this->assertPattern("/paragraph 1\s+paragraph 2/",
 		       etd_html::removeTags("<p>paragraph 1</p> <p>paragraph 2</p>", true));
-    $this->assertPattern("/^formatting\s+$/",
+    $this->assertPattern("/^formatting\s*$/",
 		       etd_html::removeTags("<p class='MsoNormal' font-color='black'>formatting</p>", true));
 
     // non-encoded special characters should be tidied, not lost
-    $this->assertEqual("Development &#x3C6;&#x3B3;&#x3C5; &#x3BB;&#x3BF;&#x3C6;&#x3B3;&#x3B2;",
-		       etd_html::removeTags("Development &phi;&gamma;&upsilon; &lambda;&omicron;&phi;&gamma;&beta;"));
+    // checking for unicode OR character entity, using utf-8 mode
+    $this->assertPattern("/Development (\x{03c6}|&#x3C6;)(\x{03b3}|&#x3B3;)(\x{03c5}|&#x3C5;) (\x{03bb}|&#x3BB;)(\x{03bf}|&#x3BF;)(\x{03c6}|&#x3C6;)(\x{03b3}|&#x3B3;)(\x{03b2}|&#x3B2;)/u",
+			 etd_html::removeTags("Development &phi;&gamma;&upsilon; &lambda;&omicron;&phi;&gamma;&beta;"), "html-style entities converted to unicode");
 
     // ampersand
     $this->assertEqual("Masquerading Politics: Power &amp; Transformation",
@@ -144,11 +145,13 @@ class TestEtdHtml extends UnitTestCase {
 
     // losing Greek characters
     $this->etd_html->abstract = 'character &beta; mid-sentence';
-    $this->assertEqual('character &#x3B2; mid-sentence', $this->etd_html->abstract);
+    $this->assertPattern('/character (\x{03b2}|&#x3B2;) mid-sentence/u', $this->etd_html->abstract,
+			 "mid-sentence named character entity converted to unicode");
 
     // named entities can't be saved - should be converted to numeric
     $this->etd_html->abstract = 'named entity &eacute; character';
-    $this->assertEqual('named entity &#xE9; character', $this->etd_html->abstract);
+    $this->assertPattern('/named entity (\x{00e9}|&#xE9;) character/u', $this->etd_html->abstract,
+			 "named character entity converted to unicode");
 
     
     // indentation getting stripped out
@@ -180,7 +183,9 @@ class TestEtdHtml extends UnitTestCase {
 
   public function testSetContentsWithWhitespace() {
     $this->etd_html->setContentsWithWhitespace("Here is some text &nbsp;&nbsp; and some more");
-    $this->assertEqual("Here is some text &#xA0;&#xA0; and some more", $this->etd_html->contents);
+    $this->assertPattern("/Here is some text (\x{00a0}|&#xA0;)(\x{00a0}|&#xA0;) and some more/u",
+			 $this->etd_html->contents,
+			 "non-breaking spaces converted to unicode");
   }
   
 }

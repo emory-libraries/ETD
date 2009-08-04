@@ -13,14 +13,17 @@ class ProgramControllerTest extends ControllerTestCase {
 
   private $test_user;
   function setUp() {
-    $this->test_user = new esdPerson();
+    $ep = new esdPerson();
+    $this->test_user = $ep->getTestPerson();
     $this->test_user->role = "superuser";
     Zend_Registry::set('current_user', $this->test_user);
     
     $this->response = $this->makeResponse();
     $this->request  = $this->makeRequest();
   }
-  function tearDown() {}
+  function tearDown() {
+    Zend_Registry::set('current_user', null);
+  }
 
   function testXmlAction() {
     $programController = new ProgramControllerForTest($this->request,$this->response);

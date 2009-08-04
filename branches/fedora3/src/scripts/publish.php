@@ -41,7 +41,7 @@ require_once("bootstrap.php");
 
 require_once("models/ProQuestSubmission.php");
 require_once("models/EtdFactory.php");
-$proquest = new Zend_Config_Xml("../config/proquest.xml", $env_config->mode);
+$proquest = new Zend_Config_Xml($config_dir . "proquest.xml", $env_config->mode);
 
 $getopts = array_merge(
 array(
@@ -187,10 +187,19 @@ if ($do_all || $opts->orphan) 		find_orphans();
  * @return array of approved etd objects belonging to graduates found in the feed
  */
 function get_graduate_etds($filename, $refdate = null) {
-  global $opts, $logger;
+  global $opts, $logger, $config_dir;
+  $degrees = simplexml_load_file($config_dir . "degrees.xml");
 
   // degrees for which we should expect an ETD
-  $etd_degrees = array("PHD", "MA", "MS", "BA", "BS");
+  $etd_degrees = array();
+  // build list of degrees from degree config file
+  foreach ($degrees->level as $degree_level) {
+    if (! isset($degree_level["genre"])) continue;	// skip place-holder in degree file
+    foreach ($degree_level->degree as $dg) {
+      // degrees in Registrar feed are all upper case
+      $etd_degrees[] = strtoupper($dg["name"]);
+    }
+  }
 
   // field order in registrar feed
   $netid 		=  0;

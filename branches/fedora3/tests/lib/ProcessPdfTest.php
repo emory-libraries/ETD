@@ -266,7 +266,13 @@ tion in whole or in <br/> ...</div>");
     $this->assertTrue($this->processpdf->fields["distribution_agreement"]);
   }
 
+  function testGetInformation_nonbreakingspaces() {
+    $this->processpdf->getInformation("../fixtures/kramer_sample.html");
+    $fields = $this->processpdf->fields;
+    $this->assertTrue($fields["distribution_agreement"]);
 
+    // NOTE: removed tests for non-breaking spaces in process_page because they are now handled by tidy
+  }
   
   
 }

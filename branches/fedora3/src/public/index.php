@@ -64,6 +64,7 @@ try {
 
 // create DB object for access to Emory Shared Data
 $esdconfig = new Zend_Config_Xml($config_dir . 'esd.xml', $env_config->mode);
+Zend_Registry::set('esd-config', $esdconfig);
 $esd = Zend_Db::factory($esdconfig);
 Zend_Registry::set('esd-db', $esd);
 Zend_Db_Table_Abstract::setDefaultAdapter($esd);
