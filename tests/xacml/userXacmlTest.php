@@ -99,12 +99,7 @@ class TestUserXacml extends UnitTestCase {
     $this->assertIsA($user->dc, "dublin_core");
     $this->assertIsA($user->mads, "mads");
 
-    // should NOT be able to modify these datastreams
-    $user->dc->title = "new title";    	//   DC
-    $this->expectError("Access Denied to modify datastream DC");
-    $this->assertNull($user->save("test owner permissions - modify DC"));
-    $user->dc->calculateChecksum();	// mark as unmodified
-    
+    // should NOT be able to modify MADS
     $user->mads->netid = "username";
     $this->expectError("Access Denied to modify datastream MADS");
     $this->assertNull($user->save("test owner permissions - modify MADS"));

@@ -4,7 +4,7 @@ Options -MultiViews
 
 RewriteEngine on
 #edit this url path to point to your project relative to the webroot
-RewriteBase /~rsutton/etd-rc1.1/src/public/
+RewriteBase /~rsutton/etd-trunk/src/public/
 
 #RewriteRule !\.(js|ico|gif|jpg|png|css)$ index.php 
 

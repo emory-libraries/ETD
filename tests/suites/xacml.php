@@ -13,6 +13,7 @@ class XacmlGroupTest extends GroupTest {
     $this->addTestFile('xacml/etdXacmlTest.php');
     $this->addTestFile('xacml/userXacmlTest.php');
     $this->addTestFile('xacml/etdFileXacmlTest.php');
+    $this->addTestFile('xacml/programXacmlTest.php');
   }
 }
 

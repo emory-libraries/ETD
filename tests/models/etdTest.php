@@ -2,9 +2,11 @@
 require_once("../bootstrap.php");
 require_once('models/etd.php');
 require_once('models/esdPerson.php');
+require_once("fixtures/esd_data.php");
 
 class TestEtd extends UnitTestCase {
     private $etd;
+    private $person;
 
   function setUp() {
     $fname = '../fixtures/etd1.xml';
@@ -15,9 +17,15 @@ class TestEtd extends UnitTestCase {
     $this->etd->policy->addRule("view");
     $this->etd->policy->addRule("draft");
 
+    $person = new esdPerson();
+    $this->person = $person->getTestPerson();
+
+    $this->data = new esd_test_data();
+    $this->data->loadAll();
   }
   
   function tearDown() {
+    $this->data->cleanUp();
   }
   
   function testBasicProperties() {
@@ -82,29 +90,27 @@ class TestEtd extends UnitTestCase {
   }
 
   function testGetUserRole() {
-    $person = new esdPerson();
-
     // netid matches the author rel in rels-ext 
-    $person->netid = "mmouse";
-    $this->assertEqual("author", $this->etd->getUserRole($person));
+    $this->person->netid = "mmouse";
+    $this->assertEqual("author", $this->etd->getUserRole($this->person));
     // netid matches one of the committee rels 
-    $person->netid = "dduck";
-    $this->assertEqual("committee", $this->etd->getUserRole($person));
+    $this->person->netid = "dduck";
+    $this->assertEqual("committee", $this->etd->getUserRole($this->person));
 
     // department matches author's department & user is staff
-    $person->netid = "someuser";
-    $person->grad_coord = "Disney";
-    $this->assertEqual("program coordinator", $this->etd->getUserRole($person));
+    $this->person->netid = "someuser";
+    $this->person->grad_coord = "Disney";
+    $this->assertEqual("program coordinator", $this->etd->getUserRole($this->person));
 
     // grad coordinator field not set
-    $person->role = "student";
-    $person->grad_coord = null;
-    $this->assertNotEqual("program coordinator", $this->etd->getUserRole($person));
+    $this->person->role = "student";
+    $this->person->grad_coord = null;
+    $this->assertNotEqual("program coordinator", $this->etd->getUserRole($this->person));
     
     // nothing matches - user's base role should be returned
-    $person->department = "Warner Brothers";
-    $person->role = "default role";
-    $this->assertEqual("default role", $this->etd->getUserRole($person));
+    $this->person->department = "Warner Brothers";
+    $this->person->role = "default role";
+    $this->assertEqual("default role", $this->etd->getUserRole($this->person));
 
   }
 
@@ -212,25 +218,23 @@ class TestEtd extends UnitTestCase {
     $this->etd->addSupplement($etdfile);
 
     
-    // NOTE: if this netid goes out of ESD, this test will fail
-    $this->etd->setCommittee(array("mhalber"), "chair");
+    $this->etd->setCommittee(array("mthink"), "chair");
     // should be set in mods, rels-ext, and in view policy rule
-    $this->assertEqual("mhalber", $this->etd->mods->chair[0]->id);
-    $this->assertEqual("Halbert", $this->etd->mods->chair[0]->last);
-    $this->assertEqual("mhalber", $this->etd->rels_ext->committee[0]);
-    $this->assertTrue($this->etd->policy->view->condition->users->includes("mhalber"));
-    $this->assertTrue($this->etd->supplements[0]->policy->view->condition->users->includes("mhalber"));
+    $this->assertEqual("mthink", $this->etd->mods->chair[0]->id);
+    $this->assertEqual("Thinker", $this->etd->mods->chair[0]->last);
+    $this->assertEqual("mthink", $this->etd->rels_ext->committee[0]);
+    $this->assertTrue($this->etd->policy->view->condition->users->includes("mthink"));
+    $this->assertTrue($this->etd->supplements[0]->policy->view->condition->users->includes("mthink"));
 
-
-    $this->etd->setCommittee(array("ahickco", "jfenton"));
-    $this->assertEqual("ahickco", $this->etd->mods->committee[0]->id);
-    $this->assertEqual("jfenton", $this->etd->mods->committee[1]->id);
-    $this->assertEqual("ahickco", $this->etd->rels_ext->committee[0]);
-    $this->assertEqual("jfenton", $this->etd->rels_ext->committee[1]);
-    $this->assertTrue($this->etd->policy->view->condition->users->includes("ahickco"));
-    $this->assertTrue($this->etd->policy->view->condition->users->includes("jfenton"));
-    $this->assertTrue($this->etd->supplements[0]->policy->view->condition->users->includes("ahickco"));
-    $this->assertTrue($this->etd->supplements[0]->policy->view->condition->users->includes("jfenton"));
+    $this->etd->setCommittee(array("engrbs", "bschola"));
+    $this->assertEqual("engrbs", $this->etd->mods->committee[0]->id);
+    $this->assertEqual("bschola", $this->etd->mods->committee[1]->id);
+    $this->assertEqual("engrbs", $this->etd->rels_ext->committee[0]);
+    $this->assertEqual("bschola", $this->etd->rels_ext->committee[1]);
+    $this->assertTrue($this->etd->policy->view->condition->users->includes("engrbs"));
+    $this->assertTrue($this->etd->policy->view->condition->users->includes("bschola"));
+    $this->assertTrue($this->etd->supplements[0]->policy->view->condition->users->includes("engrbs"));
+    $this->assertTrue($this->etd->supplements[0]->policy->view->condition->users->includes("bschola"));
 
     error_reporting($errlevel);	    // restore prior error reporting
   }
