@@ -1,0 +1,7 @@
+<? if (isset($this->current_user) && $this->current_user->hasUnpublishedEtd()): ?>
+  <? $user_etds = $this->current_user->getEtds(); ?>
+<p class="notice">
+    Your submission, <a href="<?= $this->url(array("controller" => "view",
+	"action" => "record", "pid" => $user_etds[0]->pid)) ?>"><b><?= $user_etds[0]->title(); ?></b></a>,
+    is currently in <b><?= $user_etds[0]->status() ?></b> status.
+<? endif ?>       
