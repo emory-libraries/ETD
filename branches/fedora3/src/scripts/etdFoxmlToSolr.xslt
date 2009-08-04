@@ -79,7 +79,7 @@
     <xsl:comment> MODS descriptive metadata</xsl:comment> 
     
     <xsl:apply-templates select="mods:titleInfo"/>
-    <xsl:apply-templates select="mods:genre"/>
+    <xsl:apply-templates select="mods:genre[@type='aat']"/>
     <xsl:apply-templates select="mods:name[@type='personal']"/>
     <xsl:apply-templates select="mods:language"/>
     <xsl:apply-templates select="mods:subject"/>
@@ -105,6 +105,8 @@
     <field name="document_type"><xsl:value-of select="text()"/></field>
   </xsl:template>
 
+  <!-- ignore originInfo issuance -->
+  <xsl:template match="mods:originInfo/issuance" />
   
   <!-- date fields -->
   <xsl:template match="mods:originInfo/*">

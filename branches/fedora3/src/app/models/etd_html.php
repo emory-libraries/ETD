@@ -175,8 +175,8 @@ class etd_html extends foxmlDatastreamAbstract {
     $dom = new DOMDocument();
     $string = etd_html::cleanEntities($string);
     $dom->loadXML("<div>" . $string . "</div>");
-    // return the text content of this node and all its children, without node tags
-    return etd_html::getContentText($dom->documentElement);
+    // return the text content of this node and all its children, without node tags, cleaning up whitespace
+    return trim(etd_html::getContentText($dom->documentElement));
   }
 
 

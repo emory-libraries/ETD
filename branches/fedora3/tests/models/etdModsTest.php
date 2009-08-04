@@ -280,6 +280,7 @@ class TestEtdMods extends UnitTestCase {
 
   }
 
+  // disabled until the oci8 migration gets into this branch
   function NOtestSetCommitteeById() {
     $errlevel = error_reporting(E_ALL ^ E_NOTICE);
     

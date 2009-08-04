@@ -176,11 +176,8 @@ class etd extends foxml implements etdInterface {
   public function setOAIidentifier() {
     if (!isset($this->mods->ark) || $this->mods->ark == "")
         throw new Exception("Cannot set OAI identifier without ARK.");
-    // use persis to parse the ark into its components
-    $persis = new Emory_Service_Persis(Zend_Registry::get('persis-config'));
-    list($nma, $naan, $noid) = $persis->parseArk($this->mods->ark);
-    // set OAI id based on ark
-    $this->rels_ext->setOAIidentifier("oai:ark:/" . $naan . "/" . $noid);
+    // set OAI id based on short-form ark
+    $this->rels_ext->setOAIidentifier("oai:" . $this->mods->ark);
     unset($persis);
   }
 
@@ -352,8 +349,8 @@ class etd extends foxml implements etdInterface {
     $subjects = array_merge($this->researchfields(), $this->keywords());
     $this->dc->setSubjects($subjects);
 
-    // ark for this object
-    if (isset($this->mods->ark)) $this->dc->setArk($this->mods->ark);
+    // ark (resolvable form) for this object
+    if (isset($this->mods->identifier)) $this->dc->setArk($this->mods->identifier);
 
     // related objects : arks for public etd files (pdfs and supplements)
     $relations = array();
@@ -372,21 +369,18 @@ class etd extends foxml implements etdInterface {
   // handle special values
   public function __set($name, $value) {
     switch ($name) {
-
     case "pid":
       if (isset($this->premis)) {
-	// store pid in premis object; used for basis of event identifiers
-	$this->premis->object->identifier->value = $value;
-      }
-
-      
+    	// store pid in premis object; used for basis of event identifiers
+    	$this->premis->object->identifier->value = $value;
+      }      
       // base foxml class also stores pid value in multiple places
       parent::__set($name, $value);
       break;
     case "owner":
       // add author's username to the appropriate rules
       if (isset($this->policy) && isset($this->policy->draft))
-	$this->policy->draft->condition->user = $value;
+        $this->policy->draft->condition->user = $value;
 
       // store author's username in rels-ext as author
       if (isset($this->rels_ext)) {
@@ -549,11 +543,14 @@ class etd extends foxml implements etdInterface {
     // FIXME: use view/controller to build this url?
     $ark = $persis->generateArk("http://etd.library.emory.edu/view/record/pid/emory:{%PID%}", $this->label);
     $pid = $persis->pidfromArk($ark);
-
-    // FIXME: error handling? make sure pid is successfully generated?
+    list($nma, $naan, $noid) = $persis->parseArk($ark);
 
     $this->pid = $pid;
-    $this->mods->ark = $ark;
+    // resolvable uri ark is identifier and primary display
+    $this->mods->identifier = $ark;
+    $this->mods->location->primary = $ark;
+    // also store short-form ark
+    $this->mods->ark = "ark:/" . $naan . "/" . $noid;
 
     return $this->fedora->ingest($this->saveXML(), $message);
   }
@@ -746,7 +743,7 @@ class etd extends foxml implements etdInterface {
   }
 
   public function ark() {
-    return $this->mods->ark;
+    return $this->mods->identifier;     // want the resolvable version of the ark
   }
 
 

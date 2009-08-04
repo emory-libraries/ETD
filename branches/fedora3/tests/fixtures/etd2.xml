@@ -53,7 +53,8 @@
 	    <mods:extent>203 p.</mods:extent>
 	  </mods:physicalDescription>
 	  <mods:genre authority="aat">Dissertation</mods:genre>
-	  <mods:identifier type="ark">http://purl.bogus.com/ark:123/etd2</mods:identifier>
+	  <mods:identifier type="ark">ark:/123/etd2</mods:identifier>
+      <mods:identifier type="uri">http://purl.bogus.com/ark:/123/etd2</mods:identifier>
 	  <mods:accessCondition type="restrictionOnAccess">Embargoed for 0 days</mods:accessCondition>
 	  <mods:language>
 	    <mods:languageTerm authority="iso639-2b" type="text">English</mods:languageTerm>
