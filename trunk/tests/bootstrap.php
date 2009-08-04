@@ -10,8 +10,8 @@ require_once("api/FedoraConnection.php");
 
 require_once('simpletest/unit_tester.php');
 require_once('simpletest/reporter.php');
+require_once('simpletest/xmltime.php');
 include_once("MockObjects.php");
-
 
 $mode = "test";
 $env = new Zend_Config(array('mode' => $mode));
@@ -26,6 +26,7 @@ Zend_Registry::set("config-dir", $config_dir);
 // needed for notifier
 $config = new Zend_Config_Xml($config_dir . "config.xml", $mode);
 Zend_Registry::set('config', $config);
+touch($config->logfile);	// make sure logfile exists	  
 
 $fedora_cfg = new Zend_Config_Xml($config_dir . "fedora.xml", $mode);
 Zend_Registry::set('fedora-config', $fedora_cfg);
@@ -38,6 +39,7 @@ Zend_Registry::set('fedora', $fedora);
 $esdconfig = new Zend_Config_Xml($config_dir . 'esd.xml', $mode);
 $esd = Zend_Db::factory($esdconfig->adapter, $esdconfig->params->toArray());
 Zend_Registry::set('esd-db', $esd);
+Zend_Registry::set('esd-config', $esdconfig);
 Zend_Db_Table_Abstract::setDefaultAdapter($esd);
 
 // set up access controls
@@ -76,14 +78,12 @@ $viewRenderer->initView();
 $viewRenderer->view->addHelperPath('Emory/View/Helper', 'Emory_View_Helper');
 
 
-
 // set up minimal logging but suppress most of the output
 $writer = new Zend_Log_Writer_Stream("php://output");
 $logger = new Zend_Log($writer);
 $filter = new Zend_Log_Filter_Priority(Zend_Log::CRIT);
 $logger->addFilter($filter);
 Zend_Registry::set('logger', $logger);
-
 
 // required when running through the web - zend complains without this
 if (!isset($argv)) Zend_Session::start();
@@ -110,8 +110,5 @@ function setFedoraAccount($user) {
   // note: needs to be in registry because this is what the etd object will use
   Zend_Registry::set('fedora', $fedora);
 }
-
-
-
 
 ?>

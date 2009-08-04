@@ -22,10 +22,11 @@ class FileControllerTest extends ControllerTestCase {
     $this->response = $this->makeResponse();
     $this->request  = $this->makeRequest();
 
-    $this->test_user = new esdPerson();
+    $ep = new esdPerson();
+    $this->test_user = $ep->getTestPerson();
     $this->test_user->role = "author";		// slight hack - test without etd roles logic
     $this->test_user->netid = "author";
-    $this->test_user->name = "Author";
+    $this->test_user->firstname = "Author";
     $this->test_user->lastname = "Jones";
     Zend_Registry::set('current_user', $this->test_user);
 

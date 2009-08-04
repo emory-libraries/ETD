@@ -240,20 +240,15 @@ class TestEtdFileXacml extends UnitTestCase {
 
   }
   
-  function testEtdAdminCannotModify() {
+  function IGNORE_testEtdAdminCannotModify() {
     // set user account to etd admin
     setFedoraAccount("etdadmin");
 
     // for etd admin, it shouldn't matter if etd is draft, published, etc.
     $etdfile = new etd_file($this->pid);
 
-    // should not be able to modify main record metadata
-    $etdfile->dc->title = "new title";	  //   DC
-    $this->expectError("Access Denied to modify datastream DC");
-    $this->assertNull($etdfile->save("test etdadmin permissions - modify DC"), "etdadmin cannot modify DC");
-    $etdfile->dc->calculateChecksum();
-
-    // test modify binary file?
+    // can modify DC generically on ETD objects
+    // test modifying binary file?
   }
 
   function testEmbargoNotExpired() {

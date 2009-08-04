@@ -6,17 +6,20 @@ FCKConfig.JustifyClasses = [ 'JustifyLeft', 'JustifyCenter', 'JustifyRight', 'Ju
 
 // load universal key tool for alternate language input
 FCKConfig.Plugins.Add('universalkey');
+// better universal keyboard with more languages
+FCKConfig.Plugins.Add('Jsvk');
+
 
 FCKConfig.ToolbarSets["etd-title"] = [
       ['Bold','Italic','Underline','-','Subscript','Superscript','-','Link','Unlink',
-       '-', 'SpecialChar', 'UniversalKey', 
+       '-', 'SpecialChar', 'UniversalKey', 'Jsvk',
        '-', 'Paste', 'PasteText', 'PasteWord',
        '-', 'SpellCheck', 'About']
 ];
 
 FCKConfig.ToolbarSets["etd"] = [
 	['Bold','Italic','Underline','-','Subscript','Superscript','-','Link','Unlink',
-	 '-', 'SpecialChar', 'UniversalKey', 
+	 '-', 'SpecialChar', 'UniversalKey', 'Jsvk',
 	 '-', 'Paste', 'PasteText', 'PasteWord',
 	 '-', 'SpellCheck', 'About'],
 	  '/',
@@ -25,7 +28,7 @@ FCKConfig.ToolbarSets["etd"] = [
 /* same as etd + view source */
 FCKConfig.ToolbarSets["etd-admin"] = [
 	['Bold','Italic','Underline','-','Subscript','Superscript','-','Link','Unlink',
-	 '-', 'SpecialChar', 'UniversalKey',
+	 '-', 'SpecialChar', 'UniversalKey','Jsvk',
 	 '-', 'Paste', 'PasteText', 'PasteWord',
 	 '-', 'SpellCheck', 'About', '-', 'Source'],
 	  '/',

@@ -10,7 +10,8 @@ class UserControllerTest extends ControllerTestCase {
   private $mock_user;
     
   function setUp() {
-    $this->test_user = new esdPerson();
+    $ep = new esdPerson();
+    $this->test_user = $ep->getTestPerson();
     Zend_Registry::set('current_user', $this->test_user);
     
     $this->response = $this->makeResponse();
@@ -104,6 +105,7 @@ class UserControllerTest extends ControllerTestCase {
     // new mads template
     $this->test_user->role = "student with submission";
     $this->test_user->netid = "jsmith";
+    $this->test_user->address = null;
     $userController->madsAction();	// no pid = create new record
     $view = $userController->view;
     $this->assertIsA($view->user, "user");

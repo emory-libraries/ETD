@@ -15,7 +15,8 @@ class BrowseControllerTest extends ControllerTestCase {
     $this->response = $this->makeResponse();
     $this->request  = $this->makeRequest();
 
-    $this->test_user = new esdPerson();
+    $person = new esdPerson();
+    $this->test_user = $person->getTestPerson();
     $this->test_user->role = "student";
     $this->test_user->netid = "test_user";
     Zend_Registry::set('current_user', $this->test_user);

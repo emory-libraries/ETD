@@ -83,9 +83,10 @@ class TestEtdFile extends UnitTestCase {
 
     $etd = new etd();
     $etdfile = new etd_file(null, $etd);
-    $author = new esdPerson();
+    $person = new esdPerson();
+    $author = $person->getTestPerson();
     $author->netid = 'jsmith';
-    $author->name = "Joe";
+    $author->firstname = "Joe";
     $author->lastname = "Smith";
     $etdfile->initializeFromFile("../fixtures/tinker_sample.pdf", "pdf", $author);
 

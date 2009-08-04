@@ -4,7 +4,7 @@ require_once('models/etd.php');
 
 
 /* NOTE: this test depends on having these user accounts defined in the test fedora instance:
-  author, committee, etdadmin, guest
+  author, committee, etdadmin, guest, gradcoord (with attribute deptCoordinator=department)
  - and ETD repository-wide policies must be installed, with unwanted default policies removed
  (and of course xacml must be enabled)
 
@@ -41,6 +41,7 @@ class TestEtdXacml extends UnitTestCase {
     $etd->policy->view->condition->department = "department";
     $etd->policy->addRule("draft");
     $etd->policy->draft->condition->user = "author";
+    if (isset($etd->policy->published)) $etd->policy->removeRule("published");
     $this->pid =  $etd->pid;
     
     try {
@@ -66,18 +67,18 @@ class TestEtdXacml extends UnitTestCase {
      can't seem to accurately simulate ldap attributes with test account (?)
    */
 
-  function NOtestGuestPermissionsOnUnpublishedETD() {
+  function testGuestPermissionsOnUnpublishedETD() {
     // use guest account to access fedora
     setFedoraAccount("guest");
 
     // test draft etd - guest shouldn't be able to see anything
-    //    $this->expectException(new FoxmlException("Access Denied to {$this->pid}"));
+    //$this->expectException(new FoxmlException("Access Denied to {$this->pid}"));
     $this->expectException(new FedoraAccessDenied("getDatastream for {$this->pid}/RELS-EXT"));
     new etd($this->pid);
 
   }
 
-  function NOtestGuestPermissionsOnPublishedETD() {
+  function testGuestPermissionsOnPublishedETD() {
     // set etd as published using admin account
     setFedoraAccount("fedoraAdmin");	// NOTE: wasn't working as etdadmin for some reason (but no error...)
     $etd = new etd($this->pid);
@@ -99,7 +100,7 @@ class TestEtdXacml extends UnitTestCase {
   }
 
  
-  function NOtestAuthorPermissions() {
+  function testAuthorPermissions() {
     // set user account to author
     setFedoraAccount("author");
 
@@ -150,28 +151,22 @@ class TestEtdXacml extends UnitTestCase {
     $this->assertNull($etd->save("test author permissions - modify RELS-EXT on non-draft etd"));
     $etd->rels_ext->calculateChecksum();
 
-    /*
-
-    FIXME: there is something weird about these two: get an error
-    about attempting to modify DC and expecting it doesn't catch it properly
-    $etd->premis->addEvent("test", "testing permissions", "success",
-    array("testid", "author"));    	// PREMIS
+    $etd->premis->addEvent("test", "testing permissions", "success", 
+			   array("testid", "author"));    	// PREMIS
     $this->expectError("Access Denied to modify datastream PREMIS");
     $this->assertNull($etd->save("test author permissions - modify PREMIS on non-draft etd"));
-    print "\n<br/><b>DEBUG:</b> end modifying premis<br/>\n";
-    
+    $etd->premis->calculateChecksum();
 
-    //    $etd->policy->removeRule("etdadmin");    // POLICY
     $etd->policy->removeRule("view");    // POLICY
     $this->expectError("Access Denied to modify datastream POLICY"); 
     $this->assertNull($etd->save("test author permissions - modify POLICY on non-draft etd"));
-    */    
-
   }
 
-  function NOtestCommitteePermissions() {
+  function testCommitteePermissions() {
     // set user account to committee
     setFedoraAccount("committee");
+    // update to latest fedora connection with committee credentials
+    $this->fedora = Zend_Registry::get('fedora');
 
     // for committee member, it shouldn't matter if etd is draft, published, etc.
     $etd = new etd($this->pid);
@@ -187,38 +182,89 @@ class TestEtdXacml extends UnitTestCase {
 
     /* committee should not have access to change any datastreams */
     $etd->dc->title = "new title";	  //   DC
-    $this->expectError("Access Denied to modify datastream DC");
-    $this->assertNull($etd->save("test committee permissions - modify DC"));
-    $etd->dc->calculateChecksum();  // set as not modified so it won't attempt to save again
-    
-    $etd->mods->title = "new title";    //   MODS
-    $this->expectError("Access Denied to modify datastream MODS");
-    $this->assertNull($etd->save("test committee permissions - modify MODS"));
-    $etd->mods->calculateChecksum();  // set as not modified so it won't attempt to save again
+    $result = null;
+    try {
+      $result = $this->fedora->modifyXMLDatastream($etd->pid, "DC",
+                                $etd->dc->datastream_label(),
+                                $etd->dc->saveXML(), "test committee permissions - modify DC");
+    } catch (Exception $e) {
+        $exception = $e;
+    }
+    $this->assertNull($result, "DC not updated - timestamp should be null, got '$result'");
+    $this->assertIsA($exception, "FedoraAccessDenied");
+    $this->assertPattern("/modify datastream.*DC/", $exception->getMessage());
+    unset($exception);
+    $result = null;
 
+    $etd->mods->title = "newer title";    //   MODS
+    // save just the datastream we want to test
+    try {        
+        $result = $this->fedora->modifyXMLDatastream($etd->pid, "MODS",
+						    $etd->mods->datastream_label(),
+						    $etd->mods->saveXML(), "test committee permissions - modify MODS");
+    } catch (Exception $e) {
+        $exception = $e;
+    }
+    $this->assertNull($result, "MODS not updated - timestamp should be null, got '$result'");
+    $this->assertIsA($exception, "FedoraAccessDenied");
+    $this->assertPattern("/modify datastream.*MODS/", $exception->getMessage());
+    unset($exception);
+    $result = null;
     
-    $etd->html->title = "new title";    //   XHTML
-    $this->expectError("Access Denied to modify datastream XHTML");
-    $this->assertNull($etd->save("test committee permissions - modify XHTML"));
-    $etd->html->calculateChecksum();
+    $etd->html->title = "newest title";    //   XHTML
+    try {        
+        $result = $this->fedora->modifyXMLDatastream($etd->pid, "XHTML",
+						    $etd->html->datastream_label(),
+						    $etd->html->saveXML(), "test committee permissions - modify XHTML");
+    } catch (Exception $e) {
+        $exception = $e;        
+    }
+    $this->assertNull($result, "XHTML not updated - timestamp should be null, got '$result'");
+    $this->assertIsA($exception, "FedoraAccessDenied");
+    $this->assertPattern("/modify datastream.*XHTML/", $exception->getMessage());
+    unset($exception);
+    $result = null;
     
     $etd->rels_ext->status = "reviewed";    // RELS-EXT
-    $this->expectError("Access Denied to modify datastream RELS-EXT");
-    $this->assertNull($etd->save("test committee permissions - modify RELS-EXT"));
-    $etd->rels_ext->calculateChecksum();
+    try {
+      $result = $this->fedora->modifyXMLDatastream($etd->pid, "RELS-EXT",
+						   $etd->rels_ext->datastream_label(),
+						   $etd->rels_ext->saveXML(), "test committee permissions - modify RELS-EXT");
+    } catch (Exception $e) {
+      $exception = $e;
+    }
+    $this->assertNull($result, "RELS-EXT not updated - timestamp should be null, got '$result'");
+    $this->assertIsA($exception, "FedoraAccessDenied");
+    $this->assertPattern("/modify datastream.*RELS-EXT/", $exception->getMessage());
+    unset($exception);
+    $result = null;
+    $etd->premis->addEvent("test", "testing permissions", "success",
+                            array("testid", "author"));    	// PREMIS
+    try {
+        $result = $this->fedora->modifyXMLDatastream($etd->pid, "PREMIS",
+						    $etd->premis->datastream_label(),
+						    $etd->premis->saveXML(), "test committee permissions - modify PREMIS");
+    } catch (Exception $e) {
+        $exception = $e;
+    }
+    $this->assertNull($result, "PREMIS not updated - timestamp should be null, got '$result'");
+    $this->assertIsA($exception, "FedoraAccessDenied");
+    $this->assertPattern("/modify datastream.*PREMIS/", $exception->getMessage());
+    unset($exception);
+    $result = null;
 
-
-    /** these two fail - same weird DC error as for author  
-     $etd->premis->addEvent("test", "testing permissions", "success",
-     array("testid", "author"));    	// PREMIS
-     $this->expectError("Access Denied to modify datastream PREMIS");
-     $this->assertNull($etd->save("test committee permissions - modify PREMIS"));
-     $etd->premis->calculateChecksum();
     
-     $etd->policy->removeRule("etdadmin");    // POLICY
-     $this->expectError("Access Denied to modify datastream POLICY");
-     $this->assertNull($etd->save("test committee permissions - modify POLICY"));
-    */
+    $etd->policy->removeRule("view");    // POLICY
+    try {
+        $result = $this->fedora->modifyXMLDatastream($etd->pid, "POLICY",
+						     $etd->policy->datastream_label(),
+						     $etd->policy->saveXML(), "test committee permissions - modify POLICY");
+    } catch (Exception $e) {
+      $exception = $e;
+    }
+    $this->assertNull($result, "POLICY not updated - timestamp should be null, got '$result'");
+    $this->assertIsA($exception, "FedoraAccessDenied");
+    $this->assertPattern("/modify datastream.*POLICY/", $exception->getMessage());    
   }
 
   
@@ -227,6 +273,8 @@ class TestEtdXacml extends UnitTestCase {
   function  testEtdAdminViewPermissions() {
     // set user account to etd admin
     setFedoraAccount("etdadmin");
+    // update to latest fedora connection with etdadmin credentials
+    $this->fedora = Zend_Registry::get('fedora');
 
     // for etd admin, it shouldn't matter if etd is draft, published, etc.
     $etd = new etd($this->pid);
@@ -240,7 +288,7 @@ class TestEtdXacml extends UnitTestCase {
     $this->assertIsA($etd->policy, "XacmlPolicy", "etdadmin can read POLICY");
   }
 
-  function NOtestEtdAdminCanModify() {
+  function testEtdAdminCanModify() {
     // set user account to etd admin
     setFedoraAccount("etdadmin");
 
@@ -260,37 +308,34 @@ class TestEtdXacml extends UnitTestCase {
     $this->assertNotNull($etd->save("test etdadmin permissions - modify POLICY on draft etd"),
 			 "etdadmin can modify policy");
 
+    $fedora = Zend_Registry::get("fedora");
     // admin needs access to modify MODS for setting embargo duration, admin notes, etc.
     $etd->mods->title = "new title";    //   MODS
-    $this->assertNotNull($etd->save("test etdadmin permissions - modify MODS"), "etdadmin cannot modify MODS");
+    $this->assertNotNull($this->fedora->modifyXMLDatastream($etd->pid, "MODS",
+                                $etd->mods->datastream_label(),
+                                $etd->mods->saveXML(), "test etdadmin permissions - modify MODS"),
+			 "etdadmin can modify MODS");
+    
+    // if MODS is modified, DC will be updated also   - so etdadmin needs permissions
+    $etd->dc->title = "newer title";	  //   DC
+    $this->assertNotNull($this->fedora->modifyXMLDatastream($etd->pid, "DC",
+                                $etd->dc->datastream_label(),
+                                $etd->dc->saveXML(), "test etdadmin permissions - modify DC"),
+			 "etdadmin can modify DC");
 
+    // tech support needs permission to fix xhtml fields
+    $etd->html->calculateChecksum();
+    $etd->html->title = "newest title";    //   XHTML
+    $this->assertNotNull($this->fedora->modifyXMLDatastream($etd->pid, "XHTML",
+                                $etd->html->datastream_label(),
+                                $etd->html->saveXML(), "test etdadmin permissions - modify XHTML"),
+			 "etdadmin can modify XHTML");
 
   }
-  
-  function NOtestEtdAdminCannotModify() {
-    // set user account to etd admin
-    setFedoraAccount("etdadmin");
-
-    // for etd admin, it shouldn't matter if etd is draft, published, etc.
-    $etd = new etd($this->pid);
-
-    // should not be able to modify main record metadata
-    $etd->dc->title = "new title";	  //   DC
-    $this->expectError("Access Denied to modify datastream DC");
-    $this->assertNull($etd->save("test etdadmin permissions - modify DC"), "etdadmin cannot modify DC");
-
-
-    $etd = new etd($this->pid);	
-    $etd->html->title = "new title";    //   XHTML
-    // NOTE: the order of these errors is significant
-    $this->expectError("Access Denied to modify datastream XHTML");
-    $this->assertNull($etd->save("test etdadmin permissions - modify XHTML"), "etdadmin cannot modify XHTML");
-  }
-
 
 
   // test transition from draft to submission (triggered by author)
-  function NOtestChangingStatus_submitted() {
+  function testChangingStatus_submitted() {
     setFedoraAccount("author");
 
     $etd = new etd($this->pid);
@@ -305,7 +350,7 @@ class TestEtdXacml extends UnitTestCase {
     $this->assertFalse(isset($etd->policy->draft), "draft rule no longer present in fedora");
   }
  
-  function NOtestChangingStatus_return_to_draft() {
+  function testChangingStatus_return_to_draft() {
     setFedoraAccount("etdadmin");
 
     $etd = new etd($this->pid);
@@ -334,8 +379,6 @@ class TestEtdXacml extends UnitTestCase {
 
   function testGradCoordinator() {
     setFedoraAccount("gradcoord");
-    $this->expectException(new FedoraNotAuthorized("getObjectProfile for test:etd1"));
-    // FIXME: why are we getting this warning? everything seems to work okay...
     $etd = new etd($this->pid);
 
     $this->assertIsA($etd, "etd");
@@ -346,7 +389,7 @@ class TestEtdXacml extends UnitTestCase {
     // view mods
     $this->assertEqual("Why I Like Cheese", $etd->mods->title);
     // view rels
-    $this->assertEqual("mmouse", $etd->rels_ext->author);
+    $this->assertEqual("author", $etd->rels_ext->author);
     // view dc
     $this->assertEqual("Gouda or Cheddar?", $etd->dc->description);
     // view policy

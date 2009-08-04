@@ -1,150 +1,243 @@
 <?php
-require_once("../bootstrap.php");
-require_once('models/esdPerson.php');
+    require_once("../bootstrap.php");
+    require_once('models/esdPerson.php');
+    require_once("fixtures/esd_data.php");
 
-/**
- NOTE: using rsutton account for testing - test will fail when this account is no longer in ESD
- */
+    class TestEsdPerson extends UnitTestCase {
+      private $esd;
+      private $user;
+      private $data;
 
-class TestEsdPerson extends UnitTestCase {
-  private $esd;
+      function setUp() {
+        $this->esd = new esdPersonObject();
+        // initialize non-db test person with blank data
+        $person = new esdPerson();
+        $this->user = $person->getTestPerson();
 
-  function setUp() {
-    $this->esd = new esdPersonObject();
-  }
+	$this->data = new esd_test_data();
+	$this->data->loadAll();
+      }
 
-  function tearDown() {}
+      function tearDown() {
+	$this->data->cleanUp();
+      }
 
-  function testBasicProperties() {
-    $user = $this->esd->findByUsername("rsutton");
-    
-    $this->assertIsA($user, "esdPerson");
-    // test that human-readable aliases work for accessing fields
-    $this->assertEqual($user->netid, "rsutton");
-    $this->assertEqual($user->type, "E");
-    $this->assertEqual($user->lastname, "Koeser");
-    $this->assertEqual($user->firstname, "Rebecca");
-    $this->assertEqual($user->directory_name, "Rebecca Sutton");
-    $this->assertEqual($user->department_code, "2870");
-    $this->assertEqual($user->department, "University Libraries");
-    $this->assertEqual($user->email, "rebecca.s.koeser@emory.edu");
+      function testBasicProperties() {
+	$user = $this->esd->findByUsername("pstaff");
+	
+        $this->assertIsA($user, "esdPerson", "object returned by findByUsername is type 'esdPerson'");  
+        $this->assertIsA($user, "Zend_Acl_Role_Interface", "user object implements Zend_Acl_Role_Interface");
+        // test acessing field via db column name
+        $this->assertEqual($user->LOGN8NTWR_I, "PSTAFF", "user LOGN8NTWR_I should be 'PSTAFF', got " . $user->LOGN8NTWR_I);
+        // test that human-readable aliases work for accessing fields
+        $this->assertEqual($user->netid, "pstaff", "netid should be 'pstaff', got " . $user->netid);
+        $this->assertEqual($user->id, "1", "id should be 1, got " . $user->id);
+        $this->assertEqual($user->type, "E", "type should be 'E', got " .  $user->type);
+        $this->assertEqual($user->lastname, "Staff", "lastname should be 'Staff', got " . $user->lastname);
+        $this->assertEqual($user->firstname, "Person", "firstname should be 'Person', got " . $user->firstname);
+        $this->assertEqual($user->directory_name, "A. Person", "directory name should be 'A. Person', got " . $user->directory_name);
+        $this->assertEqual($user->department_code, "1000", "dept. code should be 1000, got " . $user->department_code);
+        $this->assertEqual($user->department, "University Libraries", "department should be 'University Libraries', got " . $user->department);
+        $this->assertEqual($user->email, "person.staff@emory.edu", "email should be 'person.staff@emory.edu', got " . $user->email);
+        $this->assertNull($user->program_coord, "staff user should not be program coordinator");
+	$this->assertFalse($user->isCoordinator("Chemistry"), "staff user is not program coordinator for Chemistry");
+        $this->assertEqual($user->role, "staff", "staff user role should be 'staff', got " . $user->role);
+	$this->assertNull($user->address, "staff user address should be null");
 
-    // NOTE: this test is useless; value returned by ESD oscillates between MA and PHD for no apparent reason
-    //    $this->assertEqual($user->degree, "PHD");	// FIXME: why does this change?
-    // these fields are now empty in ESD (?) - find better test subject ? 
-    // OR figure out how to mock the data (? is that a useful test?) 
-    //    $this->assertEqual($user->term_complete, "5061");
-    //    $this->assertEqual($user->academic_plan_id, "ENGLISHMA");
-    //    $this->assertEqual($user->academic_plan, "English");
-    //    $this->assertEqual($user->academic_career, "GSAS");
-    $this->assertNull($user->program_coord);
+	// magic properties constructed from other fields
+	$this->assertEqual($user->fullname, "A. Person Staff", "fullname should be 'A. Person Staff', got " . $user->fullname);
+	$this->assertEqual($user->lastnamefirst, "Staff, A. Person", "lastnamfirst should be 'Staff, A. Person', got " . $user->lastnamefirst);
+	$this->assertEqual($user->name, "A. Person", "name should be 'A. Person', got " . $user->name);
 
-    $this->assertEqual($user->role, "superuser");
-  }
+	// use alternate user account for student-only info
+	$user = $this->esd->findByUsername("mstuden");
+	$this->assertEqual($user->degree, "PHD", "degree should be 'PHD', got " . $user->degree);     
+	$this->assertEqual($user->academic_plan_id, "BBSPHD", "academic plan id should be 'BBSPHD', got " . $user->academic_plan_id);
+	$this->assertEqual($user->academic_plan, "Bioscience", "academic plan should be 'Bioscience', got " . $user->academic_plan);
+	$this->assertEqual($user->academic_career, "GSAS", "academic career should be 'GSAS', got " . $user->academic_career);
+	$this->assertEqual("N", $user->honors_student, "honors student flag should be 'N', got " . $user->honors_student);
+	$this->assertEqual($user->name, "Mary Kim", "name should be 'Mary Kim', got " . $user->name);
 
-  function testFindNonexistent() {
-    $user = $this->esd->findByUsername("nonexistent");
-    $this->assertFalse($user);
-  }
+	// users with special roles / permissions
+	$user = $this->esd->findByUsername("gadmin");
+	$this->assertEqual("grad admin", $user->getRoleId(), "grad admin user role should be 'grad admin', got " . $user->getRoleId());
 
-  function testRole() {
-    $user = new esdPerson();
-    $user->netid = "jsmith";
-    // various student types (includes student/staff)
-    $user->type = "B";
-    $user->setRole();
-    $this->assertEqual($user->role, "student");
-    $user->type = "S";
-    $user->setRole();
-    $this->assertEqual($user->role, "student");
-    $user->type = "C";
-    $user->setRole();
-    $this->assertEqual($user->role, "student");
-    // faculty
-    $user->type = "F";
-    $user->setRole();
-    $this->assertEqual($user->role, "faculty");
-    // staff
-    $user->type = "E";
-    $user->setRole();
-    $this->assertEqual($user->role, "staff");
+	$user = $this->esd->findByUsername("dadmin");
+	$this->assertEqual("staff", $user->getRoleId(), "dept. admin user role should be 'staff', got " . $user->getRoleId());
+	$this->assertTrue($user->isCoordinator("Philosophy"), "dept. admin user should be coordinator for Philosophy");
 
-    /* special cases */
+      }
 
-    // graduate school administration
-    $user->department = "Graduate School Administration";
-    $user->setRole();
-    $this->assertEqual($user->role, "grad admin");
+      function testFindNonexistent() {
+        $user = $this->esd->findByUsername("nonexistent");
+        $this->assertFalse($user, "searching non-existent user returns nothing");
+      }
 
-    // honors undergrad student
-    $user->department = "Anthropology";
-    $user->type = "S";
-    $user->honors_student = "Y";
-    $user->setRole();
-    $this->assertEqual($user->role, "honors student");
+      function testRole() {        
+        $this->user->netid = "jsmith";
+        // various student types (includes student/staff)
+        $this->user->type = "B";
+        $this->user->setRole();
+        $this->assertEqual($this->user->role, "student", "person code B = role 'student', got " . $this->user->role);
+        $this->user->type = "S";
+        $this->user->setRole();
+        $this->assertEqual($this->user->role, "student", "person code S = role 'student', got " . $this->user->role);
+        $this->user->type = "C";
+        $this->user->setRole();
+        $this->assertEqual($this->user->role, "student", "person code C = role 'student', got " . $this->user->role);
+        // faculty
+        $this->user->type = "F";
+        $this->user->setRole();
+        $this->assertEqual($this->user->role, "faculty", "person code F = role 'faculty', got " . $this->user->role);
+        // staff
+        $this->user->type = "E";
+        $this->user->setRole();
+        $this->assertEqual($this->user->role, "staff", "person code E = role 'staff', got " . $this->user->role);
 
-    // honors program administrator - based on config file
-    $user->netid = "mabell";
-    $user->setRole();
-    $this->assertEqual($user->role, "honors admin");
+        /* special cases */
 
-    // etd superuser - based on config file
-    $user->netid = "rsutton";
-    $user->setRole();
-    $this->assertEqual($user->role, "superuser");
-  }
+        // graduate school administration
+        $this->user->department = "Graduate School Administration";
+        $this->user->setRole();
+        $this->assertEqual($this->user->role, "grad admin");
 
-  function testProgramCoordinator(){
-    $user = new esdPerson();
-    $user->grad_coord = "English";
-    $this->assertTrue($user->isCoordinator("English"));
-    $this->assertFalse($user->isCoordinator("Chemistry"));
+        // honors undergrad student
+        $this->user->department = "Anthropology";
+        $this->user->type = "S";
+        $this->user->honors_student = "Y";
+        $this->user->setRole();
+        $this->assertEqual($this->user->role, "honors student");
 
-    // blank coordinator & program should NOT match
-    $user->grad_coord = "";
-    $this->assertFalse($user->isCoordinator(""));
-    $user->grad_coord = null;
-    $this->assertFalse($user->isCoordinator(null));
-  }
+        // honors program administrator - based on config file
+        $this->user->netid = "mabell";
+        $this->user->setRole();
+        $this->assertEqual($this->user->role, "honors admin");
 
-  function testFormerFaculty_id() {
-    $user = new esdPerson();
-    $user->current_faculty = "N";
-    $user->id = "007";
-    $this->assertEqual("esdid007", $user->netid);
-  }
+        // etd superuser - based on config file
+        $this->user->netid = "rsutton";
+        $this->user->setRole();
+        $this->assertEqual($this->user->role, "superuser");
+      }
 
-  function testfindById() {
-    $user = $this->esd->findByUsername("rsutton");
-    $user2 = $this->esd->findByUsername("esdid" . $user->id);
-    $this->assertEqual($user, $user2);
-    
-  }
+      function testProgramCoordinator(){
+        $this->user->grad_coord = "English";
+        $this->assertTrue($this->user->isCoordinator("English"), "");
+        $this->assertFalse($this->user->isCoordinator("Chemistry"));
 
-  
-  function testGetGenericAgent() {
-    $user = new esdPerson();
-    $user->role = "grad admin";
-    $this->assertEqual("the Graduate School", $user->getGenericAgent());
-    $user->role = "honors admin";
-    $this->assertEqual("the College Honors Program", $user->getGenericAgent());
-    $user->role = "admin";
-    $this->assertEqual("ETD Administrator", $user->getGenericAgent());
-    $user->role = "superuser";
-    $this->assertEqual("ETD Administrator", $user->getGenericAgent());
+        // blank coordinator & program should NOT match
+        $this->user->grad_coord = "";
+        $this->assertFalse($this->user->isCoordinator(""), "isCoordinator with empty-string arg should be false");
+        $this->user->grad_coord = null;
+        $this->assertFalse($this->user->isCoordinator(null), "isCoordinator with null arg should be false");
+      }
 
-    // role with no generic agent
-    $user->role = "guest";
-    // should get a warning about this
-    $this->expectError("This role (guest) does not have a generic agent defined");
-    $this->assertEqual("?", $user->getGenericAgent());
-    
-  }
+      function testFormerFaculty_id() {
+        $this->user->current_faculty = "N";
+        $this->user->id = "007";
+        $this->assertEqual("esdid007", $this->user->netid);
+      }
 
-  // FIXME: add tests for functions that find faculty names
+      function testfindById() {
+        $user = $this->esd->findByUsername("pstaff");
+        $user2 = $this->esd->findByUsername("esdid" . $user->id);
+        $this->assertEqual($user, $user2, "find by esd id equivalent to find by netid");
+      }
+
+      function testGetGenericAgent() {
+        $this->user->role = "grad admin";
+        $this->assertEqual("the Graduate School", $this->user->getGenericAgent());
+        $this->user->role = "honors admin";
+        $this->assertEqual("the College Honors Program", $this->user->getGenericAgent());
+        $this->user->role = "admin";
+        $this->assertEqual("ETD Administrator", $this->user->getGenericAgent());
+        $this->user->role = "superuser";
+        $this->assertEqual("ETD Administrator", $this->user->getGenericAgent());
+
+        // role with no generic agent
+        $this->user->role = "guest";
+        // should get a warning about this
+        $this->expectError("This role (guest) does not have a generic agent defined");
+        $this->assertEqual("?", $this->user->getGenericAgent());
+
+      }
+       function testPassword() {
+           $this->user->setPassword("pass!@#$");
+           $this->assertEqual("pass!@#$", $this->user->getPassword());
+       }
 
 
-}
+       function testInitWithoutESD() {
+          $user = $this->esd->initializeWithoutEsd("testuser");
+          $this->assertIsA($user, "esdPerson");
+          $this->assertEqual("testuser", $user->netid);
+          $this->assertEqual("guest", $user->getRoleId());
+	  $this->assertEqual("testuser", $user->__toString());
+       }
 
-runtest(new TestEsdPerson());
-?>
+       function testMatchFaculty() {
+	 // name that matches two different people
+	 $matches = $this->esd->match_faculty("Brad Scholar");
+	 $this->assertIsA($matches, "esdPeople");
+	 $this->assertIsA($matches[0], "esdPerson");
+	 $this->assertEqual(2, count($matches));
+	 $this->assertEqual($matches[0]->netid, "engrbs");
+	 $this->assertEqual($matches[1]->netid, "bschola");
+       }
+
+       function testFindFacultyByName() {
+           $result = $this->esd->findFacultyByName("Michele Thinker");
+           $this->assertIsA($result, "esdPerson");
+           $this->assertEqual($result->netid, "mthink");
+
+	   // searching by directory name
+	   $result = $this->esd->findFacultyByName("Bradley Scholar");
+           $this->assertIsA($result, "esdPerson");
+           $this->assertEqual($result->netid, "engrbs");
+	   
+       }
+
+       function testFindAddress() {
+           $person = $this->esd->findByUsername("mstuden");
+           $adr = new esdAddressObject();
+           $address = $adr->find($person->id);
+           $this->assertIsA($address, "esdAddressInfo");
+           $this->assertIsA($address->current, "esdAddress");
+	   $this->assertEqual("5544 Rambling Road", $address->current->street[0]);
+	   $this->assertEqual("Apt. 3C", $address->current->street[1]);
+	   $this->assertEqual("c/o Spot", $address->current->street[2]);
+	   $this->assertEqual("Atlanta", $address->current->city);
+	   $this->assertEqual("GA", $address->current->state);
+	   $this->assertEqual("30432", $address->current->zip);
+	   $this->assertEqual("USA", $address->current->country);
+	   $this->assertEqual("4041234566", $address->current->telephone);
+	   $this->assertIsA($address->permanent, "esdAddress");
+	   $this->assertEqual("346 Lamplight Trail", $address->permanent->street[0]);
+	   $this->assertEqual("Suite #2", $address->permanent->street[1]);
+	   $this->assertEqual("Rm. 323", $address->permanent->street[2]);
+	   $this->assertEqual("Cleveland", $address->permanent->city);
+	   $this->assertEqual("OH", $address->permanent->state);
+	   $this->assertEqual("99304", $address->permanent->zip);
+	   $this->assertEqual("545234566", $address->permanent->telephone);
+	   $this->assertEqual("CA", $address->permanent->country);
+
+	   // test referencing via person shortcut
+	   $this->assertIsA($person->address, "esdAddressInfo");
+       }
+
+       function testAddressPersonRelation() {
+	 $person = $this->esd->findByUsername("mstuden");
+	 $address = $person->findEsdAddressObject()->current();
+	 $this->assertIsA($address, "esdAddressInfo");
+	 $this->assertIsA($address->current, "esdAddress");
+	 $this->assertIsA($address->permanent, "esdAddress");
+
+	 // non-student (no address)
+	 $person = $this->esd->findByUsername("pstaff");
+	 $address = $person->findEsdAddressObject()->current();
+	 $this->assertNull($address, "staff person should not have an address");
+       }
+
+    }
+
+    runtest(new TestEsdPerson());
+    ?>

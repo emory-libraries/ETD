@@ -28,8 +28,8 @@ class ControllerGroupTest extends GroupTest {
     $this->addTestFile('controllers/TestSearchController.php');
     $this->addTestFile('controllers/TestViewController.php');
     $this->addTestFile('controllers/TestBaseController.php');
-    $this->addTestFile('controllers/TestHelpController.php');
     $this->addTestFile('controllers/TestProgramController.php');
+    $this->addTestFile('controllers/TestHelpController.php');	// FIXME: doesn't clean up after itself?
     //    $this->addTestFile('controllers/TestEtdController.php');
   }
 }

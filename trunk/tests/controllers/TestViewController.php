@@ -11,7 +11,8 @@ class ViewControllerTest extends ControllerTestCase {
   private $mock_etd;
     
   function setUp() {
-    $this->test_user = new esdPerson();
+    $ep = new esdPerson();
+    $this->test_user = $ep->getTestPerson();
     $this->test_user->role = "guest";
     Zend_Registry::set('current_user', $this->test_user);
     
