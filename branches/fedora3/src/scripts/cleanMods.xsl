@@ -21,6 +21,11 @@
     <!-- remove embargo end date from output -->
     <xsl:template match="mods:dateOther[@type='embargoedUntil']"/>
 
+    <!-- remove empty names -->
+    <xsl:template match="mods:name[@type='personal'][mods:namePart[@type='given'] = ''
+        and mods:namePart[@type='family'] = '' and normalize-space(mods:displayForm) = ',']"/>
+
+
   <xsl:template match="mods:accessCondition[@type='restrictionOnAccess']">
 
       <xsl:variable name="embargo_end"><xsl:value-of select="//mods:dateOther[@type='embargoedUntil']"/></xsl:variable>

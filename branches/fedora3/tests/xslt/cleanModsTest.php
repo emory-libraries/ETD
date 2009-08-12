@@ -33,10 +33,14 @@ class TestCleanModsXslt extends UnitTestCase {
 
         $result = $this->transformDom($mods);
         $this->assertTrue($result, "xsl transform returns data");
-        $this->assertNoPattern('|<mods:note type="admin"|', $result,
-                                "admin notes are not present in cleaned MODS output");
 
         if ($result) {
+            $this->assertNoPattern('|<mods:note type="admin"|', $result,
+                        "admin notes are not present in cleaned MODS output");
+
+            $this->assertNoPattern('|<mods:name type="personal">.*<mods:namePart type="given"/>|',
+                        "empty names removed from output");
+
             $dom = new DOMDocument();
             $dom->loadXML($result);
             $mods = new etd_mods($dom);
