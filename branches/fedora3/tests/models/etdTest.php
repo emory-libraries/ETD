@@ -471,6 +471,32 @@ class TestEtd extends UnitTestCase {
       $this->etd->setOAIidentifier();
       
   }
+
+  function testMagicMethods() {
+      $fedora = Zend_Registry::get("fedora");
+      // ingest a minimal, published record to test fedora methods as object methods
+      $etd = new etd();
+      $etd->pid = "demo:17";
+      $etd->title = "test etd";
+      $etd->mods->ark = "ark:/123/bcd";
+      $etd->setStatus("published");            
+      $pid = $fedora->ingest($etd->saveXML(), "test etd magic methods");
+
+      $etd = new etd($pid);
+      $marcxml = $etd->getMarcxml();
+      $this->assertNotNull($marcxml, "getMarcxml() return response should not be empty");
+      $this->assertPattern("|<marc:record|", $marcxml, "getMarcxml() result looks like marc xml");
+
+      $etdms = $etd->getEtdms();
+      $this->assertNotNull($etdms, "getEtdms() return response should not be empty");
+      $this->assertPattern("|<oai_dc.*etdms|s", $etdms, "getEtdms() result looks like ETD-MS");
+
+      $mods = $etd->getMods();
+      $this->assertNotNull($mods, "getMods() return response should not be empty");
+      $this->assertPattern("|<mods:mods|", $mods, "getMods () result looks like MODS");
+
+      $fedora->purge("demo:17", "removing test etd");
+  }
   
 
 }
