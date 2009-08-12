@@ -44,7 +44,7 @@ class UnapiController extends Etd_Controller_Action {
 	  case "oai_dc":
 	    $this->_forward("dc", "view", null, array("pid" => $pid)); break;
 	  case "mods":
-	    $this->_forward("mods", "view", null, array("pid" => $pid)); break;
+	    $this->_forward("public-mods", "view", null, array("pid" => $pid)); break;
 	  case "pdf":
 	    // NOTE: an ETD may have more than one PDF; only serving out the first
 	    if ($etd->mods->embargo_end > date("Y-m-d")) {
