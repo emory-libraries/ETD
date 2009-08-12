@@ -14,7 +14,7 @@ require_once('simpletest/xmltime.php');
 include_once("MockObjects.php");
 
 // required when running through the web - zend complains without this
-if (!isset($argv)) Zend_Session::start();
+if (! TextReporter::inCli()) Zend_Session::start();
 
 
 $mode = "test";
@@ -95,7 +95,7 @@ function runtest($test) {
   global $argv;
   if (! defined('RUNNER')) {
     define('RUNNER', true);
-    $reporter = isset($argv) ? new TextReporter() : new HtmlReporter();
+    $reporter = TextReporter::inCli() ? new TextReporter() : new HtmlReporter();
     $test->run($reporter);
   }
 }

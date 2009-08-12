@@ -7,8 +7,9 @@ require_once("../bootstrap.php");
 require_once('models.php');
 require_once('controllers.php');
 require_once('lib.php');
+require_once('xslt.php');
 
-$suite = new TestSuite('All Tests');
+$suite = new TestSuite('All ETD Tests');
 
 // models
 $suite->addTestCase(new ModelGroupTest());
@@ -19,7 +20,10 @@ $suite->addTestCase(new ControllerGroupTest());
 //lib
 $suite->addTestCase(new LibGroupTest());
 
-$reporter = isset($argv) ? new TextReporter() : new HtmlReporter();
+//xslt
+$suite->addTestCase(new XsltGroupTest());
+
+$reporter = TextReporter::inCli() ? new TextReporter() : new HtmlReporter();
 $suite->run($reporter);
 
 

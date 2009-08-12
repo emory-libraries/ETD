@@ -8,6 +8,7 @@ require_once("../bootstrap.php");
 require_once('models.php');
 require_once('controllers.php');
 require_once('lib.php');
+require_once('xslt.php');
 require_once('xacml.php');
 
 $suite = new TestSuite('All ETD Tests');
@@ -20,6 +21,9 @@ $suite->addTestCase(new ControllerGroupTest());
 
 //lib
 $suite->addTestCase(new LibGroupTest());
+
+//xslt
+$suite->addTestCase(new XsltGroupTest());
 
 //xacml
 $suite->addTestCase(new XacmlGroupTest());

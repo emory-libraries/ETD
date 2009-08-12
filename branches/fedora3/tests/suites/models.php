@@ -39,7 +39,7 @@ class ModelGroupTest extends GroupTest {
 
 if ($is_runner) {
   $test = new ModelGroupTest;
-  $reporter = isset($argv) ? new TextReporter() : new HtmlReporter();
+  $reporter = TextReporter::inCli() ? new TextReporter() : new HtmlReporter();
   $test->run($reporter);
 }
 
