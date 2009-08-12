@@ -343,7 +343,7 @@ class TestEtdXacml extends UnitTestCase {
   
 
   
-  function  NOtestEtdAdminViewPermissions() {
+  function  testEtdAdminViewPermissions() {
     // set user account to etd admin
     setFedoraAccount("etdadmin");
     // update to latest fedora connection with etdadmin credentials
@@ -384,14 +384,14 @@ class TestEtdXacml extends UnitTestCase {
     $fedora = Zend_Registry::get("fedora");
     // admin needs access to modify MODS for setting embargo duration, admin notes, etc.
     $etd->mods->title = "new title";    //   MODS
-    $this->assertNotNull($this->fedora->modifyXMLDatastream($etd->pid, "MODS",
+    $this->assertNotNull($fedora->modifyXMLDatastream($etd->pid, "MODS",
                                 $etd->mods->datastream_label(),
                                 $etd->mods->saveXML(), "test etdadmin permissions - modify MODS"),
                    "etdadmin can modify MODS");
 
     // if MODS is modified, DC will be updated also   - so etdadmin needs permissions
     $etd->dc->title = "newer title";	  //   DC
-    $this->assertNotNull($this->fedora->modifyXMLDatastream($etd->pid, "DC",
+    $this->assertNotNull($fedora->modifyXMLDatastream($etd->pid, "DC",
                                 $etd->dc->datastream_label(),
                                 $etd->dc->saveXML(), "test etdadmin permissions - modify DC"),
                    "etdadmin can modify DC");
@@ -399,7 +399,7 @@ class TestEtdXacml extends UnitTestCase {
     // tech support needs permission to fix xhtml fields
     $etd->html->calculateChecksum();
     $etd->html->title = "newest title";    //   XHTML
-    $this->assertNotNull($this->fedora->modifyXMLDatastream($etd->pid, "XHTML",
+    $this->assertNotNull($fedora->modifyXMLDatastream($etd->pid, "XHTML",
                                 $etd->html->datastream_label(),
                                 $etd->html->saveXML(), "test etdadmin permissions - modify XHTML"),
                    "etdadmin can modify XHTML");
@@ -453,9 +453,9 @@ class TestEtdXacml extends UnitTestCase {
     $etd = new etd($this->pid);
 
     $this->assertIsA($etd, "etd");
-    $this->assertEqual($this->pid, $etd->pid);
-    // get info failing?
-    $this->assertEqual("etd", $etd->cmodel);
+    $this->assertEqual($this->pid, $etd->pid);    
+    $this->assertEqual("ETD", $etd->contentModelName());
+    $this->assertEqual("1.0", $etd->contentModelVersion());
     $this->assertEqual("Why I Like Cheese", $etd->label);
     // view mods
     $this->assertEqual("Why I Like Cheese", $etd->mods->title);
