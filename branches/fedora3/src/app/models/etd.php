@@ -20,15 +20,27 @@ require_once("solrEtd.php");
 // email notifier
 require_once("etd_notifier.php");
 
-// etd object for etd08
-class etd extends foxml implements etdInterface {
 
-  // associated files
-  /*  public $pdfs;
-  public $originals;
-  public $supplements;
-  public $authorInfo;	// user object
-  */
+/**
+ * ETD fedora object
+ *
+ * magic variables
+ * @property etd_rels $rels_ext RELS-EXT datastream
+ * @property etd_mods $mods MODS datastream
+ * @property etd_html $html XHTML datastream
+ * @property premis $premis PREMIS datastream
+ * @property XacmlPolicy $policy POLICY datastream
+ * @property array of etd_file $pdfs array of related etd_file PDF objects
+ * @property array of etd_file $originals array of related etd_file Original objects
+ * @property array of etd_file $supplements array of related supplemental etd_file objects
+ * @property user $authorInfo authorInfo object for etd author
+ * 
+ * magic methods - note that these depend on ETD content model & service objects
+ * @method string getMarcxml() get metadata in marcxml format
+ * @method string getEtdms() get metadata in ETD-MS format
+ * @method string getMods() get cleaned up MODS (without ETD-specific fields)
+ */
+class etd extends foxml implements etdInterface {
 
   /**
    * @var float $relevance score when found via Solr
