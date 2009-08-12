@@ -23,7 +23,7 @@ $suite->addTestCase(new ControllerGroupTest());
 $suite->addTestCase(new LibGroupTest());
 
 //xslt
-//$suite->addTestCase(new XsltGroupTest());
+$suite->addTestCase(new XsltGroupTest());
 
 //xacml
 $suite->addTestCase(new XacmlGroupTest());
