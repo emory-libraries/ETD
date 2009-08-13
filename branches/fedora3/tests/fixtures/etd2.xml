@@ -38,6 +38,12 @@
 	    </mods:role>
 	    <mods:description>Emory Committee Member</mods:description>
 	   </mods:name>
+       <mods:name type="corporate">
+        <mods:namePart>Emory University</mods:namePart>
+        <mods:role>
+            <mods:roleTerm authority="marcrelator" type="text">Degree grantor</mods:roleTerm>
+        </mods:role>
+      </mods:name>
 	  <mods:abstract>milk curdles and goes sour</mods:abstract>
 	  <mods:tableOfContents>chapter 1 -- part two</mods:tableOfContents>
 	  <mods:subject ID="id0123" authority="proquestresearchfield">
@@ -55,6 +61,7 @@
 	  <mods:genre authority="aat">Dissertation</mods:genre>
 	  <mods:identifier type="ark">ark:/123/etd2</mods:identifier>
       <mods:identifier type="uri">http://purl.bogus.com/ark:/123/etd2</mods:identifier>
+      <mods:accessCondition type="useAndReproduction">rights statement</mods:accessCondition>
 	  <mods:accessCondition type="restrictionOnAccess">Embargoed for 0 days</mods:accessCondition>
 	  <mods:language>
 	    <mods:languageTerm authority="iso639-2b" type="text">English</mods:languageTerm>
