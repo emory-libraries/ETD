@@ -20,8 +20,7 @@ class TestEtdFileXacml extends UnitTestCase {
   function setUp() {
     if (!isset($this->fedoraAdmin)) {
       $fedora_cfg = Zend_Registry::get('fedora-config');
-      $this->fedoraAdmin = new FedoraConnection($fedora_cfg->user, $fedora_cfg->password,
-			       $fedora_cfg->server, $fedora_cfg->port);
+      $this->fedoraAdmin = new FedoraConnection($fedora_cfg);
     }
       
     $fname = '../fixtures/etdfile.xml';
@@ -237,6 +236,9 @@ class TestEtdFileXacml extends UnitTestCase {
     $etdfile->policy->removeRule("draft");    // POLICY
     $this->assertNotNull($etdfile->save("test etdadmin permissions - modify POLICY on draft etdfile"),
 			 "etdadmin can modify policy");
+
+    $etdfile->dc->title = "new title";	  //   DC    
+    $this->assertNotNull($etdfile->save("test etdadmin permissions - modify DC"), "etdadmin can modify DC");
 
   }
   

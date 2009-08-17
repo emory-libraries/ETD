@@ -10,6 +10,9 @@ class ManageControllerTest extends ControllerTestCase {
   private $test_user;
   private $solr;
   
+  // fedoraConnection
+  private $fedora;
+
   function setUp() {
     $ep = new esdPerson();
     $this->test_user = $ep->getTestPerson();
@@ -32,9 +35,10 @@ class ManageControllerTest extends ControllerTestCase {
     
 
     // load a test objects to repository
-    // NOTE: for risearch queries to work, syncupdates must be turned on for test fedora instance
+    $this->fedora = Zend_Registry::get("fedora");
+    // NOTE: for risearch queries to work, syncUpdates must be turned on for test fedora instance
     foreach (array_keys($this->etdxml) as $etdfile) {
-      $pid = fedora::ingest(file_get_contents('../fixtures/' . $etdfile . '.xml'), "loading test etd");
+      $pid = $this->fedora->ingest(file_get_contents('../fixtures/' . $etdfile . '.xml'), "loading test etd");
     }
 
     $this->solr = &new Mock_Etd_Service_Solr();
@@ -43,7 +47,7 @@ class ManageControllerTest extends ControllerTestCase {
   
   function tearDown() {
     foreach ($this->etdxml as $file => $pid)
-      fedora::purge($pid, "removing test etd");
+      $this->fedora->purge($pid, "removing test etd");
 
     Zend_Registry::set('solr', null);
     Zend_Registry::set('current_user', null);
@@ -374,6 +378,7 @@ class ManageControllerTest extends ControllerTestCase {
   }
 
   public function testViewLog() {
+    // FIXME: should a test log file be created for testing purposes?
     $this->test_user->role = "superuser";	// regular admin not allowed to view log
     $ManageController = new ManageControllerForTest($this->request,$this->response);
     $ManageController->viewLogAction();

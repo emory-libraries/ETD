@@ -26,42 +26,42 @@ class etd_rels extends rels_ext {
 			       "inactive");
     
     // etd status
-    $this->xmlconfig["status"] = array("xpath" => "rdf:description/rel:etdStatus");
+    $this->xmlconfig["status"] = array("xpath" => "rdf:Description/rel:etdStatus");
 
 
     // order within a set
-    $this->xmlconfig["sequence"] = array("xpath" => "rdf:description/rel:sequenceNumber");
+    $this->xmlconfig["sequence"] = array("xpath" => "rdf:Description/rel:sequenceNumber");
     
     // rels from etd to etd files
-    $this->xmlconfig["pdf"] = array("xpath" => "rdf:description/rel:hasPDF/@rdf:resource",
+    $this->xmlconfig["pdf"] = array("xpath" => "rdf:Description/rel:hasPDF/@rdf:resource",
 				    "is_series" => true);
-    $this->xmlconfig["original"] = array("xpath" => "rdf:description/rel:hasOriginal/@rdf:resource",
+    $this->xmlconfig["original"] = array("xpath" => "rdf:Description/rel:hasOriginal/@rdf:resource",
 					 "is_series" => true);
-    $this->xmlconfig["supplement"] = array("xpath" => "rdf:description/rel:hasSupplement/@rdf:resource",
+    $this->xmlconfig["supplement"] = array("xpath" => "rdf:Description/rel:hasSupplement/@rdf:resource",
     "is_series" => true);
 
 
     // user information object
-    $this->xmlconfig["hasAuthorInfo"] = array("xpath" => "rdf:description/rel:hasAuthorInfo/@rdf:resource");
+    $this->xmlconfig["hasAuthorInfo"] = array("xpath" => "rdf:Description/rel:hasAuthorInfo/@rdf:resource");
 
     
     // relationships to users
-    $this->xmlconfig["author"] = array("xpath" => "rdf:description/rel:author");
-    $this->xmlconfig["advisor"] = array("xpath" => "rdf:description/rel:advisor");
-    $this->xmlconfig["committee"] = array("xpath" => "rdf:description/rel:committee",
+    $this->xmlconfig["author"] = array("xpath" => "rdf:Description/rel:author");
+    $this->xmlconfig["advisor"] = array("xpath" => "rdf:Description/rel:advisor");
+    $this->xmlconfig["committee"] = array("xpath" => "rdf:Description/rel:committee",
 					    "is_series" => true);
 
     // rels to program & subfield (by id)
-    $this->xmlconfig["program"] = array("xpath" => "rdf:description/rel:program");
-    $this->xmlconfig["subfield"] = array("xpath" => "rdf:description/rel:subfield");
+    $this->xmlconfig["program"] = array("xpath" => "rdf:Description/rel:program");
+    $this->xmlconfig["subfield"] = array("xpath" => "rdf:Description/rel:subfield");
     
     // rels from etd file to etd
-    $this->xmlconfig["pdfOf"] = array("xpath" => "rdf:description/rel:isPDFOf/@rdf:resource");
-    $this->xmlconfig["originalOf"] = array("xpath" => "rdf:description/rel:isOriginalOf/@rdf:resource");
-    $this->xmlconfig["supplementOf"] = array("xpath" => "rdf:description/rel:isSupplementOf/@rdf:resource");
+    $this->xmlconfig["pdfOf"] = array("xpath" => "rdf:Description/rel:isPDFOf/@rdf:resource");
+    $this->xmlconfig["originalOf"] = array("xpath" => "rdf:Description/rel:isOriginalOf/@rdf:resource");
+    $this->xmlconfig["supplementOf"] = array("xpath" => "rdf:Description/rel:isSupplementOf/@rdf:resource");
 
     // rels from user to etd
-    $this->xmlconfig["etd"] = array("xpath" => "rdf:description/rel:authorInfoFor/@rdf:resource");
+    $this->xmlconfig["etd"] = array("xpath" => "rdf:Description/rel:authorInfoFor/@rdf:resource");
     //					      "is_series" => true);
   }
 

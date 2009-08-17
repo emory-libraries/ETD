@@ -62,9 +62,9 @@ $tester->ok();
 
 // fedora
 $tester->load_xmlconfig($config_dir . "fedora.xml", $env_mode);
-$tester->check_notblank(array("server", "port", "user", "password",
+$tester->check_notblank(array("server", "port", "username", "password",
 			      "protocol", "resourceindex",
-			      "maintenance_account" => array("user", "password")
+			      "maintenance_account" => array("username", "password")
 			      )
 			);
 $tester->ok();
@@ -72,12 +72,7 @@ $tester->ok();
 // initialize test connection to fedora
 require_once("api/FedoraConnection.php");
 try {
-  $fedoraConnection = new FedoraConnection($tester->config->user,
-					   $tester->config->password,
-					   $tester->config->server,
-					   $tester->config->port,
-					   $tester->config->protocol,
-					   $tester->config->resourceindex);
+  $fedoraConnection = new FedoraConnection($tester->config);
   Zend_Registry::set("fedora", $fedoraConnection);
 } catch (FedoraNotAvailable $e) {
   $tester->logger->err("Fedora is not available as configured: "  .$e->getMessage());
@@ -154,7 +149,8 @@ $tester->check_notblank(array("session_name", "tmpdir", "logfile", "pdftohtml",
 			      "supported_browsers", "useAndReproduction",
 			      "honors_collection", "programs_pid",
 			      "email" => array("test", "etd/address", "etd/name"),
-			      "contact" => array("email")
+			      "contact" => array("email"),
+                  "contentModels" => array("etd", "etdfile", "author")
 			      )
 			);
 $tester->email("email/etd/address");
@@ -172,8 +168,14 @@ $tester->plural("honors_admin/user");
 if ($fedoraConnection) {
   
     require_once("models/foxml.php");
-    foreach (array("honors collection" => $tester->config->honors_collection,
-		   "program hierarchy" => $tester->config->programs_pid)
+    foreach (array("ETD collection" => $tester->config->collections->all_etd,
+            "grad school collection" => $tester->config->collections->grad_school,
+            "honors collection" => $tester->config->collections->college_honors,
+            "program hierarchy" => $tester->config->programs_pid,
+            "ETD content model" => $tester->config->contentModels->etd,
+            "EtdFile content model" => $tester->config->contentModels->etdfile,
+            "Author content model" => $tester->config->contentModels->author,
+        )
 	     as $label => $pid) {
       if (! trim($pid)) continue;
         // test that configured objects are actually in fedora

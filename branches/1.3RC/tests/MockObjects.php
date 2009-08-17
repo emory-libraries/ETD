@@ -86,6 +86,10 @@ class MockEtd extends BasicMock_Etd {
     }
     return "saved";
   }
+
+  public function getMods() {
+      return "<mods:clean_mods/>";
+  }
    
 
 }

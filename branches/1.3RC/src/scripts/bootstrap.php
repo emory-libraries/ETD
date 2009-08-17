@@ -22,10 +22,11 @@ $fedora_cfg = new Zend_Config_Xml("../config/fedora.xml", $env_config->mode);
 
 // needs to connect to Fedora using maintenance account to view and modify unpublished records
 try {
-  $fedora = new FedoraConnection($fedora_cfg->maintenance_account->user,
-				 $fedora_cfg->maintenance_account->password,
-				 $fedora_cfg->server, $fedora_cfg->port,
-				 $fedora_cfg->protocol, $fedora_cfg->resourceindex);
+    $fedora_opts = $fedora_cfg->toArray();
+    // use default fedora config opts but with maintenance account credentials
+    $fedora_opts["username"] = $fedora_cfg->maintenance_account->username;
+    $fedora_opts["password"] = $fedora_cfg->maintenance_account->password;
+    $fedora = new FedoraConnection($fedora_opts);  
 } catch (FedoraNotAvailable $e) {
   trigger_error("Fedora is not available-- cannot proceed", E_USER_ERROR);
   return;
@@ -53,6 +54,8 @@ $stat_config = new Zend_Config_Xml($config_dir . 'statistics.xml', $env_config->
 $db = Zend_Db::factory($stat_config);
 Zend_Registry::set('stat-db', $db);	
 
+Zend_Registry::set('persis-config',
+    new Zend_Config_Xml($config_dir . "persis.xml", $env_config->mode));
 
 // common getopt configurations that used by most scripts
 $common_getopts = array('verbose|v=s'  => 'Output level/verbosity; one of error, warn, notice, info, debug (default: error)',
@@ -84,6 +87,27 @@ function setup_logging($level) {
   $filter = new Zend_Log_Filter_Priority($verbosity);
   $logger->addFilter($filter);
   return $logger;
+}
+
+// build an array of pids for ALL etd-related objects (etd, file, author, etc)
+function all_etd_pids() {
+    global $fedora, $logger, $config;
+    // find all ETD objects by content models
+    $etd_pids = $fedora->risearch->findByCModel($config->contentModels->etd);
+    $logger->notice("Found " . count($etd_pids) . " ETD objects");
+    $etdfile_pids = $fedora->risearch->findByCModel($config->contentModels->etdfile);
+    $logger->notice("Found " . count($etdfile_pids) . " EtdFile objects");    
+    $author_pids = $fedora->risearch->findByCModel($config->contentModels->author);
+    $logger->notice("Found " . count($author_pids) . " AuthorInfo objects");
+    
+    // combine all pids into a single array
+    $all_pids = array_merge($etd_pids, $etdfile_pids, $author_pids,
+        // include pids for special objects
+        array($config->collections->all_etd, $config->collections->grad_school,
+            $config->collections->college_honors, $config->programs_pid)
+    );
+
+    return $all_pids;
 }
 
 ?>

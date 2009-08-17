@@ -40,7 +40,8 @@ class TestEtd extends UnitTestCase {
     
     $this->assertEqual("test:etd1", $this->etd->pid);
     $this->assertEqual("Why I Like Cheese", $this->etd->label);
-    $this->assertEqual("etd", $this->etd->cmodel);
+    // FIXME: should work for multiple cmodels
+    $this->assertEqual("ETD", $this->etd->contentModelName());
     $this->assertEqual("mmouse", $this->etd->owner);
   }
 
@@ -138,10 +139,13 @@ class TestEtd extends UnitTestCase {
     $this->assertEqual($this->etd->policy->draft->condition->user, "mmouse");	// owner from etd
     $this->assertFalse(isset($this->etd->policy->published));
     // draft rule should also be added to related etdfile objects
-    $this->assertTrue(isset($this->etd->pdfs[0]->policy->draft));
-    $this->assertIsA($this->etd->pdfs[0]->policy->draft, "PolicyRule");
+    $this->assertTrue(isset($this->etd->pdfs[0]->policy->draft),
+        "draft policy should be present on pdf etdFile");
+    $this->assertIsA($this->etd->pdfs[0]->policy->draft, "PolicyRule",
+        "pdf etdFile draft policy should be type 'PolicyRule'");
     $this->assertFalse(isset($this->etd->pdfs[0]->policy->published));
-    $this->assertIsA($this->etd->originals[0]->policy->draft, "PolicyRule");
+    $this->assertIsA($this->etd->originals[0]->policy->draft, "PolicyRule",
+        "original etdFile draft policy should be type 'PolicyRule'");
     $this->assertFalse(isset($this->etd->originals[0]->policy->published));
 
     // submitted - draft rule removed, no new rules
@@ -163,29 +167,44 @@ class TestEtd extends UnitTestCase {
     $this->assertEqual("approved", $this->etd->status());
     $this->assertEqual($etd_rulecount, count($this->etd->policy->rules));
 
-    // published - publish rule is added
+    // published - publish rule is added    
     $this->etd->setStatus("published");
     $this->assertEqual("published", $this->etd->status());
     $this->assertIsA($this->etd->policy->published, "PolicyRule");
     $this->assertTrue(isset($this->etd->policy->published));
     // etd object publish rule should have no condition
     $this->assertFalse(isset($this->etd->policy->published->condition));
-    
+    // setting to published should add OAI id
+    $this->assertTrue(isset($this->etd->rels_ext->oaiID));
+    $this->assertEqual(FedoraConnection::STATE_ACTIVE, $this->etd->next_object_state);
+
     // etdfile published rule should also be added to related etdfile objects 
-    $this->assertIsA($this->etd->pdfs[0]->policy->published, "PolicyRule");
-    $this->assertTrue(isset($this->etd->pdfs[0]->policy->published));
-    $this->assertTrue(isset($this->etd->pdfs[0]->policy->published->condition));
+    $this->assertTrue(isset($this->etd->pdfs[0]->policy->published),
+        "pdf etdFile published policy should be present"  );
+    $this->assertIsA($this->etd->pdfs[0]->policy->published, "PolicyRule",
+        "pdf etdFile published policy should be type 'PolicyRule'");
+    $this->assertTrue(isset($this->etd->pdfs[0]->policy->published->condition),
+        "pdf etdFile published policy should have condition");
     // embargo end should be set to today by default
-    $this->assertTrue(isset($this->etd->pdfs[0]->policy->published->condition->embargo_end));
-    $this->assertEqual($this->etd->pdfs[0]->policy->published->condition->embargo_end, date("Y-m-d"));
+    $this->assertTrue(isset($this->etd->pdfs[0]->policy->published->condition->embargo_end),
+        "pdf etdFile published policy condition should have an embargo end");
+    $this->assertEqual($this->etd->pdfs[0]->policy->published->condition->embargo_end, date("Y-m-d"),
+        "pdf etdFile published policy embargo end should be '" . date("Y-m-d") . "', got '" .
+        $this->etd->pdfs[0]->policy->published->condition->embargo_end . "'");
     // published rule should NOT be added to original
     $this->assertFalse(isset($this->etd->originals[0]->policy->published));
 
     // publish with embargo
     $this->etd->mods->embargo_end = "2010-01-01";
     $this->etd->setStatus("published");
-    $this->assertEqual($this->etd->pdfs[0]->policy->published->condition->embargo_end, "2010-01-01");
-    
+    $this->assertEqual($this->etd->pdfs[0]->policy->published->condition->embargo_end, "2010-01-01",
+        "pdf etdFile published policy embargo end should be '2010-01-01', got '" .
+        $this->etd->pdfs[0]->policy->published->condition->embargo_end . "'");
+   
+   
+    $this->etd->setStatus("inactive");
+    $this->assertEqual(FedoraConnection::STATE_INACTIVE, $this->etd->next_object_state);
+
   }
 
   
@@ -200,10 +219,18 @@ class TestEtd extends UnitTestCase {
     $this->assertIsA($etd->premis, "premis");
     $this->assertIsA($etd->policy, "XacmlPolicy");
 
-    $this->assertEqual("etd", $etd->cmodel);
+    $this->assertEqual("ETD", $this->etd->contentModelName());
     // check for error found in ticket:150
     $this->assertEqual("draft", $etd->status());
-  
+
+    $config = Zend_Registry::get('config');
+    // all etds should be member of etd collection
+    $this->assertTrue(isset($etd->rels_ext->isMemberOfCollection), "RELS-EXT property isMemberOfCollection is set");
+    $this->assertTrue($etd->rels_ext->isMemberOfCollections->includes($etd->rels_ext->pidToResource($config->collections->all_etd)),
+        "template etd has isMemberOfCollection relation to etd collection");
+    $this->assertPattern('|<rel:isMemberOfCollection\s+rdf:resource="info:fedora/' .
+			 $config->collections->all_etd. '".*/>|',
+			 $etd->rels_ext->saveXML()); 
   }
 
   function testAddCommittee() {	// committee chairs and members
@@ -323,7 +350,7 @@ class TestEtd extends UnitTestCase {
 
     $this->assertEqual($etd->mods->title, $etd->dc->title);
     $this->assertEqual($etd->mods->abstract, $etd->dc->description);
-    $this->assertEqual($etd->mods->ark, $etd->dc->ark);	// fix dc class
+    $this->assertEqual($etd->mods->identifier, $etd->dc->ark);	
     $this->assertEqual($etd->mods->author->full, $etd->dc->creator);
     $this->assertEqual($etd->mods->chair[0]->full, $etd->dc->contributor);
     $this->assertEqual($etd->mods->language->text, $etd->dc->language);
@@ -432,6 +459,44 @@ class TestEtd extends UnitTestCase {
     $this->assertFalse($this->etd->isHonors(), "etd is not honors etd");
   }
 
+  function testSetOAIidentifier() {
+      $this->etd->mods->ark = "ark:/123/bcd";
+      $this->etd->setOAIidentifier();
+      $this->assertTrue(isset($this->etd->rels_ext->oaiID), "oai id is set in RELS-EXT");
+      $this->assertEqual("oai:ark:/123/bcd", $this->etd->rels_ext->oaiID);
+
+      // should get an error if ark has not been set in the mods
+      $this->etd->mods->ark = "";
+      $this->expectException(new Exception("Cannot set OAI identifier without ARK."));
+      $this->etd->setOAIidentifier();
+      
+  }
+
+  function testMagicMethods() {
+      $fedora = Zend_Registry::get("fedora");
+      // ingest a minimal, published record to test fedora methods as object methods
+      $etd = new etd();
+      $etd->pid = "demo:17";
+      $etd->title = "test etd";
+      $etd->mods->ark = "ark:/123/bcd";
+      $etd->setStatus("published");            
+      $pid = $fedora->ingest($etd->saveXML(), "test etd magic methods");
+
+      $etd = new etd($pid);
+      $marcxml = $etd->getMarcxml();
+      $this->assertNotNull($marcxml, "getMarcxml() return response should not be empty");
+      $this->assertPattern("|<marc:record|", $marcxml, "getMarcxml() result looks like marc xml");
+
+      $etdms = $etd->getEtdms();
+      $this->assertNotNull($etdms, "getEtdms() return response should not be empty");
+      $this->assertPattern("|<oai_dc.*etdms|s", $etdms, "getEtdms() result looks like ETD-MS");
+
+      $mods = $etd->getMods();
+      $this->assertNotNull($mods, "getMods() return response should not be empty");
+      $this->assertPattern("|<mods:mods|", $mods, "getMods () result looks like MODS");
+
+      $fedora->purge("demo:17", "removing test etd");
+  }
   
 
 }

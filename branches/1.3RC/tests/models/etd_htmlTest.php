@@ -64,12 +64,12 @@ class TestEtdHtml extends UnitTestCase {
   }
 
   function testRemoveTags() {
-    $this->assertPattern("/^content in divs\s+$/",
+    $this->assertPattern("/^content in divs\s*$/",
 		       etd_html::removeTags("<div>content in divs</div>", true));
     // no top-level wrapping element
     $this->assertPattern("/paragraph 1\s+paragraph 2/",
 		       etd_html::removeTags("<p>paragraph 1</p> <p>paragraph 2</p>", true));
-    $this->assertPattern("/^formatting\s+$/",
+    $this->assertPattern("/^formatting\s*$/",
 		       etd_html::removeTags("<p class='MsoNormal' font-color='black'>formatting</p>", true));
 
     // non-encoded special characters should be tidied, not lost
