@@ -41,7 +41,8 @@
 <h1>Search Results</h1>
 <?php if(Zend_Registry::get('env-config')->mode != "production") { ?>
 	<h2>MODE: <?= Zend_Registry::get('env-config')->mode ?></h2>
-	<h3>Query: <span style="color:red"><?= $this->searchQuery ?></span></h3><br/>
+	<h3>QUERY: <span style="color:red"><?=$this->searchQuery ?></span></h3><br/>
+    <h3>QUERY SUMMARY: <span style="color:red"><?=$this->querySummary ?></span></h3><br/>
 <?php } ?>
 
 <!--  Based on browse/list.phtml -->
@@ -53,7 +54,7 @@
 	
 <?=  $this->render('browse/_paging.phtml'); ?>	       
 
- <textarea dojoType="dijit._editor.RichText" id="lastYearETDReport">	
+ <textarea dojoType="dijit._editor.RichText" id="commencementETDReport">
 <? foreach ($this->etdSet->etds as $etd): ?>
   <? $this->etd = $etd; ?>
   <?=  $this->render('report/shortrecord.phtml'); ?>
