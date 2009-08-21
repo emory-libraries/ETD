@@ -28,7 +28,7 @@
 			}
 
 
-//			dojo.html.selectElement(dijit.byId('lastYearETDReport'));
+<?php			//dojo.html.selectElement(dijit.byId('lastYearETDReport')); ?>
 		});
 	</script>
 	<head>
@@ -40,16 +40,16 @@
 
 <h1>Commencement Report </h1>
 
-	<!-- Change this paragraph if the query changes -->
+	<?php //Change this paragraph if the query changes ?>
     <p>
         Selected all records with degree <span style="font-weight:bold">PhD</span>
-        published between <span style="font-weight:bold"><?=$this->lastDate ?></span> and
-        <span style="font-weight:bold"><?=$this->nextDate ?></span> or not yet published and with status not
+        published between <span style="font-weight:bold"><?=$this->startDate ?></span> and
+        <span style="font-weight:bold"><?=$this->endDate ?></span> or not yet published and with status not
         <span style="font-weight:bold">inactive</span>.
     </p>
 
 
-<!--  Based on browse/list.phtml -->
+<?php //Based on browse/list.phtml ?>
 
 <? if ($this->list_title): ?>
      <h1><?= $this->list_title ?></h1>

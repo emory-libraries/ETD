@@ -53,40 +53,29 @@ class ReportControllerTest extends ControllerTestCase {
     $ReportController->commencementAction();
 
     $this->assertTrue(isset($ReportController->view->title));
-    $this->assertTrue(isset($ReportController->view->lastDate));
-    $this->assertTrue(isset($ReportController->view->nextDate));
-    $this->assertPattern("/\d{4}\-\d{2}\-\d{2}/", $ReportController->view->lastDate, "Format should be Y-m-d");
-    $this->assertPattern("/\d{4}\-\d{2}\-\d{2}/", $ReportController->view->nextDate, "Format should be Y-m-d");
+    $this->assertTrue(isset($ReportController->view->startDate));
+    $this->assertTrue(isset($ReportController->view->endDate));
+    $this->assertPattern("/\d{4}\-\d{2}\-\d{2}/", $ReportController->view->startDate, "Format should be Y-m-d");
+    $this->assertPattern("/\d{4}\-\d{2}\-\d{2}/", $ReportController->view->endDate, "Format should be Y-m-d");
     
     $etdSet = $ReportController->view->etdSet;
     $this->assertIsA($etdSet, 'EtdSet', "etdSet is a etdSet object.");
     
-    //test as student
-    $ep = new esdPerson();
-    $this->test_user = $ep->getTestPerson();
+    //test as student,  all other tests are done as admin
     $this->test_user->role = "student";
-    $this->test_user->netid = "test_user";
     Zend_Registry::set('current_user', $this->test_user);
     $this->assertFalse($ReportController->commencementAction() );
     
-    //test as admin
-    $ep = new esdPerson();
-    $this->test_user = $ep->getTestPerson();
-    $this->test_user->role = "admin";
-    $this->test_user->netid = "test_user";
-    Zend_Registry::set('current_user', $this->test_user);
-    $ret=$ReportController->commencementAction();
-    $this->assertFalse(isset($ret));
-
-
-  }
+}
 
   function testGetCommencementDateRange() {
     $ReportController = new ReportControllerForTest($this->request,$this->response);
-    list($lastDate, $nextDate) = $ReportController->getCommencementDateRange();
+    list($startDate, $endDate) = $ReportController->getCommencementDateRange();
 
-    $this->assertEqual($lastDate, mktime(0, 0, 0, 6, 1, (date("Y")-1)));
-    $this->assertEqual($nextDate, mktime(0, 0, 0, 5, 31, date("Y")));
+    $this->assertEqual("06-01",  (date("m-d", $startDate)));
+    $this->assertEqual("05-31",  (date("m-d", $endDate)));
+    $this->assertEqual(1,  date("Y", $endDate) - date("Y", $startDate));
+    
         
   }	
 
