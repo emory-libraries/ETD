@@ -38,12 +38,16 @@
 	</style>
 	</head>
 
-<h1>Search Results</h1>
-<?php if(Zend_Registry::get('env-config')->mode != "production") { ?>
-	<h2>MODE: <?= Zend_Registry::get('env-config')->mode ?></h2>
-	<h3>QUERY: <span style="color:red"><?=$this->searchQuery ?></span></h3><br/>
-    <h3>QUERY SUMMARY: <span style="color:red"><?=$this->querySummary ?></span></h3><br/>
-<?php } ?>
+<h1>Commencement Report </h1>
+
+	<!-- Change this paragraph if the query changes -->
+    <p>
+        Selected all records with degree <span style="font-weight:bold">PhD</span>
+        published between <span style="font-weight:bold"><?=$this->lastDate ?></span> and
+        <span style="font-weight:bold"><?=$this->nextDate ?></span> or not yet published and with status not
+        <span style="font-weight:bold">inactive</span>.
+    </p>
+
 
 <!--  Based on browse/list.phtml -->
 

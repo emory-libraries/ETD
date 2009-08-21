@@ -48,35 +48,46 @@ class ReportControllerTest extends ControllerTestCase {
     Zend_Registry::set('current_user', null);
   }
   
-  function testLastYearAction() {
+  function testcommencementAction() {
     $ReportController = new ReportControllerForTest($this->request,$this->response);
-    $ReportController->lastyearAction();
+    $ReportController->commencementAction();
 
     $this->assertTrue(isset($ReportController->view->title));
+    $this->assertTrue(isset($ReportController->view->lastDate));
+    $this->assertTrue(isset($ReportController->view->nextDate));
+    $this->assertPattern("/\d{4}\-\d{2}\-\d{2}/", $ReportController->view->lastDate, "Format should be Y-m-d");
+    $this->assertPattern("/\d{4}\-\d{2}\-\d{2}/", $ReportController->view->nextDate, "Format should be Y-m-d");
     
     $etdSet = $ReportController->view->etdSet;
     $this->assertIsA($etdSet, 'EtdSet', "etdSet is a etdSet object.");
-    if($etdSet!=null && count($etdSet)>0) {
-    	foreach ($etdSet->etds as $etd) {
-    		$this->assertTrue($etd!=null,"ETD should not be null");
-    		$this->assertTrue($etd->author()!=null,"ETD Author should not be null");
-			$this->assertTrue($etd->title()!=null,"ETD Title should not be null");
-    		$this->assertTrue($etd!=null,"ETD should not be null");
-    		$etdAdvisors = $etd->chair(); 
-    		if($etdAdvisors!=null && count($etdAdvisors)>0) {
-    			foreach ($etdAdvisors as $advisor) {
-    				$this->assertTrue($advisor!=NULL,"Advisor: " . $advisor . "should not be null");
-    			}
-    		} 
-    	}
-	}
-  }	
-
-  function testGetLastYearDateRange() {
-    $ReportController = new ReportControllerForTest($this->request,$this->response);
-    $lastYearDateRange = $ReportController->getLastYearDateRange();
     
-    $this->assertPattern("/\[\d{8}\s[T][O]\s\d{8}\]/", $lastYearDateRange, "Last Year Date Range should be in format: [yyyymmdd TO yyyymmdd]. " . $lastYearDateRange );
+    //test as student
+    $ep = new esdPerson();
+    $this->test_user = $ep->getTestPerson();
+    $this->test_user->role = "student";
+    $this->test_user->netid = "test_user";
+    Zend_Registry::set('current_user', $this->test_user);
+    $this->assertFalse($ReportController->commencementAction() );
+    
+    //test as admin
+    $ep = new esdPerson();
+    $this->test_user = $ep->getTestPerson();
+    $this->test_user->role = "admin";
+    $this->test_user->netid = "test_user";
+    Zend_Registry::set('current_user', $this->test_user);
+    $ret=$ReportController->commencementAction();
+    $this->assertFalse(isset($ret));
+
+
+  }
+
+  function testGetCommencementDateRange() {
+    $ReportController = new ReportControllerForTest($this->request,$this->response);
+    list($lastDate, $nextDate) = $ReportController->getCommencementDateRange();
+
+    $this->assertEqual($lastDate, mktime(0, 0, 0, 6, 1, (date("Y")-1)));
+    $this->assertEqual($nextDate, mktime(0, 0, 0, 5, 31, date("Y")));
+        
   }	
 
 }
