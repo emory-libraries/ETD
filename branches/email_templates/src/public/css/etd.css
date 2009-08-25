@@ -996,3 +996,5 @@ div.autocomplete ul li {
 
 span.ok { color:green;  }
 span.incomplete { color:red; }
+
+span.phpcode { color:red;}

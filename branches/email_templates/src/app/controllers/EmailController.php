@@ -57,6 +57,29 @@ class EmailController extends Etd_Controller_Action {
      
    }
 
+   public function editAction() {
+     //     print "<pre>"; print_r($this->_getAllParams()); print "</pre>";
+     // if previewing Preview=Preview, edit_content= template
+     if ($this->_hasParam("preview")) {
+       $this->view->preview = true;
+       $this->view->edit_content = stripslashes($this->_getParam("edit_content"));
+       $preview_content = html_entity_decode($this->view->edit_content);
+       $preview_content = preg_replace(array('/<span class="phpcode">{%/', "|%}</span>|"),
+				       array("<?", "?>"), $preview_content); 
+       $this->view->preview_content = $preview_content;
+       // sample etd to display preview with (TODO: use list as on view page...)
+       $this->_setParam("pid", "emory:8g3j");
+       $this->view->etd = $this->_helper->getFromFedora("pid", "etd");
+     } else {
+       $this->view->template = $template = $this->_getParam("template");
+       $content = file_get_contents("../app/views/scripts/email/" . $template . ".phtml");
+       // may want to filter out debug then always add it back...
+       $content = preg_replace(array("/<\?/", "/\?>/"), array("<span class='phpcode'>{%", "%}</span>"), $content);
+       $this->view->edit_content = $content;
+     }     
+   }
+
+
 }
 
 
