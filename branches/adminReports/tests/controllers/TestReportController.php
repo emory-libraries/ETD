@@ -8,6 +8,7 @@ class ReportControllerTest extends ControllerTestCase {
   // array of test foxml files & their pids 
   private $etdxml;
   private $test_user;
+  private $solr;
   
   function setUp() {
     $ep = new esdPerson();
@@ -23,27 +24,13 @@ class ReportControllerTest extends ControllerTestCase {
     $this->response = $this->makeResponse();
     $this->request  = $this->makeRequest();
 
-//    $this->etdxml = array("etd1" => "test:etd1",
-//			  "etd2" => "test:etd2",
-//			  "user" => "test:user1",
-//			  //"etd3" => "test:etd3",	// not working for some reason
-//			  );
-//    
-//
-//    // load a test objects to repository
-//    // NOTE: for risearch queries to work, syncupdates must be turned on for test fedora instance
-//    foreach (array_keys($this->etdxml) as $etdfile) {
-//      $pid = fedora::ingest(file_get_contents('../fixtures/' . $etdfile . '.xml'), "loading test etd");
-//    }
-//
-    $solr = &new Mock_Etd_Service_Solr();
-    Zend_Registry::set('solr', $solr);
+
+    $this->solr = &new Mock_Etd_Service_Solr();
+    Zend_Registry::set('solr', $this->solr);
   }
   
   function tearDown() {
-//    foreach ($this->etdxml as $file => $pid)
-//      fedora::purge($pid, "removing test etd");
-//
+
     Zend_Registry::set('solr', null);
     Zend_Registry::set('current_user', null);
   }
@@ -66,6 +53,32 @@ class ReportControllerTest extends ControllerTestCase {
     Zend_Registry::set('current_user', $this->test_user);
     $this->assertFalse($ReportController->commencementAction() );
     
+}
+
+function testgradDataAction() {
+    $field = "dateIssued";
+    $this->solr->response->facets = new Emory_Service_Solr_Response_Facets(array("dateIssued" =>
+										 array("20070604" => "1",
+										      "20070919" => "2",
+                                              "20071231" => "3",
+                                              "20080531" => "4",
+                                              "20080831" => "5",
+                                              "20081231" =>  "6",
+                                              "20090531" => "7",
+                                              "20090831" => "8" )));
+
+    $ReportController = new ReportControllerForTest($this->request,$this->response);
+    $ReportController->gradDataAction();
+
+    $this->assertTrue(isset($ReportController->view->options));
+    $this->assertTrue(isset($ReportController->view->curStart));
+    $this->assertTrue(isset($ReportController->view->curEnd));
+
+    //test as student,  all other tests are done as admin
+    $this->test_user->role = "student";
+    Zend_Registry::set('current_user', $this->test_user);
+    $this->assertFalse($ReportController->gradDataAction() );
+
 }
 
   function testGetCommencementDateRange() {
