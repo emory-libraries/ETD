@@ -106,7 +106,7 @@
   </xsl:template>
 
   <!-- ignore originInfo issuance -->
-  <xsl:template match="mods:originInfo/mods:issuance" />
+  <xsl:template match="mods:originInfo/mods:issuance" priority="2"/>
   
   <!-- date fields -->
   <xsl:template match="mods:originInfo/*">
