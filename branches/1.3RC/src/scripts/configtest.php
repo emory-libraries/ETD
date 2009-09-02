@@ -109,6 +109,8 @@ $tester->plural("facet");
 
 // initialize solr and run a basic search to test setup
 require_once("Etd/Service/Solr.php");
+// solr requires main config in registry
+Zend_Registry::set("config", new Zend_Config_Xml($config_dir . "config.xml", $env_mode));
 $solr = new Etd_Service_Solr($tester->config->server,
 			     $tester->config->port,
 			     $tester->config->path);
