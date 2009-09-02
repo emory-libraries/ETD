@@ -63,7 +63,7 @@ $tester->ok();
 // fedora
 $tester->load_xmlconfig($config_dir . "fedora.xml", $env_mode);
 $tester->check_notblank(array("server", "port", "username", "password",
-			      "protocol", "resourceindex",
+			      "protocol", "risearch",
 			      "maintenance_account" => array("username", "password")
 			      )
 			);
