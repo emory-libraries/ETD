@@ -85,7 +85,7 @@ $tester->check_notblank(array("adapter", "dbSchema",
 			      "params" => array("username", "password", "dbname")
 			      )
 			);
-$tester->check_recommended("apater", "Oracle");
+$tester->check_recommended("adapter", "Oracle");
 // fixme: try to initialize esd & check connection? how to test?
 $tester->ok();
 
