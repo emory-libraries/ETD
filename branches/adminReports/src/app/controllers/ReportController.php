@@ -56,7 +56,7 @@ class ReportController extends Etd_Controller_Action {
         //Create first and thus default choice
         //We are looking for completed yeears only!
         //If the report is run durring an academic year we get the most renct complted year: December from 2 years ago and  August from 1 yer ago
-        //If it is betwen the end of one and the start of the other: we get Decenber for previous year and August for curent your
+        //If it is betwen the end of one and the start of the next: we get Decenber for previous year and August for curent your
         if($curDate < strtotime("$acEnd +1 day", $curDate)){
             $startDate = strtotime("$acStart -2 years" , $curDate);
             $endDate = strtotime("$acEnd -1 year" , $curDate);
@@ -66,12 +66,12 @@ class ReportController extends Etd_Controller_Action {
             $endDate = strtotime($acEnd, $curDate);
         }
 
-        $options[date("Ymd", $startDate).":".date("Ymd", $endDate)]=date("Y", $startDate) . " - " . date("Y", $endDate);
+        $options[date("Ymd", $startDate).":".date("Ymd", $endDate)]=date("Y/m", $startDate) . " - " . date("Y/m", $endDate);
 
         for($i=0; $i < $numYears; $i++){
             $startDate=strtotime("-1 year" , $startDate);
             $endDate=strtotime("-1 year" , $endDate);
-            $options[date("Ymd", $startDate).":".date("Ymd", $endDate)]=date("Y", $startDate) . " - " . date("Y", $endDate);
+            $options[date("Ymd", $startDate).":".date("Ymd", $endDate)]=date("Y/m", $startDate) . " - " . date("Y/m", $endDate);
         }
 
         //#####DEGUG######
@@ -95,6 +95,66 @@ class ReportController extends Etd_Controller_Action {
 
     }
 
+    /*
+     * Action to creat CSV file from submitted date range
+     */
+    public function gradDataCsvAction(){
+        //get start and end dates from form post
+        list($start, $end)=split(":", $_POST["academicYear"]);
+       
+        //Query solr
+        $optionsArray = array();
+		$optionsArray['query'] = "(degree_name:PhD OR degree_name:MS OR degree_name:MA) AND dateIssued:[$start TO $end]";
+		$optionsArray['sort'] = "author";
+		$optionsArray['max'] = 100;
+
+	    $etdSet = new EtdSet();
+	    $etdSet->find($optionsArray);
+
+        //Create HeaderRow for CSV file
+        $csvHeaderRow=array("Author Netid", "Author Full Name",
+                            "Chair1 Netid", "Chair1 Full Name",
+                            "Chair2 Netid", "Chair2 Full Name",
+                            "Committee1 Netid", "Committee1 Full Name",
+                            "Committee2 Netid", "Committee2 Full Name",
+                            "Committee3 Netid", "Committee3 Full Name",
+                            "Committee4 Netid", "Committee4 Full Name",
+                            "Non-emory Committee1 Full Name", "Non-emory Committee1 Assocation",
+                            "Non-emory Committee2 Full Name", "Non-emory Committee2 Assocation",
+                            "Non-emory Committee3 Full Name", "Non-emory Committee3 Assocation",
+                            "Non-emory Committee4 Full Name", "Non-emory Committee4 Assocation",
+                            "Type", "Program", "Publication Date"
+                            );
+
+        $data[]=$csvHeaderRow; //add to data array
+
+        //Create data
+        foreach($etdSet->etds as $etd){
+            $line=array();
+            $line[]=$etd->mods->author->id;
+            $line[]=$etd->mods->author->full;
+            $line=$this->addCSVFields($etd, $line, "chair", array("id", "full"), 2);
+            $line=$this->addCSVFields($etd, $line, "committee", array("id", "full"), 4);
+             $line=$this->addCSVFields($etd, $line, "nonemory_committee", array("full", "affiliation"), 4);
+            $line[]=$etd->mods->genre;
+            $line[]=$etd->program();
+            $line[]=date("Y-m-d", strtotime($etd->mods->originInfo->issued));
+
+            $data[]=$line;
+        }
+        
+        $this->view->data=$data;
+
+       
+       //set HTML headers in response to make output downloadable
+       $this->_helper->layout->disableLayout();
+       $filename = "GradReport-".date("Ymd", strtotime($start))."-".date("Ymd", strtotime($end)).".csv";
+       $this->getResponse()->setHeader('Content-Type', "text/csv");
+       $this->getResponse()->setHeader('Content-Disposition', 'attachment; filename="' . $filename . '"');
+    }
+
+
+
     /**
      * Creates a timestamp for 06-01 of last year and a timestamp of 05-31 of this year
      * Returns both in an Array
@@ -107,4 +167,31 @@ class ReportController extends Etd_Controller_Action {
 
 		return array($startDate, $endDate);
 	}
+
+
+    /*
+     * This function takes
+     *  @param etdSet $etd - The etd result set
+     * @paam array $line - The current CSV line that is being built
+     * @paam string $group - The group of the field that is being added
+     * @param array $fields - List of fields from the group
+     * @param int $max - Max number of fields to add
+     * @return array - The origanal line with new fields added
+     */
+    public function addCSVFields($etd, $line, $group, $fields, $max){
+        for($i=0; $i < $max; $i++)
+        {
+            if( isset($etd->mods->{$group}[$i]) )
+            {
+                foreach($fields as $field)
+                $line[]=$etd->mods->{$group}[$i]->$field;
+            }
+            else
+            {
+                foreach($fields as $field)
+                $line[]="";
+            }
+        }
+        return $line;
+    }
 }
