@@ -1,4 +1,4 @@
-#!/usr/bin/php -q
+#!/usr/bin/env php -q
 <?php
 
 // set up include path, fedora/db connections, load common models, etc.
