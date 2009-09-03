@@ -81,6 +81,16 @@ function testgradDataAction() {
 
 }
 
+function testgradDataCsvAction() {
+
+    $ReportController = new ReportControllerForTest($this->request,$this->response);
+    //set post data
+    $this->setUpPost(array('academicYear' => "20081231:20090831"));
+    $ReportController->gradDataCsvAction();
+
+    $this->assertTrue(isset($ReportController->view->data));
+}
+
   function testGetCommencementDateRange() {
     $ReportController = new ReportControllerForTest($this->request,$this->response);
     list($startDate, $endDate) = $ReportController->getCommencementDateRange();
