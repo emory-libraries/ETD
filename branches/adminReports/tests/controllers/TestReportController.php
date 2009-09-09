@@ -24,15 +24,27 @@ class ReportControllerTest extends ControllerTestCase {
     $this->response = $this->makeResponse();
     $this->request  = $this->makeRequest();
 
+    $fedora=Zend_Registry::get("fedora");
+    $this->pid = $fedora->ingest(file_get_contents('../fixtures/etd2.xml'), "loading test etd");
 
     $this->solr = &new Mock_Etd_Service_Solr();
     Zend_Registry::set('solr', $this->solr);
+
+    $fname = '../fixtures/etd2.xml';
+    $dom = new DOMDocument();
+    $dom->load($fname);
+    $this->etd = new etd($dom);
+
+
   }
   
   function tearDown() {
 
     Zend_Registry::set('solr', null);
     Zend_Registry::set('current_user', null);
+    $fedora=Zend_Registry::get("fedora");
+    $fedora->purge($this->pid, "removing test etd");
+
   }
   
   function testcommencementAction() {
@@ -86,9 +98,42 @@ function testgradDataCsvAction() {
     $ReportController = new ReportControllerForTest($this->request,$this->response);
     //set post data
     $this->setUpPost(array('academicYear' => "20081231:20090831"));
+   $etd = &new MockEtd();
+    $etd->PID = $this->pid;
+    //print "PID: $this->pid";
+    $this->solr->response->docs[] = $etd;
+
     $ReportController->gradDataCsvAction();
 
     $this->assertTrue(isset($ReportController->view->data));
+    
+    //Test to make sure data is an array of arrays
+    $this->assertisA($ReportController->view->data, "array");
+
+    foreach($ReportController->view->data as $line){
+        $this->assertisA($line, "array");
+    }
+
+    $this->assertEqual($ReportController->view->data[1][1], "Duck, Daffy");
+    $this->assertEqual($ReportController->view->data[1][22], "Dissertation");
+
+    $response = $ReportController->getResponse();
+    $headers = $response->getHeaders();
+    $this->assertEqual("Content-Type", $headers[0]["name"]);
+    $this->assertEqual("text/csv", $headers[0]["value"]);
+    $this->assertEqual("Content-Disposition", $headers[1]["name"]);
+    $this->assertPattern("/attachment; filename=\"GradReport-\d{8}-\d{8}\.csv\"/", $headers[1]["value"]);
+       
+    //print "<pre>";
+    //print_r($ReportController->view->data);
+    //print_r($headers);
+    //print "</pre>";
+
+
+    //test as student,  all other tests are done as admin
+    $this->test_user->role = "student";
+    Zend_Registry::set('current_user', $this->test_user);
+    $this->assertFalse($ReportController->gradDataCsvAction() );
 }
 
   function testGetCommencementDateRange() {
@@ -100,8 +145,16 @@ function testgradDataCsvAction() {
     $this->assertEqual(1,  date("Y", $endDate) - date("Y", $startDate));
     
         
-  }	
+  }
 
+  function testAddCSVFields(){
+      $ReportController = new ReportControllerForTest($this->request,$this->response);
+
+      $line=$ReportController->addCSVFields($this->etd, "chair", array("id", "full"), 3);
+
+      $this->assertIsA($line, "array");
+      $this->assertEqual(count($line), 6);
+  }
 }
 
 

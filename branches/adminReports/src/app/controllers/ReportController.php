@@ -96,11 +96,17 @@ class ReportController extends Etd_Controller_Action {
     }
 
     /*
-     * Action to creat CSV file from submitted date range
+     * Action to create CSV file from submitted date range
      */
     public function gradDataCsvAction(){
-        //get start and end dates from form post
-        list($start, $end)=split(":", $_POST["academicYear"]);
+        if (!$this->_helper->access->allowedOnEtd("manage")) {return false;}
+
+        //get start and end dates from post
+        $inputField="academicYear";
+
+        if($this->_hasParam($inputField)){
+            list($start, $end) = split(":", $this->_getParam($inputField));
+        }
        
         //Query solr
         $optionsArray = array();
@@ -126,24 +132,27 @@ class ReportController extends Etd_Controller_Action {
                             "Type", "Program", "Publication Date"
                             );
 
-        $data[]=$csvHeaderRow; //add to data array
+        $data[] = $csvHeaderRow; //add to data array
 
         //Create data
         foreach($etdSet->etds as $etd){
-            $line=array();
-            $line[]=$etd->mods->author->id;
-            $line[]=$etd->mods->author->full;
-            $line=$this->addCSVFields($etd, $line, "chair", array("id", "full"), 2);
-            $line=$this->addCSVFields($etd, $line, "committee", array("id", "full"), 4);
-             $line=$this->addCSVFields($etd, $line, "nonemory_committee", array("full", "affiliation"), 4);
-            $line[]=$etd->mods->genre;
-            $line[]=$etd->program();
-            $line[]=date("Y-m-d", strtotime($etd->mods->originInfo->issued));
+            //print "<pre>";
+            //print_r($etd);
+            //print "</pre>";
+            $line = array();
+            $line[] = $etd->mods->author->id;
+            $line[] = $etd->mods->author->full;
+            $line=array_merge($line, $this->addCSVFields($etd,  "chair", array("id", "full"), 2));
+            $line=array_merge($line, $this->addCSVFields($etd, "committee", array("id", "full"), 4));
+            $line=array_merge($line, $this->addCSVFields($etd, "nonemory_committee", array("full", "affiliation"), 4));
+            $line[] = $etd->mods->genre;
+            $line[] = $etd->program();
+            $line[] = $etd->mods->originInfo->issued;
 
-            $data[]=$line;
+            $data[] = $line;
         }
         
-        $this->view->data=$data;
+        $this->view->data = $data;
 
        
        //set HTML headers in response to make output downloadable
@@ -170,26 +179,28 @@ class ReportController extends Etd_Controller_Action {
 
 
     /*
-     * This function takes
+     * This returns new fields to be added to the current CSV line, from the dataset $etdSet
+     * It retreives the fields spracified in $fields from the section of the
+     * response specified by $group.  $max limits the number of sets to be added
+     * Example:  addCSVFields($etd, "chair", array("id", "full"), 2):
+     * Would add $etd->mods->chair->id and $etd->mods->chair->full fields to the
+     * CSV line from the first two entries in the $etd->mods->chair array.
      *  @param etdSet $etd - The etd result set
-     * @paam array $line - The current CSV line that is being built
      * @paam string $group - The group of the field that is being added
      * @param array $fields - List of fields from the group
      * @param int $max - Max number of fields to add
      * @return array - The origanal line with new fields added
      */
-    public function addCSVFields($etd, $line, $group, $fields, $max){
-        for($i=0; $i < $max; $i++)
-        {
-            if( isset($etd->mods->{$group}[$i]) )
-            {
+    public function addCSVFields($etd, $group, $fields, $max){
+        for($i = 0; $i < $max; $i++){
+            if( isset($etd->mods->{$group}[$i]) ){
                 foreach($fields as $field)
-                $line[]=$etd->mods->{$group}[$i]->$field;
+                $line[] = $etd->mods->{$group}[$i]->$field;
             }
-            else
-            {
-                foreach($fields as $field)
-                $line[]="";
+            else{
+                foreach($fields as $field){
+                    $line[] = "";
+                }
             }
         }
         return $line;
