@@ -13,6 +13,7 @@ class XsltGroupTest extends GroupTest {
   function XsltGroupTest() {
     $this->GroupTest('ETD XSLT tests');
     $this->addTestFile('xslt/cleanModsTest.php');
+    $this->addTestFile('xslt/etdmsTest.php');
   }
 }
 
