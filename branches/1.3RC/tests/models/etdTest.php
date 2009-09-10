@@ -489,7 +489,7 @@ class TestEtd extends UnitTestCase {
 
       $etdms = $etd->getEtdms();
       $this->assertNotNull($etdms, "getEtdms() return response should not be empty");
-      $this->assertPattern("|<oai_dc.*etdms|s", $etdms, "getEtdms() result looks like ETD-MS");
+      $this->assertPattern("|<thesis|", $etdms, "getEtdms() result looks like ETD-MS");
 
       $mods = $etd->getMods();
       $this->assertNotNull($mods, "getMods() return response should not be empty");
