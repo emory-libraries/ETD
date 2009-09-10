@@ -111,7 +111,7 @@ class TestEtdXacml extends UnitTestCase {
 
     // permission denied on accessing MODS to create dissemination
     $this->expectError();
-    $result = $fedora->getDisseminationSOAP($this->pid, "emory-control:metadataTransform-sDef",
+    $result = $fedora->getDisseminationSOAP($this->pid, "emory-control:metadataTransform",
 					"getMarcxml");
     $this->assertFalse($result);
   }
@@ -128,7 +128,7 @@ class TestEtdXacml extends UnitTestCase {
     $fedora = Zend_Registry::get("fedora");
 
     // FIXME: sdef object pid should probably be stored in a config file or something...
-    $result = $fedora->getDisseminationSOAP($this->pid, "emory-control:metadataTransform-sDef",
+    $result = $fedora->getDisseminationSOAP($this->pid, "emory-control:metadataTransform",
 					"getMarcxml");
     $this->assertIsA($result, "MIMETypedStream",
 		     "result from getDissemination should be MIMETypedStream");
