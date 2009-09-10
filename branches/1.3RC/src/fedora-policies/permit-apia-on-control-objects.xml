@@ -29,24 +29,17 @@ access and modify (with some limitations) etd objects (etd, etdfile, user)</Desc
           <ResourceAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:resource:object:pid" DataType="http://www.w3.org/2001/XMLSchema#string"/>
         </ResourceMatch>
       </Resource>
-<!-- FIXME: temporary -->
-     <Resource>
-        <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
-          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">changeme:CModel13</AttributeValue>
-          <ResourceAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:resource:object:pid" DataType="http://www.w3.org/2001/XMLSchema#string"/>
-        </ResourceMatch>
-      </Resource>
 
 <!-- service definition & deployment -->
      <Resource>
         <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
-          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">emory-control:metadataTransform-sDef</AttributeValue>
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">emory-control:metadataTransform</AttributeValue>
           <ResourceAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:resource:object:pid" DataType="http://www.w3.org/2001/XMLSchema#string"/>
         </ResourceMatch>
       </Resource>
      <Resource>
         <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
-          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">emory-control:metadataTransform-sDep</AttributeValue>
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">emory-control:ETD-metadataTransform</AttributeValue>
           <ResourceAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:resource:object:pid" DataType="http://www.w3.org/2001/XMLSchema#string"/>
         </ResourceMatch>
       </Resource>
