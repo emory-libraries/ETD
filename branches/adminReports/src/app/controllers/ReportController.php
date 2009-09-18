@@ -205,4 +205,68 @@ class ReportController extends Etd_Controller_Action {
         }
         return $line;
     }
+
+
+        public function specalCsvAction(){
+        if (!$this->_helper->access->allowedOnEtd("manage")) {return false;}
+
+        //Query solr
+        $optionsArray = array();
+		$optionsArray['query'] = "(degree_name:PhD OR degree_name:MS OR degree_name:MA)";
+		$optionsArray['sort'] = "author";
+		$optionsArray['max'] = 300;
+
+	    $etdSet = new EtdSet();
+	    $etdSet->findEmbargoed($optionsArray);
+
+        //Create HeaderRow for CSV file
+        $csvHeaderRow=array("Author", "Author Email",
+                            "Advisor 1", "Advisor  1 Email", "Advisor 2", "Advisor  2 Email",
+                            "Ark", "Pub Date", "Embargo Date");
+
+        $data[] = $csvHeaderRow; //add to data array
+
+        //Create data
+        foreach($etdSet->etds as $etd){
+            $line = array();
+            $line[] = $etd->mods->author->full;
+            $line[] = $etd->authorInfo->mads->permanent->email;
+
+            //Get advisor and advisor emails
+            $max=2;
+            for($i = 0; $i < $max; $i++){
+
+            if( isset($etd->mods->chair[$i]) ){
+                $line[] = $etd->mods->chair[$i]->full;
+
+                $esd = new esdPersonObject();
+                $person = $esd->findByUsername($etd->mods->chair[$i]->id);
+                $line[] = $person->email;
+            }
+            else{
+                for($i = 0; $i < $max; $i++){
+                    $line[] = "";
+                }
+            }
+        }
+
+            $line[] = $etd->ark();
+            $line[] = $etd->mods->originInfo->issued;
+            $line[] = $etd->mods->embargo_end;
+            
+
+            $data[] = $line;
+        }
+
+        $this->view->data = $data;
+
+
+       //set HTML headers in response to make output downloadable
+       $this->_helper->layout->disableLayout();
+       $filename = "Specal.csv";
+       $this->getResponse()->setHeader('Content-Type', "text/csv");
+       $this->getResponse()->setHeader('Content-Disposition', 'attachment; filename="' . $filename . '"');
+    }
+
+
 }
