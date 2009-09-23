@@ -56,7 +56,7 @@
 <? endif ?>
 <? if ($this->list_description): ?><h2><?= $this->list_description ?></h2><? endif ?>
 	
-<?=  $this->render('browse/_paging.phtml'); ?>	       
+    <p>Displaying <?=  count($this->etdSet->etds); ?> result(s)</p>
 
  <textarea dojoType="dijit._editor.RichText" id="commencementETDReport">
 <? foreach ($this->etdSet->etds as $etd): ?>

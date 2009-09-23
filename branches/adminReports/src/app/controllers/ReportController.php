@@ -11,10 +11,48 @@ class ReportController extends Etd_Controller_Action {
 	public function indexAction() {
 	}
 	 
-	public function commencementAction() {
+	/**
+     *This action creates a form to allows a user to select ETDs to be excluded 
+     * from the commencement report
+     */
+    public function commencementReviewAction() {
+        if (!$this->_helper->access->allowedOnEtd("manage")) {return false;}
+
+		$this->view->title = "Commencement Report Review";
+
+        //Create dates in query and human formats
+        list($startDate, $endDate) = $this->getCommencementDateRange();
+        $dateRange= "[" . date("Ymd", $startDate) . " TO " . date("Ymd", $endDate) ."]";
+
+
+		$optionsArray = array();
+		$optionsArray['query'] = "(degree_name:PhD AND (dateIssued:" . $dateRange . ") OR (-dateIssued:[* TO *] AND -status:'inactive'))";
+		$optionsArray['sort'] = "author";
+		$optionsArray['NOT']['status'] = "draft";
+		// show ALL records on a single page 
+		$optionsArray['max'] = 1000;
+		        
+	    $etdSet = new EtdSet();
+	    $etdSet->find($optionsArray);
+	    $this->view->etdSet = $etdSet;
+	}
+
+
+    /**
+     * This action produces the commencement report and filters out the excluded
+     *  pids from the previous form
+     */
+    public function commencementAction() {
         if (!$this->_helper->access->allowedOnEtd("manage")) {return false;}
 
 		$this->view->title = "Commencement Report";
+
+       //Get the list of PIDs to exclude
+       $inputField="exclude";
+
+       if($this->_hasParam($inputField)){
+            $exclude = $this->_getParam($inputField);
+       }
 
         //Create dates in query and human formats
         list($startDate, $endDate) = $this->getCommencementDateRange();
@@ -34,7 +72,17 @@ class ReportController extends Etd_Controller_Action {
 		        
 	    $etdSet = new EtdSet();
 	    $etdSet->find($optionsArray);
+        
+        //remove ETDs by pid
+        foreach($etdSet->etds as $index => $etd){
+            if(is_array($exclude) && in_array($etd->pid, $exclude)){
+               unset($etdSet->etds[$index]);
+            }
+        }
+
 	    $this->view->etdSet = $etdSet;
+
+
 	
 //	    $this->view->list_title = "Found " . count($this->view->etdSet) . " ETDs.";
 	    $this->view->list_title = "";
@@ -207,7 +255,10 @@ class ReportController extends Etd_Controller_Action {
     }
 
 
-        public function specalCsvAction(){
+        /**
+         * Action to create CSV file with Embargo data
+         */
+        public function embargoCsvAction(){
         if (!$this->_helper->access->allowedOnEtd("manage")) {return false;}
 
         //Query solr
@@ -263,7 +314,7 @@ class ReportController extends Etd_Controller_Action {
 
        //set HTML headers in response to make output downloadable
        $this->_helper->layout->disableLayout();
-       $filename = "Specal.csv";
+       $filename = "EmbargoReport.csv";
        $this->getResponse()->setHeader('Content-Type', "text/csv");
        $this->getResponse()->setHeader('Content-Disposition', 'attachment; filename="' . $filename . '"');
     }

@@ -46,9 +46,38 @@ class ReportControllerTest extends ControllerTestCase {
     $fedora->purge($this->pid, "removing test etd");
 
   }
+
+  function testcommencementReviewAction() {
+    $ReportController = new ReportControllerForTest($this->request,$this->response);
+    $ReportController->commencementReviewAction();
+
+    $this->assertTrue(isset($ReportController->view->title));
+    $etdSet = $ReportController->view->etdSet;
+    $this->assertIsA($etdSet, 'EtdSet', "etdSet is a etdSet object.");
+
+    //test as student,  all other tests are done as admin
+    $this->test_user->role = "student";
+    Zend_Registry::set('current_user', $this->test_user);
+    $this->assertFalse($ReportController->commencementAction() );
+}
+
   
   function testcommencementAction() {
     $ReportController = new ReportControllerForTest($this->request,$this->response);
+
+    //set post data
+    $this->setUpPost(array('exclude' => array("test:etd2")));
+
+    $etd = &new MockEtd();
+    $etd->PID = "test:etd1";
+    //print "PID: $this->pid";
+    $this->solr->response->docs[] = $etd;
+
+    $etd = &new MockEtd();
+    $etd->PID = $this->pid;
+    //print "PID: $this->pid";
+    $this->solr->response->docs[] = $etd;
+
     $ReportController->commencementAction();
 
     $this->assertTrue(isset($ReportController->view->title));
@@ -59,6 +88,13 @@ class ReportControllerTest extends ControllerTestCase {
     
     $etdSet = $ReportController->view->etdSet;
     $this->assertIsA($etdSet, 'EtdSet', "etdSet is a etdSet object.");
+
+    //Make sure it removed 1 etd
+    $this->assertEqual(1, count($etdSet->etds));
+
+    //Make sure remaining is correct one
+    $this->assertEqual("test:etd1", $etdSet->etds[0]->pid);
+
     
     //test as student,  all other tests are done as admin
     $this->test_user->role = "student";
@@ -135,6 +171,46 @@ function testgradDataCsvAction() {
     Zend_Registry::set('current_user', $this->test_user);
     $this->assertFalse($ReportController->gradDataCsvAction() );
 }
+
+/*function testembargoCsvAction() {
+
+    $ReportController = new ReportControllerForTest($this->request,$this->response);
+
+    $etd = &new MockEtd();
+    $etd->PID = $this->pid;
+    //print "PID: $this->pid";
+    $this->solr->response->docs[] = $etd;
+
+    $ReportController->embargoCsvAction();
+
+    $this->assertTrue(isset($ReportController->view->data));
+
+    //Test to make sure data is an array of arrays
+    $this->assertisA($ReportController->view->data, "array");
+
+    foreach($ReportController->view->data as $line){
+        $this->assertisA($line, "array");
+    }
+
+    $response = $ReportController->getResponse();
+    $headers = $response->getHeaders();
+    $this->assertEqual("Content-Type", $headers[0]["name"]);
+    $this->assertEqual("text/csv", $headers[0]["value"]);
+    $this->assertEqual("Content-Disposition", $headers[1]["name"]);
+    $this->assertEqual("attachment; filename=\"EmbargoReport.csv\"", $headers[1]["value"]);
+
+    //print "<pre>";
+    //print_r($ReportController->view->data);
+    //print_r($headers);
+    //print "</pre>";
+
+
+    //test as student,  all other tests are done as admin
+    $this->test_user->role = "student";
+    Zend_Registry::set('current_user', $this->test_user);
+    $this->assertFalse($ReportController->embargoCsvAction() );
+}*/
+
 
   function testGetCommencementDateRange() {
     $ReportController = new ReportControllerForTest($this->request,$this->response);
