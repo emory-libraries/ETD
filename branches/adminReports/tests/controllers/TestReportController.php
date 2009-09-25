@@ -231,6 +231,39 @@ function testgradDataCsvAction() {
       $this->assertIsA($line, "array");
       $this->assertEqual(count($line), 6);
   }
+  
+  function testGetSemesterDecorator() {
+    $ReportController = new ReportControllerForTest($this->request,$this->response);
+    
+    $result = $ReportController->getSemesterDecorator("20090101");
+    $this->assertEqual($result, "");
+
+    $result = $ReportController->getSemesterDecorator("20090301");
+    $this->assertEqual($result, "");
+
+    $result = $ReportController->getSemesterDecorator("20090501");
+    $this->assertEqual($result, "");
+
+    $result = $ReportController->getSemesterDecorator("20090601");
+    $this->assertEqual($result, "*");
+
+    $result = $ReportController->getSemesterDecorator("20090701");
+    $this->assertEqual($result, "*");
+
+    $result = $ReportController->getSemesterDecorator("20090801");
+    $this->assertEqual($result, "*");
+
+    $result = $ReportController->getSemesterDecorator("20090901");
+    $this->assertEqual($result, "**");
+
+        $result = $ReportController->getSemesterDecorator("20091001");
+    $this->assertEqual($result, "**");
+
+        $result = $ReportController->getSemesterDecorator("20091201");
+    $this->assertEqual($result, "**");
+    
+  }
+  
 }
 
 

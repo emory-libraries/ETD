@@ -1,18 +1,3 @@
-<?php 
-	function getSemesterDecorator($grad_date) {
-		$date_grad_date = strtotime($grad_date);
-		$decorator = "";
-		if(intval(date("m", $date_grad_date))>=1 && intval(date("m", $date_grad_date))<=5) { // SPRING!
-			$decorator = "";
-		} else if(intval(date("m", $date_grad_date))>5 && intval(date("m", $date_grad_date))<=8) { // SUMMER!
-			$decorator = "*";
-		} else if(intval(date("m", $date_grad_date))>8 && intval(date("m", $date_grad_date))<=12) { // FALL!
-			$decorator = "**";
-		}
-		return $decorator;
-	}
-?>
-
 	<script type="text/javascript"
 		djConfig="isDebug: false, parseOnLoad: true"
 		src="http://o.aolcdn.com/dojo/1.2.3/dojo/dojo.xd.js"></script>

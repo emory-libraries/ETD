@@ -73,10 +73,12 @@ class ReportController extends Etd_Controller_Action {
 	    $etdSet = new EtdSet();
 	    $etdSet->find($optionsArray);
         
-        //remove ETDs by pid
+        //remove ETDs by pid or add decorator to author name
         foreach($etdSet->etds as $index => $etd){
             if(is_array($exclude) && in_array($etd->pid, $exclude)){
                unset($etdSet->etds[$index]);
+            }else{
+                $etdSet->etds[$index]->mods->author->full.=$this->getSemesterDecorator($etd->mods->date);
             }
         }
 
@@ -258,8 +260,8 @@ class ReportController extends Etd_Controller_Action {
         /**
          * Action to create CSV file with Embargo data
          */
-        public function embargoCsvAction(){
-        if (!$this->_helper->access->allowedOnEtd("manage")) {return false;}
+    public function embargoCsvAction(){
+      if (!$this->_helper->access->allowedOnEtd("manage")) {return false;}
 
         //Query solr
         $optionsArray = array();
@@ -318,6 +320,25 @@ class ReportController extends Etd_Controller_Action {
        $this->getResponse()->setHeader('Content-Type', "text/csv");
        $this->getResponse()->setHeader('Content-Disposition', 'attachment; filename="' . $filename . '"');
     }
+
+    /**
+ * Function to retun a decorator to be used with the author name
+ *
+ * @param Date $grad_date - grad date of curent ETD
+ * @return String
+ */
+function getSemesterDecorator($grad_date) {
+		$date_grad_date = strtotime($grad_date);
+		$decorator = "";
+		if(intval(date("m", $date_grad_date))>=1 && intval(date("m", $date_grad_date))<=5) { // SPRING!
+			$decorator = "";
+		} else if(intval(date("m", $date_grad_date))>5 && intval(date("m", $date_grad_date))<=8) { // SUMMER!
+			$decorator = "*";
+		} else if(intval(date("m", $date_grad_date))>8 && intval(date("m", $date_grad_date))<=12) { // FALL!
+			$decorator = "**";
+		}
+		return $decorator;
+}
 
 
 }
