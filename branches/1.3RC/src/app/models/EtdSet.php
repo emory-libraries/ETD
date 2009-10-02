@@ -207,10 +207,12 @@ class EtdSet {
 
 	  // if query is empty, first 'AND' or 'OR' is not needed; NOT must always be used
 	  if (! empty($query) || $op == "NOT") $query .= " $prefix $op ";
-	  $query .= $field . ':"' . $value . '"'; 
+	  // using (...) -- all terms, but not exact phrase "..."
+	  $query .= $field . ':(' . $value . ')'; 
 	}
       }
     }
+
 	
     if ($query == "") $query = "*:*";
 
