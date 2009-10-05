@@ -1,11 +1,18 @@
-<? if (! in_array($this->browserInfo->parent, $this->supported_browsers)): ?>
+<? if (! in_array($this->browserInfo->parent, $this->supported_browsers)
+       && ! preg_match("|Firefox/3\.|", $_SERVER["HTTP_USER_AGENT"])): ?>
 <p class="warning">
    <span id="exclamation">!</span>
-   Your browser (<?= $this->browserInfo->browser ?> <?= $this->browserInfo->majorver ?>)
+   Your browser
+   <? if ($this->browserInfo->browser != "Default Browser" &&
+	  $this->browserInfo->majorver != 0):  /* if browser not detected, don't display */ ?>
+     (<?= $this->browserInfo->browser ?> <?= $this->browserInfo->majorver ?>) <? endif ?>
    is currently not supported for the submission process.  <br/>
    Please use one of the following:
-   <?= implode(', ', array_diff($this->supported_browsers, array("Iceweasel"))) ?>
-   <? /* Note: hiding Iceweasel to avoid confusion */ ?>
+   <?= implode(', ', $this->supported_browsers) ?>
+   <? /* special check for MSIE 8, which will only work in compatibility mode */ 
+      if (preg_match("|MSIE 8.0|", $_SERVER["HTTP_USER_AGENT"])): ?> 
+    <br/>You appear to be using <b>Internet Explorer 8</b>.  Please switch to compatibility mode.
+    <? endif ?>					
 </p>
 <? endif ?>
 

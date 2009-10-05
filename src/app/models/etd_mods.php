@@ -4,21 +4,37 @@ require_once("models/mods.php");
 
 require_once("models/esdPerson.php");
 
+/**
+ *  ETD extension of MODS XmlObject / Fedora Foxml datastream
+ *
+ * @property string $author
+ * @property string $department author affiliation
+ * @property array of mods_name $chair name with role 'Thesis Advisor'
+ * @property array of mods_name $committee name with description 'Emory Committe Member'
+ * @property array of mods_name $nonemory_committee name with description 'Non-Emory Committe Member'
+ * @property array of etdmods_subject $researchfields subject with authority 'proquestresearchfield'
+ * @property array of etdmods_subject $keywords subject with authority 'keyword'
+ * @property string $pages physicalDescription/extent
+ * @property etd_degree $degree mods:extension with etd-ms degree information
+ * @property string $copyright administrative note regarding copyright
+ * @property string $embargo_request administrative note regarding embargo request
+ * @property string $embargo restriction on access
+ * @property string $embargo_end  originInfo/dateOther with type 'embargoedUntil'
+ * @property string $embargo_notice administrative note regarding embargo notice
+ * @property string $pq_submit administrative note regarding ProQuest submission
+ * @property string $rights alternate mapping to useAndReproduction
+ * @property string $ark identifier with type 'ark'
+ * @property string $identifier identifier with type 'uri'
+ * @property string $genre genre with authority 'aat'
+ * @property string $marc_genre genre with authority 'marc'
+ */
 class etd_mods extends mods {
 
-  protected $etd_namespace = "http://www.ndltd.org/standards/metadata/etdms/1.0/";
+  const ETDMS_NS = "http://www.ndltd.org/standards/metadata/etdms/1.0/";
 
   protected $required_fields;
   protected $optional_fields;
-  
-  // auto-magic variables
-  /**
-   * @var author
-   * @var committee
-   * @var nonemory_committee
-   */
-  
-  
+ 
   // add etd-specific mods mappings
   protected function configure() {
     /** NOTE: this data is edited on several different pages;
@@ -44,7 +60,7 @@ class etd_mods extends mods {
     
     parent::configure();
 
-    $this->addNamespace("etd", $this->etd_namespace);
+    $this->addNamespace("etd", etd_mods::ETDMS_NS);
     
     $this->xmlconfig["author"] = array("xpath" => "mods:name[mods:role/mods:roleTerm = 'author']",
 				       "class_name" => "mods_name");
@@ -59,6 +75,9 @@ class etd_mods extends mods {
     $this->xmlconfig["nonemory_committee"] = array("xpath" =>
 						   "mods:name[mods:description = 'Non-Emory Committee Member']",
 						   "class_name" => "mods_name", "is_series" => "true");
+    $this->xmlconfig["degree_grantor"] = array("xpath" =>
+					       "mods:name[@type='corporate'][mods:role/mods:roleTerm='Degree grantor']",
+					       "class_name" => "mods_name");	
     
     $this->xmlconfig["researchfields"] = array("xpath" =>
 					       "mods:subject[@authority='proquestresearchfield']",
@@ -84,7 +103,11 @@ class etd_mods extends mods {
     $this->xmlconfig["rights"] = array("xpath" => "mods:accessCondition[@type='useAndReproduction']");
 
     $this->xmlconfig["ark"] = array("xpath" => "mods:identifier[@type='ark']");
-    
+    $this->xmlconfig["identifier"] = array("xpath" => "mods:identifier[@type='uri']");
+
+    // only use aat genre for normal usage; add mapping for marc-specific genre term
+    $this->xmlconfig["genre"] = array("xpath" => "mods:genre[@authority='aat']");
+    $this->xmlconfig["marc_genre"] = array("xpath" => "mods:genre[@authority='marc']");
     
   }
   
@@ -417,8 +440,63 @@ class etd_mods extends mods {
     $this->update();
   }
 
+  /**
+   * add marc genre to record if not already present
+   */
+  public function setMarcGenre() {
+      if (! isset($this->marc_genre)) {
+          $genre = $this->dom->createElementNS(mods::MODS_NS, "mods:genre");
+          $genre->setAttribute("authority", "marc");
+          $this->domnode->appendChild($genre);
+          $this->update();
+      }
+      $this->marc_genre = "thesis";
+  }
 
-  public function remove($mapname){
+  /**
+   * set recordIdentifier in MODS, adding recordInfo if necessary
+   * @param string $id
+   */
+  public function setRecordIdentifier($id) {
+      if (! isset($this->recordInfo)) {
+          $recordInfo = $this->dom->createElementNS(mods::MODS_NS, "mods:recordInfo");
+          $this->domnode->appendChild($recordInfo);
+          $this->update();
+      }
+      $this->recordInfo->identifier = $id;
+  }
+
+  /**
+   * update identifiers & urls
+   * - short form ark stored in identifier type 'ark'
+   * - resolvable ark stored in identifier type 'uri'
+   */
+  public function cleanIdentifiers() {
+    // if ark starts with http, it is the full url and needs to be updated
+    if (strpos($this->ark, "http") === 0) {
+        // store full uri identifier
+        if (!isset($this->identifier)) {
+            // if mods:identifier type uri does not exist, create & add the node
+            $newid = $this->dom->createElementNS(mods::MODS_NS, "mods:identifier");
+            $newid->setAttribute("type", "uri");
+            $this->domnode->appendChild($newid);
+            $this->update();
+        }
+        $this->identifier = $this->ark;
+        // parse ark and set as ark identifier
+        if (Zend_Registry::isRegistered("persis")) {
+            $persis =  Zend_Registry::get("persis");
+        } elseif (Zend_Registry::isRegistered("persis-config")) {
+            $persis = new Emory_Service_Persis(Zend_Registry::get("persis-config"));
+        } else {
+            throw new Exception("Neither persis nor persis-config is registered, cannot parse ARK");
+        }
+        list($nma, $naan, $noid) = $persis->parseArk($this->ark);
+        $this->ark = "ark:/" . $naan . "/" . $noid;
+    }
+  }    
+
+    public function remove($mapname){
     if (!isset($this->{$mapname})) {
       trigger_error("Cannot remove '$mapname' - not mapped", E_USER_WARNING);
       return;
@@ -690,8 +768,15 @@ class etdmods_subject extends mods_subject {
 }
 
 
-
-class etd_degree extends XmlObject {
+/**
+ *  ETD-MS degree XmlObject
+ *
+ * @property string $name degree name
+ * @property string $level degree level
+ * @property string $discipline
+ */
+class etd_degree extends modsXmlObject {
+  protected $namespace = etd_mods::ETDMS_NS;
   public function __construct($xml, $xpath) {
     $config = $this->config(array(
 	"name" => array("xpath" => "etd:name"),

@@ -47,8 +47,11 @@
       <mods:roleTerm authority="marcrelator" type="text">Degree grantor</mods:roleTerm>
     </mods:role>
   </mods:name>
+  <mods:typeOfResource>text</mods:typeOfResource>
   <mods:genre authority="aat"/>
+  <mods:genre authority="marc">thesis</mods:genre>
   <mods:originInfo>
+    <mods:issuance>monographic</mods:issuance>
     <mods:dateIssued keyDate="yes"/>
 	<!-- convert to 4-digit year, set encoding="marc" before handing off to marc transform -->
     <mods:dateOther type="embargoedUntil"/> 
@@ -74,13 +77,10 @@
   <mods:subject authority="keyword">
     <mods:topic/>
   </mods:subject>
-  <mods:identifier type="ark"/>	<!-- insert ark/pid ? -->
+  <mods:identifier type="ark"/>
+  <mods:identifier type="uri"/>
   <mods:location>
-    <mods:url/>	<!-- ark url here -->
-   <!-- can include multiple urls; need to label them properly -->
-   <!-- attributes:
-	access: preview = thumbnail; raw object = pdf, 
-		object in context = page in etd site (with link to pdf) -->
+    <mods:url usage="primary display"/>
   </mods:location>
   <mods:accessCondition type="useAndReproduction"/>
   <mods:accessCondition type="restrictionOnAccess">Embargoed for </mods:accessCondition>
@@ -95,6 +95,7 @@
   </mods:relatedItem>
 
   <mods:recordInfo>
+    <mods:recordIdentifier/>
     <mods:recordCreationDate/>
     <mods:recordChangeDate/>
   </mods:recordInfo>

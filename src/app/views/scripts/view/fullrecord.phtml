@@ -3,7 +3,6 @@
     <? if ($this->etd->status() != "published"): ?>
      <p class="note">This record is not published. Current status: <b><?= $this->etd->status() ?></b></p>
     <? endif ?>
-
 <? if ($this->acl->isAllowed($this->role, "user", "edit")): ?>
  <? if (isset($this->etd->authorInfo)): ?>
    <a class="action" href="<?= $this->url(array("controller" => "user", "action" => "edit",
@@ -29,6 +28,10 @@
    <a class="action" href="<?= $this->url(array("controller" => "edit", "action" => "program")) ?>">edit program</a>
    <? endif ?>
   <?=  $this->render('view/summary.phtml'); ?>
+  <? if ($this->etd->status() == "published"): ?>
+	<?= $this->etdCoins($this->etd); ?>
+  <? endif?>	
+
 
   <h2>Abstract</h2>
    <? if ($this->acl->isAllowed($this->role, $this->etd, "edit metadata")): ?>

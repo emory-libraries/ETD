@@ -10,10 +10,10 @@
   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
   xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
   xmlns:rel="info:fedora/fedora-system:def/relations-external#"
+  xmlns:fedora-model="info:fedora/fedora-system:def/model#"
   xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
   xmlns:etd="http://www.ndltd.org/standards/metadata/etdms/1.0/"
-  exclude-result-prefixes="exts xsl zs foxml dc mods rdf rdfs rel oai_dc etd"
-
+  exclude-result-prefixes="exts xsl zs foxml dc mods rdf rdfs rel fedora-model oai_dc etd"
   >
   <xsl:output method="xml" indent="yes" encoding="UTF-8"/>
 
@@ -37,13 +37,18 @@
   <xsl:variable name="docBoost" select="1.4*2.5"/> <!-- or any other calculation, default boost is 1.0 -->
   
   <xsl:template match="/">
-
-    <xsl:variable name="cmodel" select="/foxml:digitalObject/foxml:objectProperties/foxml:property[@NAME='info:fedora/fedora-system:def/model#contentModel']/@VALUE"/>
-    <xsl:variable name="type" select="/foxml:digitalObject/foxml:objectProperties/foxml:property[@NAME='http://www.w3.org/1999/02/22-rdf-syntax-ns#type']/@VALUE"/>
-    <xsl:variable name="state" select="/foxml:digitalObject/foxml:objectProperties/foxml:property[@NAME='info:fedora/fedora-system:def/model#state']/@VALUE"/>
     
-    <!-- limit to active Fedora Smallpox objects -->
-    <xsl:if test="$state = 'Active' and $type = 'FedoraObject' and $cmodel = 'etd'">
+    <xsl:variable name="state" select="/foxml:digitalObject/foxml:objectProperties/foxml:property[@NAME='info:fedora/fedora-system:def/model#state']/@VALUE"/>
+    <!-- pids for all current content models (comma-separated list) -->
+    <xsl:variable name="contentModel">
+        <xsl:for-each select="foxml:digitalObject/foxml:datastream[@ID='RELS-EXT']/foxml:datastreamVersion[last()]/foxml:xmlContent/rdf:RDF/rdf:Description/fedora-model:hasModel">
+            <xsl:value-of select="concat(@rdf:resource, ', ')"/>
+        </xsl:for-each>
+    </xsl:variable>
+    
+    <xsl:comment>content model is <xsl:value-of select="$contentModel"/></xsl:comment>    
+    <xsl:if test="($state = 'Active' or $state = 'Inactive')
+                    and contains($contentModel, 'emory-control:ETD-1.0')">
       <!-- FIXME: need to include etdFile objects at some point -->
       <add> 
         <doc> 
@@ -74,7 +79,7 @@
     <xsl:comment> MODS descriptive metadata</xsl:comment> 
     
     <xsl:apply-templates select="mods:titleInfo"/>
-    <xsl:apply-templates select="mods:genre"/>
+    <xsl:apply-templates select="mods:genre[@type='aat']"/>
     <xsl:apply-templates select="mods:name[@type='personal']"/>
     <xsl:apply-templates select="mods:language"/>
     <xsl:apply-templates select="mods:subject"/>
@@ -100,6 +105,8 @@
     <field name="document_type"><xsl:value-of select="text()"/></field>
   </xsl:template>
 
+  <!-- ignore originInfo issuance -->
+  <xsl:template match="mods:originInfo/mods:issuance" priority="2"/>
   
   <!-- date fields -->
   <xsl:template match="mods:originInfo/*">
@@ -298,11 +305,13 @@
 
   <!-- RELS-EXT -->
   <xsl:template match="rdf:RDF[ancestor::foxml:datastream/@ID='RELS-EXT']">
-    <xsl:apply-templates select="rdf:description/rel:etdStatus"/>
-    <xsl:apply-templates select="rdf:description/rel:hasPDF"/>
+    <xsl:apply-templates select="rdf:Description/rel:etdStatus"/>
+    <xsl:apply-templates select="rdf:Description/rel:hasPDF"/>
 
-    <xsl:apply-templates select="rdf:description/rel:program"/>
-    <xsl:apply-templates select="rdf:description/rel:subfield"/>
+    <xsl:apply-templates select="rdf:Description/rel:program"/>
+    <xsl:apply-templates select="rdf:Description/rel:subfield"/>
+
+    <xsl:apply-templates select="rdf:Description/fedora-model:hasModel"/>
   </xsl:template>
 
   <xsl:template match="rel:etdStatus">
@@ -319,6 +328,10 @@
     <xsl:if test=". != ''">                     <!-- only include if not empty -->
       <field name="subfield_id"><xsl:value-of select="."/></field>
     </xsl:if>
+  </xsl:template>
+
+   <xsl:template match="fedora-model:hasModel">
+    <field name="contentModel"><xsl:value-of select="substring-after(@rdf:resource, 'info:fedora/')"/></field>
   </xsl:template>
 
   <!-- index pdf datastream for related object -->

@@ -27,8 +27,7 @@ class TestProgramXacml extends UnitTestCase {
     
     if (!isset($this->fedoraAdmin)) {
       $fedora_cfg = Zend_Registry::get('fedora-config');
-      $this->fedoraAdmin = new FedoraConnection($fedora_cfg->user, $fedora_cfg->password,
-			       $fedora_cfg->server, $fedora_cfg->port);
+      $this->fedoraAdmin = new FedoraConnection($fedora_cfg);
     }
 
   }

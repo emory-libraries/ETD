@@ -1,9 +1,7 @@
-<foxml:digitalObject xmlns:foxml="info:fedora/fedora-system:def/foxml#" PID="test:etd1">
-  <foxml:objectProperties>
-    <foxml:property NAME="http://www.w3.org/1999/02/22-rdf-syntax-ns#type" VALUE="FedoraObject"/>
+<foxml:digitalObject xmlns:foxml="info:fedora/fedora-system:def/foxml#" PID="test:etd1" VERSION="1.1">
+  <foxml:objectProperties>    
     <foxml:property NAME="info:fedora/fedora-system:def/model#state" VALUE="Active"/>
-    <foxml:property NAME="info:fedora/fedora-system:def/model#label" VALUE="Why I Like Cheese"/>
-    <foxml:property NAME="info:fedora/fedora-system:def/model#contentModel" VALUE="etd"/>
+    <foxml:property NAME="info:fedora/fedora-system:def/model#label" VALUE="Why I Like Cheese"/>    
     <foxml:property NAME="info:fedora/fedora-system:def/model#ownerId" VALUE="mmouse"/>
   </foxml:objectProperties>
 
@@ -53,7 +51,7 @@
 	    <mods:topic>Area studies</mods:topic>
 	  </mods:subject>
 	  <mods:genre authority="aat">Dissertation</mods:genre>
-	  <mods:identifier type="ark">http://purl.bogus.com/ark:123/etd2</mods:identifier>
+	  <mods:identifier type="ark">http://purl.bogus.com/ark:/123/td2</mods:identifier>
 	  <mods:accessCondition type="restrictionOnAccess">Embargoed for </mods:accessCondition>
 	  <mods:note type="admin" ID="embargo">embargo requested? no</mods:note>
 	</mods:mods>
@@ -76,13 +74,17 @@
   <foxml:datastream CONTROL_GROUP='X' ID='RELS-EXT' STATE='A' VERSIONABLE='true'>
     <foxml:datastreamVersion ID='RELS-EXT.0' LABEL='relations' MIMETYPE='text/xml'>
       <foxml:xmlContent>
-  	<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rel="info:fedora/fedora-system:def/relations-external#">
-	  <rdf:description rdf:about="info:fedora/test:etd1">
+  	<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
+            xmlns:rel="info:fedora/fedora-system:def/relations-external#"
+            xmlns:fedora-model="info:fedora/fedora-system:def/model#">
+	  <rdf:Description rdf:about="info:fedora/test:etd1">        
+        <!--<fedora-model:hasModel rdf:resource="info:fedora/some:other-cmodel"/> -->
+        <fedora-model:hasModel rdf:resource="info:fedora/emory-control:ETD-1.0"/>
 	    <rel:etdStatus>published</rel:etdStatus>
 	    <rel:author>mmouse</rel:author>
 	    <rel:committee>dduck</rel:committee>
 	    <rel:committee>pluto</rel:committee>
-	  </rdf:description>
+	  </rdf:Description>
 	</rdf:RDF>
       </foxml:xmlContent>
     </foxml:datastreamVersion>

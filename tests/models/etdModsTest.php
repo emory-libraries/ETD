@@ -29,6 +29,8 @@ class TestEtdMods extends UnitTestCase {
     $this->assertEqual("Doctoral", $this->mods->degree->level);
     $this->assertEqual("subfield", $this->mods->degree->discipline);
     $this->assertEqual("subfield", $this->mods->subfield);
+    $this->assertIsA($this->mods->degree_grantor, "mods_name");
+    $this->assertEqual("Emory University", $this->mods->degree_grantor->namePart);
   }
   
   function testKeywords() {
@@ -380,6 +382,55 @@ class TestEtdMods extends UnitTestCase {
     $this->assertTrue($this->mods->submitToProquest());
     $this->mods->pq_submit = "no";
     $this->assertFalse($this->mods->submitToProquest());
+  }
+
+  function testSetMarcGenre() {
+      $this->mods->setMarcGenre();
+      $this->assertTrue(isset($this->mods->marc_genre), "marc genre is set");
+      $this->assertEqual("thesis", $this->mods->marc_genre,
+        "marc genre is set correctly; should be 'thesis', got '" . $this->mods->marc_genre . "'");
+      $this->assertPattern('|<mods:genre authority="marc">thesis</mods:genre>|',
+            $this->mods->saveXML(), "marc genre present in xml");
+
+      // adding again shouldn't break anything
+      $this->mods->setMarcGenre();
+      $this->assertNoPattern('|<mods:genre authority="marc">.*<mods:genre authority="marc">|',
+            $this->mods->saveXML(), "only one marc genre present in xml");
+  }
+
+  function testSetRecordIdentifier() {
+      $this->mods->setRecordIdentifier("id123");
+      $this->assertTrue(isset($this->mods->recordInfo), "recordInfo is set");
+      $this->assertTrue(isset($this->mods->recordInfo->identifier), "recordInfo/identifier is set");
+      $this->assertEqual("id123", $this->mods->recordInfo->identifier);
+      $this->assertPattern("|<mods:recordInfo>.*<mods:recordIdentifier>id123</mods:recordIdentifier>|",
+          $this->mods->saveXML());
+
+      // set again
+      $this->mods->setRecordIdentifier("id454");
+      $this->assertEqual("id454", $this->mods->recordInfo->identifier);
+      $this->assertNoPattern("|<mods:recordIdentifier>.*<mods:recordIdentifier>|",
+          $this->mods->saveXML(), "mods:recordIdentifier only appears once in xml");
+
+  }
+
+  function testCleanIdentifiers() {
+      $this->mods->cleanIdentifiers();
+      $this->assertTrue(isset($this->mods->identifier), "mods identifier is set");
+      $this->assertPattern("|^http://[a-z.]+/ark:/[0-9]+/[a-z0-9]+|", $this->mods->identifier,
+        "identifier is resolvable ark uri");
+      $this->assertPattern("|^ark:/[0-9]+/[a-z0-9]+|", $this->mods->ark,
+        "ark identifier is non-resolvable short-form ark");
+      $this->assertPattern('|<mods:identifier type="uri">http|', $this->mods->saveXML());
+
+      // running cleanIdentifiers on an already-clean record should not break anything
+      $ark = $this->mods->ark;
+      $uri = $this->mods->identifier;
+      $this->mods->cleanIdentifiers();
+      $this->assertEqual($ark, $this->mods->ark, "already cleaned ark is unchanged");
+      $this->assertEqual($uri, $this->mods->identifier, "already cleaned identifier is unchanged");
+      $this->assertNoPattern('|<mods:identifier type="uri">.*<mods:identifier type="uri"|',
+          $this->mods->saveXML(), "uri identifier only present once in xml");
   }
 
 }

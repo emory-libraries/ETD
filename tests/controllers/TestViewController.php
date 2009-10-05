@@ -87,6 +87,19 @@ class ViewControllerTest extends ControllerTestCase {
     $ViewController->xmlAction();
   }
 
+  function testPublicModsAction() {
+    $ViewController = new ViewControllerForTest($this->request,$this->response);
+    $this->mock_etd->user_role = "author";
+    $this->mock_etd->status = "published";
+
+    $ViewController->publicModsAction();
+    $response = $ViewController->getResponse();
+    $headers = $response->getHeaders();
+    $this->assertEqual("Content-Type", $headers[0]["name"]);
+    $this->assertEqual("text/xml", $headers[0]["value"]);
+    $this->assertEqual('<mods:clean_mods/>', $response->getBody());
+
+  }
 }
 
 

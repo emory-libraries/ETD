@@ -116,9 +116,9 @@ class EtdFileXacmlRules {
       <Resource>
         <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
             <AttributeValue 
-		DataType="http://www.w3.org/2001/XMLSchema#string">etdFile</AttributeValue>
+		DataType="http://www.w3.org/2001/XMLSchema#string">info:fedora/emory-control:EtdFile-1.0</AttributeValue>
             <ResourceAttributeDesignator 
-		AttributeId="urn:fedora:names:fedora:2.1:resource:object:contentModel" 
+		AttributeId="info:fedora/fedora-system:def/model#hasModel"
                 DataType="http://www.w3.org/2001/XMLSchema#string"/>
         </ResourceMatch>
       </Resource>

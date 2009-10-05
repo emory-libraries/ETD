@@ -76,6 +76,17 @@ class ViewController extends Etd_Controller_Action {
        throw new Exception("'$datastream' is not a valid datastream for " . $object->pid);
      }
    }
+
+   /**
+    * public version of MODS - sanitized to remove etd-specific stuff
+    */
+   public function publicModsAction() {
+       $etd = $this->_helper->getFromFedora("pid", "etd");
+       if ($etd) {
+           if (!$this->_helper->access->allowedOnEtd("view metadata", $etd)) return false;
+           $this->_helper->displayXml($etd->getMods());
+       }
+   }
    
 
 }

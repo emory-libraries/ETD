@@ -31,12 +31,13 @@ class ControllerGroupTest extends GroupTest {
     $this->addTestFile('controllers/TestProgramController.php');
     $this->addTestFile('controllers/TestHelpController.php');	// FIXME: doesn't clean up after itself?
     //    $this->addTestFile('controllers/TestEtdController.php');
+    $this->addTestFile('controllers/TestUnapiController.php');
   }
 }
 
 if ($is_runner) {
   $test = new ControllerGroupTest;
-  $reporter = isset($argv) ? new TextReporter() : new HtmlReporter();
+  $reporter = TextReporter::inCli() ? new TextReporter() : new HtmlReporter();
   $test->run($reporter);
 }
 
