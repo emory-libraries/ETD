@@ -12,14 +12,14 @@ FCKConfig.Plugins.Add('Jsvk');
 
 FCKConfig.ToolbarSets["etd-title"] = [
       ['Bold','Italic','Underline','-','Subscript','Superscript','-','Link','Unlink',
-       '-', 'SpecialChar', 'UniversalKey', 'Jsvk',
+       '-', 'SpecialChar', 'UniversalKey', //'Jsvk',
        '-', 'Paste', 'PasteText', 'PasteWord',
        '-', 'SpellCheck', 'About']
 ];
 
 FCKConfig.ToolbarSets["etd"] = [
 	['Bold','Italic','Underline','-','Subscript','Superscript','-','Link','Unlink',
-	 '-', 'SpecialChar', 'UniversalKey', 'Jsvk',
+	 '-', 'SpecialChar', 'UniversalKey', //'Jsvk',
 	 '-', 'Paste', 'PasteText', 'PasteWord',
 	 '-', 'SpellCheck', 'About'],
 	  '/',
