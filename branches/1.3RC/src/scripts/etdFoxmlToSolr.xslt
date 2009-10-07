@@ -79,7 +79,7 @@
     <xsl:comment> MODS descriptive metadata</xsl:comment> 
     
     <xsl:apply-templates select="mods:titleInfo"/>
-    <xsl:apply-templates select="mods:genre[@type='aat']"/>
+    <xsl:apply-templates select="mods:genre[@authority='aat']"/>
     <xsl:apply-templates select="mods:name[@type='personal']"/>
     <xsl:apply-templates select="mods:language"/>
     <xsl:apply-templates select="mods:subject"/>
