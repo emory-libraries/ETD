@@ -22,7 +22,7 @@ class LibGroupTest extends GroupTest {
 
 if ($is_runner) {
   $test = new LibGroupTest;
-  $reporter = isset($argv) ? new TextReporter() : new HtmlReporter();
+  $reporter = TextReporter::inCli() ? new TextReporter() : new HtmlReporter();
   $test->run($reporter);
 }
 

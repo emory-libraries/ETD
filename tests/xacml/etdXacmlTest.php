@@ -18,13 +18,18 @@ class TestEtdXacml extends UnitTestCase {
    * FedoraConnection with default test user credentials
    */
   private $fedoraAdmin;
+
+  /**
+   * FedoraConnection with current test user credentials
+   */
+  private $fedora;
     
   function setUp() {
     if (!isset($this->fedoraAdmin)) {
       $fedora_cfg = Zend_Registry::get('fedora-config');
-      $this->fedoraAdmin = new FedoraConnection($fedora_cfg->user, $fedora_cfg->password,
-			       $fedora_cfg->server, $fedora_cfg->port);
+      $this->fedoraAdmin = new FedoraConnection($fedora_cfg);
     }
+    $this->fedora = Zend_Registry::get('fedora');
       
     $fname = '../fixtures/etd1.xml';
     $dom = new DOMDocument();
@@ -99,6 +104,37 @@ class TestEtdXacml extends UnitTestCase {
     $this->assertNull($etd->policy);
   }
 
+  function testGuest_getMetadata_unpublished() {
+    // use guest account to access fedora
+    setFedoraAccount("guest");
+    $fedora = Zend_Registry::get("fedora");
+
+    // permission denied on accessing MODS to create dissemination
+    $this->expectError();
+    $result = $fedora->getDisseminationSOAP($this->pid, "emory-control:metadataTransform",
+					"getMarcxml");
+    $this->assertFalse($result);
+  }
+
+  function testGuest_getMetadata_pub() {
+    // set etd as published using admin account
+    setFedoraAccount("fedoraAdmin");
+    $etd = new etd($this->pid);
+    $etd->policy->addRule("published");
+    $result = $etd->save("added published rule to test guest permissions");
+
+    // use guest account to access fedora
+    setFedoraAccount("guest");
+    $fedora = Zend_Registry::get("fedora");
+
+    // FIXME: sdef object pid should probably be stored in a config file or something...
+    $result = $fedora->getDisseminationSOAP($this->pid, "emory-control:metadataTransform",
+					"getMarcxml");
+    $this->assertIsA($result, "MIMETypedStream",
+		     "result from getDissemination should be MIMETypedStream");
+    $this->assertPattern("/<marc:record/", $result->stream,
+			 "result from getMarcxml contains marc xml");
+  }
  
   function testAuthorPermissions() {
     // set user account to author
@@ -151,15 +187,34 @@ class TestEtdXacml extends UnitTestCase {
     $this->assertNull($etd->save("test author permissions - modify RELS-EXT on non-draft etd"));
     $etd->rels_ext->calculateChecksum();
 
-    $etd->premis->addEvent("test", "testing permissions", "success", 
-			   array("testid", "author"));    	// PREMIS
-    $this->expectError("Access Denied to modify datastream PREMIS");
-    $this->assertNull($etd->save("test author permissions - modify PREMIS on non-draft etd"));
-    $etd->premis->calculateChecksum();
+    $etd->premis->addEvent("test", "testing permissions", "success",
+                            array("testid", "author"));    	// PREMIS
+    $result = null;
+    try {
+        $result = $this->fedora->modifyXMLDatastream($etd->pid, "PREMIS",
+						    $etd->premis->datastream_label(),
+						    $etd->premis->saveXML(),
+                            "test author permissions - modify PREMIS on non-draft etd");
+    } catch (Exception $e) {
+        $exception = $e;
+    }
+    $this->assertNull($result, "PREMIS not updated - timestamp should be null, got '$result'");
+    $this->assertIsA($exception, "FedoraAccessDenied");
+    $this->assertPattern("/modify datastream.*PREMIS/", $exception->getMessage());
+    unset($exception);
+    $result = null;
 
     $etd->policy->removeRule("view");    // POLICY
-    $this->expectError("Access Denied to modify datastream POLICY"); 
-    $this->assertNull($etd->save("test author permissions - modify POLICY on non-draft etd"));
+    try {
+        $result = $this->fedora->modifyXMLDatastream($etd->pid, "POLICY",
+						    $etd->policy->datastream_label(),
+						    $etd->policy->saveXML(), "test author permissions - modify POLICY on non-draft etd");
+    } catch (Exception $e) {
+        $exception = $e;
+    }
+    $this->assertNull($result, "POLICY not updated - timestamp should be null, got '$result'");
+    $this->assertIsA($exception, "FedoraAccessDenied");
+    $this->assertPattern("/modify datastream.*POLICY/", $exception->getMessage());
   }
 
   function testCommitteePermissions() {
@@ -179,6 +234,7 @@ class TestEtdXacml extends UnitTestCase {
     // FIXME: there is a default Fedora repo-wide policy that restricts this... should we keep to that?
     $this->assertIsA($etd->policy, "XacmlPolicy");
 
+    $result = null;
 
     /* committee should not have access to change any datastreams */
     $etd->dc->title = "new title";	  //   DC
@@ -252,7 +308,6 @@ class TestEtdXacml extends UnitTestCase {
     $this->assertPattern("/modify datastream.*PREMIS/", $exception->getMessage());
     unset($exception);
     $result = null;
-
     
     $etd->policy->removeRule("view");    // POLICY
     try {
@@ -311,17 +366,17 @@ class TestEtdXacml extends UnitTestCase {
     $fedora = Zend_Registry::get("fedora");
     // admin needs access to modify MODS for setting embargo duration, admin notes, etc.
     $etd->mods->title = "new title";    //   MODS
-    $this->assertNotNull($this->fedora->modifyXMLDatastream($etd->pid, "MODS",
+    $this->assertNotNull($fedora->modifyXMLDatastream($etd->pid, "MODS",
                                 $etd->mods->datastream_label(),
                                 $etd->mods->saveXML(), "test etdadmin permissions - modify MODS"),
-			 "etdadmin can modify MODS");
+                   "etdadmin can modify MODS");
     
     // if MODS is modified, DC will be updated also   - so etdadmin needs permissions
     $etd->dc->title = "newer title";	  //   DC
-    $this->assertNotNull($this->fedora->modifyXMLDatastream($etd->pid, "DC",
+    $this->assertNotNull($fedora->modifyXMLDatastream($etd->pid, "DC",
                                 $etd->dc->datastream_label(),
                                 $etd->dc->saveXML(), "test etdadmin permissions - modify DC"),
-			 "etdadmin can modify DC");
+                   "etdadmin can modify DC");
 
     // tech support needs permission to fix xhtml fields
     $etd->html->calculateChecksum();
@@ -331,9 +386,16 @@ class TestEtdXacml extends UnitTestCase {
                                 $etd->html->saveXML(), "test etdadmin permissions - modify XHTML"),
 			 "etdadmin can modify XHTML");
 
+    // tech support needs permission to fix xhtml fields
+    $etd->html->calculateChecksum();
+    $etd->html->title = "newest title";    //   XHTML
+    $this->assertNotNull($fedora->modifyXMLDatastream($etd->pid, "XHTML",
+                                $etd->html->datastream_label(),
+                                $etd->html->saveXML(), "test etdadmin permissions - modify XHTML"),
+                   "etdadmin can modify XHTML");
   }
 
-
+  
   // test transition from draft to submission (triggered by author)
   function testChangingStatus_submitted() {
     setFedoraAccount("author");
@@ -382,9 +444,9 @@ class TestEtdXacml extends UnitTestCase {
     $etd = new etd($this->pid);
 
     $this->assertIsA($etd, "etd");
-    $this->assertEqual($this->pid, $etd->pid);
-    // get info failing?
-    $this->assertEqual("etd", $etd->cmodel);
+    $this->assertEqual($this->pid, $etd->pid);    
+    $this->assertEqual("ETD", $etd->contentModelName());
+    $this->assertEqual("1.0", $etd->contentModelVersion());
     $this->assertEqual("Why I Like Cheese", $etd->label);
     // view mods
     $this->assertEqual("Why I Like Cheese", $etd->mods->title);

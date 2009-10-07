@@ -10,6 +10,9 @@ class EditControllerTest extends ControllerTestCase {
   private $etdxml;
   private $test_user;
   private $data;
+
+  // fedoraConnection
+  private $fedora;
   
   function setUp() {
     $ep = new esdPerson();
@@ -35,8 +38,9 @@ class EditControllerTest extends ControllerTestCase {
 
     // load a test objects to repository
     // NOTE: for risearch queries to work, syncupdates must be turned on for test fedora instance
+    $this->fedora = Zend_Registry::get("fedora");
     foreach (array_keys($this->etdxml) as $etdfile) {
-      $pid = fedora::ingest(file_get_contents('../fixtures/' . $etdfile . '.xml'), "loading test etd");
+      $pid = $this->fedora->ingest(file_get_contents('../fixtures/' . $etdfile . '.xml'), "loading test etd");
     }
 
     // set status to draft so it can be edited
@@ -54,7 +58,7 @@ class EditControllerTest extends ControllerTestCase {
   
   function tearDown() {
     foreach ($this->etdxml as $file => $pid)
-      fedora::purge($pid, "removing test etd");
+      $this->fedora->purge($pid, "removing test etd");
 
     Zend_Registry::set('current_user', null);
 

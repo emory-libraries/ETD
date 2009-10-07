@@ -47,11 +47,26 @@
 	   <useAndReproduction></useAndReproduction>
 
 	   <!-- pid of the honors collection object in fedora -->
-	   <honors_collection></honors_collection>
+	   <!--<honors_collection></honors_collection> -->
 	   <programs_pid></programs_pid>
+
+       <contentModels>
+           <etd>emory-control:ETD-1.0</etd>
+           <etdfile>emory-control:EtdFile-1.0</etdfile>
+           <author>emory-control:AuthorInformation-1.0</author> 
+       </contentModels>
+
+       <collections>
+           <all_etd>emory:ETD-collection</all_etd>
+           <grad_school>emory:ETD-GradSchool-collection</grad_school>
+           <college_honors>emory:17qqk</college_honors>
+       </collections>
 
 	</development>
 
-	<test extends="development"/>
+	<test extends="development">
+       <!-- executable for saxonb-xslt, for testing xslt 2.0; supply full path if necessary -->
+	  <saxonb_xslt>/usr/bin/saxonb-xslt</saxonb_xslt>
+    </test>
 	<production extends="development"/>
 </config>

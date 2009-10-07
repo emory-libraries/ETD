@@ -16,7 +16,6 @@ class ModelGroupTest extends GroupTest {
     $this->addTestFile('models/etd_htmlTest.php');
     $this->addTestFile('models/etdRelsTest.php');
     $this->addTestFile('models/etdModsTest.php');
-    $this->addTestFile('models/FezEtdTest.php');
     $this->addTestFile('models/premisTest.php');
     $this->addTestFile('models/policyTest.php');
     $this->addTestFile('models/filePolicyTest.php');
@@ -33,12 +32,14 @@ class ModelGroupTest extends GroupTest {
     $this->addTestFile('models/honorsEtdTest.php');
     $this->addTestFile('models/etdFactoryTest.php');
     $this->addTestFile('models/etdSetTest.php');
+    $this->addTestFile('models/gradEtdTest.php');
+    $this->addTestFile('models/unAPIresponseTest.php');
   }
 }
 
 if ($is_runner) {
   $test = new ModelGroupTest;
-  $reporter = isset($argv) ? new TextReporter() : new HtmlReporter();
+  $reporter = TextReporter::inCli() ? new TextReporter() : new HtmlReporter();
   $test->run($reporter);
 }
 

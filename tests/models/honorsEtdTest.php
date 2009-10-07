@@ -35,10 +35,11 @@ class TestHonorsEtd extends UnitTestCase {
   function testInitializeByTemplate() {
     $config = Zend_Registry::get('config');
     $etd = new honors_etd();
-    $this->assertTrue(isset($etd->rels_ext->memberOf));
-    $this->assertEqual($config->honors_collection, $etd->rels_ext->memberOf);
-    $this->assertPattern('|<rel:isMemberOf.*rdf:resource="info:fedora/' .
-			 $config->honors_collection . '".*/>|',
+    $this->assertEqual(2, count($etd->rels_ext->isMemberOfCollections), "honors etd isMemberOfCollection - 2 collections");
+    $this->assertTrue($etd->rels_ext->isMemberOfCollections->includes($etd->rels_ext->pidToResource($config->collections->college_honors)),
+        "template honors etd has isMemberOfCollection relation to honors collection");
+    $this->assertPattern('|<rel:isMemberOfCollection\s+rdf:resource="info:fedora/' .
+			 $config->collections->college_honors . '".*/>|',
 			 $etd->rels_ext->saveXML());
 
     // researchfields should not be present when initializing from template

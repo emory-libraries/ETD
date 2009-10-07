@@ -22,9 +22,16 @@ class TestUser extends UnitTestCase {
     $this->assertIsA($this->user->dc, "dublin_core");
     $this->assertIsA($this->user->mads, "mads");
     
-    $this->assertEqual("test:user1", $this->user->pid);
-    $this->assertEqual("user", $this->user->cmodel);
+    $this->assertEqual("test:user1", $this->user->pid);    
+    $this->assertEqual("AuthorInformation", $this->user->contentModelName());
   }
+
+  function testTemplateInit() {
+      // when creating new user from template, contentModel should be added
+      $user = new User();
+      $this->assertEqual("AuthorInformation", $user->contentModelName());
+  }
+
 
   function testNormalizeDates() {
     $this->user->mads->permanent->date = "Jan 03 2009";	   // some kind of human-readable date

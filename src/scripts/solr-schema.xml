@@ -268,7 +268,7 @@
    <field name="degree_name" type="string" indexed="true" stored="false"/>
 
 
-   <field name="contentModel" type="string" indexed="true" stored="true"/> 
+   <field name="contentModel" type="string" indexed="true" stored="true" multiValued="true"/>
    <field name="createdDate" type="string" indexed="true" stored="false"/> 
    <field name="label" type="string" indexed="true" stored="false"/> 
    <field name="lastModifiedDate" type="string" indexed="true" stored="false" /> 

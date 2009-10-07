@@ -1,9 +1,7 @@
-<foxml:digitalObject xmlns:foxml="info:fedora/fedora-system:def/foxml#" PID="test:etd2">
-  <foxml:objectProperties>
-    <foxml:property NAME="http://www.w3.org/1999/02/22-rdf-syntax-ns#type" VALUE="FedoraObject"/>
+<foxml:digitalObject xmlns:foxml="info:fedora/fedora-system:def/foxml#" PID="test:etd2" VERSION="1.1">
+  <foxml:objectProperties>    
     <foxml:property NAME="info:fedora/fedora-system:def/model#state" VALUE="Active"/>
-    <foxml:property NAME="info:fedora/fedora-system:def/model#label" VALUE="Why I Hate Milk"/>
-    <foxml:property NAME="info:fedora/fedora-system:def/model#contentModel" VALUE="etd"/>
+    <foxml:property NAME="info:fedora/fedora-system:def/model#label" VALUE="Why I Hate Milk"/>    
   </foxml:objectProperties>
 
   <foxml:datastream CONTROL_GROUP='X' ID='MODS' STATE='A'	VERSIONABLE='true'>
@@ -40,6 +38,12 @@
 	    </mods:role>
 	    <mods:description>Emory Committee Member</mods:description>
 	   </mods:name>
+       <mods:name type="corporate">
+        <mods:namePart>Emory University</mods:namePart>
+        <mods:role>
+            <mods:roleTerm authority="marcrelator" type="text">Degree grantor</mods:roleTerm>
+        </mods:role>
+      </mods:name>
 	  <mods:abstract>milk curdles and goes sour</mods:abstract>
 	  <mods:tableOfContents>chapter 1 -- part two</mods:tableOfContents>
 	  <mods:subject ID="id0123" authority="proquestresearchfield">
@@ -55,7 +59,9 @@
 	    <mods:extent>203 p.</mods:extent>
 	  </mods:physicalDescription>
 	  <mods:genre authority="aat">Dissertation</mods:genre>
-	  <mods:identifier type="ark">http://purl.bogus.com/ark:123/etd2</mods:identifier>
+	  <mods:identifier type="ark">ark:/123/etd2</mods:identifier>
+      <mods:identifier type="uri">http://purl.bogus.com/ark:/123/etd2</mods:identifier>
+      <mods:accessCondition type="useAndReproduction">rights statement</mods:accessCondition>
 	  <mods:accessCondition type="restrictionOnAccess">Embargoed for 0 days</mods:accessCondition>
 	  <mods:language>
 	    <mods:languageTerm authority="iso639-2b" type="text">English</mods:languageTerm>
@@ -90,12 +96,15 @@
   <foxml:datastream CONTROL_GROUP='X' ID='RELS-EXT' STATE='A' VERSIONABLE='true'>
     <foxml:datastreamVersion ID='RELS-EXT.0' LABEL='relations' MIMETYPE='text/xml'>
       <foxml:xmlContent>
-  	<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rel="info:fedora/fedora-system:def/relations-external#">
-	  <rdf:description rdf:about="info:fedora/test:etd2">
+  	<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
+        xmlns:rel="info:fedora/fedora-system:def/relations-external#"
+        xmlns:fedora-model="info:fedora/fedora-system:def/model#">
+	  <rdf:Description rdf:about="info:fedora/test:etd2">
+        <fedora-model:hasModel rdf:resource="info:fedora/emory-control:ETD-1.0"/>
 	    <rel:etdStatus>reviewed</rel:etdStatus>
   	    <rel:author>author</rel:author>
 	    <rel:hasAuthorInfo rdf:resource="test:user1"/>
-	  </rdf:description>
+	  </rdf:Description>
 	</rdf:RDF>
       </foxml:xmlContent>
     </foxml:datastreamVersion>

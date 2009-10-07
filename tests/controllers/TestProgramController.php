@@ -99,6 +99,8 @@ class ProgramControllerTest extends ControllerTestCase {
 				     $hist->datastream[0]->createDate,
 				     "undoing test change");
 
+    // FIXME: this doesn't seem to undo the change properly somehow...
+
     error_reporting($errlevel);	    // restore prior error reporting
   }
 
