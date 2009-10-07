@@ -1,7 +1,6 @@
 <?php
 
 require_once("fedora/models/foxml.php");
-require_once("fedora/api/fedora.php");
 require_once("fedora/api/risearch.php");
 
 require_once("mads.php");
@@ -17,8 +16,14 @@ class user extends foxml {
 
     if ($this->init_mode == "pid") {
       // no special actions required
-    } else {
-      $this->cmodel = "user";
+    } elseif ($this->init_mode == "template") {
+        // add relation to contentModel object
+        if (Zend_Registry::isRegistered("config")) {
+            $config = Zend_Registry::get("config");
+            $this->rels_ext->addContentModel($config->contentModels->author);
+        } else {
+            trigger_error("Config is not in registry, cannot retrieve contentModel for author");
+        }
     }
 
     // if initialized by etd, that object is passed in - store for convenience

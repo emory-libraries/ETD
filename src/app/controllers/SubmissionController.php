@@ -3,6 +3,7 @@
 require_once("models/etd.php");
 require_once("models/etd_notifier.php");
 require_once("models/honors_etd.php");
+require_once("models/grad_etd.php");
 require_once("models/programs.php");
 
 class SubmissionController extends Etd_Controller_Action {
@@ -157,8 +158,8 @@ class SubmissionController extends Etd_Controller_Action {
       $etd = new honors_etd();
       $honors = true;
     } else {
-      // for all other users, use default etd
-      $etd = new etd();
+      // for now, only have honors and grad school; for all other users, use grad_etd  
+      $etd = new grad_etd();
       $honors = false;
     }
     
