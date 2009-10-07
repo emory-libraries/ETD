@@ -52,7 +52,8 @@ class StatisticsControllerTest extends ControllerTestCase {
   function testRecordAction() {
     // load a test objects to repository (etd status is published)
     // (fedora object is only needed for this particular test, not every test in this script)
-    $pid = fedora::ingest(file_get_contents('../fixtures/etd1.xml'), "loading test etd");
+    $fedora = Zend_Registry::get("fedora");
+    $pid = $fedora->ingest(file_get_contents('../fixtures/etd1.xml'), "loading test etd");
     
     $statsController = new StatisticsControllerForTest($this->request,$this->response);
     $this->setUpGet(array('pid' => $pid));
@@ -81,7 +82,7 @@ class StatisticsControllerTest extends ControllerTestCase {
     $this->assertFalse(isset($statsController->view->countries));
     
     
-    fedora::purge($pid, "removing test etd");
+    $fedora->purge($pid, "removing test etd");
   }
   
 

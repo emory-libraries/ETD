@@ -8,6 +8,7 @@ class TestEtdFactory extends UnitTestCase {
   private $usrpid;
   private $honors_etdpid;
   private $honors_usrpid;
+  private $grad_etdpid;
 
   function setUp() {
     $this->fedora = Zend_Registry::get("fedora");
@@ -21,6 +22,11 @@ class TestEtdFactory extends UnitTestCase {
     $etd->pid = "demo:13";
     $etd->title = "honors etd";
     $this->honors_etdpid = $this->fedora->ingest($etd->saveXML(), "test etd factory init");
+
+    $etd = new grad_etd();
+    $etd->pid = "demo:14";
+    $etd->title = "grad etd";
+    $this->grad_etdpid = $this->fedora->ingest($etd->saveXML(), "test etd factory init");
     
     /*$etd = new honors_etd();
     $etd->pid = "demo:14";
@@ -52,6 +58,7 @@ class TestEtdFactory extends UnitTestCase {
     $this->fedora->purge($this->usrpid, "removing test user");
     $this->fedora->purge($this->honors_etdpid, "removing test honors etd");
     $this->fedora->purge($this->honors_usrpid, "removing test honors user");
+    $this->fedora->purge($this->grad_etdpid, "removing test grad etd");
   }
   
   function test_etdByPid() {
@@ -64,6 +71,11 @@ class TestEtdFactory extends UnitTestCase {
     $this->assertIsA($hons_etd, "etd");
     $this->assertIsA($hons_etd, "honors_etd");
     $this->assertEqual("honors etd", $hons_etd->label);
+
+    $grad_etd = EtdFactory::etdByPid($this->grad_etdpid);
+    $this->assertIsA($grad_etd, "etd");
+    $this->assertIsA($grad_etd, "grad_etd");
+    $this->assertEqual("grad etd", $grad_etd->label);
 
     // alternate pid format should also work
     $etd = EtdFactory::etdByPid("info:fedora/demo:12");

@@ -43,6 +43,13 @@
     </mods:role>
     <mods:description>Non-Emory Committee Member</mods:description>
   </mods:name>
+  <mods:name type="corporate">
+    <mods:namePart>Emory University</mods:namePart>
+    <mods:role>
+      <mods:roleTerm authority="marcrelator" type="text">Degree grantor</mods:roleTerm>
+    </mods:role>
+  </mods:name>
+  <mods:genre authority="aat">Dissertation</mods:genre>
   <mods:abstract>Gouda or Cheddar?</mods:abstract>
   <mods:tableOfContents/>
   <mods:subject ID="id7024" authority="proquestresearchfield">
@@ -51,16 +58,31 @@
   <mods:subject authority="keyword">
     <mods:topic>cheese</mods:topic>
   </mods:subject>
-  <mods:identifier type="ark"/>
+  <mods:identifier type="uri">http://pid.emory.edu/ark:/25593/197vt</mods:identifier>
+  <mods:identifier type="ark">ark:/25593/197vt</mods:identifier>
   <mods:physicalDescription>
     <mods:extent/>
-  </mods:physicalDescription>
+  </mods:physicalDescription>  
   <mods:accessCondition type="useAndReproduction"/>
-  <mods:accessCondition type="useAndReproduction"/>
+  <mods:originInfo>
+    <mods:issuance>monographic</mods:issuance>
+    <mods:dateIssued keyDate="yes">2009-05-31</mods:dateIssued>
+	<!-- convert to 4-digit year, set encoding="marc" before handing off to marc transform -->
+    <mods:dateOther type="embargoedUntil"/> 
+  </mods:originInfo>
   <mods:language>
     <mods:languageTerm authority="iso639-2b" type="text">English</mods:languageTerm>
     <mods:languageTerm authority="iso639-2b" type="code">eng</mods:languageTerm>
   </mods:language>
+  <mods:typeOfResource>text</mods:typeOfResource>
+  <mods:physicalDescription>
+    <mods:form authority="marcform">electronic</mods:form>
+    <mods:internetMediaType>application/pdf</mods:internetMediaType>
+    <mods:digitalOrigin>born digital</mods:digitalOrigin>
+    <mods:note type="physical details">digital, PDF file</mods:note>
+    <mods:form authority="gmd">electronic resource</mods:form>
+    <mods:extent/> <!-- ### p. -->
+  </mods:physicalDescription>
   <mods:extension>
     <etd:degree>
       <etd:name>PhD</etd:name>

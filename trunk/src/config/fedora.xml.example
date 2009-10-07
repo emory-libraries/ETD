@@ -3,31 +3,35 @@
      <server></server>
      <port></port>
 <!-- default account should be a non-privileged user -->
-     <user>guest</user>
+     <username>guest</username>
      <password></password>
 <!-- account for automated processes that need more access (should be etdadmin) -->
      <maintenance_account>
-       <user></user>  
+       <username></username>
        <password></password>   
      </maintenance_account>
      <protocol>https</protocol>
-     <resourceindex>risearch</resourceindex>
+     <risearch>
+	    <requiresAuth>0</requiresAuth>
+        <!-- note: port/protocol only required if different than fedora settings -->
+        <port></port>
+        <protocol></protocol>
+      </risearch>
   </development>
   <test extends="development">
      <port></port>
-     <user></user>  
+     <username></username>
      <password></password>   
   </test>
   <production extends="development">
      <server></server>
      <port></port>
-     <user></user>
+     <username></username>
      <password></password>
      <maintenance_account>
-       <user></user>  
+       <username></username>
        <password></password>   
      </maintenance_account>
-     <protocol>https</protocol>
-     <resourceindex>risearch</resourceindex>
+     <protocol>https</protocol>     
   </production>
 </fedora>

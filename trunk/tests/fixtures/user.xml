@@ -1,15 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<foxml:digitalObject PID="test:user1"
+<foxml:digitalObject PID="test:user1" VERSION="1.1"
   fedoraxsi:schemaLocation="info:fedora/fedora-system:def/foxml# http://www.fedora.info/definitions/1/0/foxml1-0.xsd"
   xmlns:audit="info:fedora/fedora-system:def/audit#" xmlns:fedoraxsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:foxml="info:fedora/fedora-system:def/foxml#">
-  <foxml:objectProperties>
-    <foxml:property NAME="http://www.w3.org/1999/02/22-rdf-syntax-ns#type" VALUE="FedoraObject"/>
+  <foxml:objectProperties>    
     <foxml:property NAME="info:fedora/fedora-system:def/model#state" VALUE="Active"/>
     <foxml:property NAME="info:fedora/fedora-system:def/model#label" VALUE="Mickey Mouse"/>
     <foxml:property NAME="info:fedora/fedora-system:def/model#ownerId" VALUE="mmouse"/>
     <foxml:property NAME="info:fedora/fedora-system:def/model#createdDate" VALUE="2007-12-18T21:10:24.229Z"/>
-    <foxml:property NAME="info:fedora/fedora-system:def/view#lastModifiedDate" VALUE="2008-01-14T15:51:25.638Z"/>
-    <foxml:property NAME="info:fedora/fedora-system:def/model#contentModel" VALUE="user"/>
+    <foxml:property NAME="info:fedora/fedora-system:def/view#lastModifiedDate" VALUE="2008-01-14T15:51:25.638Z"/>    
   </foxml:objectProperties>
  <foxml:datastream CONTROL_GROUP="X" ID="MADS" STATE="A" VERSIONABLE="true">
     <foxml:datastreamVersion CREATED="2007-12-18T21:10:24.229Z" ID="MADS.0" LABEL="Agent Information"
@@ -61,12 +59,15 @@
   <foxml:datastream CONTROL_GROUP='X' ID='RELS-EXT' STATE='A' VERSIONABLE='true'>
     <foxml:datastreamVersion ID='RELS-EXT.0' LABEL='relations' MIMETYPE='text/xml'>
       <foxml:xmlContent>
-  	<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rel="info:fedora/fedora-system:def/relations-external#">
-	  <rdf:description rdf:about="info:fedora/test:user1">
+  	<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
+        xmlns:rel="info:fedora/fedora-system:def/relations-external#"
+         xmlns:fedora-model="info:fedora/fedora-system:def/model#">
+	  <rdf:Description rdf:about="info:fedora/test:user1">
+           <fedora-model:hasModel rdf:resource="info:fedora/emory-control:AuthorInformation-1.0"/>
 		<!-- NOTE: just adding a dummy relation here to avoid
 		     errors about not belonging to  an etd  -->
 	      <rel:isPDFOf rdf:resource=""/>
-	  </rdf:description>
+	  </rdf:Description>
 	</rdf:RDF>
       </foxml:xmlContent>
     </foxml:datastreamVersion>
