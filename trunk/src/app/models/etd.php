@@ -1,6 +1,5 @@
 <?php
 
-require_once("api/fedora.php");
 require_once("api/risearch.php");
 require_once("models/foxml.php");
 
@@ -21,15 +20,27 @@ require_once("solrEtd.php");
 // email notifier
 require_once("etd_notifier.php");
 
-// etd object for etd08
-class etd extends foxml implements etdInterface {
 
-  // associated files
-  /*  public $pdfs;
-  public $originals;
-  public $supplements;
-  public $authorInfo;	// user object
-  */
+/**
+ * ETD fedora object
+ *
+ * magic variables
+ * @property etd_rels $rels_ext RELS-EXT datastream
+ * @property etd_mods $mods MODS datastream
+ * @property etd_html $html XHTML datastream
+ * @property premis $premis PREMIS datastream
+ * @property XacmlPolicy $policy POLICY datastream
+ * @property array of etd_file $pdfs array of related etd_file PDF objects
+ * @property array of etd_file $originals array of related etd_file Original objects
+ * @property array of etd_file $supplements array of related supplemental etd_file objects
+ * @property user $authorInfo authorInfo object for etd author
+ * 
+ * magic methods - note that these depend on ETD content model & service objects
+ * @method string getMarcxml() get metadata in marcxml format
+ * @method string getEtdms() get metadata in ETD-MS format
+ * @method string getMods() get cleaned up MODS (without ETD-specific fields)
+ */
+class etd extends foxml implements etdInterface {
 
   /**
    * @var float $relevance score when found via Solr
@@ -48,7 +59,7 @@ class etd extends foxml implements etdInterface {
   public $admin_agent;
   
   
-  public function __construct($arg = null) {
+  public function __construct($arg = null) {      
     parent::__construct($arg);
 
     if ($this->init_mode == "pid") {
@@ -57,13 +68,22 @@ class etd extends foxml implements etdInterface {
       $this->rels_ext;		
             
       // anything else here?
-      if ($this->cmodel != "etd")
-	throw new FoxmlBadContentModel("$arg is not an etd");
-    } elseif ($this->init_mode == "dom") {
+    //if ($this->cmodel != "etd") {
+    // FIXME: add a check that hasModel rel is present...?
+        //throw new FoxmlBadContentModel("$arg is not an etd");
+    } elseif ($this->init_mode == "dom") {    
       // anything here?
     } elseif ($this->init_mode == "template") {
-      // new etd objects
-      $this->cmodel = "etd";
+        // new etd objects - add relation to contentModel object
+        if (Zend_Registry::isRegistered("config")) {
+            $config = Zend_Registry::get("config");
+            $this->rels_ext->addContentModel($config->contentModels->etd);
+            $this->rels_ext->addRelationToResource("rel:isMemberOfCollection",
+					     $config->collections->all_etd);
+        } else {
+            trigger_error("Config is not in registry, cannot retrieve contentModel for etd");
+        }
+     
       // all new etds should start out as drafts
       $this->rels_ext->addRelation("rel:etdStatus", "draft");
     }
@@ -136,7 +156,7 @@ class etd extends foxml implements etdInterface {
 
     // when leaving certain statuses, certain rules need to go away
     switch ($old_status) {
-    case "published":	$this->removePolicyRule("published"); break;
+    case "published":	$this->removePolicyRule("published");   break;        
     case "draft":	 $this->removePolicyRule("draft");    break;
     }
     
@@ -147,15 +167,30 @@ class etd extends foxml implements etdInterface {
       break;
     case "published":
       $this->addPolicyRule("published");
-      // FIXME: how to handle embargos/publication ?
-      // by default, set the embargo expiration to today here?
-      // ... $this->policy->embargoed->condition->date = date("Y-m-d");
-      // fixme: split out embargo rule for etd file objects only ?
+      // NOTE: embargo expiration end-date for file policy handled by publication script
+      $this->setOAIidentifier();
+      // ensure that object state is set to Active (e.g., if previously set inactive)
+      $this->setObjectState(FedoraConnection::STATE_ACTIVE);      
+      break;
+    case "inactive":
+      // if removing from publication, set to inactive so OAI provider can notify harvesters of removal
+      $this->setObjectState(FedoraConnection::STATE_INACTIVE);
       break;
     }
 
     // for all - store the status in rels-ext
     $this->rels_ext->status = $new_status; 
+  }
+
+  /**
+   * set OAI identifier in RELS-EXT based on full ARK 
+   */
+  public function setOAIidentifier() {
+    if (!isset($this->mods->ark) || $this->mods->ark == "")
+        throw new Exception("Cannot set OAI identifier without ARK.");
+    // set OAI id based on short-form ark
+    $this->rels_ext->setOAIidentifier("oai:" . $this->mods->ark);
+    unset($persis);
   }
 
   /* convenience functions to add and remove policies in etd and related objects all at once
@@ -326,8 +361,8 @@ class etd extends foxml implements etdInterface {
     $subjects = array_merge($this->researchfields(), $this->keywords());
     $this->dc->setSubjects($subjects);
 
-    // ark for this object
-    if (isset($this->mods->ark)) $this->dc->setArk($this->mods->ark);
+    // ark (resolvable form) for this object
+    if (isset($this->mods->identifier)) $this->dc->setArk($this->mods->identifier);
 
     // related objects : arks for public etd files (pdfs and supplements)
     $relations = array();
@@ -346,21 +381,18 @@ class etd extends foxml implements etdInterface {
   // handle special values
   public function __set($name, $value) {
     switch ($name) {
-
     case "pid":
       if (isset($this->premis)) {
-	// store pid in premis object; used for basis of event identifiers
-	$this->premis->object->identifier->value = $value;
-      }
-
-      
+    	// store pid in premis object; used for basis of event identifiers
+    	$this->premis->object->identifier->value = $value;
+      }      
       // base foxml class also stores pid value in multiple places
       parent::__set($name, $value);
       break;
     case "owner":
       // add author's username to the appropriate rules
       if (isset($this->policy) && isset($this->policy->draft))
-	$this->policy->draft->condition->user = $value;
+        $this->policy->draft->condition->user = $value;
 
       // store author's username in rels-ext as author
       if (isset($this->rels_ext)) {
@@ -523,11 +555,14 @@ class etd extends foxml implements etdInterface {
     // FIXME: use view/controller to build this url?
     $ark = $persis->generateArk("http://etd.library.emory.edu/view/record/pid/emory:{%PID%}", $this->label);
     $pid = $persis->pidfromArk($ark);
-
-    // FIXME: error handling? make sure pid is successfully generated?
+    list($nma, $naan, $noid) = $persis->parseArk($ark);
 
     $this->pid = $pid;
-    $this->mods->ark = $ark;
+    // resolvable uri ark is identifier and primary display
+    $this->mods->identifier = $ark;
+    $this->mods->location->primary = $ark;
+    // also store short-form ark
+    $this->mods->ark = "ark:/" . $naan . "/" . $noid;
 
     return $this->fedora->ingest($this->saveXML(), $message);
   }
@@ -720,7 +755,7 @@ class etd extends foxml implements etdInterface {
   }
 
   public function ark() {
-    return $this->mods->ark;
+    return $this->mods->identifier;     // want the resolvable version of the ark
   }
 
 
