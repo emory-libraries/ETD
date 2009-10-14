@@ -130,7 +130,7 @@ function testgradDataCsvAction() {
     $ReportController = new ReportControllerForTest($this->request,$this->response);
     //set post data
     $this->setUpPost(array('academicYear' => "20081231:20090831"));
-   $etd = &new MockEtd();
+    $etd = &new MockEtd();
     $etd->PID = $this->pid;
     //print "PID: $this->pid";
     $this->solr->response->docs[] = $etd;
@@ -209,10 +209,24 @@ function testgradDataCsvAction() {
   function testAddCSVFields(){
       $ReportController = new ReportControllerForTest($this->request,$this->response);
 
-      $line=$ReportController->addCSVFields($this->etd, "chair", array("id", "full"), 3);
-
+      $line = $ReportController->addCSVFields($this->etd, "chair", array("id", "full"), 3);
       $this->assertIsA($line, "array");
-      $this->assertEqual(count($line), 6);
+      $this->assertEqual(count($line), 6, "6 entries - id & fullname, 3 times");
+      $this->assertEqual("nobody", $line[0], "first entry should be advisor id 'nobody', got '"
+			 . $line[0] . "'");
+      $this->assertEqual("Person, Advisor", $line[1], "first entry should be advisor fullname 'Person, Advisor', got '" . $line[1] . "'");
+      $this->assertEqual("", $line[2], "id for second advisor should be blank (no second advisor)");
+      $this->assertEqual("", $line[3], "full name for second advisor should be blank (no second advisor)");
+
+      // ignore php errors - "indirect modification of overloaded property
+      $errlevel = error_reporting(E_ALL ^ E_NOTICE);
+
+      // weird netids should not be included in output
+      $this->etd->mods->chair[0]->id = "weird_id";
+      $line = $ReportController->addCSVFields($this->etd, "chair", array("id", "full"), 1);
+      $this->assertNotEqual("weird_id", $line[0]);
+
+      error_reporting($errlevel);	    // restore prior error reporting
   }
   
   function testGetSemesterDecorator() {

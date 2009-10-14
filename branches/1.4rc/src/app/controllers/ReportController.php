@@ -245,8 +245,12 @@ class ReportController extends Etd_Controller_Action {
     public function addCSVFields($etd, $group, $fields, $max){
         for($i = 0; $i < $max; $i++){
             if( isset($etd->mods->{$group}[$i]) ){
-                foreach($fields as $field)
-                $line[] = $etd->mods->{$group}[$i]->$field;
+	      foreach($fields as $field) {
+		$value = $etd->mods->{$group}[$i]->$field;
+		// ignore ids with underscores -- some hand-entered non-Emory advisor ids have this
+		if ($field == "id" && preg_match("/_/", $value)) $value = "";
+		$line[] = $value;
+	      }
             }
             else{
                 foreach($fields as $field){
@@ -275,8 +279,8 @@ class ReportController extends Etd_Controller_Action {
 
         //Create HeaderRow for CSV file
         $csvHeaderRow=array("Author", "Author Email",
-                            "Advisor 1", "Advisor  1 Email", "Advisor 2", "Advisor  2 Email",
-                            "Ark", "Pub Date", "Embargo Date");
+                            "Advisor 1", "Advisor 1 Email", "Advisor 2", "Advisor 2 Email",
+                            "URL", "Publication Date", "Embargo End Date");
 
         $data[] = $csvHeaderRow; //add to data array
 
