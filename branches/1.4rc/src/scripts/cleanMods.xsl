@@ -25,6 +25,9 @@
     <xsl:template match="mods:name[@type='personal'][mods:namePart[@type='given'] = ''
         and mods:namePart[@type='family'] = '' and normalize-space(mods:displayForm) = ',']"/>
 
+    <!-- do not disseminate internal person ids -->
+    <xsl:template match="mods:name[@type='personal']/@ID"/>
+
 
   <xsl:template match="mods:accessCondition[@type='restrictionOnAccess']">
 
