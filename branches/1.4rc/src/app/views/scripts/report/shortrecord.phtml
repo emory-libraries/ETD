@@ -3,7 +3,7 @@
 <? $this->role = $this->etd->getUserRole($this->current_user); ?>
 
 <div class="listrecord">
-    <div class="record_label"></div><div class="record_author"><?= getSemesterDecorator($this->etd->mods->date) ?><?= $this->etd->author() ?></div>
+    <div class="record_label"></div><div class="record_author"><?= $this->etd->author() ?></div>
 	<? foreach ($this->etd->chair() as $advisor): ?>
 		<div class="record_label"></div><div class="record_advisor"><?= $this->etd->program() ?>, <?= $advisor ?>, Adviser</div>
 	<? endforeach ?>
