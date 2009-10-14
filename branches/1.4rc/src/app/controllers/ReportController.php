@@ -31,6 +31,7 @@ class ReportController extends Etd_Controller_Action {
 		$optionsArray['NOT']['status'] = "draft";
 		// show ALL records on a single page 
 		$optionsArray['max'] = 1000;
+		$optionsArray['return_type'] = "solrEtd";
 		        
 	    $etdSet = new EtdSet();
 	    $etdSet->find($optionsArray);
@@ -69,27 +70,27 @@ class ReportController extends Etd_Controller_Action {
 		$optionsArray['NOT']['status'] = "draft";
 		// show ALL records on a single page 
 		$optionsArray['max'] = 1000;
+		$optionsArray['return_type'] = "solrEtd";
+
 		        
 	    $etdSet = new EtdSet();
 	    $etdSet->find($optionsArray);
         
-        //remove ETDs by pid or add decorator to author name
+        //remove ETDs by pid or calculate & save grad semester indicator
         foreach($etdSet->etds as $index => $etd){
-            if(is_array($exclude) && in_array($etd->pid, $exclude)){
+	  if(is_array($exclude) && in_array($etd->pid(), $exclude)){
                unset($etdSet->etds[$index]);
-            }else{
-                $etdSet->etds[$index]->mods->author->full.=$this->getSemesterDecorator($etd->mods->date);
+            } else {
+	    	$etdSet->etds[$index]->semester = $this->getSemesterDecorator($etd->pubdate());
             }
         }
 
-	    $this->view->etdSet = $etdSet;
+	$this->view->etdSet = $etdSet;
 
-
-	
-//	    $this->view->list_title = "Found " . count($this->view->etdSet) . " ETDs.";
-	    $this->view->list_title = "";
-	    //$this->view->list_description = "Commencement Report";
-	}
+	// get dojo cdn from config
+	$config = Zend_Registry::get('config');
+	$this->view->dojo_config = $config->dojo;
+    }
 
     /**
      * Action to render gradData date selection form
@@ -294,7 +295,8 @@ class ReportController extends Etd_Controller_Action {
 
                 $esd = new esdPersonObject();
                 $person = $esd->findByUsername($etd->mods->chair[$i]->id);
-                $line[] = $person->email;
+		if ($person) $line[] = $person->email;
+		else $line[] = "";
             }
             else{
                 for($i = 0; $i < $max; $i++){
@@ -305,7 +307,8 @@ class ReportController extends Etd_Controller_Action {
 
             $line[] = $etd->ark();
             $line[] = $etd->mods->originInfo->issued;
-            $line[] = $etd->mods->embargo_end;
+	    if (isset($etd->mods->embargo_end)) $line[] = $etd->mods->embargo_end;
+	    else $line[] = "";
             
 
             $data[] = $line;

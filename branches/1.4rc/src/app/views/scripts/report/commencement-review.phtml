@@ -8,20 +8,22 @@ Please select records to <span style="font-weight:bold">exclude</span> from the 
     <table cellpadding="0" cellspacing="0" align="center">
         <? foreach ($this->etdSet->etds as $etd): ?>
             <tr>
-                <td class="separator"> <?=$this->formCheckbox('exclude[]', $etd->pid); ?> </td>
+		<td class="separator"> <?= $this->formCheckbox('exclude[]', $etd->pid()); ?> </td>
                 <td class="separator">
                 <div class="shrink">
-                    <?=$etd->mods->author->full?>
+		   <?= $etd->author()?>
                     <br />
-                    <? foreach ($etd->mods->chair as $advisor): ?>
-                    <div> <?=$etd->program()?>, <?=$advisor->full?>, Advisor </div>
-                    <? endforeach ?>
-                    <?=$etd->mods->genre?>:
+                    <div> <?=$etd->program()?>,
+		      <? foreach ($etd->chair() as $advisor): ?>
+   			<?= $advisor ?>, Advisor
+                      <? endforeach ?>
+    		    </div>
+       		    <?= $etd->document_type() ?>:
                     <br />
-                    <?=$etd->title()?>
+                    <?= $etd->title() ?>
                     <br />
                     <?//SUBMIT DATE GOES HERE ? ?>
-                    Publication Date: <?=$etd->mods->originInfo->issued?>
+		    Publication Date: <?= $etd->pubdate() ?>
                     </div>
                 </td>
             </tr>

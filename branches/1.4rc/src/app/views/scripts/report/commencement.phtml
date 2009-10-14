@@ -36,11 +36,6 @@
 
 <?php //Based on browse/list.phtml ?>
 
-<? if ($this->list_title): ?>
-     <h1><?= $this->list_title ?></h1>
-<? endif ?>
-<? if ($this->list_description): ?><h2><?= $this->list_description ?></h2><? endif ?>
-	
     <p>Displaying <?=  count($this->etdSet->etds); ?> result(s)</p>
 
  <textarea dojoType="dijit._editor.RichText" id="commencementETDReport">

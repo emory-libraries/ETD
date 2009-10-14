@@ -26,6 +26,7 @@ class ReportControllerTest extends ControllerTestCase {
 
     $fedora=Zend_Registry::get("fedora");
     $this->pid = $fedora->ingest(file_get_contents('../fixtures/etd2.xml'), "loading test etd");
+    $this->author_pid = $fedora->ingest(file_get_contents('../fixtures/user.xml'), "loading test authInfo");
 
     $this->solr = &new Mock_Etd_Service_Solr();
     Zend_Registry::set('solr', $this->solr);
@@ -39,11 +40,11 @@ class ReportControllerTest extends ControllerTestCase {
   }
   
   function tearDown() {
-
     Zend_Registry::set('solr', null);
     Zend_Registry::set('current_user', null);
     $fedora=Zend_Registry::get("fedora");
     $fedora->purge($this->pid, "removing test etd");
+    $fedora->purge($this->author_pid, "removing test author info");
 
   }
 
@@ -68,15 +69,9 @@ class ReportControllerTest extends ControllerTestCase {
     //set post data
     $this->setUpPost(array('exclude' => array("test:etd2")));
 
-    $etd = &new MockEtd();
-    $etd->PID = "test:etd1";
-    //print "PID: $this->pid";
-    $this->solr->response->docs[] = $etd;
-
-    $etd = &new MockEtd();
-    $etd->PID = $this->pid;
-    //print "PID: $this->pid";
-    $this->solr->response->docs[] = $etd;
+    $this->solr->response->docs[] = new Emory_Service_Solr_Response_Document(array("PID" => "test:etd1",
+										    "pubdate" => "20090901"));
+    $this->solr->response->docs[] = new Emory_Service_Solr_Response_Document(array("PID" => "test:etd2"));
 
     $ReportController->commencementAction();
 
@@ -90,10 +85,11 @@ class ReportControllerTest extends ControllerTestCase {
     $this->assertIsA($etdSet, 'EtdSet', "etdSet is a etdSet object.");
 
     //Make sure it removed 1 etd
-    $this->assertEqual(1, count($etdSet->etds));
+    $this->assertEqual(1, count($etdSet->etds), "excluded etd removed from etd result");
 
     //Make sure remaining is correct one
-    $this->assertEqual("test:etd1", $etdSet->etds[0]->pid);
+    $this->assertEqual("test:etd1", $etdSet->etds[0]->pid(), "remaining etd maches non-excluded pid");
+    $this->assertEqual("**", $etdSet->etds[0]->semester, "etd has semester indicator set correctly");
 
     
     //test as student,  all other tests are done as admin
@@ -160,25 +156,18 @@ function testgradDataCsvAction() {
     $this->assertEqual("Content-Disposition", $headers[1]["name"]);
     $this->assertPattern("/attachment; filename=\"GradReport-\d{8}-\d{8}\.csv\"/", $headers[1]["value"]);
        
-    //print "<pre>";
-    //print_r($ReportController->view->data);
-    //print_r($headers);
-    //print "</pre>";
-
-
     //test as student,  all other tests are done as admin
     $this->test_user->role = "student";
     Zend_Registry::set('current_user', $this->test_user);
     $this->assertFalse($ReportController->gradDataCsvAction() );
 }
 
-/*function testembargoCsvAction() {
+ function testembargoCsvAction() {
 
     $ReportController = new ReportControllerForTest($this->request,$this->response);
 
     $etd = &new MockEtd();
     $etd->PID = $this->pid;
-    //print "PID: $this->pid";
     $this->solr->response->docs[] = $etd;
 
     $ReportController->embargoCsvAction();
@@ -199,17 +188,11 @@ function testgradDataCsvAction() {
     $this->assertEqual("Content-Disposition", $headers[1]["name"]);
     $this->assertEqual("attachment; filename=\"EmbargoReport.csv\"", $headers[1]["value"]);
 
-    //print "<pre>";
-    //print_r($ReportController->view->data);
-    //print_r($headers);
-    //print "</pre>";
-
-
     //test as student,  all other tests are done as admin
     $this->test_user->role = "student";
     Zend_Registry::set('current_user', $this->test_user);
     $this->assertFalse($ReportController->embargoCsvAction() );
-}*/
+}
 
 
   function testGetCommencementDateRange() {
