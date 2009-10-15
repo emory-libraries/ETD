@@ -198,10 +198,8 @@ class EditControllerTest extends ControllerTestCase {
 
     $this->setUpGet(array('pid' => 'test:etd2'));	   
     $EditController->rightsAction();
-    $viewVars = $EditController->view->getVars();
     $this->assertIsA($EditController->view->etd, "etd");
-    $this->assertTrue(isset($EditController->view->namespaces['mods']));
-    $this->assertPattern("|/view/mods/pid/test:etd2$|", $EditController->view->xforms_model_uri);
+    $this->assertTrue(isset($EditController->view->dojo_config), "dojo config is set in view");
 
     // if degree is blank, should redirect to main edit page
     $etd = new etd("test:etd2");

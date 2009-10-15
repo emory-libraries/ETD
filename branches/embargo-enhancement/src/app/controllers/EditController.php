@@ -182,24 +182,13 @@ class EditController extends Etd_Controller_Action {
     						"pid" => $etd->pid), '', true);
     }
 
-    //note: additions to MODS must be made in view controller
+    $config = Zend_Registry::get('config');
+    $this->view->dojo_config = $config->dojo;
 
     $this->view->title = "Edit Author Rights/Access Restrictions";
-
     $this->view->etd = $etd;
-    
-    // xforms setting - so layout can include needed code in the header
-    $this->view->xforms = true;
-    $this->view->xforms_bind_script = "edit/_rights_bind.phtml";
-    $this->view->namespaces = array("mods" => "http://www.loc.gov/mods/v3",
-				    "etd" => "http://www.ndltd.org/standards/metadata/etdms/1.0/");
-    // link to xml rather than embedding directly in the page
-    $this->view->xforms_model_uri = $this->_helper->url->url(array("controller" => "view", "action" => "mods",
-								   "pid" => $etd->pid),
-							     // no route name, reset, don't url-encode
-							     '', true, false);
 
-    $config = Zend_Registry::get('config');
+    // fixme: unused until record is saved? 
     $this->view->rights_stmt = $config->useAndReproduction;
     
   }
