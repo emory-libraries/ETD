@@ -32,16 +32,36 @@ class EmailController extends Etd_Controller_Action {
      $etdset->find($searchopts);
      if ($etdset->numFound) 
        $this->view->etds["PhD, no embargo"] = $etdset->etds[0];
+
+     // search for phd with embargo
      unset($searchopts["AND"]["embargo_duration"]);
      $searchopts["NOT"]["embargo_duration"] = '"0 days"';
      $etdset->find($searchopts);
      if ($etdset->numFound) 
        $this->view->etds["PhD, embargoed"] = $etdset->etds[0];
+
+     // search for MS with embargo
      $searchopts["AND"]["degree_name"] = "MS";
      $etdset->find($searchopts);
      if ($etdset->numFound) 
        $this->view->etds["MS, embargoed"] = $etdset->etds[0];
-     $searchopts["AND"]["degree_name"] = "BA";
+
+     // ms without embargo
+     unset($searchopts["NOT"]["embargo_duration"]);
+     $searchopts["AND"]["embargo_duration"] = '"0 days"';
+     $etdset->find($searchopts);
+     if ($etdset->numFound) 
+       $this->view->etds["MS, no embargo"] = $etdset->etds[0];
+
+     // bs without embargo
+     $searchopts["AND"]["degree_name"] = "BS";
+     $etdset->find($searchopts);
+     if ($etdset->numFound) 
+       $this->view->etds["BS, no embargo"] = $etdset->etds[0];
+
+     // bs with embargo
+     unset($searchopts["AND"]["embargo_duration"]);
+     $searchopts["NOT"]["embargo_duration"] = '"0 days"';
      $etdset->find($searchopts);
      if ($etdset->numFound) 
        $this->view->etds["BS, embargoed"] = $etdset->etds[0];
