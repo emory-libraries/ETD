@@ -16,18 +16,37 @@
 	$this->submittedMessage = (isset($this->submittedMessage))?$this->submittedMessage:"";
 	$this->submittedSubject = (isset($this->submittedSubject))?$this->submittedSubject:"";
 ?>
+
+<?= $this->dojo()->enable()
+     ->setDjConfigOption('parseOnLoad', true)
+     ->setDjConfigOption('isDebug', false)
+     ->setCdnBase($this->dojo_config->cdn)
+     ->setCdnVersion($this->dojo_config->version)
+     ->requireModule("dijit.form.Form")
+     ->requireModule("dijit.form.DateTextBox")
+     ->requireModule("dijit.form.ValidationTextBox")
+     ->requireModule("dijit.form.Textarea")
+     ->requireModule("dijit.form.Button")
+     ->requireModule("dijit.form.CheckBox")
+     ->requireModule("dojox.validate.regexp")
+     ->requireModule("dojo.parser")
+     ->addStylesheet($this->dojo_config->cdn . '/' . $this->dojo_config->version .
+		      "/dijit/themes/tundra/tundra.css")
+     ->addStylesheet($this->dojo_config->cdn . '/' . $this->dojo_config->version .
+		      "/dojo/resources/dojo.css"); ?>
+<? /*	
 	<script type="text/javascript"
 		djConfig="isDebug: false, parseOnLoad: true"
-		src="<?= $this->linkTo('js/dojo/dojo/dojo.js') ?>"></script>
+		src="<?= $this->linkTo('js/dojo/dojo/dojo.js') ?>"></script> */ ?>
 	<script type="text/javascript">
-		dojo.require("dijit.form.Form");
+<? /*		dojo.require("dijit.form.Form");
 		dojo.require("dijit.form.DateTextBox");
 		dojo.require("dijit.form.ValidationTextBox");
 		dojo.require("dijit.form.Textarea");
 		dojo.require("dijit.form.Button");
 		dojo.require("dijit.form.CheckBox");
 		dojo.require("dojox.validate.regexp");
-		dojo.require("dojo.parser");
+		dojo.require("dojo.parser"); */ ?>
 			
 		//Put "onload" logic in here.
 		dojo.addOnLoad(function(){
@@ -38,12 +57,12 @@
 			}
 		});
 	</script>
-	<head>
+<? /*	<head>
 	<style type="text/css">
         @import "<?= $this->linkTo('js/dojo/dijit/themes/tundra/tundra.css') ?>";
         @import "<?= $this->linkTo('js/dojo/dojo/resources/dojo.css') ?>";
 	</style>
-	</head>
+	</head> */ ?>
 
 <form dojoType="dijit.form.Form" id="helpSubmissionForm" action="<?= $this->url(array("action" => "submit"))?>">
 <fieldset id="helpFormFields"><legend ="helpLegend">ETD Help Submission Form</legend>
@@ -73,7 +92,7 @@
 		or N/A <input class="formInput" type="checkbox" id="grad_date_appl" name="grad_date_appl" value="true" dojoType="dijit.form.CheckBox" onClick="dijit.byId('grad_date').setDisabled(dijit.byId('grad_date_appl').getValue()); dijit.byId('grad_date').setValue('');" title="No specific graduation date"></input></div>
 	<div class="formRow">
 		<label class="formLabel" for="subject">Subject:</label>
-		<input dojoType="dijit.form.TextBox" class="formInput" type="text" id="subject" name="subject" value="<?= $this->submittedSubject ?>"  required="true" title="Please enter the subject of the assistance needed." promptMessage="Please enter the subject of the assistance needed."></input></div>
+		<input dojoType="dijit.form.ValidationTextBox" class="formInput" type="text" id="subject" name="subject" value="<?= $this->submittedSubject ?>"  required="true" title="Please enter the subject of the assistance needed." promptMessage="Please enter the subject of the assistance needed."></input></div>
 	<div class="formRow">
 		<label class="formLabel" for="message">Message:</label>
 		<textarea dojoType="dijit.form.Textarea" class="formInputArea" minSize="250px" type="text" id="message" name="message" required="true" title="Please be as descriptive as possible" promptMessage="Please be as descriptive as possible"><?= $this->submittedMessage ?></textarea></div>

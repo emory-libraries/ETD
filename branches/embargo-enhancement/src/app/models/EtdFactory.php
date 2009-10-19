@@ -86,6 +86,7 @@ class EtdFactory {
     // find all collections this pid is a member of
     $query = "<" . $query_pid . "> <fedora-rels-ext:isMemberOfCollection> *";
     $rdf = $fedora->risearch->triples($query);
+
     if ($rdf != null) {
       $ns = $rdf->getNamespaces();  // get the namespaces directly from the simplexml object
       $descriptions = $rdf->children($ns['rdf']);
