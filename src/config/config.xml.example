@@ -62,11 +62,21 @@
            <college_honors>emory:17qqk</college_honors>
        </collections>
 
+          <dojo>
+	      <cdn>http://dojocdn-test.library.emory.edu/dojo/</cdn>
+	      <version>1.2.3</version>
+          </dojo>
+
 	</development>
 
 	<test extends="development">
        <!-- executable for saxonb-xslt, for testing xslt 2.0; supply full path if necessary -->
 	  <saxonb_xslt>/usr/bin/saxonb-xslt</saxonb_xslt>
     </test>
-	<production extends="development"/>
+	<production extends="development">
+   	    <dojo>
+	      <cdn>http://dojocdn.library.emory.edu/dojo/</cdn>
+	      <version>1.2.3</version>
+	    </dojo>
+	</production>
 </config>

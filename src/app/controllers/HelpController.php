@@ -26,6 +26,8 @@ class HelpController extends Etd_Controller_Action {
 	}
 	
 	$config = Zend_Registry::get('config');
+	$this->view->dojo_config = $config->dojo;
+
 	$environment = Zend_Registry::get('env-config');
 	if ($environment->mode != "production") {
 		// use a configured debug email address when in development mode
@@ -42,12 +44,14 @@ class HelpController extends Etd_Controller_Action {
   
   public function submitAction() {
     	
-  	$request = $this->getRequest();
+    $request = $this->getRequest();
   	
     if($this->verifyParms()) {
-	  	$notify = new Zend_Mail();
+      $notify = new Zend_Mail();
 	  	
     	$config = Zend_Registry::get('config');
+	$this->view->dojo_config = $config->dojo;
+
 	    $environment = Zend_Registry::get('env-config');
 			  
 	    if ($environment->mode != "production") {
@@ -109,7 +113,7 @@ class HelpController extends Etd_Controller_Action {
       $this->view->submittedEmail = $request->getParam("email", "");
       $this->view->submittedMessage = $request->getParam("message", "");
       $this->view->submittedSubject = $request->getParam("subject", "");
-      $this->_helper->viewRenderer->setScriptAction("index");   	
+      $this->_forward("index");
     }
   }
   

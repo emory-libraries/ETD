@@ -41,6 +41,10 @@ class TestCleanModsXslt extends UnitTestCase {
             $this->assertNoPattern('|<mods:name type="personal">.*<mods:namePart type="given"/>|',
                         "empty names removed from output");
 
+	    $this->assertNoPattern('|<mods:name type="personal" ID=".*"|', $result,
+				   "personal name IDS are not present in cleaned output");
+			
+
             $dom = new DOMDocument();
             $dom->loadXML($result);
             $mods = new etd_mods($dom);
