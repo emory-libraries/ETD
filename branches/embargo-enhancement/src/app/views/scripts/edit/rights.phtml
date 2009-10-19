@@ -33,8 +33,8 @@ paper ETD Submission Agreement Form which you will present to
    Access Restriction (Embargo) <? if ($required): ?>* <? endif ?></p>
 						
 <?= $this->formRadio("embargo", $this->etd->mods->embargo_request, array("onChange" => "embargoDetails()"),
-		     array("yes" => "Yes, I want an access restriction.",
-		     "no" => "No, my ETD can be published immediately after graduation.")); ?> 
+		     array("no" => "No, my ETD can be published immediately after graduation.",
+			   "yes" => "Yes, I want an access restriction.")); ?> 
 
 <div id="embargo-details"
     <? if (!isset($this->etd->mods->embargo_request) || $this->etd->mods->embargo_request != "yes"): ?>
@@ -43,12 +43,15 @@ paper ETD Submission Agreement Form which you will present to
  class="subchoice"> <? /* only relevant if embargo=yes */ ?>
    <p>Which parts of your record do you want restricted?</p>
    <?= $this->formRadio("embargo_level", null, array("onChange" => "embargoDetails()"),
-			array("pdf" => "Restrict my PDF document",
-			      "pdf-toc" => "Restrict PDF and Table of Contents.",
-			      "pdf-toc-abstract" => "Restrict PDF, Table of Contents, and Abstract")); ?>
+			array("file" => "Restrict my files",
+			      "file-toc" => "Restrict files and Table of Contents.",
+			      "file-toc-abstract" => "Restrict files, Table of Contents, and Abstract")); ?>
  </div>
 
 <hr/>
+       <? if ($this->etd instanceof honors_etd): ?> is honors etd
+       <? else: ?> is NOT honors etd
+       <? endif ?>						      
 
 <? if ($this->etd->isRequired("send to ProQuest")):  /*  only ask about PQ if relevant */ ?>
   <p class="label">Submit to Proquest? *</p>
@@ -62,8 +65,8 @@ paper ETD Submission Agreement Form which you will present to
   <? else: ?>
      <p>Submitting to ProQuest/UMI is optional for students who are not receiving PhDs.</p>
      <?= $this->formRadio("pq_submit", $this->etd->mods->pq_submit, array("onChange" => "pqDetails()"),
-		       array("yes" => "Yes, I intend to submit to ProQuest",
-			     "no" => "No, I do not wish to submit to ProQuest")); ?>
+			  array("no" => "No, I do not wish to submit to ProQuest",
+				"yes" => "Yes, I intend to submit to ProQuest")); ?>
   <? endif ?>
    
   <div id="pq-copyright"
@@ -93,7 +96,7 @@ paper ETD Submission Agreement Form which you will present to
 
   <p class="label">Submission Agreement
     <? if ($this->etd->isRequired("submission agreement")): ?>*<? endif ?></p>
-  <p><?= $this->formCheckbox("submisssion_agreement"); ?>
+  <p><?= $this->formCheckbox("submisssion_agreement"); ?>  <? /* FIXME: checked? get value from ETD */ ?>
     I hereby grant to Emory University and its agents the
     non-exclusive license to archive, make accessible, and display
     (subject to the conditions agreed upon in the separate written
