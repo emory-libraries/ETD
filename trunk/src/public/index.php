@@ -108,6 +108,7 @@ Zend_Layout::startMvc(array("layout" => "site",		// default layout
 // add new helper path to view
 $viewRenderer = Zend_Controller_Action_HelperBroker::getStaticHelper('ViewRenderer');
 $viewRenderer->initView();
+$viewRenderer->view->addHelperPath('Zend/Dojo/View/Helper', 'Zend_Dojo_View_Helper');
 $viewRenderer->view->addHelperPath('Emory/View/Helper', 'Emory_View_Helper');
 if (isset($current_user)) {
   Zend_Registry::set('current_user', $current_user);

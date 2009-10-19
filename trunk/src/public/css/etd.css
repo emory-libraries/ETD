@@ -343,6 +343,9 @@ div#footer {
   background-color:#ffffff;
 }
 
+div.shrink p{
+    display:inline
+}
 
 .leftcorner { 
   text-align:right;
@@ -656,6 +659,10 @@ td.download, th.download {
  background-color:#fff8e8;
 }
 
+td.separator{
+    border-bottom-style:solid;
+    border-bottom-width:2px;
+}
 
 div.abstractviews { 
   background-color:#14214d;

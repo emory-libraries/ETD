@@ -24,4 +24,8 @@
 	 $this->acl->isAllowed($this->current_user, "undergrad programs", "edit")): ?>
        <li><a href="<?= $this->url(array('controller' => 'program', 'action' => 'index')) ?>">View/edit Programs</a></li>
   <? endif ?>
+
+  <? if ($this->current_user->getRoleId() == "superuser"): ?>
+      <li><a href="<?= $this->url(array('controller' => 'email'), '', true) ?>">View Email templates</a></li>
+  <? endif ?>
 </ul>
