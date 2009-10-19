@@ -199,6 +199,7 @@ class EditControllerTest extends ControllerTestCase {
     $this->setUpGet(array('pid' => 'test:etd2'));	   
     $EditController->rightsAction();
     $this->assertIsA($EditController->view->etd, "etd");
+    $this->assertTrue(isset($EditController->view->title), "page title is set in view");
     $this->assertTrue(isset($EditController->view->dojo_config), "dojo config is set in view");
 
     // if degree is blank, should redirect to main edit page

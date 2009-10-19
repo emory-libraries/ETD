@@ -7,12 +7,12 @@ function radioValue(name) { /* get radio button value by name */
  }   
    function embargoDetails() {	/* show/hide embargo details based on embargo choice */ 
   var choice = radioValue("embargo");
-    if (choice == "yes") $("embargo-details").show();
+    if (choice == 1) $("embargo-details").show();
     else $("embargo-details").hide();
  }
 function pqDetails() {  /* show/hide PQ copyright question based on PQ submit choice */ 
   var choice = radioValue("pq_submit");
-    if (choice == "yes") $("pq-copyright").show();
+    if (choice == 1) $("pq-copyright").show();
     else $("pq-copyright").hide();
  }
 
@@ -31,10 +31,12 @@ paper ETD Submission Agreement Form which you will present to
 <? $required = $this->etd->isRequired("embargo request"); ?>
 <p class="label<? if ($required): ?> required<? endif ?>">
    Access Restriction (Embargo) <? if ($required): ?>* <? endif ?></p>
-						
-<?= $this->formRadio("embargo", $this->etd->mods->embargo_request, array("onChange" => "embargoDetails()"),
-		     array("no" => "No, my ETD can be published immediately after graduation.",
-			   "yes" => "Yes, I want an access restriction.")); ?> 
+
+   
+<?= $this->formRadio("embargo", $this->etd->mods->isEmbargoRequested(),
+		     array("onChange" => "embargoDetails()"),
+		     array(0 => "No, my ETD can be published immediately after graduation.",
+			   1 => "Yes, I want an access restriction.")); ?> 
 
 <div id="embargo-details"
     <? if (!isset($this->etd->mods->embargo_request) || $this->etd->mods->embargo_request != "yes"): ?>
@@ -42,16 +44,14 @@ paper ETD Submission Agreement Form which you will present to
  <? endif ?>
  class="subchoice"> <? /* only relevant if embargo=yes */ ?>
    <p>Which parts of your record do you want restricted?</p>
-   <?= $this->formRadio("embargo_level", null, array("onChange" => "embargoDetails()"),
-			array("file" => "Restrict my files",
-			      "file-toc" => "Restrict files and Table of Contents.",
-			      "file-toc-abstract" => "Restrict files, Table of Contents, and Abstract")); ?>
+    <?= $this->formRadio("embargo_level", $this->etd->mods->embargoRequestLevel(),
+			 array("onChange" => "embargoDetails()"),
+			 array(etd_mods::EMBARGO_FILES => "Restrict files only",
+			       etd_mods::EMBARGO_TOC => "Restrict files and Table of Contents.",
+			       etd_mods::EMBARGO_ABSTRACT => "Restrict files, Table of Contents, and Abstract")); ?>
  </div>
 
 <hr/>
-       <? if ($this->etd instanceof honors_etd): ?> is honors etd
-       <? else: ?> is NOT honors etd
-       <? endif ?>						      
 
 <? if ($this->etd->isRequired("send to ProQuest")):  /*  only ask about PQ if relevant */ ?>
   <p class="label">Submit to Proquest? *</p>
@@ -65,8 +65,8 @@ paper ETD Submission Agreement Form which you will present to
   <? else: ?>
      <p>Submitting to ProQuest/UMI is optional for students who are not receiving PhDs.</p>
      <?= $this->formRadio("pq_submit", $this->etd->mods->pq_submit, array("onChange" => "pqDetails()"),
-			  array("no" => "No, I do not wish to submit to ProQuest",
-				"yes" => "Yes, I intend to submit to ProQuest")); ?>
+			  array(0 => "No, I do not wish to submit to ProQuest",
+				1 => "Yes, I intend to submit to ProQuest")); ?>
   <? endif ?>
    
   <div id="pq-copyright"
@@ -80,14 +80,14 @@ paper ETD Submission Agreement Form which you will present to
 
     <p class="label">Registering copyright? <? if ($this->etd->isRequired("copyright")): ?>*<? endif ?> </p>
        <?= $this->formRadio("pq_copyright", $this->etd->mods->copyright, null,
-			    array("yes" => "Yes, I intend to have Proquest register copyright on my behalf.
+			    array(1 => "Yes, I intend to have Proquest register copyright on my behalf.
 			(See Proquest/UMI Publishing Agreement, page 5.)",
-				  "no" => "No"));  ?>
+				  0 => "No"));  ?>
    </div>
-
+  
+<hr/>
 <? endif /* submit to proquest */ ?> 
 
-<hr/>
 
 <div>  
   <p>Check the box below to indicate that you agree to the terms of
