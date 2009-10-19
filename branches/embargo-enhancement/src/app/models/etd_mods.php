@@ -32,9 +32,15 @@ class etd_mods extends mods {
 
   const ETDMS_NS = "http://www.ndltd.org/standards/metadata/etdms/1.0/";
 
+  const EMBARGO_NONE = 0;
+  const EMBARGO_FILES = 1;
+  const EMBARGO_TOC = 2;
+  const EMBARGO_ABSTRACT = 3;
+  private $embargo_name_map;
+ 
   protected $required_fields;
   protected $optional_fields;
- 
+
   // add etd-specific mods mappings
   protected function configure() {
     /** NOTE: this data is edited on several different pages;
@@ -57,6 +63,10 @@ class etd_mods extends mods {
 				   "copyright" => "rights");
     // no optional fields in base etd_mods 
     $this->optional_fields = array();
+
+    $this->embargo_name_map = array(etd_mods::EMBARGO_FILES => "files",
+                                    etd_mods::EMBARGO_TOC => "toc",
+                                    etd_mods::EMBARGO_ABSTRACT => "abstract");
     
     parent::configure();
 
@@ -438,6 +448,52 @@ class etd_mods extends mods {
     $note->setAttribute("type", $type);
     $note->setAttribute("ID", $id);
     $this->update();
+  }
+
+  // what is the requested embargo level?
+  public function embargoRequestLevel() {
+    $embargo = $this->embargo_request;
+
+    if (strpos($embargo, "no") === 0)
+      return etd_mods::EMBARGO_NONE;
+    else if (strpos($embargo, "yes") === 0) {
+      $highest = etd_mods::EMBARGO_FILES; // the default if no ":"
+      if ((strlen($embargo)) >= 4 && ($embargo[3] == ":")) {
+        $level_bits = explode(",", substr($embargo, 4));
+        foreach ($level_bits as $level_bit) {
+          $level = array_search($level_bit, $this->embargo_name_map);
+          if ($level > $highest)
+            $highest = $level;
+        } // foreach
+      } // if ":"
+      return $highest;
+    } else { // neither "yes" nor "no" {
+      // FIXME: "" is legal, but should we throw an exception for other values?
+      return NULL;
+    }
+  }
+
+  public function setEmbargoRequestLevel($level) {
+    if ($level == etd_mods::EMBARGO_NONE) {
+      $this->embargo_request = "no";
+    } else {
+      $embargo_bits = "";
+      for ($i = etd_mods::EMBARGO_FILES; $i <= $level; $i++) {
+        $embargo_bits .= ",";
+        $embargo_bits .= $this->embargo_name_map[$i];
+      }
+      $this->embargo_request = "yes:" . substr($embargo_bits, 1);
+    }
+  }
+
+  // has the student requested an embargo?
+  public function isEmbargoRequested($level = null) {
+    if (is_null($level)) {
+      // is *any* embargo requested? could be "yes" or "yes:foo". "" and "no" are false.
+      return (strpos($this->embargo_request, "yes") === 0);
+    } else {
+      return ($this->embargoRequestLevel() >= $level);
+    }
   }
 
   /**

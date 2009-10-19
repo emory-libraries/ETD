@@ -433,6 +433,59 @@ class TestEtdMods extends UnitTestCase {
           $this->mods->saveXML(), "uri identifier only present once in xml");
   }
 
+  function testEmbargoLevels() {
+    $this->assertEqual($this->mods->embargo_request, ""); // in fixture
+    $this->assertEqual($this->mods->embargoRequestLevel(), etd_mods::EMBARGO_NONE);
+    $this->assertFalse($this->mods->isEmbargoRequested());
+    $this->assertFalse($this->mods->isEmbargoRequested(etd_mods::EMBARGO_FILES));
+    $this->assertFalse($this->mods->isEmbargoRequested(etd_mods::EMBARGO_TOC));
+    $this->assertFalse($this->mods->isEmbargoRequested(etd_mods::EMBARGO_ABSTRACT));
+
+    $this->mods->setEmbargoRequestLevel(etd_mods::EMBARGO_NONE);
+    $this->assertEqual($this->mods->embargo_request, "no");
+    $this->assertEqual($this->mods->embargoRequestLevel(), etd_mods::EMBARGO_NONE);
+    $this->assertFalse($this->mods->isEmbargoRequested());
+    $this->assertFalse($this->mods->isEmbargoRequested(etd_mods::EMBARGO_FILES));
+    $this->assertFalse($this->mods->isEmbargoRequested(etd_mods::EMBARGO_TOC));
+    $this->assertFalse($this->mods->isEmbargoRequested(etd_mods::EMBARGO_ABSTRACT));
+
+    // this won't happen in new objects, so no api to set it this way, but
+    // as of 2009-10-19 there are lots of legacy objects like this that we
+    // have to support
+    $this->mods->embargo_request = "yes";
+    $this->assertEqual($this->mods->embargoRequestLevel(), etd_mods::EMBARGO_FILES);
+    $this->assertTrue($this->mods->isEmbargoRequested());
+    $this->assertTrue($this->mods->isEmbargoRequested(etd_mods::EMBARGO_FILES));
+    $this->assertFalse($this->mods->isEmbargoRequested(etd_mods::EMBARGO_TOC));
+    $this->assertFalse($this->mods->isEmbargoRequested(etd_mods::EMBARGO_ABSTRACT));
+
+    $this->mods->setEmbargoRequestLevel(etd_mods::EMBARGO_FILES);
+    $this->assertEqual($this->mods->embargo_request, "yes:files");
+    $this->assertEqual($this->mods->embargoRequestLevel(), etd_mods::EMBARGO_FILES);
+    $this->assertTrue($this->mods->isEmbargoRequested());
+    $this->assertTrue($this->mods->isEmbargoRequested(etd_mods::EMBARGO_FILES));
+    $this->assertFalse($this->mods->isEmbargoRequested(etd_mods::EMBARGO_TOC));
+    $this->assertFalse($this->mods->isEmbargoRequested(etd_mods::EMBARGO_ABSTRACT));
+
+    $this->mods->setEmbargoRequestLevel(etd_mods::EMBARGO_TOC);
+    $this->assertEqual($this->mods->embargo_request, "yes:files,toc");
+    $this->assertEqual($this->mods->embargoRequestLevel(), etd_mods::EMBARGO_TOC);
+    $this->assertTrue($this->mods->isEmbargoRequested());
+    $this->assertTrue($this->mods->isEmbargoRequested(etd_mods::EMBARGO_FILES));
+    $this->assertTrue($this->mods->isEmbargoRequested(etd_mods::EMBARGO_TOC));
+    $this->assertFalse($this->mods->isEmbargoRequested(etd_mods::EMBARGO_ABSTRACT));
+
+    $this->mods->setEmbargoRequestLevel(etd_mods::EMBARGO_ABSTRACT);
+    $this->assertEqual($this->mods->embargo_request, "yes:files,toc,abstract");
+    $this->assertEqual($this->mods->embargoRequestLevel(), etd_mods::EMBARGO_ABSTRACT);
+    $this->assertTrue($this->mods->isEmbargoRequested());
+    $this->assertTrue($this->mods->isEmbargoRequested(etd_mods::EMBARGO_FILES));
+    $this->assertTrue($this->mods->isEmbargoRequested(etd_mods::EMBARGO_TOC));
+    $this->assertTrue($this->mods->isEmbargoRequested(etd_mods::EMBARGO_ABSTRACT));
+  }
+
+
+
 }
 
 runtest(new TestEtdMods());
