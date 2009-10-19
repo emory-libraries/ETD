@@ -1,13 +1,16 @@
-Options -MultiViews
+# copy this file to public/.htaccess and update for the local installation.
+# in particular, edit this url path to point to your project relative to the
+# webroot:
+RewriteBase /~ben/etd/
+
+# the rest probably doesn't need much editing.
+
 # disable multiviews so browse doesn't get rewritten to browse.php 
 # before it hits site-specific rewrite rules
+Options -MultiViews
 
 RewriteEngine on
-#edit this url path to point to your project relative to the webroot
-RewriteBase /~rsutton/etd-trunk/src/public/
-
 #RewriteRule !\.(js|ico|gif|jpg|png|css)$ index.php 
-
 
 # don't redirect existing files or directories
 RewriteCond %{REQUEST_FILENAME} !-f
