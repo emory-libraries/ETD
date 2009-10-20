@@ -90,6 +90,60 @@ class EditController extends Etd_Controller_Action {
 						"pid" => $etd->pid), '', true);
   }
 
+  public function saveRightsAction() {
+    $etd = $this->_helper->getFromFedora('pid', 'etd');
+    if (!$this->_helper->access->allowedOnEtd('edit metadata', $etd)) return;
+
+    $this->_helper->viewRenderer->setNoRender(true);
+
+    $this->validateRightsAction();
+    
+    $embargo = $this->_getParam('embargo', null);
+    $embargo_level = $this->_getParam('embargo_level', null);
+    $pq_submit = $this->_getParam('pq_submit', null);
+    $pq_copyright = $this->_getParam('pq_copyright', null);
+    $submission_agreement = $this->_getParam('submission_agreement', null);
+
+    //$this->view->etd = $etd;
+
+    $this->_helper->flashMessenger->addMessage('Changes not saved. Functionality not implemented. Write some tests, yo.');
+    $this->_helper->redirector->gotoRoute(array('controller' => 'view', 'action' => 'record',
+                                                'pid' => $etd->pid), '', true);
+  }
+
+  private function validateRightsAction() {
+    $embargo = $this->_getParam('embargo', null);
+    $embargo_level = $this->_getParam('embargo_level', null);
+    $pq_submit = $this->_getParam('pq_submit', null);
+    $pq_copyright = $this->_getParam('pq_copyright', null);
+    $submission_agreement = $this->_getParam('submission_agreement', null);
+    
+    // Sanity-check input. Top-level fields have defaults in the form, so if
+    // any of those are missing the client is doing something funny. We
+    // could just use the defaults here, but the questions on this form are
+    // sensitive and may have legal implications, so we'll play it safe and
+    // require the fields to be in the HTTP request.
+    if ($embargo === null) return false;
+    if ($pq_submit === null) return false;
+    if ($submission_agreement === null) return false;
+
+    // If they say they want an embargo, require them to specify what type.
+    // Again, very sensitive and legal, so don't accept a default. This
+    // time, though, the form doesn't have a default, so let the user know
+    // if he failed to enter a field.
+    if ($embargo && $embargo_level === null) {
+      $this->_helper->flashMessenger->addMessage('Not updated: If you request an access restriction, you must specify what type.');
+      return false;
+    }
+
+    // If they say they want to submit to ProQuest, require them to choose
+    // whether or not to have PQ register copyright. This one has a default
+    // on the form, so if it's missing, they're up to something funny.
+    if ($pq_submit && $pq_copyright === null) return false;
+
+    // Other than that, we should be OK.
+    return true;
+  }
 
 
   public function facultyAction() {

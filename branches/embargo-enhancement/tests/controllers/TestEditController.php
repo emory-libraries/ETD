@@ -60,8 +60,11 @@ class EditControllerTest extends ControllerTestCase {
     foreach ($this->etdxml as $file => $pid)
       $this->fedora->purge($pid, "removing test etd");
 
-    Zend_Registry::set('current_user', null);
+    // is there a better way to discard messages?
+    $EditController = new EditControllerForTest($this->request, $this->response);
+    $EditController->getHelper('FlashMessenger')->getMessages();
 
+    Zend_Registry::set('current_user', null);
     $this->data->cleanUp();
   }
 
@@ -132,7 +135,54 @@ class EditControllerTest extends ControllerTestCase {
     $this->assertPattern("/American Religio/", $etd->mods->subfield);
   }
   
+  /** 
+   * rights
+   */
 
+  function testSaveRightsAction() {
+    // No embargo, everything else left blank. This is the default state for
+    // this fixture.
+    $this->postSaveRights(null, 0, null, null, null, 1);
+    $this->assertRights(0, etd_mods::EMBARGO_NONE, null, null, null);
+  }
+
+  private function postSaveRights($controller, $embargo, $embargo_level,
+                                  $pq_submit, $pq_copyright, 
+                                  $submission_agreement) {
+    if ($controller === null)
+      $controller = new EditControllerForTest($this->request, $this->response);
+
+    $args = array('pid' => 'test:etd2');
+    if ($embargo !== null) $args['embargo'] = $embargo;
+    if ($embargo_level !== null) $args['embargo_level'] = $embargo_level;
+    if ($pq_submit !== null) $args['pq_submit'] = $pq_submit;
+    if ($pq_copyright !== null) $args['pq_copyright'] = $pq_copyright;
+    if ($submission_agreement !== null) $args['submission_agreement'] = $submission_agreement;
+
+    $this->setUpPost($args);
+    $controller->saveRightsAction();
+    $this->assertTrue($controller->redirectRan);
+  }
+
+  private function assertRights($embargo, $embargo_level,
+                                $pq_submit, $pq_copyright,
+                                $submission_agreement) {
+    $etd = new etd('test:etd2');
+    if ($embargo !== null)
+      $this->assertEqual($embargo, $etd->mods->isEmbargoRequested());
+    if ($embargo_level !== null)
+      $this->assertEqual($embargo_level, $etd->mods->embargoRequestLevel());
+    if ($pq_submit !== null)
+      /* FIXME: ?? */;
+    if ($pq_copyright !== null)
+      /* FIXME: ?? */;
+    if ($submission_agreement !== null)
+      /* FIXME: ?? */;
+  }
+
+  /**
+   * end rights
+   */
 
   function testFacultyAction() {
     $EditController = new EditControllerForTest($this->request,$this->response);
