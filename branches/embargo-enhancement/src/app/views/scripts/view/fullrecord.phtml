@@ -17,7 +17,7 @@
 <? if ($this->acl->isAllowed($this->role, $this->etd, "edit metadata")): ?>
   <a class="action" href="<?= $this->url(array("controller" => "edit", "action" => "title")) ?>">edit title</a>
  <? endif ?>
-  <h1><?= $this->etd->html->title ?></a></h1>
+  <h1><?= $this->etd->html->title ?></h1></a>
  	<? if ($this->acl->isAllowed($this->role, $this->etd, "edit metadata")): ?>
 <a class="action" href="<?= $this->url(array("controller" => "edit", "action" => "record")) ?>">edit thesis information</a>
    <a class="action" href="<?= $this->url(array("controller" => "edit", "action" => "faculty")) ?>">edit committee chair &amp; members</a>
@@ -45,7 +45,7 @@
 
    <? endif ?>
   <div id="abstract">
-     <?= $this->etd->html->abstract ?>
+    <?= $this->etd->_abstract() ?>
   </div>
 
   <h2>Table of Contents</h2>
@@ -53,7 +53,7 @@
   <a class="action" href="<?= $this->url(array("controller" => "edit", "action" => "contents")) ?>">edit</a>
      <? endif ?>
   <div id="toc">
-    <?= $this->etd->html->contents ?>
+    <?= $this->etd->tableOfContents() ?>
   </div>
      
   <?=  $this->render('view/_files.phtml'); ?>
