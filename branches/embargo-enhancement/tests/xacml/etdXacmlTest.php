@@ -215,7 +215,7 @@ class TestEtdXacml extends UnitTestCase {
     }
     $this->assertNull($result, "POLICY not updated - timestamp should be null, got '$result'");
     $this->assertIsA($exception, "FedoraAccessDenied");
-    $this->assertPattern("/modify datastream.*POLICY/", $exception->getMessage());
+    if ($exception) $this->assertPattern("/modify datastream.*POLICY/", $exception->getMessage());
   }
 
   function testCommitteePermissions() {
@@ -249,7 +249,7 @@ class TestEtdXacml extends UnitTestCase {
     }
     $this->assertNull($result, "DC not updated - timestamp should be null, got '$result'");
     $this->assertIsA($exception, "FedoraAccessDenied");
-    $this->assertPattern("/modify datastream.*DC/", $exception->getMessage());
+    if ($exception) $this->assertPattern("/modify datastream.*DC/", $exception->getMessage());
     unset($exception);
     $result = null;
 
@@ -264,7 +264,7 @@ class TestEtdXacml extends UnitTestCase {
     }
     $this->assertNull($result, "MODS not updated - timestamp should be null, got '$result'");
     $this->assertIsA($exception, "FedoraAccessDenied");
-    $this->assertPattern("/modify datastream.*MODS/", $exception->getMessage());
+    if ($exception) $this->assertPattern("/modify datastream.*MODS/", $exception->getMessage());
     unset($exception);
     $result = null;
     
@@ -278,7 +278,7 @@ class TestEtdXacml extends UnitTestCase {
     }
     $this->assertNull($result, "XHTML not updated - timestamp should be null, got '$result'");
     $this->assertIsA($exception, "FedoraAccessDenied");
-    $this->assertPattern("/modify datastream.*XHTML/", $exception->getMessage());
+    if ($exception) $this->assertPattern("/modify datastream.*XHTML/", $exception->getMessage());
     unset($exception);
     $result = null;
     
@@ -292,7 +292,7 @@ class TestEtdXacml extends UnitTestCase {
     }
     $this->assertNull($result, "RELS-EXT not updated - timestamp should be null, got '$result'");
     $this->assertIsA($exception, "FedoraAccessDenied");
-    $this->assertPattern("/modify datastream.*RELS-EXT/", $exception->getMessage());
+    if ($exception) $this->assertPattern("/modify datastream.*RELS-EXT/", $exception->getMessage());
     unset($exception);
     $result = null;
     $etd->premis->addEvent("test", "testing permissions", "success",
@@ -306,7 +306,7 @@ class TestEtdXacml extends UnitTestCase {
     }
     $this->assertNull($result, "PREMIS not updated - timestamp should be null, got '$result'");
     $this->assertIsA($exception, "FedoraAccessDenied");
-    $this->assertPattern("/modify datastream.*PREMIS/", $exception->getMessage());
+    if ($exception) $this->assertPattern("/modify datastream.*PREMIS/", $exception->getMessage());
     unset($exception);
     $result = null;
     
@@ -320,7 +320,7 @@ class TestEtdXacml extends UnitTestCase {
     }
     $this->assertNull($result, "POLICY not updated - timestamp should be null, got '$result'");
     $this->assertIsA($exception, "FedoraAccessDenied");
-    $this->assertPattern("/modify datastream.*POLICY/", $exception->getMessage());    
+    if ($exception) $this->assertPattern("/modify datastream.*POLICY/", $exception->getMessage());    
   }
 
   
