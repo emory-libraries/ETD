@@ -13,6 +13,17 @@ class EditControllerTest extends ControllerTestCase {
 
   // fedoraConnection
   private $fedora;
+
+  private $etdpid;
+  private $userpid;
+
+  function __construct() {
+    $this->fedora = Zend_Registry::get("fedora");
+    $fedora_cfg = Zend_Registry::get('fedora-config');
+
+    // get 2 test pids - to be used throughout test
+    list($this->etdpid, $this->userpid) = $this->fedora->getNextPid($fedora_cfg->pidspace, 2);
+  }
   
   function setUp() {
     $ep = new esdPerson();
@@ -29,22 +40,24 @@ class EditControllerTest extends ControllerTestCase {
     $this->response = $this->makeResponse();
     $this->request  = $this->makeRequest();
 
-    $this->etdxml = array(//"etd1" => "test:etd1",
-			  "etd2" => "test:etd2",
-			  "user" => "test:user1",
-			  //"etd3" => "test:etd3",	// not working for some reason
-			  );
+    // load fixtures
+    // note: etd & related user need to be in repository so authorInfo relation will work
+    $dom = new DOMDocument();
+    // load etd & set pid & author relation
+    $dom->loadXML(file_get_contents('../fixtures/etd2.xml'));
+    $foxml = new etd($dom);
+    $foxml->pid = $this->etdpid;
+    $foxml->rels_ext->hasAuthorInfo = $this->userpid;
+    $this->fedora->ingest($foxml->saveXML(), "loading test etd object");
+
+    // load author info
+    $dom->loadXML(file_get_contents('../fixtures/user.xml'));
+    $foxml = new foxml($dom);
+    $foxml->pid = $this->userpid;
+    $this->fedora->ingest($foxml->saveXML(), "loading test etd authorInfo object");
     
-
-    // load a test objects to repository
-    // NOTE: for risearch queries to work, syncupdates must be turned on for test fedora instance
-    $this->fedora = Zend_Registry::get("fedora");
-    foreach (array_keys($this->etdxml) as $etdfile) {
-      $pid = $this->fedora->ingest(file_get_contents('../fixtures/' . $etdfile . '.xml'), "loading test etd");
-    }
-
     // set status to draft so it can be edited
-    $etd = new etd("test:etd2");
+    $etd = new etd($this->etdpid);
     $etd->setStatus("draft");
     // add view policy rule and committee ids used in mods
     $etd->policy->addRule("view");
@@ -57,7 +70,7 @@ class EditControllerTest extends ControllerTestCase {
   }
   
   function tearDown() {
-    foreach ($this->etdxml as $file => $pid)
+    foreach (array($this->etdpid, $this->userpid) as $pid)
       $this->fedora->purge($pid, "removing test etd");
 
     // is there a better way to discard messages?
@@ -72,7 +85,7 @@ class EditControllerTest extends ControllerTestCase {
   function testRecordAction() {
     $EditController = new EditControllerForTest($this->request,$this->response);
 
-    $this->setUpGet(array('pid' => 'test:etd2'));	   
+    $this->setUpGet(array('pid' => $this->etdpid));	   
 
     $EditController->recordAction();
     $viewVars = $EditController->view->getVars();
@@ -80,10 +93,10 @@ class EditControllerTest extends ControllerTestCase {
     // required namespaces for this xform
     $this->assertTrue(isset($EditController->view->namespaces['mods']));
     $this->assertTrue(isset($EditController->view->namespaces['etd']));
-    $this->assertPattern("|/view/mods/pid/test:etd2/mode/edit$|", $EditController->view->xforms_model_uri);
+    $this->assertPattern("|/view/mods/pid/" . $this->etdpid . "/mode/edit$|", $EditController->view->xforms_model_uri);
 
     // set status to non-draft to test access controls
-    $etd = new etd("test:etd2");
+    $etd = new etd($this->etdpid);
     $etd->setStatus("reviewed");
     $etd->save("setting status to reviewed to test edit");
 
@@ -104,7 +117,7 @@ class EditControllerTest extends ControllerTestCase {
 
     $EditController = new EditControllerForTest($this->request,$this->response);
 
-    $this->setUpGet(array('pid' => 'test:etd2'));	   
+    $this->setUpGet(array('pid' => $this->etdpid));	   
     $EditController->programAction();
     $viewVars = $EditController->view->getVars();
     $this->assertIsA($EditController->view->etd, "etd");
@@ -118,7 +131,7 @@ class EditControllerTest extends ControllerTestCase {
 
   function testSaveProgramsAction() {
     $EditController = new EditControllerForTest($this->request,$this->response);
-    $this->setUpPost(array('pid' => 'test:etd2',
+    $this->setUpPost(array('pid' => $this->etdpid,
 			   'program_id' => 'religion',
 			   'subfield_id' => 'american'));
     $EditController->saveProgramAction();
@@ -128,7 +141,7 @@ class EditControllerTest extends ControllerTestCase {
     $this->assertTrue($EditController->redirectRan);	// redirects back to record
 
     // check for updated values - text & id
-    $etd = new etd("test:etd2");
+    $etd = new etd($this->etdpid);
     $this->assertEqual("religion", $etd->rels_ext->program);
     $this->assertEqual("american", $etd->rels_ext->subfield);
     $this->assertEqual("Religion", $etd->mods->department);
@@ -187,7 +200,7 @@ class EditControllerTest extends ControllerTestCase {
   function testFacultyAction() {
     $EditController = new EditControllerForTest($this->request,$this->response);
 
-    $this->setUpGet(array('pid' => 'test:etd2'));	   
+    $this->setUpGet(array('pid' => $this->etdpid));	   
     $EditController->facultyAction();
     $viewVars = $EditController->view->getVars();
     $this->assertIsA($EditController->view->etd, "etd");
@@ -196,7 +209,7 @@ class EditControllerTest extends ControllerTestCase {
   function testSaveFacultyAction() {
     $EditController = new EditControllerForTest($this->request,$this->response);
 
-    $this->setUpPost(array('pid' => 'test:etd2', 'chair' => array('mthink'), 'committee' => array('engrbs'),
+    $this->setUpPost(array('pid' => $this->etdpid, 'chair' => array('mthink'), 'committee' => array('engrbs'),
 			   'nonemory_firstname' => array('Marvin'), 'nonemory_lastname' => array('the Martian'),
 			   'nonemory_affiliation' => array('Mars Polytechnic')));	   
     $EditController->savefacultyAction();
@@ -205,24 +218,24 @@ class EditControllerTest extends ControllerTestCase {
     $this->assertEqual("Saved changes to committee chairs & members", $messages[0]);
     $this->assertTrue($EditController->redirectRan);	// redirects back to record
     
-    $etd = new etd("test:etd2");
+    $etd = new etd($this->etdpid);
     $this->assertEqual("Thinker", $etd->mods->chair[0]->last);
     $this->assertEqual("Scholar", $etd->mods->committee[0]->last);
     $this->assertEqual(1, count($etd->mods->committee));
     $this->assertEqual("Mars Polytechnic", $etd->mods->nonemory_committee[0]->affiliation);
 
     // test setting affiliation for former faculty
-    $this->setUpPost(array('pid' => 'test:etd2', 'chair' => array('mthink'),
+    $this->setUpPost(array('pid' => $this->etdpid, 'chair' => array('mthink'),
 			   'committee' => array('engrbs'),
 			   "mthink_affiliation" => "grants",
 			   "engrbs_affiliation" => "preservation"));
     $EditController->savefacultyAction();
-    $etd = new etd("test:etd2");
+    $etd = new etd($this->etdpid);
     $this->assertEqual("grants", $etd->mods->chair[0]->affiliation);
     $this->assertEqual("preservation", $etd->mods->committee[0]->affiliation);
     
     // simulate bad input (nonexistent ids - shouldn't happen in real life)
-    $this->setUpPost(array('pid' => 'test:etd2', 'chair' => array('nobody'), 'committee' => array('nobodytoo'),
+    $this->setUpPost(array('pid' => $this->etdpid, 'chair' => array('nobody'), 'committee' => array('nobodytoo'),
 			   'nonemory_firstname' => array(), 'nonemory_lastname' => array(),
 			   'nonemory_affiliation' => array()));
     
@@ -234,7 +247,7 @@ class EditControllerTest extends ControllerTestCase {
     $this->assertEqual("Saved changes to committee chairs & members", $messages[0]);
     $this->assertTrue($EditController->redirectRan);	// redirects back to record
     
-    $etd = new etd("test:etd2");
+    $etd = new etd($this->etdpid);
     // if names are not found, values will not be changed
     $this->assertEqual("Thinker", $etd->mods->chair[0]->last);
     $this->assertEqual("Scholar", $etd->mods->committee[0]->last);
@@ -246,14 +259,14 @@ class EditControllerTest extends ControllerTestCase {
   function testRightsAction() {
     $EditController = new EditControllerForTest($this->request,$this->response);
 
-    $this->setUpGet(array('pid' => 'test:etd2'));	   
+    $this->setUpGet(array('pid' => $this->etdpid));	   
     $EditController->rightsAction();
     $this->assertIsA($EditController->view->etd, "etd");
     $this->assertTrue(isset($EditController->view->title), "page title is set in view");
     $this->assertTrue(isset($EditController->view->dojo_config), "dojo config is set in view");
 
     // if degree is blank, should redirect to main edit page
-    $etd = new etd("test:etd2");
+    $etd = new etd($this->etdpid);
     $etd->mods->degree->name = "";
     $etd->save("blank degree to test rights edit page");
     $EditController->rightsAction();
@@ -266,7 +279,7 @@ class EditControllerTest extends ControllerTestCase {
   function testResearchfieldAction() {
     $EditController = new EditControllerForTest($this->request,$this->response);
     
-    $this->setUpGet(array('pid' => 'test:etd2'));	   
+    $this->setUpGet(array('pid' => $this->etdpid));	   
     $EditController->researchfieldAction();
     $viewVars = $EditController->view->getVars();
     $this->assertIsA($EditController->view->etd, "etd");
@@ -276,22 +289,28 @@ class EditControllerTest extends ControllerTestCase {
   }
 
   function testSaveResearchfieldAction() {
+    // ignore php errors - "indirect modification of overloaded property"
+    $errlevel = error_reporting(E_ALL ^ E_NOTICE);
+
     $EditController = new EditControllerForTest($this->request,$this->response);
 
-    $this->setUpPost(array('pid' => 'test:etd2',
-			   'fields' => array('1234 Martian Studies', '9876 Extraterrestrial Science')));
+    $this->setUpGet(array('pid' => $this->etdpid,
+			   'fields' => array(0 => '#1234 Martian Studies',
+					     1 => '#9876 Extraterrestrial Science')));
     $EditController->saveResearchfieldAction();
     $messages = $EditController->getHelper('FlashMessenger')->getMessages();
     $this->assertEqual("Saved changes to research fields", $messages[0]);
     $this->assertTrue($EditController->redirectRan);	// redirects back to record
     
     // check that the values were saved correctly
-    /*    $etd = new etd("test:etd2");
+    $etd = new etd($this->etdpid);
     $this->assertEqual("2", count($etd->mods->researchfields));
     $this->assertEqual("1234", $etd->mods->researchfields[0]->id);
-    $this->assertEqual("Martin Studies", $etd->mods->researchfields[0]->topic);
+    $this->assertEqual("Martian Studies", $etd->mods->researchfields[0]->topic);
     $this->assertEqual("9876", $etd->mods->researchfields[1]->id);
-    $this->assertEqual("Extraterrestrial Science", $etd->mods->researchfields[1]->topic);*/
+    $this->assertEqual("Extraterrestrial Science", $etd->mods->researchfields[1]->topic);
+
+    error_reporting($errlevel);	    // restore prior error reporting
   }
 
   // not testing editHtml actions because there is nothing of substance to test
@@ -299,7 +318,7 @@ class EditControllerTest extends ControllerTestCase {
 
   function testFileOrderAction() {
     $EditController = new EditControllerForTest($this->request,$this->response);
-    $this->setUpPost(array('pid' => 'test:etd2'));
+    $this->setUpPost(array('pid' => $this->etdpid));
     $EditController->fileorderAction();
     $viewVars = $EditController->view->getVars();
     $this->assertTrue(isset($EditController->view->title));
