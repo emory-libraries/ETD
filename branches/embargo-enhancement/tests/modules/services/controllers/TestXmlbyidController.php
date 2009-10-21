@@ -147,9 +147,11 @@ class XmlbyidControllerTest extends ControllerTestCase {
     $this->setUpGet(array('url' => $this->fedora->datastreamUrl($this->testpid, "PDF"),
 			  'id' => 'title'));
     $XmlbyidController = new XmlbyidControllerForTest($this->request,$this->response);
-    // swallow up the DOMDocument warning about non-xml
-    $this->expectError();
+
+    // suppress warning from DOM attempting to load non-xml (should not fail if warnings are turned off)
+    $errlevel = error_reporting(E_ALL ^ E_NOTICE ^ E_WARNING);
     $XmlbyidController->viewAction();
+    error_reporting($errlevel);	    // restore prior error reporting
 
     $response = $XmlbyidController->getResponse();
     $this->assertEqual(400, $response->getHttpResponseCode(),
