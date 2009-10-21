@@ -8,6 +8,20 @@ class TestEtd extends UnitTestCase {
     private $etd;
     private $person;
 
+    // fedoraConnection
+    private $fedora;
+
+    private $etdpid;
+    
+    function __construct() {
+      $this->fedora = Zend_Registry::get("fedora");
+      $fedora_cfg = Zend_Registry::get('fedora-config');
+      
+      // get test pid for fedora fixture
+      $this->etdpid = $this->fedora->getNextPid($fedora_cfg->pidspace);
+    }
+
+    
   function setUp() {
     $fname = '../fixtures/etd1.xml';
     $dom = new DOMDocument();
@@ -473,16 +487,15 @@ class TestEtd extends UnitTestCase {
   }
 
   function testMagicMethods() {
-      $fedora = Zend_Registry::get("fedora");
       // ingest a minimal, published record to test fedora methods as object methods
       $etd = new etd();
-      $etd->pid = "demo:17";
+      $etd->pid = $this->etdpid;
       $etd->title = "test etd";
       $etd->mods->ark = "ark:/123/bcd";
       $etd->setStatus("published");            
-      $pid = $fedora->ingest($etd->saveXML(), "test etd magic methods");
+      $this->fedora->ingest($etd->saveXML(), "test etd magic methods");
 
-      $etd = new etd($pid);
+      $etd = new etd($this->etdpid);
       $marcxml = $etd->getMarcxml();
       $this->assertNotNull($marcxml, "getMarcxml() return response should not be empty");
       $this->assertPattern("|<marc:record|", $marcxml, "getMarcxml() result looks like marc xml");
@@ -495,7 +508,7 @@ class TestEtd extends UnitTestCase {
       $this->assertNotNull($mods, "getMods() return response should not be empty");
       $this->assertPattern("|<mods:mods|", $mods, "getMods () result looks like MODS");
 
-      $fedora->purge("demo:17", "removing test etd");
+      $this->fedora->purge($this->etdpid, "removing test etd");
   }
   
 
