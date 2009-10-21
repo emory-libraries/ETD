@@ -14,6 +14,18 @@ class SubmissionControllerTest extends ControllerTestCase {
 
   // fedoraConnection
   private $fedora;
+
+  private $etdpid;
+  private $userpid;
+
+  function __construct() {
+    $this->fedora = Zend_Registry::get("fedora");
+    $fedora_cfg = Zend_Registry::get('fedora-config');
+
+    // get 2 test pids to be used throughout test
+    list($this->etdpid, $this->userpid) = $this->fedora->getNextPid($fedora_cfg->pidspace, 2);
+  }
+
   
   function setUp() {
     $ep = new esdPerson();
@@ -31,19 +43,23 @@ class SubmissionControllerTest extends ControllerTestCase {
     $this->response = $this->makeResponse();
     $this->request  = $this->makeRequest();
 
-    $this->etdxml = array("etd1" => "test:etd1",
-			  "etd2" => "test:etd2",
-			  "user" => "test:user1",
-			  //"etd3" => "test:etd3",	// not working for some reason
-			  );
-    
 
-    // load a test objects to repository
-    $this->fedora = Zend_Registry::get("fedora");
-    // NOTE: for risearch queries to work, syncupdates must be turned on for test fedora instance
-    foreach (array_keys($this->etdxml) as $etdfile) {
-      $pid = $this->fedora->ingest(file_get_contents('../fixtures/' . $etdfile . '.xml'), "loading test etd");
-    }
+    // load fixtures
+    // note: etd & related user need to be in repository so authorInfo relation will work
+    $dom = new DOMDocument();
+    // load etd & set pid & author relation
+    $dom->loadXML(file_get_contents('../fixtures/etd2.xml'));
+    $foxml = new etd($dom);
+    $foxml->pid = $this->etdpid;
+    $foxml->rels_ext->hasAuthorInfo = $this->userpid;
+    $this->fedora->ingest($foxml->saveXML(), "loading test etd object");
+
+    // load author info
+    $dom->loadXML(file_get_contents('../fixtures/user.xml'));
+    $foxml = new foxml($dom);
+    $foxml->pid = $this->userpid;
+    $this->fedora->ingest($foxml->saveXML(), "loading test etd authorInfo object");
+    
 
     // use mock etd object for some tests
     $this->mock_etd = &new MockEtd();
@@ -53,7 +69,7 @@ class SubmissionControllerTest extends ControllerTestCase {
   }
   
   function tearDown() {
-    foreach ($this->etdxml as $file => $pid)
+    foreach (array($this->etdpid, $this->userpid) as $pid)
       $this->fedora->purge($pid, "removing test etd");
     
     Zend_Registry::set('current_user', null);
@@ -177,19 +193,19 @@ class SubmissionControllerTest extends ControllerTestCase {
     Zend_Registry::set('current_user', $this->test_user);
     $SubmissionController = new SubmissionControllerForTest($this->request,$this->response);
 
-    $this->setUpGet(array('pid' => 'test:etd2'));	   // reviewed etd
+    $this->setUpGet(array('pid' => $this->etdpid));	   // reviewed etd
     // etd is wrong status, should not be allowed
     $this->assertFalse($SubmissionController->reviewAction());
     $this->assertFalse(isset($SubmissionController->view->etd));
 
     // set status to draft so it can be reviewed
-    $etd = new etd("test:etd2");
+    $etd = new etd($this->etdpid);
     $etd->setStatus("draft");
     $etd->save("setting status to draft to test review");
     
     // etd is not ready to submit; should complain and redirect
     $SubmissionController = new SubmissionControllerForTest($this->request,$this->response);
-    $this->setUpGet(array('pid' => 'test:etd2'));	   // reviewed etd
+    $this->setUpGet(array('pid' => $this->etdpid));	   // reviewed etd
     $SubmissionController->reviewAction();
     $this->assertTrue($SubmissionController->redirectRan);
     $messages = $SubmissionController->getHelper('FlashMessenger')->getMessages();
@@ -215,14 +231,14 @@ class SubmissionControllerTest extends ControllerTestCase {
     Zend_Registry::set('current_user', $this->test_user);
     $SubmissionController = new SubmissionControllerForTest($this->request,$this->response);
 
-    $this->setUpGet(array('pid' => 'test:etd2'));	   // reviewed etd
+    $this->setUpGet(array('pid' => $this->etdpid));	   // reviewed etd
     // etd is wrong status, should not be allowed
     $this->assertFalse($SubmissionController->submitAction());
-    $etd = new etd("test:etd2");
+    $etd = new etd($this->etdpid);
     $this->assertEqual("reviewed", $etd->status(), "status unchanged");	
 
     // set status to draft so it can be submitted
-    $etd = new etd("test:etd2");
+    $etd = new etd($this->etdpid);
     $etd->setStatus("draft");
     $etd->save("changing status to test submit");
 
@@ -246,7 +262,7 @@ class SubmissionControllerTest extends ControllerTestCase {
     $this->expectError("Committee member/chair (nobody) not found in ESD");
     $this->expectError("Committee member/chair (nobodytoo) not found in ESD");
     $SubmissionController->submitAction();
-    //    $etd = new etd("test:etd2");
+    //    $etd = new etd($this->etdpid);
     //    $this->assertEqual("submitted", $etd->status());
     $this->assertTrue($SubmissionController->redirectRan);	// currently redirects to my etds page...
     $messages = $SubmissionController->getHelper('FlashMessenger')->getMessages();

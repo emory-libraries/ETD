@@ -11,15 +11,22 @@ require_once('controllers/FileController.php');
 
 class FileControllerTest extends ControllerTestCase {
 
-  private $filepid;
-  private $etdpid;
-  private $userpid;
   private $etdfile;
-
+  private $filepid;
   private $mock_etdfile;
 
   // fedoraConnection
   private $fedora;
+
+  function __construct() {
+    $this->fedora = Zend_Registry::get("fedora");
+    $fedora_cfg = Zend_Registry::get('fedora-config');
+
+    // get test pid
+    $this->etdpid = $this->fedora->getNextPid($fedora_cfg->pidspace);
+  }
+
+
   
   function setUp() {
     $this->response = $this->makeResponse();
@@ -33,10 +40,12 @@ class FileControllerTest extends ControllerTestCase {
     $this->test_user->lastname = "Jones";
     Zend_Registry::set('current_user', $this->test_user);
 
-    $this->fedora = Zend_Registry::get("fedora");
-    //    $this->filepid = $this->fedora->ingest(file_get_contents('../fixtures/etdfile.xml'), "loading test etdFile");
-    $this->etdpid = $this->fedora->ingest(file_get_contents('../fixtures/etd2.xml'), "loading test etd");
-    //    $this->userpid = $this->fedora-?ingest(file_get_contents('../fixtures/user.xml'), "loading test user object");
+    $dom = new DOMDocument();
+    // load etd & set pid & author relation
+    $dom->loadXML(file_get_contents('../fixtures/etd2.xml'));
+    $foxml = new foxml($dom);
+    $foxml->pid = $this->etdpid;
+    $this->fedora->ingest($foxml->saveXML(), "loading test etd object");
 
     // use mock etd object to simplify permissions/roles/etc
     $this->mock_etdfile = &new MockEtdFile();
@@ -49,9 +58,7 @@ class FileControllerTest extends ControllerTestCase {
   }
   
   function tearDown() {
-    //    $this->fedora->purge($this->filepid, "removing test etdFile");
     $this->fedora->purge($this->etdpid, "removing test etd");
-    //    $this->fedora->purge($this->userpid, "removing test user object");
 
     $FileController = new FileControllerForTest($this->request,$this->response);
     $gff = $FileController->getHelper("GetFromFedora");

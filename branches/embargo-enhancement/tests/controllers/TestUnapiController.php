@@ -8,6 +8,19 @@ require_once('controllers/UnapiController.php');
 class UnapiControllerTest extends ControllerTestCase {
 
   private $testpid;
+
+  // fedoraConnection
+  private $fedora;
+  
+  function __construct() {
+    $this->fedora = Zend_Registry::get("fedora");
+    $fedora_cfg = Zend_Registry::get('fedora-config');
+    
+    // get test pid
+    $this->testpid = $this->fedora->getNextPid($fedora_cfg->pidspace);
+  }
+
+
   
   function setUp() {
     $this->response = $this->makeResponse();
@@ -21,9 +34,8 @@ class UnapiControllerTest extends ControllerTestCase {
     $dom = new DOMDocument();
     $dom->loadXML(file_get_contents('../fixtures/etd1.xml'));
     $foxml = new foxml($dom);
-    $foxml->pid = "emory:bzb";
-    $this->testpid = $fedora->ingest($foxml->saveXML(),
-				      "loading test etd");
+    $foxml->pid = $this->testpid;
+    $fedora->ingest($foxml->saveXML(),  "loading test etd");
     // construct fake ark to use for unAPI id
     $this->testark = 'http://pid/ark:/123/' . preg_replace("/^.*:/", "", $this->testpid);
   }

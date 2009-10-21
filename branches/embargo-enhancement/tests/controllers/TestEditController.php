@@ -165,7 +165,7 @@ class EditControllerTest extends ControllerTestCase {
     if ($controller === null)
       $controller = new EditControllerForTest($this->request, $this->response);
 
-    $args = array('pid' => 'test:etd2');
+    $args = array('pid' => $this->etdpid);
     if ($embargo !== null) $args['embargo'] = $embargo;
     if ($embargo_level !== null) $args['embargo_level'] = $embargo_level;
     if ($pq_submit !== null) $args['pq_submit'] = $pq_submit;
@@ -180,7 +180,7 @@ class EditControllerTest extends ControllerTestCase {
   private function assertRights($embargo, $embargo_level,
                                 $pq_submit, $pq_copyright,
                                 $submission_agreement) {
-    $etd = new etd('test:etd2');
+    $etd = new etd($this->etdpid);
     if ($embargo !== null)
       $this->assertEqual($embargo, $etd->mods->isEmbargoRequested());
     if ($embargo_level !== null)

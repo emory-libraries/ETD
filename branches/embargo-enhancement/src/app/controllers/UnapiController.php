@@ -27,8 +27,14 @@ class UnapiController extends Etd_Controller_Action {
     if ($ark) {
       // if id looks like an ark
       if ($persis->isArk($ark))  {      
-	// convert ARK to fedora pid
-	$pid = $persis->pidfromArk($ark);
+	// convert ARK to fedora pid	-- use configured fedora pidspace if available
+	$fedora_cfg = Zend_Registry::get('fedora-config');
+	if (isset($fedora_cfg->pidspace) && $fedora_cfg->pidspace != '') {
+	  $pid = $persis->pidfromArk($ark, $fedora_cfg->pidspace);
+	} else {
+	  $pid = $persis->pidfromArk($ark);
+	}
+
 	$this->_setParam("pid", $pid);
 	try { 
 	  $etd = EtdFactory::init($pid, "etd");
