@@ -58,7 +58,7 @@ paper ETD Submission Agreement Form which you will present to
   <? if ($this->etd->mods->degree->name == ''): /* should be redirected by controller */ ?>
      <p>You have not yet entered your degree information; you should
         <a href="<?= $this->url(array("action" => "record")) ?>">edit your thesis information</a>
-        before proceeding.</p>  function ProquestRequired() {
+        before proceeding.</p>
   <? elseif ($this->etd->mods->ProquestRequired()): ?>
      <p>Because you are receiving a(n) <b><?= $this->etd->mods->degree->name ?></b> degree,
 	your record will automatically be submitted to ProQuest/UMI.</p>
