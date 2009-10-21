@@ -11,7 +11,13 @@ class XmlbyidControllerTest extends ControllerTestCase {
   private $fedora;
 
   function __construct() {
+    global $_SERVER;
     $fedora_cfg = Zend_Registry::get('fedora-config');
+
+    // override remote address to make requests look like they come from configured fedora instance
+    // (all other hosts will get access denied)
+    $_SERVER["REMOTE_ADDR"] = gethostbyname($fedora_cfg->server);
+    
     $this->fedora = Zend_Registry::get("fedora");
     // generate one new pid in the configured fedora test pidspace
     // will be used for test object (loaded & purged) throughout this test
@@ -152,6 +158,25 @@ class XmlbyidControllerTest extends ControllerTestCase {
 			 "non-xml datastream url - can not be loaded");
     
 
+  }
+
+
+  function testNonfedoraRequest() {
+    // if requesting host is anything other than configured fedora, access should be denied
+    $_SERVER["REMOTE_ADDR"] = "127.0.0.1";
+
+    $this->setUpGet(array('url' => $this->fedora->datastreamUrl($this->testpid, "XHTML"),
+			  'id' => 'title'));
+    $XmlbyidController = new XmlbyidControllerForTest($this->request,$this->response);
+    $XmlbyidController->viewAction();
+
+    $response = $XmlbyidController->getResponse();
+    $this->assertEqual(403, $response->getHttpResponseCode(),
+		       "request from client other than Fedora server results in HTTP error code 403");
+    $this->assertEqual("", $response->getBody(),
+			 "no data returned when request comes from non-Fedora server");
+    
+    
   }
 
   

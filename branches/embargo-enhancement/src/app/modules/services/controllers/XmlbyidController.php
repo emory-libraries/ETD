@@ -14,13 +14,21 @@ class Services_XmlbyidController extends Zend_Controller_Action {
   }
 
   public function viewAction() {
-    $this->_helper->viewRenderer->setNoRender(false);
+    $this->_helper->viewRenderer->setNoRender();
+
+    // load Fedora configuration
+    $fedora_cfg = Zend_Registry::get('fedora-config');
+
+    // ONLY allow requests from Fedora, since this service may have access to restricted content
+    if ($this->_request->getServer("REMOTE_ADDR") != gethostbyname($fedora_cfg->server)) {
+      $this->_response->setHttpResponseCode(403);	// Forbidden
+      // FIXME: should any text/message be displayed here?
+      return;
+    }
+    
     $url =  $this->_getParam("url");  // fedora datastream url
     $id = $this->_getParam("id");   
     try {
-      
-      // load Fedora configuration
-      $fedora_cfg = Zend_Registry::get('fedora-config');
       
       // parse the datastream url into component pieces
       if (preg_match("|(https?)://([a-z0-9.]+):([0-9]+)/[^/]+/get/([-a-zA-z:0-9]+)/([a-zA-Z0-9]+)/?(.*)?|", $url, $matches)) {
@@ -51,7 +59,7 @@ class Services_XmlbyidController extends Zend_Controller_Action {
       
       $xml = $fedora->getDatastream($pid, $datastream);
       
-      if (!$xml) throw new Exception("No content returned from Fedora for $pid/$dsid");
+      if (!$xml) throw new Exception("No content returned from Fedora for $pid/$datastream");
       
       $dom = new DOMDocument();
       if (! $dom->loadXML($xml))
