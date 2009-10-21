@@ -140,6 +140,9 @@ class TestEtdXacml extends UnitTestCase {
   function testAuthorPermissions() {
     // set user account to author
     setFedoraAccount("author");
+    // get fedoraConnection from registry with current user credentials
+    $fedora = Zend_Registry::get("fedora");
+
 
     // record starts out as a draft-- author should be able to read and modify
     $etd = new etd($this->pid);
@@ -192,7 +195,7 @@ class TestEtdXacml extends UnitTestCase {
                             array("testid", "author"));    	// PREMIS
     $result = null;
     try {
-        $result = $this->fedora->modifyXMLDatastream($etd->pid, "PREMIS",
+        $result = $fedora->modifyXMLDatastream($etd->pid, "PREMIS",
 						    $etd->premis->datastream_label(),
 						    $etd->premis->saveXML(),
                             "test author permissions - modify PREMIS on non-draft etd");
@@ -207,7 +210,7 @@ class TestEtdXacml extends UnitTestCase {
 
     $etd->policy->removeRule("view");    // POLICY
     try {
-        $result = $this->fedora->modifyXMLDatastream($etd->pid, "POLICY",
+        $result = $fedora->modifyXMLDatastream($etd->pid, "POLICY",
 						    $etd->policy->datastream_label(),
 						    $etd->policy->saveXML(), "test author permissions - modify POLICY on non-draft etd");
     } catch (Exception $e) {
@@ -221,8 +224,8 @@ class TestEtdXacml extends UnitTestCase {
   function testCommitteePermissions() {
     // set user account to committee
     setFedoraAccount("committee");
-    // update to latest fedora connection with committee credentials
-    $this->fedora = Zend_Registry::get('fedora');
+    // get latest fedora connection with committee credentials
+    $fedora = Zend_Registry::get('fedora');
 
     // for committee member, it shouldn't matter if etd is draft, published, etc.
     $etd = new etd($this->pid);
@@ -241,7 +244,7 @@ class TestEtdXacml extends UnitTestCase {
     $etd->dc->title = "new title";	  //   DC
     $result = null;
     try {
-      $result = $this->fedora->modifyXMLDatastream($etd->pid, "DC",
+      $result = $fedora->modifyXMLDatastream($etd->pid, "DC",
                                 $etd->dc->datastream_label(),
                                 $etd->dc->saveXML(), "test committee permissions - modify DC");
     } catch (Exception $e) {
@@ -256,7 +259,7 @@ class TestEtdXacml extends UnitTestCase {
     $etd->mods->title = "newer title";    //   MODS
     // save just the datastream we want to test
     try {        
-        $result = $this->fedora->modifyXMLDatastream($etd->pid, "MODS",
+        $result = $fedora->modifyXMLDatastream($etd->pid, "MODS",
 						    $etd->mods->datastream_label(),
 						    $etd->mods->saveXML(), "test committee permissions - modify MODS");
     } catch (Exception $e) {
@@ -270,7 +273,7 @@ class TestEtdXacml extends UnitTestCase {
     
     $etd->html->title = "newest title";    //   XHTML
     try {        
-        $result = $this->fedora->modifyXMLDatastream($etd->pid, "XHTML",
+        $result = $fedora->modifyXMLDatastream($etd->pid, "XHTML",
 						    $etd->html->datastream_label(),
 						    $etd->html->saveXML(), "test committee permissions - modify XHTML");
     } catch (Exception $e) {
@@ -284,7 +287,7 @@ class TestEtdXacml extends UnitTestCase {
     
     $etd->rels_ext->status = "reviewed";    // RELS-EXT
     try {
-      $result = $this->fedora->modifyXMLDatastream($etd->pid, "RELS-EXT",
+      $result = $fedora->modifyXMLDatastream($etd->pid, "RELS-EXT",
 						   $etd->rels_ext->datastream_label(),
 						   $etd->rels_ext->saveXML(), "test committee permissions - modify RELS-EXT");
     } catch (Exception $e) {
@@ -298,7 +301,7 @@ class TestEtdXacml extends UnitTestCase {
     $etd->premis->addEvent("test", "testing permissions", "success",
                             array("testid", "author"));    	// PREMIS
     try {
-        $result = $this->fedora->modifyXMLDatastream($etd->pid, "PREMIS",
+        $result = $fedora->modifyXMLDatastream($etd->pid, "PREMIS",
 						    $etd->premis->datastream_label(),
 						    $etd->premis->saveXML(), "test committee permissions - modify PREMIS");
     } catch (Exception $e) {
@@ -312,7 +315,7 @@ class TestEtdXacml extends UnitTestCase {
     
     $etd->policy->removeRule("view");    // POLICY
     try {
-        $result = $this->fedora->modifyXMLDatastream($etd->pid, "POLICY",
+        $result = $fedora->modifyXMLDatastream($etd->pid, "POLICY",
 						     $etd->policy->datastream_label(),
 						     $etd->policy->saveXML(), "test committee permissions - modify POLICY");
     } catch (Exception $e) {
@@ -382,7 +385,7 @@ class TestEtdXacml extends UnitTestCase {
     // tech support needs permission to fix xhtml fields
     $etd->html->calculateChecksum();
     $etd->html->title = "newest title";    //   XHTML
-    $this->assertNotNull($this->fedora->modifyXMLDatastream($etd->pid, "XHTML",
+    $this->assertNotNull($fedora->modifyXMLDatastream($etd->pid, "XHTML",
                                 $etd->html->datastream_label(),
                                 $etd->html->saveXML(), "test etdadmin permissions - modify XHTML"),
 			 "etdadmin can modify XHTML");
