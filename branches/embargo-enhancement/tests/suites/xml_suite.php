@@ -30,11 +30,11 @@ $suite->addTestCase(new ViewHelpersGroupTest());
 //xslt
 $suite->addTestCase(new XsltGroupTest());
 
-//xacml
-$suite->addTestCase(new XacmlGroupTest());
-
 //modules
 $suite->addTestCase(new ModuleGroupTest());
+
+//xacml
+$suite->addTestCase(new XacmlGroupTest());
 
 
 $reporter = new XmlTimeReporter();
