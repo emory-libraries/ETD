@@ -51,6 +51,7 @@ class TestEtdFileXacml extends UnitTestCase {
   }
 
   function tearDown() {
+    setFedoraAccount("fedoraAdmin");
     $this->purgeTestObject();
   }
 
