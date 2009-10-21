@@ -16,9 +16,7 @@ class ControllerTestCase extends UnitTest {
   
   protected function setUpPost(array $params = array()) {
     $_SERVER['REQUEST_METHOD'] = 'POST';
-    foreach($params as $key=>$value){
-      $_POST[$key] = $value;
-    }
+    $_POST = $params;
   }
   
   protected function setUpGet(array $params = array())  {

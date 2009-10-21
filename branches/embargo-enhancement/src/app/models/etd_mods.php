@@ -32,10 +32,12 @@ class etd_mods extends mods {
 
   const ETDMS_NS = "http://www.ndltd.org/standards/metadata/etdms/1.0/";
 
+  const EMBARGO_MIN = 0;
   const EMBARGO_NONE = 0;
   const EMBARGO_FILES = 1;
   const EMBARGO_TOC = 2;
   const EMBARGO_ABSTRACT = 3;
+  const EMBARGO_MAX = 3;
   private $embargo_name_map;
  
   protected $required_fields;
@@ -471,6 +473,11 @@ class etd_mods extends mods {
       // FIXME: "" is legal, but should we throw an exception for other values?
       return NULL;
     }
+  }
+
+  public function validEmbargoRequestLevel($level) {
+    return ($level >= etd_mods::EMBARGO_MIN &&
+            $level <= etd_mods::EMBARGO_MAX);
   }
 
   public function setEmbargoRequestLevel($level) {

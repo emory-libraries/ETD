@@ -96,7 +96,8 @@ class EditController extends Etd_Controller_Action {
 
     $this->_helper->viewRenderer->setNoRender(true);
 
-    $this->validateRightsAction();
+    if ( ! $this->validateRights() )
+      return;
     
     $embargo = $this->_getParam('embargo', null);
     $embargo_level = $this->_getParam('embargo_level', null);
@@ -104,42 +105,68 @@ class EditController extends Etd_Controller_Action {
     $pq_copyright = $this->_getParam('pq_copyright', null);
     $submission_agreement = $this->_getParam('submission_agreement', null);
 
-    //$this->view->etd = $etd;
+    $this->view->etd = $etd;
 
-    $this->_helper->flashMessenger->addMessage('Changes not saved. Functionality not implemented. Write some tests, yo.');
+    if ($embargo)
+      $etd->mods->setEmbargoRequestLevel($embargo_level);
+    else
+      $etd->mods->setEmbargoRequestLevel(etd_mods::EMBARGO_NONE);
+
+    // TODO: pq
+
+    // TODO: submission agreement
+
+    if ($etd->mods->hasChanged()) {
+      $save_result = $etd->save('updated rights');
+      $this->view->save_result = $save_result;
+      if ($save_result) {
+        $this->_helper->flashMessenger->addMessage('Saved changes to rights');
+        $this->logger->info('updated etd ' . $etd->pid . ' rights at $save_result');
+      } else {
+        $this->_helper->flashMessenger->addMessage('Could not save changes to rights (permission denied?)');
+        $this->logger->err('Could not save changes to rights on etd ' . $etd->pid);
+      }
+    } else {
+      $this->_helper->flashMessenger->addMessage('No changes made to rights');
+    }
+
     $this->_helper->redirector->gotoRoute(array('controller' => 'view', 'action' => 'record',
                                                 'pid' => $etd->pid), '', true);
   }
 
-  private function validateRightsAction() {
+  // Sanity-check input.
+  private function validateRights() {
     $embargo = $this->_getParam('embargo', null);
     $embargo_level = $this->_getParam('embargo_level', null);
     $pq_submit = $this->_getParam('pq_submit', null);
     $pq_copyright = $this->_getParam('pq_copyright', null);
     $submission_agreement = $this->_getParam('submission_agreement', null);
     
-    // Sanity-check input. Top-level fields have defaults in the form, so if
-    // any of those are missing the client is doing something funny. We
-    // could just use the defaults here, but the questions on this form are
-    // sensitive and may have legal implications, so we'll play it safe and
-    // require the fields to be in the HTTP request.
+    // Embargo is always in the form. If it's missing from the response then
+    // the client is doing something funny. This one has some legal
+    // implications, so reject it if it's not specified.
     if ($embargo === null) return false;
-    if ($pq_submit === null) return false;
-    if ($submission_agreement === null) return false;
-
     // If they say they want an embargo, require them to specify what type.
-    // Again, very sensitive and legal, so don't accept a default. This
-    // time, though, the form doesn't have a default, so let the user know
+    // This time, the form doesn't have a default, so let the user know
     // if he failed to enter a field.
-    if ($embargo && $embargo_level === null) {
+    if ($embargo && ($embargo_level === null)) {
       $this->_helper->flashMessenger->addMessage('Not updated: If you request an access restriction, you must specify what type.');
       return false;
     }
+    // The form only allows valid levels. If they send an invalid level then
+    // something funny is going on.
+    if ( ! etd_mods::validEmbargoRequestLevel($embargo_level) )
+      return false;
 
-    // If they say they want to submit to ProQuest, require them to choose
-    // whether or not to have PQ register copyright. This one has a default
-    // on the form, so if it's missing, they're up to something funny.
-    if ($pq_submit && $pq_copyright === null) return false;
+    // ProQuest: The rules here are actually more complex. Depending on the
+    // ETD this could be required, implied, or outright disallowed. Cross
+    // that bridge when we've got tests for it.
+
+    // And the agreement. Reject any input that doesn't accept.
+    if ( ! $submission_agreement ) {
+      $this->_helper->flashMessenger->addMessage("Not updated. We can't process your ETD if you don't accept the submission agreement.");
+      return false;
+    }
 
     // Other than that, we should be OK.
     return true;

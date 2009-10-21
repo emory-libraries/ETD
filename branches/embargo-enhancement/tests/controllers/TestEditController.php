@@ -153,10 +153,49 @@ class EditControllerTest extends ControllerTestCase {
    */
 
   function testSaveRightsAction() {
-    // No embargo, everything else left blank. This is the default state for
-    // this fixture.
-    $this->postSaveRights(null, 0, null, null, null, 1);
-    $this->assertRights(0, etd_mods::EMBARGO_NONE, null, null, null);
+    // No embargo. This is the default state for this fixture.
+    $this->postSaveRights(null, 0, null, 0, null, 1);
+    $this->assertRights(0, etd_mods::EMBARGO_NONE, 0, null, 1);
+
+    // Embargo files.
+    $this->postSaveRights(null, 1, etd_mods::EMBARGO_FILES, 0, null, 1);
+    $this->assertRights(1, etd_mods::EMBARGO_FILES, 0, null, 1);
+
+    // Embargo ToC.
+    $this->postSaveRights(null, 1, etd_mods::EMBARGO_TOC, 0, null, 1);
+    $this->assertRights(1, etd_mods::EMBARGO_TOC, 0, null, 1);
+
+    // Embargo abstract.
+    $this->postSaveRights(null, 1, etd_mods::EMBARGO_ABSTRACT, 0, null, 1);
+    $this->assertRights(1, etd_mods::EMBARGO_ABSTRACT, 0, null, 1);
+
+    // And set it back to none for good measure.
+    $this->postSaveRights(null, 0, null, 0, null, 1);
+    $this->assertRights(0, etd_mods::EMBARGO_NONE, 0, null, 1);
+
+    // If they say no $embargo but somehow send $embargo_level, we
+    // interpret as no embargo.
+    $this->postSaveRights(null, 0, etd_mods::EMBARGO_ABSTRACT, 0, null, 1);
+    $this->assertRights(0, etd_mods::EMBARGO_NONE, 0, null, 1);
+  }
+
+  function testInvalidSaveRightsAction() {
+    // The default state. We'll be checking this again.
+    $this->assertRights(0, etd_mods::EMBARGO_NONE, 0, null, 1);
+
+    // Skipping $embargo is invalid. Shouldn't change anything, even if
+    // other fields are set.
+    $this->postSaveRights(null, null, etd_mods::EMBARGO_ABSTRACT, 1, 1, 1);
+    $this->assertRights(0, etd_mods::EMBARGO_NONE, 0, null, 1);
+
+    // If they request an $embargo, $embargo_level is required. Reject if
+    // they skip it.
+    $this->postSaveRights(null, 1, null, 0, 0, 1);
+    $this->assertRights(0, etd_mods::EMBARGO_NONE, 0, null, 1);
+
+    // Invalid $embargo_level is invalid.
+    $this->postSaveRights(null, 1, 42, 1, 1, 1);
+    $this->assertRights(0, etd_mods::EMBARGO_NONE, 0, null, 1);
   }
 
   private function postSaveRights($controller, $embargo, $embargo_level,
@@ -174,7 +213,6 @@ class EditControllerTest extends ControllerTestCase {
 
     $this->setUpPost($args);
     $controller->saveRightsAction();
-    $this->assertTrue($controller->redirectRan);
   }
 
   private function assertRights($embargo, $embargo_level,
