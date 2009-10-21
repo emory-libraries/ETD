@@ -11,6 +11,7 @@ require_once('lib.php');
 require_once('viewhelpers.php');
 require_once('xslt.php');
 require_once('xacml.php');
+require_once('modules.php');
 
 $suite = new TestSuite('All ETD Tests');
 
@@ -31,6 +32,10 @@ $suite->addTestCase(new XsltGroupTest());
 
 //xacml
 $suite->addTestCase(new XacmlGroupTest());
+
+//modules
+$suite->addTestCase(new ModuleGroupTest());
+
 
 $reporter = new XmlTimeReporter();
 $suite->run($reporter);
