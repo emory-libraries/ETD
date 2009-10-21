@@ -201,7 +201,7 @@ class TestEtdXacml extends UnitTestCase {
     }
     $this->assertNull($result, "PREMIS not updated - timestamp should be null, got '$result'");
     $this->assertIsA($exception, "FedoraAccessDenied");
-    $this->assertPattern("/modify datastream.*PREMIS/", $exception->getMessage());
+    if ($exception) $this->assertPattern("/modify datastream.*PREMIS/", $exception->getMessage());
     unset($exception);
     $result = null;
 
