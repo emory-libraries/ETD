@@ -676,7 +676,10 @@ class etd extends foxml implements etdInterface {
 
   public function pid() { return $this->pid; }
   public function status() { return isset($this->rels_ext->status) ? $this->rels_ext->status : ""; }
-  public function title() { return $this->html->title; }	// how to know which?
+  public function title() {
+    // call fedora service - returns html title if user is allowed to see it
+    return $this->__call("title", array());
+  }	
   public function author() { return $this->mods->author->full; }
   public function program() { return $this->mods->department; }
   public function program_id() {
@@ -736,8 +739,14 @@ class etd extends foxml implements etdInterface {
       return date("Y", strtotime($date, 0));		// convert date to year only
   }
   public function pubdate() { return $this->mods->originInfo->issued; }
-  public function _abstract() { return $this->mods->abstract; }
-  public function tableOfContents() { return $this->mods->tableOfContents; }
+  public function _abstract() {
+    // call fedora service - returns html abstract if user is allowed to see it
+    return $this->__call("abstract", array());
+  }
+  public function tableOfContents() {
+    // call fedora service - returns html ToC if user is allowed to see it
+    return $this->__call("tableofcontents", array());
+  }
   public function num_pages() { return isset($this->mods->pages) ? $this->mods->pages : ""; }
   
   public function keywords() {
@@ -757,8 +766,6 @@ class etd extends foxml implements etdInterface {
   public function ark() {
     return $this->mods->identifier;     // want the resolvable version of the ark
   }
-
-
 
   // for Zend ACL Resource
   public function getResourceId() {
