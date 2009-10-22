@@ -23,18 +23,24 @@ class TestEtdXacml extends UnitTestCase {
    * FedoraConnection with current test user credentials
    */
   private $fedora;
+
+  function __construct() {
+    $fedora_cfg = Zend_Registry::get('fedora-config');
+    $this->fedoraAdmin = new FedoraConnection($fedora_cfg);
+    
+    // get test pid for fedora fixture
+    $this->pid = $this->fedoraAdmin->getNextPid($fedora_cfg->pidspace);
+  }
+
     
   function setUp() {
-    if (!isset($this->fedoraAdmin)) {
-      $fedora_cfg = Zend_Registry::get('fedora-config');
-      $this->fedoraAdmin = new FedoraConnection($fedora_cfg);
-    }
     $this->fedora = Zend_Registry::get('fedora');
       
     $fname = '../fixtures/etd1.xml';
     $dom = new DOMDocument();
     $dom->load($fname);
     $etd = new etd($dom);
+    $etd->pid = $this->pid;
 
     // repository-wide policy rules
     $etd->owner = "author";	// set owner to author username (rely on repository-wide policy for author access)
@@ -47,24 +53,12 @@ class TestEtdXacml extends UnitTestCase {
     $etd->policy->addRule("draft");
     $etd->policy->draft->condition->user = "author";
     if (isset($etd->policy->published)) $etd->policy->removeRule("published");
-    $this->pid =  $etd->pid;
     
-    try {
-      $this->fedoraAdmin->ingest($etd->saveXML(), "loading test object");
-    } catch (FedoraObjectExists $e) {
-      // if a previous test run failed, object may still be in Fedora
-      $this->purgeTestObject();
-      $this->fedoraAdmin->ingest($etd->saveXML(), "loading test object");
-    }
-
+    $this->fedoraAdmin->ingest($etd->saveXML(), "loading test object");
   }
 
   function tearDown() {
     setFedoraAccount("fedoraAdmin");
-    $this->purgeTestObject();
-  }
-
-  function purgeTestObject() {
     $this->fedoraAdmin->purge($this->pid, "removing test object");
   }
 
