@@ -270,20 +270,38 @@ const view = '<Rule xmlns="urn:oasis:names:tc:xacml:1.0:policy" RuleId="view" Ef
                  DataType="http://www.w3.org/2001/XMLSchema#string"/>
         </ResourceMatch>
       </Resource>
-        <Resource>
-         <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">XHTML</AttributeValue>
-             <ResourceAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:resource:datastream:id" 
-                 DataType="http://www.w3.org/2001/XMLSchema#string"/>
-        </ResourceMatch>
-      </Resource>
-    <Resource>
+      <Resource>
         <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
             <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">PREMIS</AttributeValue>
             <ResourceAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:resource:datastream:id" 
                 DataType="http://www.w3.org/2001/XMLSchema#string"/>
         </ResourceMatch>
       </Resource>
+
+	<!-- etd methods (xhtml sections) -->
+
+      <Resource>
+        <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">title</AttributeValue>
+            <ResourceAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:resource:disseminator:method" 
+                DataType="http://www.w3.org/2001/XMLSchema#string"/>
+        </ResourceMatch>
+      </Resource>
+      <Resource>
+        <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">abstract</AttributeValue>
+            <ResourceAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:resource:disseminator:method" 
+                DataType="http://www.w3.org/2001/XMLSchema#string"/>
+        </ResourceMatch>
+      </Resource>
+      <Resource>
+        <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">tableofcontents</AttributeValue>
+            <ResourceAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:resource:disseminator:method" 
+                DataType="http://www.w3.org/2001/XMLSchema#string"/>
+        </ResourceMatch>
+      </Resource>
+
 
  	<!-- etdFile-only datastreams -->
         <Resource>
@@ -471,58 +489,63 @@ const published = '<Rule xmlns="urn:oasis:names:tc:xacml:1.0:policy"  RuleId="pu
         <AnySubject/>
       </Subjects>
       <Resources>
-
-    <Resource>
-        <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">DC</AttributeValue>
-            <ResourceAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:resource:datastream:id" 
-                DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="false"/>
-        </ResourceMatch>
-      </Resource>
-    <Resource>
-        <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">XHTML</AttributeValue>
-            <ResourceAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:resource:datastream:id" 
-                DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="false"/>
-        </ResourceMatch>
-      </Resource>
-
-    <Resource>
-        <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">MODS</AttributeValue>
-            <ResourceAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:resource:datastream:id" 
-                DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="false"/>
-        </ResourceMatch>
-      </Resource>
-
-    <Resource>
-        <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">RELS-EXT</AttributeValue>
-            <ResourceAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:resource:datastream:id" 
-                DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="false"/>
-        </ResourceMatch>
-      </Resource>
+        <AnyResource/>
       </Resources>
       <Actions>
-        <Action>
-          <ActionMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">urn:fedora:names:fedora:2.1:action:id-getDatastreamDissemination</AttributeValue>
-            <ActionAttributeDesignator DataType="http://www.w3.org/2001/XMLSchema#string" AttributeId="urn:fedora:names:fedora:2.1:action:id"/>
-          </ActionMatch>
-        </Action>
-
+        <AnyAction/>
       </Actions>
     </Target>
+
+
+    <Condition FunctionId="urn:oasis:names:tc:xacml:1.0:function:or">
+      <!-- view datastreams -->
+     <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:and">
+        <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-is-in">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">urn:fedora:names:fedora:2.1:action:id-getDatastreamDissemination</AttributeValue>
+          <ActionAttributeDesignator DataType="http://www.w3.org/2001/XMLSchema#string" AttributeId="urn:fedora:names:fedora:2.1:action:id" MustBePresent="false"/>
+        </Apply>
+	<!-- publicly accessible datastreams -->
+        <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-at-least-one-member-of">
+          <ResourceAttributeDesignator DataType="http://www.w3.org/2001/XMLSchema#string" AttributeId="urn:fedora:names:fedora:2.1:resource:datastream:id" MustBePresent="false"/>
+        <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-bag">
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">DC</AttributeValue>
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">MODS</AttributeValue>
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">RELS-EXT</AttributeValue>
+        </Apply> 	<!-- end string bag -->
+      </Apply>		<!-- end at least one member -->
+    </Apply>  <!-- end and : view datastreams -->
+
+    <!-- html disseminations -->
+     <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:and">
+	<!-- action : getDissemination -->
+        <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-is-in">
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">urn:fedora:names:fedora:2.1:action:id-getDissemination</AttributeValue>
+           <ActionAttributeDesignator DataType="http://www.w3.org/2001/XMLSchema#string" AttributeId="urn:fedora:names:fedora:2.1:action:id" MustBePresent="false"/>
+	</Apply>
+	<!-- methods -->
+       <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:and">
+        <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-is-in">
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">emory-control:ETDmetadataParts</AttributeValue>
+  	  <ResourceAttributeDesignator DataType="http://www.w3.org/2001/XMLSchema#string" AttributeId="urn:fedora:names:fedora:2.1:resource:sdef:pid" MustBePresent="false"/>
+        </Apply>
+        <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-at-least-one-member-of">
+          <ResourceAttributeDesignator DataType="http://www.w3.org/2001/XMLSchema#string" AttributeId="urn:fedora:names:fedora:2.1:resource:disseminator:method" MustBePresent="false"/>
+        <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-bag">
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">title</AttributeValue>
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">abstract</AttributeValue>
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">tableofcontents</AttributeValue>
+        </Apply> 	<!-- end string bag -->
+      </Apply>		<!-- end at least one member -->
+    </Apply>  <!-- end and (sdef pid & methods) -->
+    </Apply>  <!-- end and (html disseminations) -->
+
+
+     </Condition>  
+
 
 </Rule>
 ';
  
 /* Note: tested date comparison rule manually (2008-02-18) and it works */
 
-  
-
-
 }
-
-
-
