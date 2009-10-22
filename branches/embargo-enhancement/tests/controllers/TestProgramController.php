@@ -12,6 +12,25 @@ require_once('controllers/ProgramController.php');
 class ProgramControllerTest extends ControllerTestCase {
 
   private $test_user;
+
+  private $pid;
+
+  /**
+   * FedoraConnection 
+   */
+  private $fedora;
+
+  private $_realconfig;
+
+  function __construct() {
+    $this->fedora = Zend_Registry::get('fedora');
+    $fedora_cfg = Zend_Registry::get('fedora-config');
+    
+    // get test pid for fedora fixture
+    $this->pid = $this->fedora->getNextPid($fedora_cfg->pidspace);
+  }
+
+  
   function setUp() {
     $ep = new esdPerson();
     $this->test_user = $ep->getTestPerson();
@@ -20,9 +39,30 @@ class ProgramControllerTest extends ControllerTestCase {
     
     $this->response = $this->makeResponse();
     $this->request  = $this->makeRequest();
+
+
+    $dom = new DOMDocument();
+    $dom->load("../fixtures/programs.xml");
+    $foxml = new foxml($dom);
+    $foxml->pid = $this->pid;
+
+    $this->fedora->ingest($foxml->saveXML(), "loading test object");
+
+    // store real config to restore later
+    $this->_realconfig = Zend_Registry::get('config');
+
+    // stub config with test pid for programs_pid
+    $testconfig = new Zend_Config(array("programs_pid" => $this->pid));
+    
+    // temporarily override config in with test configuration
+    Zend_Registry::set('config', $testconfig);
   }
+  
   function tearDown() {
+    // restore real config to registry
+    Zend_Registry::set('config', $this->_realconfig);
     Zend_Registry::set('current_user', null);
+    $this->fedora->purge($this->pid, "removing test programs object");
   }
 
   function testXmlAction() {
@@ -51,57 +91,57 @@ class ProgramControllerTest extends ControllerTestCase {
   }
 
   function testSaveAction() {
-    // ignore "indirect modification of overloaded property" notices
-    $errlevel = error_reporting(E_ALL ^ E_NOTICE);
     $programController = new ProgramControllerForTest($this->request,$this->response);
 
-    // just simulate editing one subsection
-    $this->setUpPost(array('section' => 'religion', 'religion' => "Religion LABEL",
+    // edit one subsection
+    $this->setUpGet(array('section' => 'religion', 'religion' => "Religion LABEL",
 			   "religion_members" => "american ethics hebrew asian music",
 			   "american" => "American Religion"));
     $programController->saveAction();
     $messages = $programController->getHelper('FlashMessenger')->getMessages();
-    $this->assertPattern("/saved changes/i", $messages[0]);
+    $this->assertPattern("/saved changes.*religion/i", $messages[0]);
     $this->assertTrue($programController->redirectRan);
 
     $programObj = new foxmlPrograms("#religion");
     // labels updated
-    $this->assertEqual("Religion LABEL", $programObj->skos->label);
-    $this->assertEqual("American Religion", $programObj->skos->collection->american->label);
-    $this->assertTrue($programObj->skos->collection->hasMember("ethics"));
-    $this->assertTrue($programObj->skos->collection->hasMember("american"));
-    $this->assertTrue($programObj->skos->collection->hasMember("hebrew"));
-    $this->assertTrue($programObj->skos->collection->hasMember("asian"));
-    $this->assertTrue($programObj->skos->collection->hasMember("music"));
+    $this->assertEqual("Religion LABEL", $programObj->skos->label, "label updated");
+    $this->assertEqual("American Religion", $programObj->skos->collection->american->label,
+		       "sub-label updated");
+    $this->assertTrue($programObj->skos->collection->hasMember("ethics"),
+		      "religion has member ethics after update");
+    $this->assertTrue($programObj->skos->collection->hasMember("american"),
+		      "religion has member american after update");
+    $this->assertTrue($programObj->skos->collection->hasMember("hebrew"),
+		      "religion has member hebrew after update");
+    $this->assertTrue($programObj->skos->collection->hasMember("asian"),
+		      "religion has member asian after update");
+    $this->assertTrue($programObj->skos->collection->hasMember("music"),
+		      "religion has member music after update");
     // former collection members should have been removed
-    $this->assertFalse($programObj->skos->collection->hasMember("comparative"));
-    $this->assertFalse($programObj->skos->collection->hasMember("historical"));
+    $this->assertFalse($programObj->skos->collection->hasMember("comparative"),
+		       "religion no longer has member comparative");
+    $this->assertFalse($programObj->skos->collection->hasMember("historical"),
+		       "religion no longer has member historical");
 
-    // make the same changes again
-    $this->setUpPost(array('section' => 'religion', 'religion' => "Religion LABEL",
-			   "religion_members" => "american ethics hebrew asian music",
-			   "american" => "American Religion"));
+  }
+
+  function testSave_nochanges() {
+    $programController = new ProgramControllerForTest($this->request,$this->response);
+
+    // set something the same value as it already is
+    $this->setUpGet(array("section" => "music", "music" => "Music"));
     $programController->saveAction();
     $messages = $programController->getHelper('FlashMessenger')->getMessages();
     $this->assertPattern("/no changes made/i", $messages[0]);
     $this->assertTrue($programController->redirectRan);
+  }
 
+  function testSave_notauthorized() {
+    $programController = new ProgramControllerForTest($this->request,$this->response);
 
-    $this->test_user->role = "guest";
     // permission denied
+    $this->test_user->role = "guest";
     $this->assertFalse($programController->saveAction());
-    
-    // undo the modification to revert object back to initial state
-    $fedora = Zend_Registry::get("fedora");
-    $hist = $fedora->getDatastreamHistory($programObj->pid, "SKOS");
-    // remove just the latest revision of the datastream
-    $purged = $fedora->purgeDatastream($programObj->pid, "SKOS", $hist->datastream[0]->createDate,
-				     $hist->datastream[0]->createDate,
-				     "undoing test change");
-
-    // FIXME: this doesn't seem to undo the change properly/consistently somehow...
-
-    error_reporting($errlevel);	    // restore prior error reporting
   }
 
 }
