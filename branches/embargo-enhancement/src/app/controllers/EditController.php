@@ -96,7 +96,7 @@ class EditController extends Etd_Controller_Action {
 
     $this->_helper->viewRenderer->setNoRender(true);
 
-    if ( ! $this->validateRights() )
+    if ( ! $this->validateRights($etd) )
       return;
     
     $embargo = $this->_getParam('embargo', null);
@@ -107,14 +107,41 @@ class EditController extends Etd_Controller_Action {
 
     $this->view->etd = $etd;
 
+    // embargo
+
     if ($embargo)
       $etd->mods->setEmbargoRequestLevel($embargo_level);
     else
       $etd->mods->setEmbargoRequestLevel(etd_mods::EMBARGO_NONE);
 
-    // TODO: pq
+    // proquest
 
-    // TODO: submission agreement
+    if ( ! isset($etd->mods->pq_submit) )
+      $etd->mods->addNote('', 'admin', 'pq_submit');
+    if ( ! isset($etd->mods->copyright) )
+      $etd->mods->addNote('', 'admin', 'copyright');
+    if ($etd->isRequired('send to ProQuest') && 
+        ($etd->mods->ProquestRequired() ||
+         $pq_submit)) {
+      $etd->mods->pq_submit = 'yes';
+
+      if ($pq_copyright)
+        $etd->mods->copyright = 'yes';
+      else
+        $etd->mods->copyright = 'no';
+    } else {
+      $etd->mods->pq_submit = 'no';
+      $etd->mods->copyright = 'no';
+    }
+
+    // use and reproduction
+
+    if ($submission_agreement) {
+      $config = Zend_Registry::get('config');
+      //$this->view->rights_stmt = $config->useAndReproduction;
+      //$etd->mods->useAndReproduction = $this->view->rights_stmt;
+      $etd->mods->useAndReproduction = $config->useAndReproduction;
+    }
 
     if ($etd->mods->hasChanged()) {
       $save_result = $etd->save('updated rights');
@@ -135,13 +162,13 @@ class EditController extends Etd_Controller_Action {
   }
 
   // Sanity-check input.
-  private function validateRights() {
+  private function validateRights($etd) {
     $embargo = $this->_getParam('embargo', null);
     $embargo_level = $this->_getParam('embargo_level', null);
     $pq_submit = $this->_getParam('pq_submit', null);
     $pq_copyright = $this->_getParam('pq_copyright', null);
     $submission_agreement = $this->_getParam('submission_agreement', null);
-    
+
     // Embargo is always in the form. If it's missing from the response then
     // the client is doing something funny. This one has some legal
     // implications, so reject it if it's not specified.
@@ -158,9 +185,29 @@ class EditController extends Etd_Controller_Action {
     if ( ! etd_mods::validEmbargoRequestLevel($embargo_level) )
       return false;
 
-    // ProQuest: The rules here are actually more complex. Depending on the
-    // ETD this could be required, implied, or outright disallowed. Cross
-    // that bridge when we've got tests for it.
+    // ProQuest submission is only on the form if PQ submission is available
+    // at all (not the case for honors undergrads) and not required (as it
+    // is for PhDs.
+    if ($etd->isRequired("send to ProQuest") && 
+        ! $etd->mods->ProquestRequired() && 
+        $pq_submit === null)
+      return false;
+    // If ProQuest stuff isn't on the form at all (e.g., for an Honors ETD,
+    // don't accept a hacked-in yes option.
+    if ( ! $etd->isRequired("send to ProQuest") && $pq_submit)
+      return false;
+    // If the ETD is for a PhD dissertation, then the results must go to
+    // ProQuest. It won't be in the form in that case, but if the client does
+    // something funny and sends it anyway then reject it if they say no.
+    if ($etd->mods->ProquestRequired() && ($pq_submit === 0))
+      return false;
+    // If the user requests ProQuest or is required to send it to them, then
+    // copyright preference must be specified.
+    if ($etd->isRequired('send to ProQuest') and
+        ($pq_submit or
+         $etd->mods->ProquestRequired()) and 
+        ($pq_copyright === null))
+      return false;
 
     // And the agreement. Reject any input that doesn't accept.
     if ( ! $submission_agreement ) {

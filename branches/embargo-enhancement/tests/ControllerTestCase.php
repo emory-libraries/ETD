@@ -21,6 +21,7 @@ class ControllerTestCase extends UnitTest {
   
   protected function setUpGet(array $params = array())  {
     $_SERVER['REQUEST_METHOD'] = 'GET';
+    $_GET = array();
     foreach($params as $key=>$value){
       $_GET[$key] = $value;
     }

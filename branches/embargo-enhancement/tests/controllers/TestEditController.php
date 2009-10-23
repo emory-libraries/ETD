@@ -15,17 +15,21 @@ class EditControllerTest extends ControllerTestCase {
   private $fedora;
 
   private $etdpid;
+  private $honors_etdpid;
+  private $masters_etdpid;
   private $userpid;
 
   function __construct() {
     $this->fedora = Zend_Registry::get("fedora");
     $fedora_cfg = Zend_Registry::get('fedora-config');
 
-    // get 2 test pids - to be used throughout test
-    list($this->etdpid, $this->userpid) = $this->fedora->getNextPid($fedora_cfg->pidspace, 2);
+    // get 4 test pids - to be used throughout test
+    list($this->etdpid, $this->honors_etdpid, $this->masters_etdpid, $this->userpid) = $this->fedora->getNextPid($fedora_cfg->pidspace, 4);
   }
   
   function setUp() {
+    $config = Zend_Registry::get('config');
+
     $ep = new esdPerson();
     $this->test_user = $ep->getTestPerson();
     $this->test_user->role = "student";
@@ -42,35 +46,63 @@ class EditControllerTest extends ControllerTestCase {
 
     // load fixtures
     // note: etd & related user need to be in repository so authorInfo relation will work
-    $dom = new DOMDocument();
-    // load etd & set pid & author relation
-    $dom->loadXML(file_get_contents('../fixtures/etd2.xml'));
-    $foxml = new etd($dom);
-    $foxml->pid = $this->etdpid;
-    $foxml->rels_ext->hasAuthorInfo = $this->userpid;
-    $this->fedora->ingest($foxml->saveXML(), "loading test etd object");
+    $etd = new etd($this->loadEtdDom());
+    $etd->pid = $this->etdpid;
+    $this->prepareForEtdTest($etd);
+    $this->fedora->ingest($etd->saveXML(), "test etd object");
+
+    $honors_etd = new honors_etd($this->loadEtdDom());
+    $honors_etd->pid = $this->honors_etdpid;
+    $honors_etd->rels_ext->addRelationToResource("rel:isMemberOfCollection",
+                                                 $config->collections->college_honors);
+    $this->prepareForEtdTest($honors_etd);
+    $this->fedora->ingest($honors_etd->saveXML(), "test honors etd object");
+
+    $masters_etd = new etd($this->loadEtdDom());
+    $masters_etd->pid = $this->masters_etdpid;
+    $masters_etd->mods->degree->name = "MA";
+    $this->prepareForEtdTest($masters_etd);
+    $this->fedora->ingest($masters_etd->saveXML(), "test masters etd object");
 
     // load author info
-    $dom->loadXML(file_get_contents('../fixtures/user.xml'));
-    $foxml = new foxml($dom);
+    $foxml = new foxml($this->loadUserDom());
     $foxml->pid = $this->userpid;
     $this->fedora->ingest($foxml->saveXML(), "loading test etd authorInfo object");
-    
+
+    $this->data = new esd_test_data();
+    $this->data->loadAll();
+  }
+
+  // load foxml for an etd. all of our etd fixtures are currently derived
+  // from the same foxml
+  private function loadEtdDom() {
+    $dom = new DOMDocument();
+    $dom->loadXML(file_get_contents('../fixtures/etd2.xml'));
+    return $dom;
+  }
+
+  // load foxml for a user. only one user right now, but keep this function
+  // to maintain analog with loadEtdDom().
+  private function loadUserDom() {
+    $dom = new DOMDocument();
+    $dom->loadXML(file_get_contents('../fixtures/user.xml'));
+    return $dom;
+  }
+
+  private function prepareForEtdTest($etd) {
+    // note: etd & related user need to be in repository so authorInfo relation will work
+    $etd->rels_ext->hasAuthorInfo = $this->userpid;
+
     // set status to draft so it can be edited
-    $etd = new etd($this->etdpid);
     $etd->setStatus("draft");
     // add view policy rule and committee ids used in mods
     $etd->policy->addRule("view");
     $etd->policy->view->condition->addUser("nobody");
     $etd->policy->view->condition->addUser("nobodytoo");
-    $etd->save("setting status to draft to test edit");
-
-    $this->data = new esd_test_data();
-    $this->data->loadAll();
   }
   
   function tearDown() {
-    foreach (array($this->etdpid, $this->userpid) as $pid)
+    foreach (array($this->etdpid, $this->honors_etdpid, $this->masters_etdpid, $this->userpid) as $pid)
       $this->fedora->purge($pid, "removing test etd");
 
     // is there a better way to discard messages?
@@ -153,58 +185,147 @@ class EditControllerTest extends ControllerTestCase {
    */
 
   function testSaveRightsAction() {
+
+    // EMBARGO
+
     // No embargo. This is the default state for this fixture.
-    $this->postSaveRights(null, 0, null, 0, null, 1);
-    $this->assertRights(0, etd_mods::EMBARGO_NONE, 0, null, 1);
+    $this->postSaveRights($this->etdpid, 0, null, 1, 1, 1);
+    $this->assertRights(new etd($this->etdpid),
+                        0, etd_mods::EMBARGO_NONE, 1, 1, 1);
 
     // Embargo files.
-    $this->postSaveRights(null, 1, etd_mods::EMBARGO_FILES, 0, null, 1);
-    $this->assertRights(1, etd_mods::EMBARGO_FILES, 0, null, 1);
+    $this->postSaveRights($this->etdpid, 1, etd_mods::EMBARGO_FILES, 1, 1, 1);
+    $this->assertRights(new etd($this->etdpid),
+                        1, etd_mods::EMBARGO_FILES, 1, 1, 1);
 
     // Embargo ToC.
-    $this->postSaveRights(null, 1, etd_mods::EMBARGO_TOC, 0, null, 1);
-    $this->assertRights(1, etd_mods::EMBARGO_TOC, 0, null, 1);
+    $this->postSaveRights($this->etdpid, 1, etd_mods::EMBARGO_TOC, 1, 1, 1);
+    $this->assertRights(new etd($this->etdpid),
+                        1, etd_mods::EMBARGO_TOC, 1, 1, 1);
 
     // Embargo abstract.
-    $this->postSaveRights(null, 1, etd_mods::EMBARGO_ABSTRACT, 0, null, 1);
-    $this->assertRights(1, etd_mods::EMBARGO_ABSTRACT, 0, null, 1);
+    $this->postSaveRights($this->etdpid, 1, etd_mods::EMBARGO_ABSTRACT, 1, 1, 1);
+    $this->assertRights(new etd($this->etdpid),
+                        1, etd_mods::EMBARGO_ABSTRACT, 1, 1, 1);
 
     // And set it back to none for good measure.
-    $this->postSaveRights(null, 0, null, 0, null, 1);
-    $this->assertRights(0, etd_mods::EMBARGO_NONE, 0, null, 1);
+    $this->postSaveRights($this->etdpid, 0, null, 1, 1, 1);
+    $this->assertRights(new etd($this->etdpid),
+                        0, etd_mods::EMBARGO_NONE, 1, 1, 1);
 
     // If they say no $embargo but somehow send $embargo_level, we
     // interpret as no embargo.
-    $this->postSaveRights(null, 0, etd_mods::EMBARGO_ABSTRACT, 0, null, 1);
-    $this->assertRights(0, etd_mods::EMBARGO_NONE, 0, null, 1);
+    $this->postSaveRights($this->etdpid, 0, etd_mods::EMBARGO_ABSTRACT, 1, 1, 1);
+    $this->assertRights(new etd($this->etdpid),
+                        0, etd_mods::EMBARGO_NONE, 1, 1, 1);
+
+    // PROQUEST
+
+    // PhD ETD always goes to PQ (no option given on form) but copyright
+    // is optional. Here, no copyright.
+    $this->postSaveRights($this->etdpid, 0, null, null, 0, 1);
+    $this->assertRights(new etd($this->etdpid),
+                        0, etd_mods::EMBARGO_NONE, 1, 0, 1);
+
+    // PhD ETD with copyright
+    $this->postSaveRights($this->etdpid, 0, null, null, 1, 1);
+    $this->assertRights(new etd($this->etdpid),
+                        0, etd_mods::EMBARGO_NONE, 1, 1, 1);
+
+    // Masters ETD, no PQ. (the default)
+    $this->postSaveRights($this->masters_etdpid, 0, null, 0, null, 1);
+    $this->assertRights(new etd($this->masters_etdpid),
+                        0, etd_mods::EMBARGO_NONE, 0, null, 1);
+
+    // Masters ETD, PQ, no copyright
+    $this->postSaveRights($this->masters_etdpid, 0, null, 1, 0, 1);
+    $this->assertRights(new etd($this->masters_etdpid),
+                        0, etd_mods::EMBARGO_NONE, 1, 0, 1);
+    
+    // Masters ETD, PQ, copyright
+    $this->postSaveRights($this->masters_etdpid, 0, null, 1, 1, 1);
+    $this->assertRights(new etd($this->masters_etdpid),
+                        0, etd_mods::EMBARGO_NONE, 1, 1, 1);
+    
+    // Honors ETD never goes to PQ: it doesn't even have the option
+    $this->postSaveRights($this->honors_etdpid, 0, null, null, null, 1);
+    $this->assertRights(new honors_etd($this->honors_etdpid),
+                        0, etd_mods::EMBARGO_NONE, 0, 0, 1);
+
   }
 
   function testInvalidSaveRightsAction() {
     // The default state. We'll be checking this again.
-    $this->assertRights(0, etd_mods::EMBARGO_NONE, 0, null, 1);
+    $this->assertRights(new etd($this->etdpid),
+                        0, etd_mods::EMBARGO_NONE, 0, null, null);
+
+    // EMBARGO
 
     // Skipping $embargo is invalid. Shouldn't change anything, even if
     // other fields are set.
-    $this->postSaveRights(null, null, etd_mods::EMBARGO_ABSTRACT, 1, 1, 1);
-    $this->assertRights(0, etd_mods::EMBARGO_NONE, 0, null, 1);
+    $this->postSaveRights($this->etdpid, null, etd_mods::EMBARGO_ABSTRACT, 1, 1, 1);
+    $this->assertRights(new etd($this->etdpid),
+                        0, etd_mods::EMBARGO_NONE, 0, null, null);
 
     // If they request an $embargo, $embargo_level is required. Reject if
     // they skip it.
-    $this->postSaveRights(null, 1, null, 0, 0, 1);
-    $this->assertRights(0, etd_mods::EMBARGO_NONE, 0, null, 1);
+    $this->postSaveRights($this->etdpid, 1, null, 0, 0, 1);
+    $this->assertRights(new etd($this->etdpid),
+                        0, etd_mods::EMBARGO_NONE, 0, null, null);
 
     // Invalid $embargo_level is invalid.
-    $this->postSaveRights(null, 1, 42, 1, 1, 1);
-    $this->assertRights(0, etd_mods::EMBARGO_NONE, 0, null, 1);
+    $this->postSaveRights($this->etdpid, 1, 42, 1, 1, 1);
+    $this->assertRights(new etd($this->etdpid),
+                        0, etd_mods::EMBARGO_NONE, 0, null, null);
+
+    // PROQUEST
+
+    // PhD ETDs must go to PQ; the form does not offer this option
+    $this->postSaveRights($this->etdpid, 1, etd_mods::EMBARGO_ABSTRACT, 0, 0, 1);
+    $this->assertRights(new etd($this->etdpid),
+                        0, etd_mods::EMBARGO_NONE, 0, null, null);
+
+    // PhD ETDs must specify copyright option
+    $this->postSaveRights($this->etdpid, 1, etd_mods::EMBARGO_ABSTRACT, null, null, 1);
+    $this->assertRights(new etd($this->etdpid),
+                        0, etd_mods::EMBARGO_NONE, 0, null, null);
+
+    // Masters ETD must specify PQ choice
+    $this->postSaveRights($this->masters_etdpid, 1, etd_mods::EMBARGO_ABSTRACT, null, null, 1);
+    $this->assertRights(new etd($this->masters_etdpid),
+                        0, etd_mods::EMBARGO_NONE, 0, null, null);
+
+    // Masters ETD that elects to send to PQ must specify copyright option
+    $this->postSaveRights($this->masters_etdpid, 1, etd_mods::EMBARGO_ABSTRACT, 1, null, 1);
+    $this->assertRights(new etd($this->masters_etdpid),
+                        0, etd_mods::EMBARGO_NONE, 0, null, null);
+
+    // Honors ETDs are not given the option to request PQ
+
+    $this->postSaveRights($this->honors_etdpid, 1, etd_mods::EMBARGO_ABSTRACT, 1, 1, 1);
+    $this->assertRights(new honors_etd($this->honors_etdpid),
+                        0, etd_mods::EMBARGO_NONE, 0, null, null);
+
+    // SUBMISSION AGREEMENT
+
+    // The form should always set submission_agreement to either 0 or 1. If
+    // it's null, something funny's going on.
+    $this->postSaveRights($this->etdpid, 1, etd_mods::EMBARGO_ABSTRACT, 1, 1, null);
+    $this->assertRights(new etd($this->etdpid),
+                        0, etd_mods::EMBARGO_NONE, 0, null, null);
+
+    // If they don't accept the agreement, don't change anything.
+    $this->postSaveRights($this->etdpid, 1, etd_mods::EMBARGO_ABSTRACT, 1, 1, 0);
+    $this->assertRights(new etd($this->etdpid),
+                        0, etd_mods::EMBARGO_NONE, 0, null, null);
   }
 
-  private function postSaveRights($controller, $embargo, $embargo_level,
+  private function postSaveRights($pid, $embargo, $embargo_level,
                                   $pq_submit, $pq_copyright, 
                                   $submission_agreement) {
-    if ($controller === null)
-      $controller = new EditControllerForTest($this->request, $this->response);
+    $controller = new EditControllerForTest($this->request, $this->response);
 
-    $args = array('pid' => $this->etdpid);
+    $args = array('pid' => $pid);
     if ($embargo !== null) $args['embargo'] = $embargo;
     if ($embargo_level !== null) $args['embargo_level'] = $embargo_level;
     if ($pq_submit !== null) $args['pq_submit'] = $pq_submit;
@@ -215,20 +336,33 @@ class EditControllerTest extends ControllerTestCase {
     $controller->saveRightsAction();
   }
 
-  private function assertRights($embargo, $embargo_level,
+  private function assertRights($etd, $embargo, $embargo_level,
                                 $pq_submit, $pq_copyright,
                                 $submission_agreement) {
-    $etd = new etd($this->etdpid);
     if ($embargo !== null)
       $this->assertEqual($embargo, $etd->mods->isEmbargoRequested());
     if ($embargo_level !== null)
       $this->assertEqual($embargo_level, $etd->mods->embargoRequestLevel());
-    if ($pq_submit !== null)
-      /* FIXME: ?? */;
-    if ($pq_copyright !== null)
-      /* FIXME: ?? */;
-    if ($submission_agreement !== null)
-      /* FIXME: ?? */;
+    if ($pq_submit !== null) {
+      if ($pq_submit)
+        $this->assertTrue(isset($etd->mods->pq_submit) && ($etd->mods->pq_submit == 'yes'));
+      else
+        $this->assertTrue( ! isset($etd->mods->pq_submit) || ($etd->mods->pq_submit == '') || ($etd->mods->pq_submit == 'no'));
+    }
+    if ($pq_copyright !== null) {
+      if ($pq_copyright)
+        $this->assertTrue(isset($etd->mods->copyright) && ($etd->mods->copyright == 'yes'));
+      else
+        $this->assertTrue( ! isset($etd->mods->copyright) || ($etd->mods->copyright == '') || ($etd->mods->copyright == 'no'));
+    }
+    if ($submission_agreement !== null) {
+      if ($submission_agreement) {
+        $config = Zend_Registry::get('config');
+        $this->assertEqual($config->useAndReproduction, $etd->mods->useAndReproduction);
+      } else {
+        $this->assertEqual('', $etd->mods->useAndReproduction);
+      }
+    }
   }
 
   /**
