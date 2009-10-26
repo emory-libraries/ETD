@@ -92,8 +92,9 @@ class TestPolicy extends UnitTestCase {
     $this->policy->removeRule("published");
     $this->policy->addRule("published");
     $this->assertIsA($this->policy->published, "PolicyRule");
-    // published rule for ETDs does *NOT* have condition or embargo date
-    $this->assertFalse(isset($this->policy->published->condition));
+    // published rule for ETDs now includes conditional logic
+    $this->assertTrue(isset($this->policy->published->condition),
+		       "etd publish policy includes a condition");
 
     // add a non-existent rule
     $this->expectError("Rule 'nonexistent' unknown - cannot add to policy");

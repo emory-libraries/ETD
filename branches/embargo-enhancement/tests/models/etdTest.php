@@ -186,8 +186,9 @@ class TestEtd extends UnitTestCase {
     $this->assertEqual("published", $this->etd->status());
     $this->assertIsA($this->etd->policy->published, "PolicyRule");
     $this->assertTrue(isset($this->etd->policy->published));
-    // etd object publish rule should have no condition
-    $this->assertFalse(isset($this->etd->policy->published->condition));
+    // etd object publish rule logic now includes a condition
+    $this->assertTrue(isset($this->etd->policy->published->condition),
+		       "etd publish policy has condition");
     // setting to published should add OAI id
     $this->assertTrue(isset($this->etd->rels_ext->oaiID));
     $this->assertEqual(FedoraConnection::STATE_ACTIVE, $this->etd->next_object_state);
