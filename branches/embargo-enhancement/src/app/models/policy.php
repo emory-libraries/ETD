@@ -60,7 +60,12 @@ class XacmlPolicy extends foxmlDatastreamAbstract {
 
     $this->update();
     
-    // FIXME: what is a good way to do this? how to manage the rules?
+    // special handling - set the date in published rule
+    // (otherwise xacml is not valid)
+    //    if ($name == "published" && isset($this->published->condition->embargo_end)) {
+    if ($name == "published") {
+      $this->published->condition->embargo_end = date("Y-m-d");
+    }
   }
 
   
@@ -191,7 +196,16 @@ class policyCondition extends XmlObject {
 
 	// date
 	"embargo_end" => array("xpath" => ".//x:AttributeValue[@DataType='http://www.w3.org/2001/XMLSchema#date'][ancestor::x:*/@FunctionId='urn:oasis:names:tc:xacml:1.0:function:date-greater-than-or-equal']"),
-	
+
+
+	// methods 
+	"methods" => array("xpath" => ".//x:Apply[x:ResourceAttributeDesignator/@AttributeId='urn:fedora:names:fedora:2.1:resource:disseminator:method']/x:Apply[@FunctionId='urn:oasis:names:tc:xacml:1.0:function:string-bag']/x:AttributeValue[@DataType='http://www.w3.org/2001/XMLSchema#string']",
+			   "is_series" => true),
+
+	// embargoed methods 
+	"embargoed_methods" => array("xpath" => ".//x:Apply[@FunctionId='urn:oasis:names:tc:xacml:1.0:function:and' and x:Apply/@FunctionId='urn:oasis:names:tc:xacml:1.0:function:date-greater-than-or-equal']/x:Apply[x:ResourceAttributeDesignator/@AttributeId='urn:fedora:names:fedora:2.1:resource:disseminator:method']/x:Apply[@FunctionId='urn:oasis:names:tc:xacml:1.0:function:string-bag']/x:AttributeValue[@DataType='http://www.w3.org/2001/XMLSchema#string']",
+				      "is_series" => true),
+
 	);
   }
 
@@ -528,19 +542,45 @@ const published = '<Rule xmlns="urn:oasis:names:tc:xacml:1.0:policy"  RuleId="pu
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">emory-control:ETDmetadataParts</AttributeValue>
   	  <ResourceAttributeDesignator DataType="http://www.w3.org/2001/XMLSchema#string" AttributeId="urn:fedora:names:fedora:2.1:resource:sdef:pid" MustBePresent="false"/>
         </Apply>
+
+       <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:or">
+
+	<!-- methods allowed, by name -->
         <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-at-least-one-member-of">
           <ResourceAttributeDesignator DataType="http://www.w3.org/2001/XMLSchema#string" AttributeId="urn:fedora:names:fedora:2.1:resource:disseminator:method" MustBePresent="false"/>
         <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-bag">
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">title</AttributeValue>
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">abstract</AttributeValue>
-          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">tableofcontents</AttributeValue>
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">tableofcontents</AttributeValue> 
         </Apply> 	<!-- end string bag -->
       </Apply>		<!-- end at least one member -->
+
+       <!-- these methods only allowed after a certain date -->
+       <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:and">
+         <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-at-least-one-member-of">
+            <ResourceAttributeDesignator DataType="http://www.w3.org/2001/XMLSchema#string" AttributeId="urn:fedora:names:fedora:2.1:resource:disseminator:method" MustBePresent="false"/>
+          <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-bag">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string"/>
+          </Apply> 	<!-- end string bag -->
+        </Apply>		<!-- end at least one member -->
+
+        <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:date-greater-than-or-equal">
+         <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:date-one-and-only">
+           <EnvironmentAttributeDesignator 
+	      AttributeId="urn:fedora:names:fedora:2.1:environment:currentDate"
+              DataType="http://www.w3.org/2001/XMLSchema#date"/>
+         </Apply>
+         <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#date"/>
+       </Apply>  
+      </Apply>  <!-- end and (method & date) -->
+      </Apply>  <!-- end or (methods restricted by date) -->
+
     </Apply>  <!-- end and (sdef pid & methods) -->
     </Apply>  <!-- end and (html disseminations) -->
 
 
-     </Condition>  
+
+   </Condition>  
 
 
 </Rule>

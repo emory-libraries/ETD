@@ -181,7 +181,7 @@ class TestEtd extends UnitTestCase {
     $this->assertEqual("approved", $this->etd->status());
     $this->assertEqual($etd_rulecount, count($this->etd->policy->rules));
 
-    // published - publish rule is added    
+    // published - publish rule is added
     $this->etd->setStatus("published");
     $this->assertEqual("published", $this->etd->status());
     $this->assertIsA($this->etd->policy->published, "PolicyRule");
@@ -189,6 +189,8 @@ class TestEtd extends UnitTestCase {
     // etd object publish rule logic now includes a condition
     $this->assertTrue(isset($this->etd->policy->published->condition),
 		       "etd publish policy has condition");
+    $this->assertEqual(date("Y-m-d"), $this->etd->policy->published->condition->embargo_end, "embargo end date on published rule condition should default to today");
+    
     // setting to published should add OAI id
     $this->assertTrue(isset($this->etd->rels_ext->oaiID));
     $this->assertEqual(FedoraConnection::STATE_ACTIVE, $this->etd->next_object_state);
@@ -212,6 +214,7 @@ class TestEtd extends UnitTestCase {
     // publish with embargo
     $this->etd->mods->embargo_end = "2010-01-01";
     $this->etd->setStatus("published");
+    $this->assertEqual("2010-01-01", $this->etd->policy->published->condition->embargo_end, "embargo end date on published rule condition should match embargo end date in MODS");
     $this->assertEqual($this->etd->pdfs[0]->policy->published->condition->embargo_end, "2010-01-01",
         "pdf etdFile published policy embargo end should be '2010-01-01', got '" .
         $this->etd->pdfs[0]->policy->published->condition->embargo_end . "'");

@@ -217,10 +217,11 @@ class etd extends foxml implements etdInterface {
 	$obj->policy->draft->condition->user = $owner;
       }
 
-      // another special case: if embargo end is already set, put that date in publish policy as well
-      if ($name == "published" && isset($this->mods->embargo_end) && $this->mods->embargo_end
-	  && isset($obj->policy->published->condition) && isset($obj->policy->published->condition->embargo_end))
-	// (only in etdfile objects)
+      // special case: if embargo end is already set, put that date in published policy 
+      if ($name == "published" &&
+	  isset($this->mods->embargo_end) && $this->mods->embargo_end != ''
+	  && isset($obj->policy->published->condition) &&
+	  isset($obj->policy->published->condition->embargo_end))
 	$obj->policy->published->condition->embargo_end = $this->mods->embargo_end;
     }
   }
