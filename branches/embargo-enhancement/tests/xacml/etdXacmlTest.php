@@ -160,6 +160,72 @@ class TestEtdXacml extends UnitTestCase {
     $this->assertIsA($exception, "FedoraAccessDenied");
     if ($exception) $this->assertEqual("getDatastream for {$this->pid}/POLICY", $exception->getMessage());
   }
+  
+  function testGuestPermissionsOnPublishedETD_TOCrestricted() {
+    // set etd as published using admin account
+    setFedoraAccount("fedoraAdmin");	
+    $etd = new etd($this->pid);
+    $etd->policy->addRule("published");
+    $etd->policy->published->condition->restrictMethods(array("tableofcontents"));
+    $result = $etd->save("added published rule to test guest permissions");
+
+    setFedoraAccount("guest");
+    // get fedoraConnection instance with guest credentials
+    $fedora = Zend_Registry::get("fedora");
+     // re-initialize with guest fedora account
+     $etd = new etd($this->pid);
+
+     // access portions of html via service methods
+    $this->assertPattern('|<div id="title"|', $etd->title(),
+			 "html title accessible via dissemination");
+    $this->assertPattern('|<div id="abstract"|', $etd->abstract(),
+			 "html abstract accessible via dissemination");
+
+    try {
+      $contents = $etd->tableOfContents();
+    } catch (Exception $e) {
+      $exception = $e;
+    }
+    $this->assertIsA($exception, "FedoraAccessDenied",
+		     "access denied to restricted ToC");
+    $this->assertFalse(isset($contents), "no contents returned - access denied");
+    if ($exception)
+      $this->assertPattern("/getDissemination tableofcontents/", $exception->getMessage());
+
+  }
+
+  function testGuestPermissionsOnPublishedETD_abstract_restricted() {
+    // set etd as published using admin account
+    setFedoraAccount("fedoraAdmin");	
+    $etd = new etd($this->pid);
+    $etd->policy->addRule("published");
+    $etd->policy->published->condition->restrictMethods(array("abstract"));
+    $result = $etd->save("added published rule to test guest permissions");
+
+    setFedoraAccount("guest");
+    // get fedoraConnection instance with guest credentials
+    $fedora = Zend_Registry::get("fedora");
+     // re-initialize with guest fedora account
+     $etd = new etd($this->pid);
+
+     // access portions of html via service methods
+    $this->assertPattern('|<div id="title"|', $etd->title(),
+			 "html title accessible via dissemination");
+    $this->assertPattern('|<div id="contents"|', $etd->tableOfContents(),
+			 "html ToC accessible via dissemination");
+
+    try {
+      $abs = $etd->abstract();
+    } catch (Exception $e) {
+      $exception = $e;
+    }
+    $this->assertIsA($exception, "FedoraAccessDenied",
+		     "access denied to restricted ToC");
+    $this->assertFalse(isset($abs), "no abstract returned - access denied");
+    if ($exception)
+      $this->assertPattern("/getDissemination abstract/", $exception->getMessage());
+  }
+
 
   function testGuest_getMetadata_unpublished() {
     // use guest account to access fedora

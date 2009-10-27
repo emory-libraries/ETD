@@ -197,9 +197,9 @@ class policyCondition extends XmlObject {
 	// date
 	"embargo_end" => array("xpath" => ".//x:AttributeValue[@DataType='http://www.w3.org/2001/XMLSchema#date'][ancestor::x:*/@FunctionId='urn:oasis:names:tc:xacml:1.0:function:date-greater-than-or-equal']"),
 
-
-	// methods 
-	"methods" => array("xpath" => ".//x:Apply[x:ResourceAttributeDesignator/@AttributeId='urn:fedora:names:fedora:2.1:resource:disseminator:method']/x:Apply[@FunctionId='urn:oasis:names:tc:xacml:1.0:function:string-bag']/x:AttributeValue[@DataType='http://www.w3.org/2001/XMLSchema#string']",
+	// methods  (not restricted)   
+	// NOTE: using full xpath to exclude restricted methods from this list
+	"methods" => array("xpath" => "x:Apply[@FunctionId='urn:oasis:names:tc:xacml:1.0:function:and']/x:Apply[@FunctionId='urn:oasis:names:tc:xacml:1.0:function:and']/x:Apply[@FunctionId='urn:oasis:names:tc:xacml:1.0:function:or']/x:Apply[x:ResourceAttributeDesignator/@AttributeId='urn:fedora:names:fedora:2.1:resource:disseminator:method']/x:Apply[@FunctionId='urn:oasis:names:tc:xacml:1.0:function:string-bag']/x:AttributeValue[@DataType='http://www.w3.org/2001/XMLSchema#string']",
 			   "is_series" => true),
 
 	// embargoed methods 
@@ -236,6 +236,28 @@ class policyCondition extends XmlObject {
       trigger_error("Cannot find user to be removed: '$username'", E_USER_NOTICE);
     }
   }
+
+
+  public function restrictMethods($restrict_methods) {
+    // add restricted methods to embargoed_methods list
+    if (isset($this->embargoed_methods)) {
+      for ($i = 0; $i < count($restrict_methods); $i++) {
+	if (isset($this->embargoed_methods[$i]) && $this->embargoed_methods[$i] == "")
+	  $this->embargoed_methods[$i] = $restrict_methods[$i];
+	else
+	  $this->embargoed_methods->append($restrict_methods[$i]);
+      }
+    }  // warn ?
+
+
+    // remove restricted methods from non-embargoed method list
+    for ($i = 0; $i < count($this->methods); $i++) {
+      if (in_array($this->methods[$i], $restrict_methods)) {
+	$this->methods[$i] = "";
+      }
+    }
+  }
+
   
 }
 
@@ -551,7 +573,7 @@ const published = '<Rule xmlns="urn:oasis:names:tc:xacml:1.0:policy"  RuleId="pu
         <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-bag">
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">title</AttributeValue>
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">abstract</AttributeValue>
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">tableofcontents</AttributeValue> 
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">tableofcontents</AttributeValue>
         </Apply> 	<!-- end string bag -->
       </Apply>		<!-- end at least one member -->
 
@@ -560,7 +582,7 @@ const published = '<Rule xmlns="urn:oasis:names:tc:xacml:1.0:policy"  RuleId="pu
          <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-at-least-one-member-of">
             <ResourceAttributeDesignator DataType="http://www.w3.org/2001/XMLSchema#string" AttributeId="urn:fedora:names:fedora:2.1:resource:disseminator:method" MustBePresent="false"/>
           <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-bag">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string"/>
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string"></AttributeValue>
           </Apply> 	<!-- end string bag -->
         </Apply>		<!-- end at least one member -->
 

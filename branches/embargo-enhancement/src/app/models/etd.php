@@ -217,12 +217,28 @@ class etd extends foxml implements etdInterface {
 	$obj->policy->draft->condition->user = $owner;
       }
 
-      // special case: if embargo end is already set, put that date in published policy 
-      if ($name == "published" &&
-	  isset($this->mods->embargo_end) && $this->mods->embargo_end != ''
-	  && isset($obj->policy->published->condition) &&
-	  isset($obj->policy->published->condition->embargo_end))
-	$obj->policy->published->condition->embargo_end = $this->mods->embargo_end;
+
+      // special case - customize publish rule according to access restrictions
+      if ($name == "published") {
+	// if embargo end is set, put that date in published policy 
+	if (isset($this->mods->embargo_end) && $this->mods->embargo_end != ''
+	    && isset($obj->policy->published->condition) &&
+	    isset($obj->policy->published->condition->embargo_end))
+	  $obj->policy->published->condition->embargo_end = $this->mods->embargo_end;
+      }
+	
+    }
+
+    // special case - customize published rule only for ETD object, not files
+    if ($name == "published") {
+      // restrict abstract/toc if requested
+      $restrict_html = array();
+      if ($this->mods->isEmbargoRequested(etd_mods::EMBARGO_TOC))
+	$restrict_html[] = "tableofcontents";
+      if ($this->mods->isEmbargoRequested(etd_mods::EMBARGO_ABSTRACT))
+	$restrict_html[] = "abstract";
+      
+      $this->policy->published->condition->restrictMethods($restrict_html);
     }
   }
 

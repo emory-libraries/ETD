@@ -28,6 +28,26 @@ class TestEtd extends UnitTestCase {
     $dom->load($fname);
     $this->etd = new etd($dom);
 
+    // attach etd files for testing
+    $fname = '../fixtures/etdfile.xml';
+    $dom = new DOMDocument();
+    $dom->load($fname);
+    $etdfile = new etd_file($dom);
+    $etdfile->policy->addRule("view");
+    $this->etd->pdfs[] = $etdfile;
+    // separate copy - mock original file
+    $dom2 = new DOMDocument();
+    $dom2->load($fname);
+    $etdfile2 = new etd_file($dom2);
+    $etdfile2->pid = "test:etdfile2";
+    $this->etd->originals[] = $etdfile2;
+    // separate copy - mock original
+    $dom3 = new DOMDocument();
+    $dom3->load($fname);
+    $etdfile = new etd_file($dom3);
+    $etdfile->policy->addRule("view");
+    $this->etd->addSupplement($etdfile);
+
     $this->etd->policy->addRule("view");
     $this->etd->policy->addRule("draft");
 
@@ -89,14 +109,7 @@ class TestEtd extends UnitTestCase {
 
     // department - mods & view policy
 
-    // attach an etd file to test that department is set on etdFile view policy
-    $fname = '../fixtures/etdfile.xml';
-    $dom = new DOMDocument();
-    $dom->load($fname);
-    $etdfile = new etd_file($dom);
-    $etdfile->policy->addRule("view");
-    $this->etd->addSupplement($etdfile);
-
+    // test that department is also set on etdFile view policy
     $this->etd->department = "Chemistry";
     $this->assertEqual("Chemistry", $this->etd->mods->department);
     $this->assertEqual("Chemistry", $this->etd->policy->view->condition->department);
@@ -129,23 +142,9 @@ class TestEtd extends UnitTestCase {
 
   }
 
-  function testSetStatus() {
-
-    // attach an etd file for testing
-    $fname = '../fixtures/etdfile.xml';
-    $dom = new DOMDocument();
-    $dom->load($fname);
-    $etdfile = new etd_file($dom);
-    $this->etd->pdfs[] = $etdfile;
-    // separate copy - mock original file
-    $dom2 = new DOMDocument();
-    $dom2->load($fname);
-    $etdfile2 = new etd_file($dom2);
-    $etdfile2->pid = "test:etdfile2";
-    $this->etd->originals[] = $etdfile2;
-
-    // run through the various statuses in order, check everything is set correctly
-
+  // run through the various statuses in order, check everything is set correctly
+  
+  function testSetStatus_draft() {
     // draft - draft rule is added, published removed (because object had published status before)
     $this->etd->setStatus("draft");
     $this->assertEqual("draft", $this->etd->status());
@@ -162,25 +161,35 @@ class TestEtd extends UnitTestCase {
         "original etdFile draft policy should be type 'PolicyRule'");
     $this->assertFalse(isset($this->etd->originals[0]->policy->published));
 
-    // submitted - draft rule removed, no new rules
+  }
+
+  function testSetStatus_submitted() {
+    // submitted - draft rule should be removed (if present), no new rules
+    $this->etd->setStatus("draft");
     $this->etd->setStatus("submitted");
     $this->assertEqual("submitted", $this->etd->status());
     $this->assertFalse(isset($this->etd->policy->draft));
     $this->assertFalse(isset($this->etd->pdfs[0]->policy->draft));
     $this->assertFalse(isset($this->etd->originals[0]->policy->draft));
+  }
 
+  function testSetStatus_reviewed() {
     // reviewed - no rules change
     $etd_rulecount = count($this->etd->policy->rules);
     $this->etd->setStatus("reviewed");
     $this->assertEqual("reviewed", $this->etd->status());
     $this->assertEqual($etd_rulecount, count($this->etd->policy->rules));
+  }
 
+  function testSetStatus_approved() {
     // approved - no rules change
     $etd_rulecount = count($this->etd->policy->rules);
     $this->etd->setStatus("approved");
     $this->assertEqual("approved", $this->etd->status());
     $this->assertEqual($etd_rulecount, count($this->etd->policy->rules));
+  }
 
+  function testSetStatus_published_noembargo() {
     // published - publish rule is added
     $this->etd->setStatus("published");
     $this->assertEqual("published", $this->etd->status());
@@ -189,7 +198,12 @@ class TestEtd extends UnitTestCase {
     // etd object publish rule logic now includes a condition
     $this->assertTrue(isset($this->etd->policy->published->condition),
 		       "etd publish policy has condition");
-    $this->assertEqual(date("Y-m-d"), $this->etd->policy->published->condition->embargo_end, "embargo end date on published rule condition should default to today");
+    $pub_condition = $this->etd->policy->published->condition;
+    $this->assertEqual(date("Y-m-d"), $pub_condition->embargo_end, "embargo end date on published rule condition should default to today");
+    // no embargo - html disseminator methods should not be restricted
+    $this->assertTrue($pub_condition->methods->includes("title"));
+    $this->assertTrue($pub_condition->methods->includes("abstract"));
+    $this->assertTrue($pub_condition->methods->includes("tableofcontents"));    
     
     // setting to published should add OAI id
     $this->assertTrue(isset($this->etd->rels_ext->oaiID));
@@ -210,16 +224,82 @@ class TestEtd extends UnitTestCase {
         $this->etd->pdfs[0]->policy->published->condition->embargo_end . "'");
     // published rule should NOT be added to original
     $this->assertFalse(isset($this->etd->originals[0]->policy->published));
+  }
 
+  function testSetStatus_published_embargo_files() {
     // publish with embargo
     $this->etd->mods->embargo_end = "2010-01-01";
+    $this->etd->mods->setEmbargoRequestLevel(etd_mods::EMBARGO_FILES);
     $this->etd->setStatus("published");
+    $pub_condition = $this->etd->policy->published->condition;
+
     $this->assertEqual("2010-01-01", $this->etd->policy->published->condition->embargo_end, "embargo end date on published rule condition should match embargo end date in MODS");
     $this->assertEqual($this->etd->pdfs[0]->policy->published->condition->embargo_end, "2010-01-01",
         "pdf etdFile published policy embargo end should be '2010-01-01', got '" .
         $this->etd->pdfs[0]->policy->published->condition->embargo_end . "'");
-   
-   
+
+    // html disseminator methods should not be restricted
+    $this->assertTrue($pub_condition->methods->includes("title"),
+		      "title access allowed when embargo level is FILES");
+    $this->assertTrue($pub_condition->methods->includes("abstract"),
+		      "abstract access allowed when embargo level is FILES");
+    $this->assertTrue($pub_condition->methods->includes("tableofcontents"),
+		      "ToC access allowed when embargo level is FILES");  
+    $this->assertFalse($pub_condition->embargoed_methods->includes("title"),
+		       "title access not restricted when embargo level is FILES");
+    $this->assertFalse($pub_condition->embargoed_methods->includes("abstract"),
+		       "abstract access not restricted when embargo level is FILES");
+    $this->assertFalse($pub_condition->embargoed_methods->includes("tableofcontents"),
+		       "ToC access not restricted when embargo level is FILES");    
+  }
+  
+  function testSetStatus_published_embargo_toc() {
+    // publish with embargo
+    $this->etd->mods->embargo_end = "2010-01-01";
+    $this->etd->mods->setEmbargoRequestLevel(etd_mods::EMBARGO_TOC);
+    $this->etd->setStatus("published");
+    $pub_condition = $this->etd->policy->published->condition;
+
+    $this->assertEqual("2010-01-01", $this->etd->policy->published->condition->embargo_end, "embargo end date on published rule condition should match embargo end date in MODS");
+    $this->assertEqual($this->etd->pdfs[0]->policy->published->condition->embargo_end, "2010-01-01",
+        "pdf etdFile published policy embargo end should be '2010-01-01', got '" .
+        $this->etd->pdfs[0]->policy->published->condition->embargo_end . "'");
+
+    // title & abstract html disseminator methods should not be restricted
+    $this->assertTrue($pub_condition->methods->includes("title"),
+		      "title access allowed when embargo level is TOC");
+  $this->assertTrue($pub_condition->methods->includes("abstract"),
+		    "abstract access allowed when embargo level is TOC");  
+  $this->assertFalse($pub_condition->embargoed_methods->includes("title"),
+		     "title access not restricted when embargo level is TOC");
+  $this->assertFalse($pub_condition->embargoed_methods->includes("abstract"),
+		     "abstract access not restricted when embargo level is TOC");  
+    // ToC html disseminator methods *should* be restricted
+  $this->assertFalse($pub_condition->methods->includes("tableofcontents"),
+		     "toc access not allowed when embargo level is TOC");
+  $this->assertTrue($pub_condition->embargoed_methods->includes("tableofcontents"),
+		    "toc access restricted when embargo level is TOC");    
+  }
+  
+  function testSetStatus_published_embargo_abstract() {    
+    $this->etd->mods->setEmbargoRequestLevel(etd_mods::EMBARGO_ABSTRACT);
+    $this->etd->setStatus("published");
+    $pub_condition = $this->etd->policy->published->condition;
+    // title html disseminator method should not be restricted
+    $this->assertTrue($pub_condition->methods->includes("title"),
+		      "title access allowed when embargo level is ABSTRACT");
+    // abstract & ToC html disseminator methods *should* be restricted
+    $this->assertFalse($pub_condition->methods->includes("abstract"),
+		       "abstract access not allowed when embargo level is ABSTRACT");
+    $this->assertTrue($pub_condition->embargoed_methods->includes("abstract"),
+		      "abstract access restricted when embargo level is ABSTRACT");  
+    $this->assertFalse($pub_condition->methods->includes("tableofcontents"),
+		       "ToC access not allowed when embargo level is ABSTRACT");
+    $this->assertTrue($pub_condition->embargoed_methods->includes("tableofcontents"),
+		      "ToC access restricted when embargo level is ABSTRACT");    
+  }    
+
+  function testSetStatus_inactive() {
     $this->etd->setStatus("inactive");
     $this->assertEqual(FedoraConnection::STATE_INACTIVE, $this->etd->next_object_state);
 
@@ -255,12 +335,12 @@ class TestEtd extends UnitTestCase {
     $errlevel = error_reporting(E_ALL ^ E_NOTICE);
     
     // attach an etd file to test that chair/committee are set on etdFile view policy
-    $fname = '../fixtures/etdfile.xml';
-    $dom = new DOMDocument();
-    $dom->load($fname);
-    $etdfile = new etd_file($dom);
-    $etdfile->policy->addRule("view");
-    $this->etd->addSupplement($etdfile);
+    //    $fname = '../fixtures/etdfile.xml';
+    //    $dom = new DOMDocument();
+    //    $dom->load($fname);
+    //    $etdfile = new etd_file($dom);
+    //    $etdfile->policy->addRule("view");
+    //    $this->etd->addSupplement($etdfile);
 
     
     $this->etd->setCommittee(array("mthink"), "chair");
@@ -340,18 +420,18 @@ class TestEtd extends UnitTestCase {
     $this->etd->addSupplement($etdfile);
 
     $this->assertTrue(isset($this->etd->supplements));
-    $this->assertEqual(1, count($this->etd->supplements));
+    $this->assertEqual(2, count($this->etd->supplements));
     $this->assertTrue(isset($this->etd->rels_ext->supplement));
-    $this->assertEqual(1, count($this->etd->rels_ext->supplement));
+    $this->assertEqual(2, count($this->etd->rels_ext->supplement));
     // relation to file was added to etd
     $this->assertPattern("|<rel:hasSupplement rdf:resource=\"info:fedora/" . $etdfile->pid . "\"/>|",
 			 $this->etd->rels_ext->saveXML());
     // NOTE: relation to etd is not currently added to file object by this function (should it be?)
 
-    // any values already added to etd that are relevant to xacml policy should be set on file
-    $this->assertTrue($this->etd->supplements[0]->policy->view->condition->users->includes("jsmith"));
-    $this->assertTrue($this->etd->supplements[0]->policy->view->condition->users->includes("kjones"));
-    $this->assertEqual("Disney", $this->etd->supplements[0]->policy->view->condition->department);
+    // any values already added to etd that are relevant to xacml policy should be set on newly added file
+    $this->assertTrue($this->etd->supplements[1]->policy->view->condition->users->includes("jsmith"));
+    $this->assertTrue($this->etd->supplements[1]->policy->view->condition->users->includes("kjones"));
+    $this->assertEqual("Disney", $this->etd->supplements[1]->policy->view->condition->department);
 
     error_reporting($errlevel);	    // restore prior error reporting
   }
