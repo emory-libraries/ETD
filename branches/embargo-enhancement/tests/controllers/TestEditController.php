@@ -263,20 +263,30 @@ class EditControllerTest extends ControllerTestCase {
 
     // Skipping $embargo is invalid. Shouldn't change anything, even if
     // other fields are set.
-    $this->postSaveRights($this->etdpid, null, etd_mods::EMBARGO_ABSTRACT, 1, 1, 1);
+    list($view, $redirect) =  $this->postSaveRights($this->etdpid, null, etd_mods::EMBARGO_ABSTRACT, 1, 1, 1);
     $this->assertRights(new etd($this->etdpid),
                         0, etd_mods::EMBARGO_NONE, 0, null, null);
+    $this->assertFalse($redirect, "saveRights should not redirect when invalid");
+    $this->assertPattern("/Error: invalid input/", $view->messages[0],
+			 "invalid input should display error message to user ");
 
     // If they request an $embargo, $embargo_level is required. Reject if
     // they skip it.
-    $this->postSaveRights($this->etdpid, 1, null, 0, 0, 1);
+    list($view, $redirect) =  $this->postSaveRights($this->etdpid, 1, null, 0, 0, 1);
     $this->assertRights(new etd($this->etdpid),
                         0, etd_mods::EMBARGO_NONE, 0, null, null);
+    $this->assertFalse($redirect, "saveRights should not redirect when invalid");
+    $this->assertPattern("/Error:.*please specify the type of restriction/", $view->messages[0],
+			 "missing embargo level should display error message to user ");
 
     // Invalid $embargo_level is invalid.
-    $this->postSaveRights($this->etdpid, 1, 42, 1, 1, 1);
+    list($view, $redirect) =  $this->postSaveRights($this->etdpid, 1, 42, 1, 1, 1);
     $this->assertRights(new etd($this->etdpid),
                         0, etd_mods::EMBARGO_NONE, 0, null, null);
+    $this->assertFalse($redirect, "saveRights should not redirect when invalid");
+    $this->assertPattern("/Error: invalid input/", $view->messages[0],
+			 "invalid input should display error message to user ");
+	
 
     // PROQUEST
 
@@ -308,16 +318,10 @@ class EditControllerTest extends ControllerTestCase {
 
     // SUBMISSION AGREEMENT
 
-    // The form should always set submission_agreement to either 0 or 1. If
-    // it's null, something funny's going on.
-    $this->postSaveRights($this->etdpid, 1, etd_mods::EMBARGO_ABSTRACT, 1, 1, null);
-    $this->assertRights(new etd($this->etdpid),
-                        0, etd_mods::EMBARGO_NONE, 0, null, null);
-
-    // If they don't accept the agreement, don't change anything.
+    // If they don't accept the agreement, process everything else as usual
     $this->postSaveRights($this->etdpid, 1, etd_mods::EMBARGO_ABSTRACT, 1, 1, 0);
     $this->assertRights(new etd($this->etdpid),
-                        0, etd_mods::EMBARGO_NONE, 0, null, null);
+                        1, etd_mods::EMBARGO_ABSTRACT, 1, 1, 0);
   }
 
   private function postSaveRights($pid, $embargo, $embargo_level,
@@ -334,6 +338,8 @@ class EditControllerTest extends ControllerTestCase {
 
     $this->setUpPost($args);
     $controller->saveRightsAction();
+    // return array of info for additional checking - view, did redirect run
+    return array($controller->view, $controller->redirectRan);
   }
 
   private function assertRights($etd, $embargo, $embargo_level,
@@ -437,10 +443,30 @@ class EditControllerTest extends ControllerTestCase {
     $this->assertTrue(isset($EditController->view->title), "page title is set in view");
     $this->assertTrue(isset($EditController->view->dojo_config), "dojo config is set in view");
 
+    // default form values should be pre-set from etd fixture
+    $this->assertFalse($EditController->view->embargo);
+    $this->assertEqual(etd_mods::EMBARGO_NONE, $EditController->view->embargo_level);
+    $this->assertTrue($EditController->view->pq_submit);
+    $this->assertTrue($EditController->view->pq_copyright);
+    $this->assertTrue($EditController->view->submission_agreement);
+
+    // when redirected from save-rights (invalid input), posted values should supercede etd values
+    $this->setUpGet(array("pid" => $this->etdpid, "embargo" => 1, "embargo_level" => etd_mods::EMBARGO_TOC,
+			  "pq_submit" => 1, "pq_copyright" => 1,
+			  "submission_agreement" => 0));
+    $EditController->rightsAction();
+    $this->assertTrue($EditController->view->embargo);
+    $this->assertEqual(etd_mods::EMBARGO_TOC, $EditController->view->embargo_level);
+    $this->assertTrue($EditController->view->pq_submit);
+    $this->assertTrue($EditController->view->pq_copyright);
+    $this->assertFalse($EditController->view->submission_agreement);
+    
+
     // if degree is blank, should redirect to main edit page
     $etd = new etd($this->etdpid);
     $etd->mods->degree->name = "";
     $etd->save("blank degree to test rights edit page");
+    $this->setUpGet(array('pid' => $this->etdpid));
     $EditController->rightsAction();
     $this->assertTrue($EditController->redirectRan);	// redirects back to record
     $messages = $EditController->getHelper('FlashMessenger')->getMessages();

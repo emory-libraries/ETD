@@ -96,8 +96,18 @@ class EditController extends Etd_Controller_Action {
 
     $this->_helper->viewRenderer->setNoRender(true);
 
-    if ( ! $this->validateRights($etd) )
+    if ( ! $this->validateRights($etd) ) {
+      // invalid input - forward back to rights edit form and stop processing
+      // more specific error messages may be set by validateRights function
+      // - if there is no error message, add a generic 'invalid' message
+      if (! $this->_helper->flashMessenger->hasMessages()) 
+	$this->_helper->flashMessenger->addMessage('Error: invalid input, please check and resubmit.');
+      $this->view->messages = $this->_helper->flashMessenger->getCurrentMessages();
+      
+      $this->_forward("rights", "edit", null, array("pid" => $etd->pid));
+      // note: using forward instead of redirect so parameters can be picked up
       return;
+    }
     
     $embargo = $this->_getParam('embargo', null);
     $embargo_level = $this->_getParam('embargo_level', null);
@@ -137,10 +147,12 @@ class EditController extends Etd_Controller_Action {
     // use and reproduction
 
     if ($submission_agreement) {
+      // if student has checked that they agree to the submission agreement,
+      // add the useAndReproduction statement to the mods record
       $config = Zend_Registry::get('config');
-      //$this->view->rights_stmt = $config->useAndReproduction;
-      //$etd->mods->useAndReproduction = $this->view->rights_stmt;
       $etd->mods->useAndReproduction = $config->useAndReproduction;
+    } else {
+      $etd->mods->useAndReproduction = "";	// blank out - submission agreement not accepted
     }
 
     if ($etd->mods->hasChanged()) {
@@ -161,7 +173,10 @@ class EditController extends Etd_Controller_Action {
                                                 'pid' => $etd->pid), '', true);
   }
 
-  // Sanity-check input.
+  /**
+   * Sanity-check input from rights edit form.
+   * @return boolean valid/invalid
+   */
   private function validateRights($etd) {
     $embargo = $this->_getParam('embargo', null);
     $embargo_level = $this->_getParam('embargo_level', null);
@@ -177,7 +192,7 @@ class EditController extends Etd_Controller_Action {
     // This time, the form doesn't have a default, so let the user know
     // if he failed to enter a field.
     if ($embargo && ($embargo_level === null)) {
-      $this->_helper->flashMessenger->addMessage('Not updated: If you request an access restriction, you must specify what type.');
+      $this->_helper->flashMessenger->addMessage('Error: You have requested an access restriction; please specify the type of restriction.');
       return false;
     }
     // The form only allows valid levels. If they send an invalid level then
@@ -209,11 +224,6 @@ class EditController extends Etd_Controller_Action {
         ($pq_copyright === null))
       return false;
 
-    // And the agreement. Reject any input that doesn't accept.
-    if ( ! $submission_agreement ) {
-      $this->_helper->flashMessenger->addMessage("Not updated. We can't process your ETD if you don't accept the submission agreement.");
-      return false;
-    }
 
     // Other than that, we should be OK.
     return true;
@@ -308,8 +318,36 @@ class EditController extends Etd_Controller_Action {
       // forward to main record edit page (includes degree)
       $this->_helper->redirector->gotoRoute(array("controller" => "edit", "action" => "record",
     						"pid" => $etd->pid), '', true);
+      return;
+      
     }
 
+    // get *current* messages to get validation errors when forwarding from save-rights
+    $this->view->messages = $this->_helper->flashMessenger->getCurrentMessages();
+
+    // if redirected from save-rights (invalid input), pre-set to user's last selections
+    // if params are not present, default to what is set in the record
+    if ($this->_hasParam("embargo")) 
+      $this->view->embargo = $this->_getParam('embargo');
+    else
+      $this->view->embargo = $etd->mods->isEmbargoRequested();
+    if ($this->_hasParam("embargo_level"))
+      $this->view->embargo_level = $this->_getParam('embargo_level');
+    else
+      $this->view->embargo_level = $etd->mods->embargoRequestLevel();
+    if ($this->_hasParam("pq_submit"))
+      $this->view->pq_submit = $this->_getParam('pq_submit');
+    else
+      $this->view->pq_submit = $etd->mods->submitToProquest();
+    if ($this->_hasParam("pq_copyright"))
+      $this->view->pq_copyright = $this->_getParam('pq_copyright');
+    else
+      $this->view->pq_copyright = ($etd->mods->copyright == "yes");
+    if ($this->_hasParam("submission_agreement")) 
+      $this->view->submission_agreement = $this->_getParam('submission_agreement');
+    else
+      $this->view->submission_agreement = $etd->mods->hasSubmissionAgreement();
+    
     $config = Zend_Registry::get('config');
     $this->view->dojo_config = $config->dojo;
 

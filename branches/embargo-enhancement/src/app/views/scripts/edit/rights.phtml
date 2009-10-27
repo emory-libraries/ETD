@@ -18,7 +18,9 @@ function pqDetails() {  /* show/hide PQ copyright question based on PQ submit ch
 
 </script>   
 
-<form id="rightsForm" action="<?= $this->url(array("action" => "save-rights"))?>">
+<? print_r($this->err) ?>
+
+<form id="rightsForm" action="<?= $this->url(array("action" => "save-rights"))?>" method="post">
    
 <p>Indicate below whether you and your Committee Chair are requesting that
 access to the full text of your thesis or dissertation be restricted
@@ -33,22 +35,22 @@ paper ETD Submission Agreement Form which you will present to
    Access Restriction (Embargo) <? if ($required): ?>* <? endif ?></p>
 
    
-<?= $this->formRadio("embargo", $this->etd->mods->isEmbargoRequested(),
+<?= $this->formRadio("embargo", $this->embargo,
 		     array("onChange" => "embargoDetails()"),
 		     array(0 => "No, my ETD can be published immediately after graduation.",
 			   1 => "Yes, I want an access restriction.")); ?> 
 
 <div id="embargo-details"
-  <? if (! $this->etd->mods->isEmbargoRequested()): ?>
+  <? if (! $this->embargo): ?>
   style="display:none"
  <? endif ?>
  class="subchoice"> <? /* only relevant if embargo=yes */ ?>
    <p>Which parts of your record do you want restricted?</p>
-    <?= $this->formRadio("embargo_level", $this->etd->mods->embargoRequestLevel(),
+    <?= $this->formRadio("embargo_level", $this->embargo_level,
 			 array("onChange" => "embargoDetails()"),
 			 array(etd_mods::EMBARGO_FILES => "Restrict files only",
-			       etd_mods::EMBARGO_TOC => "Restrict files and Table of Contents.",
-			       etd_mods::EMBARGO_ABSTRACT => "Restrict files, Table of Contents, and Abstract")); ?>
+			       etd_mods::EMBARGO_TOC => "Restrict files and table of contents.",
+			       etd_mods::EMBARGO_ABSTRACT => "Restrict files, table of contents, and abstract")); ?>
  </div>
 
 <hr/>
@@ -64,14 +66,13 @@ paper ETD Submission Agreement Form which you will present to
 	your record will automatically be submitted to ProQuest/UMI.</p>
   <? else: ?>
      <p>Submitting to ProQuest/UMI is optional for students who are not receiving PhDs.</p>
-     <?= $this->formRadio("pq_submit", $this->etd->mods->pq_submit, array("onChange" => "pqDetails()"),
+     <?= $this->formRadio("pq_submit", $this->pq_submit, array("onChange" => "pqDetails()"),
 			  array(0 => "No, I do not wish to submit to ProQuest",
 				1 => "Yes, I intend to submit to ProQuest")); ?>
   <? endif ?>
    
   <div id="pq-copyright"
-    <? if (!isset($this->etd->mods->pq_submit) || $this->etd->mods->pq_submit != "yes"
-	   || !$this->etd->mods->submitToProquest()): ?>
+    <? if (! $this->pq_submit): ?>
        style="display:none"
     <? endif ?>
 	 class="subchoice"><? /* only relevant if sending to PQ */ ?>
@@ -97,7 +98,7 @@ paper ETD Submission Agreement Form which you will present to
   <p class="label">Submission Agreement
     <? if ($this->etd->isRequired("submission agreement")): ?>*<? endif ?></p>
   <p><?= $this->formCheckbox("submission_agreement", null,
-     array("checked" => $this->etd->mods->hasSubmissionAgreement())); ?> 
+     array("checked" => $this->submission_agreement)); ?> 
     I hereby grant to Emory University and its agents the
     non-exclusive license to archive, make accessible, and display
     (subject to the conditions agreed upon in the separate written

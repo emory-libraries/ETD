@@ -80,6 +80,10 @@ class Test_Controller_Action_Helper_FlashMessenger extends Zend_Controller_Actio
     $this->messages = array();		// as a convenience, clear out messages when retrieving them
     return $messages;
   }
+  public function getCurrentMessages() { return $this->getMessages(); }
+  public function hasMessages() {
+    return count($this->messages) > 0;
+  }
 }
 
 class Test_Controller_Action_Helper_Layout extends Zend_Controller_Action_Helper_Abstract {
