@@ -39,7 +39,7 @@ paper ETD Submission Agreement Form which you will present to
 			   1 => "Yes, I want an access restriction.")); ?> 
 
 <div id="embargo-details"
-    <? if (!isset($this->etd->mods->embargo_request) || $this->etd->mods->embargo_request != "yes"): ?>
+  <? if (! $this->etd->mods->isEmbargoRequested()): ?>
   style="display:none"
  <? endif ?>
  class="subchoice"> <? /* only relevant if embargo=yes */ ?>
@@ -96,7 +96,8 @@ paper ETD Submission Agreement Form which you will present to
 
   <p class="label">Submission Agreement
     <? if ($this->etd->isRequired("submission agreement")): ?>*<? endif ?></p>
-  <p><?= $this->formCheckbox("submission_agreement"); ?>  <? /* FIXME: checked? get value from ETD */ ?>
+  <p><?= $this->formCheckbox("submission_agreement", null,
+     array("checked" => $this->etd->mods->hasSubmissionAgreement())); ?> 
     I hereby grant to Emory University and its agents the
     non-exclusive license to archive, make accessible, and display
     (subject to the conditions agreed upon in the separate written
