@@ -172,12 +172,15 @@ class etd extends foxml implements etdInterface {
       // ensure that object state is set to Active (e.g., if previously set inactive)
       $this->setObjectState(FedoraConnection::STATE_ACTIVE);
 
-      // if Abstract or ToC is restricted, ensure they are not present in mods/dc
-      if($this->mods->isEmbargoRequested(etd_mods::EMBARGO_ABSTRACT)) {
+      // if Abstract or ToC is restricted and embargo has not expired,
+      // ensure no restricted content is present in mods/dc
+      if($this->isEmbargoed() &&
+	 $this->mods->isEmbargoRequested(etd_mods::EMBARGO_ABSTRACT)) {
 	$this->mods->abstract = "";
 	$this->dc->description = "";
       }
-      if ($this->mods->isEmbargoRequested(etd_mods::EMBARGO_TOC)) {
+      if ($this->isEmbargoed() &&
+	  $this->mods->isEmbargoRequested(etd_mods::EMBARGO_TOC)) {
 	$this->mods->tableOfContents = "";
       }
       break;
@@ -452,8 +455,9 @@ class etd extends foxml implements etdInterface {
     case "abstract":
       // remove unwanted tags
       $this->html->abstract = $value;
-      // if abstract is restricted, blank it out in mods/dc
-      if ($this->mods->isEmbargoRequested(etd_mods::EMBARGO_ABSTRACT)) {
+      // if abstract is restricted & embargo not yet expired, blank it out in mods/dc
+      if ($this->isEmbargoed() &&
+	  $this->mods->isEmbargoRequested(etd_mods::EMBARGO_ABSTRACT)) {
 	$this->mods->abstract = "";
 	$this->dc->description = "";
       }	else {		// otherwise, set plain-text version in mods/dc
@@ -465,8 +469,8 @@ class etd extends foxml implements etdInterface {
       break;
     case "contents":
       $this->html->contents = $value;
-      // if ToC is restricted, blank out any content 
-      if ($this->mods->isEmbargoRequested(etd_mods::EMBARGO_TOC)) {
+      // if ToC is restricted & embargo has not expired, blank out any content 
+      if ($this->isEmbargoed() && $this->mods->isEmbargoRequested(etd_mods::EMBARGO_TOC)) {
 	$this->mods->tableOfContents = "";
       } else {		// otherwise, set plain-text version in mods
 	// using the html contents value, since it is already slightly cleaned up

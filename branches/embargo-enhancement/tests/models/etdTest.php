@@ -121,7 +121,10 @@ class TestEtd extends UnitTestCase {
     /* special properties - abstract & ToC may be restricted--
       set in html but plaintext version not copied to mods */
 
+
     $this->etd->mods->setEmbargoRequestLevel(etd_mods::EMBARGO_ABSTRACT);
+    // set embargo end to tomorrow - unexpired
+    $this->etd->mods->embargo_end = date("Y-m-d", time() + (24*60*60));
 
     $this->etd->abstract = "<b>cheese</b> explained";
     $this->assertEqual("<b>cheese</b> explained", $this->etd->html->abstract,
@@ -145,6 +148,21 @@ class TestEtd extends UnitTestCase {
 			 $this->etd->mods->saveXML(),
 			 "mods xml has an empty tableOfContents");
 
+
+    // set embargo end to yesterday - expired -- contents should be set in mods/dc
+    $this->etd->mods->embargo_end = date("Y-m-d", time() - (24*60*60));
+    $this->etd->mods->setEmbargoRequestLevel(etd_mods::EMBARGO_ABSTRACT);
+
+    $this->etd->abstract = "<b>cheese</b> explained";
+    $this->assertEqual("cheese explained", $this->etd->mods->abstract,
+		       "mods abstract is set normally when embargo level = abstract but embargo has expired");
+    $this->assertEqual("cheese explained", $this->etd->dc->description,
+		       "dc description is set normally when embargo level = abstract but embargo has expired");
+
+    $this->etd->mods->setEmbargoRequestLevel(etd_mods::EMBARGO_TOC);
+    $this->etd->contents = "<p>chapter 1 <br/> chapter 2</p>";
+    $this->assertEqual("chapter 1 -- chapter 2", $this->etd->mods->tableOfContents,
+		       "mods ToC is set normally when embargo level is TOC but embargo has expired");
 
   }
 
@@ -259,14 +277,17 @@ class TestEtd extends UnitTestCase {
 
   function testSetStatus_published_embargo_files() {
     // publish with embargo
-    $this->etd->mods->embargo_end = "2010-01-01";
+    $embargo_end =  date("Y-m-d", time() + (365*24*60*60)); 	// today + 1 year
+    
+    $this->etd->mods->embargo_end = $embargo_end;
     $this->etd->mods->setEmbargoRequestLevel(etd_mods::EMBARGO_FILES);
     $this->etd->setStatus("published");
     $pub_condition = $this->etd->policy->published->condition;
 
-    $this->assertEqual("2010-01-01", $this->etd->policy->published->condition->embargo_end, "embargo end date on published rule condition should match embargo end date in MODS");
-    $this->assertEqual($this->etd->pdfs[0]->policy->published->condition->embargo_end, "2010-01-01",
-        "pdf etdFile published policy embargo end should be '2010-01-01', got '" .
+    $this->assertEqual($embargo_end, $this->etd->policy->published->condition->embargo_end, "embargo end date on published rule condition should match embargo end date in MODS");
+    $this->assertEqual($this->etd->pdfs[0]->policy->published->condition->embargo_end,
+		       $embargo_end,
+        "pdf etdFile published policy embargo end should be '$embargo_end', got '" .
         $this->etd->pdfs[0]->policy->published->condition->embargo_end . "'");
 
     // html disseminator methods should not be restricted
@@ -286,16 +307,18 @@ class TestEtd extends UnitTestCase {
   
   function testSetStatus_published_embargo_toc() {
     // publish with embargo
-    $this->etd->mods->embargo_end = "2010-01-01";
+    $embargo_end =  date("Y-m-d", time() + (365*24*60*60)); 	// today + 1 year
+    $this->etd->mods->embargo_end = $embargo_end;
     $this->etd->mods->setEmbargoRequestLevel(etd_mods::EMBARGO_TOC);
     // mods ToC may have been set *before* embargo level set - ensure it gets cleared
     $this->etd->mods->tableOfContents = "ch.1 - ch.2 - appendix";
     $this->etd->setStatus("published");
     $pub_condition = $this->etd->policy->published->condition;
 
-    $this->assertEqual("2010-01-01", $this->etd->policy->published->condition->embargo_end, "embargo end date on published rule condition should match embargo end date in MODS");
-    $this->assertEqual($this->etd->pdfs[0]->policy->published->condition->embargo_end, "2010-01-01",
-        "pdf etdFile published policy embargo end should be '2010-01-01', got '" .
+    $this->assertEqual($embargo_end, $pub_condition->embargo_end,
+       "embargo end date on published rule condition should match embargo end date in MODS");
+    $this->assertEqual($embargo_end, $this->etd->pdfs[0]->policy->published->condition->embargo_end, 
+        "pdf etdFile published policy embargo end should be '$embargo_end', got '" .
         $this->etd->pdfs[0]->policy->published->condition->embargo_end . "'");
 
     // title & abstract html disseminator methods should not be restricted
@@ -317,7 +340,9 @@ class TestEtd extends UnitTestCase {
 		       "TOC in MODS blanked out when embargo level is TOC");
   }
   
-  function testSetStatus_published_embargo_abstract() {    
+  function testSetStatus_published_embargo_abstract() {
+    $embargo_end =  date("Y-m-d", time() + (365*24*60*60)); 	// today + 1 year
+    $this->etd->mods->embargo_end = $embargo_end;
     $this->etd->mods->setEmbargoRequestLevel(etd_mods::EMBARGO_ABSTRACT);
     $this->etd->mods->tableOfContents = "ch.1 - ch.2 - appendix";
     $this->etd->setStatus("published");
@@ -339,6 +364,20 @@ class TestEtd extends UnitTestCase {
 		       "ToC in mods blanked out when embargo level is ABSTRACT");
     $this->assertEqual("", $this->etd->mods->abstract,
 		       "abstract in mods blanked out when embargo level is ABSTRACT");
+  }    
+
+  function testSetStatus_published_embargo_abstract_embargoexpired() {
+    $embargo_end =  date("Y-m-d", time() - (365*24*60*60)); 	// 1 year ago 
+    $this->etd->mods->embargo_end = $embargo_end;
+    $this->etd->mods->setEmbargoRequestLevel(etd_mods::EMBARGO_ABSTRACT);
+    $this->etd->mods->tableOfContents = "ch.1 - ch.2 - appendix";
+    $this->etd->setStatus("published");
+    $pub_condition = $this->etd->policy->published->condition;
+ 
+    $this->assertNotEqual("", $this->etd->mods->tableOfContents,
+		       "ToC in mods NOT blanked out on setStatus published when embargo level is ABSTRACT but embargo has expired");
+    $this->assertNotEqual("", $this->etd->mods->abstract,
+		       "abstract in mods NOT blanked out on setStatus published when embargo level is ABSTRACT but embargo has expired");
   }    
 
   function testSetStatus_inactive() {
