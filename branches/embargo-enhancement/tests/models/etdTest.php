@@ -367,7 +367,7 @@ class TestEtd extends UnitTestCase {
   }    
 
   function testSetStatus_published_embargo_abstract_embargoexpired() {
-    $embargo_end =  date("Y-m-d", time() - (365*24*60*60)); 	// 1 year ago 
+    $embargo_end = date("Y-m-d", strtotime("-1 year", time()));
     $this->etd->mods->embargo_end = $embargo_end;
     $this->etd->mods->setEmbargoRequestLevel(etd_mods::EMBARGO_ABSTRACT);
     $this->etd->mods->tableOfContents = "ch.1 - ch.2 - appendix";
@@ -674,6 +674,25 @@ class TestEtd extends UnitTestCase {
       $this->assertPattern("|<mods:mods|", $mods, "getMods () result looks like MODS");
 
       $this->fedora->purge($this->etdpid, "removing test etd");
+  }
+
+
+  function testIsEmbargoed() {
+    $this->etd->mods->embargo_end = "";
+    $this->assertFalse($this->etd->isEmbargoed(),
+		       "isEmbargoed returns false when no embargo end date is set");
+
+    $this->etd->mods->embargo_end =  date("Y-m-d", strtotime("+1 year", time()));;
+    $this->assertTrue($this->etd->isEmbargoed(),
+		      "isEmbargoed returns true for embargo end date one year in future");
+
+    $this->etd->mods->embargo_end =  date("Y-m-d", strtotime("-1 year", time()));;
+    $this->assertFalse($this->etd->isEmbargoed(),
+		      "isEmbargoed returns false for embargo end date one year in past");
+
+    $this->etd->mods->embargo_end =  date("Y-m-d");;
+    $this->assertFalse($this->etd->isEmbargoed(),
+		      "isEmbargoed returns false for embargo end date of today");
   }
   
 

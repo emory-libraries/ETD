@@ -534,8 +534,12 @@ class etd extends foxml implements etdInterface {
       }
     }
   }
-
-  // is this record embargoed?
+  
+  /**
+   * is this record embargoed?
+   * returns true if embargo end date is set and after current time
+   * @return boolean
+   */
   public function isEmbargoed() {
     if ($this->mods->embargo_end)
       return (strtotime($this->mods->embargo_end, 0) > time());
@@ -719,7 +723,13 @@ class etd extends foxml implements etdInterface {
   public function status() { return isset($this->rels_ext->status) ? $this->rels_ext->status : ""; }
   public function title() {
     // call fedora service - returns html title if user is allowed to see it
-    return $this->__call("title", array());
+    try {
+      return $this->__call("title", array());
+    } catch (FedoraAccessDenied $e) {
+      // swallow acccess denied exception and only display as a notice
+      trigger_error("Access denied to title -- " . $e->getMessage(), E_USER_NOTICE);
+      return "";
+    }
   }	
   public function author() { return $this->mods->author->full; }
   public function program() { return $this->mods->department; }
@@ -761,8 +771,6 @@ class etd extends foxml implements etdInterface {
   }
 
 
-
-
   // note: doesn't handle non-emory committee members
   public function committee() {
     $committee = array();
@@ -782,11 +790,25 @@ class etd extends foxml implements etdInterface {
   public function pubdate() { return $this->mods->originInfo->issued; }
   public function _abstract() {
     // call fedora service - returns html abstract if user is allowed to see it
-    return $this->__call("abstract", array());
+    try {
+      return $this->__call("abstract", array());
+    } catch (FedoraAccessDenied $e) {
+      // swallow acccess denied exception and only display as a notice
+      trigger_error("Access denied to abstract -- " . $e->getMessage(), E_USER_NOTICE);
+      return "";
+    }
+
   }
   public function tableOfContents() {
     // call fedora service - returns html ToC if user is allowed to see it
-    return $this->__call("tableofcontents", array());
+    try {
+      return $this->__call("tableofcontents", array());
+    } catch (FedoraAccessDenied $e) {
+      // swallow acccess denied exception and only display as a notice
+      trigger_error("Access denied to table of contents -- " . $e->getMessage(),
+		    E_USER_NOTICE);
+      return "";
+    }
   }
   public function num_pages() { return isset($this->mods->pages) ? $this->mods->pages : ""; }
   
