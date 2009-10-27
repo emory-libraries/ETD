@@ -1,4 +1,4 @@
-#!/usr/bin/env php -q
+#!/usr/bin/env php 
 <?php
 chdir("suites");
 // set up include path, fedora/db connections, load common models, etc.
