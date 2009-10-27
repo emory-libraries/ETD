@@ -170,7 +170,16 @@ class etd extends foxml implements etdInterface {
       // NOTE: embargo expiration end-date for file policy handled by publication script
       $this->setOAIidentifier();
       // ensure that object state is set to Active (e.g., if previously set inactive)
-      $this->setObjectState(FedoraConnection::STATE_ACTIVE);      
+      $this->setObjectState(FedoraConnection::STATE_ACTIVE);
+
+      // if Abstract or ToC is restricted, ensure they are not present in mods/dc
+      if($this->mods->isEmbargoRequested(etd_mods::EMBARGO_ABSTRACT)) {
+	$this->mods->abstract = "";
+	$this->dc->description = "";
+      }
+      if ($this->mods->isEmbargoRequested(etd_mods::EMBARGO_TOC)) {
+	$this->mods->tableOfContents = "";
+      }
       break;
     case "inactive":
       // if removing from publication, set to inactive so OAI provider can notify harvesters of removal
@@ -443,15 +452,26 @@ class etd extends foxml implements etdInterface {
     case "abstract":
       // remove unwanted tags
       $this->html->abstract = $value;
-      // clean & remove all tags
-      $value = etd_html::removeTags($value);
-      $this->mods->abstract = $value;
-      $this->dc->description = $value;
+      // if abstract is restricted, blank it out in mods/dc
+      if ($this->mods->isEmbargoRequested(etd_mods::EMBARGO_ABSTRACT)) {
+	$this->mods->abstract = "";
+	$this->dc->description = "";
+      }	else {		// otherwise, set plain-text version in mods/dc
+	// clean & remove all tags
+	$value = etd_html::removeTags($value);
+	$this->mods->abstract = $value;
+	$this->dc->description = $value;
+      } 
       break;
     case "contents":
       $this->html->contents = $value;
-      // use the html contents value, since it is already slightly cleaned up
-      $this->mods->tableOfContents = etd_html::formattedTOCtoText($this->html->contents);
+      // if ToC is restricted, blank out any content 
+      if ($this->mods->isEmbargoRequested(etd_mods::EMBARGO_TOC)) {
+	$this->mods->tableOfContents = "";
+      } else {		// otherwise, set plain-text version in mods
+	// using the html contents value, since it is already slightly cleaned up
+	$this->mods->tableOfContents = etd_html::formattedTOCtoText($this->html->contents);
+      }
       break;
 
     case "department":

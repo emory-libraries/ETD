@@ -117,6 +117,37 @@ class TestEtd extends UnitTestCase {
     $this->assertEqual("Chemistry", $this->etd->supplements[0]->policy->view->condition->department);
   }
 
+  function testSpecialProperties_embargoed() {
+    /* special properties - abstract & ToC may be restricted--
+      set in html but plaintext version not copied to mods */
+
+    $this->etd->mods->setEmbargoRequestLevel(etd_mods::EMBARGO_ABSTRACT);
+
+    $this->etd->abstract = "<b>cheese</b> explained";
+    $this->assertEqual("<b>cheese</b> explained", $this->etd->html->abstract,
+		       "html abstract set normally when embargo level is abstract");
+    $this->assertEqual("", $this->etd->mods->abstract,
+		       "mods abstract is blank after setting etd abstract when embargo level = abstract");
+    $this->assertEqual("", $this->etd->dc->description,
+		       "dc description is blank after setting etd abstract when embargo level = abstract");
+    $this->assertPattern("|<mods:abstract></mods:abstract>|", $this->etd->mods->saveXML(),
+			 "mods xml has an empty abstract");
+    $this->assertPattern("|<dc:description></dc:description>|", $this->etd->dc->saveXML(),
+			 "DC xml has an empty description");
+    $this->etd->mods->setEmbargoRequestLevel(etd_mods::EMBARGO_TOC);
+    $this->etd->contents = "<p>chapter 1 <br/> chapter 2</p>";
+    $this->assertPattern("|<p>chapter 1\s*<br/>\s*chapter 2</p>|",
+			 $this->etd->html->contents,
+			 "html ToC set normally when embargo level is TOC");
+    $this->assertEqual("", $this->etd->mods->tableOfContents,
+		       "mods ToC is blank after setting etd contents when embargo level is TOC");
+    $this->assertPattern("|<mods:tableOfContents></mods:tableOfContents>|",
+			 $this->etd->mods->saveXML(),
+			 "mods xml has an empty tableOfContents");
+
+
+  }
+
   function testGetUserRole() {
     // netid matches the author rel in rels-ext 
     $this->person->netid = "mmouse";
@@ -257,6 +288,8 @@ class TestEtd extends UnitTestCase {
     // publish with embargo
     $this->etd->mods->embargo_end = "2010-01-01";
     $this->etd->mods->setEmbargoRequestLevel(etd_mods::EMBARGO_TOC);
+    // mods ToC may have been set *before* embargo level set - ensure it gets cleared
+    $this->etd->mods->tableOfContents = "ch.1 - ch.2 - appendix";
     $this->etd->setStatus("published");
     $pub_condition = $this->etd->policy->published->condition;
 
@@ -268,21 +301,25 @@ class TestEtd extends UnitTestCase {
     // title & abstract html disseminator methods should not be restricted
     $this->assertTrue($pub_condition->methods->includes("title"),
 		      "title access allowed when embargo level is TOC");
-  $this->assertTrue($pub_condition->methods->includes("abstract"),
-		    "abstract access allowed when embargo level is TOC");  
-  $this->assertFalse($pub_condition->embargoed_methods->includes("title"),
-		     "title access not restricted when embargo level is TOC");
-  $this->assertFalse($pub_condition->embargoed_methods->includes("abstract"),
-		     "abstract access not restricted when embargo level is TOC");  
+    $this->assertTrue($pub_condition->methods->includes("abstract"),
+		      "abstract access allowed when embargo level is TOC");  
+    $this->assertFalse($pub_condition->embargoed_methods->includes("title"),
+		       "title access not restricted when embargo level is TOC");
+    $this->assertFalse($pub_condition->embargoed_methods->includes("abstract"),
+		       "abstract access not restricted when embargo level is TOC");  
     // ToC html disseminator methods *should* be restricted
-  $this->assertFalse($pub_condition->methods->includes("tableofcontents"),
-		     "toc access not allowed when embargo level is TOC");
-  $this->assertTrue($pub_condition->embargoed_methods->includes("tableofcontents"),
-		    "toc access restricted when embargo level is TOC");    
+    $this->assertFalse($pub_condition->methods->includes("tableofcontents"),
+		       "toc access not allowed when embargo level is TOC");
+    $this->assertTrue($pub_condition->embargoed_methods->includes("tableofcontents"),
+		      "toc access restricted when embargo level is TOC");
+
+    $this->assertEqual("", $this->etd->mods->tableOfContents,
+		       "TOC in MODS blanked out when embargo level is TOC");
   }
   
   function testSetStatus_published_embargo_abstract() {    
     $this->etd->mods->setEmbargoRequestLevel(etd_mods::EMBARGO_ABSTRACT);
+    $this->etd->mods->tableOfContents = "ch.1 - ch.2 - appendix";
     $this->etd->setStatus("published");
     $pub_condition = $this->etd->policy->published->condition;
     // title html disseminator method should not be restricted
@@ -296,7 +333,12 @@ class TestEtd extends UnitTestCase {
     $this->assertFalse($pub_condition->methods->includes("tableofcontents"),
 		       "ToC access not allowed when embargo level is ABSTRACT");
     $this->assertTrue($pub_condition->embargoed_methods->includes("tableofcontents"),
-		      "ToC access restricted when embargo level is ABSTRACT");    
+		      "ToC access restricted when embargo level is ABSTRACT");
+
+    $this->assertEqual("", $this->etd->mods->tableOfContents,
+		       "ToC in mods blanked out when embargo level is ABSTRACT");
+    $this->assertEqual("", $this->etd->mods->abstract,
+		       "abstract in mods blanked out when embargo level is ABSTRACT");
   }    
 
   function testSetStatus_inactive() {
