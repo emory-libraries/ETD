@@ -182,14 +182,15 @@ class TestEtdXacml extends UnitTestCase {
 			 "html abstract accessible via dissemination");
 
     try {
-      $contents = $etd->tableOfContents();
+      $result = $fedora->getDisseminationSOAP($this->pid, "emory-control:ETDmetadataParts",
+					      "tableofcontents");
     } catch (Exception $e) {
       $exception = $e;
     }
     $this->assertIsA($exception, "FedoraAccessDenied",
 		     "access denied to restricted ToC");
     $this->assertFalse(isset($contents), "no contents returned - access denied");
-    if ($exception)
+    if (isset($exception))
       $this->assertPattern("/getDissemination tableofcontents/", $exception->getMessage());
 
   }
@@ -215,14 +216,15 @@ class TestEtdXacml extends UnitTestCase {
 			 "html ToC accessible via dissemination");
 
     try {
-      $abs = $etd->abstract();
+      $result = $fedora->getDisseminationSOAP($this->pid, "emory-control:ETDmetadataParts",
+					      "abstract");
     } catch (Exception $e) {
       $exception = $e;
     }
     $this->assertIsA($exception, "FedoraAccessDenied",
 		     "access denied to restricted ToC");
     $this->assertFalse(isset($abs), "no abstract returned - access denied");
-    if ($exception)
+    if (isset($exception))
       $this->assertPattern("/getDissemination abstract/", $exception->getMessage());
   }
 
