@@ -10,7 +10,7 @@ class TestCleanModsXslt extends UnitTestCase {
     function TestCleanModsXslt() {
         $this->config = Zend_Registry::get("config");
         $this->saxonb = $this->config->saxonb_xslt;        
-        $this->xsl = "../../src/scripts/cleanMods.xsl";
+        $this->xsl = "../../src/public/xslt/cleanMods.xsl";
         if ($this->saxonb == '' || ! is_file($this->saxonb))
             trigger_error("saxonb-xslt is not configured properly, tests will fail");
     }

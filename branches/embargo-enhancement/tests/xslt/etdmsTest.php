@@ -11,7 +11,7 @@ class TestEtdmsXslt extends UnitTestCase {
     function TestCleanModsXslt() {
         $this->config = Zend_Registry::get("config");
         $this->saxonb = $this->config->saxonb_xslt;        
-        $this->xsl = "../../src/scripts/etdms.xsl";
+        $this->xsl = "../../src/public/xslt/etdms.xsl";
 	$this->schema = "http://www.ndltd.org/standards/metadata/etdms/1.0/etdms.xsd";
         if ($this->saxonb == '' || ! is_file($this->saxonb))
             trigger_error("saxonb-xslt is not configured properly, tests will fail");
