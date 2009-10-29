@@ -18,9 +18,19 @@ class Services_XmlbyidController extends Zend_Controller_Action {
 
     // load Fedora configuration
     $fedora_cfg = Zend_Registry::get('fedora-config');
+    $allowed_ips = array(gethostbyname($fedora_cfg->server));
+    
+    // if included in configuration, allow these alternate hostnames
+    if (isset($fedora_cfg->alternate_hosts)) {
+      $alternate_hostnames = $fedora_cfg->alternate_hosts->server->toArray();
+      foreach ($fedora_cfg->alternate_hosts->server as $ah)
+	$allowed_ips[] = gethostbyname($ah);
+    } else {
+      $alternate_hostnames = array();
+    }
 
     // ONLY allow requests from Fedora, since this service may have access to restricted content
-    if ($this->_request->getServer("REMOTE_ADDR") != gethostbyname($fedora_cfg->server)) {
+    if (! in_array($this->_request->getServer("REMOTE_ADDR"), $allowed_ips)) {
       $this->_response->setHttpResponseCode(403);	// Forbidden
       // FIXME: should any text/message be displayed here?
       return;
@@ -37,7 +47,8 @@ class Services_XmlbyidController extends Zend_Controller_Action {
 	// check url against the configured fedora instance before sending credentials
 	if ((($protocol == $fedora_cfg->protocol && $port == $fedora_cfg->port) ||
 	     (isset($fedora_cfg->nonssl_port) && $protocol == "http" && $port = $fedora_cfg->nonssl_port))
-	    && gethostbyname($hostname) == gethostbyname($fedora_cfg->server)) {
+	    && (gethostbyname($hostname) == gethostbyname($fedora_cfg->server)
+		|| in_array($hostname, $alternate_hostnames))) {
 
 	  // should match either main protocol & port or http & nonssl port (if configured)
 	  // hostnames should resolve to the same ip

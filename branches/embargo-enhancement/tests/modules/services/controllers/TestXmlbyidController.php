@@ -121,6 +121,7 @@ class XmlbyidControllerTest extends ControllerTestCase {
 			 "not configured to access wrong fedora instance");
   }
 
+
   function testNoData() {
     $this->setUpGet(array('url' => $this->fedora->datastreamUrl($this->testpid, "BOGUS"),
 			  'id' => 'title'));
@@ -181,6 +182,34 @@ class XmlbyidControllerTest extends ControllerTestCase {
     
   }
 
+  function testAlternateFedoraHostname() {
+    $fedora_cfg = Zend_Registry::get('fedora-config');
+    
+    $config_opts = $fedora_cfg->toArray();
+    $config_opts["alternate_hosts"] = array("server" => array("etd.library.emory.edu"));
+    $test_fedora_cfg = new Zend_Config($config_opts);
+    // temporarily override fedora config in with test configuration
+    Zend_Registry::set('fedora-config', $test_fedora_cfg);
+
+    //
+    $_SERVER["REMOTE_ADDR"] = gethostbyname("etd.library.emory.edu");
+    
+    $this->setUpGet(array('url' => $this->fedora->datastreamUrl($this->testpid, "XHTML"),
+			  'id' => 'title'));
+    $XmlbyidController = new XmlbyidControllerForTest($this->request,$this->response);
+    $XmlbyidController->viewAction();
+
+    $response = $XmlbyidController->getResponse();
+    $this->assertNotEqual(403, $response->getHttpResponseCode(),
+		       "request from configured alternate Fedora hostname should NOT result in HTTP error code 403");
+    $this->assertEqual('<div id="title">Why <i>I</i> like cheese</div>', $response->getBody(),
+		       "no data returned when request comes from non-Fedora server");
+
+    
+
+    // restore real fedora config in registry
+    Zend_Registry::set('fedora-config', $fedora_cfg);
+  }
   
 
 }

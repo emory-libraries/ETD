@@ -17,6 +17,10 @@
         <port></port>
         <protocol></protocol>
       </risearch>
+      <alternate_hosts>
+	<server>dev11.library.emory.edu</server>
+	<server/>
+      </alternate_hosts>
   </development>
   <test extends="development">
      <port></port>
