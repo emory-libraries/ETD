@@ -9,23 +9,25 @@ class XmlbyidControllerTest extends ControllerTestCase {
 
   private $testpid;
   private $fedora;
+  private $fedora_cfg;
 
   function __construct() {
     global $_SERVER;
-    $fedora_cfg = Zend_Registry::get('fedora-config');
+    $this->fedora_cfg = Zend_Registry::get('fedora-config');
 
-    // override remote address to make requests look like they come from configured fedora instance
-    // (all other hosts will get access denied)
-    $_SERVER["REMOTE_ADDR"] = gethostbyname($fedora_cfg->server);
     
     $this->fedora = Zend_Registry::get("fedora");
     // generate one new pid in the configured fedora test pidspace
     // will be used for test object (loaded & purged) throughout this test
-    $this->testpid = $this->fedora->getNextPid($fedora_cfg->pidspace);
+    $this->testpid = $this->fedora->getNextPid($this->fedora_cfg->pidspace);
   }
   
   
   function setUp() {
+    // override remote address to make requests look like they come from configured fedora instance
+    // (all other hosts will get access denied)
+    $_SERVER["REMOTE_ADDR"] = gethostbyname($this->fedora_cfg->server);
+
     $this->response = $this->makeResponse();
     $this->request  = $this->makeRequest();
     $this->resetGet();
@@ -183,9 +185,7 @@ class XmlbyidControllerTest extends ControllerTestCase {
   }
 
   function testAlternateFedoraHostname() {
-    $fedora_cfg = Zend_Registry::get('fedora-config');
-    
-    $config_opts = $fedora_cfg->toArray();
+    $config_opts = $this->fedora_cfg->toArray();
     $config_opts["alternate_hosts"] = array("server" => array("etd.library.emory.edu"));
     $test_fedora_cfg = new Zend_Config($config_opts);
     // temporarily override fedora config in with test configuration
@@ -208,9 +208,24 @@ class XmlbyidControllerTest extends ControllerTestCase {
     
 
     // restore real fedora config in registry
-    Zend_Registry::set('fedora-config', $fedora_cfg);
+    Zend_Registry::set('fedora-config', $this->fedora_cfg);
   }
+
   
+  
+  function testUrlEncoded() {
+    $this->setUpGet(array('url' => urlencode($this->fedora->datastreamUrl($this->testpid, "XHTML")),
+			  'id' => 'abstract'));
+    $XmlbyidController = new XmlbyidControllerForTest($this->request,$this->response);
+    $XmlbyidController->viewAction();
+
+    $response = $XmlbyidController->getResponse();
+    $this->assertNoPattern("/^40[0-9]/", $response->getHttpResponseCode(),
+			  "url-encoded url should NOT result in HTTP error code 400/bad request (got " .
+			   $response->getHttpResponseCode() . ")");
+    $this->assertEqual('<div id="abstract"><b>gouda</b> or <i>cheddar</i>?</div>', $response->getBody(),
+		       "response body should be abstract text, got " . $response->getBody());    
+  }
 
 }
 

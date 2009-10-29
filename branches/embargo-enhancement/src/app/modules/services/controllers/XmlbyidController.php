@@ -37,6 +37,7 @@ class Services_XmlbyidController extends Zend_Controller_Action {
     }
     
     $url =  $this->_getParam("url");  // fedora datastream url
+    $url = urldecode($url);
     $id = $this->_getParam("id");   
     try {
       
