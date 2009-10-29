@@ -662,7 +662,15 @@
 	<!-- ETD  specific restrictions based on embargo date  2009/09/25  la -->
 	<xsl:template match="mods:accessCondition[@type='restrictionOnAccess']">
 		<xsl:variable name="embargo_end">
-			<xsl:value-of select="//mods:dateOther[@type='embargoedUntil']"/>
+                  <xsl:choose>
+                    <!-- some old records have date in W3C format; detect and convert to expected format -->
+                    <xsl:when test="contains(//mods:dateOther[@type='embargoedUntil'], 'T')">
+                      <xsl:value-of select="substring-before(//mods:dateOther[@type='embargoedUntil'], 'T')"/>
+                    </xsl:when>
+                    <xsl:otherwise>
+                      <xsl:value-of select="//mods:dateOther[@type='embargoedUntil']"/>
+                    </xsl:otherwise>
+                  </xsl:choose>
 		</xsl:variable>
 		<xsl:choose>
 			<!-- if embargo is for 0 days, not set, or embargo end is not set, do nothing;
