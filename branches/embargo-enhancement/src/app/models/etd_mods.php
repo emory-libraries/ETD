@@ -1,5 +1,6 @@
 <?php
 
+
 require_once("models/mods.php");
 
 require_once("models/esdPerson.php");
@@ -192,7 +193,7 @@ class etd_mods extends mods {
       $contextnode->parentNode->insertBefore($subject, $contextnode);
     } else {
       // if no context node is found, new node will be appended at end of xml document
-      $this->dom->documentElement->appendChild($subject);
+      $this->domnode->appendChild($subject);
     }
 
     // update in-memory map
