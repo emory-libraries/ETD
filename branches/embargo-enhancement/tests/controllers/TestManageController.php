@@ -384,6 +384,52 @@ class ManageControllerTest extends ControllerTestCase {
     // redirect/not authorized - can't test
   }
 
+  public function testReactivateAction() {
+    $ManageController = new ManageControllerForTest($this->request,$this->response);
+
+    $etd = new etd($this->published_etdpid);
+    $etd->setStatus("inactive");
+    $etd->save("marking published etd inactive to test reactivate");
+
+    $this->setUpGet(array('pid' => $this->published_etdpid));	   // previously published etd 
+    $ManageController->reactivateAction();
+    $this->assertIsA($ManageController->view->etd, "etd");
+    $this->assertTrue(isset($ManageController->view->title));
+    $this->assertEqual("published", $ManageController->view->previous_status,
+		       "previous status is set correctly in the view");
+    $this->assertIsA($ManageController->view->status_opts, "Array");
+
+    $ManageController = new ManageControllerForTest($this->request,$this->response);
+    $this->setUpGet(array('pid' => $this->reviewed_etdpid));	   // NOT an inactive etd
+    $this->assertFalse($ManageController->inactivateAction());
+    $this->assertFalse($ManageController->redirectRan);
+    $this->assertFalse(isset($ManageController->view->etd));
+  }
+
+  public function testDoReactivateAction() {
+    $ManageController = new ManageControllerForTest($this->request,$this->response);
+
+    $etd = new etd($this->published_etdpid);
+    $etd->setStatus("inactive");
+    $etd->save("marking published etd inactive to test reactivate");
+
+    $this->setUpPost(array('pid' => $this->published_etdpid, 'reason' => 'testing reactivation',
+			   'status' => "draft"));
+    $ManageController->doReactivateAction();
+
+    $etd = new etd($this->published_etdpid);
+    $this->assertEqual("draft", $etd->status());
+    $this->assertEqual("Reactivated - testing reactivation", $etd->premis->event[1]->detail);
+    $messages = $ManageController->getHelper('FlashMessenger')->getMessages();
+    $this->assertPattern("/Record.*status changed/", $messages[0]);
+
+    // test - NOT an inactive etd
+    $this->setUpPost(array('pid' => $this->reviewed_etdpid, 'reason' => 'testing reactivate'));	 
+    $this->assertFalse($ManageController->doReactivateAction());
+  }
+
+
+
   public function testExpiringEmbargoes() {
     $ManageController = new ManageControllerForTest($this->request,$this->response);
     $ManageController->embargoesAction();

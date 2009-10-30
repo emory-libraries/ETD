@@ -261,6 +261,50 @@ class ManageController extends Etd_Controller_Action {
 						 "action" => "summary"), "", true); 
    }
 
+
+      /* re-activation for inactive records (reactivate, doReactivate) */
+   
+   public function reactivateAction() {
+     $etd = $this->_helper->getFromFedora("pid", "etd");
+     if (!$this->_helper->access->allowedOnEtd("reactivate", $etd)) return false;
+     $this->view->etd = $etd;
+     // find previous status & store once
+     $this->view->previous_status = $etd->previousStatus();
+
+     $this->view->status_opts = array();
+     // generate list of possible etd statuses for use in select
+     foreach ($etd->rels_ext->status_list as $status)
+       $this->view->status_opts[$status] = $status;
+
+     $this->view->title = "Manage : Reactivate inactive ETD";
+   }
+
+   public function doReactivateAction() {
+     $etd = $this->_helper->getFromFedora("pid", "etd");
+     if (!$this->_helper->access->allowedOnEtd("reactivate", $etd)) return false;
+     
+     $reason = $this->_getParam("reason", "");
+     $newstatus = $this->_getParam("status");
+     $etd->setStatus($newstatus);
+     
+     // log event in record history 
+     $etd->premis->addEvent("status change",
+			    "Reactivated - $reason",	// by whom ?
+			    "success",  array("netid", $this->current_user->netid));
+     $result = $etd->save("reactivated");
+     if ($result) {
+       $this->_helper->flashMessenger->addMessage("Record status changed to <b>$newstatus</b>; saved at $result");
+       // user information also, for email address ?
+       $this->logger->info("Updated etd " . $etd->pid . " at $result - set status to $newstatus");
+     } else {
+       $this->logger->err("Could not save etd " . $etd->pid . " - attempting to change status to $newstatus");
+       $this->_helper->flashMessenger->addMessage("Error: Could not set record status to <b>$newstatus</b>");
+     }
+     
+     $this->_helper->redirector->gotoRoute(array("controller" => "manage",
+						 "action" => "summary"), "", true); 
+   }
+
    public function embargoesAction() {
      if (!$this->_helper->access->allowedOnEtd("manage")) return false;
 
