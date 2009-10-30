@@ -33,7 +33,7 @@ class XacmlPolicy extends foxmlDatastreamAbstract {
 	);
 
     // specific etd rules that need to be accessible by name/type
-    $etdrules = array("fedoraAdmin", "view", "etdadmin", "draft", "published", "deny_most");
+    $etdrules = array("fedoraAdmin", "view", "draft", "published", "deny_most");
     foreach ($etdrules as $ruleid) {
       $this->xmlconfig[$ruleid] = array("xpath" => "x:Rule[@RuleId='$ruleid']", "class_name" => "PolicyRule");
     }
@@ -45,7 +45,6 @@ class XacmlPolicy extends foxmlDatastreamAbstract {
     $dom = new DOMDocument();
     switch ($name) {
     case "view": 		$xml = EtdXacmlRules::view; break;
-    case "etdadmin":		$xml = EtdXacmlRules::etdadmin; break;
     case "draft":		$xml = EtdXacmlRules::draft; break;
     case "published":		$xml = EtdXacmlRules::published; break;
     default:
@@ -89,7 +88,6 @@ class XacmlPolicy extends foxmlDatastreamAbstract {
     // starts with a bare-bones xacml  (fedoraAdmin rule & deny-most rule)
     // add the appropriate rules for a new etd
     $policy->addRule("view");
-    //    $policy->addRule("etdadmin");	// FIXME: shouldn't be needed (repo-wide rule instead)
     $policy->addRule("draft");
     
     return $policy->saveXML();
@@ -392,57 +390,6 @@ const view = '<Rule xmlns="urn:oasis:names:tc:xacml:1.0:policy" RuleId="view" Ef
   </Rule>
 ';
 
-
-
-const etdadmin = '<Rule  xmlns="urn:oasis:names:tc:xacml:1.0:policy" RuleId="etdadmin" Effect="Permit">
-   <!-- Allow admin to modify history and status (premis, rels-ext)  -->
-    <Target>
-     <Subjects>
-        <AnySubject/>
-      </Subjects>
-      <Resources>
-
-    <Resource>
-        <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">PREMIS</AttributeValue>
-            <ResourceAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:resource:datastream:id" 
-                DataType="http://www.w3.org/2001/XMLSchema#string"/>
-        </ResourceMatch>
-      </Resource>
-
-    <Resource>
-        <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">RELS-EXT</AttributeValue>
-            <ResourceAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:resource:datastream:id" 
-                DataType="http://www.w3.org/2001/XMLSchema#string"/>
-        </ResourceMatch>
-      </Resource>
-    <Resource>
-        <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">POLICY</AttributeValue>
-            <ResourceAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:resource:datastream:id" 
-                DataType="http://www.w3.org/2001/XMLSchema#string"/>
-        </ResourceMatch>
-      </Resource>
-      </Resources>
-      <Actions>
-        <Action>
-          <ActionMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">urn:fedora:names:fedora:2.1:action:id-modifyDatastreamByValue</AttributeValue>
-            <ActionAttributeDesignator DataType="http://www.w3.org/2001/XMLSchema#string" AttributeId="urn:fedora:names:fedora:2.1:action:id"/>
-          </ActionMatch>
-        </Action>
-      </Actions>
-    </Target>
-
-    <Condition FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-at-least-one-member-of">
-        <SubjectAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:subject:loginId" DataType="http://www.w3.org/2001/XMLSchema#string"/>
-        <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-bag">
-          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">etdadmin</AttributeValue>
-        </Apply>
-    </Condition>
-</Rule>
-     ';
 
  const draft = '
   <Rule xmlns="urn:oasis:names:tc:xacml:1.0:policy" RuleId="draft" Effect="Permit">
