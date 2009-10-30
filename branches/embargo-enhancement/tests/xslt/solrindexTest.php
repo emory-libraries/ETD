@@ -21,8 +21,14 @@ class TestSolrIndexXslt extends UnitTestCase {
         $xml->load("../fixtures/etd1.xml");
 	$etd = new etd($xml);
 	$etd->mods->date = "2008-05-30";	// set a pub date
-	$etd->mods->addKeyword("");		// empty subject - should not be indexed
-	// test this - not getting in?
+	$etd->mods->addKeyword("keyword1");	// keyword to be indexed
+	$etd->mods->addKeyword("");		// empty keyword - should not be indexed
+	 // ignore php errors - "indirect modification of overloaded property
+	$errlevel = error_reporting(E_ALL ^ E_NOTICE);
+	$etd->mods->chair[0]->full = "Duck, Donald";
+	$etd->mods->committee[0]->full = "Dog, Pluto";
+	$etd->mods->addCommittee("", "");	// blank committe name - should not be indexed
+	error_reporting($errlevel);     // restore prior error reporting
 
         $result = $this->transformDom($etd->dom);
         $this->assertTrue($result, "xsl transform returns data");
@@ -39,12 +45,23 @@ class TestSolrIndexXslt extends UnitTestCase {
 			     "genre indexed as document_type");
 	$this->assertPattern('|<field name="author">Mouse, Minnie</field>|', $result,
 			     "author full name indexed");
+	$this->assertPattern('|<field name="advisor"[^>]*>Duck, Donald</field>|', $result,
+			     "advisor full name indexed");
+	$this->assertPattern('|<field name="committee">Dog, Pluto</field>|', $result,
+			     "committee full name indexed");
+	$this->assertNoPattern('|<field name="committee"></field>|', $result,
+			     "blank committee not indexed");
+		
 	$this->assertPattern('|<field name="program">Disney</field>|', $result,
 			     "program name indexed");
 	$this->assertPattern('|<field name="language">English</field>|', $result,
 			     "language indexed");
 	$this->assertPattern('|<field name="subject">Area studies</field>|', $result,
 			     "subject indexed");
+	$this->assertPattern('|<field name="keyword">keyword1</field>|', $result,
+			     "keyword indexed");
+	$this->assertNoPattern('|<field name="keyword"></field>|', $result,
+			     "blank keyword is not indexed");
 	$this->assertPattern('|<field name="abstract">Gouda or Cheddar\?</field>|', $result,
 			     "abstract indexed");
 	$this->assertPattern('|<field name="embargo_requested">no</field>|', $result,
@@ -62,14 +79,8 @@ class TestSolrIndexXslt extends UnitTestCase {
 	$this->assertNoPattern('|<field name="issuance">|', $result,
 			     "originInfo/issuance is not indexed");
 	
-	//	print "xsl result:<pre>" . htmlentities($result) . "</pre>";
     }
 
-    // TODO -  add tests for special cases? clean-up, empty names, exclusions, etc?
-
-    
-
-    
 
     // test new inactive behavior
     function test_etdToFoxml_inactiveEtd() {
