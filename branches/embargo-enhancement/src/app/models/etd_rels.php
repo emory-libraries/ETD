@@ -24,44 +24,47 @@ class etd_rels extends rels_ext {
 			       "submitted",
 			       "draft",
 			       "inactive");
+
+    // NOTE: for legacy reasons, these xpaths are all written to match either rdf:Description
+    // OR the incorrect rdf:description (present in older revisions of some rels-ext datastreams)
     
     // etd status
-    $this->xmlconfig["status"] = array("xpath" => "rdf:Description/rel:etdStatus");
+    $this->xmlconfig["status"] = array("xpath" => "rdf:*[local-name() = 'Description' or local-name() = 'description']/rel:etdStatus");
 
 
     // order within a set
-    $this->xmlconfig["sequence"] = array("xpath" => "rdf:Description/rel:sequenceNumber");
+    $this->xmlconfig["sequence"] = array("xpath" => "rdf:*[local-name() = 'Description' or local-name() = 'description']/rel:sequenceNumber");
     
     // rels from etd to etd files
-    $this->xmlconfig["pdf"] = array("xpath" => "rdf:Description/rel:hasPDF/@rdf:resource",
+    $this->xmlconfig["pdf"] = array("xpath" => "rdf:*[local-name() = 'Description' or local-name() = 'description']/rel:hasPDF/@rdf:resource",
 				    "is_series" => true);
-    $this->xmlconfig["original"] = array("xpath" => "rdf:Description/rel:hasOriginal/@rdf:resource",
+    $this->xmlconfig["original"] = array("xpath" => "rdf:*[local-name() = 'Description' or local-name() = 'description']/rel:hasOriginal/@rdf:resource",
 					 "is_series" => true);
-    $this->xmlconfig["supplement"] = array("xpath" => "rdf:Description/rel:hasSupplement/@rdf:resource",
+    $this->xmlconfig["supplement"] = array("xpath" => "rdf:*[local-name() = 'Description' or local-name() = 'description']/rel:hasSupplement/@rdf:resource",
     "is_series" => true);
 
 
     // user information object
-    $this->xmlconfig["hasAuthorInfo"] = array("xpath" => "rdf:Description/rel:hasAuthorInfo/@rdf:resource");
+    $this->xmlconfig["hasAuthorInfo"] = array("xpath" => "rdf:*[local-name() = 'Description' or local-name() = 'description']/rel:hasAuthorInfo/@rdf:resource");
 
     
     // relationships to users
-    $this->xmlconfig["author"] = array("xpath" => "rdf:Description/rel:author");
-    $this->xmlconfig["advisor"] = array("xpath" => "rdf:Description/rel:advisor");
-    $this->xmlconfig["committee"] = array("xpath" => "rdf:Description/rel:committee",
+    $this->xmlconfig["author"] = array("xpath" => "rdf:*[local-name() = 'Description' or local-name() = 'description']/rel:author");
+    $this->xmlconfig["advisor"] = array("xpath" => "rdf:*[local-name() = 'Description' or local-name() = 'description']/rel:advisor");
+    $this->xmlconfig["committee"] = array("xpath" => "rdf:*[local-name() = 'Description' or local-name() = 'description']/rel:committee",
 					    "is_series" => true);
 
     // rels to program & subfield (by id)
-    $this->xmlconfig["program"] = array("xpath" => "rdf:Description/rel:program");
-    $this->xmlconfig["subfield"] = array("xpath" => "rdf:Description/rel:subfield");
+    $this->xmlconfig["program"] = array("xpath" => "rdf:*[local-name() = 'Description' or local-name() = 'description']/rel:program");
+    $this->xmlconfig["subfield"] = array("xpath" => "rdf:*[local-name() = 'Description' or local-name() = 'description']/rel:subfield");
     
     // rels from etd file to etd
-    $this->xmlconfig["pdfOf"] = array("xpath" => "rdf:Description/rel:isPDFOf/@rdf:resource");
-    $this->xmlconfig["originalOf"] = array("xpath" => "rdf:Description/rel:isOriginalOf/@rdf:resource");
-    $this->xmlconfig["supplementOf"] = array("xpath" => "rdf:Description/rel:isSupplementOf/@rdf:resource");
+    $this->xmlconfig["pdfOf"] = array("xpath" => "rdf:*[local-name() = 'Description' or local-name() = 'description']/rel:isPDFOf/@rdf:resource");
+    $this->xmlconfig["originalOf"] = array("xpath" => "rdf:*[local-name() = 'Description' or local-name() = 'description']/rel:isOriginalOf/@rdf:resource");
+    $this->xmlconfig["supplementOf"] = array("xpath" => "rdf:*[local-name() = 'Description' or local-name() = 'description']/rel:isSupplementOf/@rdf:resource");
 
     // rels from user to etd
-    $this->xmlconfig["etd"] = array("xpath" => "rdf:Description/rel:authorInfoFor/@rdf:resource");
+    $this->xmlconfig["etd"] = array("xpath" => "rdf:*[local-name() = 'Description' or local-name() = 'description']/rel:authorInfoFor/@rdf:resource");
     //					      "is_series" => true);
   }
 
