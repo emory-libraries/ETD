@@ -90,8 +90,8 @@ class TestSolrIndexXslt extends UnitTestCase {
 	$foxml->state = "Inactive";
 
         $result = $this->transformDom($foxml->dom);
-	$this->assertNoPattern("|<add>.+</add>|s", $result,
-			       "xsl result for inactive etd is NOT a solr add document");
+	$this->assertPattern("|<add>.+</add>|s", $result,
+			       "xsl result for inactive etd is a solr add document");
     }
     
     // test non-etd - should not be indexed

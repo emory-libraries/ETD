@@ -47,7 +47,7 @@
     </xsl:variable>
     
     <xsl:comment>content model is <xsl:value-of select="$contentModel"/></xsl:comment>    
-    <xsl:if test="($state = 'Active')
+    <xsl:if test="($state = 'Active' or $state = 'Inactive')
                     and contains($contentModel, 'emory-control:ETD-1.0')">
       <!-- FIXME: need to include etdFile objects at some point -->
       <add> 
