@@ -62,6 +62,9 @@
        <allow resource="reviewed etd">approve, request document changes</allow>
        <allow resource="approved etd">publish</allow>	<!-- not technically done by admin... -->
        <allow resource="published etd">inactivate</allow>
+       <!-- should really only be done by superuser -->
+       <allow resource="inactive etd">reactivate</allow>    
+
 
        <allow resource="file">view modified</allow>
 
@@ -69,7 +72,10 @@
     </role>
 
     <!-- administrator for graduate school etds -->
-    <role name="grad admin" inherits="admin"/>
+    <role name="grad admin" inherits="admin">
+       <deny resource="inactive etd">reactivate</deny>    
+    </role>
+
 <!-- NOTE: for now, permissions are the same as admin, but that will
 	probably need to change -->
 
