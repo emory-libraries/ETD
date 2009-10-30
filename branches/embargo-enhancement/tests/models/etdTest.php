@@ -703,10 +703,10 @@ class TestEtd extends UnitTestCase {
     $etd->mods->ark = "ark:/123/bcd";
     $etd->rels_ext->addRelation("rel:author", "me");  
     $etd->setStatus("draft");            
-    $this->fedora->ingest($etd->saveXML(), "test getPreviousStatus");
-    $this->assertEqual(null, $etd->getPreviousStatus(),
-		       "getPreviousStatus should return null when there is no previous status, got '"
-		       . $etd->getPreviousStatus() . "'");
+    $this->fedora->ingest($etd->saveXML(), "test previousStatus");
+    $this->assertEqual(null, $etd->previousStatus(),
+		       "previousStatus should return null when there is no previous status, got '"
+		       . $etd->previousStatus() . "'");
     
 
     
@@ -715,9 +715,9 @@ class TestEtd extends UnitTestCase {
     $etd->setStatus("reviewed");
     $etd->save("setting status to reviewed");
 
-    $this->assertEqual("draft", $etd->getPreviousStatus(),
-		       "getPreviousStatus should return draft, got '"
-		       . $etd->getPreviousStatus() . "'");
+    $this->assertEqual("draft", $etd->previousStatus(),
+		       "previousStatus should return draft, got '"
+		       . $etd->previousStatus() . "'");
 
 
     // setting status to published; previous status is reviewed
@@ -728,9 +728,9 @@ class TestEtd extends UnitTestCase {
     $etd->rels_ext->author = "you";  
     $etd->save("making non-status change to rels-ext");
     
-    $this->assertEqual("reviewed", $etd->getPreviousStatus(),
-		       "getPreviousStatus should return reviewed, got '"
-		       . $etd->getPreviousStatus() . "'");
+    $this->assertEqual("reviewed", $etd->previousStatus(),
+		       "previousStatus should return reviewed, got '"
+		       . $etd->previousStatus() . "'");
 
     
     

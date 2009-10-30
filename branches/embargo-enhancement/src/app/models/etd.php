@@ -198,7 +198,7 @@ class etd extends foxml implements etdInterface {
    * find & return the last record status before this one, or null if no previous status
    * @return string
    */
-  public function getPreviousStatus() {
+  public function previousStatus() {
     // datastream ID for rels-ext 
     $dsid = $this->xmlconfig["rels_ext"]['dsID'];
 
