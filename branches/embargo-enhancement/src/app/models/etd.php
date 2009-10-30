@@ -195,6 +195,32 @@ class etd extends foxml implements etdInterface {
   }
 
   /**
+   * find & return the last record status before this one, or null if no previous status
+   * @return string
+   */
+  public function getPreviousStatus() {
+    // datastream ID for rels-ext 
+    $dsid = $this->xmlconfig["rels_ext"]['dsID'];
+
+    // get datastream history (info about each revision)
+    $rels_history = $this->fedora->getDatastreamHistory($this->pid, $dsid);
+
+    $dom = new DOMDocument();
+    // fedora returns datastream history with most recent versions first
+    // get datastream by date and compare status until one is found that is different from current status
+    foreach ($rels_history->datastream as $ds_version) {
+      $xml = $this->fedora->getDatastream($this->pid, $dsid, $ds_version->createDate);
+      $dom->loadXML($xml);
+      $rels = new etd_rels($dom);
+      if ($rels->status != $this->rels_ext->status)
+	return $rels->status;
+    }
+
+    // if no status was found different than the current status, there was no previous status
+    return null;
+  }
+
+  /**
    * set OAI identifier in RELS-EXT based on full ARK 
    */
   public function setOAIidentifier() {

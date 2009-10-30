@@ -694,6 +694,48 @@ class TestEtd extends UnitTestCase {
     $this->assertFalse($this->etd->isEmbargoed(),
 		      "isEmbargoed returns false for embargo end date of today");
   }
+
+  function testGetPreviousStatus() {
+    // ingest a minimal, published record to test fedora methods as object methods
+    $etd = new etd();
+    $etd->pid = $this->etdpid;
+    $etd->title = "test etd";
+    $etd->mods->ark = "ark:/123/bcd";
+    $etd->rels_ext->addRelation("rel:author", "me");  
+    $etd->setStatus("draft");            
+    $this->fedora->ingest($etd->saveXML(), "test getPreviousStatus");
+    $this->assertEqual(null, $etd->getPreviousStatus(),
+		       "getPreviousStatus should return null when there is no previous status, got '"
+		       . $etd->getPreviousStatus() . "'");
+    
+
+    
+    // setting status to reviewed; previous status is draft
+    $etd = new etd($this->etdpid);
+    $etd->setStatus("reviewed");
+    $etd->save("setting status to reviewed");
+
+    $this->assertEqual("draft", $etd->getPreviousStatus(),
+		       "getPreviousStatus should return draft, got '"
+		       . $etd->getPreviousStatus() . "'");
+
+
+    // setting status to published; previous status is reviewed
+    $etd = new etd($this->etdpid);
+    $etd->setStatus("published");
+    $etd->save("setting status to published");
+    // make a non-status-related change to rels-ext; previous status is 2 versions ago, still reviewed
+    $etd->rels_ext->author = "you";  
+    $etd->save("making non-status change to rels-ext");
+    
+    $this->assertEqual("reviewed", $etd->getPreviousStatus(),
+		       "getPreviousStatus should return reviewed, got '"
+		       . $etd->getPreviousStatus() . "'");
+
+    
+    
+    $this->fedora->purge($this->etdpid, "removing test etd");
+  }
   
 
 }
