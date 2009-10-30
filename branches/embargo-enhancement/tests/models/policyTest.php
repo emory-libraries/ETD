@@ -34,7 +34,6 @@ class TestPolicy extends UnitTestCase {
     // specific etd rules
     $this->assertIsA($this->policy->fedoraAdmin, "PolicyRule");
     $this->assertIsA($this->policy->view, "PolicyRule");
-    $this->assertIsA($this->policy->etdadmin, "PolicyRule");
     $this->assertIsA($this->policy->draft, "PolicyRule");
     $this->assertIsA($this->policy->published, "PolicyRule");
 
@@ -83,11 +82,6 @@ class TestPolicy extends UnitTestCase {
     $this->policy->removeRule("view");
     $this->policy->addRule("view");
     $this->assertIsA($this->policy->view, "PolicyRule");
-
-
-    $this->policy->removeRule("etdadmin");
-    $this->policy->addRule("etdadmin");
-    $this->assertIsA($this->policy->etdadmin, "PolicyRule");
 
     $this->policy->removeRule("published");
     $this->policy->addRule("published");
@@ -165,7 +159,6 @@ class TestPolicy extends UnitTestCase {
     // these rules should be included in a new policy
     //    $this->assertTrue(isset($policy->fedoraAdmin));	// removed
     $this->assertTrue(isset($policy->view));
-    //    $this->assertTrue(isset($policy->etdadmin));	// no longer needed
     $this->assertTrue(isset($policy->draft));
 
     // should not include published rule
