@@ -119,10 +119,10 @@ class TestPolicy extends UnitTestCase {
   }
 
   function testAddDatastream() {
-    $dscount = count($this->policy->etdadmin->resources->datastreams);
-    $this->policy->etdadmin->resources->addDatastream("TEI");
-    $this->assertEqual($dscount + 1, count($this->policy->etdadmin->resources->datastreams));
-    $this->assertEqual("TEI", $this->policy->etdadmin->resources->datastreams[$dscount]);
+    $dscount = count($this->policy->draft->resources->datastreams);
+    $this->policy->draft->resources->addDatastream("TEI");
+    $this->assertEqual($dscount + 1, count($this->policy->draft->resources->datastreams));
+    $this->assertEqual("TEI", $this->policy->draft->resources->datastreams[$dscount]);
 
     $this->expectError("Cannot add datastream 'bogus' because this resource has no datastreams");
     $this->policy->deny_most->resources->addDatastream("bogus");
