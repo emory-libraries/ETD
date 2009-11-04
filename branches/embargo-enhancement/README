@@ -113,3 +113,7 @@ Unit tests are under test/ and organized roughly comparable to src. As
 much as possible, these tests can be run individually or in groups,
 and can be run on the command line or via the web.
 
+Console: src/scripts contains a console.php that loads etd models &
+services (including fedora connection) and can be used as an
+interactive environment (REPL).  In tests/suites there is an
+equivalent console.php that loads the test environment.
