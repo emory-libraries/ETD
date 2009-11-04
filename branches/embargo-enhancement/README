@@ -1,0 +1,115 @@
+About
+=====
+
+ETD is an Electronic Theses & Dissertation site built on top of the
+Fedora Commons repository.
+
+
+Software Dependencies
+=====================
+
+php5, with the following components/configurations
+ - browscap.ini
+ - tidy
+ - fileinfo
+ - geoip
+ - sqlite
+ - ldap
+ - oci8 (Oracle)
+ - PHP_Shell
+ - php memory limit 256MB or greater
+pdfinfo & pdftohtml (version from Poppler is recommended)
+
+For Ubuntu setup instructions, see
+https://techknowhow.library.emory.edu/etd-documentation/development-environment
+
+ - javascript xforms FormFaces implementation (included with source)
+ - javascript wysiwyg editor FCKeditor (included with source)
+
+ svn externals
+ =============
+ ETD depends on the following externals, which are included in src/lib:
+  - Zend Framework (local copy, slightly customized - minor bugfixes
+       not yet in released version)
+  - Emory extensions to Zend Framework (services & extensions meant to
+       be used with ZF)
+  - xml-utilities (customizable xml object)
+  - fedora-php (php wrapper for Fedora APIs, foxml & datastream objects
+       based on xml-utilities xml object)
+  - simpletest (for unit testing, external under test)
+
+
+Services & Databases 
+====================
+ETD makes use of or interacts with the following:
+ - Fedora repository, with Gsearch
+ - Solr (index based on Fedora data, populated by Fedora Generic
+	Search Service)
+ - LDAP authentication
+ - Emory Shared Data (Oracle db)
+ - Persistent Id Server (locally developed - persis/pidman)
+ - sqlite3 database for ETD usage statistics
+ - CSV graduation feed from Registrar (triggers publication)
+ - ProQuest ftp server (electronic submissions)
+ - Google Analytics
+
+
+Installation
+============
+ETD requires that fedora-commons be configured as follows:
+ - RIsearch enabled, with sync updates turned on
+ - xacml enforcement enabled and combining algorithm set to ordered, permit overrides 
+   (set XACML-COMBINING-ALGORITHM to com.sun.xacml.combine.OrderedPermitOverridesPolicyAlg
+   in fedora.fcfg)
+ - etd repository-wide policies (in src/fedora-policies) should be
+   included in xacml policies, and default policy to allow all API-A
+   should be disabled.  Recommended: check this out of svn and replace
+   default fedora xacml policies https://svn.library.emory.edu/svn/fedora/repository-policies/  
+ - Fedora 3.x requires a patch to allow cmodel xacml filtering
+ - working LDAP authentication filter
+ - custom ESD DeptData filter
+ - Generic Search Service installed; use index script src/public/xslt/etdFoxmlToSolr.xslt
+   - Solr instance, with schema from src/scripts/solr-schema.xml
+ - ETD control objects (cmodel/sdef/sdep) loaded 
+
+Site webroot should be pointed at src/public
+ - requires apache override, mod_rewrite
+ - copy src/htaccess-sample to public/.htaccess and edit
+ - edit config files in src/config 
+    - copy *.xml.example to *.xml and edit
+    - which section of the config file is loaded depends on mode
+      setting in environment.xml
+
+ cron jobs
+ =========
+ The following scripts (in src/scripts) should be run as cron jobs:
+  - statistics.php : etd-specific view/download usage, based on apache
+	log, stored in sqlite db; should be run daily.
+  - publish.php : publication & submission to ProQuest; depends on Registrar feed;
+	should be run at least weekly.
+  - embargo_expiration.php : checks for expiring embargoes and sends
+     	various notices 60 days, 7 days, and 0 days before an embargo expires.
+	Should be run daily.
+
+
+Code organization
+=================
+ETD is a Zend Framework application with roughly MVC structure.
+The site is bootstrapped & loaded through src/public/index.php, which
+hands off control & routing to the Zend Front Controller.
+
+The bulk of the code (controllers, models, and views) can be found
+under src/app.  For more details, see Zend Controller quick start documentation:
+http://framework.zend.com/manual/en/zend.controller.html#zend.controller.quickstart.go
+
+An Etd Controller base class along with a few custom controller
+helpers can be found under src/lib/Etd.
+
+Command-line scripts are found in src/scripts, and use a common
+bootstrap.php to load config files and initialize services.  Data
+migration scripts are in src/scripts/migrations.
+
+Unit tests are under test/ and organized roughly comparable to src. As
+much as possible, these tests can be run individually or in groups,
+and can be run on the command line or via the web.
+
