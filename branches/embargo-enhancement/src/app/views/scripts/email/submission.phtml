@@ -4,6 +4,38 @@
 <p>Congratulations!  You have successfully submitted your ETD to
 Emory's repository.</p>
 
+<p>In order to complete the submission process, please attend to the following tasks:</p>
+<ol>
+  <li>Submit a paper copy for the Dean's review</li>
+  <li>Review your ETD record</li>
+  <li>Submit all required forms to the <?= $this->etd->admin_agent ?></li>
+  <li>Take the Graduate Exit Survey</li>
+</ol>
+<p>Details for each of these steps are included below.</p>
+
+<ol>
+<li>Print a paper copy of the document you deposited for the Dean's review. To ensure that the Dean will be reviewing the final version of your document, click the link below to visit your record in the ETD repository, open your PDF file, and print a paper copy.</li>
+<li>Please review your record, checking for accuracy and formatting:
+  <a href="<?= $this->etd->ark() ?>"><?= $this->etd->ark() ?></a></li>
+
+<li><p>All students must submit the ETD Submission Agreement Form with the paper copy of their
+<?= $this->etd->document_type() ?>. In part 3 of that form, you must choose between the "Open" or "Restricted" Access options.
+<? if ($this->etd->mods->isEmbargoRequested()): ?>
+   You have requested <b>Restricted Access</b> (pending the approval of 
+   <?= $this->etd->admin_agent ?>). The full text of your work will be published in
+   the repository immediately after the expiration of your access
+   restriction period.
+<? else: ?>
+   You have requested <b>Open Access</b>. The full text of your work
+   will be published in the repository immediately after graduation.
+<? endif ?></p>
+
+ <p>You will receive written notification confirming whether or not your <?= $this->etd->document_type() ?> has been approved by the Graduate School. Upon approval you will receive further information regarding the publication of your ETD in our repository, as well as your opportunity to order bound copies.</p>
+</li>
+
+<li>Soon after graduation, you will receive an email message notifying you that your <?= $this->etd->document_type() ?> has been published by the ETD system. You will find a link to the Graduate Exit Survey in that email. Please take the time to provide valuable feedback to the Graduate School by completing this survey.</li>
+
+
 <? if (! $this->etd->isHonors()): /* not applicable to honors etds */ ?>
   <p>Your next step is to print a paper copy of the document you deposited for
   the Dean's review.  To ensure that the Dean will be reviewing the final
@@ -11,29 +43,7 @@ Emory's repository.</p>
   ETD repository, open your PDF file, and print a paper copy.</p>
 <? endif ?>
 
-<p>View your record:
-<a href="<?= $this->etd->ark() ?>"><?= $this->etd->ark() ?></a></p>
-
-<p>All students must submit the ETD Submission Agreement Form with the
-paper copy of their dissertation. In part 2 of that form, you must
-choose between the "Open" or "Restricted" Access options.
-<? if ($this->etd->mods->embargo_request == "yes"): ?>
-   You have requested <b>Restricted Access</b> (pending the approval of 
-   <?= $this->etd->admin_agent ?>). The full text of your work will be published in
-   the repository immediately after the expiration of your access
-   restriction period.
-<? elseif ($this->etd->mods->embargo_request == "no"): ?>
-   You have requested <b>Open Access</b>. The full text of your work
-   will be published in the repository immediately after graduation.
-<? endif ?>
-</p>     
-
-<p>You will receive written notification confirming whether or not your
-<?= $this->etd->document_type() ?> has been approved by <?= $this->etd->admin_agent ?>.
-  Upon approval you will receive further information regarding the publication of your
-ETD in our repository, as well as your opportunity to order bound
-copies.</p>
-
+<? /*
 <table>
 <tr><th valign="top">Title:</th><td><?= $this->etd->title() ?></td></tr>
 <tr><th valign="top">Author:</th><td><?= $this->etd->author() ?></td></tr>
@@ -50,3 +60,4 @@ copies.</p>
 </table>
 
 
+   */ ?>
