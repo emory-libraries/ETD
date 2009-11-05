@@ -1,4 +1,9 @@
 <?php
+/**
+ * @category Etd
+ * @package Etd_Models
+ * @subpackage Honors_Etd
+ */
 
 require_once("etd_mods.php");
 

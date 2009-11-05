@@ -1,4 +1,8 @@
 <?php
+/**
+ * @category Etd
+ * @package Etd_Controllers
+ */
 
 class IndexController extends Etd_Controller_Action {
 

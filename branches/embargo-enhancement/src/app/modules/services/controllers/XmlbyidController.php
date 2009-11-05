@@ -1,7 +1,13 @@
 <?php
+/**
+ * service for fedora dissemination - retrieve a section of an xml datastream by id
+ * - only allows requests from instance of Fedora this app is configured to talk to
+ *
+ * @category Etd
+ * @package Etd_Services
+ * @subpackage Service_Controllers
+ */
 
-  // FIXME: how do we restrict this so only Fedora can get all the content
-  // only allow certain host/ip ? ....
 
 class Services_XmlbyidController extends Zend_Controller_Action {
 

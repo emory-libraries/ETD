@@ -1,6 +1,12 @@
 #!/usr/bin/php -q
 <?php
-
+/**
+ * cron job to send emails about upcoming embargo expirations
+ *
+ * @category Etd
+ * @package Etd_Scripts
+ * @subpackage Etd_Cron_Scripts
+ */
 // set paths, load config files, set up connection objects for fedora, solr, and ESD
 require_once("bootstrap.php");
 

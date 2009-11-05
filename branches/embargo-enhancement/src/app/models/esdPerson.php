@@ -1,4 +1,9 @@
 <?php
+/**
+ * @category Etd
+ * @package Etd_Models
+ * @subpackage ESD
+ */
 
 /* database modesl for user information from Emory Shared Data (ESD) view */
 require_once("etd.php");

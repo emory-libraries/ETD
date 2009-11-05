@@ -1,8 +1,12 @@
 #!/usr/bin/php -q
 <?php
 /**
-  * Update all published ETDs with latest xacml rule for publish permissions
-  */
+ * Update all published ETDs with latest xacml rule for publish permissions
+ *
+ * @category Etd
+ * @package Etd_Scripts
+ * @subpackage Etd_Migration_Scripts
+ */
 
 // set working directory to the main scripts directory so all the paths work the same
 chdir("..");

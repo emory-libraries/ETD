@@ -1,4 +1,11 @@
 <?
+/**
+ * view helper to scale a graph value for css charts
+ *
+ * @category Etd
+ * @package Etd_View_Helpers
+ */
+
 
 class Zend_View_Helper_ScaleGraphValue { 
   public $view;

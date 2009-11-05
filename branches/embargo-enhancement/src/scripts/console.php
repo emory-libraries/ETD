@@ -1,5 +1,10 @@
 #!/usr/bin/env php 
 <?php
+/**
+ * 
+ * @category Etd
+ * @package Etd_Scripts
+ */
 chdir("suites");
 // set up include path, fedora/db connections, load common models, etc.
 require_once("bootstrap.php");

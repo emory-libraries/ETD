@@ -1,4 +1,11 @@
 <?
+/**
+ * view helper to output COinS citation for an ETD
+ *
+ * @category Etd
+ * @package Etd_View_Helpers
+ */
+
 class Zend_View_Helper_EtdCoins {
   // values common to all citations
   private $class = "Z3988";

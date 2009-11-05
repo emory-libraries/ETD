@@ -1,6 +1,12 @@
 <?php
-
-// etd interface object for etd08 - to ensure compatibility between fedora etd & solr/lucene etd
+/**
+ * etd interface object for etd08
+ * - to ensure compatibility between fedora etd & solr/lucene etd
+ *
+ * @category Etd
+ * @package Etd_Models
+ * @subpackage Etd
+ */
 interface etdInterface extends Zend_Acl_Resource_Interface{
 
   public function pid();

@@ -2,6 +2,22 @@
 
 require_once("fedora/models/dublin_core.php");
 
+/**
+ * ETD customization of Dublin Core XmlObject / Fedora Foxml datastream
+ * @category Etd
+ * @package Etd_Models
+ * @subpackage Etd
+ *
+ * @property array $identifier
+ * @property array $subject
+ * @property array $format
+ * @property string $ark dc:identifier that contains ark
+ * @property string $fedora_pid dc:identifier that contains info:fedora
+ * @property string $mimetype dc:format that contains '/'
+ * @property string $filesize dc:format that does not contain '/' or 'p.'
+ * @property string $pages dc:format that contains 'p.'
+ * @property string $filename dc:source that contains 'filename:'
+ */
 class etd_dc extends dublin_core {
   protected $additional_fields;
 
@@ -28,6 +44,10 @@ class etd_dc extends dublin_core {
 					   array("ark", "mimetype", "filesize", "pages", "filename"));
   }
 
+  /**
+   * set mimetype (adds to xml if not already present)
+   * @param string $type
+   */
   public function setMimetype($type) {
     $this->update();
     if (isset($this->mimetype)) {
@@ -38,6 +58,10 @@ class etd_dc extends dublin_core {
     }
   }
 
+  /**
+   * set number of pages (adds to xml if not already present)
+   * @param string $num
+   */
   public function setPages($num) {
     $this->update();
     if (isset($this->pages)) {
@@ -48,6 +72,10 @@ class etd_dc extends dublin_core {
     }
   }
 
+  /**
+   * set filesize (adds to xml if not already present)
+   * @param string $num
+   */
   public function setFilesize($num) {
     $this->update();
     if (isset($this->filesize)) {
@@ -58,6 +86,10 @@ class etd_dc extends dublin_core {
     }
   }
 
+  /**
+   * set filename (adds to xml if not already present)
+   * @param string $name
+   */
   public function setFilename($name) {
     $this->update();
     if (isset($this->filename)) {

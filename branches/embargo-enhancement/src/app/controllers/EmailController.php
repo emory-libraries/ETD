@@ -1,4 +1,8 @@
 <?php
+/**
+ * @category Etd
+ * @package Etd_Controllers
+ */
 
 require_once("models/etd.php");
 require_once("models/EtdSet.php");

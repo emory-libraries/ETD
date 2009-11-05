@@ -1,4 +1,8 @@
 <?php
+/**
+ * @category Etd
+ * @package Etd_Models
+ */
 
 include("Emory/notifier.php");
 

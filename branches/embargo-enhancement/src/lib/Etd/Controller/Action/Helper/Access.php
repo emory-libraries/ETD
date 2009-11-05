@@ -1,7 +1,21 @@
 <?php
+/**
+ * controller helper for checking access permissions of current user;
+ * if not allowed, redirects to an access denied page with an error message.
+ *
+ * @category Etd
+ * @package Etd_Controllers
+ * @subpackage Etd_Controller_Helpers
+ */
 
 class Etd_Controller_Action_Helper_Access extends Zend_Controller_Action_Helper_Abstract {
 
+  /**
+   * check if an action is allowed to current user on an etd (particular or generic)
+   * @param string $action
+   * @param etd $etd particular etd to check permissions on - OPTIONAL, checks generic etd otherwise
+   * @return bool 
+   */
   public function allowedOnEtd($action, etd $etd = null) {
     $acl = $this->_actionController->acl;
 
@@ -26,6 +40,12 @@ class Etd_Controller_Action_Helper_Access extends Zend_Controller_Action_Helper_
     return $allowed;
   }
 
+  /**
+   * check if an action is allowed to current user on an etd_file (particular or generic)
+   * @param string $action
+   * @param etd_file $etdfile particular etd_file to check against - OPTIONAL, checks generic etd_file otherwise
+   * @return bool 
+   */
   public function allowedOnEtdFile($action, etd_file $etdfile = null) {
     $current_user = $this->_actionController->current_user;
     $acl = $this->_actionController->acl;
@@ -48,7 +68,12 @@ class Etd_Controller_Action_Helper_Access extends Zend_Controller_Action_Helper_
     return $allowed;
   }
 
-
+  /**
+   * check if an action is allowed to current user on an author_info object (particular or generic)
+   * @param string $action
+   * @param user $user particular author_info to check against - OPTIONAL, checks generic authorInfo otherwise
+   * @return bool 
+   */
   public function allowedOnUser($action, user $user = null) {
     $current_user = $this->_actionController->current_user;
     $acl = $this->_actionController->acl;
@@ -69,7 +94,13 @@ class Etd_Controller_Action_Helper_Access extends Zend_Controller_Action_Helper_
   }
 
   
-  // redirect to a generic access denied page, with minimal information why
+  /**
+   * redirect to a generic access denied page, with brief message to user
+   * @param string $action denied action
+   * @param string $role user's role
+   * @param string $resource resource attempted to access
+   * @return bool 
+   */
   public function notAllowed($action, $role, $resource) {
     $flashMessenger = $this->_actionController->getHelper("FlashMessenger");
     $redirector = $this->_actionController->getHelper("Redirector");

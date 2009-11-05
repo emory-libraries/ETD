@@ -1,5 +1,21 @@
 <?php
 
+/**
+ * xacml policy foxml datastream for etd records
+ * @category Etd
+ * @package Etd_Models
+ * @subpackage Etd
+ *
+ * @property string $policyid
+ * @property string $description
+ * @property string $pid object this policy applies to
+ * @property array $rules array of PolicyRule
+ * @property PolicyRule $view
+ * @property PolicyRule $draft
+ * @property PolicyRule $published
+ * @property PolicyRule $deny_most
+ */
+
 require_once("models/foxmlDatastreamAbstract.php");
 
 class XacmlPolicy extends foxmlDatastreamAbstract {
@@ -40,7 +56,10 @@ class XacmlPolicy extends foxmlDatastreamAbstract {
 
   }
 
-
+  /**
+   * add a rule to policy by name
+   * @param string $name
+   */
   public function addRule($name) {
     $dom = new DOMDocument();
     switch ($name) {
@@ -67,7 +86,10 @@ class XacmlPolicy extends foxmlDatastreamAbstract {
     }
   }
 
-  
+  /**
+   * remove a rule from policy by id
+   * @param string $id
+   */
   public function removeRule($id) {
     $nodeList = $this->xpath->query("x:Rule[@RuleId='$id']", $this->domnode);	// relative to policy dom
     if ($nodeList->length == 1) {
@@ -104,6 +126,13 @@ class XacmlPolicy extends foxmlDatastreamAbstract {
 
 }
 
+/**
+ * xml object for a single policy rule
+ *
+ * @property string $id rule id
+ * @property policyResource $resources
+ * @property policyCondition $condition
+ */
 class PolicyRule extends XmlObject {
 
   protected $xmlconfig;
@@ -128,6 +157,11 @@ class PolicyRule extends XmlObject {
   
 }
 
+/**
+ * xml object for a resource in a policy rule
+ *
+ * @property array $datastreams datastream resources
+ */
 class policyResource extends XmlObject {
   // is actually at resources level
   
@@ -145,6 +179,10 @@ class policyResource extends XmlObject {
 	);
   }
 
+  /**
+   * add a datastream to the policy rule
+   * @param string $id datastream id
+   */
   public function addDatastream($id) {
     if (!count($this->datastreams)) {
       trigger_error("Cannot add datastream '$id' because this resource has no datastreams", E_USER_WARNING);
@@ -165,6 +203,16 @@ class policyResource extends XmlObject {
   
 }
 
+/**
+ * xml object for a condition in a policy rule
+ *
+ * @property array $users array of users by loginId
+ * @property string $user single user by loginId
+ * @property string $department department name for departmental staff
+ * @property string $embargo_end
+ * @property array $methods methods (not restricted)
+ * @property array $embargoed_methods restricted methods
+ */
 class policyCondition extends XmlObject {
   
   protected $xmlconfig;
@@ -207,6 +255,10 @@ class policyCondition extends XmlObject {
 	);
   }
 
+  /**
+   * add a user to the list of users in the condition
+   * @param string $username
+   */
   public function addUser($username) {
     if (!count($this->users)) {
       trigger_error("Cannot add user '$username' because this condition has no users", E_USER_WARNING);
@@ -224,6 +276,10 @@ class policyCondition extends XmlObject {
     }
   }
 
+  /**
+   * remove a user from the list of users in the condition
+   * @param string $username
+   */
   public function removeUser($username) {
     $nodelist = $this->xpath->query($this->userxpath . "[. = '$username']", $this->domnode);
     if ($nodelist->length == 1) {
@@ -235,7 +291,10 @@ class policyCondition extends XmlObject {
     }
   }
 
-
+  /**
+   * restrict the specified methods - remove them from methods, add to embargoed_methods
+   * @param array $restrict_methods
+   */
   public function restrictMethods($restrict_methods) {
     // add restricted methods to embargoed_methods list
     if (isset($this->embargoed_methods)) {

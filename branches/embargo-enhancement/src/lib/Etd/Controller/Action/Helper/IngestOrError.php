@@ -1,9 +1,11 @@
 <?php
-
-  /**
-   * Catch common errors that can happen when ingesting a new object
-   * into Fedora.
-   */
+/**
+ * Ingest a new object into Fedora, and handle common errors that can happen on ingest
+ *
+ * @category Etd
+ * @package Etd_Controllers
+ * @subpackage Etd_Controller_Helpers
+ */
 
 class Etd_Controller_Action_Helper_IngestOrError
 	extends Zend_Controller_Action_Helper_Abstract {
@@ -12,7 +14,11 @@ class Etd_Controller_Action_Helper_IngestOrError
   public function __construct(){
     $this->logger = Zend_Registry::get('logger');
   }
-  
+
+  /**
+   * shortcut to ingest_or_error
+   * @see Etd_Controller_Action_Helper_IngestOrError::ingest_or_error()
+   */
   public function direct($object, $message, $objtype = "record", &$errtype = null) {
     return $this->ingest_or_error($object, $message, $objtype, $errtype);
   }
@@ -25,7 +31,7 @@ class Etd_Controller_Action_Helper_IngestOrError
    * @param string $message save message
    * @param string $objtype label for object to be used in error messages/logs
    * @param string $errtype passed by reference, returned with exception class if any
-   * @return string fedora pid on success, false on failure
+   * @return string|bool fedora pid on success, false on failure
    */
   public function ingest_or_error($object, $message, $objtype, &$errtype) {
     try {

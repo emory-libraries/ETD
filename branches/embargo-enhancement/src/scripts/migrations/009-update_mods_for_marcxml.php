@@ -1,8 +1,12 @@
 #!/usr/bin/php -q
 <?php
 /**
-  * Update the MODS records for all ETDs to make more complete, easier to convert to marcxml
-  */
+ * Update the MODS records for all ETDs to make more complete, easier to convert to marcxml
+ *
+ * @category Etd
+ * @package Etd_Scripts
+ * @subpackage Etd_Migration_Scripts
+ */
 
 // set working directory to the main scripts directory so all the paths work the same
 chdir("..");

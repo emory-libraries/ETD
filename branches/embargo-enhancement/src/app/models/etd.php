@@ -1,4 +1,9 @@
 <?php
+/**
+ * @category Etd
+ * @package Etd_Models
+ * @subpackage Etd
+ */
 
 require_once("api/risearch.php");
 require_once("models/foxml.php");
@@ -23,8 +28,8 @@ require_once("etd_notifier.php");
 
 /**
  * ETD fedora object
+ * - note that magic methods depend on ETD content model & service objects
  *
- * magic variables
  * @property etd_rels $rels_ext RELS-EXT datastream
  * @property etd_mods $mods MODS datastream
  * @property etd_html $html XHTML datastream
@@ -34,8 +39,6 @@ require_once("etd_notifier.php");
  * @property array of etd_file $originals array of related etd_file Original objects
  * @property array of etd_file $supplements array of related supplemental etd_file objects
  * @property user $authorInfo authorInfo object for etd author
- * 
- * magic methods - note that these depend on ETD content model & service objects
  * @method string getMarcxml() get metadata in marcxml format
  * @method string getEtdms() get metadata in ETD-MS format
  * @method string getMods() get cleaned up MODS (without ETD-specific fields)
@@ -58,7 +61,14 @@ class etd extends foxml implements etdInterface {
    */
   public $admin_agent;
   
-  
+
+  /**
+   * initialize etd
+   * @param string|DOMDocument $arg optional
+   * - if string, retrieve object from Fedora by specified pid
+   * - if DOMDocument, initialize from DOM contents (mostly for testing)
+   * - if not specified, create a new etd from template
+   */
   public function __construct($arg = null) {      
     parent::__construct($arg);
 
@@ -132,6 +142,8 @@ class etd extends foxml implements etdInterface {
 
   /**
    *  determine a user's role in relation to this ETD (for access controls)
+   * @param esdPerson $user optional
+   * @return string role
    */
   public function getUserRole(esdPerson $user = null) {
     if (is_null($user)) return "guest";
@@ -150,6 +162,10 @@ class etd extends foxml implements etdInterface {
       return $user->role;
   }
 
+  /**
+   * set etd status and update any policy rules (on etd and related files) accordingly
+   * @param string $new_status
+   */
   public function setStatus($new_status) {
     $old_status = $this->rels_ext->status;
     //    if ($new_status == $old_status) return;	// do nothing - no change (?)
@@ -231,8 +247,10 @@ class etd extends foxml implements etdInterface {
     unset($persis);
   }
 
-  /* convenience functions to add and remove policies in etd and related objects all at once
-      note: the only rule that may be added and removed to original/archive copy is draft
+  /**
+   * convenience functions to add and remove policies in etd and related objects all at once
+   *  - note: the only rule that may be added and removed to original/archive copy is draft
+   * @param string $name
    */
   public function addPolicyRule($name) {
     $objects = array_merge(array($this), $this->pdfs, $this->supplements);
@@ -280,6 +298,10 @@ class etd extends foxml implements etdInterface {
     }
   }
 
+  /**
+   * remove policy by name from etd and all related etd files
+   * @param string $name
+   */
   public function removePolicyRule($name) {
     $objects = array_merge(array($this), $this->pdfs, $this->supplements, $this->originals);
     foreach ($objects as $obj) {
@@ -287,7 +309,10 @@ class etd extends foxml implements etdInterface {
     }
   }
 
-  
+  /**
+   * add pdf
+   * @param etd_file $etdfile
+   */
   public function addPdf(etd_file $etdfile) {
     // if value is already set, add to the total (multiple pdfs)
     if (isset($etdfile->dc->pages) && isset($this->mods->pages)) 
@@ -297,14 +322,26 @@ class etd extends foxml implements etdInterface {
 
     return $this->addFile($etdfile, "PDF");
   }
+  /**
+   * add original file
+   * @param etd_file $etdfile
+   */
   public function addOriginal(etd_file $etdfile) {
     // original documents should not have 'view' rule; this is the best place to remove 
     if (isset($etdfile->policy->view)) $etdfile->policy->removeRule("view");
     return $this->addFile($etdfile, "Original");
   }
+  /**
+   * add supplemental file
+   * @param etd_file $etdfile
+   */
   public function addSupplement(etd_file $etdfile) { return $this->addFile($etdfile, "Supplement");  }
   
-  // set the relations between this etd and a file object (original, pdf, supplement)
+  /**
+   * set the relations between this etd and a file object (original, pdf, supplement)
+   * @param etd_file $etdfile
+   * @param string $relation
+   */
   private function addFile(etd_file $etdfile,  $relation) {
     switch ($relation) {
     case "PDF": 
@@ -348,7 +385,10 @@ class etd extends foxml implements etdInterface {
   }
 
 
-  // remove relation to a file (when file is purged or deleted)
+  /**
+   * remove relation to a file (when file is purged or deleted)
+   * @param etd_file $etdfile
+   */
   public function removeFile(etd_file $etdfile) {
     switch ($etdfile->type) {
     case "pdf":
@@ -372,7 +412,11 @@ class etd extends foxml implements etdInterface {
 		       array_merge($this->originals, $this->supplements));
   }
 
-
+  /**
+   * save etd and related files
+   * @param string $message
+   * @return string timestamp on success, empty string on failure
+   */
   public function save($message) {
     // cascade save to related etdfile objects
     
@@ -389,7 +433,9 @@ class etd extends foxml implements etdInterface {
     return parent::save($message);
   }
   
-  // synchronize Dublin Core with MODS (master metadata)
+  /**
+   * synchronize Dublin Core with MODS (master metadata); called before save to keep in sync
+   */
   public function updateDC() {
     $this->dc->title = $this->mods->title;
     $this->dc->type = $this->mods->genre;
@@ -588,6 +634,10 @@ class etd extends foxml implements etdInterface {
       return $this->mods->isRequired($field);
   }
 
+  /**
+   * is this record ready to submit, with all required fields and files?
+   * @return bool
+   */
   public function readyToSubmit() {
     if (! $this->mods->readyToSubmit()) return false;
     if (! $this->hasPDF()) return false;
@@ -596,24 +646,36 @@ class etd extends foxml implements etdInterface {
     return true;
   }
 
-  // should have at least one pdf
+  /**
+   * does this etd have at least one pdf?
+   * @return bool
+   */
   public function hasPDF() {
     // what is the best way to check this? use rels-ext?
     return (count($this->pdfs) > 0);
   }
 
+  /**
+   * does this etd have at least one original file?
+   * @return bool
+   */
   public function hasOriginal() {
     return (count($this->originals) > 0);
   }
 
-  // easy way to check if this object (or inherited object) is honors or not
+  /**
+   * check if this object (or inherited object) is honors or not
+   * @return bool
+   */
   public function isHonors() {
     return ($this instanceof honors_etd);
   }
 
   
-  /**  override default foxml ingest function to use arks for object pids
-   *
+  /**
+   * override default foxml ingest function to use arks for object pids
+   * @param string $message
+   * @return string timestamp if successful, empty if not
    */
   public function ingest($message ) {
     /* Note: it would be good to validate the XACML policy here,
@@ -639,7 +701,9 @@ class etd extends foxml implements etdInterface {
   }
 
 
-  /* make a note in record history that graduation has been confirmed */
+  /**
+   * make a note in record history that graduation has been confirmed
+   */
   public function confirm_graduation() {
     $this->premis->addEvent("administrative",
 			   "Graduation Confirmed by ETD system",
@@ -704,16 +768,19 @@ class etd extends foxml implements etdInterface {
   }
 
   
-  /* make a note in record history that record has been sent to ProQuest */
+  /**
+   * make a note in record history that record has been sent to ProQuest
+   */
   public function sent_to_proquest() {
     $this->premis->addEvent("administrative",
 			   "Submitted to Proquest by ETD system",
 			   "success",  array("software", "etd system"));
   }
 
-
+  /**
+   * add an admin note that embargo expiration was sent
+   */
   public function embargo_expiration_notice() {
-    //add an admin note that embargo expiration was sent
     $this->mods->addNote("sent " . date("Y-m-d"), "admin", "embargo_expiration_notice");
     // log the event in the record history
     $this->premis->addEvent("notice",
@@ -856,7 +923,9 @@ class etd extends foxml implements etdInterface {
     return $this->mods->identifier;     // want the resolvable version of the ark
   }
 
-  // for Zend ACL Resource
+  /**
+   * for Zend ACL Resource
+   */
   public function getResourceId() {
     if ($this->status() != "") {
       return $this->status() . " " . $this->acl_id;
@@ -872,7 +941,9 @@ class etd extends foxml implements etdInterface {
 
 
 
-// simple function to sort etdfiles based on sequence number  (used when foxml class initializes them)
+/**
+ * simple function to sort etdfiles based on sequence number  (used when foxml class initializes them)
+ */
 function sort_etdfiles(etd_file $a, etd_file $b) {
     if ($a->rels_ext->sequence == $b->rels_ext->sequence) return 0;
     return ($a->rels_ext->sequence < $b->rels_ext->sequence) ? -1 : 1;

@@ -1,6 +1,10 @@
 <?php
+/**
+ * common configuration / path settings used by multiple scripts
+ * @category Etd
+ * @package Etd_Scripts
+ */
 
-  // common configuration / path settings used by multiple scripts
 
 
 // ZendFramework, etc.

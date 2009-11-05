@@ -1,4 +1,9 @@
 <?php
+/**
+ * @category Etd
+ * @package Etd_Controllers
+ */
+
 /** Zend_Controller_Action */
 /* Require models */
 

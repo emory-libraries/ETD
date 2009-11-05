@@ -8,6 +8,9 @@
  *  (yes, this is a hack - meant as a one-time clean up script to
  *  compensate for a bug in Fedora 2.2 and an unknown at the time
  *  issue in PHP SOAP's problem with sending nil properly)
+ *
+ * @category Etd
+ * @package Etd_Scripts
  */
 
 // set paths, load config files, set up connection objects for fedora, solr, and ESD

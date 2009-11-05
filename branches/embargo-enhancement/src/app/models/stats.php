@@ -1,6 +1,10 @@
 <?php
-/* simple database object for access statistics */
-
+/**
+ * simple database object for access statistics *
+ * @category Etd
+ * @package Etd_Models
+ * @subpackage Statistics
+ */
 
 class Stats_Db_Table extends Emory_Db_Table {
   /**

@@ -1,6 +1,15 @@
 #!/usr/bin/php -q
 <?php
 
+/**
+ * cron script to collect etd-specific usage information from
+ * apache log files
+ *
+ * @category Etd
+ * @package Etd_Scripts
+ * @subpackage Etd_Cron_Scripts
+ */
+
 // set paths, load config files;
 // set up connection objects for fedora, solr, ESD, and stats db
 require_once("bootstrap.php");

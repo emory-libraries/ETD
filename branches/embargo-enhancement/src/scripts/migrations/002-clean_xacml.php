@@ -1,14 +1,16 @@
 #!/usr/bin/php -q
 <?php
-
-  /**
-	This script cleans known xacml problems on existing records.
-	- remove draft rule if status is not draft
-	- remove view rule and add new one from current template, to
-  	  update graduate coordinator portion of the rule (August 2008)
-        - update draft and published rules to latest version of
-	  xacml policy rules, as appropriate for etd status  (October 2008)
-   */
+/**
+ * This script cleans known xacml problems on existing records.
+ *  - remove draft rule if status is not draft
+ *  - remove view rule and add new one from current template, to
+ *    update graduate coordinator portion of the rule (August 2008)
+ *  - update draft and published rules to latest version of
+ *    xacml policy rules, as appropriate for etd status  (October 2008)
+ * @category Etd
+ * @package Etd_Scripts
+ * @subpackage Etd_Migration_Scripts
+ */
 
 // set working directory to the main scripts directory so all the paths work the same
 chdir("..");

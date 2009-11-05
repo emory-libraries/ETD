@@ -1,4 +1,9 @@
 <?
+/**
+ * view helper to output html code for an FCKeditor instance
+ * @category Etd
+ * @package Etd_View_Helpers
+ */
 
 require_once("js/FCKeditor/fckeditor.php");
 

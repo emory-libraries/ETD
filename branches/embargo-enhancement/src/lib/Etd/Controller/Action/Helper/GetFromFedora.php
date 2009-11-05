@@ -1,20 +1,43 @@
 <?php
+/**
+ * Retrieve an etd, etdfile, or authorinfo object from Fedora, and handle common errors
+ * - if object is not found, redirects to document not found error page
+ * - if access denied or not authorized, redirects to etd access denied page
+ *
+ * @category Etd
+ * @package Etd_Controllers
+ * @subpackage Etd_Controller_Helpers
+ */
 
 require_once("EtdFactory.php");
 
 
 class Etd_Controller_Action_Helper_GetFromFedora extends Zend_Controller_Action_Helper_Abstract {
 
+  /**
+   * shortcut to find_or_error (default helper action)
+   * @see Etd_Controller_Action_Helper_GetFromFedora::find_or_error()
+   */
   public function direct($param, $type) {
     return $this->find_or_error($param, $type);
   }
 
-  // find by a specified id
+  /**
+   * find an object by a specified id
+   * @param string $id object pid
+   * @param string $type object type (passed to EtdFactory::init)
+   * @return etd|etd_file|user
+   */
   public function findById($id, $type) { 
    return $this->handle_errors($id, $type);
   }
 
-  // find by an id stored in a controller parameter
+  /**
+   * find an object by an id stored in a controller parameter
+   * @param string $param controller parameter name that has the id value
+   * @param string $type type of object
+   * @return etd|etd_file|user
+   */
   public function find_or_error($param, $type) {
     $request = $this->_actionController->getRequest();
     $id = $request->getParam($param, null);

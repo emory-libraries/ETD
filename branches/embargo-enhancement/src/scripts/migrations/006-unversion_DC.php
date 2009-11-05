@@ -1,9 +1,11 @@
 #!/usr/bin/php -q
 <?php
- /**
-   * Update all ETD Fedora objects to make Dublin Core datastream unversioned
-   *
-   */
+/**
+ * Update all ETD Fedora objects to make Dublin Core datastream unversioned
+ * @category Etd
+ * @package Etd_Scripts
+ * @subpackage Etd_Migration_Scripts
+ */
 
 // set working directory to the main scripts directory so all the paths work the same
 chdir("..");

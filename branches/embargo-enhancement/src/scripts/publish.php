@@ -2,38 +2,45 @@
 <?php
 
 /**
+ *  This script is intended to handle the auto-publication of ETDs based
+ *  on a feed from the Registrar that confirms students have graduated.
+ *
+ *  By default, it should be run as a cron job in the default mode where
+ *  it will parse the feed, find graduates and their ETD records, and
+ *  then run those ETD records through the appropriate steps in the
+ *  following order:
+ *  
+ *  - confirm graduation (simply add an event to the record history
+ *    that system has confirmed graduation)
+ *
+ *  - publish the record (this includes setting publication date,
+ *    calculating embargo end dates, setting status, and adding xacml
+ *    rules for publication)
+ *
+ *  - submit to ProQuest (for each record, creates a zipped submission
+ *    packet made up of xml metadata in PQ's custom format, PDF of the
+ *    dissertation, and optionally supplemental files; zip files are
+ *    ftped to a specified PQ server, and an email "packing list" of the
+ *    files is sent both to PQ and to the ETD admin listserv)
+ *
+ *  This script can also be used for manual publication or re-submitting
+ *  to ProQuest; any or all of these steps can be done to records
+ *  specified by pid.
+ *
+ *  This script should be access Fedora via a privileged maintenance
+ *  account (with etdadmin-level permissions), because it needs to
+ *  access unpublished records, modify the history, and modify the xacml. 
+ *
+ *  
+ *  This script should not be used to publish alumni submissions.
+ *
+ * @category Etd
+ * @package Etd_Scripts
+ * @subpackage Etd_Cron_Scripts
+ */
 
-  This script is intended to handle the auto-publication of ETDs based
-  on a feed from the Registrar that confirms students have graduated.
+/**
 
-  By default, it should be run as a cron job in the default mode where
-  it will parse the feed, find graduates and their ETD records, and
-  then run those ETD records through the appropriate steps in the
-  following order:
-  
-    - confirm graduation (simply add an event to the record history
-    that system has confirmed graduation)
-
-    - publish the record (this includes setting publication date,
-    calculating embargo end dates, setting status, and adding xacml
-    rules for publication)
-
-    - submit to ProQuest (for each record, creates a zipped submission
-    packet made up of xml metadata in PQ's custom format, PDF of the
-    dissertation, and optionally supplemental files; zip files are
-    ftped to a specified PQ server, and an email "packing list" of the
-    files is sent both to PQ and to the ETD admin listserv)
-
-  This script can also be used for manual publication or re-submitting
-  to ProQuest; any or all of these steps can be done to records
-  specified by pid.
-
-  This script should be access Fedora via a privileged maintenance
-  account (with etdadmin-level permissions), because it needs to
-  access unpublished records, modify the history, and modify the xacml. 
-
-  
-  This script should not be used to publish alumni submissions.
  
  */
 

@@ -2,12 +2,36 @@
 
 require_once("models/rels_ext.php");
 
-// extension of rels-ext object with relations used in ETDs
-
+/**
+ * extension of rels-ext foxml datastream object with relations used in ETDs
+ * @category Etd
+ * @package Etd_Models
+ * @subpackage Etd
+ *
+ * @property string $status etd status
+ * @property string $sequence sequenceNumber (for etd files)
+ * @property array $pdf array of pids for pdfs that belong to an etd
+ * @property array $original array of pids for original files that belong to an etd 
+ * @property array $supplement array of pids for supplemental files that belong to an etd
+ * @property string $hasAuthorInfo pid for author info object that belongs to an etd
+ * @property string $author author username
+ * @property string $advisor advisor username
+ * @property array $committee committee member usernames
+ * @property string $program program id
+ * @property string $subfield program subfield id
+ * @property string $pdfOf related etd pid (from pdf etd_file)
+ * @property string $originalOf related etd pid (from original etd_file)
+ * @property string $supplementOf related etd pid (from supplement etd_file)
+ * @property string $etd related etd pid (from author info object user)
+ */
 class etd_rels extends rels_ext {
 
   // FIXME: does this need to be a real url?
   protected $emoryrelns = "http://www.library.emory.edu/emory-relations#";
+  /**
+   * etd statuses
+   * @var array 
+   */
   public $status_list;
   
   // add etd-specific mods mappings
@@ -95,7 +119,10 @@ class etd_rels extends rels_ext {
   }
 
 
-  // set all committee members rels  from an array of ids
+  /**
+   * set all committee members rels  from an array of ids
+   * @param array $ids
+   */
   public function setCommittee(array $ids) {
     $this->clearCommittee();	// clear the old
     foreach ($ids as $id) 	// add the new
@@ -103,7 +130,9 @@ class etd_rels extends rels_ext {
     $this->update();
   }
 
-  // remove all committee members rels  (use before re-adding them)
+  /**
+   * remove all committee members rels  (use before re-adding them)
+   */
   public function clearCommittee() {
     $nodelist = $this->xpath->query("//rel:committee", $this->domnode);
     for ($i = 0; $i < $nodelist->length; $i++) {
@@ -118,6 +147,7 @@ class etd_rels extends rels_ext {
   /**
    * static function to retrieve etd status list
    * @return array of status
+   * @static
    */
   public static function getStatusList() {
     // class must be initialized with some kind of DOM; load an empty one to get the status array

@@ -1,4 +1,8 @@
 <?php
+/**
+ * @category Etd
+ * @package Etd_Controllers
+ */
 
 require_once("models/user.php");
 require_once("models/honors_user.php");

@@ -1,4 +1,9 @@
 <?
+/**
+ * @category Etd
+ * @package Etd_Models
+ * @subpackage Skos_Hierarchy
+ */
 
 require_once("xml-utilities/XmlObject.class.php");
 require_once("fedora/models/foxml.php");
