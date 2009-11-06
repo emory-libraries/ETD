@@ -9,7 +9,9 @@ Emory's repository.</p>
   <li>Submit a paper copy for the <?= $this->etd->admin_agent ?>'s review</li>
   <li>Review your ETD record</li>
   <li>Submit all required forms to the <?= $this->etd->admin_agent ?></li>
-  <li>Take the Graduate Exit Survey</li>
+  <? if (! $this->etd->isHonors()): /* not applicable to honors etds */ ?>
+    <li>Take the Graduate Exit Survey</li>
+  <? endif ?>
 </ol>
 <p>Details for each of these steps are included below.</p>
 
