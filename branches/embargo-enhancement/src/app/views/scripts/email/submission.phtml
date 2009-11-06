@@ -6,7 +6,7 @@ Emory's repository.</p>
 
 <p>In order to complete the submission process, please attend to the following tasks:</p>
 <ol>
-  <li>Submit a paper copy for the Dean's review</li>
+  <li>Submit a paper copy for the <?= $this->etd->admin_agent ?>'s review</li>
   <li>Review your ETD record</li>
   <li>Submit all required forms to the <?= $this->etd->admin_agent ?></li>
   <li>Take the Graduate Exit Survey</li>
@@ -14,7 +14,7 @@ Emory's repository.</p>
 <p>Details for each of these steps are included below.</p>
 
 <ol>
-<li>Print a paper copy of the document you deposited for the Dean's review. To ensure that the Dean will be reviewing the final version of your document, click the link below to visit your record in the ETD repository, open your PDF file, and print a paper copy.</li>
+<li>Print a paper copy of the document you deposited for the <?= $this->etd->admin_agent ?>'s review. To ensure that the <?= $this->etd->admin_agent ?>Dean will be reviewing the final version of your document, click the link below to visit your record in the ETD repository, open your PDF file, and print a paper copy.</li>
 <li>Please review your record, checking for accuracy and formatting:
   <a href="<?= $this->etd->ark() ?>"><?= $this->etd->ark() ?></a></li>
 
@@ -30,34 +30,9 @@ Emory's repository.</p>
    will be published in the repository immediately after graduation.
 <? endif ?></p>
 
- <p>You will receive written notification confirming whether or not your <?= $this->etd->document_type() ?> has been approved by the Graduate School. Upon approval you will receive further information regarding the publication of your ETD in our repository, as well as your opportunity to order bound copies.</p>
+ <p>You will receive written notification confirming whether or not your <?= $this->etd->document_type() ?> has been approved by the <?= $this->etd->admin_agent ?>. Upon approval you will receive further information regarding the publication of your ETD in our repository, as well as your opportunity to order bound copies.</p>
 </li>
 
-<li>Soon after graduation, you will receive an email message notifying you that your <?= $this->etd->document_type() ?> has been published by the ETD system. You will find a link to the Graduate Exit Survey in that email. Please take the time to provide valuable feedback to the Graduate School by completing this survey.</li>
-
-
 <? if (! $this->etd->isHonors()): /* not applicable to honors etds */ ?>
-  <p>Your next step is to print a paper copy of the document you deposited for
-  the Dean's review.  To ensure that the Dean will be reviewing the final
-  version of your document, click the link below to visit your record in the
-  ETD repository, open your PDF file, and print a paper copy.</p>
+<li>Soon after graduation, you will receive an email message notifying you that your <?= $this->etd->document_type() ?> has been published by the ETD system. You will find a link to the Graduate Exit Survey in that email. Please take the time to provide valuable feedback to the Graduate School by completing this survey.</li>
 <? endif ?>
-
-<? /*
-<table>
-<tr><th valign="top">Title:</th><td><?= $this->etd->title() ?></td></tr>
-<tr><th valign="top">Author:</th><td><?= $this->etd->author() ?></td></tr>
-<tr><th valign="top">Advisor:</th><td><?= implode(";", $this->etd->chair()) ?></td></tr>
-<tr><th valign="top">Committee:</th><td><?= implode("; ", $this->etd->committee()) ?>
-<? if (isset($this->etd->mods->nonemory_committee) && isset($this->etd->mods->nonemory_committee[0]) && 
-       ($this->etd->mods->nonemory_committee[0]->full != '')): ?>
-  <? foreach ($this->etd->mods->nonemory_committee as $cm): ?>
-     <?= $cm->full ?> (<?= $cm->affiliation ?>);
-  <? endforeach ?> 
-<? endif ?>
-</td></tr>
-<tr><th valign="top">Abstract:</th><td><?= $this->etd->html->abstract ?></td></tr>
-</table>
-
-
-   */ ?>
