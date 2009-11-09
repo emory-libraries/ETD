@@ -70,7 +70,8 @@ use exemption is technologically neutral, so the same four factor
 analysis should be applied regardless of the medium. For help in
 performing a fair use analysis, please use the <a
 href="<?= $this->linkTo("documents/ETD_fair_use_checklist.doc") ?>">fair use
-checklist</a>, and retain a copy of the completed checklist for your
+checklist</a>  <?= $this->filetypeIcon("application/msword") ?>,
+and retain a copy of the completed checklist for your
 records.</p>
 
 <p>While the only way to definitively determine whether a use is fair
@@ -158,9 +159,12 @@ more difficult to prove.</p>
 <p>If your use of a previously copyrighted work exceeds fair use, you
 need permission from the copyright owner. When writing a permission
 letter, you should include a thorough description of the material to
-be used and how you plan to use it. (See a <a
-href="http://il.proquest.com/products_umi/dissertations/copyright/AppxA.html">sample
-permission letter</a>.)  Permission should be sought in writing and
+be used and how you plan to use it.(See a
+<a href="<?= $this->linkTo("documents/permissions_letter_text.doc") ?>">sample
+permission letter for text</a> <?= $this->filetypeIcon("application/msword") ?> and a
+<a href="<?= $this->linkTo("documents/permissions_letter_images.doc") ?>">sample
+permission letter for images</a>  <?= $this->filetypeIcon("application/msword") ?>.)  
+Permission should be sought in writing, which can be via e-mail, and
 all documentation should be kept. Should any question arise, you will
 be able to prove you received permission to use the material if you
 have kept a record of your correspondence. You must receive an
