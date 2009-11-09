@@ -102,7 +102,7 @@ class etd extends foxml implements etdInterface {
     $this->acl_id = "etd";
 
     // for default etds, admin agent is grad school
-    $this->admin_agent = "the Graduate School";
+    $this->admin_agent = "Graduate School";
   }
 
 
