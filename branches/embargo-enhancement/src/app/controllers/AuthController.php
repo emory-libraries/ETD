@@ -63,6 +63,10 @@ class AuthController extends Etd_Controller_Action {
        $esd = new esdPersonObject();
        try {
 	 $current_user = $esd->findByUsername($username);
+
+	 // if user is not found in ESD, force init without ESD
+	 if (! $current_user instanceOf esdPerson)
+	   throw new Exception("Username $username not found in ESD");
        } catch (Exception $e) {
 	 // if ESD is not accessible, create an esdPerson object with netid only
 	 $current_user = $esd->initializeWithoutEsd($username);
