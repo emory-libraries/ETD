@@ -175,6 +175,14 @@ class TestSkosCollection extends UnitTestCase {
     // members-by-id updated to new member list
     $this->assertEqual("another member", $this->skos->collection->two->label);
     $this->assertEqual("third-level member", $this->skos->three->label);
+
+
+    // bug...
+    $this->skos->collection->setMembers(array("#two"));
+    $this->assertEqual(1, count($this->skos->members));
+    // members-by-id updated to new member list
+    $this->assertEqual("another member", $this->skos->two->label);
+    
   }
 
 

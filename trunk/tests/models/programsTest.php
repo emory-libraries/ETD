@@ -56,12 +56,12 @@ class TestPrograms extends UnitTestCase {
     $this->assertIsA($fields, "array");
 
     // should not contain higher-level hierarchy stuff
-    $this->assertFalse(in_array("Graduate", $fields));
-    $this->assertFalse(in_array("Humanities", $fields));
+    $this->assertFalse(in_array("graduate", $fields));
+    $this->assertFalse(in_array("humanities", $fields));
     // should contain programs and subfields
-    $this->assertTrue(in_array("Art History", $fields), "regular program");
-    $this->assertTrue(in_array("Psychology", $fields), "program with subfields");
-    $this->assertTrue(in_array("Immunology", $fields), "subfield of a program");
+    $this->assertTrue(in_array("arthistory", $fields), "regular program");
+    $this->assertTrue(in_array("psychology", $fields), "program with subfields");
+    $this->assertTrue(in_array("immunology", $fields), "subfield of a program");
   }
 
   function testInitWithBadConfig() {

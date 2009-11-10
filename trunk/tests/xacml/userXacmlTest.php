@@ -18,38 +18,32 @@ class TestUserXacml extends UnitTestCase {
    * FedoraConnection with default test user credentials
    */
   private $fedoraAdmin;
+
+  function __construct() {
+    $fedora_cfg = Zend_Registry::get('fedora-config');
+    $this->fedoraAdmin = new FedoraConnection($fedora_cfg);
+    
+    // get test pid for fedora fixture
+    $this->pid = $this->fedoraAdmin->getNextPid($fedora_cfg->pidspace);
+  }
+
     
   function setUp() {
-    if (!isset($this->fedoraAdmin)) {
-      $fedora_cfg = Zend_Registry::get('fedora-config');
-      $this->fedoraAdmin = new FedoraConnection($fedora_cfg);
-    }
       
     $fname = '../fixtures/user.xml';
     $dom = new DOMDocument();
     $dom->load($fname);
     $user = new user($dom);
     $user->owner = "author";	// set author to owner for purposes of the test
+    $user->pid = $this->pid;
       
-    $this->pid =  $user->pid;
     /* user does not have object-specific policy rules -
        all relevant rules are set in repo-wide policy   */
 
-    try {
-      $this->fedoraAdmin->ingest($user->saveXML(), "loading test object");
-    } catch (FedoraObjectExists $e) {
-      // if a previous test run failed, object may still be in Fedora
-      $this->purgeTestObject();
-      $this->fedoraAdmin->ingest($user->saveXML(), "loading test object");
-    }
-
+    $this->fedoraAdmin->ingest($user->saveXML(), "loading test object");
   }
 
   function tearDown() {
-    $this->purgeTestObject();
-  }
-
-  function purgeTestObject() {
     $this->fedoraAdmin->purge($this->pid, "removing test object");
   }
 
@@ -59,7 +53,7 @@ class TestUserXacml extends UnitTestCase {
     setFedoraAccount("guest");
 
     // guest shouldn't be able to see anything
-    $this->expectException(new FoxmlException("Access Denied to test:user1"));
+    $this->expectException(new FoxmlException("Access Denied to " . $this->pid));
     $user = new user($this->pid);
     // these datastreams should be accessible
     $this->expectException(new FedoraAccessDenied("getDatastream for {$this->pid}/DC"));

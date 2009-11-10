@@ -1,4 +1,8 @@
 <?php
+/**
+ * @category Etd
+ * @package Etd_Controllers
+ */
 
 require_once("models/programs.php");
 
@@ -36,7 +40,7 @@ class ProgramController extends Etd_Controller_Action {
     $this->updateMembers($programs);
     
     if ($programObj->skos->hasChanged()) {
-      $save_result = $programObj->save($log_message);
+      $save_result = $programObj->save("updating programs - section $section");
       $this->view->save_result = $save_result;
       if ($save_result) {
 	$this->_helper->flashMessenger->addMessage("Saved changes to programs hierarchy ($section)");

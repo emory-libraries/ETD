@@ -1,4 +1,9 @@
 <?php
+/**
+ * @category Etd
+ * @package Etd_Models
+ * @subpackage Etd
+ */
 
 require_once("api/risearch.php");
 
@@ -158,18 +163,18 @@ class EtdSet {
    * generic etd find with many different parameters
    *
    * @param array $options settings for solr query
-   *   sort   : field to sort on
-   *   start  : where to begin retrieving record set
-   *   max    : maximum number of records to return
-   *   query  : preliminary query to which other values may be added
-   *   AND    : hash of field-value pairs that should be included in the query with AND
-   *   NOT    : hash of field-value pairs that should be included in the query with (AND) NOT
-   *   facets : hash with options for facets
-   *		clear - if set to true, default facets will be cleared
-   * 		limit - number of facets to return
-   *		mincount - minimum number of matches for a facet to be included
-   * 		add - array of facets to be added
-   *   return_type : type of etd object to return, one of etd or solrEtd
+   *  - sort   : field to sort on
+   *  - start  : where to begin retrieving record set
+   *  - max    : maximum number of records to return
+   *  - query  : preliminary query to which other values may be added
+   *  - AND    : hash of field-value pairs that should be included in the query with AND
+   *  - NOT    : hash of field-value pairs that should be included in the query with (AND) NOT
+   *  - facets : hash with options for facets
+   *  -	facets[clear] : if set to true, default facets will be cleared
+   *  -	facets[limit] : number of facets to return
+   *  -	facets[mincount] : minimum number of matches for a facet to be included
+   *  -	facets[add] : array of facets to be added
+   *  - return_type : type of etd object to return, one of etd or solrEtd
    *
    * @return EtdSet  ??
    */

@@ -14,6 +14,7 @@ class XsltGroupTest extends GroupTest {
     $this->GroupTest('ETD XSLT tests');
     $this->addTestFile('xslt/cleanModsTest.php');
     $this->addTestFile('xslt/etdmsTest.php');
+    $this->addTestFile('xslt/solrindexTest.php');
   }
 }
 

@@ -1,7 +1,16 @@
 <?php
-
 require_once("models/foxmlDatastreamAbstract.php");
 
+/**
+ * ETD xhtml datastream
+ * @category Etd
+ * @package Etd_Models
+ * @subpackage Etd
+ *
+ * @property string $title formatted title
+ * @property string $abstract formatted abstract
+ * @property string $contents formatted table of contents
+ */
 class etd_html extends foxmlDatastreamAbstract {
   const id = "XHTML";
   const dslabel = "Formatted ETD Fields";
@@ -74,7 +83,11 @@ class etd_html extends foxmlDatastreamAbstract {
     }
   }
 
-  // return the content of the node *without* the containing node tag 
+  /**
+   * return the content of the node *without* the containing node tag
+   * @param DOMNode $node
+   * @return string
+   */
   public static function getContentXml($node) {
     $content = "";
 
@@ -89,7 +102,11 @@ class etd_html extends foxmlDatastreamAbstract {
     return $content;
   }
 
-  // return the text content of the nodes without any nodes (but properly escaped)
+  /**
+   * return the text content of the nodes without any nodes (but properly escaped)
+   * @param DOMNode $node
+   * @return string
+   */
   public static function getContentText($node) {
     $content = "";
     if ($node->hasChildNodes()) {
@@ -106,7 +123,13 @@ class etd_html extends foxmlDatastreamAbstract {
 
   // utility functions for handling html-related of tasks
 
-  // clean up entities, convert named entities into numeric ones that fedora can handle
+  /**
+   * clean up entities, convert named entities into numeric ones that fedora can handle
+   * @static
+   * @param string $string
+   * @param bool $clean_whitespace optional, defaults to true
+   * @return string
+   */ 
   public static function cleanEntities($string, $clean_whitespace = true) {
     // convert tags to a more easily matchable form, remove unneeded formatting
     //    $string = str_replace("&amp;", "&", $string);
@@ -148,7 +171,12 @@ class etd_html extends foxmlDatastreamAbstract {
 
 
   
-  // utility functions for handling html-related of tasks
+  /**
+   * clean up html tags, removing unwanted or bad tags
+   * @param string $string
+   * @param bool $keep_breaks optional, defaults to false
+   * @return string
+   */ 
   public static function cleanTags($string, $keep_breaks = false) {
 
     // convert tags to a more easily matchable form, remove unneeded formatting
@@ -180,7 +208,13 @@ class etd_html extends foxmlDatastreamAbstract {
   }
 
 
-  // convert formatted table of contents to text
+  /**
+   * convert formatted table of contents to plain text
+   * - cleans & removes tags, splits on sections if possible, sections are delimited with ' -- '
+   * @param string $string
+   * @return string
+   * @static
+   */
   public static function formattedTOCtoText($string) {
     // remove any tag attributes
     $string = preg_replace("|<(\w+)( [^>/]+)?>|", "<$1>", $string);
@@ -221,7 +255,7 @@ class etd_html extends foxmlDatastreamAbstract {
     *
     * @param DOMNode $node
     * @param string $value text to be converted (optional, overrides node text)
-    * @return converted node
+    * @return DOMNode converted node
     */
   public static function tags_to_nodes(DOMNode $node, $value = "") {
 

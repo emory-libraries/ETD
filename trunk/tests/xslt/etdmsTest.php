@@ -11,7 +11,7 @@ class TestEtdmsXslt extends UnitTestCase {
     function TestCleanModsXslt() {
         $this->config = Zend_Registry::get("config");
         $this->saxonb = $this->config->saxonb_xslt;        
-        $this->xsl = "../../src/scripts/etdms.xsl";
+        $this->xsl = "../../src/public/xslt/etdms.xsl";
 	$this->schema = "http://www.ndltd.org/standards/metadata/etdms/1.0/etdms.xsd";
         if ($this->saxonb == '' || ! is_file($this->saxonb))
             trigger_error("saxonb-xslt is not configured properly, tests will fail");
@@ -65,6 +65,27 @@ class TestEtdmsXslt extends UnitTestCase {
         
       $this->assertPattern('|<rights>Access to PDF restricted until ' . $mods->embargo_end . '</rights>|', $result,
 			   "unexpired embargo included as rights");
+    }
+
+    function test_oldEmbargoDateFormat() {
+      $xml = new DOMDocument();
+      $xml->loadXML(file_get_contents("models/mods.xml", FILE_USE_INCLUDE_PATH));
+      $mods = new etd_mods($xml);
+
+      $mods->embargo = "1 year";
+      $today = date("Y-m-d");
+      // unix timestamp representation of "actual" publication date
+      $datetime = strtotime($today, 0);
+      // set an embargo end date one year in the future - use OLD style date format
+      $mods->embargo_end = date(DATE_W3C, strtotime("1 year", $datetime));
+      // date format expected to be in output
+      $ymd_embargo_end = date("Y-m-d", strtotime("1 year", $datetime));
+      $result = $this->transformDom($mods);
+      $this->assertTrue($result, "xsl transform returns data when embargo date is old format");
+        
+      $this->assertPattern('|<rights>Access to PDF restricted until ' . $ymd_embargo_end . '</rights>|', $result,
+			   "unexpired embargo included as rights");
+
     }
 
 

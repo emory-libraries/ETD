@@ -16,13 +16,12 @@ class ControllerTestCase extends UnitTest {
   
   protected function setUpPost(array $params = array()) {
     $_SERVER['REQUEST_METHOD'] = 'POST';
-    foreach($params as $key=>$value){
-      $_POST[$key] = $value;
-    }
+    $_POST = $params;
   }
   
   protected function setUpGet(array $params = array())  {
     $_SERVER['REQUEST_METHOD'] = 'GET';
+    $_GET = array();
     foreach($params as $key=>$value){
       $_GET[$key] = $value;
     }
@@ -80,6 +79,10 @@ class Test_Controller_Action_Helper_FlashMessenger extends Zend_Controller_Actio
     $messages = $this->messages;
     $this->messages = array();		// as a convenience, clear out messages when retrieving them
     return $messages;
+  }
+  public function getCurrentMessages() { return $this->getMessages(); }
+  public function hasMessages() {
+    return count($this->messages) > 0;
   }
 }
 

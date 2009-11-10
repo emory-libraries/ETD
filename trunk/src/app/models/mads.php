@@ -1,5 +1,11 @@
 <?php
 
+/**
+ * @category Etd
+ * @package Etd_Models
+ * @subpackage Author_Info
+ */
+
 require_once("models/foxmlDatastreamAbstract.php");
 
 class mads extends foxmlDatastreamAbstract {

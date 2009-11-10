@@ -31,7 +31,24 @@
 
   <xsl:template match="mods:accessCondition[@type='restrictionOnAccess']">
 
-      <xsl:variable name="embargo_end"><xsl:value-of select="//mods:dateOther[@type='embargoedUntil']"/></xsl:variable>
+    <xsl:variable name="embargo_end">
+      <xsl:choose>
+        <!-- some old records have date in W3C format; detect and convert to expected format -->
+        <xsl:when test="contains(//mods:dateOther[@type='embargoedUntil'], 'T')">
+          <xsl:value-of select="substring-before(//mods:dateOther[@type='embargoedUntil'], 'T')"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="//mods:dateOther[@type='embargoedUntil']"/>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+    <xsl:comment>
+      embargo_end is <xsl:value-of select="$embargo_end"/>
+    </xsl:comment>
+
+    <xsl:comment>
+      embargo_end is <xsl:value-of select="//mods:dateOther[@type='embargoedUntil']"/>
+    </xsl:comment>
         <xsl:choose>
             <!-- if embargo is for 0 days, not set, or embargo end is not set, do nothing;
                  don't output restrictionOnAccess  -->

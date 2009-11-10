@@ -5,6 +5,20 @@ require_once('models/honors_etd.php');
 class TestHonorsEtd extends UnitTestCase {
   private $etd;
 
+  // fedoraConnection
+  private $fedora;
+
+  private $etdpid;
+  private $userpid; 
+
+  function __construct() {
+    $this->fedora = Zend_Registry::get("fedora");
+    $fedora_cfg = Zend_Registry::get('fedora-config');
+
+    // get 2 test pids 
+    list($this->etdpid, $this->userpid) = $this->fedora->getNextPid($fedora_cfg->pidspace, 2);
+  }
+
   function setUp() {
     $fname = '../fixtures/etd1.xml';
     $dom = new DOMDocument();
@@ -55,22 +69,25 @@ class TestHonorsEtd extends UnitTestCase {
     $fedora = Zend_Registry::get("fedora");
     
     // load test objects to repository
-    $etdpid = $fedora->ingest(file_get_contents('../fixtures/etd2.xml'),
-			      "loading test etd");
-    $userpid = $fedora->ingest(file_get_contents('../fixtures/user.xml'),
-			       "loading test user");
-    $etd = new etd($etdpid);
-    $user = new user($userpid);
-    // add relation between objects  
-    $etd->rels_ext->addRelationToResource("rel:hasAuthorInfo", $userpid);
+    $dom = new DOMDocument();
+    $dom->loadXML(file_get_contents("../fixtures/etd2.xml"));
+    $foxml = new etd($dom);
+    $foxml->pid = $this->etdpid;
+    // set relation to test user object
+    $foxml->rels_ext->hasAuthorInfo = $this->userpid;	
+    $this->fedora->ingest($foxml->saveXML(), "loading test etd");
 
-
-    // NOW: check that user object is initialized properly
-    $etd = new honors_etd($etdpid);
+    $dom->loadXML(file_get_contents("../fixtures/user.xml"));
+    $foxml = new foxml($dom);
+    $foxml->pid = $this->userpid;
+    $this->fedora->ingest($foxml->saveXML(), "loading test etd");
+    
+    // check that user object is initialized properly
+    $etd = new honors_etd($this->etdpid);
     $this->assertIsA($etd->authorInfo, "honors_user");
 
-    $fedora->purge($etdpid, "removing test etd");
-    $fedora->purge($userpid, "removing test user");
+    $fedora->purge($this->etdpid, "removing test etd");
+    $fedora->purge($this->userpid, "removing test user");
   }
 
   function testGetResourceId() {

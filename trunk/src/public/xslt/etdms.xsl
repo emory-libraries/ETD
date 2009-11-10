@@ -9,8 +9,6 @@
 
 <xsl:output method="xml" indent="yes"/>	
 
-
-<xsl:template match="/"/>
 <xsl:strip-space elements="*"/>	
 
 <xsl:template match="/">
@@ -293,9 +291,21 @@
 
 <xsl:template match="mods:dateOther[@type='embargoedUntil']">
   <!-- if there is an embargo still in effect, include that information -->
-  <xsl:if test=". != '' and current-date() &lt; xs:date(.)">
+  <xsl:variable name="embargo_end">
+    <xsl:choose>
+      <!-- some old records have date in W3C format; detect and convert to expected format -->
+      <xsl:when test="contains(., 'T')">
+        <xsl:value-of select="substring-before(., 'T')"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="."/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
+
+  <xsl:if test=". != '' and current-date() &lt; xs:date($embargo_end)">
     <rights>
-      <xsl:value-of select="concat('Access to PDF restricted until ', .)"/>
+      <xsl:value-of select="concat('Access to PDF restricted until ', $embargo_end)"/>
     </rights>
   </xsl:if>
 </xsl:template>

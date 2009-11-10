@@ -6,15 +6,28 @@ require_once('models/honors_etd.php');
 class TestEtdFile extends UnitTestCase {
   private $etdfile;
 
+  // fedoraConnection
+  private $fedora;
+
+  private $pids;
+  private $etdpid;
+  private $filepid; 
+
+  function __construct() {
+    $this->fedora = Zend_Registry::get("fedora");
+    $fedora_cfg = Zend_Registry::get('fedora-config');
+
+    // get 2 test pids 
+    $this->pids = $this->fedora->getNextPid($fedora_cfg->pidspace, 2);
+    list($this->etdpid, $this->filepid) = $this->pids;
+  }
+
+  
   function setUp() {
     $fname = '../fixtures/etdfile.xml';
     $dom = new DOMDocument();
     $dom->load($fname);
     $this->etdfile = new etd_file($dom);
-
-    //    $this->etd->policy->addRule("view");
-    //    $this->etd->policy->addRule("draft");
-
   }
   
   function tearDown() {
@@ -43,11 +56,19 @@ class TestEtdFile extends UnitTestCase {
     $fedora = Zend_Registry::get("fedora");
     
     // load test objects to repository
-    $etdpid = $fedora->ingest(file_get_contents('../fixtures/etd2.xml'), "loading test etd");
-    $filepid = $fedora->ingest(file_get_contents('../fixtures/etdfile.xml'), "loading test etdfile");
+    $dom = new DOMDocument();
+    $dom->loadXML(file_get_contents("../fixtures/etd1.xml"));
+    $foxml = new foxml($dom);
+    $foxml->pid = $this->etdpid;
+    $this->fedora->ingest($foxml->saveXML(), "loading test etd");
+
+    $dom->loadXML(file_get_contents("../fixtures/etdfile.xml"));
+    $foxml = new foxml($dom);
+    $foxml->pid = $this->filepid;
+    $this->fedora->ingest($foxml->saveXML(), "loading test etdfile");
     
-    $etd = new etd($etdpid);
-    $etdfile = new etd_file($filepid, $etd);
+    $etd = new etd($this->etdpid);
+    $etdfile = new etd_file($this->filepid, $etd);
     $etdfile->policy->addRule("view");	// needed by addSupplement
     // add relation between objects
     $etdfile->rels_ext->addRelationToResource("rel:isSupplementOf", $etd->pid);
@@ -60,22 +81,22 @@ class TestEtdFile extends UnitTestCase {
     // use new etdfile->delete function - should return date modified
     $this->assertNotNull($etdfile->delete("testing new delete function"));
     // 3. check that etd object no longer has relation to etdfile
-    $etd = new etd($etdpid);	// re-init from Fedora
+    $etd = new etd($this->etdpid);	// re-init from Fedora
     $this->assertFalse($etd->rels_ext->supplement->includes($etdfile->pid));
     //		 Note: using DOMElementArray equivalent function for in_array
 
     // There is no good way to test only the desired properties using
     // Fedora API calls; getting entire object XML and testing that.
-    $filexml = $fedora->getXml($filepid);
+    $filexml = $fedora->getXml($this->filepid);
     
     // check that etdfile has status Deleted 
     $this->assertPattern('|foxml:property NAME="info:fedora/fedora-system:def/model#state" VALUE="Deleted"|', $filexml);
     // check that owner was preserved 
-    $this->assertPattern('|foxml:property NAME="info:fedora/fedora-system:def/model#ownerId" VALUE="author"|', $filexml);	// (picked up from ETD object)
+    $this->assertPattern('|foxml:property NAME="info:fedora/fedora-system:def/model#ownerId" VALUE="mmouse"|', $filexml);	// (picked up from ETD object)
 
     // remove test objects from fedora
-    $fedora->purge($etdpid, "completed test");
-    $fedora->purge($filepid, "completed test");
+    $fedora->purge($this->etdpid, "completed test");
+    $fedora->purge($this->filepid, "completed test");
   }
 
 

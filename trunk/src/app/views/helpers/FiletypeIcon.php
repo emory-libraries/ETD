@@ -1,4 +1,10 @@
 <?
+/**
+ * view helper to display filetype icon based on a mimetype
+ * @category Etd
+ * @package Etd_View_Helpers
+ */
+
 class Zend_View_Helper_FiletypeIcon
 {
     public $view;

@@ -1,6 +1,12 @@
 #!/usr/bin/php -q
 <?php
-
+/**
+ * cron job to send emails about upcoming embargo expirations
+ *
+ * @category Etd
+ * @package Etd_Scripts
+ * @subpackage Etd_Cron_Scripts
+ */
 // set paths, load config files, set up connection objects for fedora, solr, and ESD
 require_once("bootstrap.php");
 
@@ -136,8 +142,16 @@ for ($count = 0; $etdSet->hasResults(); $etdSet->next()) {
     $logger->debug("Processing " . $etd->pid . " (embargo expires " . $etd->mods->embargo_end .
 		   " - duration of " . $etd->mods->embargo . ")");
 
-    // FIXME: do we need any sanity checks here? (see 60-day notice logic above)
-
+    // if abstract and/or ToC were restricted, they should now be copied to mods/dc
+    // for downstream disseminations (OAI, RSS, etc.)
+    //  - set html contents to magic etd, which will populate plain-text versions also
+    if ($etd->mods->isEmbargoRequested(etd_mods::EMBARGO_ABSTRACT)) {
+      $etd->abstract = $etd->html->abstract;
+    }
+    if ($etd->mods->isEmbargoRequested(etd_mods::EMBARGO_TOC)) {
+      $etd->contents = $etd->html->contents;
+    }
+    
     if (!$opts->noact) {
       $notify = new etd_notifier($etd);
       // send email about embargo ending

@@ -1,4 +1,9 @@
 <?php
+/**
+ * @category Etd
+ * @package Etd_Models
+ * @subpackage ProQuest_Submission
+ */
 
 require_once("xml-utilities/XmlObject.class.php");
 require_once("models/countries.php");

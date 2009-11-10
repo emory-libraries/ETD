@@ -1,4 +1,10 @@
 <?php
+/**
+ * Process a PDF submission and extract data to create a new ETD record.
+ * @category Etd
+ * @package Etd_Controllers
+ * @subpackage Etd_Controller_Helpers
+ */
 
 // include etd html class for getContentXml function
 require_once("models/etd_html.php");
@@ -37,7 +43,9 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
 		 
   }
 
-  // initialize (or reset) fields to be filled in
+  /**
+   * initialize (or reset) fields to be filled in
+   */
   public function initialize_fields() {
     // set the fields to be filled in 
     $this->fields = array("title" => "",
@@ -51,12 +59,23 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
 			  "distribution_agreement" => false);
   }
   
-
+  /**
+   * shortcut to process_upload (default helper action)
+   * @see Etd_Controller_Action_Helper_ProcessPDF::process_upload()
+   */
   public function direct($fileinfo) {
     return $this->process_upload($fileinfo);
   }
 
 
+  /**
+   * process an uploaded PDF and extract ETD record information
+   * - runs pdftohtml on the first 10 pages of the file
+   * - extracts record info based on expected page order for ETD submissions
+   *
+   * @param array $fileinfo php file upload info
+   * @return array array of information found in the PDF
+   */
   public function process_upload($fileinfo) {
     if (Zend_Registry::isRegistered('debug'))	// set in environment config file
       $this->debug = Zend_Registry::get('debug');
@@ -119,6 +138,10 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
   }
 
 
+  /**
+   * extract information from an html file
+   * @param string $file filename
+   */
   public function getInformation($file) {
     $doc = new DOMDocument();
     $this->doc = $doc;

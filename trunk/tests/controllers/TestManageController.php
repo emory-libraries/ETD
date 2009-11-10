@@ -13,6 +13,22 @@ class ManageControllerTest extends ControllerTestCase {
   // fedoraConnection
   private $fedora;
 
+  private $pids;
+  private $published_etdpid;
+  private $reviewed_etdpid;
+  private $userpid;
+
+  
+  function __construct() {
+    $this->fedora = Zend_Registry::get("fedora");
+    $fedora_cfg = Zend_Registry::get('fedora-config');
+
+    // get 3 test pids to be used throughout test
+    $this->pids = $this->fedora->getNextPid($fedora_cfg->pidspace, 3);
+    list($this->published_etdpid, $this->reviewed_etdpid,  $this->userpid) = $this->pids;
+  }
+
+
   function setUp() {
     $ep = new esdPerson();
     $this->test_user = $ep->getTestPerson();
@@ -27,26 +43,40 @@ class ManageControllerTest extends ControllerTestCase {
     $this->response = $this->makeResponse();
     $this->request  = $this->makeRequest();
 
-    $this->etdxml = array("etd1" => "test:etd1",
-			  "etd2" => "test:etd2",
-			  "user" => "test:user1",
-			  //"etd3" => "test:etd3",	// not working for some reason
-			  );
-    
-
     // load a test objects to repository
-    $this->fedora = Zend_Registry::get("fedora");
+    // load fixtures
+    // note: etd & related user need to be in repository so authorInfo relation will work
+    $dom = new DOMDocument();
+    // load etd1 & set pid 		-- simple etd record, status = published
+    $dom->loadXML(file_get_contents('../fixtures/etd1.xml'));
+    $foxml = new etd($dom);
+    $foxml->pid = $this->published_etdpid;
+    $this->fedora->ingest($foxml->saveXML(), "loading test etd object");
+
+    // load etd2 & set pid & author relation	-- etd record associated with authorinfo object, status reviewed
+    $dom->loadXML(file_get_contents('../fixtures/etd2.xml'));
+    $foxml = new etd($dom);
+    $foxml->pid = $this->reviewed_etdpid;
+    $foxml->rels_ext->hasAuthorInfo = $this->userpid;
+    $this->fedora->ingest($foxml->saveXML(), "loading test etd object");
+
+    // load author info
+    $dom->loadXML(file_get_contents('../fixtures/user.xml'));
+    $foxml = new foxml($dom);
+    $foxml->pid = $this->userpid;
+    $this->fedora->ingest($foxml->saveXML(), "loading test etd authorInfo object");
+
+
+    // FIXME: also need honors etd?
+
     // NOTE: for risearch queries to work, syncUpdates must be turned on for test fedora instance
-    foreach (array_keys($this->etdxml) as $etdfile) {
-      $pid = $this->fedora->ingest(file_get_contents('../fixtures/' . $etdfile . '.xml'), "loading test etd");
-    }
 
     $this->solr = &new Mock_Etd_Service_Solr();
     Zend_Registry::set('solr', $this->solr);
   }
   
   function tearDown() {
-    foreach ($this->etdxml as $file => $pid)
+    foreach ($this->pids as $pid)
       $this->fedora->purge($pid, "removing test etd");
 
     Zend_Registry::set('solr', null);
@@ -89,7 +119,7 @@ class ManageControllerTest extends ControllerTestCase {
   function testReviewAction() {
 
     $ManageController = new ManageControllerForTest($this->request,$this->response);
-    $this->setUpGet(array('pid' => 'test:etd2'));	   // reviewed etd
+    $this->setUpGet(array('pid' => $this->reviewed_etdpid));	   // reviewed etd
 
     $this->assertFalse($ManageController->reviewAction());  // false - not allowed
 
@@ -101,7 +131,7 @@ class ManageControllerTest extends ControllerTestCase {
     // handled by Access Controller Helper in a way that can't be checked here (?)
 
     // set status appropriately on etd
-    $etd = new etd("test:etd2");
+    $etd = new etd($this->reviewed_etdpid);
     $etd->setStatus("submitted");
     $etd->save("set status to submitted to test review");
 
@@ -113,19 +143,19 @@ class ManageControllerTest extends ControllerTestCase {
   public function testAcceptAction() {
 
     $ManageController = new ManageControllerForTest($this->request,$this->response);
-    $this->setUpGet(array('pid' => 'test:etd2'));	   // reviewed etd
+    $this->setUpGet(array('pid' => $this->reviewed_etdpid));	   // reviewed etd
 
     // not be allowed - etd has wrong status
     $this->assertFalse($ManageController->acceptAction());
     // can't test redirect/error message - same as review above
 
     // set status appropriately on etd
-    $etd = new etd("test:etd2");
+    $etd = new etd($this->reviewed_etdpid);
     $etd->setStatus("submitted");
     $etd->save("set status to submitted to test review");
 
     $ManageController->acceptAction();
-    $etd = new etd("test:etd2");	// get from fedora to check changes
+    $etd = new etd($this->reviewed_etdpid);	// get from fedora to check changes
     $this->assertEqual("reviewed", $etd->status(), "status set correctly");	
     $this->assertTrue($ManageController->redirectRan);	// redirects to admin summary page on success
     $messages = $ManageController->getHelper('FlashMessenger')->getMessages();
@@ -136,15 +166,15 @@ class ManageControllerTest extends ControllerTestCase {
     // agent in description should vary according to admin role
     $this->test_user->role = "grad admin";
     // reset status on etd
-    $etd = new etd("test:etd2");
+    $etd = new etd($this->reviewed_etdpid);
     $etd->setStatus("submitted");
     $etd->save("set status to submitted to test review - grad admin");
     $ManageController->acceptAction();
-    $etd = new etd("test:etd2");	// get from fedora to check changes
+    $etd = new etd($this->reviewed_etdpid);	// get from fedora to check changes
     $this->assertEqual("Record reviewed by the Graduate School", $etd->premis->event[2]->detail);
 
 
-    // FIXME: not allowed to do this on hon-honors etd
+    // FIXME: not allowed to do this on non-honors etd -- temporarily convert fixture to honors?
     /*    $this->test_user->role = "honors admin";
     $etd = new etd("test:etd2");
     $etd->setStatus("submitted");
@@ -161,7 +191,7 @@ class ManageControllerTest extends ControllerTestCase {
 
     $ManageController = new ManageControllerForTest($this->request,$this->response);
 
-    $this->setUpGet(array('pid' => 'test:etd2', 'type' => 'record'));   // reviewed etd
+    $this->setUpGet(array('pid' => $this->reviewed_etdpid, 'type' => 'record'));   // reviewed etd
     $this->assertFalse($ManageController->requestchangesAction());
 
     // should not be allowed - etd has wrong status
@@ -169,7 +199,7 @@ class ManageControllerTest extends ControllerTestCase {
     // can't test redirect/message- handled by Access Helper
 
     // set status appropriately on etd
-    $etd = new etd("test:etd2");
+    $etd = new etd($this->reviewed_etdpid);
     $etd->setStatus("submitted");
     $etd->save("set status to submitted to test review");
 
@@ -177,7 +207,7 @@ class ManageControllerTest extends ControllerTestCase {
     // clear out any messages (?)
     $ManageController->getHelper('FlashMessenger')->getMessages();
     $ManageController->requestchangesAction();
-    $etd = new etd("test:etd2");	// get from fedora to check changes
+    $etd = new etd($this->reviewed_etdpid);	// get from fedora to check changes
     $this->assertEqual("draft", $etd->status(), "status set correctly");	
     $messages = $ManageController->getHelper('FlashMessenger')->getMessages();
     $this->assertPattern("/Changes requested;.*status changed/", $messages[0]);
@@ -189,11 +219,11 @@ class ManageControllerTest extends ControllerTestCase {
     // variant admins
     $this->test_user->role = "grad admin";
     // reset status on etd
-    $etd = new etd("test:etd2");
+    $etd = new etd($this->reviewed_etdpid);
     $etd->setStatus("submitted");
     $etd->save("set status to submitted to test request changes - grad admin");
     $ManageController->requestchangesAction();
-    $etd = new etd("test:etd2");	// get from fedora to check changes
+    $etd = new etd($this->reviewed_etdpid);	// get from fedora to check changes
     $this->assertEqual("Changes to record requested by the Graduate School", $etd->premis->event[2]->detail);
     
     /*$this->test_user->role = "honors admin";
@@ -212,12 +242,12 @@ class ManageControllerTest extends ControllerTestCase {
   public function testRequestDocumentChangesAction() {
     $ManageController = new ManageControllerForTest($this->request,$this->response);
 
-    $this->setUpGet(array('pid' => 'test:etd2', 'type' => 'document'));   // reviewed etd
+    $this->setUpGet(array('pid' => $this->reviewed_etdpid, 'type' => 'document'));   // reviewed etd
     $this->assertFalse($ManageController->requestchangesAction());
 
     $ManageController = new ManageControllerForTest($this->request,$this->response);
     $ManageController->requestchangesAction();
-    $etd = new etd("test:etd2");	// get from fedora to check changes
+    $etd = new etd($this->reviewed_etdpid);	// get from fedora to check changes
     $this->assertEqual("draft", $etd->status(), "status set correctly");
     // FIXME: for some reason this test fails, but the page works correctly in the browser (?)
     //$this->assertTrue(isset($ManageController->view->title), "page title set");
@@ -238,11 +268,11 @@ class ManageControllerTest extends ControllerTestCase {
     // variant admins
     $this->test_user->role = "grad admin";
     // reset status on etd
-    $etd = new etd("test:etd2");
+    $etd = new etd($this->reviewed_etdpid);
     $etd->setStatus("reviewed");
     $etd->save("set status to reviewed to test request changes - grad admin");
     $ManageController->requestchangesAction();
-    $etd = new etd("test:etd2");	// get from fedora to check changes
+    $etd = new etd($this->reviewed_etdpid);	// get from fedora to check changes
     $this->assertEqual("Changes to document requested by the Graduate School", $etd->premis->event[2]->detail);
 
     /*
@@ -261,7 +291,7 @@ class ManageControllerTest extends ControllerTestCase {
   
   public function testApproveAction() {
     $ManageController = new ManageControllerForTest($this->request,$this->response);
-    $this->setUpGet(array('pid' => 'test:etd2'));	   // reviewed etd
+    $this->setUpGet(array('pid' => $this->reviewed_etdpid));	   // reviewed etd
     $ManageController->approveAction();
 
     $ManageController = new ManageControllerForTest($this->request,$this->response);
@@ -270,7 +300,7 @@ class ManageControllerTest extends ControllerTestCase {
     $this->assertTrue(isset($ManageController->view->title));
 
     // set status to something that can't be approved
-    $etd = new etd("test:etd2");
+    $etd = new etd($this->reviewed_etdpid);
     $etd->setStatus("draft");
     $etd->save("set status to draft to test approve");
 
@@ -285,22 +315,22 @@ class ManageControllerTest extends ControllerTestCase {
 
   public function testDoApproveAction() {
     $ManageController = new ManageControllerForTest($this->request,$this->response);
-    $this->setUpGet(array('pid' => 'test:etd1', 'embargo' => '3 months'));	   // published etd
+    $this->setUpGet(array('pid' => $this->published_etdpid, 'embargo' => '3 months'));	   // published etd
 
     $this->assertFalse($ManageController->doapproveAction());
     // not allowed - etd has wrong status
     $this->assertFalse($ManageController->redirectRan);
-    $etd = new etd("test:etd1");
+    $etd = new etd($this->published_etdpid);
     $this->assertEqual("published", $etd->status());	// status unchanged 
     
-    $this->setUpGet(array('pid' => 'test:etd2', 'embargo' => '3 months'));	   // reviewed etd
+    $this->setUpGet(array('pid' => $this->reviewed_etdpid, 'embargo' => '3 months'));	   // reviewed etd
     // notices for non-existent users in metadata
     $this->expectError("Committee member/chair (nobody) not found in ESD");
     $this->expectError("Committee member/chair (nobodytoo) not found in ESD");
     // clear out any old messages (?)
     $ManageController->getHelper('FlashMessenger')->getMessages();
     $ManageController->doapproveAction();
-    $etd = new etd("test:etd2");
+    $etd = new etd($this->reviewed_etdpid);
     $this->assertEqual("approved", $etd->status(), "status set correctly");
     $this->assertEqual("3 months", $etd->mods->embargo);
     $this->assertTrue($ManageController->redirectRan);	// redirects to admin summary page on success
@@ -313,11 +343,11 @@ class ManageControllerTest extends ControllerTestCase {
 
     // variant admins
     /* FIXME: offset is off?
-    $etd = new etd("test:etd1");
+    $etd = new etd($this->published_etdpid);
     $etd->setStatus("reviewed");
     $etd->save("set status to reviewed to test doApprove");
     $ManageController->doapproveAction();
-    $etd = new etd("test:etd2");
+    $etd = new etd($this->reviewed_etdpid);
     $this->assertEqual("Record approved by Graduate School", $etd->premis->event[3]->detail);
     */
   }
@@ -325,13 +355,13 @@ class ManageControllerTest extends ControllerTestCase {
   public function testInactivateAction() {
     $ManageController = new ManageControllerForTest($this->request,$this->response);
 
-    $this->setUpGet(array('pid' => 'test:etd1'));	   // published etd
+    $this->setUpGet(array('pid' => $this->published_etdpid));	   // published etd
     $ManageController->inactivateAction();
     $this->assertIsA($ManageController->view->etd, "etd");
     $this->assertTrue(isset($ManageController->view->title));
 
     $ManageController = new ManageControllerForTest($this->request,$this->response);
-    $this->setUpGet(array('pid' => 'test:etd2'));	   // NOT a published etd
+    $this->setUpGet(array('pid' => $this->reviewed_etdpid));	   // NOT a published etd
     $this->assertFalse($ManageController->inactivateAction());
     $this->assertFalse($ManageController->redirectRan);
     $this->assertFalse(isset($ManageController->view->etd));
@@ -340,19 +370,65 @@ class ManageControllerTest extends ControllerTestCase {
   public function testMarkInactiveAction() {
     $ManageController = new ManageControllerForTest($this->request,$this->response);
 
-    $this->setUpPost(array('pid' => 'test:etd1', 'reason' => 'testing inactivation'));	   // published etd
+    $this->setUpPost(array('pid' => $this->published_etdpid, 'reason' => 'testing inactivation'));	   // published etd
     $ManageController->markInactiveAction();
 
-    $etd = new etd("test:etd1");
+    $etd = new etd($this->published_etdpid);
     $this->assertEqual("inactive", $etd->status());
     $this->assertEqual("Marked inactive - testing inactivation", $etd->premis->event[1]->detail);
     $messages = $ManageController->getHelper('FlashMessenger')->getMessages();
     $this->assertPattern("/Record.*status changed/", $messages[0]);
 
-    $this->setUpPost(array('pid' => 'test:etd2', 'reason' => 'testing inactivate'));	   // NOT a published etd
+    $this->setUpPost(array('pid' => $this->reviewed_etdpid, 'reason' => 'testing inactivate'));	   // NOT a published etd
     $this->assertFalse($ManageController->markInactiveAction());
     // redirect/not authorized - can't test
   }
+
+  public function testReactivateAction() {
+    $ManageController = new ManageControllerForTest($this->request,$this->response);
+
+    $etd = new etd($this->published_etdpid);
+    $etd->setStatus("inactive");
+    $etd->save("marking published etd inactive to test reactivate");
+
+    $this->setUpGet(array('pid' => $this->published_etdpid));	   // previously published etd 
+    $ManageController->reactivateAction();
+    $this->assertIsA($ManageController->view->etd, "etd");
+    $this->assertTrue(isset($ManageController->view->title));
+    $this->assertEqual("published", $ManageController->view->previous_status,
+		       "previous status is set correctly in the view");
+    $this->assertIsA($ManageController->view->status_opts, "Array");
+
+    $ManageController = new ManageControllerForTest($this->request,$this->response);
+    $this->setUpGet(array('pid' => $this->reviewed_etdpid));	   // NOT an inactive etd
+    $this->assertFalse($ManageController->inactivateAction());
+    $this->assertFalse($ManageController->redirectRan);
+    $this->assertFalse(isset($ManageController->view->etd));
+  }
+
+  public function testDoReactivateAction() {
+    $ManageController = new ManageControllerForTest($this->request,$this->response);
+
+    $etd = new etd($this->published_etdpid);
+    $etd->setStatus("inactive");
+    $etd->save("marking published etd inactive to test reactivate");
+
+    $this->setUpPost(array('pid' => $this->published_etdpid, 'reason' => 'testing reactivation',
+			   'status' => "draft"));
+    $ManageController->doReactivateAction();
+
+    $etd = new etd($this->published_etdpid);
+    $this->assertEqual("draft", $etd->status());
+    $this->assertEqual("Reactivated - testing reactivation", $etd->premis->event[1]->detail);
+    $messages = $ManageController->getHelper('FlashMessenger')->getMessages();
+    $this->assertPattern("/Record.*status changed/", $messages[0]);
+
+    // test - NOT an inactive etd
+    $this->setUpPost(array('pid' => $this->reviewed_etdpid, 'reason' => 'testing reactivate'));	 
+    $this->assertFalse($ManageController->doReactivateAction());
+  }
+
+
 
   public function testExpiringEmbargoes() {
     $ManageController = new ManageControllerForTest($this->request,$this->response);
@@ -390,7 +466,7 @@ class ManageControllerTest extends ControllerTestCase {
     // test with an unauthorized user
     $this->test_user->role = "student";
 
-    $this->setUpGet(array('pid' => 'test:etd1'));	 
+    $this->setUpGet(array('pid' => $this->published_etdpid));	 
     
     $ManageController = new ManageControllerForTest($this->request,$this->response);
     $this->assertFalse($ManageController->summaryAction());

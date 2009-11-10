@@ -1,6 +1,6 @@
 <div id="files">
     <h2>Files</h2>
-<? if ($this->etd->isEmbargoed()): ?>
+<? if ($this->etd->isEmbargoed() && $this->etd->mods->isEmbargoRequested(etd_mods::EMBARGO_FILES)): ?>
     <p>Access restricted until <b><?= $this->etd->mods->embargo_end ?></b></p>
 <? elseif ($this->etd->status() == "published" && count($this->etd->pdfs) == 0): ?>
 <? /* work-around for etdFile xacml glitch:

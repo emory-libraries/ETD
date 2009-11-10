@@ -1,6 +1,10 @@
 #!/usr/bin/php -q
 <?php
-
+/**
+ * test etd config file settings
+ * @category Etd
+ * @package Etd_Scripts
+ */
 // ZendFramework, etc.
 ini_set("include_path", "../app/:../config:../app/models:../app/modules/:../lib:../lib/fedora:../lib/xml-utilities:js/:/home/rsutton/public_html:" . ini_get("include_path")); 
 

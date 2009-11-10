@@ -1,9 +1,15 @@
 #!/usr/bin/php -q
 <?php
+/**
+ * script to clean up mess caused by embargo expiration script
+   malfunctioning and mistakenly sending 90 emails to all kinds of
+   people, none of whom should have gotten the email.
+ *
+ * @category Etd
+ * @package Etd_Scripts
+ * @subpackage Etd_Migration_Scripts
+ */
 
-  /* script to clean up mess caused by embargo expiration script
-     malfunctioning and mistakenly sending 90 emails to all kinds of
-     people, none of whom should have gotten the email. */
 
 
 // ZendFramework, etc.

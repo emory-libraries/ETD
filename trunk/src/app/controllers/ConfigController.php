@@ -1,4 +1,8 @@
 <?php
+/**
+ * @category Etd
+ * @package Etd_Controllers
+ */
 
 class ConfigController extends Etd_Controller_Action {
 

@@ -1,9 +1,12 @@
 #!/usr/bin/php -q
 <?php
-
-  /**
-   * Update all ETD records with new useAndReproduction statement.
-   */
+/**
+ * Update all ETD records with new useAndReproduction statement.
+ *
+ * @category Etd
+ * @package Etd_Scripts
+ * @subpackage Etd_Migration_Scripts
+ */
 
 // run as if in the main scripts directory so all the paths work;
 chdir("..");

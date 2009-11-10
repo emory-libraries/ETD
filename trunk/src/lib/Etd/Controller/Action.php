@@ -1,4 +1,8 @@
 <?php
+/**
+ * @category Etd
+ * @package Etd_Controllers
+ */
 
 require_once("models/programs.php");
 
@@ -74,7 +78,10 @@ abstract class Etd_Controller_Action extends Zend_Controller_Action {
   }
 
   public function postDispatch() {
-    $this->view->messages = $this->_helper->flashMessenger->getMessages();
+    // combine any existing messages with flash messenger messages
+    if (! isset($this->view->messages)) $this->view->messages = array();
+    $this->view->messages = array_unique(array_merge($this->view->messages,
+						     $this->_helper->flashMessenger->getMessages()));
 
     /*  For some reason, xforms get loaded twice (FormFaces oddity),
         and on the second load the flash message is no longer current,

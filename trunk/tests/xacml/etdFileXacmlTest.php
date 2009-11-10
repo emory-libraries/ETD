@@ -16,18 +16,23 @@ class TestEtdFileXacml extends UnitTestCase {
    * FedoraConnection with default test user credentials
    */
   private $fedoraAdmin;
+
+  function __construct() {
+    $fedora_cfg = Zend_Registry::get('fedora-config');
+    $this->fedoraAdmin = new FedoraConnection($fedora_cfg);
     
+    // get test pid for fedora fixture
+    $this->pid = $this->fedoraAdmin->getNextPid($fedora_cfg->pidspace);
+  }
+
+  
   function setUp() {
-    if (!isset($this->fedoraAdmin)) {
-      $fedora_cfg = Zend_Registry::get('fedora-config');
-      $this->fedoraAdmin = new FedoraConnection($fedora_cfg);
-    }
-      
     $fname = '../fixtures/etdfile.xml';
     $dom = new DOMDocument();
     $dom->load($fname);
 
     $etdfile = new etd_file($dom);
+    $etdfile->pid = $this->pid;
     $etdfile->owner =  "author";	// set 'author' test account as owner
       
     // initialize the xacml policy the way it should be set up normally
@@ -37,30 +42,13 @@ class TestEtdFileXacml extends UnitTestCase {
     //    $etdfile->policy->view->condition->department = "department";
     $etdfile->policy->addRule("draft");
     $etdfile->policy->draft->condition->user = "author";
-
-    $this->pid =  $etdfile->pid;
     
-    try {
-      $this->fedoraAdmin->ingest($etdfile->saveXML(), "loading test object");
-    } catch (FedoraObjectExists $e) {
-      // if a previous test run failed, object may still be in Fedora
-      $this->purgeTestObject();
-      $this->fedoraAdmin->ingest($etdfile->saveXML(), "loading test object");
-    }
-
+    $this->fedoraAdmin->ingest($etdfile->saveXML(), "loading test object");
   }
 
   function tearDown() {
-    $this->purgeTestObject();
-  }
-
-  function purgeTestObject() {
     setFedoraAccount("fedoraAdmin");
-    $etdfile = new etd_file($this->pid);
-    $etdfile->purge('removing test object');
-    // FIXME: not sure why purge is getting an access denied error..
-    //$this->expectException(new FedoraAccessDenied("purge {$this->pid}"));
-    //    $this->fedoraAdmin->purge($this->pid, "removing test object");
+    $this->fedoraAdmin->purge($this->pid, "removing test object");
   }
 
 
@@ -118,7 +106,7 @@ class TestEtdFileXacml extends UnitTestCase {
     $etdfile->policy->removeRule("view");    // POLICY
     $this->assertNotNull($etdfile->save("test author permissions - modify POLICY on draft etdfile"));
 
-    $this->expectException(new FedoraAccessDenied("purge test:etdfile1"));
+    $this->expectException(new FedoraAccessDenied("purge " . $this->pid));
     $this->assertNull($etdfile->purge("testing author permissions - purge draft etdfile"));
   }
 
@@ -159,7 +147,7 @@ class TestEtdFileXacml extends UnitTestCase {
     $this->expectError("Access Denied to modify datastream POLICY"); 
     $this->assertNull($etdfile->save("test author permissions - modify POLICY on non-draft etdfile"));
 
-    $this->expectException(new FedoraAccessDenied("purge test:etdfile1"));
+    $this->expectException(new FedoraAccessDenied("purge " . $this->pid));
     $this->assertNull($etdfile->purge("testing author permissions - purge non-draft etdfile"));
 
   }
@@ -172,7 +160,7 @@ class TestEtdFileXacml extends UnitTestCase {
     $etdfile->policy->removeRule("draft");  
     $etdfile->save("remove draft policy for testing");
     
-    $this->expectException(new FedoraAccessDenied("modifyObject for test:etdfile1"));
+    $this->expectException(new FedoraAccessDenied("modifyObject for " . $this->pid));
     $this->assertNull($etdfile->delete("testing delete xacml"));
   }
 

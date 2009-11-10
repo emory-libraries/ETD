@@ -32,6 +32,8 @@ Zend_Registry::set('config', $config);
 touch($config->logfile);	// make sure logfile exists	  
 
 $fedora_cfg = new Zend_Config_Xml($config_dir . "fedora.xml", $mode);
+if (! isset($fedora_cfg->pidspace) || ! $fedora_cfg->pidspace)
+  throw new Exception("ETD unit tests now require fedora config to specify a pidspace");
 Zend_Registry::set('fedora-config', $fedora_cfg);
 
 $fedora = new FedoraConnection($fedora_cfg);

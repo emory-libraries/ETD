@@ -116,7 +116,8 @@ class TestXmlAcl extends UnitTestCase {
     
     $this->assertTrue($this->acl->isAllowed("admin", "published etd", "inactivate"));
     $this->assertFalse($this->acl->isAllowed("admin", "etd", "inactivate"));
-
+    $this->assertTrue($this->acl->isAllowed("admin", "inactive etd", "reactivate"));
+    
     $this->assertFalse($this->acl->isAllowed("admin", "log", "view"));
   }
 
@@ -160,6 +161,8 @@ class TestXmlAcl extends UnitTestCase {
 
     $this->assertFalse($this->acl->isAllowed("honors admin", "log", "view"),
 		       "honors admin can view log");
+
+    $this->assertFalse($this->acl->isAllowed("honors admin", "inactive etd", "reactivate"));
   }
 
 }
