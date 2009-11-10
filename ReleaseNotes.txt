@@ -11,6 +11,7 @@ Version 1.5 - November 2009
 
 Deployment notes:
  * latest version of ETD cmodel & new service objects must be loaded to Fedora
+ * update fedora xacml policies from latest svn
  * run migration 011
  * update gsearch & solr to latest xslt index & solr schema, reindex
    * recommended: configure gsearch to include etd xslt to simplify
