@@ -5,6 +5,10 @@ require_once("models/EtdSet.php");
 
 /**
  * management functions to view & edit email templates
+ * 
+ * @category Etd
+ * @package Etd_Controllers
+ */
  */
 class EmailController extends Etd_Controller_Action {
   protected $requires_fedora = true;

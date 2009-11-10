@@ -8,11 +8,45 @@ class TestEtd extends UnitTestCase {
     private $etd;
     private $person;
 
+    // fedoraConnection
+    private $fedora;
+
+    private $etdpid;
+    
+    function __construct() {
+      $this->fedora = Zend_Registry::get("fedora");
+      $fedora_cfg = Zend_Registry::get('fedora-config');
+      
+      // get test pid for fedora fixture
+      $this->etdpid = $this->fedora->getNextPid($fedora_cfg->pidspace);
+    }
+
+    
   function setUp() {
     $fname = '../fixtures/etd1.xml';
     $dom = new DOMDocument();
     $dom->load($fname);
     $this->etd = new etd($dom);
+
+    // attach etd files for testing
+    $fname = '../fixtures/etdfile.xml';
+    $dom = new DOMDocument();
+    $dom->load($fname);
+    $etdfile = new etd_file($dom);
+    $etdfile->policy->addRule("view");
+    $this->etd->pdfs[] = $etdfile;
+    // separate copy - mock original file
+    $dom2 = new DOMDocument();
+    $dom2->load($fname);
+    $etdfile2 = new etd_file($dom2);
+    $etdfile2->pid = "test:etdfile2";
+    $this->etd->originals[] = $etdfile2;
+    // separate copy - mock original
+    $dom3 = new DOMDocument();
+    $dom3->load($fname);
+    $etdfile = new etd_file($dom3);
+    $etdfile->policy->addRule("view");
+    $this->etd->addSupplement($etdfile);
 
     $this->etd->policy->addRule("view");
     $this->etd->policy->addRule("draft");
@@ -75,19 +109,61 @@ class TestEtd extends UnitTestCase {
 
     // department - mods & view policy
 
-    // attach an etd file to test that department is set on etdFile view policy
-    $fname = '../fixtures/etdfile.xml';
-    $dom = new DOMDocument();
-    $dom->load($fname);
-    $etdfile = new etd_file($dom);
-    $etdfile->policy->addRule("view");
-    $this->etd->addSupplement($etdfile);
-
+    // test that department is also set on etdFile view policy
     $this->etd->department = "Chemistry";
     $this->assertEqual("Chemistry", $this->etd->mods->department);
     $this->assertEqual("Chemistry", $this->etd->policy->view->condition->department);
     // check that department was also set on etdfile
     $this->assertEqual("Chemistry", $this->etd->supplements[0]->policy->view->condition->department);
+  }
+
+  function testSpecialProperties_embargoed() {
+    /* special properties - abstract & ToC may be restricted--
+      set in html but plaintext version not copied to mods */
+
+
+    $this->etd->mods->setEmbargoRequestLevel(etd_mods::EMBARGO_ABSTRACT);
+    // set embargo end to tomorrow - unexpired
+    $this->etd->mods->embargo_end = date("Y-m-d", time() + (24*60*60));
+
+    $this->etd->abstract = "<b>cheese</b> explained";
+    $this->assertEqual("<b>cheese</b> explained", $this->etd->html->abstract,
+		       "html abstract set normally when embargo level is abstract");
+    $this->assertEqual("", $this->etd->mods->abstract,
+		       "mods abstract is blank after setting etd abstract when embargo level = abstract");
+    $this->assertEqual("", $this->etd->dc->description,
+		       "dc description is blank after setting etd abstract when embargo level = abstract");
+    $this->assertPattern("|<mods:abstract></mods:abstract>|", $this->etd->mods->saveXML(),
+			 "mods xml has an empty abstract");
+    $this->assertPattern("|<dc:description></dc:description>|", $this->etd->dc->saveXML(),
+			 "DC xml has an empty description");
+    $this->etd->mods->setEmbargoRequestLevel(etd_mods::EMBARGO_TOC);
+    $this->etd->contents = "<p>chapter 1 <br/> chapter 2</p>";
+    $this->assertPattern("|<p>chapter 1\s*<br/>\s*chapter 2</p>|",
+			 $this->etd->html->contents,
+			 "html ToC set normally when embargo level is TOC");
+    $this->assertEqual("", $this->etd->mods->tableOfContents,
+		       "mods ToC is blank after setting etd contents when embargo level is TOC");
+    $this->assertPattern("|<mods:tableOfContents></mods:tableOfContents>|",
+			 $this->etd->mods->saveXML(),
+			 "mods xml has an empty tableOfContents");
+
+
+    // set embargo end to yesterday - expired -- contents should be set in mods/dc
+    $this->etd->mods->embargo_end = date("Y-m-d", time() - (24*60*60));
+    $this->etd->mods->setEmbargoRequestLevel(etd_mods::EMBARGO_ABSTRACT);
+
+    $this->etd->abstract = "<b>cheese</b> explained";
+    $this->assertEqual("cheese explained", $this->etd->mods->abstract,
+		       "mods abstract is set normally when embargo level = abstract but embargo has expired");
+    $this->assertEqual("cheese explained", $this->etd->dc->description,
+		       "dc description is set normally when embargo level = abstract but embargo has expired");
+
+    $this->etd->mods->setEmbargoRequestLevel(etd_mods::EMBARGO_TOC);
+    $this->etd->contents = "<p>chapter 1 <br/> chapter 2</p>";
+    $this->assertEqual("chapter 1 -- chapter 2", $this->etd->mods->tableOfContents,
+		       "mods ToC is set normally when embargo level is TOC but embargo has expired");
+
   }
 
   function testGetUserRole() {
@@ -115,23 +191,9 @@ class TestEtd extends UnitTestCase {
 
   }
 
-  function testSetStatus() {
-
-    // attach an etd file for testing
-    $fname = '../fixtures/etdfile.xml';
-    $dom = new DOMDocument();
-    $dom->load($fname);
-    $etdfile = new etd_file($dom);
-    $this->etd->pdfs[] = $etdfile;
-    // separate copy - mock original file
-    $dom2 = new DOMDocument();
-    $dom2->load($fname);
-    $etdfile2 = new etd_file($dom2);
-    $etdfile2->pid = "test:etdfile2";
-    $this->etd->originals[] = $etdfile2;
-
-    // run through the various statuses in order, check everything is set correctly
-
+  // run through the various statuses in order, check everything is set correctly
+  
+  function testSetStatus_draft() {
     // draft - draft rule is added, published removed (because object had published status before)
     $this->etd->setStatus("draft");
     $this->assertEqual("draft", $this->etd->status());
@@ -148,32 +210,50 @@ class TestEtd extends UnitTestCase {
         "original etdFile draft policy should be type 'PolicyRule'");
     $this->assertFalse(isset($this->etd->originals[0]->policy->published));
 
-    // submitted - draft rule removed, no new rules
+  }
+
+  function testSetStatus_submitted() {
+    // submitted - draft rule should be removed (if present), no new rules
+    $this->etd->setStatus("draft");
     $this->etd->setStatus("submitted");
     $this->assertEqual("submitted", $this->etd->status());
     $this->assertFalse(isset($this->etd->policy->draft));
     $this->assertFalse(isset($this->etd->pdfs[0]->policy->draft));
     $this->assertFalse(isset($this->etd->originals[0]->policy->draft));
+  }
 
+  function testSetStatus_reviewed() {
     // reviewed - no rules change
     $etd_rulecount = count($this->etd->policy->rules);
     $this->etd->setStatus("reviewed");
     $this->assertEqual("reviewed", $this->etd->status());
     $this->assertEqual($etd_rulecount, count($this->etd->policy->rules));
+  }
 
+  function testSetStatus_approved() {
     // approved - no rules change
     $etd_rulecount = count($this->etd->policy->rules);
     $this->etd->setStatus("approved");
     $this->assertEqual("approved", $this->etd->status());
     $this->assertEqual($etd_rulecount, count($this->etd->policy->rules));
+  }
 
-    // published - publish rule is added    
+  function testSetStatus_published_noembargo() {
+    // published - publish rule is added
     $this->etd->setStatus("published");
     $this->assertEqual("published", $this->etd->status());
     $this->assertIsA($this->etd->policy->published, "PolicyRule");
     $this->assertTrue(isset($this->etd->policy->published));
-    // etd object publish rule should have no condition
-    $this->assertFalse(isset($this->etd->policy->published->condition));
+    // etd object publish rule logic now includes a condition
+    $this->assertTrue(isset($this->etd->policy->published->condition),
+		       "etd publish policy has condition");
+    $pub_condition = $this->etd->policy->published->condition;
+    $this->assertEqual(date("Y-m-d"), $pub_condition->embargo_end, "embargo end date on published rule condition should default to today");
+    // no embargo - html disseminator methods should not be restricted
+    $this->assertTrue($pub_condition->methods->includes("title"));
+    $this->assertTrue($pub_condition->methods->includes("abstract"));
+    $this->assertTrue($pub_condition->methods->includes("tableofcontents"));    
+    
     // setting to published should add OAI id
     $this->assertTrue(isset($this->etd->rels_ext->oaiID));
     $this->assertEqual(FedoraConnection::STATE_ACTIVE, $this->etd->next_object_state);
@@ -193,15 +273,114 @@ class TestEtd extends UnitTestCase {
         $this->etd->pdfs[0]->policy->published->condition->embargo_end . "'");
     // published rule should NOT be added to original
     $this->assertFalse(isset($this->etd->originals[0]->policy->published));
+  }
 
+  function testSetStatus_published_embargo_files() {
     // publish with embargo
-    $this->etd->mods->embargo_end = "2010-01-01";
+    $embargo_end =  date("Y-m-d", time() + (365*24*60*60)); 	// today + 1 year
+    
+    $this->etd->mods->embargo_end = $embargo_end;
+    $this->etd->mods->setEmbargoRequestLevel(etd_mods::EMBARGO_FILES);
     $this->etd->setStatus("published");
-    $this->assertEqual($this->etd->pdfs[0]->policy->published->condition->embargo_end, "2010-01-01",
-        "pdf etdFile published policy embargo end should be '2010-01-01', got '" .
+    $pub_condition = $this->etd->policy->published->condition;
+
+    $this->assertEqual($embargo_end, $this->etd->policy->published->condition->embargo_end, "embargo end date on published rule condition should match embargo end date in MODS");
+    $this->assertEqual($this->etd->pdfs[0]->policy->published->condition->embargo_end,
+		       $embargo_end,
+        "pdf etdFile published policy embargo end should be '$embargo_end', got '" .
         $this->etd->pdfs[0]->policy->published->condition->embargo_end . "'");
-   
-   
+
+    // html disseminator methods should not be restricted
+    $this->assertTrue($pub_condition->methods->includes("title"),
+		      "title access allowed when embargo level is FILES");
+    $this->assertTrue($pub_condition->methods->includes("abstract"),
+		      "abstract access allowed when embargo level is FILES");
+    $this->assertTrue($pub_condition->methods->includes("tableofcontents"),
+		      "ToC access allowed when embargo level is FILES");  
+    $this->assertFalse($pub_condition->embargoed_methods->includes("title"),
+		       "title access not restricted when embargo level is FILES");
+    $this->assertFalse($pub_condition->embargoed_methods->includes("abstract"),
+		       "abstract access not restricted when embargo level is FILES");
+    $this->assertFalse($pub_condition->embargoed_methods->includes("tableofcontents"),
+		       "ToC access not restricted when embargo level is FILES");    
+  }
+  
+  function testSetStatus_published_embargo_toc() {
+    // publish with embargo
+    $embargo_end =  date("Y-m-d", time() + (365*24*60*60)); 	// today + 1 year
+    $this->etd->mods->embargo_end = $embargo_end;
+    $this->etd->mods->setEmbargoRequestLevel(etd_mods::EMBARGO_TOC);
+    // mods ToC may have been set *before* embargo level set - ensure it gets cleared
+    $this->etd->mods->tableOfContents = "ch.1 - ch.2 - appendix";
+    $this->etd->setStatus("published");
+    $pub_condition = $this->etd->policy->published->condition;
+
+    $this->assertEqual($embargo_end, $pub_condition->embargo_end,
+       "embargo end date on published rule condition should match embargo end date in MODS");
+    $this->assertEqual($embargo_end, $this->etd->pdfs[0]->policy->published->condition->embargo_end, 
+        "pdf etdFile published policy embargo end should be '$embargo_end', got '" .
+        $this->etd->pdfs[0]->policy->published->condition->embargo_end . "'");
+
+    // title & abstract html disseminator methods should not be restricted
+    $this->assertTrue($pub_condition->methods->includes("title"),
+		      "title access allowed when embargo level is TOC");
+    $this->assertTrue($pub_condition->methods->includes("abstract"),
+		      "abstract access allowed when embargo level is TOC");  
+    $this->assertFalse($pub_condition->embargoed_methods->includes("title"),
+		       "title access not restricted when embargo level is TOC");
+    $this->assertFalse($pub_condition->embargoed_methods->includes("abstract"),
+		       "abstract access not restricted when embargo level is TOC");  
+    // ToC html disseminator methods *should* be restricted
+    $this->assertFalse($pub_condition->methods->includes("tableofcontents"),
+		       "toc access not allowed when embargo level is TOC");
+    $this->assertTrue($pub_condition->embargoed_methods->includes("tableofcontents"),
+		      "toc access restricted when embargo level is TOC");
+
+    $this->assertEqual("", $this->etd->mods->tableOfContents,
+		       "TOC in MODS blanked out when embargo level is TOC");
+  }
+  
+  function testSetStatus_published_embargo_abstract() {
+    $embargo_end =  date("Y-m-d", time() + (365*24*60*60)); 	// today + 1 year
+    $this->etd->mods->embargo_end = $embargo_end;
+    $this->etd->mods->setEmbargoRequestLevel(etd_mods::EMBARGO_ABSTRACT);
+    $this->etd->mods->tableOfContents = "ch.1 - ch.2 - appendix";
+    $this->etd->setStatus("published");
+    $pub_condition = $this->etd->policy->published->condition;
+    // title html disseminator method should not be restricted
+    $this->assertTrue($pub_condition->methods->includes("title"),
+		      "title access allowed when embargo level is ABSTRACT");
+    // abstract & ToC html disseminator methods *should* be restricted
+    $this->assertFalse($pub_condition->methods->includes("abstract"),
+		       "abstract access not allowed when embargo level is ABSTRACT");
+    $this->assertTrue($pub_condition->embargoed_methods->includes("abstract"),
+		      "abstract access restricted when embargo level is ABSTRACT");  
+    $this->assertFalse($pub_condition->methods->includes("tableofcontents"),
+		       "ToC access not allowed when embargo level is ABSTRACT");
+    $this->assertTrue($pub_condition->embargoed_methods->includes("tableofcontents"),
+		      "ToC access restricted when embargo level is ABSTRACT");
+
+    $this->assertEqual("", $this->etd->mods->tableOfContents,
+		       "ToC in mods blanked out when embargo level is ABSTRACT");
+    $this->assertEqual("", $this->etd->mods->abstract,
+		       "abstract in mods blanked out when embargo level is ABSTRACT");
+  }    
+
+  function testSetStatus_published_embargo_abstract_embargoexpired() {
+    $embargo_end = date("Y-m-d", strtotime("-1 year", time()));
+    $this->etd->mods->embargo_end = $embargo_end;
+    $this->etd->mods->setEmbargoRequestLevel(etd_mods::EMBARGO_ABSTRACT);
+    $this->etd->mods->tableOfContents = "ch.1 - ch.2 - appendix";
+    $this->etd->setStatus("published");
+    $pub_condition = $this->etd->policy->published->condition;
+ 
+    $this->assertNotEqual("", $this->etd->mods->tableOfContents,
+		       "ToC in mods NOT blanked out on setStatus published when embargo level is ABSTRACT but embargo has expired");
+    $this->assertNotEqual("", $this->etd->mods->abstract,
+		       "abstract in mods NOT blanked out on setStatus published when embargo level is ABSTRACT but embargo has expired");
+  }    
+
+  function testSetStatus_inactive() {
     $this->etd->setStatus("inactive");
     $this->assertEqual(FedoraConnection::STATE_INACTIVE, $this->etd->next_object_state);
 
@@ -237,12 +416,12 @@ class TestEtd extends UnitTestCase {
     $errlevel = error_reporting(E_ALL ^ E_NOTICE);
     
     // attach an etd file to test that chair/committee are set on etdFile view policy
-    $fname = '../fixtures/etdfile.xml';
-    $dom = new DOMDocument();
-    $dom->load($fname);
-    $etdfile = new etd_file($dom);
-    $etdfile->policy->addRule("view");
-    $this->etd->addSupplement($etdfile);
+    //    $fname = '../fixtures/etdfile.xml';
+    //    $dom = new DOMDocument();
+    //    $dom->load($fname);
+    //    $etdfile = new etd_file($dom);
+    //    $etdfile->policy->addRule("view");
+    //    $this->etd->addSupplement($etdfile);
 
     
     $this->etd->setCommittee(array("mthink"), "chair");
@@ -322,18 +501,18 @@ class TestEtd extends UnitTestCase {
     $this->etd->addSupplement($etdfile);
 
     $this->assertTrue(isset($this->etd->supplements));
-    $this->assertEqual(1, count($this->etd->supplements));
+    $this->assertEqual(2, count($this->etd->supplements));
     $this->assertTrue(isset($this->etd->rels_ext->supplement));
-    $this->assertEqual(1, count($this->etd->rels_ext->supplement));
+    $this->assertEqual(2, count($this->etd->rels_ext->supplement));
     // relation to file was added to etd
     $this->assertPattern("|<rel:hasSupplement rdf:resource=\"info:fedora/" . $etdfile->pid . "\"/>|",
 			 $this->etd->rels_ext->saveXML());
     // NOTE: relation to etd is not currently added to file object by this function (should it be?)
 
-    // any values already added to etd that are relevant to xacml policy should be set on file
-    $this->assertTrue($this->etd->supplements[0]->policy->view->condition->users->includes("jsmith"));
-    $this->assertTrue($this->etd->supplements[0]->policy->view->condition->users->includes("kjones"));
-    $this->assertEqual("Disney", $this->etd->supplements[0]->policy->view->condition->department);
+    // any values already added to etd that are relevant to xacml policy should be set on newly added file
+    $this->assertTrue($this->etd->supplements[1]->policy->view->condition->users->includes("jsmith"));
+    $this->assertTrue($this->etd->supplements[1]->policy->view->condition->users->includes("kjones"));
+    $this->assertEqual("Disney", $this->etd->supplements[1]->policy->view->condition->department);
 
     error_reporting($errlevel);	    // restore prior error reporting
   }
@@ -473,16 +652,15 @@ class TestEtd extends UnitTestCase {
   }
 
   function testMagicMethods() {
-      $fedora = Zend_Registry::get("fedora");
       // ingest a minimal, published record to test fedora methods as object methods
       $etd = new etd();
-      $etd->pid = "demo:17";
+      $etd->pid = $this->etdpid;
       $etd->title = "test etd";
       $etd->mods->ark = "ark:/123/bcd";
       $etd->setStatus("published");            
-      $pid = $fedora->ingest($etd->saveXML(), "test etd magic methods");
+      $this->fedora->ingest($etd->saveXML(), "test etd magic methods");
 
-      $etd = new etd($pid);
+      $etd = new etd($this->etdpid);
       $marcxml = $etd->getMarcxml();
       $this->assertNotNull($marcxml, "getMarcxml() return response should not be empty");
       $this->assertPattern("|<marc:record|", $marcxml, "getMarcxml() result looks like marc xml");
@@ -495,7 +673,68 @@ class TestEtd extends UnitTestCase {
       $this->assertNotNull($mods, "getMods() return response should not be empty");
       $this->assertPattern("|<mods:mods|", $mods, "getMods () result looks like MODS");
 
-      $fedora->purge("demo:17", "removing test etd");
+      $this->fedora->purge($this->etdpid, "removing test etd");
+  }
+
+
+  function testIsEmbargoed() {
+    $this->etd->mods->embargo_end = "";
+    $this->assertFalse($this->etd->isEmbargoed(),
+		       "isEmbargoed returns false when no embargo end date is set");
+
+    $this->etd->mods->embargo_end =  date("Y-m-d", strtotime("+1 year", time()));;
+    $this->assertTrue($this->etd->isEmbargoed(),
+		      "isEmbargoed returns true for embargo end date one year in future");
+
+    $this->etd->mods->embargo_end =  date("Y-m-d", strtotime("-1 year", time()));;
+    $this->assertFalse($this->etd->isEmbargoed(),
+		      "isEmbargoed returns false for embargo end date one year in past");
+
+    $this->etd->mods->embargo_end =  date("Y-m-d");;
+    $this->assertFalse($this->etd->isEmbargoed(),
+		      "isEmbargoed returns false for embargo end date of today");
+  }
+
+  function testGetPreviousStatus() {
+    // ingest a minimal, published record to test fedora methods as object methods
+    $etd = new etd();
+    $etd->pid = $this->etdpid;
+    $etd->title = "test etd";
+    $etd->mods->ark = "ark:/123/bcd";
+    $etd->rels_ext->addRelation("rel:author", "me");  
+    $etd->setStatus("draft");            
+    $this->fedora->ingest($etd->saveXML(), "test previousStatus");
+    $this->assertEqual(null, $etd->previousStatus(),
+		       "previousStatus should return null when there is no previous status, got '"
+		       . $etd->previousStatus() . "'");
+    
+
+    
+    // setting status to reviewed; previous status is draft
+    $etd = new etd($this->etdpid);
+    $etd->setStatus("reviewed");
+    $etd->save("setting status to reviewed");
+
+    $this->assertEqual("draft", $etd->previousStatus(),
+		       "previousStatus should return draft, got '"
+		       . $etd->previousStatus() . "'");
+
+
+    // setting status to published; previous status is reviewed
+    $etd = new etd($this->etdpid);
+    $etd->setStatus("published");
+    $etd->save("setting status to published");
+    // make a non-status-related change to rels-ext; previous status is 2 versions ago, still reviewed
+    $etd->rels_ext->author = "you";  
+    $etd->save("making non-status change to rels-ext");
+    
+    $this->assertEqual("reviewed", $etd->previousStatus(),
+		       "previousStatus should return reviewed, got '"
+		       . $etd->previousStatus() . "'");
+
+    
+    
+    $this->fedora->purge($this->etdpid, "removing test etd");
   }
   
 

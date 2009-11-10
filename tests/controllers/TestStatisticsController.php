@@ -11,6 +11,20 @@ require_once('controllers/StatisticsController.php');
       
 class StatisticsControllerTest extends ControllerTestCase {
 
+  // fedoraConnection
+  private $fedora;
+
+  private $etdpid;
+
+  function __construct() {
+    $this->fedora = Zend_Registry::get("fedora");
+    $fedora_cfg = Zend_Registry::get('fedora-config');
+
+    // get test pid
+    $this->etdpid = $this->fedora->getNextPid($fedora_cfg->pidspace);
+  }
+
+  
   function setUp() {
     $this->response = $this->makeResponse();
     $this->request  = $this->makeRequest();
@@ -18,7 +32,7 @@ class StatisticsControllerTest extends ControllerTestCase {
     // insert some test data into temporary test db
     $statDB = new StatObject();
     $data = array("id" => null, "ip" => "10.0.0.1", "date" => "2008-01-03 12:10:02",
-		  "pid" => "test:etd1", "type" => "abstract", "country" => "United States");
+		  "pid" => $this->etdpid, "type" => "abstract", "country" => "United States");
     $statDB->insert($data);
     
   }
@@ -52,11 +66,17 @@ class StatisticsControllerTest extends ControllerTestCase {
   function testRecordAction() {
     // load a test objects to repository (etd status is published)
     // (fedora object is only needed for this particular test, not every test in this script)
-    $fedora = Zend_Registry::get("fedora");
-    $pid = $fedora->ingest(file_get_contents('../fixtures/etd1.xml'), "loading test etd");
+    $dom = new DOMDocument();
+    // load etd & set pid & author relation
+    $dom->loadXML(file_get_contents('../fixtures/etd1.xml'));
+    $foxml = new foxml($dom);
+    $foxml->pid = $this->etdpid;
+    $this->fedora->ingest($foxml->saveXML(), "loading test etd object");
+
+    
     
     $statsController = new StatisticsControllerForTest($this->request,$this->response);
-    $this->setUpGet(array('pid' => $pid));
+    $this->setUpGet(array('pid' => $this->etdpid));
     $statsController->recordAction();
     $this->assertTrue(isset($statsController->view->title));
     $this->assertIsA($statsController->view->etd, "etd");
@@ -66,11 +86,11 @@ class StatisticsControllerTest extends ControllerTestCase {
     $this->assertIsA($statsController->view->countries, "CountryNames");
 
     // FIXME: error handling, user not allowed to see etd?
-    $etd = new etd($pid);
-    $etd->setStatus("draft");	   // unpublished etd
+    $etd = new etd($this->etdpid);
+    $etd->setStatus("draft");	   // unpublished e
     $etd->save('setting status to draft to test statistics view');
 
-    $this->setUpGet(array('pid' => $pid));
+    $this->setUpGet(array('pid' => $this->etdpid));
     // re-initializing controller so view variables are reset
     $statsController = new StatisticsControllerForTest($this->request,$this->response);
     $this->assertFalse($statsController->recordAction());
@@ -82,7 +102,7 @@ class StatisticsControllerTest extends ControllerTestCase {
     $this->assertFalse(isset($statsController->view->countries));
     
     
-    $fedora->purge($pid, "removing test etd");
+    $this->fedora->purge($this->etdpid, "removing test etd");
   }
   
 

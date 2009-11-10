@@ -17,7 +17,7 @@
 <? if ($this->acl->isAllowed($this->role, $this->etd, "edit metadata")): ?>
   <a class="action" href="<?= $this->url(array("controller" => "edit", "action" => "title")) ?>">edit title</a>
  <? endif ?>
-  <h1><?= $this->etd->html->title ?></a></h1>
+   <h1><?= $this->etd->title() ?></h1>
  	<? if ($this->acl->isAllowed($this->role, $this->etd, "edit metadata")): ?>
 <a class="action" href="<?= $this->url(array("controller" => "edit", "action" => "record")) ?>">edit thesis information</a>
    <a class="action" href="<?= $this->url(array("controller" => "edit", "action" => "faculty")) ?>">edit committee chair &amp; members</a>
@@ -45,7 +45,10 @@
 
    <? endif ?>
   <div id="abstract">
-     <?= $this->etd->html->abstract ?>
+   <? if ($this->etd->isEmbargoed() && $this->etd->mods->isEmbargoRequested(etd_mods::EMBARGO_ABSTRACT)): ?>
+    <p>Access restricted until <b><?= $this->etd->mods->embargo_end ?></b></p>
+   <? endif ?>
+    <?= $this->etd->_abstract() ?>
   </div>
 
   <h2>Table of Contents</h2>
@@ -53,7 +56,11 @@
   <a class="action" href="<?= $this->url(array("controller" => "edit", "action" => "contents")) ?>">edit</a>
      <? endif ?>
   <div id="toc">
-    <?= $this->etd->html->contents ?>
+   <? if ($this->etd->isEmbargoed() && $this->etd->mods->isEmbargoRequested(etd_mods::EMBARGO_TOC)): ?>
+    <p>Access restricted until <b><?= $this->etd->mods->embargo_end ?></b></p>
+   <? endif ?>
+
+    <?= $this->etd->tableOfContents() ?>
   </div>
      
   <?=  $this->render('view/_files.phtml'); ?>

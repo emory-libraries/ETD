@@ -1,7 +1,10 @@
 <?
-
-/* minimal object interface to country list
-   - used to set PQ country codes for ProQuest submissions
+/**
+ * minimal object interface to country list
+ *  - used to set PQ country codes for ProQuest submissions
+ * @category Etd
+ * @package Etd_Models
+ * @subpackage ProQuest_Submission
  */
 
 class countries {

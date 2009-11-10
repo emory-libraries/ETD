@@ -108,7 +108,7 @@ div#emory img {
 }
 
 
-div#title { 
+div#etd_title { 
   position:absolute;
   font-style:italic;
   font-size:12pt;
@@ -117,7 +117,7 @@ div#title {
 /*  border:1px solid white;*/
 }
 
-div#title a { 
+div#etd_title a { 
   color:white;
   text-decoration:none;
 }
@@ -479,6 +479,7 @@ div.listrecord h3 {
 div.listrecord p, .fullrecord p { /* div or body (in FCKeditor) */
   margin:0px;
 }
+
 div.fullrecord { 
   background:#ffffff;
 }
@@ -1003,3 +1004,9 @@ div.autocomplete ul li {
 
 span.ok { color:green;  }
 span.incomplete { color:red; }
+
+form#rightsForm p { margin-bottom:0px; }
+p.label { font-weight:bold }
+div.subchoice { 
+ margin-left:0.5in;
+}

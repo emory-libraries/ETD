@@ -9,20 +9,31 @@ class TestEtdSet extends UnitTestCase {
   private $etdpid;
   private $honors_etdpid;
 
+  // fedoraConnection
+  private $fedora;
+  
+  function __construct() {
+    $this->fedora = Zend_Registry::get("fedora");
+    $fedora_cfg = Zend_Registry::get('fedora-config');
+
+    // get 2 test pids 
+    list($this->etdpid, $this->honors_etdpid) = $this->fedora->getNextPid($fedora_cfg->pidspace, 5);
+  }
+
   function setUp() {
     $this->etdset = new EtdSet();
     
     $this->fedora = Zend_Registry::get("fedora");
     
     $etd = new etd();
-    $etd->pid = "demo:12";
+    $etd->pid = $this->etdpid;
     $etd->title = "regular etd";
-    $this->etdpid = $this->fedora->ingest($etd->saveXML(), "test etd factory init");
+    $this->fedora->ingest($etd->saveXML(), "test etd factory init");
     
     $etd = new honors_etd();
-    $etd->pid = "demo:13";
+    $etd->pid = $this->honors_etdpid;
     $etd->title = "honors etd";
-    $this->honors_etdpid = $this->fedora->ingest($etd->saveXML(), "test etd factory init");
+    $this->fedora->ingest($etd->saveXML(), "test etd factory init");
     
 
     $solr = new Mock_Etd_Service_Solr();

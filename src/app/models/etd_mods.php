@@ -1,19 +1,21 @@
 <?php
-
 require_once("models/mods.php");
 
 require_once("models/esdPerson.php");
 
 /**
- *  ETD extension of MODS XmlObject / Fedora Foxml datastream
+ * ETD extension of MODS XmlObject / Fedora Foxml datastream
+ * @category Etd
+ * @package Etd_Models
+ * @subpackage Etd
  *
  * @property string $author
  * @property string $department author affiliation
- * @property array of mods_name $chair name with role 'Thesis Advisor'
- * @property array of mods_name $committee name with description 'Emory Committe Member'
- * @property array of mods_name $nonemory_committee name with description 'Non-Emory Committe Member'
- * @property array of etdmods_subject $researchfields subject with authority 'proquestresearchfield'
- * @property array of etdmods_subject $keywords subject with authority 'keyword'
+ * @property array $chair array of mods_name with role 'Thesis Advisor'
+ * @property array $committee array of mods_name with description 'Emory Committe Member'
+ * @property array $nonemory_committee array of mods_name with description 'Non-Emory Committe Member'
+ * @property array $researchfields array of etdmods_subject with authority 'proquestresearchfield'
+ * @property array $keywords array of etdmods_subject with authority 'keyword'
  * @property string $pages physicalDescription/extent
  * @property etd_degree $degree mods:extension with etd-ms degree information
  * @property string $copyright administrative note regarding copyright
@@ -32,9 +34,17 @@ class etd_mods extends mods {
 
   const ETDMS_NS = "http://www.ndltd.org/standards/metadata/etdms/1.0/";
 
+  const EMBARGO_MIN = 0;
+  const EMBARGO_NONE = 0;
+  const EMBARGO_FILES = 1;
+  const EMBARGO_TOC = 2;
+  const EMBARGO_ABSTRACT = 3;
+  const EMBARGO_MAX = 3;
+  private $embargo_name_map;
+ 
   protected $required_fields;
   protected $optional_fields;
- 
+
   // add etd-specific mods mappings
   protected function configure() {
     /** NOTE: this data is edited on several different pages;
@@ -57,6 +67,10 @@ class etd_mods extends mods {
 				   "copyright" => "rights");
     // no optional fields in base etd_mods 
     $this->optional_fields = array();
+
+    $this->embargo_name_map = array(etd_mods::EMBARGO_FILES => "files",
+                                    etd_mods::EMBARGO_TOC => "toc",
+                                    etd_mods::EMBARGO_ABSTRACT => "abstract");
     
     parent::configure();
 
@@ -143,16 +157,31 @@ class etd_mods extends mods {
     }
     return $value;
   }
-  
+
+  /**
+   * add new research field by text + id
+   * @param string $text
+   * @param string $id optional
+   */
   public function addResearchField($text, $id = "") {
     $this->addSubject($text, "researchfields", "proquestresearchfield", $id);
   }
-  
+
+  /**
+   * add a new keyword
+   * @param string $text keyword
+   */
   public function addKeyword($text) {
     $this->addSubject($text, "keywords", "keyword");
   }
   
-  //  function to add subject/topic pair - used to add keyword & research field
+  /**
+   * add subject/topic pair - used for adding both keywords & research fields
+   * @param string $text
+   * @param string $mapname keywords or researchfields
+   * @param string $authority optional, defaults to none
+   * @param string $id optional, defaults to none
+   */
   public function addSubject($text, $mapname, $authority = null, $id = "") {
     // add a new subject/topic to the DOM and the in-memory map
     $subject = $this->dom->createElementNS($this->namespaceList["mods"], "mods:subject");
@@ -180,7 +209,7 @@ class etd_mods extends mods {
       $contextnode->parentNode->insertBefore($subject, $contextnode);
     } else {
       // if no context node is found, new node will be appended at end of xml document
-      $this->dom->documentElement->appendChild($subject);
+      $this->domnode->appendChild($subject);
     }
 
     // update in-memory map
@@ -250,12 +279,20 @@ class etd_mods extends mods {
   }
 
 
-
+  /**
+   * set author name from esd person
+   * @param esdPerson $person
+   */
   public function setAuthorFromPerson(esdPerson $person) {
     $this->setNameFromPerson($this->author, $person, true);
   }
 
-  // generic function to set name fields from an esdPerson object
+  /**
+   * generic function to set name fields from an esdPerson object
+   * @param mods_name $name
+   * @param esdPerson $person
+   * @param bool $preserve_aff preserve affiliation? optional, defaults to false
+   */
   private function setNameFromPerson(mods_name $name, esdPerson $person, $preserve_aff = false) {
     $name->id    = trim($person->netid);
     $name->last  = trim($person->lastname);
@@ -357,7 +394,9 @@ class etd_mods extends mods {
     $this->update();
   }
 
-  // remove all non-Emory committee members  (use before re-adding them)
+  /**
+   * remove all non-Emory committee members  (use before re-adding them)
+   */
   public function clearNonEmoryCommittee() {
     $nodelist = $this->xpath->query("//mods:name[mods:description='Non-Emory Committee Member']");
     for ($i = 0; $i < $nodelist->length; $i++) {
@@ -367,6 +406,12 @@ class etd_mods extends mods {
     $this->update();
   }
 
+  /**
+   * set committee member affiliation by id
+   * @param string $id
+   * @param string $affiliation
+   * @param string $type optional, defaults to committee
+   */
   public function setCommitteeAffiliation($id, $affiliation, $type = "committee") {
     foreach ($this->{$type} as $member) {
       if ($member->id == $id) {
@@ -383,8 +428,11 @@ class etd_mods extends mods {
   }
 
   
-  // set all research fields from an array, over writing any currently set fields
-  // and adding new fields as necessary
+  /**
+   * set all research fields from an array, overwriting any currently set fields
+   * and adding new fields as necessary
+   * @param array $values associative array of research field id => name
+   */
   public function setResearchFields(array $values) {
     $i = 0;	// research field array index
     foreach ($values as $id => $text) {
@@ -401,7 +449,10 @@ class etd_mods extends mods {
       $this->removeResearchField($this->researchfields[$i]->id);
     }
   }
-
+  /**
+   * remove a research field by id
+   * @param string|int $id
+   */
   public function removeResearchField($id) {
     // remove the node from the xml dom
     // NOTE: takes numerical id as parameter, prepends 'id' (needed for valid id)
@@ -415,7 +466,10 @@ class etd_mods extends mods {
     $this->update();
   }
 
-  // find the index for a research field by id
+  /**
+   * find the index for a research field by id
+   * @param string|int $id
+   */
   public function researchFieldIndex($id) {
     for ($i = 0; count($this->researchfields); $i++) {
       $field = $this->researchfields[$i];
@@ -423,7 +477,11 @@ class etd_mods extends mods {
 	return $i;
     }
   }
-
+  /**
+   * check by id if researchfield is present
+   * @param string|int $id
+   * @return bool
+   */
   public function hasResearchField($id) {
     foreach ($this->researchfields as $field) {
       if ($field->id == $id)
@@ -432,12 +490,84 @@ class etd_mods extends mods {
     return false;
   }
 
-  // add mods:note at end of document
+  /**
+   * add mods:note at end of document
+   * @param string $text text of the note to add
+   * @param string $type note type (set in mods note type attribute)
+   * @param string $id note id (set in mods note id attribute)
+   */
   public function addNote($text, $type, $id) {
     $note = $this->domnode->appendChild($this->dom->createElementNS($this->namespaceList["mods"], "mods:note", $text));
     $note->setAttribute("type", $type);
     $note->setAttribute("ID", $id);
     $this->update();
+  }
+
+  /**
+   * what is the requested embargo level?
+   * @return int|null null if not set
+   */
+  public function embargoRequestLevel() {
+    $embargo = $this->embargo_request;
+
+    if (strpos($embargo, "no") === 0)
+      return etd_mods::EMBARGO_NONE;
+    else if (strpos($embargo, "yes") === 0) {
+      $highest = etd_mods::EMBARGO_FILES; // the default if no ":"
+      if ((strlen($embargo)) >= 4 && ($embargo[3] == ":")) {
+        $level_bits = explode(",", substr($embargo, 4));
+        foreach ($level_bits as $level_bit) {
+          $level = array_search($level_bit, $this->embargo_name_map);
+          if ($level > $highest)
+            $highest = $level;
+        } // foreach
+      } // if ":"
+      return $highest;
+    } else { // neither "yes" nor "no" {
+      // FIXME: "" is legal, but should we throw an exception for other values?
+      return NULL;
+    }
+  }
+
+  /**
+   * check that embarge request level is valid
+   * @param int $level
+   * @return bool
+   */
+  public function validEmbargoRequestLevel($level) {
+    return ($level >= etd_mods::EMBARGO_MIN &&
+            $level <= etd_mods::EMBARGO_MAX);
+  }
+
+  /**
+   * set embargo request
+   * @param int $level 
+   */
+  public function setEmbargoRequestLevel($level) {
+    if ($level == etd_mods::EMBARGO_NONE) {
+      $this->embargo_request = "no";
+    } else {
+      $embargo_bits = "";
+      for ($i = etd_mods::EMBARGO_FILES; $i <= $level; $i++) {
+        $embargo_bits .= ",";
+        $embargo_bits .= $this->embargo_name_map[$i];
+      }
+      $this->embargo_request = "yes:" . substr($embargo_bits, 1);
+    }
+  }
+
+  /**
+   * has the student requested an embargo?
+   * @param int $level optional information about a particular embargo level
+   * @return bool
+   */
+  public function isEmbargoRequested($level = null) {
+    if (is_null($level)) {
+      // is *any* embargo requested? could be "yes" or "yes:foo". "" and "no" are false.
+      return (strpos($this->embargo_request, "yes") === 0);
+    } else {
+      return ($this->embargoRequestLevel() >= $level);
+    }
   }
 
   /**
@@ -496,7 +626,11 @@ class etd_mods extends mods {
     }
   }    
 
-    public function remove($mapname){
+  /**
+   * remove a field from the xml
+   * @param string $mapname configured field name (one of the magic properties)
+   */
+  public function remove($mapname){
     if (!isset($this->{$mapname})) {
       trigger_error("Cannot remove '$mapname' - not mapped", E_USER_WARNING);
       return;
@@ -686,7 +820,10 @@ class etd_mods extends mods {
 
   
 
-  // specialized version of check required - disregards rights completion status
+  /**
+   * specialized version of check required - disregards rights completion status
+   * @return bool
+   */
   public function thesisInfoComplete() {
     $missing = $this->checkRequired();
     // nothing is missing
@@ -701,16 +838,27 @@ class etd_mods extends mods {
     return true;
   }
 
-  
+  /**
+   * has copyright request been set?
+   * @return bool
+   */
   function hasCopyright() {
     return (isset($this->copyright) && $this->copyright != "");
     //    return preg_match("/applying for copyright\? (yes|no)/", $this->copyright);
   }
 
+  /**
+   * has embargo request been set?
+   * @return bool
+   */
   function hasEmbargoRequest() {
     return (isset($this->embargo_request) && $this->embargo_request != "");
   }
 
+  /**
+   * has submission agreement been agreed to?
+   * @return bool
+   */
   function hasSubmissionAgreement() {
     return (isset($this->rights) && $this->rights != "");
   }
@@ -723,12 +871,18 @@ class etd_mods extends mods {
     return ($this->degree->name == "PhD");
   }
   
-  // is submit to proquest set (yes/no)
+  /**
+   * is submit to proquest set (yes/no)
+   * @return bool
+   */
   public function hasSubmitToProquest() {
     return (isset($this->pq_submit) && $this->pq_submit != "");
   }
 
-  // is the record set to be submitted to proquest?
+  /**
+   * is the record set to be submitted to proquest?
+   * @return bool
+   */
   public function submitToProquest() {
     return ($this->degree->name == "PhD" || $this->pq_submit == "yes");
   }
@@ -749,6 +903,8 @@ class etd_mods extends mods {
  * ProQuest fields are stored as subjects with a numerical id, but this
  * is not valid xml; intercept the get/and set calls on the id of the
  * mods_subject to add the id to the xml but not show to the user
+ * @package Etd_Models
+ * @subpackage Etd
  */
 class etdmods_subject extends mods_subject {
   public function __set($name, $value) {
@@ -770,6 +926,8 @@ class etdmods_subject extends mods_subject {
 
 /**
  *  ETD-MS degree XmlObject
+ * @package Etd_Models
+ * @subpackage Etd
  *
  * @property string $name degree name
  * @property string $level degree level

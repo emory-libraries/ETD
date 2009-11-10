@@ -22,3 +22,6 @@
     <? if ($this->acl->isAllowed($this->role, $this->etd, "inactivate")): ?>
 <a class="action" href="<?= $this->url(array('controller' => 'manage',
 		'action' => 'inactivate', 'pid' => $this->etd->pid()), '', true, false) ?>">mark inactive</a> <? endif ?>
+    <? if ($this->acl->isAllowed($this->role, $this->etd, "reactivate")): ?>
+<a class="action" href="<?= $this->url(array('controller' => 'manage',
+		'action' => 'reactivate', 'pid' => $this->etd->pid()), '', true, false) ?>">re-activate</a> <? endif ?>

@@ -1,4 +1,9 @@
 <?php
+/**
+ * @category Etd
+ * @package Etd_Models
+ * @subpackage Etd_File
+ */
 
 require_once("XmlObject.class.php");
 require_once("models/foxml.php");

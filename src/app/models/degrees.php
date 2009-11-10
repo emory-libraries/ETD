@@ -1,7 +1,10 @@
 <?
-
-/* minimal object interface to degree name & level configuration
-   - used to set PQ degree codes for ProQuest submissions
+/**
+ * minimal object interface to degree name & level configuration
+ * - used to set PQ degree codes for ProQuest submissions
+ * @category Etd
+ * @package Etd_Models
+ * @subpackage ProQuest_Submission
  */
 
 class degrees {

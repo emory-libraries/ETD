@@ -3,6 +3,10 @@
 /**
  * Placeholder for now; main etd is effectively grad etd.
  * Extending here to conditionally set grad school collection membership.
+ *
+ * @category Etd
+ * @package Etd_Models
+ * @subpackage Etd
  */
 
 require_once("etd.php");

@@ -1,8 +1,12 @@
 <?
 
-/* country name by two-letter code
-   modified code from http://www.phptutorial.info/iptocountry/the_script.html
-*/
+/**
+ * country name by two-letter code, used for statistics
+ *  modified code from http://www.phptutorial.info/iptocountry/the_script.html
+ * @category Etd
+ * @package Etd_Models
+ * @subpackage Statistics
+ */
 
 class CountryNames {
  public $AD = "Andorra";

@@ -9,15 +9,10 @@ class TestPQSubmission extends UnitTestCase {
   private $pq;
   
   function setUp() {
-    /*    $fname = 'fixtures/pq.xml';
-    $dom = new DOMDocument();
-    $dom->load($fname);*/
-    //    $this->pq = new ProQuestSubmission($dom);
     $this->pq = new ProQuestSubmission();
   }
   
-  function tearDown() {
-  }
+  function tearDown() {}
 
   function testBasicProperties() {
     // test that the main parts of the xml document are mapped correctly
@@ -42,21 +37,29 @@ class TestPQSubmission extends UnitTestCase {
   }
 
   function testInitializeFromEtd() {
-    $this->etdxml = array("etd2" => "test:etd2", "user" => "test:user1");
-
-
     $fedora = Zend_Registry::get("fedora");
+    $fedora_cfg = Zend_Registry::get('fedora-config');
+
+    // load fixtures
+    // note: etd & related user need to be in repository so authorInfo relation will work
     
-    // note: needs to be in repository so authorInfo relation will work
+    // get 2 test pids
+    list($etdpid, $userpid) = $fedora->getNextPid($fedora_cfg->pidspace, 2);
+    $dom = new DOMDocument();
+    // load etd & set pid & author relation
+    $dom->loadXML(file_get_contents('../fixtures/etd2.xml'));
+    $foxml = new etd($dom);
+    $foxml->pid = $etdpid;
+    $foxml->rels_ext->hasAuthorInfo = $userpid;
+    $fedora->ingest($foxml->saveXML(), "loading test etd object");
+
+    // load author info
+    $dom->loadXML(file_get_contents('../fixtures/user.xml'));
+    $foxml = new foxml($dom);
+    $foxml->pid = $userpid;
+    $fedora->ingest($foxml->saveXML(), "loading test etd authorInfo object");
     
-    // load test objects to repository
-    // NOTE: for risearch queries to work, syncupdates must be turned on for test fedora instance
-    $pids = array();
-    foreach (array_keys($this->etdxml) as $etdfile) {
-	$pids[] = $fedora->ingest(file_get_contents('../fixtures/' . $etdfile . '.xml'), "loading test object");
-    }
-    
-    $etd = new etd('test:etd2');
+    $etd = new etd($etdpid);
 
     $this->pq->initializeFromEtd($etd);
     $this->assertEqual("0", $this->pq->embargo_code);
@@ -79,7 +82,7 @@ class TestPQSubmission extends UnitTestCase {
     $this->assertEqual("US", $this->pq->author_info->permanent_contact->address->country);
 
     $this->assertEqual($etd->mods->pages, $this->pq->description->page_count);
-    $this->assertEqual("test:etd2", $this->pq->description->external_id);
+    $this->assertEqual($etdpid, $this->pq->description->external_id);
     $this->assertEqual("doctoral", $this->pq->description->type);
     $this->assertEqual($etd->mods->copyright, $this->pq->description->copyright);
     $this->assertEqual("2007", $this->pq->description->date_completed);
@@ -112,7 +115,7 @@ class TestPQSubmission extends UnitTestCase {
     $this->assertTrue($this->pq->isValid(), "initialized PQ submission should be valid");
 
     // remove test object
-    foreach ($pids as $pid) {
+    foreach (array($etdpid, $userpid) as $pid) {
       $fedora->purge($pid, "removing test object");
     }
   }

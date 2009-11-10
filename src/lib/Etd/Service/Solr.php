@@ -2,11 +2,12 @@
 
 require_once("Emory/Service/Solr.php");
 
-
 /**
  * customized version of Solr service
  *  - default filter to restrict results to ETD objects only
  *  - convenience function to search published records only
+ *
+ * @category Etd
  */
 class Etd_Service_Solr extends Emory_Service_Solr {
 

@@ -1,7 +1,16 @@
 <?php
-
 require_once("models/foxmlDatastreamAbstract.php");
 
+/**
+ * premis foxml datastream
+ *
+ * @category Etd
+ * @package Etd_Models
+ * @subpackage Etd
+ *
+ * @property premis_object $object
+ * @property premis_event $event
+ */
 class premis extends foxmlDatastreamAbstract  {
 
   protected $schema = "http://www.loc.gov/standards/premis/v1/PREMIS-v1-1.xsd";
@@ -88,7 +97,15 @@ class premis extends foxmlDatastreamAbstract  {
   
 }
 
-
+/**
+ * XmlObject for the object section of premis
+ * @package Etd_Models
+ * @subpackage Etd
+ *
+ * @property string $type
+ * @property premis_identifier $identifier
+ * @property string $category object category
+ */
 class premis_object extends XmlObject {
   public function __construct($xml, $xpath) {
     $config = $this->config(array(
@@ -100,7 +117,15 @@ class premis_object extends XmlObject {
   }
 }
 
-// generic premis identifier to work for *identifierType and *identifierValue
+/**
+ * XmlObject for premis identifiers
+ * generic premis identifier to work for *identifierType and *identifierValue
+ * @package Etd_Models
+ * @subpackage Etd
+ *
+ * @property string $type object, event, or linking agent identifier type
+ * @property string $value object, event, or linking agent identifier value
+ */
 class premis_identifier extends XmlObject {
   public function __construct($xml, $xpath) {
     $config = $this->config(array(
@@ -111,6 +136,18 @@ class premis_identifier extends XmlObject {
   }
 }
 
+/**
+ * XmlObject for event section of premis
+ * @package Etd_Models
+ * @subpackage Etd
+ *
+ * @property premis_identifier $identifier
+ * @property string $type
+ * @property string $date
+ * @property string $detail
+ * @property string $outcome
+ * @property premis_identifier $agent
+ */
 class premis_event extends XmlObject {
   public function __construct($xml, $xpath) {
     $config = $this->config(array(

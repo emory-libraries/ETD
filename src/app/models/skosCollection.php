@@ -1,4 +1,9 @@
 <?
+/**
+ * @category Etd
+ * @package Etd_Models
+ * @subpackage Skos_Hierarchy
+ */
 
 require_once("xml-utilities/XmlObject.class.php");
 require_once("fedora/models/foxml.php");
@@ -292,30 +297,25 @@ class skosCollection extends XmlObject {
   public function setMembers($ids) {
     // convert ids to the expected format if they are not already that way
     $ids = preg_replace("/^([^#])/", "#$1", $ids);
+
+    // remove all current members
+    $rm_ids = array();
+    for ($i = 0; $i < count($this->members); $i++) {
+      $rm_ids[] = $this->members[$i]->id;
+    }
+    foreach ($rm_ids as $rid) $this->removeMember($rid);
     
     for ($i = 0; $i < count($ids); $i++) {
       // do not set a collection as a member of itself as
       // _bad_ things will happen (circular)
       if ($ids[$i] == $this->id) continue;
-
       
       // FIXME: warn if id does not correspond to a rdf:resource somewhere in the DOM?
-      if (isset($this->members[$i])) {
-	// update id in existing member nodes
-	$this->members[$i]->__set("id", $ids[$i]);
-      } else {
-	// add new member node with new order
-	$this->addMember($ids[$i]);
-      }
+
+      // add new member node in the correct order
+      $this->addMember($ids[$i]);
     }
 
-    // remove any current members that are beyond the list of ids
-    $rm_ids = array();
-    for ($i = count($ids); $i < count($this->members); $i++) {
-      $rm_ids[] = $this->members[$i]->id;
-    }
-    // NOTE: removing after getting ids to avoid iterating over a disappearing list
-    foreach ($rm_ids as $id) $this->removeMember($id);
     // update memory mappings, etc.
     $this->update();
   }

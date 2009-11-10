@@ -1,4 +1,9 @@
 <?php
+/**
+ * @category Etd
+ * @package Etd_Models
+ * @subpackage Honors_Etd
+ */
 
 require_once("etd.php");
 require_once("honors_mods.php");
@@ -26,7 +31,7 @@ class honors_etd extends etd {
     }
 
     // for honors etds, admin agent is the college
-    $this->admin_agent = "the College Honors Program";
+    $this->admin_agent = "College Honors Program";
   }
 
 

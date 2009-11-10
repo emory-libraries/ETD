@@ -8,6 +8,8 @@
       private $user;
       private $data;
 
+      private $_realconfig;
+
       function setUp() {
         $this->esd = new esdPersonObject();
         // initialize non-db test person with blank data
@@ -16,9 +18,24 @@
 
 	$this->data = new esd_test_data();
 	$this->data->loadAll();
+
+	// store real config to restore later
+	$this->_realconfig = Zend_Registry::get('config');
+
+	// stub config with just the portion relevant to special user roles
+	$testconfig = new Zend_Config(array("techsupport" => array("user" => array("jolsen")),
+					    "honors_admin" => array("user" => array("llane")),
+					    "superusers" => array("user" => array("ckent")),
+					    ));
+
+	// temporarily override config in with test configuration
+	Zend_Registry::set('config', $testconfig);
       }
 
       function tearDown() {
+	// restore real config to registry
+	Zend_Registry::set('config', $this->_realconfig);
+	
 	$this->data->cleanUp();
       }
 
@@ -108,15 +125,21 @@
         $this->user->setRole();
         $this->assertEqual($this->user->role, "honors student");
 
-        // honors program administrator - based on config file
-        $this->user->netid = "mabell";
+        // honors program administrator - based on config 
+        $this->user->netid = "llane";
         $this->user->setRole();
         $this->assertEqual($this->user->role, "honors admin");
 
-        // etd superuser - based on config file
-        $this->user->netid = "rsutton";
+        // etd superuser - based on config 
+        $this->user->netid = "ckent";
         $this->user->setRole();
         $this->assertEqual($this->user->role, "superuser");
+
+	// tech support - based on config 
+        $this->user->netid = "jolsen";
+        $this->user->setRole();
+        $this->assertEqual($this->user->role, "techsupport");
+
       }
 
       function testProgramCoordinator(){

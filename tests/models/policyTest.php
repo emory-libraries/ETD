@@ -34,7 +34,6 @@ class TestPolicy extends UnitTestCase {
     // specific etd rules
     $this->assertIsA($this->policy->fedoraAdmin, "PolicyRule");
     $this->assertIsA($this->policy->view, "PolicyRule");
-    $this->assertIsA($this->policy->etdadmin, "PolicyRule");
     $this->assertIsA($this->policy->draft, "PolicyRule");
     $this->assertIsA($this->policy->published, "PolicyRule");
 
@@ -84,16 +83,28 @@ class TestPolicy extends UnitTestCase {
     $this->policy->addRule("view");
     $this->assertIsA($this->policy->view, "PolicyRule");
 
-
-    $this->policy->removeRule("etdadmin");
-    $this->policy->addRule("etdadmin");
-    $this->assertIsA($this->policy->etdadmin, "PolicyRule");
-
     $this->policy->removeRule("published");
     $this->policy->addRule("published");
     $this->assertIsA($this->policy->published, "PolicyRule");
-    // published rule for ETDs does *NOT* have condition or embargo date
-    $this->assertFalse(isset($this->policy->published->condition));
+    // published rule for ETDs now includes conditional logic
+    $this->assertTrue(isset($this->policy->published->condition),
+		      "etd publish policy includes a condition");
+    $this->assertIsA($this->policy->published->condition->methods,
+		     "DOMElementArray");
+    $this->assertEqual("title", $this->policy->published->condition->methods[0]);
+    $this->assertEqual("abstract",
+		       $this->policy->published->condition->methods[1]);
+    $this->assertEqual("tableofcontents",
+		       $this->policy->published->condition->methods[2]);
+    $this->assertEqual(3, count($this->policy->published->condition->methods),
+		       "non-embargoed methods should only include 3 default methods");
+    $this->assertIsA($this->policy->published->condition->embargoed_methods,
+		     "DOMElementArray");
+    $this->assertTrue(isset($this->policy->published->condition->embargoed_methods[0]),
+		     "embargoed_methods array has one entry");
+	
+    // embargo end should be pre-set to today
+    $this->assertEqual(date("Y-m-d"), $this->policy->published->condition->embargo_end);
 
     // add a non-existent rule
     $this->expectError("Rule 'nonexistent' unknown - cannot add to policy");
@@ -102,10 +113,10 @@ class TestPolicy extends UnitTestCase {
   }
 
   function testAddDatastream() {
-    $dscount = count($this->policy->etdadmin->resources->datastreams);
-    $this->policy->etdadmin->resources->addDatastream("TEI");
-    $this->assertEqual($dscount + 1, count($this->policy->etdadmin->resources->datastreams));
-    $this->assertEqual("TEI", $this->policy->etdadmin->resources->datastreams[$dscount]);
+    $dscount = count($this->policy->draft->resources->datastreams);
+    $this->policy->draft->resources->addDatastream("TEI");
+    $this->assertEqual($dscount + 1, count($this->policy->draft->resources->datastreams));
+    $this->assertEqual("TEI", $this->policy->draft->resources->datastreams[$dscount]);
 
     $this->expectError("Cannot add datastream 'bogus' because this resource has no datastreams");
     $this->policy->deny_most->resources->addDatastream("bogus");
@@ -148,7 +159,6 @@ class TestPolicy extends UnitTestCase {
     // these rules should be included in a new policy
     //    $this->assertTrue(isset($policy->fedoraAdmin));	// removed
     $this->assertTrue(isset($policy->view));
-    //    $this->assertTrue(isset($policy->etdadmin));	// no longer needed
     $this->assertTrue(isset($policy->draft));
 
     // should not include published rule
@@ -160,6 +170,24 @@ class TestPolicy extends UnitTestCase {
     $this->assertEqual($policy->view->condition->users[0], "author");
     $policy->draft->condition->user = "author";
     $this->assertEqual($policy->draft->condition->user, "author");
+  }
+
+  function testRestrictMethods() {
+    $this->policy->removeRule("published");
+    $this->policy->addRule("published");
+    $pub_condition = $this->policy->published->condition;
+    $pub_condition->restrictMethods(array("abstract",
+							       "tableofcontents"));
+
+    $this->assertTrue($pub_condition->embargoed_methods->includes("abstract"),
+		      "abstract now listed in embargoed methods");
+    $this->assertTrue($pub_condition->embargoed_methods->includes("tableofcontents"),
+		      "tableofcontents now listed in embargoed methods");
+    $this->assertFalse($pub_condition->methods->includes("abstract"),
+		       "abstract no longer listed in non-embargoed methods");
+    $this->assertFalse($pub_condition->methods->includes("tableofcontents"),
+		       "tableofcontents no longer listed in non-embargoed methods");
+    
   }
   
 }

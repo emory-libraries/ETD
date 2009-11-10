@@ -1,4 +1,9 @@
 <?php
+/**
+ * @category Etd
+ * @package Etd_Models
+ * @subpackage Etd_File
+ */
 
 require_once("policy.php");
 
@@ -24,12 +29,7 @@ class EtdFileXacmlPolicy extends XacmlPolicy {
 
     // special handling - set the date in published rule
     if ($name == "published") {
-      // by default, published stuff is available today
-      //      $yesterday = time() - (24 * 60 * 60);	// now - 1 day (24 hours; 60 mins; 60 secs)
-      //      $this->published->condition->embargo_end = date("Y-m-d", $yesterday);
-      // FIXME: do we need to set default date to yesterday to make it available right away?
       $this->published->condition->embargo_end = date("Y-m-d");
-      // greater than or equal should allow access on the day it is published ... xacml tests say different
     }
   }
 

@@ -17,11 +17,16 @@
         <port></port>
         <protocol></protocol>
       </risearch>
+      <alternate_hosts>
+	<server>dev11.library.emory.edu</server>
+	<server/>
+      </alternate_hosts>
   </development>
   <test extends="development">
      <port></port>
      <username></username>
      <password></password>   
+     <pidspace></pidspace>   <!-- REQUIRED: test objects should be created in this pid space; should be unique -->
   </test>
   <production extends="development">
      <server></server>

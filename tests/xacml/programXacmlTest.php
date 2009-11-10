@@ -32,6 +32,10 @@ class TestProgramXacml extends UnitTestCase {
 
   }
 
+  function tearDown() {
+    setFedoraAccount("fedoraAdmin");
+  }
+
 
   function testGuest() {
     // use guest account to access fedora

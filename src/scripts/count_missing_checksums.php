@@ -1,7 +1,11 @@
 #!/usr/bin/php -q
 <?php
-/* 
- * check ETD objects for datastreams with missing checksums
+
+/** 
+ * script to check ETD objects for datastreams with missing checksums
+ *
+ * @category Etd
+ * @package Etd_Scripts
  */
 
 // set paths, load config files, set up connection objects for fedora, solr, and ESD

@@ -1,5 +1,12 @@
 <?php
 
+/**
+ * @category Etd
+ * @package Etd_Models
+ * @subpackage Author_Info
+ */
+
+
 require_once("fedora/models/foxml.php");
 require_once("fedora/api/risearch.php");
 

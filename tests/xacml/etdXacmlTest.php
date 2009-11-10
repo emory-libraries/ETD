@@ -1,4 +1,5 @@
 <?php
+
 require_once("../bootstrap.php");
 require_once('models/etd.php');
 
@@ -23,18 +24,24 @@ class TestEtdXacml extends UnitTestCase {
    * FedoraConnection with current test user credentials
    */
   private $fedora;
+
+  function __construct() {
+    $fedora_cfg = Zend_Registry::get('fedora-config');
+    $this->fedoraAdmin = new FedoraConnection($fedora_cfg);
+    
+    // get test pid for fedora fixture
+    $this->pid = $this->fedoraAdmin->getNextPid($fedora_cfg->pidspace);
+  }
+
     
   function setUp() {
-    if (!isset($this->fedoraAdmin)) {
-      $fedora_cfg = Zend_Registry::get('fedora-config');
-      $this->fedoraAdmin = new FedoraConnection($fedora_cfg);
-    }
     $this->fedora = Zend_Registry::get('fedora');
       
     $fname = '../fixtures/etd1.xml';
     $dom = new DOMDocument();
     $dom->load($fname);
     $etd = new etd($dom);
+    $etd->pid = $this->pid;
 
     // repository-wide policy rules
     $etd->owner = "author";	// set owner to author username (rely on repository-wide policy for author access)
@@ -47,23 +54,12 @@ class TestEtdXacml extends UnitTestCase {
     $etd->policy->addRule("draft");
     $etd->policy->draft->condition->user = "author";
     if (isset($etd->policy->published)) $etd->policy->removeRule("published");
-    $this->pid =  $etd->pid;
     
-    try {
-      $this->fedoraAdmin->ingest($etd->saveXML(), "loading test object");
-    } catch (FedoraObjectExists $e) {
-      // if a previous test run failed, object may still be in Fedora
-      $this->purgeTestObject();
-      $this->fedoraAdmin->ingest($etd->saveXML(), "loading test object");
-    }
-
+    $this->fedoraAdmin->ingest($etd->saveXML(), "loading test object");
   }
 
   function tearDown() {
-    $this->purgeTestObject();
-  }
-
-  function purgeTestObject() {
+    setFedoraAccount("fedoraAdmin");
     $this->fedoraAdmin->purge($this->pid, "removing test object");
   }
 
@@ -75,11 +71,32 @@ class TestEtdXacml extends UnitTestCase {
   function testGuestPermissionsOnUnpublishedETD() {
     // use guest account to access fedora
     setFedoraAccount("guest");
+    // get fedoraConnection instance with guest credentials
+    $fedora = Zend_Registry::get("fedora");
 
     // test draft etd - guest shouldn't be able to see anything
-    //$this->expectException(new FoxmlException("Access Denied to {$this->pid}"));
-    $this->expectException(new FedoraAccessDenied("getDatastream for {$this->pid}/RELS-EXT"));
-    new etd($this->pid);
+    $result = null;
+    $exception = null;
+    try {
+      $result = $fedora->getDatastream($this->pid, "DC");
+    } catch (Exception $e) {
+        $exception = $e;
+    }
+    $this->assertNull($result, "unpublished DC should not be accessible to guest - got '$result'");
+    $this->assertIsA($exception, "FedoraAccessDenied");
+    if ($exception) $this->assertEqual("getDatastream for {$this->pid}/DC", $exception->getMessage());
+
+    $result = null;
+    $exception = null;
+    try {
+      $result = $fedora->getDisseminationSOAP($this->pid, "emory-control:ETDmetadataParts",
+					      "title");
+    } catch (Exception $e) {
+        $exception = $e;
+    }
+    $this->assertNull($result, "unpublished metadata dissemination should not be accessible to guest - got '$result'");
+    $this->assertIsA($exception, "FedoraAccessDenied");
+    if ($exception) $this->assertEqual("getDissemination title (emory-control:ETDmetadataParts) on {$this->pid}", $exception->getMessage());
 
   }
 
@@ -91,18 +108,126 @@ class TestEtdXacml extends UnitTestCase {
     $result = $etd->save("added published rule to test guest permissions");
 
     setFedoraAccount("guest");
-    $etd = new etd($this->pid);
+    // get fedoraConnection instance with guest credentials
+    $fedora = Zend_Registry::get("fedora");
+     // re-initialize with guest fedora account
+     $etd = new etd($this->pid);
     // these datastreams should be accessible
     $this->assertIsA($etd->dc, "dublin_core");
     $this->assertIsA($etd->rels_ext, "rels_ext");
     $this->assertIsA($etd->mods, "etd_mods");
-    $this->assertIsA($etd->html, "etd_html");
-    // these datastreams should still not be accessible
-    $this->expectException(new FedoraAccessDenied("getDatastream for {$this->pid}/PREMIS"));
-    $this->assertNull($etd->premis);
-    $this->expectException(new FedoraAccessDenied("getDatastream for {$this->pid}/POLICY"));
-    $this->assertNull($etd->policy);
+
+    $result = null;
+    $exception = null;
+    // can no longer access html datastream directly
+    try {
+      $result = $fedora->getDatastream($this->pid, "XHTML");
+    } catch (Exception $e) {
+        $exception = $e;
+    }
+    $this->assertNull($result, "published XHTML should not be accessible to guest - got '$result'");
+    $this->assertIsA($exception, "FedoraAccessDenied");
+    if ($exception) $this->assertEqual("getDatastream for {$this->pid}/XHTML", $exception->getMessage());
+
+    // access portions of html via service methods
+    $this->assertPattern('|<div id="title"|', $etd->title(),
+			 "html title accessible via dissemination");
+    $this->assertPattern('|<div id="abstract"|', $etd->abstract(),
+			 "html abstract accessible via dissemination");
+    $this->assertPattern('|<div id="contents"|', $etd->tableOfContents(),
+			 "html ToC accessible via dissemination");
+
+    // premis/policy datastreams should still not be accessible
+    $result = null;
+    $exception = null;
+    try {
+      $result = $fedora->getDatastream($this->pid, "PREMIS");
+    } catch (Exception $e) {
+      $exception = $e;
+    }
+    $this->assertNull($result, "PREMIS should never be accessible to guest - got '$result'");
+    $this->assertIsA($exception, "FedoraAccessDenied");
+    if ($exception) $this->assertEqual("getDatastream for {$this->pid}/PREMIS", $exception->getMessage());
+
+    $result = null;
+    $exception = null;
+    try {
+      $result = $fedora->getDatastream($this->pid, "POLICY");
+    } catch (Exception $e) {
+      $exception = $e;
+    }
+    $this->assertNull($result, "POLICY should never be accessible to guest - got '$result'");
+    $this->assertIsA($exception, "FedoraAccessDenied");
+    if ($exception) $this->assertEqual("getDatastream for {$this->pid}/POLICY", $exception->getMessage());
   }
+  
+  function testGuestPermissionsOnPublishedETD_TOCrestricted() {
+    // set etd as published using admin account
+    setFedoraAccount("fedoraAdmin");	
+    $etd = new etd($this->pid);
+    $etd->policy->addRule("published");
+    $etd->policy->published->condition->restrictMethods(array("tableofcontents"));
+    $result = $etd->save("added published rule to test guest permissions");
+
+    setFedoraAccount("guest");
+    // get fedoraConnection instance with guest credentials
+    $fedora = Zend_Registry::get("fedora");
+     // re-initialize with guest fedora account
+     $etd = new etd($this->pid);
+
+     // access portions of html via service methods
+    $this->assertPattern('|<div id="title"|', $etd->title(),
+			 "html title accessible via dissemination");
+    $this->assertPattern('|<div id="abstract"|', $etd->abstract(),
+			 "html abstract accessible via dissemination");
+
+    try {
+      $result = $fedora->getDisseminationSOAP($this->pid, "emory-control:ETDmetadataParts",
+					      "tableofcontents");
+    } catch (Exception $e) {
+      $exception = $e;
+    }
+    $this->assertIsA($exception, "FedoraAccessDenied",
+		     "access denied to restricted ToC");
+    $this->assertFalse(isset($contents), "no contents returned - access denied");
+    if (isset($exception))
+      $this->assertPattern("/getDissemination tableofcontents/", $exception->getMessage());
+
+  }
+
+  function testGuestPermissionsOnPublishedETD_abstract_restricted() {
+    // set etd as published using admin account
+    setFedoraAccount("fedoraAdmin");	
+    $etd = new etd($this->pid);
+    $etd->policy->addRule("published");
+    $etd->policy->published->condition->restrictMethods(array("abstract"));
+    $result = $etd->save("added published rule to test guest permissions");
+
+    setFedoraAccount("guest");
+    // get fedoraConnection instance with guest credentials
+    $fedora = Zend_Registry::get("fedora");
+     // re-initialize with guest fedora account
+     $etd = new etd($this->pid);
+
+     // access portions of html via service methods
+    $this->assertPattern('|<div id="title"|', $etd->title(),
+			 "html title accessible via dissemination");
+    $this->assertPattern('|<div id="contents"|', $etd->tableOfContents(),
+			 "html ToC accessible via dissemination");
+
+    try {
+      $result = $fedora->getDisseminationSOAP($this->pid, "emory-control:ETDmetadataParts",
+					      "abstract");
+    } catch (Exception $e) {
+      $exception = $e;
+    }
+    $this->assertIsA($exception, "FedoraAccessDenied",
+		     "access denied to restricted ToC");
+    $this->assertFalse(isset($abs), "no abstract returned - access denied");
+    if (isset($exception))
+      $this->assertPattern("/getDissemination abstract/", $exception->getMessage());
+  }
+
 
   function testGuest_getMetadata_unpublished() {
     // use guest account to access fedora
@@ -112,7 +237,7 @@ class TestEtdXacml extends UnitTestCase {
     // permission denied on accessing MODS to create dissemination
     $this->expectError();
     $result = $fedora->getDisseminationSOAP($this->pid, "emory-control:metadataTransform",
-					"getMarcxml");
+					    "getMarcxml");
     $this->assertFalse($result);
   }
 
@@ -125,20 +250,20 @@ class TestEtdXacml extends UnitTestCase {
 
     // use guest account to access fedora
     setFedoraAccount("guest");
-    $fedora = Zend_Registry::get("fedora");
 
-    // FIXME: sdef object pid should probably be stored in a config file or something...
-    $result = $fedora->getDisseminationSOAP($this->pid, "emory-control:metadataTransform",
-					"getMarcxml");
-    $this->assertIsA($result, "MIMETypedStream",
-		     "result from getDissemination should be MIMETypedStream");
-    $this->assertPattern("/<marc:record/", $result->stream,
+
+    $etd = new etd($this->pid);
+    $xml = $etd->getMarcxml();
+    $this->assertPattern("/<marc:record/", $xml,
 			 "result from getMarcxml contains marc xml");
   }
  
   function testAuthorPermissions() {
     // set user account to author
     setFedoraAccount("author");
+    // get fedoraConnection from registry with current user credentials
+    $fedora = Zend_Registry::get("fedora");
+
 
     // record starts out as a draft-- author should be able to read and modify
     $etd = new etd($this->pid);
@@ -191,7 +316,7 @@ class TestEtdXacml extends UnitTestCase {
                             array("testid", "author"));    	// PREMIS
     $result = null;
     try {
-        $result = $this->fedora->modifyXMLDatastream($etd->pid, "PREMIS",
+        $result = $fedora->modifyXMLDatastream($etd->pid, "PREMIS",
 						    $etd->premis->datastream_label(),
 						    $etd->premis->saveXML(),
                             "test author permissions - modify PREMIS on non-draft etd");
@@ -200,13 +325,13 @@ class TestEtdXacml extends UnitTestCase {
     }
     $this->assertNull($result, "PREMIS not updated - timestamp should be null, got '$result'");
     $this->assertIsA($exception, "FedoraAccessDenied");
-    $this->assertPattern("/modify datastream.*PREMIS/", $exception->getMessage());
+    if ($exception) $this->assertPattern("/modify datastream.*PREMIS/", $exception->getMessage());
     unset($exception);
     $result = null;
 
     $etd->policy->removeRule("view");    // POLICY
     try {
-        $result = $this->fedora->modifyXMLDatastream($etd->pid, "POLICY",
+        $result = $fedora->modifyXMLDatastream($etd->pid, "POLICY",
 						    $etd->policy->datastream_label(),
 						    $etd->policy->saveXML(), "test author permissions - modify POLICY on non-draft etd");
     } catch (Exception $e) {
@@ -214,14 +339,14 @@ class TestEtdXacml extends UnitTestCase {
     }
     $this->assertNull($result, "POLICY not updated - timestamp should be null, got '$result'");
     $this->assertIsA($exception, "FedoraAccessDenied");
-    $this->assertPattern("/modify datastream.*POLICY/", $exception->getMessage());
+    if ($exception) $this->assertPattern("/modify datastream.*POLICY/", $exception->getMessage());
   }
 
   function testCommitteePermissions() {
     // set user account to committee
     setFedoraAccount("committee");
-    // update to latest fedora connection with committee credentials
-    $this->fedora = Zend_Registry::get('fedora');
+    // get latest fedora connection with committee credentials
+    $fedora = Zend_Registry::get('fedora');
 
     // for committee member, it shouldn't matter if etd is draft, published, etc.
     $etd = new etd($this->pid);
@@ -230,9 +355,16 @@ class TestEtdXacml extends UnitTestCase {
     $this->assertIsA($etd->dc, "dublin_core");
     $this->assertIsA($etd->rels_ext, "rels_ext");
     $this->assertIsA($etd->mods, "etd_mods");
-    $this->assertIsA($etd->html, "etd_html");
     // FIXME: there is a default Fedora repo-wide policy that restricts this... should we keep to that?
     $this->assertIsA($etd->policy, "XacmlPolicy");
+
+    // can no longer access html datastream directly
+    $this->expectException(new FedoraAccessDenied("getDatastream for {$this->pid}/XHTML"));
+    $this->assertIsA($etd->html, "etd_html");
+    $this->assertNotNull($etd->title(), "html title accessible via dissemination");
+    $this->assertNotNull($etd->abstract(), "html abstract accessible via dissemination");
+    $this->assertNotNull($etd->tableOfContents(), "html ToC accessible via dissemination");
+
 
     $result = null;
 
@@ -240,7 +372,7 @@ class TestEtdXacml extends UnitTestCase {
     $etd->dc->title = "new title";	  //   DC
     $result = null;
     try {
-      $result = $this->fedora->modifyXMLDatastream($etd->pid, "DC",
+      $result = $fedora->modifyXMLDatastream($etd->pid, "DC",
                                 $etd->dc->datastream_label(),
                                 $etd->dc->saveXML(), "test committee permissions - modify DC");
     } catch (Exception $e) {
@@ -248,14 +380,14 @@ class TestEtdXacml extends UnitTestCase {
     }
     $this->assertNull($result, "DC not updated - timestamp should be null, got '$result'");
     $this->assertIsA($exception, "FedoraAccessDenied");
-    $this->assertPattern("/modify datastream.*DC/", $exception->getMessage());
+    if ($exception) $this->assertPattern("/modify datastream.*DC/", $exception->getMessage());
     unset($exception);
     $result = null;
 
     $etd->mods->title = "newer title";    //   MODS
     // save just the datastream we want to test
     try {        
-        $result = $this->fedora->modifyXMLDatastream($etd->pid, "MODS",
+        $result = $fedora->modifyXMLDatastream($etd->pid, "MODS",
 						    $etd->mods->datastream_label(),
 						    $etd->mods->saveXML(), "test committee permissions - modify MODS");
     } catch (Exception $e) {
@@ -263,13 +395,13 @@ class TestEtdXacml extends UnitTestCase {
     }
     $this->assertNull($result, "MODS not updated - timestamp should be null, got '$result'");
     $this->assertIsA($exception, "FedoraAccessDenied");
-    $this->assertPattern("/modify datastream.*MODS/", $exception->getMessage());
+    if ($exception) $this->assertPattern("/modify datastream.*MODS/", $exception->getMessage());
     unset($exception);
     $result = null;
     
     $etd->html->title = "newest title";    //   XHTML
     try {        
-        $result = $this->fedora->modifyXMLDatastream($etd->pid, "XHTML",
+        $result = $fedora->modifyXMLDatastream($etd->pid, "XHTML",
 						    $etd->html->datastream_label(),
 						    $etd->html->saveXML(), "test committee permissions - modify XHTML");
     } catch (Exception $e) {
@@ -277,13 +409,13 @@ class TestEtdXacml extends UnitTestCase {
     }
     $this->assertNull($result, "XHTML not updated - timestamp should be null, got '$result'");
     $this->assertIsA($exception, "FedoraAccessDenied");
-    $this->assertPattern("/modify datastream.*XHTML/", $exception->getMessage());
+    if ($exception) $this->assertPattern("/modify datastream.*XHTML/", $exception->getMessage());
     unset($exception);
     $result = null;
     
     $etd->rels_ext->status = "reviewed";    // RELS-EXT
     try {
-      $result = $this->fedora->modifyXMLDatastream($etd->pid, "RELS-EXT",
+      $result = $fedora->modifyXMLDatastream($etd->pid, "RELS-EXT",
 						   $etd->rels_ext->datastream_label(),
 						   $etd->rels_ext->saveXML(), "test committee permissions - modify RELS-EXT");
     } catch (Exception $e) {
@@ -291,13 +423,13 @@ class TestEtdXacml extends UnitTestCase {
     }
     $this->assertNull($result, "RELS-EXT not updated - timestamp should be null, got '$result'");
     $this->assertIsA($exception, "FedoraAccessDenied");
-    $this->assertPattern("/modify datastream.*RELS-EXT/", $exception->getMessage());
+    if ($exception) $this->assertPattern("/modify datastream.*RELS-EXT/", $exception->getMessage());
     unset($exception);
     $result = null;
     $etd->premis->addEvent("test", "testing permissions", "success",
                             array("testid", "author"));    	// PREMIS
     try {
-        $result = $this->fedora->modifyXMLDatastream($etd->pid, "PREMIS",
+        $result = $fedora->modifyXMLDatastream($etd->pid, "PREMIS",
 						    $etd->premis->datastream_label(),
 						    $etd->premis->saveXML(), "test committee permissions - modify PREMIS");
     } catch (Exception $e) {
@@ -305,13 +437,13 @@ class TestEtdXacml extends UnitTestCase {
     }
     $this->assertNull($result, "PREMIS not updated - timestamp should be null, got '$result'");
     $this->assertIsA($exception, "FedoraAccessDenied");
-    $this->assertPattern("/modify datastream.*PREMIS/", $exception->getMessage());
+    if ($exception) $this->assertPattern("/modify datastream.*PREMIS/", $exception->getMessage());
     unset($exception);
     $result = null;
     
     $etd->policy->removeRule("view");    // POLICY
     try {
-        $result = $this->fedora->modifyXMLDatastream($etd->pid, "POLICY",
+        $result = $fedora->modifyXMLDatastream($etd->pid, "POLICY",
 						     $etd->policy->datastream_label(),
 						     $etd->policy->saveXML(), "test committee permissions - modify POLICY");
     } catch (Exception $e) {
@@ -319,10 +451,8 @@ class TestEtdXacml extends UnitTestCase {
     }
     $this->assertNull($result, "POLICY not updated - timestamp should be null, got '$result'");
     $this->assertIsA($exception, "FedoraAccessDenied");
-    $this->assertPattern("/modify datastream.*POLICY/", $exception->getMessage());    
+    if ($exception) $this->assertPattern("/modify datastream.*POLICY/", $exception->getMessage());    
   }
-
-  
 
   
   function  testEtdAdminViewPermissions() {
@@ -381,7 +511,7 @@ class TestEtdXacml extends UnitTestCase {
     // tech support needs permission to fix xhtml fields
     $etd->html->calculateChecksum();
     $etd->html->title = "newest title";    //   XHTML
-    $this->assertNotNull($this->fedora->modifyXMLDatastream($etd->pid, "XHTML",
+    $this->assertNotNull($fedora->modifyXMLDatastream($etd->pid, "XHTML",
                                 $etd->html->datastream_label(),
                                 $etd->html->saveXML(), "test etdadmin permissions - modify XHTML"),
 			 "etdadmin can modify XHTML");
@@ -462,4 +592,5 @@ class TestEtdXacml extends UnitTestCase {
 }
 
 runtest(new TestEtdXacml());
+
 ?>

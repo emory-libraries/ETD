@@ -1,5 +1,21 @@
 <?php
 
+/**
+ * xacml policy foxml datastream for etd records
+ * @category Etd
+ * @package Etd_Models
+ * @subpackage Etd
+ *
+ * @property string $policyid
+ * @property string $description
+ * @property string $pid object this policy applies to
+ * @property array $rules array of PolicyRule
+ * @property PolicyRule $view
+ * @property PolicyRule $draft
+ * @property PolicyRule $published
+ * @property PolicyRule $deny_most
+ */
+
 require_once("models/foxmlDatastreamAbstract.php");
 
 class XacmlPolicy extends foxmlDatastreamAbstract {
@@ -33,19 +49,21 @@ class XacmlPolicy extends foxmlDatastreamAbstract {
 	);
 
     // specific etd rules that need to be accessible by name/type
-    $etdrules = array("fedoraAdmin", "view", "etdadmin", "draft", "published", "deny_most");
+    $etdrules = array("fedoraAdmin", "view", "draft", "published", "deny_most");
     foreach ($etdrules as $ruleid) {
       $this->xmlconfig[$ruleid] = array("xpath" => "x:Rule[@RuleId='$ruleid']", "class_name" => "PolicyRule");
     }
 
   }
 
-
+  /**
+   * add a rule to policy by name
+   * @param string $name
+   */
   public function addRule($name) {
     $dom = new DOMDocument();
     switch ($name) {
     case "view": 		$xml = EtdXacmlRules::view; break;
-    case "etdadmin":		$xml = EtdXacmlRules::etdadmin; break;
     case "draft":		$xml = EtdXacmlRules::draft; break;
     case "published":		$xml = EtdXacmlRules::published; break;
     default:
@@ -60,10 +78,18 @@ class XacmlPolicy extends foxmlDatastreamAbstract {
 
     $this->update();
     
-    // FIXME: what is a good way to do this? how to manage the rules?
+    // special handling - set the date in published rule
+    // (otherwise xacml is not valid)
+    //    if ($name == "published" && isset($this->published->condition->embargo_end)) {
+    if ($name == "published") {
+      $this->published->condition->embargo_end = date("Y-m-d");
+    }
   }
 
-  
+  /**
+   * remove a rule from policy by id
+   * @param string $id
+   */
   public function removeRule($id) {
     $nodeList = $this->xpath->query("x:Rule[@RuleId='$id']", $this->domnode);	// relative to policy dom
     if ($nodeList->length == 1) {
@@ -84,7 +110,6 @@ class XacmlPolicy extends foxmlDatastreamAbstract {
     // starts with a bare-bones xacml  (fedoraAdmin rule & deny-most rule)
     // add the appropriate rules for a new etd
     $policy->addRule("view");
-    //    $policy->addRule("etdadmin");	// FIXME: shouldn't be needed (repo-wide rule instead)
     $policy->addRule("draft");
     
     return $policy->saveXML();
@@ -101,6 +126,13 @@ class XacmlPolicy extends foxmlDatastreamAbstract {
 
 }
 
+/**
+ * xml object for a single policy rule
+ *
+ * @property string $id rule id
+ * @property policyResource $resources
+ * @property policyCondition $condition
+ */
 class PolicyRule extends XmlObject {
 
   protected $xmlconfig;
@@ -125,6 +157,11 @@ class PolicyRule extends XmlObject {
   
 }
 
+/**
+ * xml object for a resource in a policy rule
+ *
+ * @property array $datastreams datastream resources
+ */
 class policyResource extends XmlObject {
   // is actually at resources level
   
@@ -142,6 +179,10 @@ class policyResource extends XmlObject {
 	);
   }
 
+  /**
+   * add a datastream to the policy rule
+   * @param string $id datastream id
+   */
   public function addDatastream($id) {
     if (!count($this->datastreams)) {
       trigger_error("Cannot add datastream '$id' because this resource has no datastreams", E_USER_WARNING);
@@ -162,6 +203,16 @@ class policyResource extends XmlObject {
   
 }
 
+/**
+ * xml object for a condition in a policy rule
+ *
+ * @property array $users array of users by loginId
+ * @property string $user single user by loginId
+ * @property string $department department name for departmental staff
+ * @property string $embargo_end
+ * @property array $methods methods (not restricted)
+ * @property array $embargoed_methods restricted methods
+ */
 class policyCondition extends XmlObject {
   
   protected $xmlconfig;
@@ -191,10 +242,23 @@ class policyCondition extends XmlObject {
 
 	// date
 	"embargo_end" => array("xpath" => ".//x:AttributeValue[@DataType='http://www.w3.org/2001/XMLSchema#date'][ancestor::x:*/@FunctionId='urn:oasis:names:tc:xacml:1.0:function:date-greater-than-or-equal']"),
-	
+
+	// methods  (not restricted)   
+	// NOTE: using full xpath to exclude restricted methods from this list
+	"methods" => array("xpath" => "x:Apply[@FunctionId='urn:oasis:names:tc:xacml:1.0:function:and']/x:Apply[@FunctionId='urn:oasis:names:tc:xacml:1.0:function:and']/x:Apply[@FunctionId='urn:oasis:names:tc:xacml:1.0:function:or']/x:Apply[x:ResourceAttributeDesignator/@AttributeId='urn:fedora:names:fedora:2.1:resource:disseminator:method']/x:Apply[@FunctionId='urn:oasis:names:tc:xacml:1.0:function:string-bag']/x:AttributeValue[@DataType='http://www.w3.org/2001/XMLSchema#string']",
+			   "is_series" => true),
+
+	// embargoed methods 
+	"embargoed_methods" => array("xpath" => ".//x:Apply[@FunctionId='urn:oasis:names:tc:xacml:1.0:function:and' and x:Apply/@FunctionId='urn:oasis:names:tc:xacml:1.0:function:date-greater-than-or-equal']/x:Apply[x:ResourceAttributeDesignator/@AttributeId='urn:fedora:names:fedora:2.1:resource:disseminator:method']/x:Apply[@FunctionId='urn:oasis:names:tc:xacml:1.0:function:string-bag']/x:AttributeValue[@DataType='http://www.w3.org/2001/XMLSchema#string']",
+				      "is_series" => true),
+
 	);
   }
 
+  /**
+   * add a user to the list of users in the condition
+   * @param string $username
+   */
   public function addUser($username) {
     if (!count($this->users)) {
       trigger_error("Cannot add user '$username' because this condition has no users", E_USER_WARNING);
@@ -212,6 +276,10 @@ class policyCondition extends XmlObject {
     }
   }
 
+  /**
+   * remove a user from the list of users in the condition
+   * @param string $username
+   */
   public function removeUser($username) {
     $nodelist = $this->xpath->query($this->userxpath . "[. = '$username']", $this->domnode);
     if ($nodelist->length == 1) {
@@ -222,6 +290,31 @@ class policyCondition extends XmlObject {
       trigger_error("Cannot find user to be removed: '$username'", E_USER_NOTICE);
     }
   }
+
+  /**
+   * restrict the specified methods - remove them from methods, add to embargoed_methods
+   * @param array $restrict_methods
+   */
+  public function restrictMethods($restrict_methods) {
+    // add restricted methods to embargoed_methods list
+    if (isset($this->embargoed_methods)) {
+      for ($i = 0; $i < count($restrict_methods); $i++) {
+	if (isset($this->embargoed_methods[$i]) && $this->embargoed_methods[$i] == "")
+	  $this->embargoed_methods[$i] = $restrict_methods[$i];
+	else
+	  $this->embargoed_methods->append($restrict_methods[$i]);
+      }
+    }  // warn ?
+
+
+    // remove restricted methods from non-embargoed method list
+    for ($i = 0; $i < count($this->methods); $i++) {
+      if (in_array($this->methods[$i], $restrict_methods)) {
+	$this->methods[$i] = "";
+      }
+    }
+  }
+
   
 }
 
@@ -270,20 +363,38 @@ const view = '<Rule xmlns="urn:oasis:names:tc:xacml:1.0:policy" RuleId="view" Ef
                  DataType="http://www.w3.org/2001/XMLSchema#string"/>
         </ResourceMatch>
       </Resource>
-        <Resource>
-         <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">XHTML</AttributeValue>
-             <ResourceAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:resource:datastream:id" 
-                 DataType="http://www.w3.org/2001/XMLSchema#string"/>
-        </ResourceMatch>
-      </Resource>
-    <Resource>
+      <Resource>
         <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
             <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">PREMIS</AttributeValue>
             <ResourceAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:resource:datastream:id" 
                 DataType="http://www.w3.org/2001/XMLSchema#string"/>
         </ResourceMatch>
       </Resource>
+
+	<!-- etd methods (xhtml sections) -->
+
+      <Resource>
+        <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">title</AttributeValue>
+            <ResourceAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:resource:disseminator:method" 
+                DataType="http://www.w3.org/2001/XMLSchema#string"/>
+        </ResourceMatch>
+      </Resource>
+      <Resource>
+        <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">abstract</AttributeValue>
+            <ResourceAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:resource:disseminator:method" 
+                DataType="http://www.w3.org/2001/XMLSchema#string"/>
+        </ResourceMatch>
+      </Resource>
+      <Resource>
+        <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">tableofcontents</AttributeValue>
+            <ResourceAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:resource:disseminator:method" 
+                DataType="http://www.w3.org/2001/XMLSchema#string"/>
+        </ResourceMatch>
+      </Resource>
+
 
  	<!-- etdFile-only datastreams -->
         <Resource>
@@ -338,57 +449,6 @@ const view = '<Rule xmlns="urn:oasis:names:tc:xacml:1.0:policy" RuleId="view" Ef
   </Rule>
 ';
 
-
-
-const etdadmin = '<Rule  xmlns="urn:oasis:names:tc:xacml:1.0:policy" RuleId="etdadmin" Effect="Permit">
-   <!-- Allow admin to modify history and status (premis, rels-ext)  -->
-    <Target>
-     <Subjects>
-        <AnySubject/>
-      </Subjects>
-      <Resources>
-
-    <Resource>
-        <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">PREMIS</AttributeValue>
-            <ResourceAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:resource:datastream:id" 
-                DataType="http://www.w3.org/2001/XMLSchema#string"/>
-        </ResourceMatch>
-      </Resource>
-
-    <Resource>
-        <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">RELS-EXT</AttributeValue>
-            <ResourceAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:resource:datastream:id" 
-                DataType="http://www.w3.org/2001/XMLSchema#string"/>
-        </ResourceMatch>
-      </Resource>
-    <Resource>
-        <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">POLICY</AttributeValue>
-            <ResourceAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:resource:datastream:id" 
-                DataType="http://www.w3.org/2001/XMLSchema#string"/>
-        </ResourceMatch>
-      </Resource>
-      </Resources>
-      <Actions>
-        <Action>
-          <ActionMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">urn:fedora:names:fedora:2.1:action:id-modifyDatastreamByValue</AttributeValue>
-            <ActionAttributeDesignator DataType="http://www.w3.org/2001/XMLSchema#string" AttributeId="urn:fedora:names:fedora:2.1:action:id"/>
-          </ActionMatch>
-        </Action>
-      </Actions>
-    </Target>
-
-    <Condition FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-at-least-one-member-of">
-        <SubjectAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:subject:loginId" DataType="http://www.w3.org/2001/XMLSchema#string"/>
-        <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-bag">
-          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">etdadmin</AttributeValue>
-        </Apply>
-    </Condition>
-</Rule>
-     ';
 
  const draft = '
   <Rule xmlns="urn:oasis:names:tc:xacml:1.0:policy" RuleId="draft" Effect="Permit">
@@ -471,58 +531,89 @@ const published = '<Rule xmlns="urn:oasis:names:tc:xacml:1.0:policy"  RuleId="pu
         <AnySubject/>
       </Subjects>
       <Resources>
-
-    <Resource>
-        <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">DC</AttributeValue>
-            <ResourceAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:resource:datastream:id" 
-                DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="false"/>
-        </ResourceMatch>
-      </Resource>
-    <Resource>
-        <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">XHTML</AttributeValue>
-            <ResourceAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:resource:datastream:id" 
-                DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="false"/>
-        </ResourceMatch>
-      </Resource>
-
-    <Resource>
-        <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">MODS</AttributeValue>
-            <ResourceAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:resource:datastream:id" 
-                DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="false"/>
-        </ResourceMatch>
-      </Resource>
-
-    <Resource>
-        <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">RELS-EXT</AttributeValue>
-            <ResourceAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:resource:datastream:id" 
-                DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="false"/>
-        </ResourceMatch>
-      </Resource>
+        <AnyResource/>
       </Resources>
       <Actions>
-        <Action>
-          <ActionMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">urn:fedora:names:fedora:2.1:action:id-getDatastreamDissemination</AttributeValue>
-            <ActionAttributeDesignator DataType="http://www.w3.org/2001/XMLSchema#string" AttributeId="urn:fedora:names:fedora:2.1:action:id"/>
-          </ActionMatch>
-        </Action>
-
+        <AnyAction/>
       </Actions>
     </Target>
+
+
+    <Condition FunctionId="urn:oasis:names:tc:xacml:1.0:function:or">
+      <!-- view datastreams -->
+     <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:and">
+        <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-is-in">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">urn:fedora:names:fedora:2.1:action:id-getDatastreamDissemination</AttributeValue>
+          <ActionAttributeDesignator DataType="http://www.w3.org/2001/XMLSchema#string" AttributeId="urn:fedora:names:fedora:2.1:action:id" MustBePresent="false"/>
+        </Apply>
+	<!-- publicly accessible datastreams -->
+        <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-at-least-one-member-of">
+          <ResourceAttributeDesignator DataType="http://www.w3.org/2001/XMLSchema#string" AttributeId="urn:fedora:names:fedora:2.1:resource:datastream:id" MustBePresent="false"/>
+        <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-bag">
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">DC</AttributeValue>
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">MODS</AttributeValue>
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">RELS-EXT</AttributeValue>
+        </Apply> 	<!-- end string bag -->
+      </Apply>		<!-- end at least one member -->
+    </Apply>  <!-- end and : view datastreams -->
+
+    <!-- html disseminations -->
+     <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:and">
+	<!-- action : getDissemination -->
+        <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-is-in">
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">urn:fedora:names:fedora:2.1:action:id-getDissemination</AttributeValue>
+           <ActionAttributeDesignator DataType="http://www.w3.org/2001/XMLSchema#string" AttributeId="urn:fedora:names:fedora:2.1:action:id" MustBePresent="false"/>
+	</Apply>
+	<!-- methods -->
+       <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:and">
+        <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-is-in">
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">emory-control:ETDmetadataParts</AttributeValue>
+  	  <ResourceAttributeDesignator DataType="http://www.w3.org/2001/XMLSchema#string" AttributeId="urn:fedora:names:fedora:2.1:resource:sdef:pid" MustBePresent="false"/>
+        </Apply>
+
+       <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:or">
+
+	<!-- methods allowed, by name -->
+        <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-at-least-one-member-of">
+          <ResourceAttributeDesignator DataType="http://www.w3.org/2001/XMLSchema#string" AttributeId="urn:fedora:names:fedora:2.1:resource:disseminator:method" MustBePresent="false"/>
+        <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-bag">
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">title</AttributeValue>
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">abstract</AttributeValue>
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">tableofcontents</AttributeValue>
+        </Apply> 	<!-- end string bag -->
+      </Apply>		<!-- end at least one member -->
+
+       <!-- these methods only allowed after a certain date -->
+       <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:and">
+         <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-at-least-one-member-of">
+            <ResourceAttributeDesignator DataType="http://www.w3.org/2001/XMLSchema#string" AttributeId="urn:fedora:names:fedora:2.1:resource:disseminator:method" MustBePresent="false"/>
+          <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-bag">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string"></AttributeValue>
+          </Apply> 	<!-- end string bag -->
+        </Apply>		<!-- end at least one member -->
+
+        <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:date-greater-than-or-equal">
+         <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:date-one-and-only">
+           <EnvironmentAttributeDesignator 
+	      AttributeId="urn:fedora:names:fedora:2.1:environment:currentDate"
+              DataType="http://www.w3.org/2001/XMLSchema#date"/>
+         </Apply>
+         <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#date"/>
+       </Apply>  
+      </Apply>  <!-- end and (method & date) -->
+      </Apply>  <!-- end or (methods restricted by date) -->
+
+    </Apply>  <!-- end and (sdef pid & methods) -->
+    </Apply>  <!-- end and (html disseminations) -->
+
+
+
+   </Condition>  
+
 
 </Rule>
 ';
  
 /* Note: tested date comparison rule manually (2008-02-18) and it works */
 
-  
-
-
 }
-
-
-

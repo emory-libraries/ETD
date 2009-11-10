@@ -1,5 +1,14 @@
 <?php
 
+/**
+ * vcard xml object - no longer in use? (Fez hold-over?)
+ *
+ * @category   Etd
+ * @package    Etd_Models
+ * @subpackage Author_Info
+ * @deprecated
+ */
+
 require_once("xml-utilities/XmlObject.class.php");
 require_once("fedora/models/foxml.php");
 

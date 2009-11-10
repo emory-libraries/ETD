@@ -16,6 +16,7 @@
 		<!-- NOTE: just adding a dummy relation here to avoid
 		     errors about not belonging to  an etd  -->
 	      <rel:isSupplementOf rdf:resource=""/>
+	     <rel:sequenceNumber>1</rel:sequenceNumber>
 	  </rdf:Description>
 	</rdf:RDF>
       </foxml:xmlContent>

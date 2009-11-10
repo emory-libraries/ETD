@@ -1,4 +1,8 @@
 <?php
+/**
+ * @category Etd
+ * @package Etd_Controllers
+ */
 
 require_once("models/etd.php");
 require_once("models/programs.php");
@@ -90,6 +94,144 @@ class EditController extends Etd_Controller_Action {
 						"pid" => $etd->pid), '', true);
   }
 
+  public function saveRightsAction() {
+    $etd = $this->_helper->getFromFedora('pid', 'etd');
+    if (!$this->_helper->access->allowedOnEtd('edit metadata', $etd)) return;
+
+    $this->_helper->viewRenderer->setNoRender(true);
+
+    if ( ! $this->validateRights($etd) ) {
+      // invalid input - forward back to rights edit form and stop processing
+      // more specific error messages may be set by validateRights function
+      // - if there is no error message, add a generic 'invalid' message
+      if (! $this->_helper->flashMessenger->hasMessages()) 
+	$this->_helper->flashMessenger->addMessage('Error: invalid input, please check and resubmit.');
+      $this->view->messages = $this->_helper->flashMessenger->getCurrentMessages();
+      
+      $this->_forward("rights", "edit", null, array("pid" => $etd->pid));
+      // note: using forward instead of redirect so parameters can be picked up
+      return;
+    }
+    
+    $embargo = $this->_getParam('embargo', null);
+    $embargo_level = $this->_getParam('embargo_level', null);
+    $pq_submit = $this->_getParam('pq_submit', null);
+    $pq_copyright = $this->_getParam('pq_copyright', null);
+    $submission_agreement = $this->_getParam('submission_agreement', null);
+
+    $this->view->etd = $etd;
+
+    // embargo
+
+    if ($embargo)
+      $etd->mods->setEmbargoRequestLevel($embargo_level);
+    else
+      $etd->mods->setEmbargoRequestLevel(etd_mods::EMBARGO_NONE);
+
+    // proquest
+
+    if ( ! isset($etd->mods->pq_submit) )
+      $etd->mods->addNote('', 'admin', 'pq_submit');
+    if ( ! isset($etd->mods->copyright) )
+      $etd->mods->addNote('', 'admin', 'copyright');
+    if ($etd->isRequired('send to ProQuest') && 
+        ($etd->mods->ProquestRequired() ||
+         $pq_submit)) {
+      $etd->mods->pq_submit = 'yes';
+
+      if ($pq_copyright)
+        $etd->mods->copyright = 'yes';
+      else
+        $etd->mods->copyright = 'no';
+    } else {
+      $etd->mods->pq_submit = 'no';
+      $etd->mods->copyright = 'no';
+    }
+
+    // use and reproduction
+
+    if ($submission_agreement) {
+      // if student has checked that they agree to the submission agreement,
+      // add the useAndReproduction statement to the mods record
+      $config = Zend_Registry::get('config');
+      $etd->mods->useAndReproduction = $config->useAndReproduction;
+    } else {
+      $etd->mods->useAndReproduction = "";	// blank out - submission agreement not accepted
+    }
+
+    if ($etd->mods->hasChanged()) {
+      $save_result = $etd->save('updated rights');
+      $this->view->save_result = $save_result;
+      if ($save_result) {
+        $this->_helper->flashMessenger->addMessage('Saved changes to rights');
+        $this->logger->info('updated etd ' . $etd->pid . ' rights at $save_result');
+      } else {
+        $this->_helper->flashMessenger->addMessage('Could not save changes to rights (permission denied?)');
+        $this->logger->err('Could not save changes to rights on etd ' . $etd->pid);
+      }
+    } else {
+      $this->_helper->flashMessenger->addMessage('No changes made to rights');
+    }
+
+    $this->_helper->redirector->gotoRoute(array('controller' => 'view', 'action' => 'record',
+                                                'pid' => $etd->pid), '', true);
+  }
+
+  /**
+   * Sanity-check input from rights edit form.
+   * @return boolean valid/invalid
+   */
+  private function validateRights($etd) {
+    $embargo = $this->_getParam('embargo', null);
+    $embargo_level = $this->_getParam('embargo_level', null);
+    $pq_submit = $this->_getParam('pq_submit', null);
+    $pq_copyright = $this->_getParam('pq_copyright', null);
+    $submission_agreement = $this->_getParam('submission_agreement', null);
+
+    // Embargo is always in the form. If it's missing from the response then
+    // the client is doing something funny. This one has some legal
+    // implications, so reject it if it's not specified.
+    if ($embargo === null) return false;
+    // If they say they want an embargo, require them to specify what type.
+    // This time, the form doesn't have a default, so let the user know
+    // if he failed to enter a field.
+    if ($embargo && ($embargo_level === null)) {
+      $this->_helper->flashMessenger->addMessage('Error: You have requested an access restriction; please specify the type of restriction.');
+      return false;
+    }
+    // The form only allows valid levels. If they send an invalid level then
+    // something funny is going on.
+    if ( ! etd_mods::validEmbargoRequestLevel($embargo_level) )
+      return false;
+
+    // ProQuest submission is only on the form if PQ submission is available
+    // at all (not the case for honors undergrads) and not required (as it
+    // is for PhDs.
+    if ($etd->isRequired("send to ProQuest") && 
+        ! $etd->mods->ProquestRequired() && 
+        $pq_submit === null)
+      return false;
+    // If ProQuest stuff isn't on the form at all (e.g., for an Honors ETD,
+    // don't accept a hacked-in yes option.
+    if ( ! $etd->isRequired("send to ProQuest") && $pq_submit)
+      return false;
+    // If the ETD is for a PhD dissertation, then the results must go to
+    // ProQuest. It won't be in the form in that case, but if the client does
+    // something funny and sends it anyway then reject it if they say no.
+    if ($etd->mods->ProquestRequired() && ($pq_submit === 0))
+      return false;
+    // If the user requests ProQuest or is required to send it to them, then
+    // copyright preference must be specified.
+    if ($etd->isRequired('send to ProQuest') and
+        ($pq_submit or
+         $etd->mods->ProquestRequired()) and 
+        ($pq_copyright === null))
+      return false;
+
+
+    // Other than that, we should be OK.
+    return true;
+  }
 
 
   public function facultyAction() {
@@ -180,26 +322,43 @@ class EditController extends Etd_Controller_Action {
       // forward to main record edit page (includes degree)
       $this->_helper->redirector->gotoRoute(array("controller" => "edit", "action" => "record",
     						"pid" => $etd->pid), '', true);
+      return;
+      
     }
 
-    //note: additions to MODS must be made in view controller
+    // get *current* messages to get validation errors when forwarding from save-rights
+    $this->view->messages = $this->_helper->flashMessenger->getCurrentMessages();
+
+    // if redirected from save-rights (invalid input), pre-set to user's last selections
+    // if params are not present, default to what is set in the record
+    if ($this->_hasParam("embargo")) 
+      $this->view->embargo = $this->_getParam('embargo');
+    else
+      $this->view->embargo = $etd->mods->isEmbargoRequested();
+    if ($this->_hasParam("embargo_level"))
+      $this->view->embargo_level = $this->_getParam('embargo_level');
+    else
+      $this->view->embargo_level = $etd->mods->embargoRequestLevel();
+    if ($this->_hasParam("pq_submit"))
+      $this->view->pq_submit = $this->_getParam('pq_submit');
+    else
+      $this->view->pq_submit = $etd->mods->submitToProquest();
+    if ($this->_hasParam("pq_copyright"))
+      $this->view->pq_copyright = $this->_getParam('pq_copyright');
+    else
+      $this->view->pq_copyright = ($etd->mods->copyright == "yes");
+    if ($this->_hasParam("submission_agreement")) 
+      $this->view->submission_agreement = $this->_getParam('submission_agreement');
+    else
+      $this->view->submission_agreement = $etd->mods->hasSubmissionAgreement();
+    
+    $config = Zend_Registry::get('config');
+    $this->view->dojo_config = $config->dojo;
 
     $this->view->title = "Edit Author Rights/Access Restrictions";
-
     $this->view->etd = $etd;
-    
-    // xforms setting - so layout can include needed code in the header
-    $this->view->xforms = true;
-    $this->view->xforms_bind_script = "edit/_rights_bind.phtml";
-    $this->view->namespaces = array("mods" => "http://www.loc.gov/mods/v3",
-				    "etd" => "http://www.ndltd.org/standards/metadata/etdms/1.0/");
-    // link to xml rather than embedding directly in the page
-    $this->view->xforms_model_uri = $this->_helper->url->url(array("controller" => "view", "action" => "mods",
-								   "pid" => $etd->pid),
-							     // no route name, reset, don't url-encode
-							     '', true, false);
 
-    $config = Zend_Registry::get('config');
+    // fixme: unused until record is saved? 
     $this->view->rights_stmt = $config->useAndReproduction;
     
   }

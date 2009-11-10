@@ -12,6 +12,15 @@ class TestGetFromFedora extends ControllerTestCase {
   private $etdpid;
   private $hons_etdpid;
 
+  function __construct() {
+    $this->fedora = Zend_Registry::get("fedora");
+    $fedora_cfg = Zend_Registry::get('fedora-config');
+    
+    // get test pids for fedora fixtures
+    list($this->etdpid, $this->hons_etdpid) = $this->fedora->getNextPid($fedora_cfg->pidspace, 2);
+  }
+
+
   function setUp() {
     $_GET = array();
     $_POST = array();
@@ -30,14 +39,14 @@ class TestGetFromFedora extends ControllerTestCase {
 
     // ingest etd and honors etd to test factory init
     $etd = new etd();
-    $etd->pid = "demo:15";
+    $etd->pid = $this->etdpid;
     $etd->title = "test obj";
-    $this->etdpid = $this->_fedora->ingest($etd->saveXML(), "ingesting test object");
+    $this->_fedora->ingest($etd->saveXML(), "ingesting test object");
     
     $hons_etd = new honors_etd();
-    $hons_etd->pid = "demo:16";
+    $hons_etd->pid = $this->hons_etdpid;
     $hons_etd->title = "test honors obj";
-    $this->hons_etdpid = $this->_fedora->ingest($hons_etd->saveXML(), "ingesting test object");
+    $this->_fedora->ingest($hons_etd->saveXML(), "ingesting test object");
   }
   
   function tearDown() {
