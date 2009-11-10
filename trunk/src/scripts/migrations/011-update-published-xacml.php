@@ -45,7 +45,12 @@ for ( ;$etdSet->hasResults(); $etdSet->next()) {
 
   foreach ($etdSet->etds as $etd) {
     try {
-      // remove and re-add published rule
+      // remove and re-add published rule to get latest version
+
+      // if record does not have published policy, something is wrong
+      if (!isset($etd->policy->published))
+	throw new Exception($etd->pid . " does not have a published policy - cannot handle");
+      
       $etd->policy->removeRule("published");
       $etd->policy->addRule("published");
       // file policies have not changed & should not need any updating
