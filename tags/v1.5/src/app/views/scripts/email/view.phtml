@@ -1,0 +1,26 @@
+<h1><?= $this->title ?></h1>
+
+<p>Return to
+ <a href="<?= $this->url(array('controller' => 'email'), '', true) ?>">email template list</a>.</p>
+
+<p>Select a sample ETD record to display the email template.</p>
+ <ul>
+  <? foreach ($this->etds as $label => $etd): ?> 
+   <li <?= (isset($this->etd) && $etd->pid() == $this->etd->pid()) ? "class='current'" : "" ?>>
+    <a href="<?= $this->url(array('pid' => $etd->pid())) ?>"><?=  $label ?></a>:
+    <?= $etd->title() ?>
+   </li>
+  <? endforeach ?>
+ </ul>
+
+<h2><?= $this->template_label ?> template</h2>
+<hr/>
+
+<? if (isset($this->etd)): ?>
+ <div class="email_template">
+   <?=  $this->partial("email/" . $this->template . ".phtml",
+		       array("etd" => $this->etd, "environment" => "production")); ?>
+ </div>
+<? else: ?>
+  <p>You must select an ETD record in order to display the template.</p>
+<? endif ?>
