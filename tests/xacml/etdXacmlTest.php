@@ -471,6 +471,12 @@ class TestEtdXacml extends UnitTestCase {
     $this->assertIsA($etd->html, "etd_html", "etdadmin can read XHTML");
     // FIXME: there is a default Fedora repo-wide policy that restricts this... should we keep to that?
     $this->assertIsA($etd->policy, "XacmlPolicy", "etdadmin can read POLICY");
+
+    //html disseminations
+    $this->assertNotNull($etd->title(), "html title accessible via dissemination");
+    $this->assertNotNull($etd->abstract(), "html abstract accessible via dissemination");
+    $this->assertNotNull($etd->tableOfContents(), "html ToC accessible via dissemination");
+
   }
 
   function testEtdAdminCanModify() {
