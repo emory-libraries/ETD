@@ -164,7 +164,7 @@ class EditController extends Etd_Controller_Action {
       $this->view->save_result = $save_result;
       if ($save_result) {
         $this->_helper->flashMessenger->addMessage('Saved changes to rights');
-        $this->logger->info('updated etd ' . $etd->pid . ' rights at $save_result');
+        $this->logger->info('updated etd ' . $etd->pid . " rights at $save_result");
       } else {
         $this->_helper->flashMessenger->addMessage('Could not save changes to rights (permission denied?)');
         $this->logger->err('Could not save changes to rights on etd ' . $etd->pid);
