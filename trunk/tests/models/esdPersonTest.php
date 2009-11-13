@@ -197,6 +197,15 @@
 	  $this->assertEqual("testuser", $user->__toString());
        }
 
+       function testInitWithoutESD_techsupport() {
+	 // tech support - based on config 
+	 $user = $this->esd->initializeWithoutEsd("jolsen");
+	 $this->assertEqual("techsupport", $user->getRoleId(),
+			    "tech support user can be initialized without ESD and gets correct role");
+	 $this->assertFalse($user->isCoordinator("Biology"),
+			    "tech support user is not coordinator for Biology; isCoordinator should not throw exception when tech supporp user is initialized without ESD");
+       }
+
        function testMatchFaculty() {
 	 // name that matches two different people
 	 $matches = $this->esd->match_faculty("Brad Scholar");

@@ -212,7 +212,7 @@ class esdPerson extends Emory_Db_Table_Row implements Zend_Acl_Role_Interface {
      * @return boolean
      */
     public function isCoordinator($program) {
-        return ($program != "" && $this->grad_coord == $program);
+      return ($program != "" && isset($this->grad_coord) && $this->grad_coord == $program);
     }
 
     /**
