@@ -445,7 +445,6 @@ class esdAddressInfo extends Emory_Db_Table_Row {
              "local_state" => "PRAD_A_LOCL_STAT",
              "local_zip" => "PRAD_A_LOCL_ZIP",
              "local_country" => "PRAD_A_LOCL_CNTR",
-				  // FIXME: typo?  "local_country" => "PRAD_A_LOCL_CNTRY",
              "local_telephone" => "PRAD_A_LOCL_TLPH",
              "perm_line1" => "PRAD_A_STDN_LIN1",
              "perm_line2" => "PRAD_A_STDN_LIN2",
@@ -453,12 +452,8 @@ class esdAddressInfo extends Emory_Db_Table_Row {
              "perm_city"  => "PRAD_A_STDN_CITY",
              "perm_state" => "PRAD_A_STDN_STAT",
              "perm_zip"   => "PRAD_A_STDN_ZIP" ,
-				  // FIXME: also post code ?
              "perm_country" => "PRAD_A_STDN_CNTR",
-				  // FIXME: typo? "perm_country" => "PRAD_A_STDN_CNTRY",
-             "perm_telephone" => "PRAD_A_TDN_TLPH",
-				  // FIXME: typo in db ? in both prod & dev?
-				  //"perm_telephone" => "PRAD_A_STDN_TLPH",
+             "perm_telephone" => "PRAD_A_STDN_TLPH",
             );
 
       $this->current = new esdAddress();

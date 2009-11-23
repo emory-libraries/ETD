@@ -32,7 +32,7 @@ class esd_test_data {
 			   array(' ',1,'DADMIN','E','Admin','Department',' ','','Department Coordinator','1008','Graduate School',null,null,null,null,null,null,"Philosophy",null,'grad.admin@emory.edu'),
 			   );
 
-    $this->addr_fields = array("PRSN_I","PRAD_A_LOCL_LIN1","PRAD_A_LOCL_LIN2","PRAD_A_LOCL_LIN3","PRAD_A_LOCL_CITY","PRAD_A_LOCL_STAT","PRAD_A_LOCL_ZIP","PRAD_A_LOCL_PSTL","PRAD_A_LOCL_CNTR","PRAD_A_LOCL_TLPH","PRAD_A_STDN_LIN1","PRAD_A_STDN_LIN2","PRAD_A_STDN_LIN3","PRAD_A_STDN_CITY","PRAD_A_STDN_STAT","PRAD_A_STDN_ZIP","PRAD_A_STDN_PSTL","PRAD_A_STDN_CNTR","PRAD_A_TDN_TLPH");
+    $this->addr_fields = array("PRSN_I","PRAD_A_LOCL_LIN1","PRAD_A_LOCL_LIN2","PRAD_A_LOCL_LIN3","PRAD_A_LOCL_CITY","PRAD_A_LOCL_STAT","PRAD_A_LOCL_ZIP","PRAD_A_LOCL_PSTL","PRAD_A_LOCL_CNTR","PRAD_A_LOCL_TLPH","PRAD_A_STDN_LIN1","PRAD_A_STDN_LIN2","PRAD_A_STDN_LIN3","PRAD_A_STDN_CITY","PRAD_A_STDN_STAT","PRAD_A_STDN_ZIP","PRAD_A_STDN_PSTL","PRAD_A_STDN_CNTR","PRAD_A_STDN_TLPH");
     
     $this->addresses = array(
 			 array(4,'5544 Rambling Road','Apt. 3C','c/o Spot','Atlanta','GA','30432',null,'USA','4041234566','346 Lamplight Trail','Suite #2','Rm. 323','Cleveland','OH','99304',null,"CA",'545234566'),
