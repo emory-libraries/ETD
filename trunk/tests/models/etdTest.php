@@ -732,9 +732,107 @@ class TestEtd extends UnitTestCase {
 		       "previousStatus should return reviewed, got '"
 		       . $etd->previousStatus() . "'");
 
-    
-    
     $this->fedora->purge($this->etdpid, "removing test etd");
+  }
+
+
+  function testExtendEmbargo() {
+    // set a current embargo to be extended
+    $this->etd->mods->embargo_end =  date("Y-m-d", strtotime("+1 year", time()));;
+    // set status to published so policy rules will be updated
+    $this->etd->setStatus("published");
+    // simulate embargo notice having already been sent
+    $this->etd->embargo_expiration_notice();
+    $event_count = count($this->etd->premis->event);
+
+    $new_embargodate = date("Y-m-d", strtotime("+2 year", time()));
+    $this->etd->extendEmbargo($new_embargodate, "testing extend embargo");
+    
+    // check that all the appropriate changes are made
+    $this->assertEqual($new_embargodate, $this->etd->mods->embargo_end,
+		       "embargo end date should now be '$new_embargodate', is '"
+		       . $this->etd->mods->embargo_end . "'");
+    $this->assertFalse(isset($this->etd->embargo_notice),
+		       "embargo notice admin note should NOT be present in MODS");
+
+    // embargo condition date in xacml policies updated
+    //   - etd
+    $this->assertEqual($new_embargodate,  $this->etd->policy->published->condition->embargo_end,
+		       "embargo end in published policy should be '$new_embargodate', got '"
+		       . $this->etd->policy->published->condition->embargo_end . "'");
+    //  - pdf
+    $this->assertEqual($new_embargodate,  $this->etd->pdfs[0]->policy->published->condition->embargo_end,
+		       "embargo end in pdf published policy should be '$new_embargodate', got '"
+		       . $this->etd->pdfs[0]->policy->published->condition->embargo_end . "'");
+    // - supplement
+    $this->assertEqual($new_embargodate,  $this->etd->supplements[0]->policy->published->condition->embargo_end,
+		       "embargo end in published policy should be '$new_embargodate', got '"
+		       . $this->etd->supplements[0]->policy->published->condition->embargo_end . "'");
+    
+    // premis event for record history
+    $this->assertEqual($event_count + 1, count($this->etd->premis->event),
+		       "additional event added to record history");
+    $this->assertEqual("Embargo extended until $new_embargodate - testing extend embargo",
+		       $this->etd->premis->event[$event_count]->detail);	// text of last event
+  }
+  
+  function testExtendEmbargo_inactive() {
+    // inactive record (e.g., previously published)
+    $this->etd->mods->embargo_end =  date("Y-m-d", strtotime("+1 year", time()));;
+    $this->etd->setStatus("inactive");
+
+    $new_embargodate = date("Y-m-d", strtotime("+2 year", time()));
+    // should cause no errors, even though expiration notice & publish policies are not present
+    $this->etd->extendEmbargo($new_embargodate, "testing extend embargo");
+
+    // change status to published, and NEW embargo should be set in policies
+    $this->etd->setStatus("published");
+    // embargo condition date in xacml policies updated
+    //   - etd
+    $this->assertEqual($new_embargodate,  $this->etd->policy->published->condition->embargo_end,
+		       "embargo end in published policy should be '$new_embargodate', got '"
+		       . $this->etd->policy->published->condition->embargo_end . "'");
+    //  - pdf
+    $this->assertEqual($new_embargodate,  $this->etd->pdfs[0]->policy->published->condition->embargo_end,
+		       "embargo end in pdf published policy should be '$new_embargodate', got '"
+		       . $this->etd->pdfs[0]->policy->published->condition->embargo_end . "'");
+    // - supplement
+    $this->assertEqual($new_embargodate,  $this->etd->supplements[0]->policy->published->condition->embargo_end,
+		       "embargo end in published policy should be '$new_embargodate', got '"
+		       . $this->etd->supplements[0]->policy->published->condition->embargo_end . "'");
+    
+  }
+
+  function testExtendEmbargo_invalid_date() {
+    try {
+      // invalid format for new embargo end date
+      $this->etd->extendEmbargo("2008/01/01", "testing extend embargo");
+    } catch (Exception $e) {
+      $ex = $e;
+    }
+    $this->assertIsA($e, "Exception",
+		     "exception caught when passing invalid date format to extendEmbargo");
+    if (isset($e)) {
+      $this->assertPattern("/Invalid date format .* must be in YYYY-MM-DD format/", $e->getMessage(),
+			   "exception message explains invalid date format");
+    }
+
+    $ex = null;
+    try {
+      // date is in the past for new embargo end date
+      $this->etd->extendEmbargo(date("Y-m-d", strtotime("-1 year", time())),
+				"test extending embargo into the past");
+    } catch (Exception $e) {
+      $ex = $e;
+    }
+    $this->assertIsA($e, "Exception",
+		     "exception caught when passing date in the past to extendEmbargo");
+    if (isset($e)) {
+      $this->assertPattern("/New embargo date .* is in the past; cannot extend embargo/",
+			   $e->getMessage(),
+			   "exception message about date in the past");
+    }
+    
   }
   
 

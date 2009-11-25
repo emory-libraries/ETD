@@ -806,6 +806,61 @@ class etd extends foxml implements etdInterface {
   }
 
 
+  /**
+   * extend the embargo
+   * - change the embargo end date in MODS
+   * - remove admin note that embargo expiration has been sent (in MODS)
+   * - change end date in the published rule of policy datastream in
+   *   etd, PDF, and any supplemental etdFiles
+   * - add an event to the record history - change and reason
+   * NOTE: record must still be saved after calling this function
+   * @param string $newdate embargo end date in YYYY-MM-DD format
+   * @param string $message message/reason to put in record history for change
+   * @throws Exception for invalid date format or date before current date
+   */
+  public function extendEmbargo($newdate, $message) {
+    // check format of new date - must be YYYY-MM-DD
+    if (!preg_match("/^[0-9]{4}\-[12][0-9]\-[123][0-9]$/", $newdate)) {
+      throw new Exception("Invalid date format '$newdate'; must be in YYYY-MM-DD format");
+    // additional sanity check - new date must not be before today
+    } elseif (strtotime($newdate) < time()) {
+      throw new Exception("New embargo date '$newdate' is in the past; cannot extend embargo");
+    }
+
+    // update embargo end date in MODS
+    $this->mods->embargo_end = $newdate;
+    
+    // if present, remove admin note that embargo 60-day notice has been sent,
+    // so a notice will get sent 60 days before new embargo end date
+    if (isset($this->mods->embargo_notice))
+      $this->mods->remove("embargo_notice");
+    
+    // update xacml policies
+    // - update end date condition on published policies for etd, pdfs, supplements
+    // FIXME: duplicate logic from addPolicyRule - pull out somewhere common? 
+    foreach (array_merge(array($this), $this->pdfs, $this->supplements) as $obj) {
+      if (isset($obj->policy->published) && isset($this->policy->published->condition)
+	  && isset($obj->policy->published->condition->embargo_end)) {
+	$obj->policy->published->condition->embargo_end = $this->mods->embargo_end;
+      }
+    }
+
+    // add event to record history with message passed in
+    // -- if this is being done by a logged in user, pick up for event 'agent' 
+    if (Zend_Registry::isRegistered('current_user')) {
+      $user = Zend_Registry::get('current_user');
+      $agent = array("netid", $this->current_user->netid);
+    } else {
+      // fall back - generic agent
+      $agent = array("software", "etd system");
+    }
+    $this->premis->addEvent("administrative",
+			    "Embargo extended until $newdate - $message",
+			    "success",  $agent);
+  }
+  
+
+
   public function abstract_word_count() {
     // return word count on text-only version, not formatted html version
     return str_word_count($this->mods->abstract);
