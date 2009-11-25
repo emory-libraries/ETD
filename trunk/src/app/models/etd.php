@@ -820,7 +820,7 @@ class etd extends foxml implements etdInterface {
    */
   public function extendEmbargo($newdate, $message) {
     // check format of new date - must be YYYY-MM-DD
-    if (!preg_match("/^[0-9]{4}\-[12][0-9]\-[123][0-9]$/", $newdate)) {
+    if (!preg_match("/^[0-9]{4}\-[012][0-9]\-[0123][0-9]$/", $newdate)) {
       throw new Exception("Invalid date format '$newdate'; must be in YYYY-MM-DD format");
     // additional sanity check - new date must not be before today
     } elseif (strtotime($newdate) < time()) {
