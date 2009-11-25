@@ -772,7 +772,7 @@ class TestEtd extends UnitTestCase {
     // premis event for record history
     $this->assertEqual($event_count + 1, count($this->etd->premis->event),
 		       "additional event added to record history");
-    $this->assertEqual("Embargo extended until $new_embargodate - testing extend embargo",
+    $this->assertEqual("Access restriction extended until $new_embargodate - testing extend embargo",
 		       $this->etd->premis->event[$event_count]->detail);	// text of last event
   }
   
