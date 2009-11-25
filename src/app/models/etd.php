@@ -855,7 +855,7 @@ class etd extends foxml implements etdInterface {
       $agent = array("software", "etd system");
     }
     $this->premis->addEvent("administrative",
-			    "Embargo extended until $newdate - $message",
+			    "Access restriction extended until $newdate - $message",
 			    "success",  $agent);
   }
   
