@@ -65,6 +65,10 @@ Zend_Registry::set('persis-config',
 		   new Zend_Config_Xml($config_dir . "persis.xml", $mode));
 
 
+$schools_config = new Zend_Config_Xml($config_dir . "schools.xml");
+Zend_Registry::set('schools-config', $schools_config);
+
+
 $front = Zend_Controller_Front::getInstance();
 //$front = $this->view->getFrontController();
 $front->setControllerDirectory(array("default" => $src_dir . "/app/controllers",

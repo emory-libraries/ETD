@@ -9,6 +9,11 @@
       private $data;
 
       private $_realconfig;
+      private $_schools_config;
+
+      
+      private $grad_department = "Laney Graduate School Administration";
+
 
       function setUp() {
         $this->esd = new esdPersonObject();
@@ -19,22 +24,32 @@
 	$this->data = new esd_test_data();
 	$this->data->loadAll();
 
-	// store real config to restore later
+	// store real config files to restore later
 	$this->_realconfig = Zend_Registry::get('config');
-
+	$this->_schools_config = Zend_Registry::get('schools-config');
+	
 	// stub config with just the portion relevant to special user roles
 	$testconfig = new Zend_Config(array("techsupport" => array("user" => array("jolsen")),
-					    "honors_admin" => array("user" => array("llane")),
 					    "superusers" => array("user" => array("ckent")),
 					    ));
-
-	// temporarily override config in with test configuration
+	// temporarily override config with test configuration
 	Zend_Registry::set('config', $testconfig);
+
+	// add test users to school config
+	$school_config = $this->_schools_config->toArray();
+	$school_config["graduate_school"]["admin"]["department"] = $this->grad_department;
+	// override configuration of honors admin user
+	$school_config["emory_college"]["admin"] = array("netid" =>
+							 array("llane", "mshonorable"));
+
+	// temporarily override school config  with test configuration
+	Zend_Registry::set('schools-config', new Zend_Config($school_config));
       }
 
       function tearDown() {
 	// restore real config to registry
 	Zend_Registry::set('config', $this->_realconfig);
+	Zend_Registry::set('schools-config', $this->_schools_config);
 	
 	$this->data->cleanUp();
       }
@@ -77,6 +92,9 @@
 
 	// users with special roles / permissions
 	$user = $this->esd->findByUsername("gadmin");
+	// override department with test name and recalculate role
+	$user->department = $this->grad_department;
+	$user->setRole();
 	$this->assertEqual("grad admin", $user->getRoleId(), "grad admin user role should be 'grad admin', got " . $user->getRoleId());
 
 	$user = $this->esd->findByUsername("dadmin");
@@ -114,7 +132,7 @@
         /* special cases */
 
         // graduate school administration
-        $this->user->department = "Graduate School Administration";
+        $this->user->department = $this->grad_department;
         $this->user->setRole();
         $this->assertEqual($this->user->role, "grad admin");
 
@@ -125,7 +143,7 @@
         $this->user->setRole();
         $this->assertEqual($this->user->role, "honors student");
 
-        // honors program administrator - based on config 
+        // honors program administrator - based on *school* config 
         $this->user->netid = "llane";
         $this->user->setRole();
         $this->assertEqual($this->user->role, "honors admin");
@@ -139,6 +157,35 @@
         $this->user->netid = "jolsen";
         $this->user->setRole();
         $this->assertEqual($this->user->role, "techsupport");
+      }
+
+      function testRole_single_entry() {
+	// gracefully handle multiple *and* single entries in config file usernames
+	$testconfig = new Zend_Config(array("techsupport" => array("user" => "jolsen"),
+					    "superusers" => array("user" => "ckent"),
+					    ));
+	// temporarily override config with test configuration
+	Zend_Registry::set('config', $testconfig);
+	
+        // etd superuser - based on config 
+        $this->user->netid = "ckent";
+        $this->user->setRole();
+        $this->assertEqual($this->user->role, "superuser");
+
+	// tech support - based on config 
+        $this->user->netid = "jolsen";
+        $this->user->setRole();
+        $this->assertEqual($this->user->role, "techsupport");
+
+	// add test users to school config
+	$school_config = $this->_schools_config->toArray();
+	// single entry instead of multiple format
+	$school_config["emory_college"]["admin"]["netid"] = "llane";
+
+        // honors program administrator - based on *school* config 
+        $this->user->netid = "llane";
+        $this->user->setRole();
+        $this->assertEqual($this->user->role, "honors admin");
 
       }
 
@@ -168,9 +215,9 @@
 
       function testGetGenericAgent() {
         $this->user->role = "grad admin";
-        $this->assertEqual("the Graduate School", $this->user->getGenericAgent());
+        $this->assertEqual("Graduate School", $this->user->getGenericAgent());
         $this->user->role = "honors admin";
-        $this->assertEqual("the College Honors Program", $this->user->getGenericAgent());
+        $this->assertEqual("College Honors Program", $this->user->getGenericAgent());
         $this->user->role = "admin";
         $this->assertEqual("ETD Administrator", $this->user->getGenericAgent());
         $this->user->role = "superuser";
@@ -267,6 +314,21 @@
 	 $person = $this->esd->findByUsername("pstaff");
 	 $address = $person->findEsdAddressObject()->current();
 	 $this->assertNull($address, "staff person should not have an address");
+       }
+
+       function testGetSchool() {
+	 $person = $this->esd->findByUsername("mstuden");
+	 $this->assertEqual("grad", $person->getSchool(), "getSchool should return 'grad' for acadamic career 'GSAS'; got '" . $person->getSchool() . "'");
+
+	 $person = $this->esd->findByUsername("pstaff");
+	 $this->assertNull($person->getSchool(), "getSchool should return null when no acadamic career is set, got '" . $person->getSchool() . "'");
+
+	 $person->academic_career = "UCOL";
+	 $this->assertEqual("honors", $person->getSchool(), "getSchool should return 'honors' for acadamic career 'UCOL'; got '" . $person->getSchool() . "'");
+
+	 $person->academic_career = "THEO";
+	 $this->assertEqual("candler", $person->getSchool(), "getSchool should return 'candler' for acadamic career 'THEO'; got '" . $person->getSchool() . "'");
+	 
        }
 
     }

@@ -1,0 +1,52 @@
+<schools>
+  <graduate_school>
+    <label>Graduate School</label>
+    <shortname>grad</shortname>
+    <db_id>GSAS</db_id>
+    <fedora_collection>emory:ETD-GradSchool-collection</fedora_collection>
+    <degrees>
+      <degree>PhD</degree>
+      <degree>MA</degree>
+      <degree>MS</degree>
+    </degrees>
+    <!-- required fields? .. how to specify? -->
+    <admin>
+	<!-- switch to/allow for department id ?! -->
+	<department>Graduate School Administration</department>
+        <netid>gradqew</netid>
+    </admin>
+  </graduate_school>
+  <emory_college>
+    <label>College Honors Program</label>
+    <shortname>honors</shortname>
+    <db_id>UCOL</db_id>
+    <fedora_collection>emory:ETD-College-collection</fedora_collection>
+    <degrees>
+      <degree>BA</degree>
+      <degree>BS</degree>
+      <degree>BBA</degree>
+    </degrees>
+    <!-- required fields? .. how to specify? -->
+     <!-- optional fields ? -->
+    <admin>
+	<!-- gracefully handle array / non-array ? -->
+	<netid>mabell</netid>
+    </admin>
+  </emory_college>
+  <candler>
+    <label>Candler School of Theology</label>
+    <shortname>candler</shortname>
+    <db_id>THEO</db_id>
+    <fedora_collection>emory:ETD-Candler-collection</fedora_collection>
+    <degrees>
+      <degree>MA</degree>
+      <degree></degree>	<!-- one more ? -->
+    </degrees>
+    <!-- required fields? .. how to specify? -->
+    <admin>
+	<!-- gracefully handle array / non-array ? -->
+	<netid></netid>
+	<department></department>
+    </admin>
+  </candler>
+</schools>

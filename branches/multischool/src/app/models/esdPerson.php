@@ -108,28 +108,35 @@ class esdPerson extends Emory_Db_Table_Row implements Zend_Acl_Role_Interface {
             $this->role = "honors student";
         }
 
-        // determine roles for special cases
-        if (isset($this->department) && $this->department == "Graduate School Administration") {
-            $this->role = "grad admin";	// graduate school administrator
-        }
-        if (isset($this->grad_coord) && !is_null($this->grad_coord)) {
-            // role is graduate program coordinator ?
-            // **** - not a separate role but a role in relation to particular ETDs
-            // a user should have this role only if grad_coord matches ETD's department field...
-        }
+	// detect if user is a school-specific admin - determined by school config
+	$school_cfg = Zend_Registry::get("schools-config");
+	foreach ($school_cfg as $school) {
+	  // if department name is configured & matches user department
+	  if ((isset($school->admin->department) && $school->admin->department != '' && 
+	       isset($this->department) && $this->department != '' &&
+	      $this->department == $school->admin->department) ||
+	      // OR if netid matches (handles single netid or multiple)
+	      (isset($school->admin->netid)
+		    && $this->netid == $school->admin->netid
+	       || (is_object($school->admin->netid) &&
+		   in_array($this->netid, $school->admin->netid->toArray())))) {
+	    $this->role = $school->shortname . " admin";
+	  }
+	}
 
         /*** special roles that must be set in config file ***/
         // etd superuser, techsupport, and honors admin
         if (Zend_Registry::isRegistered('config')) {
             $config = Zend_Registry::get('config');
-           if (in_array($this->netid, $config->techsupport->user->toArray())) {
+	    if ((is_object($config->techsupport->user) &&
+		 in_array($this->netid, $config->techsupport->user->toArray()))
+		|| $config->techsupport->user == $this->netid) {
                 $this->role = "techsupport";
             }
-            if (in_array($this->netid, $config->superusers->user->toArray())) {
+            if ((is_object($config->superusers->user) &&
+		 in_array($this->netid, $config->superusers->user->toArray()))
+		|| $config->superusers->user == $this->netid) {
                 $this->role = "superuser";
-            }
-            if (in_array($this->netid, $config->honors_admin->user->toArray())) {
-                $this->role = "honors admin";
             }
         }
     }
@@ -219,25 +226,51 @@ class esdPerson extends Emory_Db_Table_Row implements Zend_Acl_Role_Interface {
      * Certain (admin) roles have a generic agent label used for the
      * descriptive history line when they perform actions on an ETD. Get
      * the generic label here based on user's role.
+     * Updated Nov. 2009 - generic agent label now pulled from school configuration.
      * @return string
      */
     public function getGenericAgent() {
-        switch ($this->role) {
-        case "honors admin":
-            return "the College Honors Program";
-        case "grad admin":
-            return "the Graduate School";
-        case "admin":
-        case "superuser":
-            // generic administrator (e.g., for superuser)
-            // -- should only actually show up in development/testing
-            return "ETD Administrator";
-        default:
-            trigger_error("This role (" . $this->role . ") does not have a generic agent defined",
-                    E_USER_WARNING);
-            return "?";
-        }
+      $school_cfg = Zend_Registry::get("schools-config");
+      // if role is a school-specific admin, return configured label for that school
+      if ($pos = strpos($this->role, " admin")) {
+	$admin_type = substr($this->role, 0, $pos);
+	foreach ($school_cfg as $school) {
+	  if ($admin_type == $school->shortname)
+	    return $school->label;
+	}
+      }
+
+      // fall-back to more generic agent names
+      switch ($this->role) {
+      case "admin":
+      case "superuser":
+	// generic administrator label (for superuser or non-school specific admin)
+	return "ETD Administrator";
+      default:
+	trigger_error("This role (" . $this->role . ") does not have a generic agent defined",
+		      E_USER_WARNING);
+	return "?";
+      }
     }
+
+
+    /**
+     * retrieve the school that a student belongs to
+     * @return string|null	-- currently, this may change
+     */
+    public function getSchool() {
+      $school_cfg = Zend_Registry::get("schools-config");
+      // if academic career is set and not empy
+      if (isset($this->academic_career) && $this->academic_career) {
+	foreach ($school_cfg as $school) {
+	  //FIXME: what should be returned here?
+	  if ($school->db_id == $this->academic_career) return $school->shortname;
+	}
+      }
+      return null;
+    }
+
+    
 
     /**
      * check if this user has an unpublished etd (if not student or faculty, assumed false)
