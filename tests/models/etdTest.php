@@ -800,7 +800,14 @@ class TestEtd extends UnitTestCase {
     $this->assertEqual($new_embargodate,  $this->etd->supplements[0]->policy->published->condition->embargo_end,
 		       "embargo end in published policy should be '$new_embargodate', got '"
 		       . $this->etd->supplements[0]->policy->published->condition->embargo_end . "'");
-    
+
+
+    // leading zeroes are NOT invalid dates
+    $this->etd->extendEmbargo("2011-01-11", "testing extend embargo");
+
+    // leading zeroes are NOT invalid dates
+    $this->etd->extendEmbargo("2011-11-01", "testing extend embargo");
+	  
   }
 
   function testExtendEmbargo_invalid_date() {
