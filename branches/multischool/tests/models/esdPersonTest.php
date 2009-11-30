@@ -36,14 +36,14 @@
 	Zend_Registry::set('config', $testconfig);
 
 	// add test users to school config
-	$school_config = $this->_schools_config->toArray();
-	$school_config["graduate_school"]["admin"]["department"] = $this->grad_department;
-	// override configuration of honors admin user
-	$school_config["emory_college"]["admin"] = array("netid" =>
-							 array("llane", "mshonorable"));
+	$schools = $this->_schools_config;
+	// override admin configurations for testing
+	$schools->graduate_school->admin->department = $this->grad_department;
+	$schools->emory_college->admin = array("netid" =>
+					   array("llane", "mshonorable"));
 
 	// temporarily override school config  with test configuration
-	Zend_Registry::set('schools-config', new Zend_Config($school_config));
+	Zend_Registry::set('schools-config', $schools);
       }
 
       function tearDown() {
@@ -319,7 +319,7 @@
        function testGetSchool() {
 	 $person = $this->esd->findByUsername("mstuden");
 	 $this->assertEqual("grad", $person->getSchool(), "getSchool should return 'grad' for acadamic career 'GSAS'; got '" . $person->getSchool() . "'");
-
+	 
 	 $person = $this->esd->findByUsername("pstaff");
 	 $this->assertNull($person->getSchool(), "getSchool should return null when no acadamic career is set, got '" . $person->getSchool() . "'");
 

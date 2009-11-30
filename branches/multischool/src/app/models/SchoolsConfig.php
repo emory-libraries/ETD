@@ -22,7 +22,7 @@ class SchoolsConfig extends Zend_Config_Xml {
     if (isset($this->$id)) return $this->$id->label;
     return null;
   }
-  
+
   /**
    * get school id by the id of the corresponding Fedora collection object
    * @param string $collection fedora pid for configured collection
@@ -72,6 +72,18 @@ class SchoolsConfig extends Zend_Config_Xml {
     return null;
   }
 
+  
+  /**
+   * return school config by acl id
+   * @param string $acl_id school id used in ACL, e.g. honors for honors admin
+   * @return Zend_Config|null school config on success, null when no match for acl id
+   */
+  public function getSchoolByAclId($id) {
+    foreach ($this as $school) {
+      if ($school->acl_id == $id) return $school;
+    }
+    return null;
+  }
 
   /**
    * return school id (section label) by the school section config object

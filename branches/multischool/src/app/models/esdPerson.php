@@ -110,19 +110,8 @@ class esdPerson extends Emory_Db_Table_Row implements Zend_Acl_Role_Interface {
 
 	// detect if user is a school-specific admin - determined by school config
 	$school_cfg = Zend_Registry::get("schools-config");
-	foreach ($school_cfg as $school) {
-	  // if department name is configured & matches user department
-	  if ((isset($school->admin->department) && $school->admin->department != '' && 
-	       isset($this->department) && $this->department != '' &&
-	      $this->department == $school->admin->department) ||
-	      // OR if netid matches (handles single netid or multiple)
-	      (isset($school->admin->netid)
-		    && $this->netid == $school->admin->netid
-	       || (is_object($school->admin->netid) &&
-		   in_array($this->netid, $school->admin->netid->toArray())))) {
-	    $this->role = $school->shortname . " admin";
-	  }
-	}
+	$admin_type = $school_cfg->isAdmin($this);
+	if ($admin_type) $this->role = $admin_type . " admin";
 
         /*** special roles that must be set in config file ***/
         // etd superuser, techsupport, and honors admin
@@ -234,10 +223,8 @@ class esdPerson extends Emory_Db_Table_Row implements Zend_Acl_Role_Interface {
       // if role is a school-specific admin, return configured label for that school
       if ($pos = strpos($this->role, " admin")) {
 	$admin_type = substr($this->role, 0, $pos);
-	foreach ($school_cfg as $school) {
-	  if ($admin_type == $school->shortname)
-	    return $school->label;
-	}
+	$school = $school_cfg->getSchoolByAclId($admin_type);
+	if ($school) return $school->label;
       }
 
       // fall-back to more generic agent names
