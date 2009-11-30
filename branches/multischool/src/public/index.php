@@ -90,7 +90,7 @@ $db = Zend_Db::factory($db_config);
 Zend_Registry::set('stat-db', $db);	
 
 
-$schools_config = new Zend_Config_Xml($config_dir . "schools.xml");
+$schools_config = new SchoolsConfig($config_dir . "schools.xml");
 Zend_Registry::set('schools-config', $schools_config);
 
 

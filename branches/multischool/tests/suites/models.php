@@ -35,6 +35,8 @@ class ModelGroupTest extends GroupTest {
     $this->addTestFile('models/etdSetTest.php');
     $this->addTestFile('models/gradEtdTest.php');
     $this->addTestFile('models/unAPIresponseTest.php');
+
+    $this->addTestFile('models/SchoolsConfigTest.php');
   }
 }
 
