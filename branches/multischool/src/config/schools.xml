@@ -39,8 +39,10 @@
     <db_id>THEO</db_id>
     <fedora_collection>emory:ETD-Candler-collection</fedora_collection>
     <degrees>
-      <degree>MA</degree>
-      <degree></degree>	<!-- one more ? -->
+      <degree>MDiv</degree>
+      <degree>MTS</degree>
+      <degree>ThM</degree>
+      <degree>ThD</degree>
     </degrees>
     <!-- required fields? .. how to specify? -->
     <admin>
