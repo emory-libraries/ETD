@@ -3,7 +3,7 @@
     <label>Graduate School</label>
     <acl_id>grad</acl_id>
     <db_id>GSAS</db_id>
-    <fedora_collection>emory:ETD-GradSchool-collection</fedora_collection>
+    <fedora_collection>emory-control:ETD-GradSchool-collection</fedora_collection>
     <degrees>
       <degree>PhD</degree>
       <degree>MA</degree>
@@ -20,7 +20,7 @@
     <label>College Honors Program</label>
     <acl_id>honors</acl_id>
     <db_id>UCOL</db_id>
-    <fedora_collection>emory:ETD-College-collection</fedora_collection>
+    <fedora_collection>emory-control:ETD-College-collection</fedora_collection>
     <degrees>
       <degree>BA</degree>
       <degree>BS</degree>
@@ -37,7 +37,7 @@
     <label>Candler School of Theology</label>
     <acl_id>candler</acl_id>
     <db_id>THEO</db_id>
-    <fedora_collection>emory:ETD-Candler-collection</fedora_collection>
+    <fedora_collection>emory-control:ETD-Candler-collection</fedora_collection>
     <degrees>
       <degree>MDiv</degree>
       <degree>MTS</degree>
