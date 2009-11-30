@@ -18,9 +18,9 @@ class TestSchoolsConfig extends UnitTestCase {
   }
 
   function testGetIdByCollection() {
-    $this->assertEqual("graduate_school", $this->schools->getIdByFedoraCollection("emory:ETD-GradSchool-collection"));
-    $this->assertEqual("emory_college", $this->schools->getIdByFedoraCollection("emory:ETD-College-collection"));
-    $this->assertEqual("candler", $this->schools->getIdByFedoraCollection("emory:ETD-Candler-collection"));
+    $this->assertEqual("graduate_school", $this->schools->getIdByFedoraCollection("emory-control:ETD-GradSchool-collection"));
+    $this->assertEqual("emory_college", $this->schools->getIdByFedoraCollection("emory-control:ETD-College-collection"));
+    $this->assertEqual("candler", $this->schools->getIdByFedoraCollection("emory-control:ETD-Candler-collection"));
 
     $this->assertNull($this->schools->getIdByFedoraCollection("bogus"));
   }
