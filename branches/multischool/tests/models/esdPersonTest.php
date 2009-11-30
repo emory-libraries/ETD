@@ -316,18 +316,18 @@
 	 $this->assertNull($address, "staff person should not have an address");
        }
 
-       function testGetSchool() {
+       function testGetSchoolId() {
 	 $person = $this->esd->findByUsername("mstuden");
-	 $this->assertEqual("grad", $person->getSchool(), "getSchool should return 'grad' for acadamic career 'GSAS'; got '" . $person->getSchool() . "'");
+	 $this->assertEqual("graduate_school", $person->getSchoolId(), "getSchool should return 'grad' for acadamic career 'GSAS'; got '" . $person->getSchoolId() . "'");
 	 
 	 $person = $this->esd->findByUsername("pstaff");
-	 $this->assertNull($person->getSchool(), "getSchool should return null when no acadamic career is set, got '" . $person->getSchool() . "'");
+	 $this->assertNull($person->getSchoolId(), "getSchool should return null when no acadamic career is set, got '" . $person->getSchoolId() . "'");
 
 	 $person->academic_career = "UCOL";
-	 $this->assertEqual("honors", $person->getSchool(), "getSchool should return 'honors' for acadamic career 'UCOL'; got '" . $person->getSchool() . "'");
+	 $this->assertEqual("emory_college", $person->getSchoolId(), "getSchool should return 'honors' for acadamic career 'UCOL'; got '" . $person->getSchoolId() . "'");
 
 	 $person->academic_career = "THEO";
-	 $this->assertEqual("candler", $person->getSchool(), "getSchool should return 'candler' for acadamic career 'THEO'; got '" . $person->getSchool() . "'");
+	 $this->assertEqual("candler", $person->getSchoolId(), "getSchool should return 'candler' for acadamic career 'THEO'; got '" . $person->getSchoolId() . "'");
 	 
        }
 

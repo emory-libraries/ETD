@@ -242,17 +242,15 @@ class esdPerson extends Emory_Db_Table_Row implements Zend_Acl_Role_Interface {
 
 
     /**
-     * retrieve the school that a student belongs to
-     * @return string|null	-- currently, this may change
+     * retrieve the school config id for the school that a student belongs to
+     * @return string|null school id on success, null if no match is found
+     * @todo may want an equivalent getSchoolConfig function...
      */
-    public function getSchool() {
+    public function getSchoolId() {
       $school_cfg = Zend_Registry::get("schools-config");
       // if academic career is set and not empy
       if (isset($this->academic_career) && $this->academic_career) {
-	foreach ($school_cfg as $school) {
-	  //FIXME: what should be returned here?
-	  if ($school->db_id == $this->academic_career) return $school->shortname;
-	}
+	return $school_cfg->getIdByDatabaseId($this->academic_career);
       }
       return null;
     }
