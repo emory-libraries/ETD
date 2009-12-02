@@ -43,6 +43,8 @@ class ManageControllerTest extends ControllerTestCase {
     $this->response = $this->makeResponse();
     $this->request  = $this->makeRequest();
 
+    $school_cfg = Zend_Registry::get("schools-config");
+    
     // load a test objects to repository
     // load fixtures
     // note: etd & related user need to be in repository so authorInfo relation will work
@@ -50,12 +52,15 @@ class ManageControllerTest extends ControllerTestCase {
     // load etd1 & set pid 		-- simple etd record, status = published
     $dom->loadXML(file_get_contents('../fixtures/etd1.xml'));
     $foxml = new etd($dom);
+    $foxml->setSchoolConfig($school_cfg->graduate_school);
+    
     $foxml->pid = $this->published_etdpid;
     $this->fedora->ingest($foxml->saveXML(), "loading test etd object");
 
     // load etd2 & set pid & author relation	-- etd record associated with authorinfo object, status reviewed
     $dom->loadXML(file_get_contents('../fixtures/etd2.xml'));
     $foxml = new etd($dom);
+    $foxml->setSchoolConfig($school_cfg->graduate_school);
     $foxml->pid = $this->reviewed_etdpid;
     $foxml->rels_ext->hasAuthorInfo = $this->userpid;
     $this->fedora->ingest($foxml->saveXML(), "loading test etd object");
@@ -171,7 +176,7 @@ class ManageControllerTest extends ControllerTestCase {
     $etd->save("set status to submitted to test review - grad admin");
     $ManageController->acceptAction();
     $etd = new etd($this->reviewed_etdpid);	// get from fedora to check changes
-    $this->assertEqual("Record reviewed by Graduate School", $etd->premis->event[2]->detail);
+    $this->assertEqual("Record reviewed by Graduate School", $etd->premis->event[1]->detail);
 
 
     // FIXME: not allowed to do this on non-honors etd -- temporarily convert fixture to honors?
@@ -211,8 +216,8 @@ class ManageControllerTest extends ControllerTestCase {
     $this->assertEqual("draft", $etd->status(), "status set correctly");	
     $messages = $ManageController->getHelper('FlashMessenger')->getMessages();
     $this->assertPattern("/Changes requested;.*status changed/", $messages[0]);
-    $this->assertEqual("Changes to record requested by ETD Administrator", $etd->premis->event[1]->detail);
-    $this->assertEqual("test_user", $etd->premis->event[1]->agent->value);
+    $this->assertEqual("Changes to record requested by ETD Administrator", $etd->premis->event[0]->detail);
+    $this->assertEqual("test_user", $etd->premis->event[0]->agent->value);
     $this->assertTrue(isset($ManageController->view->title));
     $this->assertEqual("record", $ManageController->view->changetype);
 
@@ -224,7 +229,7 @@ class ManageControllerTest extends ControllerTestCase {
     $etd->save("set status to submitted to test request changes - grad admin");
     $ManageController->requestchangesAction();
     $etd = new etd($this->reviewed_etdpid);	// get from fedora to check changes
-    $this->assertEqual("Changes to record requested by Graduate School", $etd->premis->event[2]->detail);
+    $this->assertEqual("Changes to record requested by Graduate School", $etd->premis->event[1]->detail);
     
     /*$this->test_user->role = "honors admin";
     // reset status on etd
@@ -273,7 +278,7 @@ class ManageControllerTest extends ControllerTestCase {
     $etd->save("set status to reviewed to test request changes - grad admin");
     $ManageController->requestchangesAction();
     $etd = new etd($this->reviewed_etdpid);	// get from fedora to check changes
-    $this->assertEqual("Changes to document requested by Graduate School", $etd->premis->event[2]->detail);
+    $this->assertEqual("Changes to document requested by Graduate School", $etd->premis->event[1]->detail);
 
     /*
     $this->test_user->role = "honors admin";
