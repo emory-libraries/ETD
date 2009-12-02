@@ -1,7 +1,6 @@
 <?php
 require_once("../bootstrap.php");
 require_once('models/etdfile.php');
-require_once('models/honors_etd.php');
 
 class TestEtdFile extends UnitTestCase {
   private $etdfile;
@@ -101,9 +100,10 @@ class TestEtdFile extends UnitTestCase {
 
 
   public function testInitFromFile() {
+    $schools_cfg = Zend_Registry::get("schools-config");
 
-    $etd = new etd();
-    $etdfile = new etd_file(null, $etd);
+    $grad_etd = new etd($schools_cfg->graduate_school);
+    $etdfile = new etd_file(null, $grad_etd);
     $person = new esdPerson();
     $author = $person->getTestPerson();
     $author->netid = 'jsmith';
@@ -130,13 +130,12 @@ class TestEtdFile extends UnitTestCase {
     $this->assertEqual("filename:tinker_sample.pdf", $etdfile->dc->source);
 
     // if genre/doctype is set in etd record, that should be used for title
-    $etd->mods->genre = "Masters Thesis";
+    $grad_etd->mods->genre = "Masters Thesis";
     $etdfile->initializeFromFile("../fixtures/tinker_sample.pdf", "pdf", $author);
     $this->assertEqual("Masters Thesis", $etdfile->dc->title);
     
 
-
-    $honors_etd = new honors_etd();
+    $honors_etd = new etd($schools_cfg->emory_college);
     $etdfile = new etd_file(null, $honors_etd);
     $etdfile->initializeFromFile("../fixtures/tinker_sample.pdf", "pdf", $author);
     $this->assertEqual("Honors Thesis", $etdfile->dc->title,

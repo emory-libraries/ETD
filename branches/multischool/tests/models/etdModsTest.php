@@ -108,42 +108,44 @@ class TestEtdMods extends UnitTestCase {
     error_reporting($errlevel);	    // restore prior error reporting
   }
 
-  function testCheckRequirements() {
+  function testCheckFields() {
     // ignore php errors - "indirect modification of overloaded property
     $errlevel = error_reporting(E_ALL ^ E_NOTICE);
 
-    $missing = $this->mods->checkRequired();
+
+    // checking all fields available in mods record
+    $missing = $this->mods->checkAllFields();
     // fields that are complete
-    $this->assertFalse(in_array("title", array_keys($missing)), "title is not missing");
-    $this->assertFalse(in_array("author", array_keys($missing)), "author is not missing");
-    $this->assertFalse(in_array("program", array_keys($missing)), "program is not missing");
-    $this->assertFalse(in_array("researchfields", array_keys($missing)),
+    $this->assertFalse(in_array("title", $missing), "title is not missing");
+    $this->assertFalse(in_array("author", $missing), "author is not missing");
+    $this->assertFalse(in_array("program", $missing), "program is not missing");
+    $this->assertFalse(in_array("researchfields", $missing),
 		       "researh fields are not missing");
-    $this->assertFalse(in_array("keywords", array_keys($missing)), "keywords are not missing");
-    $this->assertFalse(in_array("degree", array_keys($missing)), "degree is not missing");
-    $this->assertFalse(in_array("language", array_keys($missing)), "language is not missing");
-    $this->assertFalse(in_array("abstract", array_keys($missing)), "abstract is not missing");
+    $this->assertFalse(in_array("keywords", $missing), "keywords are not missing");
+    $this->assertFalse(in_array("degree", $missing), "degree is not missing");
+    $this->assertFalse(in_array("language", $missing), "language is not missing");
+    $this->assertFalse(in_array("abstract", $missing), "abstract is not missing");
 
 
     // required fields missing in the unmodified mods fixture
-    $this->assertTrue(in_array("table of contents", array_keys($missing)),
+    $this->assertTrue(in_array("table of contents", $missing),
 		      "table of contents is missing");
-    $this->assertFalse($this->mods->readyToSubmit());
+    $this->assertFalse($this->mods->readyToSubmit($this->mods->available_fields));
     $this->mods->tableOfContents = "1. a chapter -- 2. another chapter";
-    $this->assertTrue(in_array("chair", array_keys($missing)));
+    $this->assertTrue(in_array("chair", $missing), "chair is missing");
     $this->mods->chair[0]->id = "wdisney";
-    $this->assertTrue(in_array("committee members", array_keys($missing)));
+    $this->assertTrue(in_array("committee members", $missing), "committee members are mising");
     $this->mods->committee[0]->id = "dduck";
 
-    $missing = $this->mods->checkRequired();
-    $this->assertFalse(in_array("table of contents", array_keys($missing)),
+    $missing = $this->mods->checkAllFields();
+    $this->assertFalse(in_array("table of contents", $missing),
 		      "table of contents is no longer missing");
-    $this->assertFalse(in_array("chair", array_keys($missing)), "chair no longer missing");
-    $this->assertFalse(in_array("committe members", array_keys($missing)),
+    $this->assertFalse(in_array("chair", $missing), "chair no longer missing");
+    $this->assertFalse(in_array("committe members", $missing),
 		       "committe members no longer missing");
     
     // does not have rights or copyright yet - not ready  
-    $this->assertFalse($this->mods->readyToSubmit());
+    $this->assertFalse($this->mods->readyToSubmit($this->mods->available_fields));
 
     // add embargo, pq, copyright & rights
     $this->mods->addNote("no", "admin", "copyright");
@@ -151,66 +153,59 @@ class TestEtdMods extends UnitTestCase {
     $this->mods->embargo_request = "yes";
     $this->mods->addNote("no", "admin", "pq_submit");
     $this->mods->rights = "rights statement";
-    $this->assertTrue($this->mods->readyToSubmit());
+    $this->assertTrue($this->mods->readyToSubmit($this->mods->available_fields));
 
 
     // check that all required fields are detected correctly when missing
     // by setting to empty fields that are present in the fixture mods
     //  - title
     $this->mods->title = "";
-    $missing = $this->mods->checkRequired();
-    $this->assertTrue(in_array("title", array_keys($missing)), "incomplete title detected");
+    $missing = $this->mods->checkAllFields();
+    $this->assertTrue(in_array("title", $missing), "incomplete title detected");
     //  - author
     $this->mods->author->id = "";
-    $missing = $this->mods->checkRequired();
-    $this->assertTrue(in_array("author", array_keys($missing)),
+    $missing = $this->mods->checkAllFields();
+    $this->assertTrue(in_array("author", $missing),
 		      "incomplete author detected (no id)");
     $this->mods->author->id = "testid";
     $this->mods->author->first = "";
-    $missing = $this->mods->checkRequired();
-    $this->assertTrue(in_array("author", array_keys($missing)),
+    $missing = $this->mods->checkAllFields();
+    $this->assertTrue(in_array("author", $missing),
 		      "incomplete author detected (no first name)");
     $this->mods->author->first = "Firstname";
     $this->mods->author->last = "";
-    $missing = $this->mods->checkRequired();
-    $this->assertTrue(in_array("author", array_keys($missing)),
+    $missing = $this->mods->checkAllFields();
+    $this->assertTrue(in_array("author", $missing),
 		      "incomplete author detected (no last name)");
     //  - program
     $this->mods->author->affiliation = "";
-    $missing = $this->mods->checkRequired();
-    $this->assertTrue(in_array("program", array_keys($missing)),
+    $missing = $this->mods->checkAllFields();
+    $this->assertTrue(in_array("program", $missing),
 		      "incomplete program detected");  
     //  - research fields
     $this->mods->researchfields[0]->id = $this->mods->researchfields[0]->topic = "";
-    $missing = $this->mods->checkRequired();
-    $this->assertTrue(in_array("researchfields", array_keys($missing)),
+    $missing = $this->mods->checkAllFields();
+    $this->assertTrue(in_array("researchfields", $missing),
 		      "incomplete research fields detected");
     //  - keywords
     $this->mods->keywords[0]->topic = "";
-    $missing = $this->mods->checkRequired();
-    $this->assertTrue(in_array("keywords", array_keys($missing)), "incomplete keywords detected");
+    $missing = $this->mods->checkAllFields();
+    $this->assertTrue(in_array("keywords", $missing), "incomplete keywords detected");
     //  - degree
     $this->mods->degree->name = "";
-    $missing = $this->mods->checkRequired();
-    $this->assertTrue(in_array("degree", array_keys($missing)), "incomplete degree detected");
+    $missing = $this->mods->checkAllFields();
+    $this->assertTrue(in_array("degree", $missing), "incomplete degree detected");
     //  - language
     $this->mods->language->text = $this->mods->language->code = "";
-    $missing = $this->mods->checkRequired();
-    $this->assertTrue(in_array("language", array_keys($missing)), "incomplete language detected");
+    $missing = $this->mods->checkAllFields();
+    $this->assertTrue(in_array("language", $missing), "incomplete language detected");
     //  - abstract
     $this->mods->abstract = "";
-    $missing = $this->mods->checkRequired();
-    $this->assertTrue(in_array("abstract", array_keys($missing)), "incomplete abstract detected");
+    $missing = $this->mods->checkAllFields();
+    $this->assertTrue(in_array("abstract", $missing), "incomplete abstract detected");
     
     
     error_reporting($errlevel);	    // restore prior error reporting
-  }
-
-  function testCheckOptional() {
-    // functionality for classes that inherit and have different requirements
-    $optional = $this->mods->checkOptional();
-    $this->assertIsA($optional, "Array");
-    $this->assertEqual(0, count($optional));
   }
 
   function testFieldLabels() {

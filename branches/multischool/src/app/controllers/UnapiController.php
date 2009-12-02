@@ -5,7 +5,7 @@
  */
 
 require_once("models/unAPIresponse.php");
-require_once("models/EtdFactory.php");
+require_once("models/etd.php");
 	    
 
 // unAPI implementation
@@ -41,7 +41,7 @@ class UnapiController extends Etd_Controller_Action {
 
 	$this->_setParam("pid", $pid);
 	try { 
-	  $etd = EtdFactory::init($pid, "etd");
+	  $etd = new etd($pid);
 	} catch (Exception $e) {
 	  // for any exception at all (not found, not authorized) - assume invalid id
 	  $this->_response->setHttpResponseCode(404);

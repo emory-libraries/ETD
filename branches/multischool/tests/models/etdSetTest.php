@@ -2,7 +2,6 @@
 require_once("../bootstrap.php");
 require_once('models/EtdSet.php');
 require_once('models/etd.php');
-//require_once('models/honors_etd.php');
 
 class TestEtdSet extends UnitTestCase {
   private $etdset;
@@ -24,13 +23,15 @@ class TestEtdSet extends UnitTestCase {
     $this->etdset = new EtdSet();
     
     $this->fedora = Zend_Registry::get("fedora");
+    $school_cfg = Zend_Registry::get("schools-config");
+
     
-    $etd = new etd();
+    $etd = new etd($school_cfg->graduate_school);
     $etd->pid = $this->etdpid;
     $etd->title = "regular etd";
     $this->fedora->ingest($etd->saveXML(), "test etd factory init");
     
-    $etd = new honors_etd();
+    $etd = new etd($school_cfg->emory_college);
     $etd->pid = $this->honors_etdpid;
     $etd->title = "honors etd";
     $this->fedora->ingest($etd->saveXML(), "test etd factory init");
@@ -62,7 +63,9 @@ class TestEtdSet extends UnitTestCase {
 
     // second item should be initialized as honors etd
     $this->assertEqual($this->etdset->etds[1]->pid, $this->honors_etdpid);
-    $this->assertIsA($this->etdset->etds[1], "honors_etd");
+    $this->assertIsA($this->etdset->etds[1], "etd");
+    $this->assertEqual("College Honors Program", $this->etdset->etds[1]->admin_agent,
+		       "honors etd correctly picked up school config");
     
   }
   

@@ -9,7 +9,7 @@
  * @subpackage Etd_Controller_Helpers
  */
 
-require_once("EtdFactory.php");
+require_once("etd.php");
 
 
 class Etd_Controller_Action_Helper_GetFromFedora extends Zend_Controller_Action_Helper_Abstract {
@@ -58,8 +58,10 @@ class Etd_Controller_Action_Helper_GetFromFedora extends Zend_Controller_Action_
     }
 
     try {
-      // use factory method to initialize correct type - honors variants
-      $object = EtdFactory::init($id, $type);
+      switch($type) {
+      case "etd":  $object = new etd($id); break;
+      case "user": $object = new user($id); break;
+      }
     } catch (FedoraObjectNotFound $e) {
       $message = "Record not found";
       $log_message = $message . " - " . $e->getMessage();

@@ -9,12 +9,32 @@
       <degree>MA</degree>
       <degree>MS</degree>
     </degrees>
-    <!-- required fields? .. how to specify? -->
     <admin>
 	<!-- switch to/allow for department id ?! -->
 	<department>Graduate School Administration</department>
         <netid>gradqew</netid>
     </admin>
+    <submission_fields>
+	<required>title</required>
+	<required>author</required>
+	<required>program</required>
+	<required>chair</required>
+	<required>committee members</required>
+	<required>researchfields</required>
+	<required>keywords</required>
+	<required>degree</required>
+	<required>language</required>
+	<required>abstract</required>
+	<required>table of contents</required>
+	<required>embargo request</required>
+	<required>submission agreement</required>
+	<required>send to ProQuest</required>
+	<required>copyright</required>
+	<required>name</required>
+	<required>email</required>
+	<required>permanent email</required>
+	<required>permanent address</required>
+    </submission_fields>
   </graduate_school>
   <emory_college>
     <label>College Honors Program</label>
@@ -32,6 +52,24 @@
 	<!-- gracefully handle array / non-array ? -->
 	<netid>mabell</netid>
     </admin>
+    <submission_fields>
+	<required>title</required>
+	<required>author</required>
+	<required>program</required>
+	<required>chair</required>
+	<required>committee members</required>
+	<required>keywords</required>
+	<required>degree</required>
+	<required>language</required>
+	<required>abstract</required>
+	<required>table of contents</required>
+	<required>embargo request</required>
+	<required>submission agreement</required>
+	<required>name</required>
+	<required>email</required>
+	<required>permanent email</required>
+	<optional>researchfields</optional>
+    </submission_fields>
   </emory_college>
   <candler>
     <label>Candler School of Theology</label>
@@ -44,7 +82,24 @@
       <degree>ThM</degree>
       <degree>ThD</degree>
     </degrees>
-    <!-- required fields? .. how to specify? -->
+    <submission_fields>
+	<required>title</required>
+	<required>author</required>
+	<required>program</required>
+	<required>chair</required>
+	<required>committee members</required>
+	<required>keywords</required>
+	<required>degree</required>
+	<required>language</required>
+	<required>abstract</required>
+	<required>table of contents</required>
+	<required>embargo request</required>
+	<required>submission agreement</required>
+	<required>name</required>
+	<required>email</required>
+	<required>permanent email</required>
+	<optional>researchfields</optional>
+    </submission_fields>
     <admin>
 	<!-- gracefully handle array / non-array ? -->
 	<netid></netid>

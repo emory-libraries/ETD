@@ -41,32 +41,32 @@ class etd_mods extends mods {
   const EMBARGO_ABSTRACT = 3;
   const EMBARGO_MAX = 3;
   private $embargo_name_map;
- 
-  protected $required_fields;
-  protected $optional_fields;
+
+  /**
+   * submission fields that are available in mods (could be required or optional)
+   * @var array
+   */
+  public $available_fields;
+  //  protected $required_fields;
+  //  protected $optional_fields;
 
   // add etd-specific mods mappings
   protected function configure() {
-    /** NOTE: this data is edited on several different pages;
-        each required field has a value of the edit action
-	where that field is edited. */
-    $this->required_fields = array("title" => "title",
-				   "author" => "record",
-				   "program" => "program",
-				   "chair" => "faculty",
-				   "committee members" => "faculty",
-				   "researchfields" => "researchfield",
-				   "keywords" => "record",
-				   "degree" => "record",
-				   "language" => "record",
-				   "abstract" => "abstract",
-				   "table of contents" => "contents",
-				   "embargo request" => "rights",
-				   "submission agreement" => "rights",
-				   "send to ProQuest" => "rights",
-				   "copyright" => "rights");
-    // no optional fields in base etd_mods 
-    $this->optional_fields = array();
+    $this->available_fields = array("title",
+				    "author",
+				    "program",
+				    "chair",
+				    "committee members",
+				    "researchfields",
+				    "keywords",
+				    "degree",
+				    "language",
+				    "abstract",
+				    "table of contents",
+				    "embargo request",
+				    "submission agreement",
+				    "send to ProQuest",
+				    "copyright");
 
     $this->embargo_name_map = array(etd_mods::EMBARGO_FILES => "files",
                                     etd_mods::EMBARGO_TOC => "toc",
@@ -659,12 +659,12 @@ class etd_mods extends mods {
 
   /**
    * check if this portion of the record is ready to submit and all required fields are filled in
-   *
+   * @param array $required list of required fields
    * @return boolean ready or not
    */
-  public function readyToSubmit() {
+  public function readyToSubmit(array $required) {
     // if anything is missing, record is not ready to submit
-    if (count($this->checkRequired())) return false;
+    if (count($this->checkFields($required))) return false;
 
     // don't attempt to validate until all required fields are filled
     // (missing research fields is invalid because of the ID attribute)
@@ -699,15 +699,16 @@ class etd_mods extends mods {
   }
 
   /**
-   * check required fields; returns an array with problems, missing data
+   * check a list of fields; returns an array with problems, missing data
+   * @param array of fields to check (e.g., list of required or optional fields)
    * @return array associative array of missing fields with the action where they are edited
    */
-  public function checkRequired() {
+  public function checkFields(array $fields) {
     $missing = array();
 
     // check everything that is specified as required 
-    foreach ($this->required_fields as $field => $action) {
-      if (! $this->isComplete($field)) $missing[$field] = $action;
+    foreach ($fields as $field) {
+      if (! $this->isComplete($field)) $missing[] = $field;
     }
     // NOTE: key is  missing field, value is edit action
 
@@ -715,20 +716,12 @@ class etd_mods extends mods {
   }
 
   /**
-   * check optional fields; returns an array with fields that are empty
-   * (equivalent to checkRequired but for optional fields)
-   * @return array associative array of missing fields with the action where they are edited
+   * check all available fields
+   * @see etd_mods::checkFields
+   * @return array 
    */
-  public function checkOptional() {
-    $missing = array();
-
-    // check everything that is specified as required 
-    foreach ($this->optional_fields as $field => $action) {
-      if (! $this->isComplete($field)) $missing[$field] = $action;
-    }
-    // NOTE: key is  missing field, value is edit action
-
-    return $missing;
+  public function checkAllFields() {
+    return $this->checkFields($this->available_fields);
   }
 
   /**
@@ -822,6 +815,7 @@ class etd_mods extends mods {
 
   /**
    * specialized version of check required - disregards rights completion status
+   * FIXME: no longer usable?  how to handle this?
    * @return bool
    */
   public function thesisInfoComplete() {
@@ -887,15 +881,6 @@ class etd_mods extends mods {
     return ($this->degree->name == "PhD" || $this->pq_submit == "yes");
   }
 
-  /**
-   * check if a field is required
-   * @param string $field name of the field
-   * @return boolean
-   */
-  function isRequired($field) {
-    return in_array($field, array_keys($this->required_fields));
-  }
-  
 }
 
 
