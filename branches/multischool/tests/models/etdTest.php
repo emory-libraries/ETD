@@ -201,6 +201,23 @@ class TestEtd extends UnitTestCase {
     $this->person->role = "default role";
     $this->assertEqual("default role", $this->etd->getUserRole($this->person));
 
+    // school-specific admin
+    $this->person->role = "grad admin";
+    $this->assertEqual("admin", $this->etd->getUserRole($this->person),
+		       "grad admin has admin role on grad etd");
+    $this->person->role = "honors admin";
+    $this->assertEqual("honors admin", $this->etd->getUserRole($this->person),
+		       "honors admin is honors admin on grad etd");
+
+    $this->etd->setSchoolConfig($this->school_cfg->emory_college);
+    $this->person->role = "grad admin";
+    $this->assertEqual("grad admin", $this->etd->getUserRole($this->person),
+		       "grad admin is grad admin on honors etd");
+    $this->person->role = "honors admin";
+    $this->assertEqual("admin", $this->etd->getUserRole($this->person),
+		       "honors admin is admin on honors etd");
+
+    
   }
 
   // run through the various statuses in order, check everything is set correctly

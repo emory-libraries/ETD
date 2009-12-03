@@ -96,15 +96,20 @@ class etd extends foxml implements etdInterface {
 	throw new FoxmlBadContentModel("$arg does not have etd content model " . $config->contentModels->etd);
       }
 
-      // FIXME: for now, assuming school collection is second, after ETD collection; reasonable?
+      // member of collections, attempt to find collection that matches a per-school config
       if (isset($this->rels_ext->isMemberOfCollections) &&
-	  count($this->rels_ext->isMemberOfCollections) > 1) {
-	$coll = $this->fedora->risearch->risearchpid_to_pid($this->rels_ext->isMemberOfCollections[1]);
+	  count($this->rels_ext->isMemberOfCollections)) {
 	$schools_cfg = Zend_Registry::get("schools-config");
-	$school_id = $schools_cfg->getIdByFedoraCollection($coll);
-	$this->school_config = $schools_cfg->$school_id;
+	for ($i = 0; $i < count($this->rels_ext->isMemberOfCollections); $i++) {
+	  $coll = $this->rels_ext->isMemberOfCollections[$i];
+	  if ($school_id = $schools_cfg->getIdByFedoraCollection($this->fedora->risearch->risearchpid_to_pid($coll))) {
+	    $this->school_config = $schools_cfg->$school_id;
+	  }
+	}
       }
-      // warn if no collection membership / cannot determine school config?
+      // warn if could not determine school config
+      if (! isset($this->school_config))
+	trigger_error("Could not determine per-school configuration based on collection membership", E_USER_WARNING);
       
     } elseif ($this->init_mode == "dom") {    
       // anything here?
@@ -210,8 +215,14 @@ class etd extends foxml implements etdInterface {
       return "committee";
     elseif ($user->isCoordinator($this->mods->department))
       return "program coordinator";
-    else
-      return $user->role;
+    elseif ($pos = strpos($user->role, " admin")) {
+      // if a user is a school-specific admin, determine if they are admin for *this* etd
+      $admin_type = substr($user->role, 0, $pos);
+      if ($admin_type == $this->school_config->acl_id)
+	return "admin";
+    }
+    
+    return $user->role;
   }
 
   /**
@@ -1074,16 +1085,13 @@ class etd extends foxml implements etdInterface {
 
   /**
    * for Zend ACL Resource
-   * @todo determine if etd resource ids can be done without subclassing by school and status,
-   *       e.g. draft honors etd
+   * NOTE: does not include per-school info (e.g., honors, grad)
+   * - use getUserRole to see if a per-school admin is admin on a particular etd
+   * @see etd::getUserRole
    */
   public function getResourceId() {
     // start with basic resource acl id for etd
     $acl_id = $this->acl_id;
-
-    // if school config is present, modify acl id with that
-    if (isset($this->school_config))
-      $acl_id = $this->school_config->acl_id . " " . $acl_id;
 
     // if status is available, modify acl id with status
     if ($this->status() != "") {
