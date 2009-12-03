@@ -160,13 +160,15 @@ class ManageControllerTest extends ControllerTestCase {
     $etd->save("set status to submitted to test review");
 
     $ManageController->acceptAction();
+    $this->test_user->role = "admin";
     $etd = new etd($this->reviewed_etdpid);	// get from fedora to check changes
     $this->assertEqual("reviewed", $etd->status(), "status set correctly");	
     $this->assertTrue($ManageController->redirectRan);	// redirects to admin summary page on success
     $messages = $ManageController->getHelper('FlashMessenger')->getMessages();
     $this->assertPattern("/status changed/", $messages[0]);
-    $this->assertEqual("Record reviewed by ETD Administrator", $etd->premis->event[1]->detail);
-    $this->assertEqual("test_user", $etd->premis->event[1]->agent->value);
+    $last_event = count($etd->premis->event) - 1;
+    $this->assertEqual("Record reviewed by ETD Administrator", $etd->premis->event[$last_event]->detail);
+    $this->assertEqual("test_user", $etd->premis->event[$last_event]->agent->value);
 
     // agent in description should vary according to admin role
     $this->test_user->role = "grad admin";
@@ -176,8 +178,8 @@ class ManageControllerTest extends ControllerTestCase {
     $etd->save("set status to submitted to test review - grad admin");
     $ManageController->acceptAction();
     $etd = new etd($this->reviewed_etdpid);	// get from fedora to check changes
-    $this->assertEqual("Record reviewed by Graduate School", $etd->premis->event[1]->detail);
-
+    $last_event = count($etd->premis->event) - 1;
+    $this->assertEqual("Record reviewed by Graduate School", $etd->premis->event[$last_event]->detail);
 
     // FIXME: not allowed to do this on non-honors etd -- temporarily convert fixture to honors?
     /*    $this->test_user->role = "honors admin";
@@ -210,14 +212,16 @@ class ManageControllerTest extends ControllerTestCase {
 
     $ManageController = new ManageControllerForTest($this->request,$this->response);
     // clear out any messages (?)
+    $this->test_user->role = "admin";
     $ManageController->getHelper('FlashMessenger')->getMessages();
     $ManageController->requestchangesAction();
     $etd = new etd($this->reviewed_etdpid);	// get from fedora to check changes
     $this->assertEqual("draft", $etd->status(), "status set correctly");	
     $messages = $ManageController->getHelper('FlashMessenger')->getMessages();
     $this->assertPattern("/Changes requested;.*status changed/", $messages[0]);
-    $this->assertEqual("Changes to record requested by ETD Administrator", $etd->premis->event[0]->detail);
-    $this->assertEqual("test_user", $etd->premis->event[0]->agent->value);
+    $last_event = count($etd->premis->event) - 1;
+    $this->assertEqual("Changes to record requested by ETD Administrator", $etd->premis->event[$last_event]->detail);
+    $this->assertEqual("test_user", $etd->premis->event[$last_event]->agent->value);
     $this->assertTrue(isset($ManageController->view->title));
     $this->assertEqual("record", $ManageController->view->changetype);
 
@@ -229,7 +233,8 @@ class ManageControllerTest extends ControllerTestCase {
     $etd->save("set status to submitted to test request changes - grad admin");
     $ManageController->requestchangesAction();
     $etd = new etd($this->reviewed_etdpid);	// get from fedora to check changes
-    $this->assertEqual("Changes to record requested by Graduate School", $etd->premis->event[1]->detail);
+    $last_event = count($etd->premis->event) - 1;
+    $this->assertEqual("Changes to record requested by Graduate School", $etd->premis->event[$last_event]->detail);
     
     /*$this->test_user->role = "honors admin";
     // reset status on etd
@@ -252,6 +257,7 @@ class ManageControllerTest extends ControllerTestCase {
 
     $ManageController = new ManageControllerForTest($this->request,$this->response);
     $ManageController->requestchangesAction();
+    $this->test_user->role = "admin";
     $etd = new etd($this->reviewed_etdpid);	// get from fedora to check changes
     $this->assertEqual("draft", $etd->status(), "status set correctly");
     // FIXME: for some reason this test fails, but the page works correctly in the browser (?)
@@ -259,8 +265,9 @@ class ManageControllerTest extends ControllerTestCase {
     //$this->assertEqual("document", $ManageController->view->changetype);
     $messages = $ManageController->getHelper('FlashMessenger')->getMessages();
     $this->assertPattern("/Changes requested;.*status changed/", $messages[0]);
-    $this->assertEqual("Changes to document requested by ETD Administrator", $etd->premis->event[1]->detail);
-    $this->assertEqual("test_user", $etd->premis->event[1]->agent->value);
+    $last_event = count($etd->premis->event) - 1;
+    $this->assertEqual("Changes to document requested by ETD Administrator", $etd->premis->event[$last_event]->detail);
+    $this->assertEqual("test_user", $etd->premis->event[$last_event]->agent->value);
 
     // try again now that etd is in draft status
     $this->assertFalse($ManageController->requestchangesAction());
@@ -278,7 +285,8 @@ class ManageControllerTest extends ControllerTestCase {
     $etd->save("set status to reviewed to test request changes - grad admin");
     $ManageController->requestchangesAction();
     $etd = new etd($this->reviewed_etdpid);	// get from fedora to check changes
-    $this->assertEqual("Changes to document requested by Graduate School", $etd->premis->event[1]->detail);
+    $last_event = count($etd->premis->event) - 1;
+    $this->assertEqual("Changes to document requested by Graduate School", $etd->premis->event[$last_event]->detail);
 
     /*
     $this->test_user->role = "honors admin";
@@ -380,7 +388,8 @@ class ManageControllerTest extends ControllerTestCase {
 
     $etd = new etd($this->published_etdpid);
     $this->assertEqual("inactive", $etd->status());
-    $this->assertEqual("Marked inactive - testing inactivation", $etd->premis->event[1]->detail);
+    $last_event = count($etd->premis->event) - 1;
+    $this->assertEqual("Marked inactive - testing inactivation", $etd->premis->event[$last_event]->detail);
     $messages = $ManageController->getHelper('FlashMessenger')->getMessages();
     $this->assertPattern("/Record.*status changed/", $messages[0]);
 
@@ -424,7 +433,8 @@ class ManageControllerTest extends ControllerTestCase {
 
     $etd = new etd($this->published_etdpid);
     $this->assertEqual("draft", $etd->status());
-    $this->assertEqual("Reactivated - testing reactivation", $etd->premis->event[1]->detail);
+    $last_event = count($etd->premis->event) - 1;
+    $this->assertEqual("Reactivated - testing reactivation", $etd->premis->event[$last_event]->detail);
     $messages = $ManageController->getHelper('FlashMessenger')->getMessages();
     $this->assertPattern("/Record.*status changed/", $messages[0]);
 
