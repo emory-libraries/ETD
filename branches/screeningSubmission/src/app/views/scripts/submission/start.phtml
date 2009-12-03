@@ -97,14 +97,14 @@ function validate() {
 <ol>
  <li><p>Have you included any copyrighted material in your thesis or dissertation?</p>
     <?= $this->formRadio("copyright", null,
-			 array("onChange" => "showif((radioValue('copyright')==1),'copyright_yes')"),
+			 array("onClick" => "showif((radioValue('copyright')==1),'copyright_yes')"),
 			 array(1 => "Yes", 0 => "No")) ?>
 
      <? /* copyright details: display if answered YES to copyright */ ?>
     <div id="copyright_yes" style="display:none">
       <p>1b. Have you obtained permission to include that copyrighted material in your thesis or dissertation?</p>
       <?= $this->formRadio("copyright_permission", null,
-			   array("onChange" => "showif((radioValue('copyright_permission')==1), 'copyright_perms_yes', 'copyright_perms_no')"),
+			   array("onClick" => "showif((radioValue('copyright_permission')==1), 'copyright_perms_yes', 'copyright_perms_no')"),
 			 array(1 => "Yes", 0 => "No")) ?>
       <? /* copyright permission details */ ?>
     <div id="copyright_perms_no" style="display:none">  <? /* if answered NO to permissions */ ?> 
@@ -119,7 +119,7 @@ function validate() {
 
  <li><p>Does your thesis or dissertation disclose or describe any inventions or discoveries that could potentially have commercial application and therefore warrant patenting?  (If you and/or your faculty advisor(s) have any questions about making this determination, please contact the Emory Office of Technology Transfer at <a href="mailto:ott-web@emory.edu">ott-web@emory.edu</a>).</p>
     <?= $this->formRadio("patent", null,
-			 array("onChange" => "showif((radioValue('patent')==1),'patent_yes')"),
+			 array("onClick" => "showif((radioValue('patent')==1),'patent_yes')"),
 			 array(1 => "Yes", 0 => "No")) ?>
   <div id="patent_yes" style="display:none">   <? /* if yes to patent */ ?>	 
      <p>The technology transfer and patenting process necessitates further conversation with ETD administrators before you can continue with the ETD submission process.  Please contact Erika Farr (<a href="mailto:elfarr@emory.edu">elfarr@emory.edu</a>).</p>
@@ -128,7 +128,7 @@ function validate() {
 
 <li><p>Are you requesting an access restriction (see Part 3 below) for your thesis or dissertation?</p>
         <?= $this->formRadio("embargo", null,
-			     array('onChange' => "showif(radioValue('embargo')==1, 'embargo_yes')"),
+			     array('onClick' => "showif(radioValue('embargo')==1, 'embargo_yes')"),
 			     array(1 => "Yes", 0 => "No")) ?>
     <div id="embargo_yes" style="display:none">    <? /* if yes to embargo */ ?>
      <p>3b. Please indicate how long you intend to restrict access to your dissertation or thesis on the Submission Form and submit it to the Graduate School. You will also need to indicate your request for an access restriction during the submission process itself.
@@ -136,7 +136,7 @@ function validate() {
 
     <p>Should your abstract and/or table of contents be included in the access restriction?</p>
         <?= $this->formRadio("embargo_abs_toc", null,
-			     array("onChange" => "showif(radioValue('embargo_abs_toc')==1, 'embargo_abs_toc_yes')"),
+			     array("onClick" => "showif(radioValue('embargo_abs_toc')==1, 'embargo_abs_toc_yes')"),
 			     array(1 => "Yes", 0 => "No")) ?>
 
     <div id="embargo_abs_toc_yes" style="display:none">  <? /* if restricting abs/toc */ ?>
