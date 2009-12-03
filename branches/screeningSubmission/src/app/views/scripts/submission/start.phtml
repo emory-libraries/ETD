@@ -131,10 +131,10 @@ function validate() {
 			     array('onClick' => "showif(radioValue('embargo')==1, 'embargo_yes')"),
 			     array(1 => "Yes", 0 => "No")) ?>
     <div id="embargo_yes" style="display:none">    <? /* if yes to embargo */ ?>
-     <p>3b. Please indicate how long you intend to restrict access to your dissertation or thesis on the Submission Form and submit it to the Graduate School. You will also need to indicate your request for an access restriction during the submission process itself.
+     <p>Please indicate how long you intend to restrict access to your dissertation or thesis on the Submission Form and submit it to the Graduate School. You will also need to indicate your request for an access restriction during the submission process itself.
      </p>
 
-    <p>Should your abstract and/or table of contents be included in the access restriction?</p>
+    <p>3b. Should your abstract and/or table of contents be included in the access restriction?</p>
         <?= $this->formRadio("embargo_abs_toc", null,
 			     array("onClick" => "showif(radioValue('embargo_abs_toc')==1, 'embargo_abs_toc_yes')"),
 			     array(1 => "Yes", 0 => "No")) ?>
