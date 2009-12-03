@@ -5,8 +5,18 @@
 	<a class="action" href="<?= $this->url(array("controller" => "edit", "action" => "rights")) ?>">edit access restrictions</a>
       <? endif ?>
 
-   Access restrictions requested? <b><?= $this->etd->mods->embargo_request ?></b>
-
+	   Access restrictions requested?
+	   <? if ($this->etd->mods->isEmbargoRequested()): ?>
+	      <b>yes:
+<? $restricted = array();	// nicer view of what exactly will be restricted
+if ($this->etd->mods->isEmbargoRequested(etd_mods::EMBARGO_FILES)) $restricted[] = "files";
+if ($this->etd->mods->isEmbargoRequested(etd_mods::EMBARGO_TOC)) $restricted[] = "table of contents";
+if ($this->etd->mods->isEmbargoRequested(etd_mods::EMBARGO_ABSTRACT)) $restricted[] = "abstract"; ?>
+		<?= implode(", ", $restricted); ?>
+		 </b>
+	   <? else: ?>
+	      <b>no: </b>
+	   <? endif ?>
   </div>
 
  <? if ($this->etd->isRequired("send to ProQuest")): ?>	   
