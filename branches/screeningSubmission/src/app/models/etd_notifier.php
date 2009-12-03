@@ -61,6 +61,8 @@ class etd_notifier extends notifier {
       $this->send_to = array("author_permanent"); break;
     case "permanent":	// author's permanent address and committee
       $this->send_to = array("author_permanent", "committee"); break;
+    case "patent_info":
+      $this->send_to = array("ott", "etd-admin"); break;
     case "all":
     default:
       // by default, send to all - author (emory & permanent addresses), and committee
@@ -125,6 +127,18 @@ class etd_notifier extends notifier {
 	  trigger_error("Committee member/chair (" . $committee->id . ") not found in ESD", E_USER_NOTICE);
       }
     }
+
+    // ott and etd-admin recipient email info must be pulled from config file
+    if (in_array("ott", $this->send_to) || in_array("etd-admin", $this->send_to)) {
+      $config = Zend_Registry::get('config');
+      if (in_array("etd-admin", $this->send_to)) {
+	$this->to[$config->email->etd->address] = $config->email->etd->name;
+      }
+      if (in_array("ott", $this->send_to)) {
+	$this->to[$config->email->ott->address] = $config->email->ott->name;
+      }
+    }
+    
     
     // store in the view for debugging output when in development mode
     $this->view->to = $this->to;
@@ -222,6 +236,24 @@ class etd_notifier extends notifier {
     $this->mail->setSubject($subject);
     $this->view->text = $text;
     $this->setBodyHtml($this->view->render("email/request_changes.phtml"));
+    $this->send();
+    return $this->to;
+  }
+
+
+  /**
+   * send an email to etd administrator & OTT to advise patent concerns
+   * @return array of addresses email was sent to
+   */
+  public function patent_concerns() {
+    $this->setRecipients("patent_info");
+
+    $esd = new esdPersonObject();
+    $author = $esd->findByUsername($this->view->etd->owner);
+    $this->view->author_email = $author->email;
+
+    $this->mail->setSubject("ETD author has patent concerns");
+    $this->setBodyHtml($this->view->render("email/patent_concerns.phtml"));
     $this->send();
     return $this->to;
   }
