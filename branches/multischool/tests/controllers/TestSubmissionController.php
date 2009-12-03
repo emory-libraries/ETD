@@ -163,26 +163,33 @@ class SubmissionControllerTest extends ControllerTestCase {
 		       "committee" => array(),
 		       "keywords" => array("test", "etd"));
     // leaving out committee/ESD stuff for now
-
+    $this->test_user->academic_career = "GSAS";
     $etd = $SubmissionController->initialize_etd($test_info);
     $this->assertIsA($etd, "etd");
-    $this->assertIsA($etd, "grad_etd");
-    $this->assertNotA($etd, "honors_etd");
     $this->assertEqual("new etd", $etd->label);
     $this->assertEqual("my abstract", $etd->mods->abstract);
     $this->assertEqual("chapter 1 -- chapter 2", $etd->mods->tableOfContents);
     $this->assertEqual("test", $etd->mods->keywords[0]->topic);
     $this->assertEqual("etd", $etd->mods->keywords[1]->topic);
+    $this->assertEqual("Graduate School", $etd->admin_agent);
 
 
     // if student is honors, etd should be initialized the same but as
     // an instance of honors_etd variant
     $this->test_user->role = "honors student";
+    $this->test_user->academic_career = "UCOL";
     $etd = $SubmissionController->initialize_etd($test_info);
     $this->assertIsA($etd, "etd");
-    $this->assertIsA($etd, "honors_etd");
     $this->assertEqual("new etd", $etd->label);
-	
+    $this->assertEqual("College Honors Program", $etd->admin_agent);
+
+
+    $this->test_user->academic_career = "THEO";
+    $etd = $SubmissionController->initialize_etd($test_info);
+    $this->assertIsA($etd, "etd");
+    $this->assertEqual("new etd", $etd->label);
+    $this->assertEqual("Candler School of Theology", $etd->admin_agent);
+
     error_reporting($errlevel);	    // restore prior error reporting
   }
     

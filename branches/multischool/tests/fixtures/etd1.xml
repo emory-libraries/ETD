@@ -80,7 +80,7 @@
 	  <rdf:Description rdf:about="info:fedora/test:etd1">        
         <!--<fedora-model:hasModel rdf:resource="info:fedora/some:other-cmodel"/> -->
            <fedora-model:hasModel rdf:resource="info:fedora/emory-control:ETD-1.0"/>
-            <rel:isMemberOfCollection rdf:resource="info:fedora/emory-control:ETD-GradSchool-Collection"/>
+            <rel:isMemberOfCollection rdf:resource="info:fedora/emory-control:ETD-GradSchool-collection"/>
 	    <rel:etdStatus>published</rel:etdStatus>
 	    <rel:author>mmouse</rel:author>
 	    <rel:committee>dduck</rel:committee>
