@@ -776,7 +776,7 @@ class TestEtd extends UnitTestCase {
 
   function testMagicMethods() {
       // ingest a minimal, published record to test fedora methods as object methods
-      $etd = new etd();
+      $etd = new etd($this->school_cfg->graduate_school);
       $etd->pid = $this->etdpid;
       $etd->title = "test etd";
       $etd->mods->ark = "ark:/123/bcd";
@@ -820,7 +820,7 @@ class TestEtd extends UnitTestCase {
 
   function testGetPreviousStatus() {
     // ingest a minimal, published record to test fedora methods as object methods
-    $etd = new etd();
+    $etd = new etd($this->school_cfg->emory_college);
     $etd->pid = $this->etdpid;
     $etd->title = "test etd";
     $etd->mods->ark = "ark:/123/bcd";
