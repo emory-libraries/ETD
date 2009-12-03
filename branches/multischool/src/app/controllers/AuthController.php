@@ -113,6 +113,12 @@ class AuthController extends Etd_Controller_Action {
      } else {
        $this->current_user->role = $role;
      }
+
+
+     // if not setting role to program coordinator, clear out any program coordinator dept.
+     if (! strstr($role, "coordinator")) {
+       $this->current_user->program_coord = null;
+     }
    }
 
    public function logoutAction() {
