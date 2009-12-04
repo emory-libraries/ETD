@@ -30,6 +30,25 @@ class SubmissionController extends Etd_Controller_Action {
   public function processpdfAction() {
     if (!$this->_helper->access->allowedOnEtd("create")) return false;
 
+    //Validate questions from previous page
+     //If they are not valid return to the last page
+
+      //Get all the answers to the questions from the post
+      $questions["copyright"] = $this->_getParam("copyright");
+      $questions["copyright_permission"] = $this->_getParam("copyright_permission");
+      $questions["patent"] = $this->_getParam("patent");
+      $questions["embargo"] = $this->_getParam("embargo");
+      $questions["embargo_abs_toc"] = $this->_getParam("embargo_abs_toc");
+    
+    $questionsMsg = $this->validateQuestions($questions);
+    
+    if($questionsMsg == ""){
+        $this->_helper->flashMessenger->addMessage("OK!");
+        
+          $this->_setParam("ABC", "123");
+        $this->_helper->redirector->gotoSimple('start','submission');
+    }
+
     // allow a way to create record even if there are errors -
     // workaround for unrecognizable PDFs
     $force_create = false;
@@ -146,6 +165,40 @@ class SubmissionController extends Etd_Controller_Action {
        displayed, including any error messages, along with a list of
        suggested trouble-shooting steps to try.
       */
+  }
+
+  /**
+   * Validate questions on submission start page
+   *
+   * @return boolean
+   */
+  public function validateQuestions($questions){
+      print "<pre>"; //DEBUG
+      print_r($questions);
+      print "</pre>"; //DEBUG
+
+      $msg="";
+      // answer to copyright is required
+      if ($questions["copyright"] == NULL) {
+         $msg .= "answer to copyright is required<br>";
+      } else if ($questions["copyright"] == 1 && $questions["copyright_permission"]== NULL) {
+         // if answer to copyright is yes, answer about permissions is required
+         $msg .= "answer to copyright permissions is required<br>";
+      }
+
+      // answer to patent is required
+      if ($questions["patent"] == NULL) {
+         $msg .= "answer to patent is required<br>";
+      }
+
+      // answer to embargo question is required
+     if ($questions["embargo"] == NULL) {
+         $msg .="answer to embargo is required<br>";
+     } else if ($questions["embargo"] == 1 && $questions["embargo_abs_toc"] == NULL) {
+       $msg .= "answer to embargo level is required<br>";
+     }
+
+     print $msg;  //DEBUG
   }
 
 

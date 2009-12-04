@@ -47,7 +47,6 @@ function showif(value, iftrue, ifnot) {
   }
 }
 
-
 /*Useed to validate all questions are answerd  before submitting PDF */
 function validate() {
   var err = false;
@@ -90,6 +89,10 @@ function validate() {
     
 <p>Welcome!</p>
     <p>Please answer the follow questions before you submit your document.</p>
+    <? 
+    print_r($_POST);
+    print_r($_GET);
+    ?>
 
 <form name="submission" id="submission" method="post" enctype="multipart/form-data"
     action="<?= $this->url(array("action" => "processpdf"))?>">
