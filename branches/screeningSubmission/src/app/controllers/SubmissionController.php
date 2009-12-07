@@ -22,7 +22,17 @@ class SubmissionController extends Etd_Controller_Action {
     if (!$this->_helper->access->allowedOnEtd("create")) return false;
     // any other info needed here?
     $this->view->title = "Begin Submission";
-  }
+    //print "ALL PARAMS:"; //DEBUG
+    //print_r($this->_getAllParams()); //DEBUG
+
+    //Get all the answers to the questions from the post to validate
+    $answers["copyright"] = $this->_getParam("copyright");
+    $answers["copyright_permission"] = $this->_getParam("copyright_permission");
+    $answers["patent"] = $this->_getParam("patent");
+    $answers["embargo"] = $this->_getParam("embargo");
+    $answers["embargo_abs_toc"] = $this->_getParam("embargo_abs_toc");
+    $this->view->answers = $answers;
+    }
 
 
   // pulls information from the PDF, creates a new fedora record with associated pdf file,
@@ -33,20 +43,23 @@ class SubmissionController extends Etd_Controller_Action {
     //Validate questions from previous page
      //If they are not valid return to the last page
 
-      //Get all the answers to the questions from the post
-      $questions["copyright"] = $this->_getParam("copyright");
-      $questions["copyright_permission"] = $this->_getParam("copyright_permission");
-      $questions["patent"] = $this->_getParam("patent");
-      $questions["embargo"] = $this->_getParam("embargo");
-      $questions["embargo_abs_toc"] = $this->_getParam("embargo_abs_toc");
+      //Get all the answers to the questions from the post to validate
+      $answers["copyright"] = $this->_getParam("copyright");
+      $answers["copyright_permission"] = $this->_getParam("copyright_permission");
+      $answers["patent"] = $this->_getParam("patent");
+      $answers["embargo"] = $this->_getParam("embargo");
+      $answers["embargo_abs_toc"] = $this->_getParam("embargo_abs_toc");
     
-    $questionsMsg = $this->validateQuestions($questions);
+    $questionsMsg = $this->validateQuestions($answers);
     
-    if($questionsMsg == ""){
-        $this->_helper->flashMessenger->addMessage("OK!");
+    if($questionsMsg == ""){ //change to "!=" when finished testing
+        $this->_helper->flashMessenger->addMessage("TESTING!"); //put msg here when finished testing
         
-          $this->_setParam("ABC", "123");
-        $this->_helper->redirector->gotoSimple('start','submission');
+        //Take parameters array and add values necessary for redirection
+        $redir = $answers;
+        $redir["controller"] = "submission";
+        $redir["action"] = "start";
+        $this->_helper->redirector->gotoRoute($redir);
     }
 
     // allow a way to create record even if there are errors -
@@ -172,33 +185,33 @@ class SubmissionController extends Etd_Controller_Action {
    *
    * @return boolean
    */
-  public function validateQuestions($questions){
+  public function validateQuestions($answers){
       print "<pre>"; //DEBUG
-      print_r($questions);
+      print_r($answers);
       print "</pre>"; //DEBUG
 
       $msg="";
       // answer to copyright is required
-      if ($questions["copyright"] == NULL) {
+      if ($answers["copyright"] == NULL) {
          $msg .= "answer to copyright is required<br>";
-      } else if ($questions["copyright"] == 1 && $questions["copyright_permission"]== NULL) {
+      } else if ($answers["copyright"] == 1 && $answers["copyright_permission"]== NULL) {
          // if answer to copyright is yes, answer about permissions is required
          $msg .= "answer to copyright permissions is required<br>";
       }
 
       // answer to patent is required
-      if ($questions["patent"] == NULL) {
+      if ($answers["patent"] == NULL) {
          $msg .= "answer to patent is required<br>";
       }
 
       // answer to embargo question is required
-     if ($questions["embargo"] == NULL) {
+     if ($answers["embargo"] == NULL) {
          $msg .="answer to embargo is required<br>";
-     } else if ($questions["embargo"] == 1 && $questions["embargo_abs_toc"] == NULL) {
+     } else if ($answers["embargo"] == 1 && $answers["embargo_abs_toc"] == NULL) {
        $msg .= "answer to embargo level is required<br>";
      }
 
-     print $msg;  //DEBUG
+     print "MSG: $msg";  //DEBUG
   }
 
 
