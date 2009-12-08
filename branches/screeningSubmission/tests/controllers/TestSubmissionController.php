@@ -278,6 +278,53 @@ class SubmissionControllerTest extends ControllerTestCase {
   }
 
 
+  function testValidateQuestions() {
+      $SubmissionController = new SubmissionControllerForTest($this->request, $this->response);
+      
+      //All ansers are no to questions 1, 2, and 3
+      $answers = array("copyright" => 0,
+                       "copyright_permission" => NULL,
+                       "patent" => 0,
+                       "embargo" => 0,
+                       "embargo_abs_toc" => NULL);
+      
+      $msg = $SubmissionController->validateQuestions($answers);
+      $this->assertEqual($msg, "");
+
+      //All ansers are yes to all questions
+      $answers = array("copyright" => 1,
+                       "copyright_permission" => 1,
+                       "patent" => 1,
+                       "embargo" => 1,
+                       "embargo_abs_toc" => 1);
+
+      $msg = $SubmissionController->validateQuestions($answers);
+      $this->assertEqual($msg, "");
+
+      //1, 2, 3 answered but sub-questions are not
+      $answers = array("copyright" => 1,
+                       "copyright_permission" => NULL,
+                       "patent" => 0,
+                       "embargo" => 1,
+                       "embargo_abs_toc" => NULL
+                      );
+
+      $msg = $SubmissionController->validateQuestions($answers);
+      $this->assertEqual($msg, "Answer to copyright permissions is required<br>Answer to embargo level is required<br>");
+
+      //1,2,3 are yes sub-questions are no
+      $answers = array("copyright" => 1,
+                       "copyright_permission" => 0,
+                       "patent" => 1,
+                       "embargo" => 1,
+                       "embargo_abs_toc" => 0
+                      );
+
+      $msg = $SubmissionController->validateQuestions($answers);
+      $this->assertEqual($msg, "");
+  }
+
+
 }
 
 

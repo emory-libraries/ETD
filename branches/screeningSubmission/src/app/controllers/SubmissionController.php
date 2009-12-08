@@ -184,32 +184,27 @@ class SubmissionController extends Etd_Controller_Action {
    * @return boolean
    */
   public function validateQuestions($answers){
-      print "<pre>"; //DEBUG
-      print_r($answers);
-      print "</pre>"; //DEBUG
-
       $msg="";
       // answer to copyright is required
-      if ($answers["copyright"] == NULL) {
-         $msg .= "answer to copyright is required<br>";
-      } else if ($answers["copyright"] == 1 && $answers["copyright_permission"]== NULL) {
+      if (strval($answers["copyright"]) == NULL) {
+         $msg .= "Answer to copyright is required<br>";
+      } else if ($answers["copyright"] == 1 && strval($answers["copyright_permission"])== NULL) {
          // if answer to copyright is yes, answer about permissions is required
-         $msg .= "answer to copyright permissions is required<br>";
+         $msg .= "Answer to copyright permissions is required<br>";
       }
 
       // answer to patent is required
-      if ($answers["patent"] == NULL) {
-         $msg .= "answer to patent is required<br>";
+      if (strval($answers["patent"]) == NULL) {
+         $msg .= "Answer to patent is required<br>";
       }
 
       // answer to embargo question is required
-     if ($answers["embargo"] == NULL) {
-         $msg .="answer to embargo is required<br>";
-     } else if ($answers["embargo"] == 1 && $answers["embargo_abs_toc"] == NULL) {
-       $msg .= "answer to embargo level is required<br>";
+     if (strval($answers["embargo"]) == NULL) {
+         $msg .="Answer to embargo is required<br>";
+     } else if ($answers["embargo"] == 1 && strval($answers["embargo_abs_toc"]) == NULL) {
+       $msg .= "Answer to embargo level is required<br>";
      }
-
-     print "MSG: $msg";  //DEBUG
+     return $msg;
   }
 
 
