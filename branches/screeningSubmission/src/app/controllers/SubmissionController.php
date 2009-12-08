@@ -22,8 +22,6 @@ class SubmissionController extends Etd_Controller_Action {
     if (!$this->_helper->access->allowedOnEtd("create")) return false;
     // any other info needed here?
     $this->view->title = "Begin Submission";
-    //print "ALL PARAMS:"; //DEBUG
-    //print_r($this->_getAllParams()); //DEBUG
 
     //Get all the answers to the questions from the post to validate
     $answers["copyright"] = $this->_getParam("copyright");
@@ -32,7 +30,7 @@ class SubmissionController extends Etd_Controller_Action {
     $answers["embargo"] = $this->_getParam("embargo");
     $answers["embargo_abs_toc"] = $this->_getParam("embargo_abs_toc");
     $this->view->answers = $answers;
-    }
+  }
 
 
   // pulls information from the PDF, creates a new fedora record with associated pdf file,
@@ -43,17 +41,17 @@ class SubmissionController extends Etd_Controller_Action {
     //Validate questions from previous page
      //If they are not valid return to the last page
 
-      //Get all the answers to the questions from the post to validate
-      $answers["copyright"] = $this->_getParam("copyright");
-      $answers["copyright_permission"] = $this->_getParam("copyright_permission");
-      $answers["patent"] = $this->_getParam("patent");
-      $answers["embargo"] = $this->_getParam("embargo");
-      $answers["embargo_abs_toc"] = $this->_getParam("embargo_abs_toc");
+    //Get all the answers to the questions from the post to validate
+    $answers["copyright"] = $this->_getParam("copyright");
+    $answers["copyright_permission"] = $this->_getParam("copyright_permission");
+    $answers["patent"] = $this->_getParam("patent");
+    $answers["embargo"] = $this->_getParam("embargo");
+    $answers["embargo_abs_toc"] = $this->_getParam("embargo_abs_toc");
     
     $questionsMsg = $this->validateQuestions($answers);
     
-    if($questionsMsg == ""){ //change to "!=" when finished testing
-        $this->_helper->flashMessenger->addMessage("TESTING!"); //put msg here when finished testing
+    if($questionsMsg != ""){
+        $this->_helper->flashMessenger->addMessage($questionsMsg);
         
         //Take parameters array and add values necessary for redirection
         $redir = $answers;
