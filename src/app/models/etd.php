@@ -201,13 +201,15 @@ class etd extends foxml implements etdInterface {
    *  determine a user's role in relation to this ETD (for access controls)
    * @param esdPerson $user optional
    * @return string role
+   * @todo look into using ownerId instead of rels-ext author
    */
   public function getUserRole(esdPerson $user = null) {
     if (is_null($user)) return "guest";
 
     // superuser should supercede all other roles
     if ($user->role == "superuser") return $user->role;
-    
+
+    // FIXME: can we use top-level ownerId now and get rid of rels-ext author field?
     if ($user->netid == $this->rels_ext->author)
       return "author";
     elseif ($this->rels_ext->committee instanceof DOMElementArray
