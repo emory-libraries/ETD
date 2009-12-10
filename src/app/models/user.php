@@ -16,7 +16,11 @@ require_once("etd_dc.php");
 
 class user extends foxml {
 
-  protected $required_fields;
+  /**
+   * submission fields that are provided by user object (could be required or optional)
+   * @var array
+   */
+  public $available_fields;
 
   public function __construct($arg = null, etd $parent = null) {
     parent::__construct($arg);
@@ -39,7 +43,7 @@ class user extends foxml {
     }
 
 
-    $this->required_fields = array("name", "email", "permanent email", "permanent address");
+    $this->available_fields = array("name", "email", "permanent email", "permanent address");
 				       
   }
 
@@ -96,13 +100,16 @@ class user extends foxml {
     }
   }
 
-
-  public function readyToSubmit() {
+  /**
+   * check if this portion of the record is ready to submit and all required fields are filled in
+   * @param array $required list of required fields
+   * @return boolean ready or not
+   */
+  public function readyToSubmit(array $required) {
     // if anything is missing, record is not ready to submit
-    if (count($this->checkRequired())) return false;
+    if (count($this->checkFields($required))) return false;
 
     // don't attempt to validate until all required fields are filled
-    // (missing research fields is invalid because of the ID attribute)
     if (! $this->mads->isValid()) {	    // xml should be valid MODS
       // error message?
       return false;
@@ -115,19 +122,30 @@ class user extends foxml {
   
 
   /**
-   * check required fields; returns an array of incomplete fields
+   * check a list of fields; returns an array of incomplete fields
+   * @param array $fields list of fields to check
    * @return array missing fields
    */
-  public function checkRequired() {
+  public function checkFields($fields) {
     $missing = array();
 
     // check everything in the array of required fields
-    foreach ($this->required_fields as $field) {
+    foreach ($fields as $field) {
       if (! $this->isComplete($field)) $missing[] = $field;
     }
 
     return $missing;
   }
+
+  /**
+   * check all available fields
+   * @see user::checkFields
+   * @return array 
+   */
+  public function checkAllFields() {
+    return $this->checkFields($this->available_fields);
+  }
+
 
   
   /**
@@ -156,18 +174,6 @@ class user extends foxml {
       trigger_error("Cannot determine if '$field' is complete", E_USER_NOTICE);
     }
   }
-
-  /**
-   * check if a field is required
-   * 
-   * @param string $field name of the field
-   * @return boolean
-   */
-  function isRequired($field) {
-    return in_array($field, $this->required_fields);
-  }
-
-
 
   // user's role in relation to this object
   public function getUserRole(esdPerson $user = null) {

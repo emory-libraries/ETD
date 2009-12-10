@@ -44,15 +44,20 @@ class EditControllerTest extends ControllerTestCase {
     $this->response = $this->makeResponse();
     $this->request  = $this->makeRequest();
 
+    $school_cfg = Zend_Registry::get("schools-config");
+    
     // load fixtures
     // note: etd & related user need to be in repository so authorInfo relation will work
     $etd = new etd($this->loadEtdDom());
+    $etd->setSchoolConfig($school_cfg->graduate_school);
     $etd->pid = $this->etdpid;
     $this->prepareForEtdTest($etd);
     $this->fedora->ingest($etd->saveXML(), "test etd object");
 
-    $honors_etd = new honors_etd($this->loadEtdDom());
+    $honors_etd = new etd($this->loadEtdDom());
+    $honors_etd->setSchoolConfig($school_cfg->emory_college);
     $honors_etd->pid = $this->honors_etdpid;
+    // configure so membership so etd will be recognized as honors when loading from fedora
     $honors_etd->rels_ext->addRelationToResource("rel:isMemberOfCollection",
                                                  $config->collections->college_honors);
     $this->prepareForEtdTest($honors_etd);
@@ -249,7 +254,7 @@ class EditControllerTest extends ControllerTestCase {
     
     // Honors ETD never goes to PQ: it doesn't even have the option
     $this->postSaveRights($this->honors_etdpid, 0, null, null, null, 1);
-    $this->assertRights(new honors_etd($this->honors_etdpid),
+    $this->assertRights(new etd($this->honors_etdpid),
                         0, etd_mods::EMBARGO_NONE, 0, 0, 1);
 
   }
@@ -313,7 +318,7 @@ class EditControllerTest extends ControllerTestCase {
     // Honors ETDs are not given the option to request PQ
 
     $this->postSaveRights($this->honors_etdpid, 1, etd_mods::EMBARGO_ABSTRACT, 1, 1, 1);
-    $this->assertRights(new honors_etd($this->honors_etdpid),
+    $this->assertRights(new etd($this->honors_etdpid),
                         0, etd_mods::EMBARGO_NONE, 0, null, null);
 
     // SUBMISSION AGREEMENT

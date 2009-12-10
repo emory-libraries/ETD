@@ -60,49 +60,98 @@ class etd extends foxml implements etdInterface {
    * @var string generic name for admin/agency responsible for this type of etd
    */
   public $admin_agent;
-  
+
+  /**
+   * @var Zend_Config configuration for the school that author is getting degree from
+   */
+  private $school_config;
 
   /**
    * initialize etd
-   * @param string|DOMDocument $arg optional
+   * @param string|DOMDocument|Zend_Config $arg optional
    * - if string, retrieve object from Fedora by specified pid
    * - if DOMDocument, initialize from DOM contents (mostly for testing)
    * - if not specified, create a new etd from template
    */
-  public function __construct($arg = null) {      
+  public function __construct($arg = null) {
+    // if parameter is an instance of zend_config, then store it
+    // locally but do NOT pass on to parent constructor
+    if ($arg instanceof Zend_Config) {
+      $this->school_config = $arg;
+      $arg = null;
+    }
     parent::__construct($arg);
+    if (Zend_Registry::isRegistered("config")) {
+      $config = Zend_Registry::get("config");
+    }
 
     if ($this->init_mode == "pid") {
       // make sure user has access to this object by accessing RELS datastream
       // - if not, this will throw error on initialization, when it is easier to catch
-      $this->rels_ext;		
-            
-      // anything else here?
-    //if ($this->cmodel != "etd") {
-    // FIXME: add a check that hasModel rel is present...?
-        //throw new FoxmlBadContentModel("$arg is not an etd");
+      $this->rels_ext;
+
+      // check that etd content model is present; otherwise, wrong type of object
+      if (isset($config) && (!isset($this->rels_ext->hasModel) ||
+			     !$this->rels_ext->hasModels->includes($this->fedora->risearch->pid_to_risearchpid($config->contentModels->etd)))) {
+	throw new FoxmlBadContentModel("$arg does not have etd content model " . $config->contentModels->etd);
+      }
+
+      // member of collections, attempt to find collection that matches a per-school config
+      if (isset($this->rels_ext->isMemberOfCollections) &&
+	  count($this->rels_ext->isMemberOfCollections)) {
+	$schools_cfg = Zend_Registry::get("schools-config");
+	for ($i = 0; $i < count($this->rels_ext->isMemberOfCollections); $i++) {
+	  $coll = $this->rels_ext->isMemberOfCollections[$i];
+	  if ($school_id = $schools_cfg->getIdByFedoraCollection($this->fedora->risearch->risearchpid_to_pid($coll))) {
+	    $this->school_config = $schools_cfg->$school_id;
+	  }
+	}
+      }
+      // warn if could not determine school config
+      if (! isset($this->school_config))
+	trigger_error("Could not determine per-school configuration based on collection membership", E_USER_WARNING);
+      
     } elseif ($this->init_mode == "dom") {    
       // anything here?
     } elseif ($this->init_mode == "template") {
         // new etd objects - add relation to contentModel object
-        if (Zend_Registry::isRegistered("config")) {
-            $config = Zend_Registry::get("config");
-            $this->rels_ext->addContentModel($config->contentModels->etd);
-            $this->rels_ext->addRelationToResource("rel:isMemberOfCollection",
-					     $config->collections->all_etd);
-        } else {
-            trigger_error("Config is not in registry, cannot retrieve contentModel for etd");
-        }
+      if (isset($config)) {
+	$config = Zend_Registry::get("config");
+	$this->rels_ext->addContentModel($config->contentModels->etd);
+	$this->rels_ext->addRelationToResource("rel:isMemberOfCollection",
+					       $config->collections->all_etd);
+      } else {
+	trigger_error("Config is not in registry, cannot retrieve contentModel for etd");
+      }
      
       // all new etds should start out as drafts
       $this->rels_ext->addRelation("rel:etdStatus", "draft");
+
+      // add relation to school-specific collection
+      if (isset($this->school_config)) {
+	$this->rels_ext->addRelationToResource("rel:isMemberOfCollection",
+					       $this->school_config->fedora_collection);
+      }
+
+      // NOTE: if PQ research field is optional, the field must be removed because if
+      // it is present and left blank, the MODS is invalid
+      if (!$this->isRequired("researchfields") && count($this->mods->researchfields)) {
+	$this->mods->remove("researchfields");
+      }
+      
     }
+
 
     // base ACL resource id is etd
     $this->acl_id = "etd";
 
-    // for default etds, admin agent is grad school
-    $this->admin_agent = "Graduate School";
+    // set admin agent based on school config
+    if (isset($this->school_config)) {
+      $this->admin_agent = $this->school_config->label;
+    } else {
+      // generic default etds admin agent as fall-back
+      $this->admin_agent = "ETD Administrator";
+    }
   }
 
 
@@ -137,6 +186,14 @@ class etd extends foxml implements etdInterface {
 					    "class_name" => "etd_file", "sort" => "sort_etdfiles");
     $this->relconfig["authorInfo"] = array("relation" => "hasAuthorInfo", "class_name" => "user");
   }
+
+  /**
+   * explicitly set the per-school configuration associated with this etd
+   * @param Zend_Config $school
+   */
+  public function setSchoolConfig(Zend_Config $school) {
+    $this->school_config = $school;
+  }
   
 
 
@@ -158,8 +215,14 @@ class etd extends foxml implements etdInterface {
       return "committee";
     elseif ($user->isCoordinator($this->mods->department))
       return "program coordinator";
-    else
-      return $user->role;
+    elseif ($pos = strpos($user->role, " admin")) {
+      // if a user is a school-specific admin, determine if they are admin for *this* etd
+      $admin_type = substr($user->role, 0, $pos);
+      if ($admin_type == $this->school_config->acl_id)
+	return "admin";
+    }
+    
+    return $user->role;
   }
 
   /**
@@ -626,24 +689,119 @@ class etd extends foxml implements etdInterface {
    * @return boolean
    */
   public function isRequired($field) {
-    // for now, all required fields are either in the mods or user contact info,
-    // so a field is required here if it is required by either of them
-    if (isset($this->authorInfo))
-      return ($this->mods->isRequired($field) || $this->authorInfo->isRequired($field));
-    else
-      return $this->mods->isRequired($field);
+    if ($this->school_config && is_object($this->school_config->submission_fields->required)) {
+      return in_array($field, $this->school_config->submission_fields->required->toArray());
+    }
+  }
+
+  /**
+   * check if required fields are complete
+   * @return array of missing fields
+   */
+  public function checkRequired() {
+    $required_fields = $this->requiredFields();
+
+    // check required fields that are provided by mods
+    $mods_missing = $this->mods->checkFields(array_intersect($required_fields,
+					     $this->mods->available_fields));
+  
+    // check required fields provided by user object
+    if (isset($this->authorInfo)) {
+      $user_missing = $this->authorInfo->checkFields(array_intersect($required_fields,
+						     $this->authorInfo->available_fields));
+    } else {
+      // if authorInfo is not yet set, assume all non-mods required fields are missing
+      $user_missing = array_diff($required_fields, $this->mods->available_fields);
+    }
+    return array_merge($mods_missing, $user_missing);
+  }
+  
+  /**
+   * check if optional fields are complete
+   * @return array of missing fields
+   */
+  public function checkOptional() {
+    $optional_fields = $this->optionalFields();
+    
+    // check any optional fields that are provided by mods
+    $mods_missing = $this->mods->checkFields(array_intersect($optional_fields,
+							$this->mods->available_fields));
+    // check optional fields provided by user object
+    if (isset($this->authorInfo)) {
+      $user_missing = $this->authorInfo->checkFields(array_intersect($optional_fields,
+				     $this->authorInfo->available_fields));
+    } else {
+      // if authorInfo is not yet set, assume all non-mods optional fields are missing
+      $user_missing = array_diff($optional_fields, $this->mods->available_fields);
+    }
+    return array_merge($mods_missing, $user_missing);
   }
 
   /**
    * is this record ready to submit, with all required fields and files?
+   * @param string $mode only return information for one of authorInfo, mods (optional)
    * @return bool
    */
-  public function readyToSubmit() {
-    if (! $this->mods->readyToSubmit()) return false;
+  public function readyToSubmit($mode = null) {
+    $required_fields = $this->requiredFields();
+
+    if ($mode == null || $mode == "mods") {
+      if (! $this->mods->readyToSubmit(array_intersect($required_fields,
+				     $this->mods->available_fields)))
+	return false;
+      // checking mods only
+      if ($mode == "mods") return true;
+    }
+
+    if ($mode == null || $mode = "authorInfo") {
+      if (!isset($this->authorInfo) ||
+	  !$this->authorInfo->readyToSubmit(array_intersect($required_fields,
+		   			    $this->authorInfo->available_fields)))
+	return false;
+      // checking author info only
+      if ($mode == "authorInfo") return true;
+    } 
+
     if (! $this->hasPDF()) return false;
     if (! $this->hasOriginal()) return false;
-    if (!isset($this->authorInfo) || !$this->authorInfo->readyToSubmit()) return false;
+    
     return true;
+  }
+
+  /**
+   * get per-school configured required fields as an array
+   * @return array
+   */
+  public function requiredFields() {
+    if (!isset($this->school_config))
+      trigger_error("School config is not set - could not determine required fields", E_USER_WARNING);
+      
+    if (isset($this->school_config->submission_fields->required)) {
+      if (is_object($this->school_config->submission_fields->required)) 
+	return  $this->school_config->submission_fields->required->toArray();
+      else	// single item - force into an array
+	return  array($this->school_config->submission_fields->required);
+    } else {
+      return array();
+    }
+  }
+  
+  /**
+   * get per-school configured optional fields as an array
+   * @return array
+   */
+  public function optionalFields() {
+    if (!isset($this->school_config))
+      trigger_error("School config is not set - could not determine optional fields", E_USER_WARNING);
+
+    if (isset($this->school_config->submission_fields->optional)) {
+      if (is_object($this->school_config->submission_fields->optional))
+	return  $this->school_config->submission_fields->optional->toArray();
+      else	// single item - force into an array
+	return  array($this->school_config->submission_fields->optional);
+    } else {
+      return array();
+    }
   }
 
   /**
@@ -668,7 +826,9 @@ class etd extends foxml implements etdInterface {
    * @return bool
    */
   public function isHonors() {
-    return ($this instanceof honors_etd);
+    if (! isset($this->school_config))
+	trigger_error("School config is not set, cannot determine if is honors", E_USER_ERROR);
+    return ($this->school_config->acl_id == "honors");
   }
 
   
@@ -980,13 +1140,20 @@ class etd extends foxml implements etdInterface {
 
   /**
    * for Zend ACL Resource
+   * NOTE: does not include per-school info (e.g., honors, grad)
+   * - use getUserRole to see if a per-school admin is admin on a particular etd
+   * @see etd::getUserRole
    */
   public function getResourceId() {
+    // start with basic resource acl id for etd
+    $acl_id = $this->acl_id;
+
+    // if status is available, modify acl id with status
     if ($this->status() != "") {
-      return $this->status() . " " . $this->acl_id;
-    } else {
-      return $this->acl_id;
+      $acl_id = $this->status() . " " . $acl_id;
     }
+
+    return $acl_id;
   }
 
   

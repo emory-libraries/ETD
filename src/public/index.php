@@ -90,6 +90,10 @@ $db = Zend_Db::factory($db_config);
 Zend_Registry::set('stat-db', $db);	
 
 
+$schools_config = new SchoolsConfig($config_dir . "schools.xml");
+Zend_Registry::set('schools-config', $schools_config);
+
+
 //Setup Controller
 $front = Zend_Controller_Front::getInstance();
 

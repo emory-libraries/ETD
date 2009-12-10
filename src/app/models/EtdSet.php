@@ -7,7 +7,6 @@
 
 require_once("api/risearch.php");
 
-require_once("EtdFactory.php");
 require_once("solrEtd.php");
 require_once("etd.php");
 require_once("stats.php");
@@ -54,7 +53,7 @@ class EtdSet {
     foreach ($this->solrResponse->docs as $doc) {
       if ($this->options["return_type"] == "etd") { 
 	try {
-	  $etd = EtdFactory::etdByPid($doc->PID);
+	  $etd = new etd($doc->PID);
 	  $etd->relevance = $doc->score;
 	  $this->etds[] = $etd;
 	  

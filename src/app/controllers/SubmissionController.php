@@ -6,8 +6,6 @@
 
 require_once("models/etd.php");
 require_once("models/etd_notifier.php");
-require_once("models/honors_etd.php");
-require_once("models/grad_etd.php");
 require_once("models/programs.php");
 
 class SubmissionController extends Etd_Controller_Action {
@@ -153,19 +151,16 @@ class SubmissionController extends Etd_Controller_Action {
    * Create and initialize a new etd object based on info from ProcessPDF
    *
    * @param array $etd_info info as returned by ProcessPDF helper
-   * @return etd or honors_etd
+   * @return etd
    */
   public function initialize_etd(array $etd_info) {
     // create new etd record and save all the fields
-    if ($this->current_user->role == "honors student") {
-      // if user is an honors student, create new record as honors etd
-      $etd = new honors_etd();
-      $honors = true;
-    } else {
-      // for now, only have honors and grad school; for all other users, use grad_etd  
-      $etd = new grad_etd();
-      $honors = false;
-    }
+
+    // get per-school configuration for the current user
+    $school_cfg = Zend_Registry::get("schools-config");
+    $school_id = $this->current_user->getSchoolId();
+    // pass school-specific configuration to new etd record
+    $etd = new etd($school_cfg->$school_id);
     
     $etd->title = $etd_info['title'];
     
@@ -179,7 +174,8 @@ class SubmissionController extends Etd_Controller_Action {
     $etd->contents = $etd_info['toc'];
     
     // attempt to find a match for department from program list
-    $section = $honors ? "#undergrad" : "#grad";  // limit to relevant section
+    // FIXME: this part will need to be updated
+    $section = $school_id == "emory_college" ? "#undergrad" : "#grad";  // limit to relevant section
     $programObject = new foxmlPrograms($section);	
     $programs = $programObject->skos;
     
