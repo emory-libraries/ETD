@@ -154,7 +154,7 @@ class etd_notifier extends notifier {
   public function approval() {
     // default recipients ?
     $this->setRecipients();
-    $this->mail->setSubject("Your ETD Has Been Approved By the Graduate School");
+    $this->mail->setSubject("Your ETD Has Been Approved");
     $this->setBodyHtml($this->view->render("email/approval.phtml"));
     $this->send();
     return $this->to;

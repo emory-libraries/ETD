@@ -96,13 +96,28 @@ class AuthController extends Etd_Controller_Action {
      $this->_helper->viewRenderer->setNoRender(true);
 
      $role = $this->_getParam("role");
-     
      if (strstr($role, "coordinator")) {
        $dept = str_replace("coordinator:", "", $role);
        $this->current_user->role = "staff";	// shouldn't matter
-       $this->current_user->ACPL8GPCO_N = $dept;	// program coordinator of department
+       $this->current_user->program_coord = $dept;	// program coordinator of department
+     } elseif (strpos($role, " student")) {
+       $schools_cfg = Zend_Registry::get("schools-config");
+       switch ($role) {
+       case "grad student": $school = "graduate_school"; break;
+       case "honors student": $school = "emory_college"; break;
+       case "candler student": $school = "candler"; break;
+       }
+       // set student to be recognized for appropriate school
+       $this->current_user->academic_career = $schools_cfg->$school->db_id;
+       $this->current_user->role = "student";
      } else {
        $this->current_user->role = $role;
+     }
+
+
+     // if not setting role to program coordinator, clear out any program coordinator dept.
+     if (! strstr($role, "coordinator")) {
+       $this->current_user->program_coord = null;
      }
    }
 

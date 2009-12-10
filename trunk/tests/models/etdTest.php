@@ -6,19 +6,27 @@ require_once("fixtures/esd_data.php");
 
 class TestEtd extends UnitTestCase {
     private $etd;
+    private $honors_etd;
     private $person;
 
     // fedoraConnection
     private $fedora;
 
     private $etdpid;
+    private $gradpid;
+    private $non_etdpid;
+
+    private $school_cfg;
     
     function __construct() {
       $this->fedora = Zend_Registry::get("fedora");
       $fedora_cfg = Zend_Registry::get('fedora-config');
+
+      $this->school_cfg = Zend_Registry::get("schools-config");
       
-      // get test pid for fedora fixture
-      $this->etdpid = $this->fedora->getNextPid($fedora_cfg->pidspace);
+      // get test pids for fedora objects
+      list($this->etdpid, $this->gradpid,
+	   $this->non_etdpid) = $this->fedora->getNextPid($fedora_cfg->pidspace, 3);
     }
 
     
@@ -27,6 +35,10 @@ class TestEtd extends UnitTestCase {
     $dom = new DOMDocument();
     $dom->load($fname);
     $this->etd = new etd($dom);
+    $this->etd->setSchoolConfig($this->school_cfg->graduate_school);
+
+    $this->honors_etd = new etd($dom);
+    $this->honors_etd->setSchoolConfig($this->school_cfg->emory_college);
 
     // attach etd files for testing
     $fname = '../fixtures/etdfile.xml';
@@ -189,6 +201,23 @@ class TestEtd extends UnitTestCase {
     $this->person->role = "default role";
     $this->assertEqual("default role", $this->etd->getUserRole($this->person));
 
+    // school-specific admin
+    $this->person->role = "grad admin";
+    $this->assertEqual("admin", $this->etd->getUserRole($this->person),
+		       "grad admin has admin role on grad etd");
+    $this->person->role = "honors admin";
+    $this->assertEqual("honors admin", $this->etd->getUserRole($this->person),
+		       "honors admin is honors admin on grad etd");
+
+    $this->etd->setSchoolConfig($this->school_cfg->emory_college);
+    $this->person->role = "grad admin";
+    $this->assertEqual("grad admin", $this->etd->getUserRole($this->person),
+		       "grad admin is grad admin on honors etd");
+    $this->person->role = "honors admin";
+    $this->assertEqual("admin", $this->etd->getUserRole($this->person),
+		       "honors admin is admin on honors etd");
+
+    
   }
 
   // run through the various statuses in order, check everything is set correctly
@@ -409,9 +438,93 @@ class TestEtd extends UnitTestCase {
         "template etd has isMemberOfCollection relation to etd collection");
     $this->assertPattern('|<rel:isMemberOfCollection\s+rdf:resource="info:fedora/' .
 			 $config->collections->all_etd. '".*/>|',
-			 $etd->rels_ext->saveXML()); 
+			 $etd->rels_ext->saveXML());
+
+       
+    $honors_etd = new etd($this->school_cfg->emory_college);
+    // researchfields should not be present in mods if optional
+    $this->assertFalse($honors_etd->isRequired("researchfields"));
+    $this->assertEqual(0, count($honors_etd->mods->researchfields),
+		       "no researchfields present in honors etd");
+    $this->assertNoPattern('|<mods:subject ID="" authority="proquestresearchfield">|',
+			   $honors_etd->mods->saveXML(), "researchfields not present in MODS");
+
   }
 
+
+  function testInitByTemplate_withSchoolConfig() {
+    $etd = new etd($this->school_cfg->graduate_school);
+    $this->assertTrue($etd->rels_ext->isMemberOfCollections->includes($etd->rels_ext->pidToResource($this->school_cfg->graduate_school->fedora_collection)), "after init with school config for graduate school, new etd is member of grad school fedora collection object");
+    $this->assertEqual($this->school_cfg->graduate_school->label, $etd->admin_agent,
+		       "new etd admin agent is set based on configured school label for grad");
+		      
+    $honors_etd = new etd($this->school_cfg->emory_college);
+    $this->assertTrue($honors_etd->rels_ext->isMemberOfCollections->includes($honors_etd->rels_ext->pidToResource($this->school_cfg->emory_college->fedora_collection)), "after init with school config for graduate school, new etd is member of college honors fedora collection object");
+    $this->assertEqual($this->school_cfg->emory_college->label, $honors_etd->admin_agent,
+		       "new etd admin agent is set based on configured school label for college");
+		      
+    $etd = new etd($this->school_cfg->candler);
+    $this->assertTrue($etd->rels_ext->isMemberOfCollections->includes($etd->rels_ext->pidToResource($this->school_cfg->candler->fedora_collection)), "after init with school config for graduate school, new etd is member of candler fedora collection object");
+    $this->assertEqual($this->school_cfg->candler->label, $etd->admin_agent,
+		       "new etd admin agent is set based on configured school label for candler");
+    
+  }
+
+  function testInitByPid_withSchoolConfig() {
+    $e = new etd($this->school_cfg->graduate_school);
+    $e->pid = $this->gradpid;
+    $e->title = "test grad etd";
+    $e->mods->ark = "ark:/123/bcd";
+    $this->fedora->ingest($e->saveXML(), "test init with school config");
+
+    // initialize from fedora
+    $etd = new etd($this->gradpid);
+    $required = $etd->requiredFields();
+    $this->assertIsA($required, "Array");
+    $config_count = count($this->school_cfg->graduate_school->submission_fields->required->toArray());
+    $this->assertEqual($config_count, count($required),
+		       "number of required fields matches config - should be $config_count, got " .
+		       count($required));
+    
+    $this->fedora->purge($this->gradpid, "removing test etd");
+  }
+
+  function testRequiredFields() {
+    $cfg = new Zend_Config(array("submission_fields" =>
+				 array("required" => array("title", "author", "program"))));
+    $this->etd->setSchoolConfig($cfg);
+
+    $required = $this->etd->requiredFields();
+    $this->assertIsA($required, "Array", "requiredFields returns an array");
+    $this->assertEqual(3, count($required),
+		       "requiredFields returns 3 items as in test config (count is " .
+		       count($required) . ")");
+    $this->assertEqual("title", $required[0]);
+    $this->assertEqual("program", $required[2]);
+  }
+
+  function testInitByPid_badcmodel() {
+    $obj = new foxml();
+    $obj->pid = $this->non_etdpid;
+    $obj->label = "test object - non-etd";
+    $this->fedora->ingest($obj->saveXML(), "test init etd - object with wrong cmodel");
+
+    // initialize from fedora - should cause an exception
+    try {
+      $etd = new etd($this->non_etdpid);
+    } catch (FoxmlBadContentModel $e) {
+      $exception = $e;
+    }
+    $this->assertIsA($exception, "FoxmlBadContentModel",
+		     "attempting to initialize non-etd object as an etd causes a 'FoxmlBadContentModel' exception");
+    if (isset($exception)) {
+      $this->assertPattern("/does not have etd content model/", $exception->getMessage());
+    }
+    
+    $this->fedora->purge($this->non_etdpid, "removing test object");
+  }
+
+  
   function testAddCommittee() {	// committee chairs and members
     $errlevel = error_reporting(E_ALL ^ E_NOTICE);
     
@@ -595,6 +708,8 @@ class TestEtd extends UnitTestCase {
   }
 
   function testIsRequired() {
+    // etd initliaized with grad school config; check required fields
+
     $this->assertTrue($this->etd->isRequired("title"), "title is required");
     $this->assertTrue($this->etd->isRequired("author"), "author is required");
     $this->assertTrue($this->etd->isRequired("program"), "program is required");
@@ -613,17 +728,24 @@ class TestEtd extends UnitTestCase {
     $this->assertTrue($this->etd->isRequired("send to ProQuest"), "send to PQ is required");
     $this->assertTrue($this->etd->isRequired("copyright"), "copyright is required");
 
-    // associated user object to test required fields in contact info
-    $authorinfo = new user();
-    $this->etd->related_objects['authorInfo'] = $authorinfo;
-
-    // user object not available - user fields required 
     $this->assertTrue($this->etd->isRequired("email"), "email is required");
     $this->assertTrue($this->etd->isRequired("permanent email"),
 		      "permanent email is required");
     $this->assertTrue($this->etd->isRequired("permanent address"),
 		       "permanent address is required");
+
     
+    $this->assertFalse($this->honors_etd->isRequired("researchfields"),
+		       "research fields are not required for honrs");
+    $this->assertFalse($this->honors_etd->isRequired("send to ProQuest"),
+		       "send to PQ info not required for honors");
+    $this->assertFalse($this->honors_etd->isRequired("copyright"),
+		       "copyright info not required for honors");
+    $this->assertFalse($this->honors_etd->isRequired("permanent address"),
+		       "permanent address not required for honors");
+
+    $this->assertTrue(in_array("researchfields", $this->honors_etd->optionalFields()),
+		      "researchfields is optional for honors");
   }
 
   function testGetResourceId() {
@@ -635,7 +757,8 @@ class TestEtd extends UnitTestCase {
 
 
   function testIsHonors() {
-    $this->assertFalse($this->etd->isHonors(), "etd is not honors etd");
+    $this->assertFalse($this->etd->isHonors(), "isHonors is false for grad etd");
+    $this->assertTrue($this->honors_etd->isHonors(), "isHonors is true for honors etd");
   }
 
   function testSetOAIidentifier() {
@@ -653,7 +776,7 @@ class TestEtd extends UnitTestCase {
 
   function testMagicMethods() {
       // ingest a minimal, published record to test fedora methods as object methods
-      $etd = new etd();
+      $etd = new etd($this->school_cfg->graduate_school);
       $etd->pid = $this->etdpid;
       $etd->title = "test etd";
       $etd->mods->ark = "ark:/123/bcd";
@@ -697,7 +820,7 @@ class TestEtd extends UnitTestCase {
 
   function testGetPreviousStatus() {
     // ingest a minimal, published record to test fedora methods as object methods
-    $etd = new etd();
+    $etd = new etd($this->school_cfg->emory_college);
     $etd->pid = $this->etdpid;
     $etd->title = "test etd";
     $etd->mods->ark = "ark:/123/bcd";

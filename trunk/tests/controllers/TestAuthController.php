@@ -110,8 +110,41 @@ class AuthControllerTest extends ControllerTestCase {
     $AuthController = new AuthControllerForTest($this->request,$this->response);
     // should only run in development mode
     $this->assertFalse($AuthController->setroleAction());
-    //  (just a tool for setting roles in development, no need to test the rest of it)
+
+    $ep = new esdPerson();
+    $this->test_user = $ep->getTestPerson();
+    $this->test_user->role = "guest";
+    $this->test_user->netid = "test_user";
+    Zend_Registry::set("current_user", $this->test_user);
+
+    // set env to dev to test
+    $real_env = Zend_Registry::get('environment');
+    Zend_Registry::set('environment', "development");
+    $AuthController = new AuthControllerForTest($this->request,$this->response);
+    $this->setUpGet(array("role" => "grad student"));
+    $AuthController->setroleAction();
+    $this->assertEqual("student", $AuthController->current_user->role);
+    $this->assertEqual("GSAS", $AuthController->current_user->academic_career);
+
+    $this->setUpGet(array("role" => "honors admin"));
+    $AuthController->setroleAction();
+    $this->assertEqual("honors admin", $AuthController->current_user->role);
+
+    $this->setUpGet(array("role" => "honors student"));
+    $AuthController->setroleAction();
+    $this->assertEqual("student", $AuthController->current_user->role);
+    $this->assertEqual("UCOL", $AuthController->current_user->academic_career);
+
+    $this->setUpGet(array("role" => "coordinator:English"));
+    $AuthController->setroleAction();
+    $this->assertEqual("staff", $AuthController->current_user->role);
+    $this->assertEqual("English", $AuthController->current_user->program_coord);
+
     
+    // restore real environment mode
+    Zend_Registry::set('environment', $real_env);
+    // clear test user
+    Zend_Registry::set("current_user", null);
   }
     	
 }

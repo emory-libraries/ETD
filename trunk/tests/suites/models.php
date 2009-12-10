@@ -30,11 +30,10 @@ class ModelGroupTest extends GroupTest {
     $this->addTestFile('models/ProQuestSubmissionTest.php');
     $this->addTestFile('models/esdPersonTest.php');
 
-    $this->addTestFile('models/honorsEtdTest.php');
-    $this->addTestFile('models/etdFactoryTest.php');
     $this->addTestFile('models/etdSetTest.php');
-    $this->addTestFile('models/gradEtdTest.php');
     $this->addTestFile('models/unAPIresponseTest.php');
+
+    $this->addTestFile('models/SchoolsConfigTest.php');
   }
 }
 
