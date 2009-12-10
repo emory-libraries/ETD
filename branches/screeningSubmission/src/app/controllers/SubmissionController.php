@@ -48,11 +48,10 @@ class SubmissionController extends Etd_Controller_Action {
     $answers["embargo"] = $this->_getParam("embargo");
     $answers["embargo_abs_toc"] = $this->_getParam("embargo_abs_toc");
     
-    $questionsMsg = $this->validateQuestions($answers);
+    $questionsValid = $this->validateQuestions($answers);
     
-    if($questionsMsg != ""){
-        $this->_helper->flashMessenger->addMessage($questionsMsg);
-        
+    if(!$questionsValid){
+                
         //Take parameters array and add values necessary for redirection
         $redir = $answers;
         $redir["controller"] = "submission";
@@ -184,27 +183,33 @@ class SubmissionController extends Etd_Controller_Action {
    * @return boolean
    */
   public function validateQuestions($answers){
-      $msg="";
+      $valid=true;
+
       // answer to copyright is required
       if (strval($answers["copyright"]) == NULL) {
-         $msg .= "Answer to copyright is required<br>";
+         $this->_helper->flashMessenger->addMessage("Error: Answer to 1. \"copyright\" is required");
+         $valid = false;
       } else if ($answers["copyright"] == 1 && strval($answers["copyright_permission"])== NULL) {
          // if answer to copyright is yes, answer about permissions is required
-         $msg .= "Answer to copyright permissions is required<br>";
+         $this->_helper->flashMessenger->addMessage("Error: Answer to 1b. \"copyright permissions\" is required");
+         $valid = false;
       }
 
       // answer to patent is required
       if (strval($answers["patent"]) == NULL) {
-         $msg .= "Answer to patent is required<br>";
+         $this->_helper->flashMessenger->addMessage("Error: Answer to 2. \"patent\" is required");
+         $valid = false;
       }
 
       // answer to embargo question is required
      if (strval($answers["embargo"]) == NULL) {
-         $msg .="Answer to embargo is required<br>";
+         $this->_helper->flashMessenger->addMessage("Error: Answer to 3. \"embargo\" is required");
+         $valid = false;
      } else if ($answers["embargo"] == 1 && strval($answers["embargo_abs_toc"]) == NULL) {
-       $msg .= "Answer to embargo level is required<br>";
+       $this->_helper->flashMessenger->addMessage("Error: Answer to 3b. \"embargo level\" is required");
+       $valid = false;
      }
-     return $msg;
+     return $valid;
   }
 
 

@@ -107,6 +107,14 @@ class SubmissionControllerTest extends ControllerTestCase {
   function testProcessPdfAction() {
     $SubmissionController = new SubmissionControllerForTest($this->request,
 							    $this->response);
+    //valid answers to screeneing questions
+    $this->setUpGet(array("copyright" => 0,
+                       "copyright_permission" => NULL,
+                       "patent" => 0,
+                       "embargo" => 0,
+                       "embargo_abs_toc" => NULL));
+
+
     // unauthorized user
     $this->test_user->role = "guest";
     Zend_Registry::set('current_user', $this->test_user);
@@ -132,7 +140,7 @@ class SubmissionControllerTest extends ControllerTestCase {
     $ioe = $SubmissionController->getHelper("IngestOrError");
     $ioe->setError("FedoraObjectNotValid");
     $SubmissionController->processpdfAction();
-    $this->assertFalse($SubmissionController->redirectRan);
+    $this->assertFalse($SubmissionController->redirectRan, "Should not redirect on successful submission.");
     $messages = $SubmissionController->getHelper('FlashMessenger')->getMessages();
     $this->assertPattern("/Error saving record/", $messages[0]);
     $this->assertPattern("/Could not create record/",
@@ -288,8 +296,8 @@ class SubmissionControllerTest extends ControllerTestCase {
                        "embargo" => 0,
                        "embargo_abs_toc" => NULL);
       
-      $msg = $SubmissionController->validateQuestions($answers);
-      $this->assertEqual($msg, "");
+      $valid = $SubmissionController->validateQuestions($answers);
+      $this->assertTrue($valid);
 
       //All ansers are yes to all questions
       $answers = array("copyright" => 1,
@@ -298,8 +306,8 @@ class SubmissionControllerTest extends ControllerTestCase {
                        "embargo" => 1,
                        "embargo_abs_toc" => 1);
 
-      $msg = $SubmissionController->validateQuestions($answers);
-      $this->assertEqual($msg, "");
+      $valid = $SubmissionController->validateQuestions($answers);
+      $this->assertTrue($valid);
 
       //1, 2, 3 answered but sub-questions are not
       $answers = array("copyright" => 1,
@@ -309,8 +317,8 @@ class SubmissionControllerTest extends ControllerTestCase {
                        "embargo_abs_toc" => NULL
                       );
 
-      $msg = $SubmissionController->validateQuestions($answers);
-      $this->assertEqual($msg, "Answer to copyright permissions is required<br>Answer to embargo level is required<br>");
+      $valid = $SubmissionController->validateQuestions($answers);
+      $this->assertFalse($valid);
 
       //1,2,3 are yes sub-questions are no
       $answers = array("copyright" => 1,
@@ -320,8 +328,8 @@ class SubmissionControllerTest extends ControllerTestCase {
                        "embargo_abs_toc" => 0
                       );
 
-      $msg = $SubmissionController->validateQuestions($answers);
-      $this->assertEqual($msg, "");
+      $valid = $SubmissionController->validateQuestions($answers);
+      $this->assertTrue($valid);
   }
 
 
