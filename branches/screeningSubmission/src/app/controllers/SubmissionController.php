@@ -162,7 +162,14 @@ class SubmissionController extends Etd_Controller_Action {
 	
 	if ($this->debug) $this->_helper->flashMessenger->addMessage("Saved etd file as $filepid");
 	
-	$this->_helper->redirector->gotoRoute(array("controller" => "view",
+	//send email if patent screening question is yes
+    if(strval($answers["patent"]) == "1"){
+        $notice = new etd_notifier($etd);
+        $notice->patent_concerns();
+        $this->_helper->flashMessenger->addMessage("An e-mail has been sent to notify the appreciate person of potential patent concerns.");
+    }
+
+    $this->_helper->redirector->gotoRoute(array("controller" => "view",
 						    "action" => "record",
 						    "pid" => $etd->pid));
 	
