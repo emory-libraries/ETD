@@ -121,7 +121,22 @@ class SubmissionController extends Etd_Controller_Action {
       $etd->premis->addEvent("ingest", "Record created by " .
 			     $this->current_user->fullname, "success",
 			     array("netid", $this->current_user->netid));
-      $message = "added ingest history event";
+
+      //Save info for copyright questions
+      $eventMsg="The author " . ($answers["copyright"] == 1 ? "has" : "has not") . " submitted copyrighted material";
+      if($answers["copyright"] == 1){
+          $eventMsg .= " and " . ($answers["copyright_permission"] == 1 ? "has" : "has not") . " obtained permission to include this copyrighted material";
+      }
+      $eventMsg .=".";
+      $etd->premis->addEvent("admin", $eventMsg, "success",
+			     array("netid", $this->current_user->netid));
+             
+      //Save info for patent questions
+      $eventMsg="The author " . ($answers["patent"] == 1 ? "has" : "has not") . " submitted patented material.";
+      $etd->premis->addEvent("admin", $eventMsg, "success",
+			     array("netid", $this->current_user->netid));
+
+      $message = "added history events";
       $result = $etd->save($message);
       if ($result)
 	$this->logger->info("Updated etd " . $etd->pid . " at $result ($message)");
@@ -166,6 +181,19 @@ class SubmissionController extends Etd_Controller_Action {
     if(strval($answers["patent"]) == "1"){
         $notice = new etd_notifier($etd);
         $notice->patent_concerns();
+
+     //Email sent history event
+     $eventMsg="Email sent due to patent concern.";
+     $etd->premis->addEvent("admin", $eventMsg, "success",
+			     array("netid", $this->current_user->netid));
+
+     $message = "Patent email sent";
+     $result = $etd->save($message);
+     if ($result)
+	    $this->logger->info("Updated etd " . $etd->pid . " at $result ($message)");
+     else
+	    $this->logger->err("Error updating etd " . $etd->pid . " ($message)");
+
         $this->_helper->flashMessenger->addMessage("An e-mail has been sent to notify the appreciate person of potential patent concerns.");
     }
 
