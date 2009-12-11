@@ -9,7 +9,6 @@
     <degree name="MS" pq_code="M.S."/>
     <degree name="MDiv"/>
     <degree name="MTS"/>
-    <degree name="ThM"/>
   </level>
   <level name="bachelors" genre="Honors Thesis">
     <degree name="BA"/>
