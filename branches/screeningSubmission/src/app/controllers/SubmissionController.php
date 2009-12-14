@@ -194,7 +194,7 @@ class SubmissionController extends Etd_Controller_Action {
      else
 	    $this->logger->err("Error updating etd " . $etd->pid . " ($message)");
 
-        $this->_helper->flashMessenger->addMessage("An e-mail has been sent to notify the appreciate person of potential patent concerns.");
+        $this->_helper->flashMessenger->addMessage("An e-mail has been sent to notify the appropriate person of potential patent concerns.");
     }
 
     $this->_helper->redirector->gotoRoute(array("controller" => "view",
