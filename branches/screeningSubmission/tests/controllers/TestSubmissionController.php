@@ -157,6 +157,10 @@ class SubmissionControllerTest extends ControllerTestCase {
     $messages = $SubmissionController->getHelper('FlashMessenger')->getMessages();
     $this->assertEqual(0, count($messages));
     $this->assertEqual(0, count($SubmissionController->view->errors));
+
+    //Check that copyright and patent questions have been stored in history
+    $this->assertPattern("/copyrighted/", $this->mock_etd->premis->event[2]->detail);
+    $this->assertPattern("/patented/", $this->mock_etd->premis->event[3]->detail);
   }
 
   function testInitializeEtd() {
