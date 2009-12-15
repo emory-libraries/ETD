@@ -59,6 +59,9 @@ class SubmissionController extends Etd_Controller_Action {
         $this->_helper->redirector->gotoRoute($redir);
     }
 
+    //Send answers to view   
+    $this->view->answers = $answers;
+
     // allow a way to create record even if there are errors -
     // workaround for unrecognizable PDFs
     $force_create = false;
