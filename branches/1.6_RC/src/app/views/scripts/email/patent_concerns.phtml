@@ -1,0 +1,12 @@
+<?=  $this->render('email/_debug.phtml'); ?>
+
+<p>When creating their ETD record, this student indicated possible patent concerns:</p>
+
+<p><?= $this->etd->mods->author->first ?> <?= $this->etd->mods->author->last ?><br/>
+ <?= $this->author_email ?></p>
+
+<p>ETD record: <a href="<?= $this->etd->ark() ?>"><?= $this->etd->ark() ?></a></p>
+
+
+
+

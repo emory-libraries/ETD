@@ -9,7 +9,6 @@ require_once("models/EtdSet.php");
  * @category Etd
  * @package Etd_Controllers
  */
- */
 class EmailController extends Etd_Controller_Action {
   protected $requires_fedora = true;
   
