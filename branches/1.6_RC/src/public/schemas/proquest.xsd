@@ -1,0 +1,917 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+
+  <xs:element name="DISS_abstract">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="DISS_para" minOccurs="1" maxOccurs="unbounded"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="DISS_accept_date" type="dateType">
+   <xs:annotation>
+     <xs:documentation>validate on PQ's requested date format (mm/dd/yyyy)</xs:documentation>
+   </xs:annotation>
+  </xs:element>
+
+  <xs:element name="DISS_address">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:sequence>
+          <xs:element ref="DISS_addrline" />
+        </xs:sequence>
+        <xs:element ref="DISS_city" />
+        <xs:sequence>
+          <xs:element ref="DISS_st" />
+        </xs:sequence>
+        <xs:element ref="DISS_pcode" />
+        <xs:element ref="DISS_country" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="DISS_addrline">
+    <xs:complexType mixed="true" />
+  </xs:element>
+
+  <xs:element name="DISS_advisor">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="DISS_name" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="DISS_affiliation">
+    <xs:complexType mixed="true" />
+  </xs:element>
+
+  <xs:element name="DISS_area_code">
+    <xs:complexType mixed="true" />
+  </xs:element>
+
+  <xs:element name="DISS_attachment">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="DISS_file_name" />
+        <xs:element ref="DISS_file_descr" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="DISS_author">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="DISS_name" />
+        <xs:sequence>
+          <xs:element ref="DISS_contact" minOccurs="1" maxOccurs="2"/>
+        </xs:sequence>
+        <xs:element ref="DISS_citizenship" minOccurs="0" maxOccurs="1"/>
+      </xs:sequence>
+      <xs:attribute name="type" use="optional" default="primary">
+        <xs:simpleType>
+          <xs:restriction base="xs:NMTOKEN">
+            <xs:enumeration value="primary" />
+            <xs:enumeration value="additional" />
+            <xs:enumeration value="claimant" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:attribute>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="DISS_authorship">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="DISS_author" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="DISS_binary">
+    <xs:complexType mixed="true">
+      <xs:attribute name="type" use="optional" default="PDF">
+        <xs:simpleType>
+          <xs:restriction base="xs:NMTOKEN">
+            <xs:enumeration value="PDF" />
+            <xs:enumeration value="other" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:attribute>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="DISS_cat_code">
+    <xs:complexType mixed="true" />
+  </xs:element>
+
+  <xs:element name="DISS_cat_desc">
+    <xs:complexType mixed="true" />
+  </xs:element>
+
+  <xs:element name="DISS_categorization">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:sequence>
+          <xs:element ref="DISS_category" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:sequence>
+          <xs:element ref="DISS_keyword" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:sequence>
+          <xs:element ref="DISS_ISBN" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:element ref="DISS_language" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="DISS_category">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="DISS_cat_code" />
+        <xs:element ref="DISS_cat_desc" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="DISS_citizenship" type="countryType">
+<!--    <xs:complexType mixed="true" /> -->
+    <xs:annotation>
+      <xs:documentation>restrict to PQ country codes</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:element name="DISS_city">
+    <xs:complexType mixed="true" />
+  </xs:element>
+
+  <xs:element name="DISS_cmte_member">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="DISS_name" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="DISS_cntry_cd">
+    <xs:complexType mixed="true" />
+  </xs:element>
+
+  <xs:element name="DISS_comp_date" type="yearType">
+<!--    <xs:complexType mixed="true" /> -->
+   <xs:annotation>
+     <xs:documentation>validate on PQ's requested date format</xs:documentation>
+   </xs:annotation>
+  </xs:element>
+
+  <xs:element name="DISS_contact">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="DISS_contact_effdt" minOccurs="0"/>
+        <xs:element ref="DISS_phone_fax" minOccurs="0" />
+        <xs:element ref="DISS_address" />
+        <xs:element ref="DISS_email" minOccurs="0" />
+      </xs:sequence>
+      <xs:attribute name="type" use="required"> <!-- default="current"-->
+        <xs:simpleType>
+          <xs:restriction base="xs:NMTOKEN">
+            <xs:enumeration value="current" />
+            <xs:enumeration value="future" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:attribute>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="DISS_contact_effdt" type="dateType">
+   <xs:annotation>
+    <xs:documentation>was complexType - using pattern to restrict to
+date format requested by ProQuest: mm/dd/yyy
+    </xs:documentation>
+   </xs:annotation>
+  </xs:element>
+
+  <xs:element name="DISS_content">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:sequence>
+          <xs:element ref="DISS_abstract" minOccurs="0" maxOccurs="1"/>
+        </xs:sequence>
+        <xs:sequence>
+          <xs:element ref="DISS_binary" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:sequence>
+          <xs:element ref="DISS_plaintext" minOccurs="0" maxOccurs="1"/>
+        </xs:sequence>
+        <xs:sequence>
+          <xs:element ref="DISS_attachment" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+
+  <xs:element name="DISS_country" type="countryType">
+<!--    <xs:complexType mixed="true" /> -->
+   <xs:annotation>
+    <xs:documentation>was a complex type - restricting to PQ country codes</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:element name="DISS_dates">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="DISS_comp_date" />
+        <xs:element ref="DISS_accept_date" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="DISS_degree">
+<!-- <xs:complexType mixed="true" /> -->
+   <xs:annotation>
+    <xs:documentation>was a complex type - restricting to degree values
+according to ProQuest's list and the ETDs currently being
+accepted</xs:documentation>
+    </xs:annotation>
+    <xs:simpleType>
+      <xs:restriction base="xs:string">
+        <xs:enumeration value="M.A."/>
+        <xs:enumeration value="M.S."/>
+        <xs:enumeration value="Ph.D."/>
+      </xs:restriction>
+    </xs:simpleType>
+  </xs:element>
+
+  <xs:element name="DISS_description">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="DISS_title" />
+        <xs:element ref="DISS_dates" />
+        <xs:element ref="DISS_degree" />
+        <xs:sequence>
+          <xs:element ref="DISS_institution" />
+        </xs:sequence>
+        <xs:sequence>
+          <xs:element ref="DISS_advisor" />
+        </xs:sequence>
+        <xs:element ref="DISS_cmte_member" minOccurs="0" maxOccurs="unbounded" />
+        <xs:element ref="DISS_categorization" />
+      </xs:sequence>
+      <xs:attribute name="external_id" type="xs:string" use="required" />
+      <xs:attribute name="type" use="required">
+        <xs:simpleType>
+          <xs:restriction base="xs:NMTOKEN">
+            <xs:enumeration value="masters" />
+            <xs:enumeration value="doctoral" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:attribute>
+      <xs:attribute name="page_count" type="xs:string" use="required" />
+      <xs:attribute name="apply_for_copyright" use="required">
+        <xs:simpleType>
+          <xs:restriction base="xs:NMTOKEN">
+            <xs:enumeration value="yes" />
+            <xs:enumeration value="no" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:attribute>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="DISS_email">
+    <xs:complexType mixed="true" />
+  </xs:element>
+
+  <xs:element name="DISS_file_descr">
+    <xs:complexType mixed="true" />
+  </xs:element>
+
+  <xs:element name="DISS_file_name">
+    <xs:complexType mixed="true" />
+  </xs:element>
+
+  <xs:element name="DISS_fname">
+    <xs:complexType mixed="true" />
+  </xs:element>
+
+  <xs:element name="DISS_format_restriction">
+    <xs:complexType>
+      <xs:attribute name="remove" type="xs:string" use="optional" />
+      <xs:attribute name="code" use="optional" default="0">
+        <xs:simpleType>
+          <xs:restriction base="xs:NMTOKEN">
+            <xs:enumeration value="0" />
+            <xs:enumeration value="X" />
+            <xs:enumeration value="F" />
+            <xs:enumeration value="M" />
+            <xs:enumeration value="C" />
+            <xs:enumeration value="E" />
+            <xs:enumeration value="XF" />
+            <xs:enumeration value="XM" />
+            <xs:enumeration value="XC" />
+            <xs:enumeration value="XE" />
+            <xs:enumeration value="FM" />
+            <xs:enumeration value="FC" />
+            <xs:enumeration value="FE" />
+            <xs:enumeration value="MC" />
+            <xs:enumeration value="ME" />
+            <xs:enumeration value="CE" />
+            <xs:enumeration value="XFM" />
+            <xs:enumeration value="XFC" />
+            <xs:enumeration value="XFE" />
+            <xs:enumeration value="XMC" />
+            <xs:enumeration value="XME" />
+            <xs:enumeration value="XCE" />
+            <xs:enumeration value="FMC" />
+            <xs:enumeration value="FCE" />
+            <xs:enumeration value="FME" />
+            <xs:enumeration value="MCE" />
+            <xs:enumeration value="XFMC" />
+            <xs:enumeration value="XFME" />
+            <xs:enumeration value="XFCE" />
+            <xs:enumeration value="XMCE" />
+            <xs:enumeration value="FMCE" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:attribute>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="DISS_inst_code">
+    <xs:complexType mixed="true" />
+  </xs:element>
+
+  <xs:element name="DISS_inst_contact">
+    <xs:complexType mixed="true" />
+  </xs:element>
+
+  <xs:element name="DISS_inst_name">
+    <xs:complexType mixed="true" />
+  </xs:element>
+
+  <xs:element name="DISS_institution">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="DISS_inst_code" />
+        <xs:element ref="DISS_inst_name" />
+        <xs:sequence>
+          <xs:element ref="DISS_inst_contact" />
+        </xs:sequence>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="DISS_ISBN">
+    <xs:complexType mixed="true" />
+  </xs:element>
+
+  <xs:element name="DISS_keyword">
+    <xs:complexType mixed="true" />
+  </xs:element>
+
+  <xs:element name="DISS_language" type="langType">
+<!--    <xs:complexType mixed="true" /> -->
+   <xs:annotation>
+    <xs:documentation>was a complex type - restricting to PQ language codes</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:element name="DISS_middle">
+    <xs:complexType mixed="true" />
+  </xs:element>
+
+  <xs:element name="DISS_name">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="DISS_surname" />
+        <xs:sequence>
+          <xs:element ref="DISS_fname" minOccurs="0" maxOccurs="1"/>
+        </xs:sequence>
+        <xs:sequence>
+          <xs:element ref="DISS_middle" minOccurs="0" maxOccurs="1"/>
+        </xs:sequence>
+        <xs:sequence>
+          <xs:element ref="DISS_suffix" minOccurs="0" maxOccurs="1"/>
+        </xs:sequence>
+        <xs:sequence>
+          <xs:element ref="DISS_affiliation" minOccurs="0" maxOccurs="1"/>
+        </xs:sequence>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="DISS_note">
+    <xs:complexType mixed="true" />
+  </xs:element>
+
+  <xs:element name="DISS_para">
+    <xs:complexType mixed="true">
+	<xs:choice>
+	    <xs:element name="em" minOccurs="0" maxOccurs="unbounded"/>
+	    <xs:element name="strong" minOccurs="0" maxOccurs="unbounded"/>
+	    <xs:element name="sup" minOccurs="0" maxOccurs="unbounded"/>
+	    <xs:element name="sub" minOccurs="0" maxOccurs="unbounded"/>
+	</xs:choice>
+    </xs:complexType>
+  </xs:element>
+
+
+  <xs:element name="strong">
+    <xs:complexType mixed="true" />
+  </xs:element>
+  <xs:element name="em">
+    <xs:complexType mixed="true" />
+  </xs:element>
+  <xs:element name="sup">
+    <xs:complexType mixed="true" />
+  </xs:element>
+  <xs:element name="sub">
+    <xs:complexType mixed="true" />
+  </xs:element>
+
+  <xs:element name="DISS_pcode">
+    <xs:complexType mixed="true" />
+  </xs:element>
+
+  <xs:element name="DISS_phone_ext">
+    <xs:complexType mixed="true" />
+  </xs:element>
+
+  <xs:element name="DISS_phone_fax">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:sequence>
+          <xs:element ref="DISS_cntry_cd" />
+        </xs:sequence>
+        <xs:element ref="DISS_area_code" />
+        <xs:element ref="DISS_phone_num" />
+        <xs:element ref="DISS_phone_ext" minOccurs="0" />
+      </xs:sequence>
+      <xs:attribute name="type" use="optional" default="P">
+        <xs:simpleType>
+          <xs:restriction base="xs:NMTOKEN">
+            <xs:enumeration value="P" />
+            <xs:enumeration value="F" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:attribute>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="DISS_phone_num">
+    <xs:complexType mixed="true" />
+  </xs:element>
+
+  <xs:element name="DISS_plaintext">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="DISS_para" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="DISS_restriction">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:sequence>
+          <xs:element ref="DISS_sales_restriction" />
+        </xs:sequence>
+        <xs:sequence>
+          <xs:element ref="DISS_format_restriction" />
+        </xs:sequence>
+        <xs:element ref="DISS_note" minOccurs="0" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="DISS_sales_restriction">
+    <xs:complexType>
+      <xs:attribute name="remove" type="xs:string" use="optional" />
+      <xs:attribute name="code" use="optional" default="0">
+        <xs:simpleType>
+          <xs:restriction base="xs:NMTOKEN">
+            <xs:enumeration value="0" />
+            <xs:enumeration value="1" />
+            <xs:enumeration value="2" />
+            <xs:enumeration value="4" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:attribute>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="DISS_st">
+    <xs:complexType mixed="true" />
+  </xs:element>
+
+  <xs:element name="DISS_submission">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="DISS_authorship" />
+        <xs:element ref="DISS_description" />
+        <xs:element ref="DISS_content" />
+        <xs:sequence>
+          <xs:element ref="DISS_restriction" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+      </xs:sequence>
+      <xs:attribute name="embargo_code" use="required"> <!--  default="0" -->
+        <xs:simpleType>
+          <xs:restriction base="xs:NMTOKEN">
+            <xs:enumeration value="0" />
+            <xs:enumeration value="1" />
+            <xs:enumeration value="2" />
+            <xs:enumeration value="3" />
+            <xs:enumeration value="4" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:attribute>
+      <xs:attribute name="third_party_search" use="required"> <!-- default="Y" -->
+        <xs:simpleType>
+          <xs:restriction base="xs:NMTOKEN">
+            <xs:enumeration value="Y" />
+            <xs:enumeration value="N" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:attribute>
+      <xs:attribute name="publishing_option" use="required"> <!-- default="0" -->
+        <xs:simpleType>
+          <xs:restriction base="xs:NMTOKEN">
+            <xs:enumeration value="0" />
+            <xs:enumeration value="1" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:attribute>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="DISS_suffix">
+    <xs:complexType mixed="true" />
+  </xs:element>
+
+  <xs:element name="DISS_surname">
+    <xs:complexType mixed="true" />
+  </xs:element>
+
+  <xs:element name="DISS_title">
+    <xs:complexType mixed="true" />
+  </xs:element>
+
+
+<!-- types added by RSK -->
+
+
+  <xs:simpleType name="yearType">
+    <xs:restriction base="xs:string"> 
+      <xs:pattern value="[0-9]{4}"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="dateType">
+    <xs:restriction base="xs:string"> 
+      <xs:pattern value="[0-9]{2}/[0-9]{2}/[0-9]{4}"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="langType">
+    <xs:annotation>
+      <xs:documentation>taken from languages.csv provided by PQ</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+<xs:enumeration value="AF"/>
+<xs:enumeration value="AR"/>
+<xs:enumeration value="CA"/>
+<xs:enumeration value="CH"/>
+<xs:enumeration value="CR"/>
+<xs:enumeration value="CZ"/>
+<xs:enumeration value="DA"/>
+<xs:enumeration value="DU"/>
+<xs:enumeration value="EN"/>
+<xs:enumeration value="FI"/>
+<xs:enumeration value="FL"/>
+<xs:enumeration value="FR"/>
+<xs:enumeration value="GA"/>
+<xs:enumeration value="GE"/>
+<xs:enumeration value="GR"/>
+<xs:enumeration value="HE"/>
+<xs:enumeration value="HU"/>
+<xs:enumeration value="IT"/>
+<xs:enumeration value="JA"/>
+<xs:enumeration value="LA"/>
+<xs:enumeration value="NO"/>
+<xs:enumeration value="PL"/>
+<xs:enumeration value="PR"/>
+<xs:enumeration value="RU"/>
+<xs:enumeration value="SO"/>
+<xs:enumeration value="SP"/>
+<xs:enumeration value="SW"/>
+<xs:enumeration value="TU"/>
+<xs:enumeration value="WE"/>
+<xs:enumeration value="YI"/>
+<xs:enumeration value="FE"/>
+<xs:enumeration value="UK"/>
+<xs:enumeration value="ES"/>
+<xs:enumeration value="TO"/>
+<xs:enumeration value="RO"/>
+<xs:enumeration value="KO"/>
+<xs:enumeration value="SB"/>
+<xs:enumeration value="BQ"/>
+<xs:enumeration value="IR"/>
+<xs:enumeration value="GN"/>
+<xs:enumeration value="AE"/>
+<xs:enumeration value="SE"/>
+<xs:enumeration value="EH"/>
+<xs:enumeration value="AS"/>
+<xs:enumeration value="EZ"/>
+<xs:enumeration value="SD"/>
+<xs:enumeration value="NE"/>
+<xs:enumeration value="FN"/>
+<xs:enumeration value="TS"/>
+<xs:enumeration value="LV"/>
+<xs:enumeration value="HI"/>
+<xs:enumeration value="DE"/>
+<xs:enumeration value="HN"/>
+<xs:enumeration value="SA"/>
+<xs:enumeration value="SL"/>
+<xs:enumeration value="SG"/>
+<xs:enumeration value="HG"/>
+<xs:enumeration value="HY"/>
+<xs:enumeration value="JP"/>
+<xs:enumeration value="AH"/>
+<xs:enumeration value="CE"/>
+<xs:enumeration value="RE"/>
+<xs:enumeration value="KE"/>
+<xs:enumeration value="IE"/>
+<xs:enumeration value="SS"/>
+<xs:enumeration value="TE"/>
+<xs:enumeration value="DL"/>
+<xs:enumeration value="ME"/>
+<xs:enumeration value="UE"/>
+<xs:enumeration value="JE"/>
+<xs:enumeration value="LI"/>
+<xs:enumeration value="FS"/>
+<xs:enumeration value="PE"/>
+<xs:enumeration value="IC"/>
+<xs:enumeration value="TW"/>
+<xs:enumeration value="AN"/>
+<xs:enumeration value="PH"/>
+<xs:enumeration value="PN"/>
+<xs:enumeration value="EL"/>
+<xs:enumeration value="SR"/>
+<xs:enumeration value="EF"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+
+  <xs:simpleType name="countryType">
+    <xs:annotation>
+      <xs:documentation>taken from countries.csv provided by PQ</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+<xs:enumeration value=""/>	<!-- allow to be blank -->
+<xs:enumeration value="AF"/>
+<xs:enumeration value="AG"/>
+<xs:enumeration value="AH"/>
+<xs:enumeration value="AJ"/>
+<xs:enumeration value="AL"/>
+<xs:enumeration value="AM"/>
+<xs:enumeration value="AO"/>
+<xs:enumeration value="AP"/>
+<xs:enumeration value="AQ"/>
+<xs:enumeration value="AR"/>
+<xs:enumeration value="AS"/>
+<xs:enumeration value="AV"/>
+<xs:enumeration value="AW"/>
+<xs:enumeration value="BA"/>
+<xs:enumeration value="BB"/>
+<xs:enumeration value="BC"/>
+<xs:enumeration value="BD"/>
+<xs:enumeration value="BE"/>
+<xs:enumeration value="BG"/>
+<xs:enumeration value="BH"/>
+<xs:enumeration value="BI"/>
+<xs:enumeration value="BK"/>
+<xs:enumeration value="BL"/>
+<xs:enumeration value="BN"/>
+<xs:enumeration value="BO"/>
+<xs:enumeration value="BR"/>
+<xs:enumeration value="BS"/>
+<xs:enumeration value="BU"/>
+<xs:enumeration value="BV"/>
+<xs:enumeration value="BW"/>
+<xs:enumeration value="BY"/>
+<xs:enumeration value="BZ"/>
+<xs:enumeration value="CB"/>
+<xs:enumeration value="CC"/>
+<xs:enumeration value="CD"/>
+<xs:enumeration value="CE"/>
+<xs:enumeration value="CF"/>
+<xs:enumeration value="CG"/>
+<xs:enumeration value="CH"/>
+<xs:enumeration value="CJ"/>
+<xs:enumeration value="CK"/>
+<xs:enumeration value="CL"/>
+<xs:enumeration value="CM"/>
+<xs:enumeration value="CO"/>
+<xs:enumeration value="CP"/>
+<xs:enumeration value="CQ"/>
+<xs:enumeration value="CR"/>
+<xs:enumeration value="CS"/>
+<xs:enumeration value="CT"/>
+<xs:enumeration value="CU"/>
+<xs:enumeration value="CX"/>
+<xs:enumeration value="CY"/>
+<xs:enumeration value="CZ"/>
+<xs:enumeration value="DA"/>
+<xs:enumeration value="DB"/>
+<xs:enumeration value="DE"/>
+<xs:enumeration value="DJ"/>
+<xs:enumeration value="EA"/>
+<xs:enumeration value="EC"/>
+<xs:enumeration value="EE"/>
+<xs:enumeration value="EJ"/>
+<xs:enumeration value="ER"/>
+<xs:enumeration value="ES"/>
+<xs:enumeration value="ET"/>
+<xs:enumeration value="FE"/>
+<xs:enumeration value="FI"/>
+<xs:enumeration value="FJ"/>
+<xs:enumeration value="FO"/>
+<xs:enumeration value="FR"/>
+<xs:enumeration value="FS"/>
+<xs:enumeration value="FX"/>
+<xs:enumeration value="GA"/>
+<xs:enumeration value="GB"/>
+<xs:enumeration value="GD"/>
+<xs:enumeration value="GE"/>
+<xs:enumeration value="GF"/>
+<xs:enumeration value="GG"/>
+<xs:enumeration value="GJ"/>
+<xs:enumeration value="GK"/>
+<xs:enumeration value="GL"/>
+<xs:enumeration value="GM"/>
+<xs:enumeration value="GO"/>
+<xs:enumeration value="GQ"/>
+<xs:enumeration value="GR"/>
+<xs:enumeration value="GT"/>
+<xs:enumeration value="HA"/>
+<xs:enumeration value="HB"/>
+<xs:enumeration value="HF"/>
+<xs:enumeration value="HW"/>
+<xs:enumeration value="IA"/>
+<xs:enumeration value="IE"/>
+<xs:enumeration value="IF"/>
+<xs:enumeration value="IH"/>
+<xs:enumeration value="II"/>
+<xs:enumeration value="IO"/>
+<xs:enumeration value="IU"/>
+<xs:enumeration value="IV"/>
+<xs:enumeration value="IW"/>
+<xs:enumeration value="IX"/>
+<xs:enumeration value="IZ"/>
+<xs:enumeration value="JA"/>
+<xs:enumeration value="JE"/>
+<xs:enumeration value="JW"/>
+<xs:enumeration value="JX"/>
+<xs:enumeration value="KA"/>
+<xs:enumeration value="KG"/>
+<xs:enumeration value="KJ"/>
+<xs:enumeration value="KW"/>
+<xs:enumeration value="KZ"/>
+<xs:enumeration value="LA"/>
+<xs:enumeration value="LE"/>
+<xs:enumeration value="LF"/>
+<xs:enumeration value="LK"/>
+<xs:enumeration value="LL"/>
+<xs:enumeration value="LM"/>
+<xs:enumeration value="LO"/>
+<xs:enumeration value="LT"/>
+<xs:enumeration value="LV"/>
+<xs:enumeration value="LW"/>
+<xs:enumeration value="LZ"/>
+<xs:enumeration value="MA"/>
+<xs:enumeration value="MB"/>
+<xs:enumeration value="MC"/>
+<xs:enumeration value="MD"/>
+<xs:enumeration value="ME"/>
+<xs:enumeration value="MF"/>
+<xs:enumeration value="MG"/>
+<xs:enumeration value="MJ"/>
+<xs:enumeration value="MK"/>
+<xs:enumeration value="ML"/>
+<xs:enumeration value="MM"/>
+<xs:enumeration value="MN"/>
+<xs:enumeration value="MO"/>
+<xs:enumeration value="MP"/>
+<xs:enumeration value="MQ"/>
+<xs:enumeration value="MT"/>
+<xs:enumeration value="MU"/>
+<xs:enumeration value="MW"/>
+<xs:enumeration value="MX"/>
+<xs:enumeration value="NA"/>
+<xs:enumeration value="NB"/>
+<xs:enumeration value="NC"/>
+<xs:enumeration value="ND"/>
+<xs:enumeration value="NF"/>
+<xs:enumeration value="NH"/>
+<xs:enumeration value="NI"/>
+<xs:enumeration value="NJ"/>
+<xs:enumeration value="NR"/>
+<xs:enumeration value="NU"/>
+<xs:enumeration value="NV"/>
+<xs:enumeration value="NW"/>
+<xs:enumeration value="NX"/>
+<xs:enumeration value="NY"/>
+<xs:enumeration value="NZ"/>
+<xs:enumeration value="OV"/>
+<xs:enumeration value="OW"/>
+<xs:enumeration value="OX"/>
+<xs:enumeration value="PC"/>
+<xs:enumeration value="PF"/>
+<xs:enumeration value="PG"/>
+<xs:enumeration value="PI"/>
+<xs:enumeration value="PJ"/>
+<xs:enumeration value="PR"/>
+<xs:enumeration value="PS"/>
+<xs:enumeration value="PT"/>
+<xs:enumeration value="PV"/>
+<xs:enumeration value="PX"/>
+<xs:enumeration value="PY"/>
+<xs:enumeration value="PZ"/>
+<xs:enumeration value="QX"/>
+<xs:enumeration value="RF"/>
+<xs:enumeration value="RJ"/>
+<xs:enumeration value="RO"/>
+<xs:enumeration value="RS"/>
+<xs:enumeration value="RU"/>
+<xs:enumeration value="S1"/>
+<xs:enumeration value="S2"/>
+<xs:enumeration value="S3"/>
+<xs:enumeration value="SA"/>
+<xs:enumeration value="SB"/>
+<xs:enumeration value="SC"/>
+<xs:enumeration value="SD"/>
+<xs:enumeration value="SE"/>
+<xs:enumeration value="SF"/>
+<xs:enumeration value="SG"/>
+<xs:enumeration value="SH"/>
+<xs:enumeration value="SI"/>
+<xs:enumeration value="SJ"/>
+<xs:enumeration value="SK"/>
+<xs:enumeration value="SL"/>
+<xs:enumeration value="SM"/>
+<xs:enumeration value="SN"/>
+<xs:enumeration value="SO"/>
+<xs:enumeration value="SP"/>
+<xs:enumeration value="SQ"/>
+<xs:enumeration value="SR"/>
+<xs:enumeration value="SS"/>
+<xs:enumeration value="ST"/>
+<xs:enumeration value="SU"/>
+<xs:enumeration value="SW"/>
+<xs:enumeration value="SY"/>
+<xs:enumeration value="SZ"/>
+<xs:enumeration value="TD"/>
+<xs:enumeration value="TH"/>
+<xs:enumeration value="TI"/>
+<xs:enumeration value="TK"/>
+<xs:enumeration value="TM"/>
+<xs:enumeration value="TN"/>
+<xs:enumeration value="TP"/>
+<xs:enumeration value="TU"/>
+<xs:enumeration value="TV"/>
+<xs:enumeration value="TW"/>
+<xs:enumeration value="TX"/>
+<xs:enumeration value="TZ"/>
+<xs:enumeration value="UE"/>
+<xs:enumeration value="UJ"/>
+<xs:enumeration value="UK"/>
+<xs:enumeration value="UN"/>
+<xs:enumeration value="UP"/>
+<xs:enumeration value="UQ"/>
+<xs:enumeration value="UR"/>
+<xs:enumeration value="US"/>
+<xs:enumeration value="UZ"/>
+<xs:enumeration value="VA"/>
+<xs:enumeration value="VC"/>
+<xs:enumeration value="VG"/>
+<xs:enumeration value="VI"/>
+<xs:enumeration value="VR"/>
+<xs:enumeration value="WA"/>
+<xs:enumeration value="WG"/>
+<xs:enumeration value="WI"/>
+<xs:enumeration value="WW"/>
+<xs:enumeration value="WY"/>
+<xs:enumeration value="YG"/>
+<xs:enumeration value="YY"/>
+<xs:enumeration value="ZQ"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+
+
+
+</xs:schema>
