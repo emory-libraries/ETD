@@ -20,6 +20,14 @@ class SubmissionController extends Etd_Controller_Action {
     if (!$this->_helper->access->allowedOnEtd("create")) return false;
     // any other info needed here?
     $this->view->title = "Begin Submission";
+
+    //Get all the answers to the questions from the post to validate
+    $answers["copyright"] = $this->_getParam("copyright");
+    $answers["copyright_permission"] = $this->_getParam("copyright_permission");
+    $answers["patent"] = $this->_getParam("patent");
+    $answers["embargo"] = $this->_getParam("embargo");
+    $answers["embargo_abs_toc"] = $this->_getParam("embargo_abs_toc");
+    $this->view->answers = $answers;
   }
 
 
@@ -27,6 +35,30 @@ class SubmissionController extends Etd_Controller_Action {
   // then forwards to the view/master edit page
   public function processpdfAction() {
     if (!$this->_helper->access->allowedOnEtd("create")) return false;
+
+    //Validate questions from previous page
+     //If they are not valid return to the last page
+
+    //Get all the answers to the questions from the post to validate
+    $answers["copyright"] = $this->_getParam("copyright");
+    $answers["copyright_permission"] = $this->_getParam("copyright_permission");
+    $answers["patent"] = $this->_getParam("patent");
+    $answers["embargo"] = $this->_getParam("embargo");
+    $answers["embargo_abs_toc"] = $this->_getParam("embargo_abs_toc");
+    
+    $questionsValid = $this->validateQuestions($answers);
+    
+    if(!$questionsValid){
+                
+        //Take parameters array and add values necessary for redirection
+        $redir = $answers;
+        $redir["controller"] = "submission";
+        $redir["action"] = "start";
+        $this->_helper->redirector->gotoRoute($redir);
+    }
+
+    //Send answers to view   
+    $this->view->answers = $answers;
 
     // allow a way to create record even if there are errors -
     // workaround for unrecognizable PDFs
@@ -90,7 +122,22 @@ class SubmissionController extends Etd_Controller_Action {
       $etd->premis->addEvent("ingest", "Record created by " .
 			     $this->current_user->fullname, "success",
 			     array("netid", $this->current_user->netid));
-      $message = "added ingest history event";
+
+      //Save info for copyright questions
+      $eventMsg="The author " . ($answers["copyright"] == 1 ? "has" : "has not") . " submitted copyrighted material";
+      if($answers["copyright"] == 1){
+          $eventMsg .= " and " . ($answers["copyright_permission"] == 1 ? "has" : "has not") . " obtained permission to include this copyrighted material";
+      }
+      $eventMsg .=".";
+      $etd->premis->addEvent("admin", $eventMsg, "success",
+			     array("netid", $this->current_user->netid));
+             
+      //Save info for patent questions
+      $eventMsg="The author " . ($answers["patent"] == 1 ? "has" : "has not") . " submitted patented material.";
+      $etd->premis->addEvent("admin", $eventMsg, "success",
+			     array("netid", $this->current_user->netid));
+
+      $message = "added history events";
       $result = $etd->save($message);
       if ($result)
 	$this->logger->info("Updated etd " . $etd->pid . " at $result ($message)");
@@ -131,7 +178,27 @@ class SubmissionController extends Etd_Controller_Action {
 	
 	if ($this->debug) $this->_helper->flashMessenger->addMessage("Saved etd file as $filepid");
 	
-	$this->_helper->redirector->gotoRoute(array("controller" => "view",
+	//send email if patent screening question is yes
+    if(strval($answers["patent"]) == "1"){
+        $notice = new etd_notifier($etd);
+        $notice->patent_concerns();
+
+     //Email sent history event
+     $eventMsg="Email sent due to patent concern.";
+     $etd->premis->addEvent("admin", $eventMsg, "success",
+			     array("netid", $this->current_user->netid));
+
+     $message = "Patent email sent";
+     $result = $etd->save($message);
+     if ($result)
+	    $this->logger->info("Updated etd " . $etd->pid . " at $result ($message)");
+     else
+	    $this->logger->err("Error updating etd " . $etd->pid . " ($message)");
+
+        $this->_helper->flashMessenger->addMessage("An e-mail has been sent to notify the appropriate person of potential patent concerns.");
+    }
+
+    $this->_helper->redirector->gotoRoute(array("controller" => "view",
 						    "action" => "record",
 						    "pid" => $etd->pid));
 	
@@ -144,6 +211,41 @@ class SubmissionController extends Etd_Controller_Action {
        displayed, including any error messages, along with a list of
        suggested trouble-shooting steps to try.
       */
+  }
+
+  /**
+   * Validate questions on submission start page
+   *
+   * @return boolean
+   */
+  public function validateQuestions($answers){
+      $valid=true;
+
+      // answer to copyright is required
+      if (strval($answers["copyright"]) == NULL) {
+         $this->_helper->flashMessenger->addMessage("Error: Answer to 1. \"copyright\" is required");
+         $valid = false;
+      } else if ($answers["copyright"] == 1 && strval($answers["copyright_permission"])== NULL) {
+         // if answer to copyright is yes, answer about permissions is required
+         $this->_helper->flashMessenger->addMessage("Error: Answer to 1b. \"copyright permissions\" is required");
+         $valid = false;
+      }
+
+      // answer to patent is required
+      if (strval($answers["patent"]) == NULL) {
+         $this->_helper->flashMessenger->addMessage("Error: Answer to 2. \"patent\" is required");
+         $valid = false;
+      }
+
+      // answer to embargo question is required
+     if (strval($answers["embargo"]) == NULL) {
+         $this->_helper->flashMessenger->addMessage("Error: Answer to 3. \"embargo\" is required");
+         $valid = false;
+     } else if ($answers["embargo"] == 1 && strval($answers["embargo_abs_toc"]) == NULL) {
+       $this->_helper->flashMessenger->addMessage("Error: Answer to 3b. \"embargo level\" is required");
+       $valid = false;
+     }
+     return $valid;
   }
 
 
