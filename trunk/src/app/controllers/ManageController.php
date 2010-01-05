@@ -24,16 +24,23 @@ class ManageController extends Etd_Controller_Action {
 
    // generate filter needed (if any) based on type of administrator
    protected function getAdminFilter() {
-     switch ($this->current_user->role) {
-       // FIXME: should use degree level in degree config file to generate this list
-     case "honors admin":
-       return "degree_name:(BA or BS or BBA)";
-     case "grad admin":
-       return "degree_name:(PhD or MA or MS)";
-     default:
-       return null;
-	
+     // retrieve multi-school configuration from registry
+     $schools_cfg = Zend_Registry::get("schools-config");
+     
+     // if user ir a school-specific admin, determine which school
+     if ($pos = strpos($this->current_user->role, " admin")) {
+       $admin_type = substr($this->current_user->role, 0, $pos);
+       // find the school config that current user is admin for
+       $school = $schools_cfg->getSchoolByAclId($admin_type);
+       if ($school) {
+	 // get fedora collection id, then construct query by collection id
+	 $collection = $school->fedora_collection;
+	 if ($collection) return 'collection:"' . $collection . '"';
+       }
      }
+
+     // no filter
+     return null;
    }
 
 
