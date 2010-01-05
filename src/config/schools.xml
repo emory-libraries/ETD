@@ -100,9 +100,8 @@
 	<optional>researchfields</optional>
     </submission_fields>
     <admin>
-	<!-- gracefully handle array / non-array ? -->
-	<netid></netid>
-	<department></department>
+	<department>Candler School of Theology</department>
+	<job_title>Academic Admin</job_title> 
     </admin>
   </candler>
 </schools>
