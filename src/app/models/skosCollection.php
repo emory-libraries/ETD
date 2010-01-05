@@ -223,6 +223,17 @@ class collectionHierarchy extends foxmlDatastreamAbstract {
     if (isset($this->collection))
       $this->collection->setMembers($ids);
   }
+
+
+  public function addCollection($id, $label) {
+    $newnode = $this->dom->createElementNS(collectionHierarchy::SKOS, "skos:Collection");
+    $newnode->setAttributeNS(collectionHierarchy::RDF, "rdf:about", $id);
+    $newnode = $this->domnode->appendChild($newnode);
+    $label = $this->dom->createElementNS(collectionHierarchy::RDFS, "rdfs:label", $label);
+    $newnode->appendChild($label);
+    $this->update();
+  }
+
   
 }
 
