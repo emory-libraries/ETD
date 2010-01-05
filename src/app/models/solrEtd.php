@@ -96,8 +96,6 @@ class solrEtd implements etdInterface {
   // for Zend ACL Resource
   public function getResourceId() {
     $base_type = "etd";
-    if ($this->document_type == "Honors Thesis")
-      $base_type = "honors etd";
     if (isset($this->status) && $this->status != "") {
       return $this->status() . " " . $base_type;
     } else {
