@@ -312,6 +312,7 @@
     <xsl:apply-templates select="rdf:Description/rel:subfield"/>
 
     <xsl:apply-templates select="rdf:Description/fedora-model:hasModel"/>
+    <xsl:apply-templates select="rdf:Description/rel:isMemberOfCollection"/>
   </xsl:template>
 
   <xsl:template match="rel:etdStatus">
@@ -332,6 +333,10 @@
 
    <xsl:template match="fedora-model:hasModel">
     <field name="contentModel"><xsl:value-of select="substring-after(@rdf:resource, 'info:fedora/')"/></field>
+  </xsl:template>
+
+   <xsl:template match="rel:isMemberOfCollection">
+    <field name="collection"><xsl:value-of select="substring-after(@rdf:resource, 'info:fedora/')"/></field>
   </xsl:template>
 
   <!-- index pdf datastream for related object -->
