@@ -62,6 +62,9 @@ Zend_Registry::set('stat-db', $db);
 Zend_Registry::set('persis-config',
     new Zend_Config_Xml($config_dir . "persis.xml", $env_config->mode));
 
+$schools_config = new SchoolsConfig($config_dir . "schools.xml");
+Zend_Registry::set('schools-config', $schools_config);
+
 // common getopt configurations that used by most scripts
 $common_getopts = array('verbose|v=s'  => 'Output level/verbosity; one of error, warn, notice, info, debug (default: error)',
 			'noact|n'      => "Test/simulate - don't actually do anything (no actions)");
