@@ -502,27 +502,32 @@ class ManageControllerTest extends ControllerTestCase {
 
   public function testAdminFilter() {
     // totals on summary pages and records on list views based on what kind of admin user is
-
+    $school_cfg = Zend_Registry::get("schools-config");
+    
     $ManageController = new ManageControllerForTest($this->request,$this->response);
     
     // generic admin sees everything (no filter)
     $this->test_user->role = "admin";
     $this->assertNull($ManageController->testGetAdminFilter());
 
-    // grad admin - phds and masters only
+    // grad admin - filter by grad collection pid
     $this->test_user->role = "grad admin";
     $filter = $ManageController->testGetAdminFilter();
-    $this->assertPattern("/PhD/", $filter);	
-    $this->assertPattern("/M[AS]/", $filter);
-    $this->assertNoPattern("/B[AS]/", $filter);
+    $this->assertEqual('collection:"' . $school_cfg->graduate_school->fedora_collection . '"',
+		       $filter);
 
-    // undergrad honors admin - bachelors only
+    // undergrad honors admin
     $this->test_user->role = "honors admin";
     $filter = $ManageController->testGetAdminFilter(); 
-    $this->assertNoPattern("/PHD/", $filter);
-    $this->assertNoPattern("/M[AS]/", $filter);
-    $this->assertPattern("/B[AS]/", $filter);
-    
+    $this->assertEqual('collection:"' . $school_cfg->emory_college->fedora_collection . '"',
+		       $filter);
+
+    // candler theology admin
+    // undergrad honors admin
+    $this->test_user->role = "candler admin";
+    $filter = $ManageController->testGetAdminFilter(); 
+    $this->assertEqual('collection:"' . $school_cfg->candler->fedora_collection . '"',
+		       $filter);
   }
   
 }
