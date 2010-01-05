@@ -41,6 +41,7 @@ class esdPerson extends Emory_Db_Table_Row implements Zend_Acl_Role_Interface {
              "firstname" => "PRSN_N_FRST",
              "middlename" => "PRSN_N_MIDL",
              "directory_name" => "PRSN_N_FM_DTRY",
+	     "directory_title" => "PRSN_E_TITL_DTRY",
              "department_code" => "DPRT_C",
              "academic_career" => "ACCA_I",
              "academic_program" => "ACPR8PRMR_I",
