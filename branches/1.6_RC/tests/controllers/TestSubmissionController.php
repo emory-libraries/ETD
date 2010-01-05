@@ -78,7 +78,7 @@ class SubmissionControllerTest extends ControllerTestCase {
     $SubmissionController = new SubmissionControllerForTest($this->request,$this->response);
     $gff = $SubmissionController->getHelper("GetFromFedora");
     $gff->clearReturnObject();
-    $messages = $SubmissionController->getHelper('FlashMessenger');
+    $messages = $SubmissionController->getHelper('FlashMessenger')->getMessages();
   }
 
 
