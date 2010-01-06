@@ -1,0 +1,16 @@
+<?=  $this->render('email/_debug.phtml'); ?>
+<p>Dear <?= $this->etd->mods->author->first ?>,</p>
+
+<p>You were notified on <?= $this->etd->mods->embargo_notice ?> that
+your ETD access restriction was expiring.  We have not been informed
+that you wish to extend your access restriction period and therefore
+your <?= $this->etd->document_type() ?> is now available in full text
+form in our repository.</p>
+
+<p>Your <?= $this->etd->document_type() ?> 
+can be accessed in the Emory University ETD Repository at:
+<a href="<?= $this->etd->ark() ?>"><?= $this->etd->ark() ?></a></p>
+
+
+<p>If you have any questions regarding this matter, please contact us at
+ <a href="mailto:<?= $this->contact->email ?>"><?= $this->contact->email ?></a>.</p>
