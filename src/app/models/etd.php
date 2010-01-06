@@ -980,13 +980,13 @@ class etd extends foxml implements etdInterface {
    * @param string $message message/reason to put in record history for change
    * @throws Exception for invalid date format or date before current date
    */
-  public function extendEmbargo($newdate, $message) {
+  public function updateEmbargo($newdate, $message) {
     // check format of new date - must be YYYY-MM-DD
     if (!preg_match("/^[0-9]{4}\-[012][0-9]\-[0123][0-9]$/", $newdate)) {
       throw new Exception("Invalid date format '$newdate'; must be in YYYY-MM-DD format");
     // additional sanity check - new date must not be before today
     } elseif (strtotime($newdate) < time()) {
-      throw new Exception("New embargo date '$newdate' is in the past; cannot extend embargo");
+      throw new Exception("New embargo date '$newdate' is in the past; cannot update embargo");
     }
 
     // update embargo end date in MODS
@@ -1011,13 +1011,13 @@ class etd extends foxml implements etdInterface {
     // -- if this is being done by a logged in user, pick up for event 'agent' 
     if (Zend_Registry::isRegistered('current_user')) {
       $user = Zend_Registry::get('current_user');
-      $agent = array("netid", $this->current_user->netid);
+      $agent = array("netid", $user->netid);
     } else {
       // fall back - generic agent
       $agent = array("software", "etd system");
     }
     $this->premis->addEvent("administrative",
-			    "Access restriction extended until $newdate - $message",
+			    "Access restriction ending date is updated to $newdate - $message",
 			    "success",  $agent);
   }
   
