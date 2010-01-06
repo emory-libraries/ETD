@@ -316,6 +316,49 @@ class ManageController extends Etd_Controller_Action {
 						 "action" => "summary"), "", true); 
    }
 
+   public function reviseembargoAction() {
+     $etd = $this->_helper->getFromFedora("pid", "etd");
+     if (!$this->_helper->access->allowedOnEtd("revise embargo", $etd)) return false;
+   
+     $this->view->etd = $etd;
+
+     $this->view->title = "Manage : Revise embargo";
+   }
+   
+   public function updateembargoAction() {
+     $etd = $this->_helper->getFromFedora("pid", "etd");
+     if (!$this->_helper->access->allowedOnEtd("revise embargo", $etd)) return false;
+     $newdate= $this->_getParam("newdate", "");
+     $message = "Updating the embargo"; //$this->_getParam("newdate", "");
+     $messag = $this->_getParam("message", "");
+    
+     try
+     {
+     	$etd->updateEmbargo($newdate, $message);
+     }
+     catch(Exception $e)
+     {
+	$this->_helper->flashMessenger->addMessage("Error: " . $e->getMessage());	
+     	$this->_helper->redirector->gotoRoute(array("controller" => "manage",
+						 "action" => "reviseembargo")); 
+	return;
+     }
+
+     $result = $etd->save("embargo ending date updated");
+
+     if ($result) {
+       $this->_helper->flashMessenger->addMessage("Embargo ending dated changed to <b>$newdate</b>");
+       // user information also, for email address ?
+       $this->logger->info("Updated etd " . $etd->pid . " at $result - set embargo ending date to $newdate");
+     } else {
+       $this->logger->err("Could not save etd " . $etd->pid . " - attempting to update embargo ending date to $newdate");
+       $this->_helper->flashMessenger->addMessage("Error: Could not update embargo ending date to<b>$newdate</b>");
+     }
+     
+     $this->_helper->redirector->gotoRoute(array("controller" => "manage",
+						 "action" => "summary"), "", true); 
+   }
+
    public function embargoesAction() {
      if (!$this->_helper->access->allowedOnEtd("manage")) return false;
 
