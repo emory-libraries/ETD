@@ -198,7 +198,7 @@ class esdPerson extends Emory_Db_Table_Row implements Zend_Acl_Role_Interface {
      * @return string
      */
     public function __toString() {
-      if (isset($this->firstname)) return $this->firstname;
+      if (! empty($this->firstname)) return $this->firstname;
       else return $this->netid;
     }
 
@@ -320,10 +320,10 @@ class esdPerson extends Emory_Db_Table_Row implements Zend_Acl_Role_Interface {
       foreach ($this->column_alias as $alias => $column) {
 	if (! isset($data[$column])) $data[$column] = "";
       }
-        $test_person = new esdPerson(array("data" => $data));
-	// set table to null to avoid errors about not being connected
-	$test_person->setTable();
-	return $test_person;
+      $test_person = new esdPerson(array("data" => $data));
+      // set table to null to avoid errors about not being connected
+      $test_person->setTable();
+      return $test_person;
     }
 
 }   // end esdPerson
@@ -379,11 +379,12 @@ class esdPersonObject extends Emory_Db_Table {
     * @param return esdPerson
     */
     public function initializeWithoutEsd($netid) {
-      return new esdPerson(array("data" => array(
-		    "LOGN8NTWR_I" => $netid,
-                    "PRSN_C_TYPE" => "U",            // unknown type - needed for role
-                )
-            ));
+      $person = new esdPerson();
+      $user = $person->getTestPerson(array(
+		  "LOGN8NTWR_I" => $netid,
+		  "PRSN_C_TYPE" => "U",            // unknown type - needed for role
+		  ));
+      return $user;
     }
 
   /**
