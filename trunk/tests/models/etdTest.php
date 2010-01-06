@@ -858,8 +858,7 @@ class TestEtd extends UnitTestCase {
     $this->fedora->purge($this->etdpid, "removing test etd");
   }
 
-
-  function testExtendEmbargo() {
+  function testUpdateEmbargo() {
     // set a current embargo to be extended
     $this->etd->mods->embargo_end =  date("Y-m-d", strtotime("+1 year", time()));;
     // set status to published so policy rules will be updated
@@ -869,7 +868,7 @@ class TestEtd extends UnitTestCase {
     $event_count = count($this->etd->premis->event);
 
     $new_embargodate = date("Y-m-d", strtotime("+2 year", time()));
-    $this->etd->extendEmbargo($new_embargodate, "testing extend embargo");
+    $this->etd->updateEmbargo($new_embargodate, "testing update embargo");
     
     // check that all the appropriate changes are made
     $this->assertEqual($new_embargodate, $this->etd->mods->embargo_end,
@@ -895,18 +894,19 @@ class TestEtd extends UnitTestCase {
     // premis event for record history
     $this->assertEqual($event_count + 1, count($this->etd->premis->event),
 		       "additional event added to record history");
-    $this->assertEqual("Access restriction extended until $new_embargodate - testing extend embargo",
-		       $this->etd->premis->event[$event_count]->detail);	// text of last event
+    $this->assertEqual("Access restriction ending date is updated to $new_embargodate - testing update embargo",
+	      $this->etd->premis->event[$event_count]->detail);	// text of last event
+
   }
   
-  function testExtendEmbargo_inactive() {
+  function testUpdateEmbargo_inactive() {
     // inactive record (e.g., previously published)
     $this->etd->mods->embargo_end =  date("Y-m-d", strtotime("+1 year", time()));;
     $this->etd->setStatus("inactive");
 
     $new_embargodate = date("Y-m-d", strtotime("+2 year", time()));
     // should cause no errors, even though expiration notice & publish policies are not present
-    $this->etd->extendEmbargo($new_embargodate, "testing extend embargo");
+    $this->etd->updateEmbargo($new_embargodate, "testing update embargo");
 
     // change status to published, and NEW embargo should be set in policies
     $this->etd->setStatus("published");
@@ -926,22 +926,22 @@ class TestEtd extends UnitTestCase {
 
 
     // leading zeroes are NOT invalid dates
-    $this->etd->extendEmbargo("2011-01-11", "testing extend embargo");
+    $this->etd->updateEmbargo("2011-01-11", "testing update embargo");
 
     // leading zeroes are NOT invalid dates
-    $this->etd->extendEmbargo("2011-11-01", "testing extend embargo");
+    $this->etd->updateEmbargo("2011-11-01", "testing update embargo");
 	  
   }
 
-  function testExtendEmbargo_invalid_date() {
+  function testUpdateEmbargo_invalid_date() {
     try {
       // invalid format for new embargo end date
-      $this->etd->extendEmbargo("2008/01/01", "testing extend embargo");
+      $this->etd->updateEmbargo("2008/01/01", "testing update embargo");
     } catch (Exception $e) {
       $ex = $e;
     }
     $this->assertIsA($e, "Exception",
-		     "exception caught when passing invalid date format to extendEmbargo");
+		     "exception caught when passing invalid date format to UpdateEmbargo");
     if (isset($e)) {
       $this->assertPattern("/Invalid date format .* must be in YYYY-MM-DD format/", $e->getMessage(),
 			   "exception message explains invalid date format");
@@ -950,15 +950,15 @@ class TestEtd extends UnitTestCase {
     $ex = null;
     try {
       // date is in the past for new embargo end date
-      $this->etd->extendEmbargo(date("Y-m-d", strtotime("-1 year", time())),
-				"test extending embargo into the past");
+      $this->etd->updateEmbargo(date("Y-m-d", strtotime("-1 year", time())),
+				"test updating embargo into the past");
     } catch (Exception $e) {
       $ex = $e;
     }
     $this->assertIsA($e, "Exception",
-		     "exception caught when passing date in the past to extendEmbargo");
+		     "exception caught when passing date in the past to UpdateEmbargo");
     if (isset($e)) {
-      $this->assertPattern("/New embargo date .* is in the past; cannot extend embargo/",
+      $this->assertPattern("/New embargo date .* is in the past; cannot update embargo/",
 			   $e->getMessage(),
 			   "exception message about date in the past");
     }
@@ -971,3 +971,4 @@ class TestEtd extends UnitTestCase {
 runtest(new TestEtd());
 
 ?>
+
