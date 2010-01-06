@@ -443,6 +443,19 @@ class ManageControllerTest extends ControllerTestCase {
     $this->assertFalse($ManageController->doReactivateAction());
   }
 
+  public function testUpdateEmbargoAction() {
+    $ManageController = new ManageControllerForTest($this->request,$this->response);
+    $this->setUpGet(array('pid' => $this->published_etdpid,
+    			'newdate' => date("Y-m-d", strtotime("+2 year", time())), 'message' => "Testing update embargo"));
+    $ManageController->updateembargoAction();
+    $messages = $ManageController->getHelper('FlashMessenger')->getMessages();
+    
+    $etd = new etd($this->published_etdpid);
+    $newdate = $etd->mods->embargo_end;
+    $this->assertEqual("Embargo ending dated changed to <b>$newdate</b>", $messages[0]);
+    $this->assertEqual("Access restriction ending date is updated to $newdate - Updating the embargo", $etd->premis->event[count($etd->premis->event) - 1]->detail);
+  }
+
 
 
   public function testExpiringEmbargoes() {
