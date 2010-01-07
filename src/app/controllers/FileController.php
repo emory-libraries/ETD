@@ -68,6 +68,14 @@ class FileController extends Etd_Controller_Action {
      
      $fileinfo = $_FILES['file'];
      $filename = $fileinfo['tmp_name'];
+     $filetype = $fileinfo['type'];
+
+     if(($filetype == "application/pdf") && ($file_rel == "original"))
+     {
+     	$this->_helper->flashMessenger->addMessage("Error: Can not upload a pdf file as the original file.");
+        $this->_forward("add");
+	return;
+     }
 
      // if there is a list of allowed mimetypes for this type of file, include in the file check
      if (isset($allowed_types)) {
