@@ -6,6 +6,7 @@ Version 1.6 (*PRELIMINARY*)
 * Added support for Candler School of Theology.  Per-school
   configuration is now handled largely through the schools.xml config
   file; for more details, see Documentation/MultiSchoolConfiguration.txt.
+* Added a field "name" in config/config.xml for <email>etd-help@listserv.cc.emory.edu</email>
 
 
 Version 1.5 - November 2009
