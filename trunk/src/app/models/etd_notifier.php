@@ -75,7 +75,9 @@ class etd_notifier extends notifier {
     
     $this->mail->setFrom($config->email->etd->address,
 			 $config->email->etd->name);
-    if ($environment->mode != "production") {
+    $this->mail->setReplyTo($config->contact->email,
+			 $config->contact->name);
+if ($environment->mode != "production") {
       // use a configured debug email address when in development mode
       $this->mail->addTo($config->email->test);
 
@@ -257,6 +259,8 @@ class etdSet_notifier extends notifier {
     
     $this->mail->setFrom($config->email->etd->address,
 			 $config->email->etd->name);
+    $this->mail->setReplyTo($config->contact->email,
+			 $config->contact->name);
     if ($environment->mode != "production") {
       // use a configured debug email address when in development mode
       $this->mail->addTo($config->email->test);
