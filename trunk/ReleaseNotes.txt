@@ -6,7 +6,14 @@ Version 1.6 (*PRELIMINARY*)
 * Added support for Candler School of Theology.  Per-school
   configuration is now handled largely through the schools.xml config
   file; for more details, see Documentation/MultiSchoolConfiguration.txt.
-* Added a field "name" in config/config.xml for <email>etd-help@listserv.cc.emory.edu</email>
+* Contact email configuration in config.xml now includes a name field;
+  this email will be set as the reply-to address on all automated
+  notices.
+
+Deployment notes:
+  * Make sure contact email name field is set.
+  * Run the following migration scripts:
+    * 012-add-candler-programs.php - update program hierarchy for Candler
 
 
 Version 1.5 - November 2009
