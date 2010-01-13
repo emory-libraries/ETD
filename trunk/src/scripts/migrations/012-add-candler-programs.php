@@ -37,8 +37,9 @@ $new_labels = array("grad" => "Laney Graduate School",
 // items to be added
 $candler = array("id" => "#candler",
 		 "label" => "Candler School of Theology");
-$candler_programs = array("#candler1" => "Candler Program One",
-			  "#candler2" => "Candler Program Two");
+$candler_programs = array("#cstdivinity" => "Divinity",
+			  "#csttheo" => "Theological Studies",
+			  "#cstpc" => "Pastoral Counseling");
 
 
 $programs = new foxmlPrograms();
