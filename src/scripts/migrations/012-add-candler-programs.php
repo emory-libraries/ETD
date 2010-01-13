@@ -18,7 +18,7 @@ $opts = new Zend_Console_Getopt($common_getopts);
 // extended usage information - based on option list above, but with explanation/examples
 $scriptname = basename($_SERVER{"SCRIPT_NAME"});
 $usage = $opts->getUsageMessage() . "
- $scriptname updates program list to add Candler
+ $scriptname updates program list to add Candler School of Theology with its subdivisions
 ";
 
 try {
