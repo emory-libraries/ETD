@@ -7,7 +7,7 @@
   <level name="masters" genre="Master's Thesis">
     <degree name="MA" pq_code="M.A."/>
     <degree name="MS" pq_code="M.S."/>
-    <degree name="MDiv"/>
+    <degree name="MDiv" registrar_code="MDv"/>
     <degree name="MTS"/>
   </level>
   <level name="bachelors" genre="Honors Thesis">

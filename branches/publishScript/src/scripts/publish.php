@@ -204,7 +204,7 @@ function get_graduate_etds($filename, $refdate = null) {
     if (! isset($degree_level["genre"])) continue;	// skip place-holder in degree file
     foreach ($degree_level->degree as $dg) {
       // degrees in Registrar feed are all upper case
-      $etd_degrees[] = strtoupper($dg["name"]);
+      $etd_degrees[] = strtoupper( getDegreeCode($dg) );  //uses registrar_code if set otherwise it uses name
     }
   }
 
@@ -743,4 +743,13 @@ function find_orphans() {
   } else {
     $logger->notice("No approved unprocessed records found");
   }
+}
+
+/**
+ * finds the correct degree attribute to use for the degree code
+ * @param array $dg array of degree code attributes
+ * @return String  the registrar_code if it exists otherwise returns the name
+ */
+function getDegreeCode($dg){
+    return (isset($dg["registrar_code"]) ? $dg["registrar_code"] : $dg["name"]);
 }
