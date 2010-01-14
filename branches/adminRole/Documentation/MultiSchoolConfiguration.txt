@@ -1,0 +1,90 @@
+Multi-School Configuration
+==========================
+
+The ETD system includes content from several schools within the
+university, and each school has its own ETD administrators, different
+degrees awaraded, and variations in required fields.  Many of these
+settings can now be set in the school configuration file.
+
+Field Details
+=============
+
+ label   
+
+   Used as the generic administrative agent for this school, including
+   in ETD record history (when modified by an admin for this school),
+   and in some of the email records.
+
+ acl_id 
+
+   Identifier used in Access Control List (ACL) for permissions.  Do
+   not change this.
+
+ db_id 	  
+
+  How to identify students associated with this school; currently
+  compared against academic career field in ESD. (do not change)
+
+ fedora_collection
+
+   Fedora collection PID; new objects associated with this school will
+   be automatically added to this collection; existing objects are
+   filtered by their collection membership and associated with the
+   appropriate school configuration.
+
+ admin
+  
+   How to identify administrative users for this school.  Currently
+   supported fields:
+     department 	department name in ESD
+     department_code	department code in ESD
+     netid		one or more user netids
+     job_title		job title text (currently can only be used in combination with
+			department or department code); will match a partial title
+
+   Users matching the configured fields will be given the appropriate
+   per-school admin role in the ETD site.  However, they will still
+   need to be given etd-admin level permissions at the Fedora
+   repository level specified in the permit-etd-admins xacml policy in
+   order to view and modify records.
+ 
+ degrees
+ 
+   Should contain a list of degrees awarded by this school and
+   expected to submit ETDs.  Currently has some redundancy with degree
+   configuration file to map local degree names to those used by
+   UMI/ProQuest and to associate degrees with genre terms.
+
+ submission_fields
+ 
+   Should contain a list of required fields; may also contain optional
+   fields.  Required fields will be listed in the submission status
+   checklist displayed on the site when an ETD record is in draft
+   status, and must be filled out before the record can be submitted.
+   Optional fields will be listed in the submission status checklist,
+   but are not required to be filled out before the record can be
+   submitted.  Fields that are not listed as either required or
+   optional will generally not be available to be filled out.
+
+   Currently supported fields:
+     title
+     author
+     program
+     chair			(at least one, may have multiple)
+     committee members 		(at least one, may have multiple)
+     researchfields		ProQuest terms; multiple
+     keywords
+     degree
+     language
+     abstract
+     table of contents
+     embargo request		is an embargo being requested; what level 
+     submission agreement	
+     send to ProQuest		submit ETD to PQ (if PQ submission is optional)?
+     copyright			have PQ register copyright (only if sending to PQ)
+     name
+     email
+     permanent email
+     permanent address
+
+
