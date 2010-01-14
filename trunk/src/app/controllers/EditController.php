@@ -43,13 +43,20 @@ class EditController extends Etd_Controller_Action {
 
     $programObject = new foxmlPrograms();
     $this->view->programs = $programObject->skos;
-    if ($etd->isHonors()) {
-      $this->view->honors = true;
-      $this->view->prog_section = $programObject->skos->undergrad;
-    } else {
-      $this->view->prog_section = $programObject->skos->grad;
-      $this->view->honors = false;
+    // select correct sub-section of progam hierarchy based on which school ETD belongs to
+    switch ($etd->schoolId()) {
+    case 'grad':
+      $this->view->program_section = $programObject->skos->grad;
+      break;
+    case 'honors':
+      $this->view->program_section = $programObject->skos->undergrad;
+      break;
+    case 'candler':      
+      $this->view->program_section = $programObject->skos->candler;
+      break;
+      // NOTE: currently no default; view falls back to full program hierarchy if section is not set
     }
+
   }
 
   // save program and subfield - text in MODS, ids in RELS-EXT
@@ -59,8 +66,10 @@ class EditController extends Etd_Controller_Action {
     
     $this->view->etd = $etd;
 
-    $program_id = $this->_getParam("program_id", null);
-    $subfield_id = $this->_getParam("subfield_id", null);
+    // remove leading # from ids (should be stored in rels-ext without  #)
+    $program_id = preg_replace("/^#/", "", $this->_getParam("program_id", null));
+    $subfield_id = preg_replace("/^#/", "", $this->_getParam("subfield_id", null));
+    
 
     $etd->rels_ext->program = $program_id;
     $programObject = new foxmlPrograms();
