@@ -761,6 +761,19 @@ class TestEtd extends UnitTestCase {
     $this->assertTrue($this->honors_etd->isHonors(), "isHonors is true for honors etd");
   }
 
+  function testSchoolId() {
+    $this->assertEqual("grad", $this->etd->schoolId(), "schoolId for grad etd should be 'grad', got '"
+		       . $this->etd->schoolId() . "'");
+    $this->assertEqual("honors", $this->honors_etd->schoolId(), "schoolId for honors etd should be 'honors', got '"
+		       . $this->honors_etd->schoolId() . "'");
+
+    $candler_etd = new etd($this->school_cfg->candler);
+    $this->assertEqual("candler", $candler_etd->schoolId(),
+		       "schoolId for CST etd should be 'candler', got '"
+		       . $candler_etd->schoolId() . "'");
+    
+  }
+
   function testSetOAIidentifier() {
       $this->etd->mods->ark = "ark:/123/bcd";
       $this->etd->setOAIidentifier();

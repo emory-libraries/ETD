@@ -58,8 +58,10 @@ class EditControllerTest extends ControllerTestCase {
     $honors_etd->setSchoolConfig($school_cfg->emory_college);
     $honors_etd->pid = $this->honors_etdpid;
     // configure so membership so etd will be recognized as honors when loading from fedora
+    $honors_etd->rels_ext->removeRelation("rel:isMemberOfCollection",
+					  $school_cfg->graduate_school->fedora_collection);
     $honors_etd->rels_ext->addRelationToResource("rel:isMemberOfCollection",
-                                                 $config->collections->college_honors);
+                                                 $school_cfg->emory_college->fedora_collection);
     $this->prepareForEtdTest($honors_etd);
     $this->fedora->ingest($honors_etd->saveXML(), "test honors etd object");
 
@@ -149,28 +151,27 @@ class EditControllerTest extends ControllerTestCase {
   // Note: not testing access on all of these because they are exactly the same
   
   function testProgramAction() {
-    // ignore php errors - "indirect modification of overloaded property"
-    $errlevel = error_reporting(E_ALL ^ E_NOTICE);
-
     $EditController = new EditControllerForTest($this->request,$this->response);
 
     $this->setUpGet(array('pid' => $this->etdpid));	   
     $EditController->programAction();
-    $viewVars = $EditController->view->getVars();
     $this->assertIsA($EditController->view->etd, "etd");
     $this->assertTrue(isset($EditController->view->programs));
     $this->assertIsA($EditController->view->programs, 'programs');
     $this->assertIsA($EditController->view->programs, 'collectionHierarchy');
-    $this->assertFalse($EditController->view->honors, 'not in honors mode');
+    $this->assertTrue(isset($EditController->view->program_section), "progam section is set");
+    $this->assertEqual("#grad", $EditController->view->program_section->id);
 
-    error_reporting($errlevel);	    // restore prior error reporting
+    $this->setUpGet(array('pid' => $this->honors_etdpid));	   
+    $EditController->programAction();
+    $this->assertEqual("#undergrad", $EditController->view->program_section->id);
   }
 
   function testSaveProgramsAction() {
     $EditController = new EditControllerForTest($this->request,$this->response);
     $this->setUpPost(array('pid' => $this->etdpid,
-			   'program_id' => 'religion',
-			   'subfield_id' => 'american'));
+			   'program_id' => '#religion',
+			   'subfield_id' => '#american'));
     $EditController->saveProgramAction();
     $viewVars = $EditController->view->getVars();
     $messages = $EditController->getHelper('FlashMessenger')->getMessages();

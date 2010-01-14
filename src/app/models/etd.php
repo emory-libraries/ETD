@@ -826,11 +826,23 @@ class etd extends foxml implements etdInterface {
   /**
    * check if this object (or inherited object) is honors or not
    * @return bool
+   * @deprecated - use schoolId function instead
    */
   public function isHonors() {
     if (! isset($this->school_config))
 	trigger_error("School config is not set, cannot determine if is honors", E_USER_ERROR);
     return ($this->school_config->acl_id == "honors");
+  }
+
+  /**
+   * get school acl id for this etd (e.g., to determine if grad/candler/honors)
+   * @return string
+   */
+  public function schoolId() {
+    if (! isset($this->school_config))
+	trigger_error("School config is not set, cannot retrieve school id", E_USER_ERROR);
+    return $this->school_config->acl_id;;
+    
   }
 
   

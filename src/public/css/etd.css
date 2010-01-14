@@ -736,7 +736,7 @@ div#select_researchfields {
   border:1px solid gray;
 }
 
-div#select_researchfields a.selected { 
+div#select_researchfields a.selected, ul#select_program li.selected > a { 
  background-color:yellow;
 }
 
@@ -966,7 +966,7 @@ span.permalink { background-color: #ffda82; /*#fffdee; /* very faint yellow */ }
 	margin-left: 75px;	
 }
 
-ul.tree li{ list-style-type:none; }
+ul.tree li, ul#select_program li { list-style-type:none; }
 ul.tree input { width:350px; border:0px; }
 ul.tree input:focus { background-color:#FFFF99; border:1px solid gray;}
 .toggle { color:blue; font-weight:bold; font-size:12pt; }
