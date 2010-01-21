@@ -38,9 +38,12 @@
 	// add test users to school config
 	$schools = $this->_schools_config;
 	// override admin configurations for testing
-	$schools->graduate_school->admin->department = $this->grad_department;
-	$schools->emory_college->admin = array("netid" =>
-					   array("llane", "mshonorable"));
+	 $schools->graduate_school->admin = array("netid" => array('gadmin', 'jsmith', 'llane'),
+                                              "department" => $this->grad_department);
+
+    $schools->emory_college->admin = array("netid" =>
+					   array("llane", "mshonorable"),
+                             "department" => $this->grad_department);
 
 	// temporarily override school config  with test configuration
 	Zend_Registry::set('schools-config', $schools);
@@ -145,7 +148,14 @@
 
         // honors program administrator - based on *school* config 
         $this->user->netid = "llane";
+        $this->user->department = $this->grad_department;
         $this->user->setRole();
+        //TEST
+        print "<pre>";
+        print_r($this->user);
+        print "</pre>";
+        //////
+
         $this->assertEqual($this->user->role, "honors admin");
 
         // etd superuser - based on config 
@@ -184,6 +194,7 @@
 
         // honors program administrator - based on *school* config 
         $this->user->netid = "llane";
+        $this->user->department = $this->grad_department;
         $this->user->setRole();
         $this->assertEqual($this->user->role, "honors admin");
 
