@@ -1,0 +1,170 @@
+<foxml:digitalObject xmlns:foxml="info:fedora/fedora-system:def/foxml#" PID="test:etd1" VERSION="1.1">
+  <foxml:objectProperties>    
+    <foxml:property NAME="info:fedora/fedora-system:def/model#state" VALUE="Active"/>
+    <foxml:property NAME="info:fedora/fedora-system:def/model#label" VALUE="Why I Like Cheese"/>    
+    <foxml:property NAME="info:fedora/fedora-system:def/model#ownerId" VALUE="mmouse"/>
+  </foxml:objectProperties>
+
+  <foxml:datastream CONTROL_GROUP='X' ID='MODS' STATE='A'	VERSIONABLE='true'>
+    <foxml:datastreamVersion ID='MODS.0' LABEL='MODS' MIMETYPE='text/xml'>
+      <foxml:xmlContent>
+	<mods:mods xmlns:mods="http://www.loc.gov/mods/v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema">
+	  <mods:titleInfo>
+	    <mods:title>Why I Like Cheese</mods:title>
+	  </mods:titleInfo>
+	  <mods:name type="personal">
+	    <mods:namePart type="given">Minnie</mods:namePart>
+	    <mods:namePart type="family">Mouse</mods:namePart>
+	    <mods:displayForm>Mouse, Minnie</mods:displayForm>
+	    <mods:affiliation>Disney</mods:affiliation>
+	    <mods:role>
+	      <mods:roleTerm authority="marcrelator" type="text">author</mods:roleTerm>
+	    </mods:role>
+	  </mods:name>
+ 	  <mods:name ID="" type="personal">
+	    <mods:namePart type="given"/>
+	    <mods:namePart type="family"/>
+	    <mods:displayForm/>
+	    <mods:role>
+	      <mods:roleTerm authority="marcrelator" type="text">Thesis Advisor</mods:roleTerm>
+	    </mods:role>
+	  </mods:name>
+	  <mods:name ID="" type="personal">
+	    <mods:namePart type="given"/>
+	    <mods:namePart type="family"/>
+	    <mods:displayForm/> 
+	    <mods:role>
+	      <mods:roleTerm type="text">Committee Member</mods:roleTerm>
+	    </mods:role>
+	    <mods:description>Emory Committee Member</mods:description>
+	   </mods:name>
+	  <mods:abstract>Gouda or Cheddar?</mods:abstract>
+          <mods:tableOfContents/>
+	  <mods:language>
+	    <mods:languageTerm authority="iso639-2b" type="text">English</mods:languageTerm>
+	  </mods:language>
+	  <mods:originInfo>
+	    <mods:dateIssued keyDate="yes"/>
+	    <mods:dateOther type="embargoedUntil"/> 
+	  </mods:originInfo>
+  	  <mods:subject ID="0123" authority="proquestresearchfield">
+	    <mods:topic>Area studies</mods:topic>
+	  </mods:subject>
+	  <mods:genre authority="aat">Dissertation</mods:genre>
+	  <mods:identifier type="ark">http://purl.bogus.com/ark:/123/td2</mods:identifier>
+	  <mods:accessCondition type="restrictionOnAccess">Embargoed for </mods:accessCondition>
+	  <mods:note type="admin" ID="embargo">embargo requested? no</mods:note>
+	</mods:mods>
+      </foxml:xmlContent>
+    </foxml:datastreamVersion>
+  </foxml:datastream>
+
+  <foxml:datastream CONTROL_GROUP='X' ID='XHTML' STATE='A'	VERSIONABLE='true'>
+    <foxml:datastreamVersion ID='XHTMl.0' LABEL='formatted text' MIMETYPE='text/xml'>
+      <foxml:xmlContent>
+	<html>
+	    <div id="title">Why <i>I</i> like cheese</div>
+	    <div id="abstract"><b>gouda</b> or <i>cheddar</i>?</div>
+            <div id="contents">Chapter 1: Gouda<br/> Chapter 2: Brie</div>
+	</html>
+      </foxml:xmlContent>
+    </foxml:datastreamVersion>
+  </foxml:datastream>
+
+  <foxml:datastream CONTROL_GROUP='X' ID='RELS-EXT' STATE='A' VERSIONABLE='true'>
+    <foxml:datastreamVersion ID='RELS-EXT.0' LABEL='relations' MIMETYPE='text/xml'>
+      <foxml:xmlContent>
+  	<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
+            xmlns:rel="info:fedora/fedora-system:def/relations-external#"
+            xmlns:fedora-model="info:fedora/fedora-system:def/model#">
+	  <rdf:Description rdf:about="info:fedora/test:etd1">        
+        <!--<fedora-model:hasModel rdf:resource="info:fedora/some:other-cmodel"/> -->
+        <fedora-model:hasModel rdf:resource="info:fedora/emory-control:ETD-1.0"/>
+	    <rel:etdStatus>published</rel:etdStatus>
+	    <rel:author>mmouse</rel:author>
+	    <rel:committee>dduck</rel:committee>
+	    <rel:committee>pluto</rel:committee>
+	  </rdf:Description>
+	</rdf:RDF>
+      </foxml:xmlContent>
+    </foxml:datastreamVersion>
+  </foxml:datastream>
+
+  <foxml:datastream CONTROL_GROUP='X' ID='DC' STATE='A'	VERSIONABLE='true'>
+    <foxml:datastreamVersion ID='DC.0' LABEL='Dublin Core' MIMETYPE='text/xml'>
+      <foxml:xmlContent>
+	<oai_dc:dc 		
+		xmlns:dc="http://purl.org/dc/elements/1.1/"
+		xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/">
+	      <dc:title>Why I Like Cheese</dc:title>
+	      <dc:description>Gouda or Cheddar?</dc:description>
+	      <dc:identifier>info:fedora/test:etd1</dc:identifier>
+	</oai_dc:dc>
+      </foxml:xmlContent>
+    </foxml:datastreamVersion>
+   </foxml:datastream>
+
+
+<foxml:datastream CONTROL_GROUP="X" ID="PREMIS" STATE="A" VERSIONABLE="false">
+    <foxml:datastreamVersion ID="PREMIS.0" LABEL="Record History" MIMETYPE="text/xml">
+      <foxml:xmlContent>
+<premis:premis xmlns:premis="http://www.loc.gov/standards/premis/v1">
+ <premis:object type="bitstream">
+   <premis:objectIdentifier>
+    <premis:objectIdentifierType>ark</premis:objectIdentifierType>
+    <premis:objectIdentifierValue>test:etd1</premis:objectIdentifierValue>
+   </premis:objectIdentifier>
+   <premis:objectCategory>etd</premis:objectCategory>
+ </premis:object>
+<premis:event>
+  <premis:eventIdentifier>
+    <premis:eventIdentifierType>etdrepo</premis:eventIdentifierType>
+    <premis:eventIdentifierValue>test:etd.1</premis:eventIdentifierValue>
+  </premis:eventIdentifier>
+  <premis:eventType>creation</premis:eventType>
+  <premis:eventDateTime>2008-01-01</premis:eventDateTime>
+  <premis:eventDetail>event details</premis:eventDetail>
+  <premis:eventOutcomeInformation>
+    <premis:eventOutcome>success</premis:eventOutcome>
+  </premis:eventOutcomeInformation>
+  <premis:linkingAgentIdentifier>
+    <premis:linkingAgentIdentifierType>netid</premis:linkingAgentIdentifierType>
+    <premis:linkingAgentIdentifierValue>username</premis:linkingAgentIdentifierValue>
+  </premis:linkingAgentIdentifier>
+ </premis:event>
+</premis:premis>
+      </foxml:xmlContent>
+    </foxml:datastreamVersion>
+   </foxml:datastream>
+
+
+<foxml:datastream CONTROL_GROUP="X" ID="POLICY" STATE="A" VERSIONABLE="false">
+    <foxml:datastreamVersion ID="POLICY.0" LABEL="Policy" MIMETYPE="text/xml">
+      <foxml:xmlContent>
+	<Policy xmlns="urn:oasis:names:tc:xacml:1.0:policy" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" PolicyId="test-etd1" RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:first-applicable">
+
+  <Description>object-specific policy for etd records</Description>
+  <Target>
+    <Subjects>
+      <AnySubject/>
+    </Subjects>
+
+    <Resources>
+      <Resource>
+        <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">test:etd1</AttributeValue>
+          <ResourceAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:resource:object:pid" DataType="http://www.w3.org/2001/XMLSchema#string"/>
+        </ResourceMatch>
+      </Resource>
+    </Resources>
+
+    <Actions>
+      <AnyAction/>
+    </Actions>
+  </Target>
+
+</Policy>
+      </foxml:xmlContent>
+    </foxml:datastreamVersion>
+   </foxml:datastream>
+</foxml:digitalObject>
