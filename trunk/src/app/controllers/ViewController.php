@@ -36,6 +36,8 @@ class ViewController extends Etd_Controller_Action {
    // show dublin core xml 
    public function dcAction() {
      $this->_setParam("datastream", "dc");
+
+
      $this->_forward("xml");
    }
    
@@ -71,6 +73,18 @@ class ViewController extends Etd_Controller_Action {
 	 $object->mods->pq_submit = "yes";
        }
      }
+
+     
+     $etd = $this->_helper->getFromFedora("pid", "etd");
+     if ($etd) {
+     $result = $etd->save("Update DC from Mods");
+     if ($result) {
+	$this->logger->info("Updated DC from Mods.");
+    	 } else {
+	$this->logger->info("Could not update DC from Mods" . $etd->pid);
+	}
+     }
+
 
      $mode = $this->_getParam("mode");
      

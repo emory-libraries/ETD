@@ -503,7 +503,6 @@ class etd extends foxml implements etdInterface {
    */
   public function updateDC() {
     $this->dc->title = $this->mods->title;
-    $this->dc->type = $this->mods->genre;
     $this->dc->date = $this->mods->date;
     $this->dc->language = $this->mods->language->text;
 
@@ -521,7 +520,13 @@ class etd extends foxml implements etdInterface {
     foreach ($this->mods->chair as $chair) {
       $chairs[] = $chair->full;
     }
-    $this->dc->setContributors($chairs);
+    $committee = array();
+    foreach ($this->mods->committee as $committee_mem) {
+      $committee[] = $committee_mem->full;
+    }
+
+    $contributors = array_merge($chairs, $committee);
+    $this->dc->setContributors($contributors);
 
     // subjects : research fields and keywords
     $subjects = array_merge($this->researchfields(), $this->keywords());
@@ -535,14 +540,22 @@ class etd extends foxml implements etdInterface {
     foreach (array_merge($this->pdfs, $this->supplements) as $file) {
       if (isset($file->dc->ark)) $relations[] = $file->dc->ark;
     }
+    $relations[] = "https://etd.library.emory.edu/";
     $this->dc->setRelations($relations);
+    $this->dc->publisher = $this->mods->degree_grantor->namePart;
+    $this->dc->format = $this->mods->physicalDescription->mimetype;
 
-
-    // FIXME: what else should be included in this update?
-    // - number of pages?
+    $rights = $this->mods->rights; 
+    if(($this->mods->embargo_request == "yes") && ($this->mods->embargo_end != NULL))
+    {
+	$rights = $rights . " Access has been restricted until " . $this->mods->embargo_end; 
+    }
+    $this->dc->rights = $rights;
+    $types = array();
+    $types[] = $this->mods->genre;
+    $types[] = "text";
+    $this->dc->setTypes($types);
   }
-
-  
   
   // handle special values
   public function __set($name, $value) {

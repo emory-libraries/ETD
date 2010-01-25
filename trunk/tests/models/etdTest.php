@@ -645,11 +645,23 @@ class TestEtd extends UnitTestCase {
     $this->assertEqual($etd->mods->identifier, $etd->dc->ark);	
     $this->assertEqual($etd->mods->author->full, $etd->dc->creator);
     $this->assertEqual($etd->mods->chair[0]->full, $etd->dc->contributor);
+    $this->assertEqual($etd->mods->committee[0]->full, $etd->dc->contributors[1]);
     $this->assertEqual($etd->mods->language->text, $etd->dc->language);
     $this->assertEqual($etd->mods->researchfields[0]->topic, $etd->dc->subjects[0]);
     $this->assertEqual($etd->mods->keywords[0]->topic, $etd->dc->subjects[1]);
     $this->assertEqual($etd->mods->date, $etd->dc->date);
     $this->assertEqual($etd->mods->genre, $etd->dc->type);
+    $this->assertEqual("text", $etd->dc->types[1]);
+    $this->assertEqual($etd->mods->degree_grantor->namePart, $etd->dc->publisher);
+    $this->assertEqual($etd->mods->physicalDescription->mimetype, $etd->dc->format);
+    if(($etd->mods->embargo_request == "yes") && ($etd->mods->embargo_end != NULL))
+    {
+	$this->assertEqual($etd->dc->rights, $etd->mods->rights . " Access has been restricted until " . $etd->mods->embargo_end);
+    }
+    else
+    {
+	$this->assertEqual($etd->dc->rights, $etd->mods->rights); 
+    }
 
     // need to test setting arks for related objects (pdf/supplement)
 
@@ -912,6 +924,7 @@ class TestEtd extends UnitTestCase {
 
   }
   
+    // embargo condition date in xacml policies updated
   function testUpdateEmbargo_inactive() {
     // inactive record (e.g., previously published)
     $this->etd->mods->embargo_end =  date("Y-m-d", strtotime("+1 year", time()));;
