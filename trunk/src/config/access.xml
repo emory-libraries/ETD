@@ -95,6 +95,11 @@
     <role name="superuser">
       <allow/>	<!-- allow anything -->
     </role>
+
+    <role name="university admin">
+      <!-- view reports -->
+      <allow resource="etd">report</allow>
+    </role>
   </roles>
   <resources>
    <resource name="etd">
