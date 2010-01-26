@@ -96,9 +96,9 @@
       <allow/>	<!-- allow anything -->
     </role>
 
-    <role name="university admin">
+    <role name="report viewer">
       <!-- view reports -->
-      <allow resource="etd">report</allow>
+      <allow resource="report">view</allow>
     </role>
   </roles>
   <resources>
@@ -124,7 +124,11 @@
 
    <resource name="statistics"/>
 
+   <resource name="report"/>
+
    <resource name="log"/>
+
+
 
    <resource name="programs">
      <resource name="undergrad programs"/>

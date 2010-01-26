@@ -20,7 +20,7 @@ class ReportController extends Etd_Controller_Action {
      * from the commencement report
      */
     public function commencementReviewAction() {
-        if (!$this->_helper->access->allowedOnEtd("manage")) {return false;}
+        if (!$this->acl->isAllowed($this->current_user, "report", "view") ) {return false;}
 
 		$this->view->title = "Commencement Report Review";
 

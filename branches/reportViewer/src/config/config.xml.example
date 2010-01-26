@@ -34,6 +34,9 @@
 	    <user></user>
             <user></user>
 	  </techsupport>
+      <reportviewer>
+            <department></department>
+      </reportviewer>
 	 <!-- undergraduate honors administrators -->
  	  <honors_admin>
 	    <user></user>
