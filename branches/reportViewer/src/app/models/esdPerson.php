@@ -127,6 +127,8 @@ class esdPerson extends Emory_Db_Table_Row implements Zend_Acl_Role_Interface {
 		 in_array($this->netid, $config->superusers->user->toArray()))
 		|| $config->superusers->user == $this->netid) {
                 $this->role = "superuser";
+                //Workaround to set  default school to solve issue when superuser submits a file
+                $this->academic_career="GSAS";
             }
         }
     }
