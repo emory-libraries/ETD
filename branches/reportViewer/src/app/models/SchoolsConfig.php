@@ -52,25 +52,12 @@ class SchoolsConfig extends Zend_Config_Xml {
 	  ($school->admin->netid != '' && $user->netid == $school->admin->netid)
 	  || (is_object($school->admin->netid) &&
 	      // multiple netids in config file
-	      in_array($user->netid, $school->admin->netid->toArray()))) {
-	return $school->acl_id;
-      }
-      
-      // check if department name OR code is configured & matches user department name/code
-      if ( !empty($school->admin->department) && 
-	   ($user->department == $school->admin->department) ||
-	   (!empty($school->admin->department_code) && 
-	    $school->admin->department_code == $user->department_code)) {
-
-	// if job title specified, do a case-insensitive string compare
-	if ( !empty($school->admin->job_title)) {
-	  if (stristr($user->directory_title, $school->admin->job_title)) {
-	    return $school->acl_id;
-	  }
-	} else {
-	  // job title not specified & department name/code match found
-	  return $school->acl_id;
-	}
+	      in_array($user->netid, $school->admin->netid->toArray()))
+      //check for department code
+      && (!empty($school->admin->department) &&
+	   $user->department == $school->admin->department)
+      ) {
+	      return $school->acl_id;
       }
     }
   }
