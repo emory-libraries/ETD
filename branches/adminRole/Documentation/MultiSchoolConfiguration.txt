@@ -37,10 +37,11 @@ Field Details
    How to identify administrative users for this school.  Currently
    supported fields:
      department 	department name in ESD
-     department_code	department code in ESD
      netid		one or more user netids
-     job_title		job title text (currently can only be used in combination with
-			department or department code); will match a partial title
+
+     An admin is defined by the combination of department + netid.
+     Department and netid must match the config file for the user to be an admin.
+     
 
    Users matching the configured fields will be given the appropriate
    per-school admin role in the ETD site.  However, they will still
