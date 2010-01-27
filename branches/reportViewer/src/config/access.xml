@@ -78,6 +78,7 @@
        <allow resource="etd">edit history, edit status, manage</allow>
        <allow resource="file">view modified</allow>
        <allow resource="user">view</allow>
+       <allow resource="report">view</allow>
     </role>
 
     <!-- administrator for undergraduate honors ETDs -->
@@ -97,8 +98,7 @@
       <allow/>	<!-- allow anything -->
     </role>
 
-    <role name="report viewer">
-      <!-- view reports -->
+    <role name="report viewer" inherits="guest">
       <allow resource="report">view</allow>
     </role>
   </roles>
