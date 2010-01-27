@@ -97,6 +97,7 @@ $numOfOrphanedGrad = 0;
 $numOfOrphanedEtd = 0;
 $numOfProquestSubmissions = 0;
 $numOfFailedProquest = 0;
+$emailToBeSent = ""; /* it's the email to be sent out when it's not in noact mode */
 
 $do_all = false;
 // if no mode is specified, run all steps
@@ -164,6 +165,9 @@ if ($do_all) {
   }
 }
 
+// look for any approved records still in the system ('orphaned' theses)
+if ($do_all || $opts->orphan) 		find_orphans();  
+
 // if there are any records to be processed
 if (count($etds)) {
 
@@ -187,9 +191,6 @@ if (count($etds)) {
   }
 }
 
-// look for any approved records still in the system ('orphaned' theses)
-if ($do_all || $opts->orphan) 		find_orphans();  
-
 
 /**
  *        Send a summary email to the etd administrator
@@ -200,31 +201,50 @@ $pubEmail = new Zend_Mail();
 $pubEmail->setFrom($config->email->etd->address,$config->email->etd->name);
 $pubEmail->setSubject("Publication Summary - " . date("Y-m-d", time()));
 $summary = "SUMMARY:\n" . 
-           "\tNumber of Orphaned Grads: " . $numOfOrphanedGrad . "\n" .
-           "\tNumber of Orphaned ETDs: " . $numOfOrphanedEtd. "\n" . 
-           "\tNumber of Successful Proquest Submissions: " . $numOfProquestSubmissions . "\n" .
-           "\tNumber of Failed Proquest Submissions: " . $numOfFailedProquest . "\n";
+           "\tGraduates with no ETD: " . $numOfOrphanedGrad . "\n" .
+           "\tApproved ETDs not yet published: " . $numOfOrphanedEtd. "\n" .
+           "\tSuccessful Proquest Submissions: " . $numOfProquestSubmissions . "\n" .
+           "\tFailed Proquest Submissions: " . $numOfFailedProquest . "\n";
 
 $emailBodyText = $summary . $emailBodyText;
 $pubEmail->setBodyText($emailBodyText);
+
 if ($environment->mode != "production")
 {
-    $pubEmail->addTo($config->email->test);
+	$pubEmail->addTo($config->email->test);
 }
 else
 {
-    $pubEmail->addTo($config->email->etd->address, $config->email->etd->name); 
-}
-try 
-{
-    $pubEmail->send();
-} 
-catch (Zend_Exception $ex) 
-{
-    $logger->err("There was a problem sending the publication email to ETD administrator: " .  $ex->getMessage());
-    return false;
+	$pubEmail->addTo($config->email->etd->address, $config->email->etd->name); 
 }
 
+/*
+    if it's in noact mode, the email is appended in the log.
+    if it's not in noact mode, send out the email.
+*/
+if (!$opts->noact)
+{
+	try 
+	{
+	    $pubEmail->send();
+	} 
+	catch (Zend_Exception $ex) 
+	{
+	    $logger->err("There was a problem sending the publication email to ETD administrator: " .  $ex->getMessage());
+	    return false;
+	}
+}
+foreach ($pubEmail->getHeaders() as $elemHeader => $elemValue)
+{
+   $emailToBeSent = $emailToBeSent . "\n" . $elemHeader . ": ";
+   foreach ($elemValue as $elem)
+   {
+   	$emailToBeSent = $emailToBeSent . $elem;
+   }
+}
+$emailToBeSent = $emailToBeSent . 
+		 "\n---- \n" . $emailBodyText;
+$logger->info("\nThe email to be sent to the ETD-Admin is:\n" . $emailToBeSent);
 
 /**
  * find etd pids for recent graduates in the registrar feed
@@ -324,7 +344,7 @@ function get_graduate_etds($filename, $refdate = null) {
   }	// finished processing feed (end while loop)
   if ($numOfOrphanedGrad != 0)
   {
-     $emailBodyText = $emailBodyText . "--\nOrphaned Graduate:\n". $orphanedGrads ;
+     $emailBodyText = $emailBodyText . "\nGraduates with no ETD:\n". $orphanedGrads ;
   }
   return $etds;
 }
@@ -374,7 +394,7 @@ function last_semester($year, $month) {
     $grad_month = "12";
   }
   
-  $msg = "Most recently completed term is $semester $year";
+  $msg = "Processing degrees awarded in $semester $year";
   $logger->info($msg);
   $emailBodyText = $emailBodyText . "\t" . $msg . "\n";
   $publish_date = "$year-{$grad_month}-31";
@@ -520,6 +540,7 @@ function publish(array $etds) {
  */
 function submit_to_proquest(array $etds) {
   global $opts, $tmpdir, $logger, $numOfProquestSubmissions, $numOfFailedProquest, $emailBodyText;
+  $failedProquests = "";
 
   // delete temporary directory to ensure its contents are only from the last run of this script
   if (is_dir($tmpdir)) {
@@ -562,7 +583,7 @@ function submit_to_proquest(array $etds) {
     } else {
       $logger->err("ProQuest submission xml for " . $etd->pid . " is not valid");
       $numOfFailedProquest++;
-      $failedProquests = $failedProquests . "\t" . $etd->pid . "\n";
+      $failedProquests = $failedProquests . "\t" . $etd->ark() . "\n";
 
       $submission->create_zip($tmpdir);
 
@@ -589,7 +610,7 @@ function submit_to_proquest(array $etds) {
   
   if ($numOfFailedProquest != 0)
   {
-     $emailBodyText = "--\nFailed Proquest Submissions:\n" . $failedProquests;
+     $emailBodyText = $emailBodyText . "\nFailed Proquest Submissions:\n" . $failedProquests;
   }
   // batch post-processing for proquest submissions 
   if ($opts->noact) {
@@ -792,7 +813,7 @@ function find_orphans() {
     $logger->notice("Found " . $count . " approved record" . ($count != 1 ? "s" : ""));
     $numOfOrphanedEtd = $count;
     foreach ($etdSet->etds as $etd) {
-      $msg = $etd->author() . " " . $etd->pid;
+      $msg = $etd->author() . " " . $etd->ark();
       $logger->info("    " . $msg); 
       $orphanedEtds = $orphanedEtds . "\t" . $msg . "\n";
     }
@@ -801,6 +822,6 @@ function find_orphans() {
   }
   if ($numOfOrphanedEtd != 0)
   {
-     $emailBodyText = $emailBodyText . "--\nOrphaned ETDs:\n" . $orphanedEtds;
+     $emailBodyText = $emailBodyText . "\nApproved ETDs not yet published::\n" . $orphanedEtds;
   }
 }
