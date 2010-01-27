@@ -239,7 +239,10 @@ foreach ($pubEmail->getHeaders() as $elemHeader => $elemValue)
    $emailToBeSent = $emailToBeSent . "\n" . $elemHeader . ": ";
    foreach ($elemValue as $elem)
    {
-   	$emailToBeSent = $emailToBeSent . $elem;
+   	if(is_string($elem))
+	{
+   		$emailToBeSent = $emailToBeSent . $elem . "\t";
+	}
    }
 }
 $emailToBeSent = $emailToBeSent . 
