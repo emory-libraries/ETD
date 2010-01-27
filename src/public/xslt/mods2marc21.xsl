@@ -10,6 +10,7 @@
 	<!-- MODS v3 to MARC21Slim transformation  	ntra 2/20/04 -->
 	<!-- Revised 2009-08-21, Emory University, Laura Akerman, for ETD transformations.  General changes applicable to any MODS are identified as General in comments, 
 	ETD-specific changes are identified as ETD.-->
+	<!--Revised 2010-01-07, Emory University, Laura Akerman, fix problem with <mods:accessCondition> mapping, correct MARC tag mapping from 508 to 506
 
 
 	<xsl:include href="http://www.loc.gov/marcxml/xslt/MARC21slimUtils.xsl"/>
@@ -184,9 +185,7 @@
 	</xsl:template>
 
 	<xsl:template match="mods:mods">
-		<marc:record xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-			xmlns:marc="http://www.loc.gov/MARC21/slim"
-			xsi:schemaLocation="http://www.loc.gov/MARC21/slim http://www.loc.gov/standards/marcxml/schema/MARC21slim.xsd">
+		<marc:record xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:marc="http://www.loc.gov/MARC21/slim" xsi:schemaLocation="http://www.loc.gov/MARC21/slim http://www.loc.gov/standards/marcxml/schema/MARC21slim.xsd">
 			<marc:leader>
 				<!-- 00-04 -->
 				<xsl:text>     </xsl:text>
@@ -648,8 +647,9 @@
 			</xsl:with-param>
 		</xsl:call-template>
 	</xsl:template>
--->
-	<xsl:template match="mods:accessCondition[@type='540']">
+	-->
+	<!--ETD Correction to attribute match 2010-01-06 la -->
+	<xsl:template match="mods:accessCondition[@type='useAndReproduction']">
 		<xsl:call-template name="datafield">
 			<xsl:with-param name="tag">540</xsl:with-param>
 			<xsl:with-param name="subfields">
@@ -659,18 +659,10 @@
 			</xsl:with-param>
 		</xsl:call-template>
 	</xsl:template>
-	<!-- ETD  specific restrictions based on embargo date  2009/09/25  la -->
+	<!-- ETD  specific restrictions based on embargo date  2009/09/25  la modified 2010/01/07-->
 	<xsl:template match="mods:accessCondition[@type='restrictionOnAccess']">
 		<xsl:variable name="embargo_end">
-                  <xsl:choose>
-                    <!-- some old records have date in W3C format; detect and convert to expected format -->
-                    <xsl:when test="contains(//mods:dateOther[@type='embargoedUntil'], 'T')">
-                      <xsl:value-of select="substring-before(//mods:dateOther[@type='embargoedUntil'], 'T')"/>
-                    </xsl:when>
-                    <xsl:otherwise>
-                      <xsl:value-of select="//mods:dateOther[@type='embargoedUntil']"/>
-                    </xsl:otherwise>
-                  </xsl:choose>
+			<xsl:value-of select="//mods:dateOther[@type='embargoedUntil']"/>
 		</xsl:variable>
 		<xsl:choose>
 			<!-- if embargo is for 0 days, not set, or embargo end is not set, do nothing;
@@ -679,18 +671,15 @@
 			<!-- embargo is non-zero and end date is still in the future -->
 			<xsl:when test="current-date() &lt; xs:date($embargo_end)">
 				<xsl:call-template name="datafield">
-					<xsl:with-param name="tag">508</xsl:with-param>
+					<xsl:with-param name="tag">506</xsl:with-param>
 					<xsl:with-param name="subfields">
 						<marc:subfield code="a">
-							<xsl:copy>
-								<xsl:apply-templates select="@*"/>
 								<xsl:value-of
 									select="concat('Access to PDF is restricted until ', $embargo_end)"
 								/>
-							</xsl:copy>
 						</marc:subfield>
 					</xsl:with-param>
-				</xsl:call-template>
+				</xsl:call-template>  -->
 			</xsl:when>
 			<!-- there was an embargo, but it is now over -->
 			<xsl:otherwise/>
