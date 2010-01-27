@@ -62,6 +62,7 @@
        <allow resource="reviewed etd">approve, request document changes</allow>
        <allow resource="approved etd">publish</allow>	<!-- not technically done by admin... -->
        <allow resource="published etd">inactivate, revise embargo</allow>
+       <allow resource="report">view</allow>
        <!-- should really only be done by superuser -->
        <allow resource="inactive etd">reactivate</allow>    
 
