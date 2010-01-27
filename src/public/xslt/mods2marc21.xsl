@@ -10,7 +10,7 @@
 	<!-- MODS v3 to MARC21Slim transformation  	ntra 2/20/04 -->
 	<!-- Revised 2009-08-21, Emory University, Laura Akerman, for ETD transformations.  General changes applicable to any MODS are identified as General in comments, 
 	ETD-specific changes are identified as ETD.-->
-	<!--Revised 2010-01-07, Emory University, Laura Akerman, fix problem with <mods:accessCondition> mapping, correct MARC tag mapping from 508 to 506
+	<!--Revised 2010-01-27 Emory University, Laura Akerman, fix problem with <mods:accessCondition> mapping, correct MARC tag mapping from 508 to 506-->
 
 
 	<xsl:include href="http://www.loc.gov/marcxml/xslt/MARC21slimUtils.xsl"/>
@@ -28,7 +28,7 @@
 			<xsl:apply-templates/>
 		</marc:collection>
 	</xsl:template>
-	<!-- 1/04 fix -->
+	<!-- 1-04 fix-->
 	<!--<xsl:template match="mods:targetAudience/mods:listValue" mode="ctrl008">-->
 	<xsl:template match="mods:targetAudience[@authority='marctarget']" mode="ctrl008">
 		<xsl:choose>
@@ -672,20 +672,19 @@
 			<xsl:when test="current-date() &lt; xs:date($embargo_end)">
 				<xsl:call-template name="datafield">
 					<xsl:with-param name="tag">506</xsl:with-param>
+					<xsl:with-param name="ind1">1</xsl:with-param>
 					<xsl:with-param name="subfields">
 						<marc:subfield code="a">
 								<xsl:value-of
-									select="concat('Access to PDF is restricted until ', $embargo_end)"
-								/>
+									select="concat('Access to PDF is restricted until ', $embargo_end)"/>
 						</marc:subfield>
 					</xsl:with-param>
-				</xsl:call-template>  -->
+				</xsl:call-template>
 			</xsl:when>
 			<!-- there was an embargo, but it is now over -->
 			<xsl:otherwise/>
 		</xsl:choose>
 	</xsl:template>
-
 	<!-- 1/04 fix -->
 	<xsl:template name="controlRecordInfo">
 		<!--<xsl:template match="mods:recordInfo">-->
