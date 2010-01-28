@@ -31,6 +31,7 @@
 	// stub config with just the portion relevant to special user roles
 	$testconfig = new Zend_Config(array("techsupport" => array("user" => array("jolsen")),
 					    "superusers" => array("user" => array("ckent")),
+                        "reportviewer" => array("department" => array("Reports Department")),
 					    ));
 	// temporarily override config with test configuration
 	Zend_Registry::set('config', $testconfig);
@@ -157,6 +158,11 @@
         $this->user->setRole();
         $this->assertEqual($this->user->role, "superuser");
 
+        // etd report viewer - based on config
+        $viewer = $this->esd->findByUsername("rviewer");
+        $this->assertEqual($viewer->role, "report viewer");
+        
+
 	// tech support - based on config 
         $this->user->netid = "jolsen";
         $this->user->setRole();
@@ -167,6 +173,7 @@
 	// gracefully handle multiple *and* single entries in config file usernames
 	$testconfig = new Zend_Config(array("techsupport" => array("user" => "jolsen"),
 					    "superusers" => array("user" => "ckent"),
+                        "reportviewer" => array("department" => "Reports Department")
 					    ));
 	// temporarily override config with test configuration
 	Zend_Registry::set('config', $testconfig);
@@ -191,6 +198,10 @@
         $this->user->department = "Emory College";
         $this->user->setRole();
         $this->assertEqual($this->user->role, "honors admin");
+
+        // etd report viewer - based on config
+        $viewer = $this->esd->findByUsername("rviewer");
+        $this->assertEqual($viewer->role, "report viewer");
 
       }
 

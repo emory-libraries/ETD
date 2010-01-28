@@ -118,19 +118,26 @@ class esdPerson extends Emory_Db_Table_Row implements Zend_Acl_Role_Interface {
         // etd superuser, techsupport, and honors admin
         if (Zend_Registry::isRegistered('config')) {
             $config = Zend_Registry::get('config');
-	    if ((is_object($config->techsupport->user) &&
-		 in_array($this->netid, $config->techsupport->user->toArray()))
-		|| $config->techsupport->user == $this->netid) {
-                $this->role = "techsupport";
+            if (isset($config->superuser) && ((is_object($config->superusers->user) &&
+            in_array($this->netid, $config->superusers->user->toArray()))
+            || $config->superusers->user == $this->netid)) {
+                    $this->role = "superuser";
+                    //Workaround to set  default school to solve issue when superuser submits a file
+                    $this->academic_career="GSAS";
             }
-            if ((is_object($config->superusers->user) &&
-		 in_array($this->netid, $config->superusers->user->toArray()))
-		|| $config->superusers->user == $this->netid) {
-                $this->role = "superuser";
-                //Workaround to set  default school to solve issue when superuser submits a file
-                $this->academic_career="GSAS";
+            elseif (isset($config->techsupport) && ((is_object($config->techsupport->user) &&
+             in_array($this->netid, $config->techsupport->user->toArray()))
+            || $config->techsupport->user == $this->netid)) {
+                    $this->role = "techsupport";
             }
-        }
+            //detect report viewer role
+            elseif (isset($config->reportviewer) &&  ((is_object($config->reportviewer->department) &&
+             in_array($this->department, $config->reportviewer->department->toArray()))
+            || (!empty($config->reportviewer->department) && $config->reportviewer->department == $this->department))){
+                $this->role = "report viewer";
+            }
+
+        } //end Zend registry if
     }
 
     /**

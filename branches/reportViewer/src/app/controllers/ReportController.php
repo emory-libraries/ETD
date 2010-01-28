@@ -13,6 +13,7 @@ class ReportController extends Etd_Controller_Action {
 	private $message;
 
 	public function indexAction() {
+        if(!$this->_helper->access->allowed("report", "view")) {return false;}
 	}
 	 
 	/**
@@ -20,7 +21,7 @@ class ReportController extends Etd_Controller_Action {
      * from the commencement report
      */
     public function commencementReviewAction() {
-        if (!$this->acl->isAllowed($this->current_user, "report", "view") ) {return false;}
+        if(!$this->_helper->access->allowed("report", "view")) {return false;}
 
 		$this->view->title = "Commencement Report Review";
 
@@ -48,7 +49,7 @@ class ReportController extends Etd_Controller_Action {
      *  pids from the previous form
      */
     public function commencementAction() {
-        if (!$this->_helper->access->allowedOnEtd("manage")) {return false;}
+        if(!$this->_helper->access->allowed("report", "view")) {return false;}
 
 		$this->view->title = "Commencement Report";
 
@@ -101,7 +102,7 @@ class ReportController extends Etd_Controller_Action {
      *  Start of year is 12/31 of last year, end is 8/31 of current year
      */
     public function gradDataAction(){
-         if (!$this->_helper->access->allowedOnEtd("manage")) {return false;}
+         if(!$this->_helper->access->allowed("report", "view")) {return false;}
         // academic start and end months
         $acStart="Dec 31";
         $acEnd="Aug 31";
@@ -154,7 +155,7 @@ class ReportController extends Etd_Controller_Action {
      * Action to create CSV file from submitted date range
      */
     public function gradDataCsvAction(){
-        if (!$this->_helper->access->allowedOnEtd("manage")) {return false;}
+        if(!$this->_helper->access->allowed("report", "view")) {return false;}
 
         //get start and end dates from post
         $inputField="academicYear";
@@ -270,7 +271,7 @@ class ReportController extends Etd_Controller_Action {
          * Action to create CSV file with Embargo data
          */
     public function embargoCsvAction(){
-      if (!$this->_helper->access->allowedOnEtd("manage")) {return false;}
+      if(!$this->_helper->access->allowed("report", "view")) {return false;}
 
         //Query solr
         $optionsArray = array();
