@@ -37,7 +37,7 @@ $updated = $unchanged = $error = 0;
 $etdSet = new EtdSet();
 $etdSet->find(array("AND" => array("status" => "published"),
                    "start" => 0, "max" => 50));
-		   //do for both published and unpublished - jing
+		   //do for both published and unpublished 
 
 for ( ;$etdSet->hasResults(); $etdSet->next()) {
   $plural = ($etdSet->numFound == "1") ? "" : "s";
