@@ -254,6 +254,10 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
     return $this->fedora->getDatastream($this->pid, "FILE");
   }
 
+  public function checkSum() {
+    return $this->fedora->compareDatastreamChecksum($this->pid, "FILE");
+  }
+
   // wrapper to description - to simplify unit testing
   public function description() {
     return $this->dc->description;
