@@ -515,21 +515,28 @@ class etd extends foxml implements etdInterface {
     // author
     $this->dc->creator = $this->mods->author->full;
 
+    // contributors - committee chair(s) & member(s)
+    $contributors = array(); 
     // committee chair(s)
-    $chairs = array();
     foreach ($this->mods->chair as $chair) {
-      $chairs[] = $chair->full;
+      if ($chair->full != "") $contributors[] = $chair->full;
     }
-    $committee = array();
+    // committee members
     foreach ($this->mods->committee as $committee_mem) {
-      $committee[] = $committee_mem->full;
+      if ($committee_mem->full != "") $contributors[] = $committee_mem->full;
     }
-
-    $contributors = array_merge($chairs, $committee);
+    // non-emory committe
+    foreach ($this->mods->nonemory_committee as $committee_mem) {
+      if ($committee_mem->full != "") {
+	$name = $committee_mem->full;
+	if ($committee_mem->affiliation != "") $name .= " (" . $committee_mem->affiliation . ")";
+	$contributors[] = $name;
+      }
+    }
     $this->dc->setContributors($contributors);
 
-    // subjects : research fields and keywords
-    $subjects = array_merge($this->researchfields(), $this->keywords());
+    // subjects : research fields and keywords, minus any empty entries
+    $subjects = array_diff(array_merge($this->researchfields(), $this->keywords()), array(""));
     $this->dc->setSubjects($subjects);
 
     // ark (resolvable form) for this object
@@ -542,19 +549,17 @@ class etd extends foxml implements etdInterface {
     }
     $relations[] = "https://etd.library.emory.edu/";
     $this->dc->setRelations($relations);
-    $this->dc->publisher = $this->mods->degree_grantor->namePart;
-    $this->dc->format = $this->mods->physicalDescription->mimetype;
+    if (isset($this->mods->degree_grantor))
+      $this->dc->publisher = $this->mods->degree_grantor->namePart;
+    if (isset($this->mods->physicalDescription))
+      $this->dc->format = $this->mods->physicalDescription->mimetype;
 
-    $rights = $this->mods->rights; 
-    if(($this->mods->embargo_request == "yes") && ($this->mods->embargo_end != NULL))
-    {
+    $rights = isset($this->mods->rights) ? $this->mods->rights : ""; 
+    if ($this->isEmbargoed()) {
 	$rights = $rights . " Access has been restricted until " . $this->mods->embargo_end; 
     }
-    $this->dc->rights = $rights;
-    $types = array();
-    $types[] = $this->mods->genre;
-    $types[] = "text";
-    $this->dc->setTypes($types);
+    if (! empty($rights)) $this->dc->rights = $rights;
+    $this->dc->setTypes(array($this->mods->genre, "text"));
   }
   
   // handle special values
@@ -691,7 +696,7 @@ class etd extends foxml implements etdInterface {
    * @return boolean
    */
   public function isEmbargoed() {
-    if ($this->mods->embargo_end)
+    if ($this->mods->embargo_end) 
       return (strtotime($this->mods->embargo_end, 0) > time());
     else	// no embargo date defined - not (yet) embargoed
       return false;

@@ -54,6 +54,7 @@
 	  </mods:subject>
 	  <mods:originInfo>
 	    <mods:dateIssued keyDate="yes">2007-12-30</mods:dateIssued>
+	    <mods:dateOther type="embargoedUntil"/> 
 	  </mods:originInfo>
 	  <mods:physicalDescription>
 	    <mods:internetMediaType>application/pdf</mods:internetMediaType>
