@@ -204,6 +204,10 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
     else $filename = $tmpfile;
     
     // FIXME: this logic should be pulled out into a helper or library...
+
+    // NOTE: certain versions of php fileinfo return mimetypes like this: application/pdf; charset=binary
+    // for now, just throwing away the additional information
+    $filetype = preg_replace("/;.*$/", "", $filetype);
     
     // several things get reported as zip that we want to recognize
     if ($filetype == "application/zip" || $filetype == "application/x-zip") {
