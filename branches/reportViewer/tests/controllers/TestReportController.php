@@ -5,10 +5,35 @@ require_once('controllers/ReportController.php');
       
 class ReportControllerTest extends ControllerTestCase {
 
-  // array of test foxml files & their pids 
-  private $etdxml;
+  /**
+   * test user - fields to be initialized as needed for tests
+   * @var esdPerson
+   */
   private $test_user;
+  
+  /**
+   * mock solr object - set response document as needed for test
+   * @var Mock_Etd_Service_Solr
+   */
   private $solr;
+
+  private $etd_pid;
+  private $author_pid;
+
+  /**
+   * copy of fedora connection from registry
+   * @var fedoraConnection
+   */
+  private $fedora;
+
+  function __construct() {
+    $this->fedora = Zend_Registry::get("fedora");
+    $fedora_cfg = Zend_Registry::get('fedora-config');
+
+    // get pids for test objects
+    list($this->etd_pid, $this->author_pid) = $this->fedora->getNextPid($fedora_cfg->pidspace, 2);
+  }
+
   
   function setUp() {
     $ep = new esdPerson();
@@ -24,10 +49,22 @@ class ReportControllerTest extends ControllerTestCase {
     $this->response = $this->makeResponse();
     $this->request  = $this->makeRequest();
 
-    $fedora=Zend_Registry::get("fedora");
-    $this->pid = $fedora->ingest(file_get_contents('../fixtures/etd2.xml'), "loading test etd");
-    $this->author_pid = $fedora->ingest(file_get_contents('../fixtures/user.xml'), "loading test authInfo");
+    
+    $dom = new DOMDocument();
+    // load etd & set pid 
+    $dom->loadXML(file_get_contents('../fixtures/etd2.xml'));
+    $foxml = new foxml($dom);
+    $foxml->pid = $this->etd_pid;
+    $this->fedora->ingest($foxml->saveXML(), "loading test etd object");
+    
+    // load author info & set pid 
+    $dom->loadXML(file_get_contents('../fixtures/user.xml'));
+    $foxml = new foxml($dom);
+    $foxml->pid = $this->author_pid;
+    $this->fedora->ingest($foxml->saveXML(), "loading test authorInfo");
 
+
+    
     $this->solr = &new Mock_Etd_Service_Solr();
     Zend_Registry::set('solr', $this->solr);
 
@@ -42,9 +79,8 @@ class ReportControllerTest extends ControllerTestCase {
   function tearDown() {
     Zend_Registry::set('solr', null);
     Zend_Registry::set('current_user', null);
-    $fedora=Zend_Registry::get("fedora");
-    $fedora->purge($this->pid, "removing test etd");
-    $fedora->purge($this->author_pid, "removing test author info");
+    $this->fedora->purge($this->etd_pid, "removing test etd");
+    $this->fedora->purge($this->author_pid, "removing test author info");
 
   }
 
@@ -131,7 +167,7 @@ function testgradDataCsvAction() {
     //set post data
     $this->setUpPost(array('academicYear' => "20081231:20090831"));
     $etd = &new MockEtd();
-    $etd->PID = $this->pid;
+    $etd->PID = $this->etd_pid;
     //print "PID: $this->pid";
     $this->solr->response->docs[] = $etd;
 
@@ -167,7 +203,7 @@ function testgradDataCsvAction() {
     $ReportController = new ReportControllerForTest($this->request,$this->response);
 
     $etd = &new MockEtd();
-    $etd->PID = $this->pid;
+    $etd->PID = $this->etd_pid;
     $this->solr->response->docs[] = $etd;
 
     $ReportController->embargoCsvAction();
@@ -260,6 +296,41 @@ function testgradDataCsvAction() {
     $this->assertEqual($result, "**");
     
   }
+
+  function testPreDispatch() {
+    $this->test_user->role = "admin";
+    $ReportController = new ReportControllerForTest($this->request,$this->response);
+    $ReportController->preDispatch();
+    $tmp_fedoraConnection = Zend_Registry::get("fedora");
+    $this->assertEqual($this->fedora, $ReportController->getUserFedoraConnection(),
+		       "main fedora connection stored in controller");   
+    $this->assertEqual($this->fedora, $tmp_fedoraConnection,
+		       "fedora connection in registry is same as main fedora connection for admin user");
+
+    $this->test_user->role = "report viewer";
+    $ReportController->preDispatch();
+    $tmp_fedoraConnection = Zend_Registry::get("fedora");
+    $this->assertEqual($this->fedora, $ReportController->getUserFedoraConnection(),
+		       "main fedora connection stored in controller");   
+    $this->assertNotEqual($this->fedora, $tmp_fedoraConnection,
+			  "fedora connection in registry is NOT same as main fedora connection for a report viewer");
+
+    // undo change - restore real fedora connection
+    Zend_Registry::set("fedora", $this->fedora);
+  }
+
+  function testPostDispatch(){
+    $this->test_user->role = "report viewer";
+    $ReportController = new ReportControllerForTest($this->request,$this->response);
+    // run preDispatch to override fedoraconnection
+    $ReportController->preDispatch();
+
+    $ReportController->postDispatch();
+    $fedoraConnection = Zend_Registry::get("fedora");
+    $this->assertEqual($this->fedora, $fedoraConnection,
+		       "fedora connection in registry is same as main fedora connection - restored by postDispatch");
+    
+  }
   
 }
 
@@ -280,6 +351,11 @@ class ReportControllerForTest extends ReportController {
   
   public function _redirect() {
     $this->redirectRan = true;
+  }
+
+  // provide acccess to fedora connection for testing pre/post dispatch
+  public function getUserFedoraConnection() {
+    return $this->_fedoraConnection;
   }
 } 	
 
