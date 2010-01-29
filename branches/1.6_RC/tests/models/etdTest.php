@@ -638,6 +638,13 @@ class TestEtd extends UnitTestCase {
     $dom->load($fname);
     $etd = new etd($dom);
 
+    // add non-emory committee member to test
+    $etd->mods->addCommittee("Manhunter", "Martian", "nonemory_committee", "Mars Polytechnic");
+    // simulate embargo ending in one year
+    $etd->mods->embargo_end =  date("Y-m-d", strtotime("+1 year", time()));;
+    
+    // test that blank subject does not result in empty dc:subject
+    $etd->mods->addKeyword("");
     $etd->updateDC();
 
     $this->assertEqual($etd->mods->title, $etd->dc->title);
@@ -646,22 +653,30 @@ class TestEtd extends UnitTestCase {
     $this->assertEqual($etd->mods->author->full, $etd->dc->creator);
     $this->assertEqual($etd->mods->chair[0]->full, $etd->dc->contributor);
     $this->assertEqual($etd->mods->committee[0]->full, $etd->dc->contributors[1]);
+    $this->assertEqual("Manhunter, Martian (Mars Polytechnic)", $etd->dc->contributors[2]);
     $this->assertEqual($etd->mods->language->text, $etd->dc->language);
     $this->assertEqual($etd->mods->researchfields[0]->topic, $etd->dc->subjects[0]);
     $this->assertEqual($etd->mods->keywords[0]->topic, $etd->dc->subjects[1]);
+    $this->assertNoPattern("|<dc:subject></dc:subject>|", $etd->dc->saveXML());
     $this->assertEqual($etd->mods->date, $etd->dc->date);
     $this->assertEqual($etd->mods->genre, $etd->dc->type);
     $this->assertEqual("text", $etd->dc->types[1]);
     $this->assertEqual($etd->mods->degree_grantor->namePart, $etd->dc->publisher);
     $this->assertEqual($etd->mods->physicalDescription->mimetype, $etd->dc->format);
-    if(($etd->mods->embargo_request == "yes") && ($etd->mods->embargo_end != NULL))
-    {
-	$this->assertEqual($etd->dc->rights, $etd->mods->rights . " Access has been restricted until " . $etd->mods->embargo_end);
-    }
-    else
-    {
-	$this->assertEqual($etd->dc->rights, $etd->mods->rights); 
-    }
+    $this->assertPattern("/^" . $etd->mods->rights . "/", $etd->dc->rights,
+			 "DC rights begins with mods rights statement");
+    $this->assertPattern("/Access has been restricted until " . $etd->mods->embargo_end . "/",
+			 $etd->dc->rights,
+			 "DC rights includes embargo end date (got " . $etd->dc->rights . ")");
+
+    // simulate an expired embargo
+    $etd->mods->embargo_end =  date("Y-m-d", strtotime("-1 year", time()));;
+    $etd->updateDC();
+    $this->assertNoPattern("/Access has been restricted until " . $etd->mods->embargo_end . "/",
+			 $etd->dc->rights,
+			 "DC rights does not include access restricted text for an expired embargo (got "
+			 . $etd->dc->rights . ")");
+	
 
     // need to test setting arks for related objects (pdf/supplement)
 
