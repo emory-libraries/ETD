@@ -61,7 +61,7 @@
        <allow resource="submitted etd">review, request record changes</allow>	<!-- record=metadata -->
        <allow resource="reviewed etd">approve, request document changes</allow>
        <allow resource="approved etd">publish</allow>	<!-- not technically done by admin... -->
-       <allow resource="published etd">inactivate</allow>
+       <allow resource="published etd">inactivate, revise embargo</allow>
        <!-- should really only be done by superuser -->
        <allow resource="inactive etd">reactivate</allow>    
 
@@ -94,6 +94,11 @@
 
     <role name="superuser">
       <allow/>	<!-- allow anything -->
+    </role>
+
+    <role name="university admin">
+      <!-- view reports -->
+      <allow resource="etd">report</allow>
     </role>
   </roles>
   <resources>

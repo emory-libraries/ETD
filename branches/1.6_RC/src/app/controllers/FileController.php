@@ -56,11 +56,14 @@ class FileController extends Etd_Controller_Action {
      
      // how this file is related to the to the etd record
      $file_rel = $this->_getParam("filetype");
+     $allowed_types = null;
+     $disallowed_types = array();
+     $relation = ucfirst($file_rel);
      switch($file_rel) {
      case "pdf":  $relation = "PDF"; $allowed_types = array("application/pdf"); break;
-     case "original": 
+     // original and supplement use the $relation set above
+     case "original": $disallowed_types = array("application/pdf"); break; 
      case "supplement":
-       $relation = ucfirst($file_rel);
        break;
      default:
        trigger_error("Unknown etd file relation: $file_rel", E_USER_WARNING);
@@ -68,15 +71,24 @@ class FileController extends Etd_Controller_Action {
      
      $fileinfo = $_FILES['file'];
      $filename = $fileinfo['tmp_name'];
+     $filetype = $fileinfo['type'];
 
      // if there is a list of allowed mimetypes for this type of file, include in the file check
-     if (isset($allowed_types)) {
-       $uploaded = $this->_helper->FileUpload->check_upload($fileinfo, $allowed_types);
-     } else {
-       $uploaded = $this->_helper->FileUpload->check_upload($fileinfo);
-     }
-     
+     $uploaded = $this->_helper->FileUpload->check_upload($fileinfo, $allowed_types, $disallowed_types);
+
      if ($uploaded) {
+      $existingEtdFiles = array_merge($etd->pdfs, $etd->originals, $etd->supplements);
+      $checksumOfNewFile = md5_file($filename);
+      foreach ($existingEtdFiles as $file)
+      {
+      	if ($file->checkSum() == $checksumOfNewFile)
+	{
+	  $this->_helper->flashMessenger->addMessage("Error: You've uploaded this file (" . $fileinfo['name'] . ") before. Please choose another one.");
+          $this->_helper->redirector->gotoRoute(array("controller" => "file", "action" => "add",
+                                                               "etd" => $etd->pid), '', true);
+	  return;
+	}
+      }
        $etdfile = new etd_file(null, $etd);	// initialize from template, but associate with parent etd
        $etdfile->initializeFromFile($filename, $file_rel, $this->current_user, $fileinfo['name']);
 
@@ -121,7 +133,8 @@ class FileController extends Etd_Controller_Action {
        
      } else {
        // upload failed - should be error messages from file upload helper
-       $this->_forward("add");
+       $this->_helper->redirector->gotoRoute(array("controller" => "file", "action" => "add",
+                                                               "etd" => $etd->pid), '', true);
      }
    }
 

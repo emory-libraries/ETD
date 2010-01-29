@@ -70,6 +70,8 @@ class TestSolrIndexXslt extends UnitTestCase {
 			     "etd status indexed");
 	$this->assertPattern('|<field name="contentModel">emory-control:ETD-1.0</field>|', $result,
 			     "content model indexed");
+	$this->assertPattern('|<field name="collection">emory-control:ETD-GradSchool-collection</field>|', $result,
+			     "collection pid indexed");
 
 	$this->assertPattern('|<field name="dateIssued">20080530</field>|', $result,
 			     "dateIssued indexed in solr date-range format");

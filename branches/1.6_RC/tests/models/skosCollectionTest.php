@@ -217,6 +217,24 @@ class TestSkosCollection extends UnitTestCase {
     $this->assertEqual("one", $orphans[1]->getId());
   }
 
+  function testAddCollection() {
+    $this->skos->addCollection("#newcoll", "New Collection");
+    $this->assertPattern('/<skos:Collection rdf:about="#newcoll">/', $this->skos->saveXML(),
+			 "new collection id present in xml");
+    $this->assertPattern('/<rdfs:label>New Collection<\/rdfs:label>/', $this->skos->saveXML(),
+			 "new collection label present in xml");
+
+    // add to top-level collection and access via object 
+    $this->skos->collection->addMember("#newcoll");
+    $this->assertIsA($this->skos->newcoll, "skosMember",
+		     "new collection added to top-level collection & accessible by id");
+    $this->assertEqual($this->skos->newcoll->id, "#newcoll",
+		       "new collection id accessible through skos object");
+    $this->assertEqual($this->skos->newcoll->label, "New Collection",
+		       "new collection label accessible through skos object");
+
+  }
+
 
 }
 

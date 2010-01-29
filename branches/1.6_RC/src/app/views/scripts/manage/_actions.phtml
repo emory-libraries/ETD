@@ -25,3 +25,7 @@
     <? if ($this->acl->isAllowed($this->role, $this->etd, "reactivate")): ?>
 <a class="action" href="<?= $this->url(array('controller' => 'manage',
 		'action' => 'reactivate', 'pid' => $this->etd->pid()), '', true, false) ?>">re-activate</a> <? endif ?>
+    
+    <? if ($this->acl->isAllowed($this->role, $this->etd, "revise embargo")): ?>
+<a class="action" href="<?= $this->url(array('controller' => 'manage',
+		'action' => 'reviseembargo', 'pid' => $this->etd->pid()), '', true, false) ?>">revise embargo</a> <? endif ?>

@@ -17,6 +17,7 @@
 	  <contact>
 	    <!-- contact email to be listed on faq / help pages -->
 	    <email></email>
+	    <name></name>
 	  </contact>
 	  <tmpdir></tmpdir>
 	  <logfile></logfile>

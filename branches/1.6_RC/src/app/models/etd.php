@@ -503,7 +503,6 @@ class etd extends foxml implements etdInterface {
    */
   public function updateDC() {
     $this->dc->title = $this->mods->title;
-    $this->dc->type = $this->mods->genre;
     $this->dc->date = $this->mods->date;
     $this->dc->language = $this->mods->language->text;
 
@@ -521,7 +520,13 @@ class etd extends foxml implements etdInterface {
     foreach ($this->mods->chair as $chair) {
       $chairs[] = $chair->full;
     }
-    $this->dc->setContributors($chairs);
+    $committee = array();
+    foreach ($this->mods->committee as $committee_mem) {
+      $committee[] = $committee_mem->full;
+    }
+
+    $contributors = array_merge($chairs, $committee);
+    $this->dc->setContributors($contributors);
 
     // subjects : research fields and keywords
     $subjects = array_merge($this->researchfields(), $this->keywords());
@@ -535,14 +540,22 @@ class etd extends foxml implements etdInterface {
     foreach (array_merge($this->pdfs, $this->supplements) as $file) {
       if (isset($file->dc->ark)) $relations[] = $file->dc->ark;
     }
+    $relations[] = "https://etd.library.emory.edu/";
     $this->dc->setRelations($relations);
+    $this->dc->publisher = $this->mods->degree_grantor->namePart;
+    $this->dc->format = $this->mods->physicalDescription->mimetype;
 
-
-    // FIXME: what else should be included in this update?
-    // - number of pages?
+    $rights = $this->mods->rights; 
+    if(($this->mods->embargo_request == "yes") && ($this->mods->embargo_end != NULL))
+    {
+	$rights = $rights . " Access has been restricted until " . $this->mods->embargo_end; 
+    }
+    $this->dc->rights = $rights;
+    $types = array();
+    $types[] = $this->mods->genre;
+    $types[] = "text";
+    $this->dc->setTypes($types);
   }
-
-  
   
   // handle special values
   public function __set($name, $value) {
@@ -826,11 +839,23 @@ class etd extends foxml implements etdInterface {
   /**
    * check if this object (or inherited object) is honors or not
    * @return bool
+   * @deprecated - use schoolId function instead
    */
   public function isHonors() {
     if (! isset($this->school_config))
 	trigger_error("School config is not set, cannot determine if is honors", E_USER_ERROR);
     return ($this->school_config->acl_id == "honors");
+  }
+
+  /**
+   * get school acl id for this etd (e.g., to determine if grad/candler/honors)
+   * @return string
+   */
+  public function schoolId() {
+    if (! isset($this->school_config))
+	trigger_error("School config is not set, cannot retrieve school id", E_USER_ERROR);
+    return $this->school_config->acl_id;;
+    
   }
 
   
@@ -980,13 +1005,13 @@ class etd extends foxml implements etdInterface {
    * @param string $message message/reason to put in record history for change
    * @throws Exception for invalid date format or date before current date
    */
-  public function extendEmbargo($newdate, $message) {
+  public function updateEmbargo($newdate, $message) {
     // check format of new date - must be YYYY-MM-DD
     if (!preg_match("/^[0-9]{4}\-[012][0-9]\-[0123][0-9]$/", $newdate)) {
       throw new Exception("Invalid date format '$newdate'; must be in YYYY-MM-DD format");
     // additional sanity check - new date must not be before today
     } elseif (strtotime($newdate) < time()) {
-      throw new Exception("New embargo date '$newdate' is in the past; cannot extend embargo");
+      throw new Exception("New embargo date '$newdate' is in the past; cannot update embargo");
     }
 
     // update embargo end date in MODS
@@ -1011,13 +1036,13 @@ class etd extends foxml implements etdInterface {
     // -- if this is being done by a logged in user, pick up for event 'agent' 
     if (Zend_Registry::isRegistered('current_user')) {
       $user = Zend_Registry::get('current_user');
-      $agent = array("netid", $this->current_user->netid);
+      $agent = array("netid", $user->netid);
     } else {
       // fall back - generic agent
       $agent = array("software", "etd system");
     }
     $this->premis->addEvent("administrative",
-			    "Access restriction extended until $newdate - $message",
+			    "Access restriction ending date is updated to $newdate - $message",
 			    "success",  $agent);
   }
   

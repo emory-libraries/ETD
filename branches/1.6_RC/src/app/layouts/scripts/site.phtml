@@ -70,6 +70,8 @@
 
           <? if ($this->acl->isAllowed($this->current_user, "etd", "manage")): ?>
             <li><a href="<?= $this->url(array("controller" => "manage"), "", true)?>">Manage</a></li>
+	  <? elseif ($this->acl->isAllowed($this->current_user, "etd", "report")): ?>
+            <li><a href="<?= $this->url(array("controller" => "report"), "", true)?>">Report</a></li>
    	  <? endif ?>
 
             <li><a href="<?= $this->url(array("controller" => "browse", "action" => "my"), "", true)  ?>">My ETDs</a></li>
