@@ -9,10 +9,62 @@ require_once("models/etd.php");
 class ReportController extends Etd_Controller_Action {
 	protected $requires_fedora = false;
 	protected $params;
+	/* FIXME: what are these for? used anywhere? */
 	private $etd_pid;
 	private $message;
 
+	/**
+	 * copy of fedoraConnection with current user's auth credentials
+	 * (to be restored in postDispatch)
+	 * @var FedoraConnection
+	 */
+	protected $_fedoraConnection;
+
+
+	/**
+	 * report viewers do not have special accesses at the fedora
+	 * level, which some of these reports required.  Temporarily
+	 * overriding fedora connection with a connection that uses
+	 * maintenance account credentials.
+	 * Note: this will be done before all actions in this
+	 * controller, and the default fedora connection will restored
+	 * by postDispatch.
+	 */
+	public function preDispatch() {
+	  // store fedoraConnection with user auth credentials - to be restored in postDispatch
+	  $this->_fedoraConnection = Zend_Registry::get("fedora");
+
+	  // if current user is a report viewer (do NOT have special access at the fedora level),
+	  // temporarily replace fedora connection
+	  if ($this->current_user->role == "report viewer") {
+	    $fedora_cfg = Zend_Registry::get('fedora-config');
+	    try {
+	      $fedora_opts = $fedora_cfg->toArray();
+	      // use default fedora config opts but with maintenance account credentials
+	      $fedora_opts["username"] = $fedora_cfg->maintenance_account->username;
+	      $fedora_opts["password"] = $fedora_cfg->maintenance_account->password;
+	      $maintenance_fedora = new FedoraConnection($fedora_opts);
+	    } catch (FedoraNotAvailable $e) {
+	      $this->logger->err("Error connecting to Fedora with maintenance account - " . $e->getMessage());
+	      $this->_forward("fedoraunavailable", "error");
+	      return;
+	    } 
+	    Zend_Registry::set("fedora", $maintenance_fedora);
+	  }
+	}
+
+	/**
+	 * restore fedoraConnection with currently-logged in user's credentials
+	 */
+	public function postDispatch() {
+	  Zend_Registry::set("fedora", $this->_fedoraConnection);
+	}
+
+	/**
+	 * Display list of reports
+	 */
 	public function indexAction() {
+        if(!$this->_helper->access->allowed("report", "view")) {return false;}
 	}
 	 
 	/**
@@ -20,7 +72,7 @@ class ReportController extends Etd_Controller_Action {
      * from the commencement report
      */
     public function commencementReviewAction() {
-        if (!$this->_helper->access->allowedOnEtd("manage")) {return false;}
+        if(!$this->_helper->access->allowed("report", "view")) {return false;}
 
 		$this->view->title = "Commencement Report Review";
 
@@ -48,7 +100,7 @@ class ReportController extends Etd_Controller_Action {
      *  pids from the previous form
      */
     public function commencementAction() {
-        if (!$this->_helper->access->allowedOnEtd("manage")) {return false;}
+        if(!$this->_helper->access->allowed("report", "view")) {return false;}
 
 		$this->view->title = "Commencement Report";
 
@@ -74,6 +126,7 @@ class ReportController extends Etd_Controller_Action {
 		$optionsArray['NOT']['status'] = "draft";
 		// show ALL records on a single page 
 		$optionsArray['max'] = 1000;
+		/* FIXME: should this really be solrEtd ? */
 		$optionsArray['return_type'] = "solrEtd";
 
 		        
@@ -101,7 +154,8 @@ class ReportController extends Etd_Controller_Action {
      *  Start of year is 12/31 of last year, end is 8/31 of current year
      */
     public function gradDataAction(){
-         if (!$this->_helper->access->allowedOnEtd("manage")) {return false;}
+         if(!$this->_helper->access->allowed("report", "view")) {return false;}
+
         // academic start and end months
         $acStart="Dec 31";
         $acEnd="Aug 31";
@@ -154,7 +208,7 @@ class ReportController extends Etd_Controller_Action {
      * Action to create CSV file from submitted date range
      */
     public function gradDataCsvAction(){
-        if (!$this->_helper->access->allowedOnEtd("manage")) {return false;}
+        if(!$this->_helper->access->allowed("report", "view")) {return false;}
 
         //get start and end dates from post
         $inputField="academicYear";
@@ -270,7 +324,7 @@ class ReportController extends Etd_Controller_Action {
          * Action to create CSV file with Embargo data
          */
     public function embargoCsvAction(){
-      if (!$this->_helper->access->allowedOnEtd("manage")) {return false;}
+      if(!$this->_helper->access->allowed("report", "view")) {return false;}
 
         //Query solr
         $optionsArray = array();
@@ -351,5 +405,8 @@ function getSemesterDecorator($grad_date) {
 		return $decorator;
 }
 
+ 
 
+
+ 
 }

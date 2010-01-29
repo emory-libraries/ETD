@@ -398,6 +398,7 @@ class ManageController extends Etd_Controller_Action {
    }
 
    public function reportAction() {
+     if(!$this->_helper->access->allowed("report", "view")) {return false;}
      $this->view->title = "Reports";
      
      $solr = Zend_Registry::get('solr');
