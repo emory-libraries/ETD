@@ -39,13 +39,24 @@ class TestSchoolsConfig extends UnitTestCase {
     $user = $person->getTestPerson();
 
     $schools = $this->schools;
+
     // override admin configurations for testing
-    $schools->graduate_school->admin->department = "Grad. School";
+    $schools->graduate_school->admin = array("netid" =>
+					   array("gadmin"),
+                             "department" => "Grad. School");
+
     $schools->emory_college->admin = array("netid" =>
-					   array("llane", "mshonorable"));
+					   array("llane", "mshonorable"),
+                             "department" => "College");
+
+    $schools->candler->admin = array("netid" =>
+					   array("mcando"),
+                             "department" => "Candler School of Theology");
+
     $schools->candler->admin->department = "Candler School of Theology";
 
     //grad
+    $user->netid="gadmin";
     $user->department = "Grad. School";
     $this->assertEqual("grad", $schools->isAdmin($user));
     // honors 
@@ -61,28 +72,7 @@ class TestSchoolsConfig extends UnitTestCase {
     $schools->candler->admin->job_title = "";
     $this->assertEqual("candler", $schools->isAdmin($user));
 
-    // test admin config by dept. code
-    $schools->graduate_school->admin->department_code = "4801";
-    $user->department_code = "4801";
-    $this->assertEqual("grad", $schools->isAdmin($user));
-    $user->department_code = "4820";
-    $this->assertNotEqual("grad", $schools->isAdmin($user));
-
-    // admin detection - dept plus job title string
-    // - partial job title string
-    $schools->candler->admin->job_title = "Academic Admin";
-    $user->department = "Candler School of Theology";
-    $user->directory_title = "Director, Academic Admin & Registrar";
-    $this->assertEqual("candler", $schools->isAdmin($user));
-    $user->directory_title = "Director, Academic Registrar";
-    $this->assertNotEqual("candler", $schools->isAdmin($user));
-    // - exact job title string
-    $user->directory_title = "Director, Academic Admin & Registrar";
-    $schools->candler->admin->job_title = "Director, Academic Admin & Registrar";
-    $this->assertEqual("candler", $schools->isAdmin($user));
-	
-
-    // generic user 
+     // generic user 
     $student = $person->getTestPerson();
     $this->assertFalse($schools->isAdmin($student));
 
