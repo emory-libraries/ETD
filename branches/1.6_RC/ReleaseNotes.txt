@@ -1,43 +1,39 @@
 ETD Release Notes
 =================
 
-Version 1.6 February 2010
+Version 1.6 - February 2010
 
-* Added support for Candler School of Theology.  Per-school
-  configuration is now handled largely through the schools.xml config
-  file; for more details, see Documentation/MultiSchoolConfiguration.txt.
-* Contact email configuration in config.xml now includes a name field;
-  this email will be set as the reply-to address on all automated
-  notices.
-* Author acknowledges permission obtained for copyrighted material and
-    identifies any copyright & patent concerns prior to beginning
-    submission process.
-* CST author can login to ETD site and successfully create and submit a record.
-* CST administrator can view and interact with all CST records that have been
-    submitted, reviewed, and approved.
-* Users of the ETD site can browse programs and see the CST documents
-    by program.
-* CST authors will have their documents publish with Grad School and
-    Honors documents.
-* ETD submission process queries against up-to-date data load from ESD.
-* Select University administrators may access reports listed under
-    "Manage" in ETD system.
-* ETD admin staff may revise embargoes in order to extend them or
-    end them early.
-* ETD admin staff receive detailed notice when ETD records are published.
-* User replies to ETD automated message contact ETD help.
-* An OAI harvester that harvests Dublin Core receives Dublin Core records with
-    metadata corresponding to full MODS record.
-* Users receive feedback and guidance from ETD system to avoid
-    common file upload errors.
+* Added support for receiving and managing submissions from Candler
+  School of Theology.  Per-school configuration is now handled largely
+  through the schools.xml config file; for more details, see
+  Documentation/MultiSchoolConfiguration.txt.
+* Several enhancements & changes to the submission process:
+  * Pre-submission screening questions to identify possible copyright
+    and patent issues.
+  * Program selection interface changed; only the portion relevant to
+    the student's school is available.
+  * Additional checks when adding files to a submission:
+    - duplicate files will be rejected (based on checksum)
+    - PDF is not allowed for original document
+* New "Report Viewer" role with access to ETD reports and statistics.
+* New admin feature to revise embargo end dates.
+* Publication script has been revised to send a high-level summary
+  email to site admin, with more detailed information sent to a log.
+* All automated email notices will have a reply-to address set based
+  on the contact email configuration in the main config file.
+* Improved mapping of fields from MODS to Dublin Core, which will
+  be available in the OAI provider.
 
 Deployment notes:
-  * Make sure contact email name field is set.
-  * Make sure reportviewer department is set.
-  * honors_admin section is no longer read from config.xml and should be removed.
+  * Changes to main config file (see config.xml.example)
+    * sure contact email name field is now required (reply-to for emails)
+    * new report viewer department should be set
+    * honors admin section is no longer needed, and should be removed
   * Run the following migration scripts:
     * 012-add-candler-programs.php - update program hierarchy for Candler
     * 013-update_dc - Update all published ETDs with OAI ids
+  * Publication script has changed; weekly cron job that runs
+    publish.php should be revised to send the output to a log file.
 
 
 Version 1.5 - November 2009
