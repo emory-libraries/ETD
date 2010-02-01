@@ -117,3 +117,11 @@ Console: src/scripts contains a console.php that loads etd models &
 services (including fedora connection) and can be used as an
 interactive environment (REPL).  In tests/suites there is an
 equivalent console.php that loads the test environment.
+
+
+See also
+========
+Additional documentation is found in the  Documentation directory.
+
+ Roles - summary of the roles used in ETD, and how they work
+ MultiSchoolConfiguration - explanation of the per-school configuration and fields supported
