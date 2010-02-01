@@ -118,7 +118,7 @@ class esdPerson extends Emory_Db_Table_Row implements Zend_Acl_Role_Interface {
         // etd superuser, techsupport, and honors admin
         if (Zend_Registry::isRegistered('config')) {
             $config = Zend_Registry::get('config');
-            if (isset($config->superuser) && ((is_object($config->superusers->user) &&
+            if (isset($config->superusers) && ((is_object($config->superusers->user) &&
             in_array($this->netid, $config->superusers->user->toArray()))
             || $config->superusers->user == $this->netid)) {
                     $this->role = "superuser";
