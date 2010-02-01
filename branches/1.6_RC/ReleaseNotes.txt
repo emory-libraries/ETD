@@ -12,8 +12,11 @@ Version 1.6 (*PRELIMINARY*)
 
 Deployment notes:
   * Make sure contact email name field is set.
+  * Make sure reportviewer department is set.
+  * honors_admin section is no longer read from config.xml and should be removed.
   * Run the following migration scripts:
     * 012-add-candler-programs.php - update program hierarchy for Candler
+    * 013-update_dc - Update all published ETDs with OAI ids
 
 
 Version 1.5 - November 2009

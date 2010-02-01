@@ -41,11 +41,6 @@
       <reportviewer>
             <department></department>
       </reportviewer>
-	 <!-- undergraduate honors administrators -->
- 	  <honors_admin>
-	    <user></user>
-	    <user/>
- 	  </honors_admin>
 
  <!-- NOTE: for superusers, techsupport, and honors_admin,
       there must be at least 2 user entries so Zend_Config_Xml 
