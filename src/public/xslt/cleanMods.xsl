@@ -42,13 +42,7 @@
         </xsl:otherwise>
       </xsl:choose>
     </xsl:variable>
-    <xsl:comment>
-      embargo_end is <xsl:value-of select="$embargo_end"/>
-    </xsl:comment>
 
-    <xsl:comment>
-      embargo_end is <xsl:value-of select="//mods:dateOther[@type='embargoedUntil']"/>
-    </xsl:comment>
         <xsl:choose>
             <!-- if embargo is for 0 days, not set, or embargo end is not set, do nothing;
                  don't output restrictionOnAccess  -->
