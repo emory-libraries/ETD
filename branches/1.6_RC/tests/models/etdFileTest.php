@@ -147,6 +147,10 @@ class TestEtdFile extends UnitTestCase {
     // original/supplemental file types, files with other mimetypes, etc.
   }
 
+  /* FIXME: lots of unit tests missing, including...
+     - getFileChecksum
+   */
+  
 }
 
 

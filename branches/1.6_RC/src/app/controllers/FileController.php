@@ -61,7 +61,7 @@ class FileController extends Etd_Controller_Action {
      $relation = ucfirst($file_rel);
      switch($file_rel) {
      case "pdf":  $relation = "PDF"; $allowed_types = array("application/pdf"); break;
-     // original and supplement use the $relation set above
+     // original and supplement use the relation as set above
      case "original": $disallowed_types = array("application/pdf"); break; 
      case "supplement":
        break;
@@ -73,22 +73,21 @@ class FileController extends Etd_Controller_Action {
      $filename = $fileinfo['tmp_name'];
      $filetype = $fileinfo['type'];
 
-     // if there is a list of allowed mimetypes for this type of file, include in the file check
+     // check that the file uploaded correctly; check allowed/disallowed types, if any
      $uploaded = $this->_helper->FileUpload->check_upload($fileinfo, $allowed_types, $disallowed_types);
 
      if ($uploaded) {
-      $existingEtdFiles = array_merge($etd->pdfs, $etd->originals, $etd->supplements);
-      $checksumOfNewFile = md5_file($filename);
-      foreach ($existingEtdFiles as $file)
-      {
-      	if ($file->checkSum() == $checksumOfNewFile)
-	{
-	  $this->_helper->flashMessenger->addMessage("Error: You've uploaded this file (" . $fileinfo['name'] . ") before. Please choose another one.");
-          $this->_helper->redirector->gotoRoute(array("controller" => "file", "action" => "add",
-                                                               "etd" => $etd->pid), '', true);
-	  return;
-	}
-      }
+       // compare MD5 for new file to existings files attached to this ETD, to avoid duplicate files
+       $newfile_checksum = md5_file($filename);
+       foreach (array_merge($etd->pdfs, $etd->originals, $etd->supplements) as $file) {
+	 if ($file->getFileChecksum() == $newfile_checksum) {
+	   $this->_helper->flashMessenger->addMessage("Error: You have already uploaded this file (" .
+						      $fileinfo['name'] . ") before.");
+	   $this->_helper->redirector->gotoRoute(array("controller" => "file", "action" => "add",
+						       "etd" => $etd->pid), '', true);
+	   return;
+	 }
+       }
        $etdfile = new etd_file(null, $etd);	// initialize from template, but associate with parent etd
        $etdfile->initializeFromFile($filename, $file_rel, $this->current_user, $fileinfo['name']);
 
