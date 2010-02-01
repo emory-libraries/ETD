@@ -421,16 +421,40 @@ accepted</xs:documentation>
 
 
   <xs:element name="strong">
-    <xs:complexType mixed="true" />
+    <xs:complexType mixed="true" >
+	<xs:choice>
+	    <xs:element name="em" minOccurs="0" maxOccurs="unbounded"/>
+	    <xs:element name="sup" minOccurs="0" maxOccurs="unbounded"/>
+	    <xs:element name="sub" minOccurs="0" maxOccurs="unbounded"/>
+	</xs:choice>
+    </xs:complexType>
   </xs:element>
   <xs:element name="em">
-    <xs:complexType mixed="true" />
+    <xs:complexType mixed="true">
+	<xs:choice>
+	    <xs:element name="strong" minOccurs="0" maxOccurs="unbounded"/>
+	    <xs:element name="sup" minOccurs="0" maxOccurs="unbounded"/>
+	    <xs:element name="sub" minOccurs="0" maxOccurs="unbounded"/>
+	</xs:choice>
+    </xs:complexType>
   </xs:element>
   <xs:element name="sup">
-    <xs:complexType mixed="true" />
+    <xs:complexType mixed="true">
+	<xs:choice>
+	    <xs:element name="strong" minOccurs="0" maxOccurs="unbounded"/>
+	    <xs:element name="em" minOccurs="0" maxOccurs="unbounded"/>
+	    <xs:element name="sub" minOccurs="0" maxOccurs="unbounded"/>
+	</xs:choice>
+    </xs:complexType>
   </xs:element>
   <xs:element name="sub">
-    <xs:complexType mixed="true" />
+    <xs:complexType mixed="true">
+	<xs:choice>
+	    <xs:element name="em" minOccurs="0" maxOccurs="unbounded"/>
+	    <xs:element name="strong" minOccurs="0" maxOccurs="unbounded"/>
+	    <xs:element name="sup" minOccurs="0" maxOccurs="unbounded"/>
+	</xs:choice>
+    </xs:complexType>
   </xs:element>
 
   <xs:element name="DISS_pcode">

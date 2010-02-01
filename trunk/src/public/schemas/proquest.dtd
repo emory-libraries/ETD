@@ -204,10 +204,10 @@
 
 <!ELEMENT DISS_para (#PCDATA | em | strong | sup | sub)*>
 
-<!ELEMENT em (#PCDATA)>
-<!ELEMENT strong (#PCDATA | em)*>
-<!ELEMENT sup (#PCDATA)>
-<!ELEMENT sub (#PCDATA)>
+<!ELEMENT em (#PCDATA | strong | sup | sub)*>
+<!ELEMENT strong (#PCDATA | em | sup | sub)*>
+<!ELEMENT sup (#PCDATA | strong | em | sub)*>
+<!ELEMENT sub (#PCDATA | strong | em | sup)*>
 
 <!-- DISS_restriction permits the submitting body to restrict formats in which
      the dissertation can be sold and the conditions under which it can be sold.
