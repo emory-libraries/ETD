@@ -13,7 +13,7 @@ require_once("models/degrees.php");
 
 class ProQuestSubmission extends XmlObject {
 
-  protected $schema = "http://larson.library.emory.edu/schemas/etd/proquest.xsd";
+  protected $schema = "http://etd.library.emory.edu/schemas/proquest.xsd";
 
   protected $xmlconfig;
 
