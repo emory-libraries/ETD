@@ -1,7 +1,7 @@
 ETD Release Notes
 =================
 
-Version 1.6 (*PRELIMINARY*)
+Version 1.6 February 2010
 
 * Added support for Candler School of Theology.  Per-school
   configuration is now handled largely through the schools.xml config
@@ -9,6 +9,27 @@ Version 1.6 (*PRELIMINARY*)
 * Contact email configuration in config.xml now includes a name field;
   this email will be set as the reply-to address on all automated
   notices.
+* Author acknowledges permission obtained for copyrighted material and
+    identifies any copyright & patent concerns prior to beginning
+    submission process.
+* CST author can login to ETD site and successfully create and submit a record.
+* CST administrator can view and interact with all CST records that have been
+    submitted, reviewed, and approved.
+* Users of the ETD site can browse programs and see the CST documents
+    by program.
+* CST authors will have their documents publish with Grad School and
+    Honors documents.
+* ETD submission process queries against up-to-date data load from ESD.
+* Select University administrators may access reports listed under
+    "Manage" in ETD system.
+* ETD admin staff may revise embargoes in order to extend them or
+    end them early.
+* ETD admin staff receive detailed notice when ETD records are published.
+* User replies to ETD automated message contact ETD help.
+* An OAI harvester that harvests Dublin Core receives Dublin Core records with
+    metadata corresponding to full MODS record.
+* Users receive feedback and guidance from ETD system to avoid
+    common file upload errors.
 
 Deployment notes:
   * Make sure contact email name field is set.
