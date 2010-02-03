@@ -53,10 +53,10 @@ for ( ;$etdSet->hasResults(); $etdSet->next()) {
 	  $result = $etd->save("Updated DC.");
 	  if ($result) {
             $updated++;
-            $logger->info("Successfully updated DC for" . $etd->pid . " at $result");
+            $logger->info("Successfully updated DC for " . $etd->pid . " at $result");
 	  } else {
             $error++;
-            $logger->err("Could not update DC for" . $etd->pid);
+            $logger->err("Could not update DC for " . $etd->pid);
 	  }
 	} else {      // noact mode - simulate save
 	  $logger->info("Saving " .  $etd->pid . " (simulated)");
