@@ -112,7 +112,7 @@ function validate() {
     Heather Williams (<a href="mailto:hrwilli@emory.edu">hrwilli@emory.edu</a>) if you have any questions.</p>
       </div>
      <div id="copyright_perms_yes" style="display:none"> <? /* if answered YES to permissions */ ?> 
-    <p>Complete Part 4 of the Submission Form and submit to the Graduate School (OR College/Candler?).</p>
+    <p>Complete Part 4 of the Submission Form.</p>
     </div>
  </li>
 
@@ -130,7 +130,7 @@ function validate() {
 			     array('onClick' => "showif(radioValue('embargo')==1, 'embargo_yes')"),
 			     array(1 => "Yes", 0 => "No")) ?>
     <div id="embargo_yes" style="display:none">    <? /* if yes to embargo */ ?>
-     <p>Please indicate how long you intend to restrict access to your dissertation or thesis on the Submission Form and submit it to the Graduate School. You will also need to indicate your request for an access restriction during the submission process itself.
+     <p>Please indicate how long you intend to restrict access to your dissertation or thesis on the Submission Form. You will also need to indicate your request for an access restriction during the submission process itself.
      </p>
 
     <p>3b. Should your abstract and/or table of contents be included in the access restriction?</p>
@@ -164,16 +164,12 @@ dissertation.  Click on "Browse" to locate your document and then
 
 
 <p>Please note that the system will be scanning your PDF document and
-extracting certain information from it.  As a result, it is important
-that your PDF document follow the format for
-<? if ($this->current_user->getRoleId() == "honors student"): ?>
-theses given by the College Honors Program 
-<? else: /* Grad School  */ ?>
-theses and dissertations given by the Graduate School     
-<? endif ?>					     
- so that the pages are in the proper order
-(i.e., Circulation Agreement, Approval Sheet, Dissertation/Thesis
-Abstract Cover Sheet, Abstract, etc.). </p>
+extracting certain information from it. As a result, it is important
+that your PDF document follow the format for theses and dissertations
+given by the school from which you are graduating (e.g. Laney Graduate
+School, Emory College) so that the pages are in the proper order
+(i.e., Circulation Agreement, Approval Sheet, Dissertation/Thesis Abstract
+Cover Sheet, Abstract, etc.).</p>
 
 <p>Any information automatically extracted from the PDF can be edited
 later in the process, if necessary.</p>
