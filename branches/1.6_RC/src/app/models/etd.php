@@ -110,7 +110,7 @@ class etd extends foxml implements etdInterface {
       // warn if could not determine school config
       if (! isset($this->school_config))
 	trigger_error("Could not determine per-school configuration for " . $this->pid . 
-		      "based on collection membership", E_USER_WARNING);
+		      " based on collection membership", E_USER_WARNING);
       
     } elseif ($this->init_mode == "dom") {    
       // anything here?
