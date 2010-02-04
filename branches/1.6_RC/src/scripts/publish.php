@@ -192,62 +192,72 @@ if (count($etds)) {
 }
 
 
+
+//Prepare summary email body
+$summary = "SUMMARY:\n" .
+               "\tGraduates with no ETD: " . $numOfOrphanedGrad . "\n" .
+               "\tApproved ETDs not yet published: " . $numOfOrphanedEtd. "\n" .
+               "\tSuccessful Proquest Submissions: " . $numOfProquestSubmissions . "\n" .
+               "\tFailed Proquest Submissions: " . $numOfFailedProquest . "\n";
+
+if(!$opts->noact && ($do_all || $opts->proquest || $opts->publish || $opts->orphan)){
+    sendSummaryEmail($summary);
+}
+elseif($opts->noact){
+    $logger->info("Email that would have been sent:\n$summary");
+}
+
+
 /**
  *        Send a summary email to the etd administrator
+ * @param $summary - email body
+ * @return boolean
  */
+function sendSummaryEmail(){
+    $environment = Zend_Registry::get('env-config');
+    $pubEmail = new Zend_Mail();
+    $pubEmail->setFrom($config->email->etd->address,$config->email->etd->name);
+    $pubEmail->setSubject("Publication Summary - " . date("Y-m-d", time()));
+    
 
-$environment = Zend_Registry::get('env-config');
-$pubEmail = new Zend_Mail();
-$pubEmail->setFrom($config->email->etd->address,$config->email->etd->name);
-$pubEmail->setSubject("Publication Summary - " . date("Y-m-d", time()));
-$summary = "SUMMARY:\n" . 
-           "\tGraduates with no ETD: " . $numOfOrphanedGrad . "\n" .
-           "\tApproved ETDs not yet published: " . $numOfOrphanedEtd. "\n" .
-           "\tSuccessful Proquest Submissions: " . $numOfProquestSubmissions . "\n" .
-           "\tFailed Proquest Submissions: " . $numOfFailedProquest . "\n";
+    $emailBodyText = $summary . $emailBodyText;
+    $pubEmail->setBodyText($emailBodyText);
 
-$emailBodyText = $summary . $emailBodyText;
-$pubEmail->setBodyText($emailBodyText);
+    if ($environment->mode != "production")
+    {
+        $pubEmail->addTo($config->email->test);
+    }
+    else
+    {
+        $pubEmail->addTo($config->email->etd->address, $config->email->etd->name);
+    }
 
-if ($environment->mode != "production")
-{
-	$pubEmail->addTo($config->email->test);
-}
-else
-{
-	$pubEmail->addTo($config->email->etd->address, $config->email->etd->name); 
-}
+    try{
+       $pubEmail->send();
+    }
+        catch (Zend_Exception $ex)
+        {
+            $logger->err("There was a problem sending the publication email to ETD administrator: " .  $ex->getMessage());
+            return false;
+        }
 
-/*
-    if it's in noact mode, the email is appended in the log.
-    if it's not in noact mode, send out the email.
-*/
-if (!$opts->noact)
-{
-	try 
-	{
-	    $pubEmail->send();
-	} 
-	catch (Zend_Exception $ex) 
-	{
-	    $logger->err("There was a problem sending the publication email to ETD administrator: " .  $ex->getMessage());
-	    return false;
-	}
+//    foreach ($pubEmail->getHeaders() as $elemHeader => $elemValue)
+//    {
+//       $emailToBeSent = $emailToBeSent . "\n" . $elemHeader . ": ";
+//       foreach ($elemValue as $elem)
+//       {
+//        if(is_string($elem))
+//        {
+//            $emailToBeSent = $emailToBeSent . $elem . "\t";
+//        }
+//       }
+//    }
+//    $emailToBeSent = $emailToBeSent .
+//             "\n---- \n" . $emailBodyText;
+//    $logger->info("\nThe email to be sent to the ETD-Admin is:\n" . $emailToBeSent);
+
+return true;
 }
-foreach ($pubEmail->getHeaders() as $elemHeader => $elemValue)
-{
-   $emailToBeSent = $emailToBeSent . "\n" . $elemHeader . ": ";
-   foreach ($elemValue as $elem)
-   {
-   	if(is_string($elem))
-	{
-   		$emailToBeSent = $emailToBeSent . $elem . "\t";
-	}
-   }
-}
-$emailToBeSent = $emailToBeSent . 
-		 "\n---- \n" . $emailBodyText;
-$logger->info("\nThe email to be sent to the ETD-Admin is:\n" . $emailToBeSent);
 
 /**
  * find etd pids for recent graduates in the registrar feed
