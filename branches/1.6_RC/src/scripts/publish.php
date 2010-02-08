@@ -92,11 +92,13 @@ try {
   exit;
 }
 
-$emailBodyText = "";
-$numOfOrphanedGrad = 0;
-$numOfOrphanedEtd = 0;
-$numOfProquestSubmissions = 0;
-$numOfFailedProquest = 0;
+global $counts;
+$counts["numOfOrphanedGrad"] = 0;
+$counts["numOfOrphanedEtd"] = 0;
+$counts["numOfProquestSubmissions"] = 0;
+$counts["numOfFailedProquest"] = 0;
+$counts["numOfPubs"] = 0;
+$counts["numOfFailedPubs"] = 0;
 
 $do_all = false;
 // if no mode is specified, run all steps
@@ -194,10 +196,12 @@ if (count($etds)) {
 
 //Prepare summary email body
 $summary = "SUMMARY:\n" .
-               "\tGraduates with no ETD: " . $numOfOrphanedGrad . "\n" .
-               "\tApproved ETDs not yet published: " . $numOfOrphanedEtd. "\n" .
-               "\tSuccessful Proquest Submissions: " . $numOfProquestSubmissions . "\n" .
-               "\tFailed Proquest Submissions: " . $numOfFailedProquest . "\n";
+               "\tETDs Successfully Published: " . $counts["numOfPubs"] . "\n" .
+               "\tETDs Failed Publish: " . $counts["numOfFailedPubs"] . "\n" .
+               "\tGraduates with no ETD: " . $counts["numOfOrphanedGrad"] . "\n" .
+               "\tApproved ETDs not yet published: " . $counts["numOfOrphanedEtd"]. "\n" .
+               "\tSuccessful Proquest Submissions: " . $counts["numOfProquestSubmissions"] . "\n" .
+               "\tFailed Proquest Submissions: " . $counts["numOfFailedProquest"] . "\n";
 
 if(!$opts->noact && ($do_all || $opts->proquest || $opts->publish || $opts->orphan)){
     sendSummaryEmail($summary);
@@ -271,7 +275,7 @@ return true;
  * @return array of approved etd objects belonging to graduates found in the feed
  */
 function get_graduate_etds($filename, $refdate = null) {
-  global $opts, $logger, $config_dir, $emailBodyText, $numOfOrphanedGrad;
+  global $opts, $logger, $config_dir, $emailBodyText, $counts;
   $orphanedGrads = "";
   $degrees = simplexml_load_file($config_dir . "degrees.xml");
   // degrees for which we should expect an ETD
@@ -345,7 +349,7 @@ function get_graduate_etds($filename, $refdate = null) {
 	if (! count($etdSet->etds))
 	  $logger->warn("Warning: no ETD found for $name_degree");
           $orphanedGrads = $orphanedGrads . "\t" . $name_degree . "\n";
-  	  $numOfOrphanedGrad++;
+  	  $counts["numOfOrphanedGrad"]++;
       } elseif ($count == 1) {			// what we expect 
         $logger->info("Found etd record " . $etdSet->etds[0]->pid . " for $name_degree");
         if ($etdSet->etds[0]->status() != "approved") {
@@ -364,7 +368,7 @@ function get_graduate_etds($filename, $refdate = null) {
         There is not yet any code to handle this.");
     }
   }	// finished processing feed (end while loop)
-  if ($numOfOrphanedGrad != 0)
+  if ($counts["numOfOrphanedGrad"] != 0)
   {
      $emailBodyText = $emailBodyText . "\nGraduates with no ETD:\n". $orphanedGrads ;
   }
@@ -495,7 +499,7 @@ function confirm_graduation(array $etds) {
  * @return array of etds that were successfully published
  */
 function publish(array $etds) {
-  global $opts, $publish_date, $logger;
+  global $opts, $publish_date, $logger, $counts;
   $logger->info("Publishing");
 
   // store all etds that are successfully published 
@@ -512,6 +516,7 @@ function publish(array $etds) {
     if ($opts->noact) {
       // in noact mode, simulate successful publication of all records but skip all actual processing
       $published[] = $etd;
+      $counts["numOfPubs"]++;
       continue;
     }
     
@@ -520,12 +525,14 @@ function publish(array $etds) {
       $etd->publish($publish_date, $opts->date);     // currently no return value / status -- needed?
     } catch (XmlObjectException $ex) {
       $logger->err("Problem publishing record " . $etd->pid . ": " . $ex->getMessage());
+      $counts["numOfFailedPubs"]++;
       // skip to the next record
       continue;
     }
     
     // if publish succeeded, add to array 
     $published[] = $etd;
+    $counts["numOfPubs"]++;
     
     // send an email to notify author, and record in history
     $notify = new etd_notifier($etd);
@@ -561,7 +568,7 @@ function publish(array $etds) {
  * @param array $etds etd objects
  */
 function submit_to_proquest(array $etds) {
-  global $opts, $tmpdir, $logger, $numOfProquestSubmissions, $numOfFailedProquest, $emailBodyText;
+  global $opts, $tmpdir, $logger, $counts, $emailBodyText;
   $failedProquests = "";
 
   // delete temporary directory to ensure its contents are only from the last run of this script
@@ -601,10 +608,10 @@ function submit_to_proquest(array $etds) {
       // create zipfile for submission package
       $submission->create_zip($tmpdir);
       $submissions[] = $submission;
-      $numOfProquestSubmissions++;
+      $counts["numOfProquestSubmissions"]++;
     } else {
       $logger->err("ProQuest submission xml for " . $etd->pid . " is not valid");
-      $numOfFailedProquest++;
+      $counts["numOfFailedProquest"]++; //this will give an error in noact mode
       $failedProquests = $failedProquests . "\t" . $etd->ark() . "\n";
 
       $submission->create_zip($tmpdir);
@@ -630,7 +637,7 @@ function submit_to_proquest(array $etds) {
     }
   }
   
-  if ($numOfFailedProquest != 0)
+  if ($counts["numOfFailedProquest"] != 0)
   {
      $emailBodyText = $emailBodyText . "\nFailed Proquest Submissions:\n" . $failedProquests;
   }
@@ -823,7 +830,7 @@ function rdelete($file) {
  * find records that have been approved that weren't published (e.g., author is not yet in registrar feed)
  */
 function find_orphans() {
-  global $opts, $logger, $emailBodyText, $numOfOrphanedEtd;
+  global $opts, $logger, $emailBodyText, $counts;
   $orphanedEtds = "";
   $logger->info("Checking for 'orphaned' ETD records");
 
@@ -833,7 +840,7 @@ function find_orphans() {
   
   if ($count) {
     $logger->notice("Found " . $count . " approved record" . ($count != 1 ? "s" : ""));
-    $numOfOrphanedEtd = $count;
+    $counts["numOfOrphanedEtd"] = $count;
     foreach ($etdSet->etds as $etd) {
       $msg = $etd->author() . " " . $etd->ark();
       $logger->info("    " . $msg); 
@@ -842,7 +849,7 @@ function find_orphans() {
   } else {
     $logger->notice("No approved unprocessed records found");
   }
-  if ($numOfOrphanedEtd != 0)
+  if ($counts["numOfOrphanedEtd"] != 0)
   {
      $emailBodyText = $emailBodyText . "\nApproved ETDs not yet published::\n" . $orphanedEtds;
   }
