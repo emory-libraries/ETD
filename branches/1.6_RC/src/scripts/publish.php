@@ -97,7 +97,6 @@ $numOfOrphanedGrad = 0;
 $numOfOrphanedEtd = 0;
 $numOfProquestSubmissions = 0;
 $numOfFailedProquest = 0;
-$emailToBeSent = ""; /* it's the email to be sent out when it's not in noact mode */
 
 $do_all = false;
 // if no mode is specified, run all steps
@@ -202,10 +201,14 @@ $summary = "SUMMARY:\n" .
 
 if(!$opts->noact && ($do_all || $opts->proquest || $opts->publish || $opts->orphan)){
     sendSummaryEmail($summary);
+    $logger->info("Sent Summary Email");
 }
-elseif($opts->noact){
-    $logger->info("Email that would have been sent:\n$summary");
+else
+{
+   $logger->info("Did Not Send Summary Email");
 }
+print $summary;
+
 
 
 /**
@@ -213,11 +216,14 @@ elseif($opts->noact){
  * @param $summary - email body
  * @return boolean
  */
-function sendSummaryEmail(){
+function sendSummaryEmail($summary){
+    $config = Zend_Registry::get('config');
     $environment = Zend_Registry::get('env-config');
     $pubEmail = new Zend_Mail();
     $pubEmail->setFrom($config->email->etd->address,$config->email->etd->name);
     $pubEmail->setSubject("Publication Summary - " . date("Y-m-d", time()));
+    $emailToBeSent = ""; /* it's the email to be sent*/
+    $emailBodyText = "";
     
 
     $emailBodyText = $summary . $emailBodyText;
@@ -241,21 +247,19 @@ function sendSummaryEmail(){
             return false;
         }
 
-//    foreach ($pubEmail->getHeaders() as $elemHeader => $elemValue)
-//    {
-//       $emailToBeSent = $emailToBeSent . "\n" . $elemHeader . ": ";
-//       foreach ($elemValue as $elem)
-//       {
-//        if(is_string($elem))
-//        {
-//            $emailToBeSent = $emailToBeSent . $elem . "\t";
-//        }
-//       }
-//    }
-//    $emailToBeSent = $emailToBeSent .
-//             "\n---- \n" . $emailBodyText;
-//    $logger->info("\nThe email to be sent to the ETD-Admin is:\n" . $emailToBeSent);
-
+    foreach ($pubEmail->getHeaders() as $elemHeader => $elemValue)
+    {
+       $emailToBeSent = $emailToBeSent . "\n" . $elemHeader . ": ";
+       foreach ($elemValue as $elem)
+       {
+        if(is_string($elem))
+        {
+            $emailToBeSent = $emailToBeSent . $elem . "\t";
+        }
+       }
+    }
+    $emailToBeSent = $emailToBeSent .
+             "\n---- \n" . $emailBodyText;
 return true;
 }
 
@@ -278,6 +282,7 @@ function get_graduate_etds($filename, $refdate = null) {
     foreach ($degree_level->degree as $dg) {
       // degrees in Registrar feed are all upper case
       $etd_degrees[] = strtoupper( getDegreeCode($dg) );  //uses registrar_code if set otherwise it uses name
+      if($degree_level["genre"] == "Honors Thesis") $honors_degrees[] = strtoupper( $dg["name"]);  //Create list of honors degrees
     }
   }
 
@@ -311,6 +316,10 @@ function get_graduate_etds($filename, $refdate = null) {
   
   while (($data = fgetcsv($fp, 1500, ",")) !== FALSE) {
     if (count($data) < 2) continue;	// skip blank lines
+    if(in_array($data[$degree], $honors_degrees) && empty($data[$honors])) { //skip entry if undergrad and honors not set
+        $logger->debug("Undergrad is not honors, skipping");
+        continue;
+    } 
     if ($data[$degree_status] == "AW"  // degree status = awarded
 	&&  $data[$term] == $last_term  // graduate of most recently ended semester
 	&&  in_array($data[$degree], $etd_degrees)	// one of the degrees for which we expect ETDs
