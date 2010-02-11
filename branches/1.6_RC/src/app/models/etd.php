@@ -1066,11 +1066,15 @@ class etd extends foxml implements etdInterface {
     // call fedora service - returns html title if user is allowed to see it
     try {
       return $this->__call("title", array());
+    } catch (FoxmlException $e) {
+      // swallow exception, display as a notice
+      trigger_error("FoxmlException accessing title -- " . $e->getMessage(), E_USER_NOTICE);
     } catch (FedoraAccessDenied $e) {
       // swallow acccess denied exception and only display as a notice
       trigger_error("Access denied to title -- " . $e->getMessage(), E_USER_NOTICE);
-      return "";
     }
+    // if title dissemination failed (formatted version), fall back to plain-text title in mods
+    return $this->mods->title;
   }	
   public function author() { return $this->mods->author->full; }
   public function program() { return $this->mods->department; }
@@ -1133,23 +1137,30 @@ class etd extends foxml implements etdInterface {
     // call fedora service - returns html abstract if user is allowed to see it
     try {
       return $this->__call("abstract", array());
-    } catch (FedoraAccessDenied $e) {
-      // swallow acccess denied exception and only display as a notice
-      trigger_error("Access denied to abstract -- " . $e->getMessage(), E_USER_NOTICE);
-      return "";
-    }
 
+    // swallow exceptions, display as notice
+    } catch (FoxmlException $e) {
+      trigger_error("FoxmlException accessing abstract -- " . $e->getMessage(), E_USER_NOTICE);
+    } catch (FedoraAccessDenied $e) {
+      trigger_error("Access denied to abstract -- " . $e->getMessage(), E_USER_NOTICE);
+    }
+    // if dissemination failed (formatted version), fall back to plain-text version in mods
+    return $this->mods->abstract;
   }
+  
   public function tableOfContents() {
     // call fedora service - returns html ToC if user is allowed to see it
     try {
       return $this->__call("tableofcontents", array());
+    // swallow exceptions, display as notice
+    } catch (FoxmlException $e) {
+      trigger_error("FoxmlException accessing abstract -- " . $e->getMessage(), E_USER_NOTICE);
     } catch (FedoraAccessDenied $e) {
-      // swallow acccess denied exception and only display as a notice
       trigger_error("Access denied to table of contents -- " . $e->getMessage(),
 		    E_USER_NOTICE);
-      return "";
     }
+    // if dissemination failed (formatted version), fall back to plain-text version in mods
+    return $this->mods->tableOfContents;
   }
   public function num_pages() { return isset($this->mods->pages) ? $this->mods->pages : ""; }
   
