@@ -98,7 +98,7 @@ class SearchController extends Etd_Controller_Action {
       $this->_helper->flashMessenger->addMessage("Only one match found for search; displaying full record");
       $this->_helper->redirector->gotoRoute(array("controller" => "view",
 						  "action" => "record",
-						  "pid" => $etdSet->etds[0]->pid), "", true);
+						  "pid" => $etdSet->etds[0]->pid()), "", true);
     }
 
     $this->view->show_relevance = true;
