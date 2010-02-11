@@ -159,7 +159,7 @@ class ReportController extends Etd_Controller_Action {
         // academic start and end months
         $acStart="Dec 31";
         $acEnd="Aug 31";
-        $numYears=5;  //number of years to include
+        $numYears=2;  //number of years to include before most recent academic year
         $curDate=strtotime("now"); //current date
                 
         //Create first and thus default choice
