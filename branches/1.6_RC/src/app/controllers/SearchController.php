@@ -85,6 +85,8 @@ class SearchController extends Etd_Controller_Action {
       $options["AND"]["status"] = "published";
     }
 
+    $options['return_type'] = "solrEtd";
+    
     $etdSet = new EtdSet();
     $etdSet->find($options);
     $this->view->etdSet = $etdSet;
