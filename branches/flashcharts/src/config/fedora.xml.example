@@ -1,0 +1,42 @@
+<fedora>
+  <development>
+     <server></server>
+     <port></port>
+<!-- default account should be a non-privileged user -->
+     <username>guest</username>
+     <password></password>
+<!-- account for automated processes that need more access (should be etdadmin) -->
+     <maintenance_account>
+       <username></username>
+       <password></password>   
+     </maintenance_account>
+     <protocol>https</protocol>
+     <risearch>
+	    <requiresAuth>0</requiresAuth>
+        <!-- note: port/protocol only required if different than fedora settings -->
+        <port></port>
+        <protocol></protocol>
+      </risearch>
+      <alternate_hosts>
+	<server>dev11.library.emory.edu</server>
+	<server/>
+      </alternate_hosts>
+  </development>
+  <test extends="development">
+     <port></port>
+     <username></username>
+     <password></password>   
+     <pidspace></pidspace>   <!-- REQUIRED: test objects should be created in this pid space; should be unique -->
+  </test>
+  <production extends="development">
+     <server></server>
+     <port></port>
+     <username></username>
+     <password></password>
+     <maintenance_account>
+       <username></username>
+       <password></password>   
+     </maintenance_account>
+     <protocol>https</protocol>     
+  </production>
+</fedora>
