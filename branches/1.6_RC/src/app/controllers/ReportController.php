@@ -4,6 +4,8 @@
  * @package Etd_Controllers
  */
 
+//NOTE: "Report viewer"  needs elavated roles (maintenance account) to use Fedora content in the views
+
 require_once("models/etd.php");
 
 class ReportController extends Etd_Controller_Action {
@@ -346,6 +348,7 @@ class ReportController extends Etd_Controller_Action {
         foreach($etdSet->etds as $etd){
             $line = array();
             $line[] = $etd->mods->author->full;
+
             $line[] = $etd->authorInfo->mads->permanent->email;
 
             //Get advisor and advisor emails
@@ -385,6 +388,43 @@ class ReportController extends Etd_Controller_Action {
        $this->getResponse()->setHeader('Content-Type', "text/csv");
        $this->getResponse()->setHeader('Content-Disposition', 'attachment; filename="' . $filename . '"');
     }
+
+/**
+ *
+ * Action to create CSV file with email data
+ */
+   public function exportemailsAction() {
+     if(!$this->_helper->access->allowed("report", "view")) {return false;}
+     $etdSet = new EtdSet();
+     // FIXME: how do we make sure to get *all* the records ?
+     $etdSet->find(array("AND" => array("status" => "approved"), "start" => 0, "max" => 200));
+
+     // date/time this output was generated to be included inside the file
+     $date = date("Y-m-d H:i:s");
+
+     $data[] = array("Name", "Emory email address", "Permanent email address",
+			"Program", "Output Generated " . $date);
+
+     foreach ($etdSet->etds as $etd){
+         $data[] = array($etd->authorInfo->mads->name->__toString(),
+			$etd->authorInfo->mads->current->email,
+			$etd->authorInfo->mads->permanent->email,
+			$etd->program());
+     }
+
+     $this->view->data = $data;
+
+     $this->_helper->layout->disableLayout();
+     // add date to the suggested output filename
+     $filename = "ETD_approved_emails_" . date("Y-m-d") . ".csv";
+     $this->getResponse()->setHeader('Content-Type', "text/csv");
+     $this->getResponse()->setHeader('Content-Disposition',
+				     'attachment; filename="' . $filename . '"');
+     
+   }
+
+
+
 
     /**
  * Function to retun a decorator to be used with the author name

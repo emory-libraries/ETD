@@ -466,21 +466,6 @@ class ManageControllerTest extends ControllerTestCase {
     $this->assertTrue($ManageController->view->show_lastaction);
   }
 
-  public function testExportEmails() {
-    $ManageController = new ManageControllerForTest($this->request,$this->response);
-    $ManageController->exportemailsAction();
-    $this->assertIsA($ManageController->view->etdSet, "EtdSet");
-
-    $layout = $ManageController->getHelper("layout");
-    // confirm xml output settings - layout disabled, content-type set to text/xml
-    $this->assertFalse($layout->enabled);
-    $response = $ManageController->getResponse();
-    $headers = $response->getHeaders();
-    $this->assertEqual("Content-Type", $headers[0]["name"]);
-    $this->assertEqual("text/csv", $headers[0]["value"]);
-    $this->assertPattern("|filename=.*csv|", $headers[1]["value"]);
-  }
-
   public function testViewLog() {
     // FIXME: should a test log file be created for testing purposes?
     $this->test_user->role = "superuser";	// regular admin not allowed to view log
@@ -509,7 +494,6 @@ class ManageControllerTest extends ControllerTestCase {
     $this->assertFalse($ManageController->inactivateAction());
     $this->assertFalse($ManageController->markInactiveAction());
     $this->assertFalse($ManageController->embargoesAction());
-    $this->assertFalse($ManageController->exportemailsAction());
     $this->assertFalse($ManageController->viewLogAction());
   }
 

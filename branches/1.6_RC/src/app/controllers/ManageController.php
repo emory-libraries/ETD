@@ -460,27 +460,6 @@ class ManageController extends Etd_Controller_Action {
 
      $this->view->data = $data;
    }
-
-   
-
-   
-   public function exportemailsAction() {
-     if (!$this->_helper->access->allowedOnEtd("manage")) return false;
-     $etdSet = new EtdSet();
-     // FIXME: how do we make sure to get *all* the records ?
-     $etdSet->find(array("AND" => array("status" => "approved"), "start" => 0, "max" => 200));
-     $this->view->etdSet = $etdSet;
-
-     $this->_helper->layout->disableLayout();
-     // add date to the suggested output filename
-     $filename = "ETD_approved_emails_" . date("Y-m-d") . ".csv";
-     $this->getResponse()->setHeader('Content-Type', "text/csv");
-     $this->getResponse()->setHeader('Content-Disposition',
-				     'attachment; filename="' . $filename . '"');
-     // date/time this output was generated to be included inside the file
-     $this->view->date = date("Y-m-d H:i:s");
-   }
-
    
 }
 

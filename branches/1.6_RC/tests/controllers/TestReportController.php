@@ -53,8 +53,9 @@ class ReportControllerTest extends ControllerTestCase {
     $dom = new DOMDocument();
     // load etd & set pid 
     $dom->loadXML(file_get_contents('../fixtures/etd2.xml'));
-    $foxml = new foxml($dom);
+     $foxml = new etd($dom);
     $foxml->pid = $this->etd_pid;
+    $foxml->rels_ext->hasAuthorInfo = "info:fedora/" . $this->author_pid;	// associate with test authorinfo object
     $this->fedora->ingest($foxml->saveXML(), "loading test etd object");
     
     // load author info & set pid 
@@ -72,7 +73,6 @@ class ReportControllerTest extends ControllerTestCase {
     $dom = new DOMDocument();
     $dom->load($fname);
     $this->etd = new etd($dom);
-
 
   }
   
@@ -168,7 +168,6 @@ function testgradDataCsvAction() {
     $this->setUpPost(array('academicYear' => "20081231:20090831"));
     $etd = &new MockEtd();
     $etd->PID = $this->etd_pid;
-    //print "PID: $this->pid";
     $this->solr->response->docs[] = $etd;
 
     $ReportController->gradDataCsvAction();
@@ -229,6 +228,21 @@ function testgradDataCsvAction() {
     Zend_Registry::set('current_user', $this->test_user);
     $this->assertFalse($ReportController->embargoCsvAction() );
 }
+
+public function testExportEmails() {
+    $ReportController = new ReportControllerForTest($this->request,$this->response);
+    $ReportController->exportemailsAction();
+    $this->assertIsA($ReportController->view->data, "array");
+
+    $layout = $ReportController->getHelper("layout");
+    // confirm xml output settings - layout disabled, content-type set to text/xml
+    $this->assertFalse($layout->enabled);
+    $response = $ReportController->getResponse();
+    $headers = $response->getHeaders();
+    $this->assertEqual("Content-Type", $headers[0]["name"]);
+    $this->assertEqual("text/csv", $headers[0]["value"]);
+    $this->assertPattern("|filename=.*csv|", $headers[1]["value"]);
+  }
 
 
   function testGetCommencementDateRange() {
