@@ -9,7 +9,7 @@ Emory's repository.</p>
   <li>Submit a paper copy for the <?= $this->etd->admin_agent ?>'s review</li>
   <li>Review your ETD record</li>
   <li>Submit all required forms to the <?= $this->etd->admin_agent ?></li>
-  <? if (! $this->etd->isHonors()): /* not applicable to honors etds */ ?>
+  <? if ($this->etd->schoolId() == "grad"): /* not applicable to honors etds */ ?>
     <li>Take the Graduate Exit Survey</li>
   <? endif ?>
 </ol>
@@ -35,6 +35,6 @@ Emory's repository.</p>
  <p>You will receive written notification confirming whether or not your <?= $this->etd->document_type() ?> has been approved by the <?= $this->etd->admin_agent ?>. Upon approval you will receive further information regarding the publication of your ETD in our repository, as well as your opportunity to order bound copies.</p>
 </li>
 
-<? if (! $this->etd->isHonors()): /* not applicable to honors etds */ ?>
+<? if ($this->etd->schoolId() == "grad"): /* not applicable to honors etds */ ?>
 <li>Soon after graduation, you will receive an email message notifying you that your <?= $this->etd->document_type() ?> has been published by the ETD system. You will find a link to the Graduate Exit Survey in that email. Please take the time to provide valuable feedback to the Graduate School by completing this survey.</li>
 <? endif ?>

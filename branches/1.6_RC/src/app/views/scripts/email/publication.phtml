@@ -36,14 +36,14 @@ personal copies of your thesis produced, there are a <a
 href="http://etd.library.emory.edu/docs/boundcopies">number of
 vendors</a> who you may wish to contact, and their contact information
 is listed on the ETD website.
-<? if (! $this->etd->isHonors()): /* PQ-specific, not relevant for undergrad */ ?>
+<? if ($this->etd->schoolId() == "grad"): /* PQ-specific, not relevant for undergrad */ ?>
 (Paper copies of your thesis will also be available through UMI/Proquest
 once your thesis has been processed by them.)
 <? endif ?>
 </p>
 
 
-<? if (! $this->etd->isHonors()): /* Grad School exit survey */ ?>
+<? if ($this->etd->schoolId() == "grad"): /* Grad School exit survey */ ?>
   <p>Please take a few moments to follow the link and complete the Graduate Exit Survey.  This is a brief and confidential questionnaire about your experience at Emory and your future plans.  It will take no more than 10 minutes to complete, and the information you, and your fellow graduates, provide is essential to our efforts to continually refine policies and practices to provide our students with the best graduate education available. </p>
 
 <p>Please follow this link to the Graduate Exit Survey:

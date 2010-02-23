@@ -23,7 +23,7 @@ committee and <?= $this->etd->admin_agent ?> have previously agreed.
 <? endif ?>
 </p>
 
-<? if (! $this->etd->isHonors()): /* not applicable to honors etds */ ?>
+<? if ($this->etd->schoolId() == "grad"): /* not applicable to honors etds */ ?>
  <p>You will soon receive an email
  invitation to take a Graduate School Exit Survey.  The survey is
  anonymous, and the Graduate School will not know or be able to reveal
