@@ -89,3 +89,12 @@ Field Details
      permanent address
 
 
+When a new school is added the following sections of the site need to be
+reviewed to see if additional information needs to be added or revised. Using
+the admin_agent can provide dynamic school names if necessary:
+* Frequently Asked Questions
+*	Instructions Page
+*	Help Page
+
+
+
