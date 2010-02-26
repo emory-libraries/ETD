@@ -34,6 +34,7 @@ Deployment notes:
     * 013-update_dc - Update all published ETDs with OAI ids
   * Publication script has changed; weekly cron job that runs
     publish.php should be revised to send the output to a log file.
+  * Entire site should re-indexed.
 
 
 Version 1.5 - November 2009
