@@ -72,6 +72,7 @@ class etd extends foxml implements etdInterface {
    * - if string, retrieve object from Fedora by specified pid
    * - if DOMDocument, initialize from DOM contents (mostly for testing)
    * - if not specified, create a new etd from template
+   * -When modifying constructor check to see if solrEtd needs similar modifications
    */
   public function __construct($arg = null) {
     // if parameter is an instance of zend_config, then store it
@@ -200,6 +201,7 @@ class etd extends foxml implements etdInterface {
 
   /**
    *  determine a user's role in relation to this ETD (for access controls)
+   * When making changes to this function also make corespondng changeg to getUserRole in solrEtd.php
    * @param esdPerson $user optional
    * @return string role
    * @todo look into using ownerId instead of rels-ext author
