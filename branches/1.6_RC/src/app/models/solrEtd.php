@@ -136,7 +136,7 @@ class solrEtd implements etdInterface {
     elseif ($pos = strpos($user->role, " admin")) {
       // if a user is a school-specific admin, determine if they are admin for *this* etd
       $admin_type = substr($user->role, 0, $pos);
-      if ($admin_type == $this->school_config->acl_id)
+      if (!empty($admin_type) && !empty($this->school_config->acl_id) && $admin_type == $this->school_config->acl_id)
         return "admin";
     }
     else
