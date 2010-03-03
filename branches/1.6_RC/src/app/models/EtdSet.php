@@ -295,7 +295,7 @@ class EtdSet {
 					      "advisor_facet",
 					      "subfield_facet",
 					      "year"));
-    $options['AND']['program_facet'] = $dept;
+    $options['AND']['program'] = $dept;
     return $this->find($options);
   }
 
