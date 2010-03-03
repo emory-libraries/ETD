@@ -56,7 +56,7 @@ class SearchControllerTest extends ControllerTestCase {
     // mock etd so controller can find and pull out pid for the forward
     //    $etd = &new MockEtd();
     //    $etd->pid = "testpid:1";
-    $etd = new Emory_Service_Solr_Response_Document(array("PID" => "testpid:1"));
+    $etd = new Emory_Service_Solr_Response_Document(array("PID" => "testpid:1", "collection" =>array("emory-control:ETD-GradSchool-collection")));
     $this->mock_solr->response->docs[] = $etd;
     $searchController->resultsAction();
     $this->assertTrue($searchController->redirectRan);

@@ -19,12 +19,19 @@ class solrEtd implements etdInterface {
     // note that facet fields will be ignored here
 
     // member of collections, attempt to find collection that matches a per-school config
-    $schools_cfg = Zend_Registry::get("schools-config");
-    for ($i = 0; $i < count($document->collection); $i++) {
-        $coll = $document->collection[$i];
-        if ($school_id = $schools_cfg->getIdByFedoraCollection($coll)) {
-            $this->school_config = $schools_cfg->$school_id;
+    if(isset($this->collection)){
+        $schools_cfg = Zend_Registry::get("schools-config");
+        for ($i = 0; $i < count($this->collection); $i++) {
+            $coll = $this->collection[$i];
+            if ($school_id = $schools_cfg->getIdByFedoraCollection($coll)) {
+                $this->school_config = $schools_cfg->$school_id;
+            }
         }
+        
+    }
+
+    if(!isset($this->school_config)){
+      trigger_error("Could not determine per-school configuration based on collection membership", E_USER_WARNING);
     }
 
 

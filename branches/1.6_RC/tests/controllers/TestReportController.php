@@ -106,8 +106,8 @@ class ReportControllerTest extends ControllerTestCase {
     $this->setUpPost(array('exclude' => array("test:etd2")));
 
     $this->solr->response->docs[] = new Emory_Service_Solr_Response_Document(array("PID" => "test:etd1",
-										    "pubdate" => "20090901"));
-    $this->solr->response->docs[] = new Emory_Service_Solr_Response_Document(array("PID" => "test:etd2"));
+										    "pubdate" => "20090901", "collection" => array("emory-control:ETD-GradSchool-collection"))); //collection now required
+    $this->solr->response->docs[] = new Emory_Service_Solr_Response_Document(array("PID" => "test:etd2", "collection" => array("emory-control:ETD-GradSchool-collection"))); //collection now required
 
     $ReportController->commencementAction();
 
