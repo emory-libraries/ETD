@@ -19,6 +19,7 @@ class ReportControllerTest extends ControllerTestCase {
 
   private $etd_pid;
   private $author_pid;
+  private $schools_cfg;
 
   /**
    * copy of fedora connection from registry
@@ -41,6 +42,7 @@ class ReportControllerTest extends ControllerTestCase {
     $this->test_user->role = "admin";
     $this->test_user->netid = "test_user";
     Zend_Registry::set('current_user', $this->test_user);
+    $this->schools_cfg = Zend_Registry::get("schools-config");
 
     
     $_GET 	= array();
@@ -106,8 +108,8 @@ class ReportControllerTest extends ControllerTestCase {
     $this->setUpPost(array('exclude' => array("test:etd2")));
 
     $this->solr->response->docs[] = new Emory_Service_Solr_Response_Document(array("PID" => "test:etd1",
-										    "pubdate" => "20090901", "collection" => array("emory-control:ETD-GradSchool-collection"))); //collection now required
-    $this->solr->response->docs[] = new Emory_Service_Solr_Response_Document(array("PID" => "test:etd2", "collection" => array("emory-control:ETD-GradSchool-collection"))); //collection now required
+										    "pubdate" => "20090901", "collection" => array($this->schools_cfg->emory_college->fedora_collection))); //collection now required
+    $this->solr->response->docs[] = new Emory_Service_Solr_Response_Document(array("PID" => "test:etd2", "collection" => array($this->schools_cfg->emory_college->fedora_collection))); //collection now required
 
     $ReportController->commencementAction();
 

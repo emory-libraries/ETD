@@ -9,6 +9,7 @@ class SearchControllerTest extends ControllerTestCase {
 
   private $mock_solr;
   private $data;
+  private $schools_cfg;
   
   function setUp() {
     $this->response = $this->makeResponse();
@@ -22,6 +23,8 @@ class SearchControllerTest extends ControllerTestCase {
     
     $this->data = new esd_test_data();
     $this->data->loadAll();
+
+    $this->schools_cfg = Zend_Registry::get("schools-config");
 
   }
 
@@ -56,7 +59,7 @@ class SearchControllerTest extends ControllerTestCase {
     // mock etd so controller can find and pull out pid for the forward
     //    $etd = &new MockEtd();
     //    $etd->pid = "testpid:1";
-    $etd = new Emory_Service_Solr_Response_Document(array("PID" => "testpid:1", "collection" =>array("emory-control:ETD-GradSchool-collection")));
+    $etd = new Emory_Service_Solr_Response_Document(array("PID" => "testpid:1", "collection" =>array($this->schools_cfg->graduate_school->fedora_collection)));
     $this->mock_solr->response->docs[] = $etd;
     $searchController->resultsAction();
     $this->assertTrue($searchController->redirectRan);
