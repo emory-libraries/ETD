@@ -31,7 +31,7 @@ class solrEtd implements etdInterface {
     }
 
     if(!isset($this->school_config)){
-      trigger_error("Could not determine per-school configuration based on collection membership", E_USER_WARNING);
+      trigger_error("Could not determine per-school configuration for " . $this->PID . " based on collection membership", E_USER_WARNING);
     }
 
 
