@@ -4,15 +4,11 @@ then proceed to review/submit again.</p>
 
 <p id="submit_warning" class="warning">
    <span id="exclamation">!</span>
-   You are about to deposit the final version of your
-<?= $this->etd->document_type() ?> to the ETD Repository.  Please review the document
-thoroughly.  After the document is deposited, you will NOT be able to
-access the file to make changes of any kind without authorization from
-<?= $this->etd->admin_agent ?>.
-   <? if ($this->etd->document_type() == "Dissertation"): ?>
-<br/>Please note, the author name and title as it appears here will be
-reproduced in the commencement program.
-   <? endif ?>
+   You are about to deposit the final version of your thesis or
+   dissertation to the ETD Repository. Please review the document
+   thoroughly. After the document is deposited, you will NOT be able
+   to access the file to make changes of any kind without authorization
+   from the administration of your school or program.
 </p>
 
 <? $this->role = $this->etd->getUserRole($this->current_user);  ?>

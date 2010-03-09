@@ -456,12 +456,14 @@ class SubmissionController extends Etd_Controller_Action {
     
     // forward to congratulations message
     $this->_helper->redirector->gotoRoute(array("controller" => "submission",
-						"action" => "success"), "", true); 
+						"action" => "success", "pid" => $etd->pid), "", true);
   }
 
   // display success message with more information
   public function successAction() {
+    $etd = $this->_helper->getFromFedora("pid", "etd");
     $this->view->title = "Submission successful";
+    $this->view->etd = $etd;
   }
 
 

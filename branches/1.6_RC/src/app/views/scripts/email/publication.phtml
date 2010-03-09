@@ -1,7 +1,7 @@
 <?=  $this->render('email/_debug.phtml'); ?>
 <p>Dear <?= $this->etd->mods->author->first ?>,</p>
 
-<p>This is to inform you that your <?= $this->etd->document_type() ?> entitled:
+<p>This is to inform you that your dissertation or thesis entitled:
 <blockquote><?= $this->etd->title() ?></blockquote>
 can now be accessed in the Emory University ETD Repository at:
 <a href="<?= $this->etd->ark() ?>"><?= $this->etd->ark() ?></a></p>
@@ -13,12 +13,12 @@ the University, and we hope that making your work as widely accessible
 as possible will be mutually beneficial.</p>
 <? else: ?>
 <p>Upon submission, you chose to restrict access to your work via the
-web.  Access to your <?= $this->etd->document_type() ?> will be restricted for
+web.  Access to your dissertation or thesis will be restricted for
 <?= $this->etd->mods->embargo ?>.  Details describing your document will appear in
 the repository's index, but the full text of your work will not appear
 until the expiration of the access restriction period.</p>
 
-<p>The access restriction associated with your <?= $this->etd->document_type() ?> 
+<p>The access restriction associated with your dissertation or thesis
 will expire automatically on <?= $this->etd->mods->embargo_end ?>.  You will receive notice
 (via e-mail to the permanent e-mail address which you provided) of the
 impending expiration of the access restriction sixty (60) days prior
