@@ -64,7 +64,9 @@ class EmailController extends Etd_Controller_Action {
 
      // bs with embargo
      unset($searchopts["AND"]["embargo_duration"]);
-     $searchopts["NOT"]["embargo_duration"] = '"0 days"';
+     unset($searchopts["AND"]["date_embargoedUntil"]);
+     //$searchopts["NOT"]["embargo_duration"] = '"0 days"';
+     $searchopts["AND"]["date_embargoedUntil"] = "[" . date("Ymd") . " TO *]";
      $etdset->find($searchopts);
      if ($etdset->numFound) 
        $this->view->etds["BS, embargoed"] = $etdset->etds[0];
