@@ -2,7 +2,7 @@
 <p>Dear <?= $this->etd->mods->author->first ?>,</p>
 
 <p>Congratulations! Your dissertation or thesis has been reviewed
-and approved by <?= $this->etd->admin_agent ?>. You have successfully 
+and approved by the <?= $this->etd->admin_agent ?>. You have successfully
 submitted your dissertation or thesis in partial fulfillment of the
 requirements for your degree.</p>
 
@@ -19,6 +19,6 @@ available for immediate access via the World Wide Web.
 <? else: ?>  
 unavailable for a period of <?= $this->etd->mods->embargo ?> according to
 the terms of the access restriction application to which you, your
-committee and <?= $this->etd->admin_agent ?> have previously agreed.
+committee and the <?= $this->etd->admin_agent ?> have previously agreed.
 <? endif ?>
 </p>
