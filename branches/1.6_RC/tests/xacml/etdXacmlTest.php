@@ -181,6 +181,7 @@ class TestEtdXacml extends UnitTestCase {
     $this->assertPattern('|<div id="abstract"|', $etd->abstract(),
 			 "html abstract accessible via dissemination");
 
+    unset($result);
     try {
       $result = $fedora->getDisseminationSOAP($this->pid, "emory-control:ETDmetadataParts",
 					      "tableofcontents");
@@ -188,8 +189,9 @@ class TestEtdXacml extends UnitTestCase {
       $exception = $e;
     }
     $this->assertIsA($exception, "FedoraAccessDenied",
-		     "access denied to restricted ToC");
-    $this->assertFalse(isset($contents), "no contents returned - access denied");
+		     "should have gotten a FedoraAccessDenied exception when accessing restricted ToC; got " .
+		     get_class($exception));
+    $this->assertFalse(isset($result), "getDissemination should not return any content for restricted ToC");
     if (isset($exception))
       $this->assertPattern("/getDissemination tableofcontents/", $exception->getMessage());
 
@@ -215,6 +217,7 @@ class TestEtdXacml extends UnitTestCase {
     $this->assertPattern('|<div id="contents"|', $etd->tableOfContents(),
 			 "html ToC accessible via dissemination");
 
+    unset($result);
     try {
       $result = $fedora->getDisseminationSOAP($this->pid, "emory-control:ETDmetadataParts",
 					      "abstract");
@@ -222,8 +225,9 @@ class TestEtdXacml extends UnitTestCase {
       $exception = $e;
     }
     $this->assertIsA($exception, "FedoraAccessDenied",
-		     "access denied to restricted ToC");
-    $this->assertFalse(isset($abs), "no abstract returned - access denied");
+	     "should have gotten a FedoraAccessDenied exception when accessing restricted abstract; got " .
+		     get_class($exception));
+    $this->assertFalse(isset($result), "getDissemination should not return any content for restricted abstract");
     if (isset($exception))
       $this->assertPattern("/getDissemination abstract/", $exception->getMessage());
   }
