@@ -48,7 +48,6 @@ class TestSchoolsConfig extends UnitTestCase {
     $schools->emory_college->admin = array("netid" =>
 					   array("llane", "mshonorable"),
                              "department" => "College");
-    $schools->candler->admin->department = "Candler School of Theology";
 
     $schools->candler->admin = array("netid" =>
 					   array("mcando"),
