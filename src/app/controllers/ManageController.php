@@ -397,42 +397,6 @@ class ManageController extends Etd_Controller_Action {
      $this->view->logEntries = $log->getEntries($filter);
    }
 
-   public function reportAction() {
-     $this->view->title = "Reports";
-     
-     $solr = Zend_Registry::get('solr');
-     $solr->clearFacets();
-     $solr->addFacets(array("program_facet", "year", "dateIssued", "embargo_duration", "num_pages",
-			    "degree_level", "degree_name"));
-     // would be nice to also have: degree (level?), embargo duration
-     $solr->setFacetLimit(-1);	// no limit
-     $solr->setFacetMinCount(1);	// minimum one match
-     $result = $solr->query("*:*", 0, 0);	// find facets on all records, return none
-     $this->view->facets = $result->facets;
-     uksort($this->view->facets->embargo_duration, "sort_embargoes");
-
-     // how to do page counts by range?
-     for ($i = 0; $i < 1000; $i += 100) {
-       $range = sprintf("%05d TO %05d", $i, $i +100);
-       if ($i == 0) $label = ">100";
-       else $label = $i . " - " . ($i + 100);
-       $response = $solr->query("num_pages:[$range]", 0, 0);
-       $pages[$label] = $response->numFound;
-     }
-     $response = $solr->query("num_pages:[01000 TO *]", 0, 0);
-     $pages[">1000"] = $response->numFound;
-     
-     /*     $response = $solr->query("num_pages:[00000 TO 00100]");
-     $pages[">100"] = $response->numFound;
-     $response = $solr->query("num_pages:[00100 TO 00200]");
-     $pages["100-200"] = $response->numFound;
-     $response = $solr->query("num_pages:[00200 TO 00300]");
-     $pages["200-300"] = $response->numFound;
-     */
-     $this->view->pages = $pages;
-     
-   }
-
    public function embargoReportAction() {
      $this->view->title = "Embargo Trends";
 
@@ -459,27 +423,6 @@ class ManageController extends Etd_Controller_Action {
 
      $this->view->data = $data;
    }
-
-   
-
-   
-   public function exportemailsAction() {
-     if (!$this->_helper->access->allowedOnEtd("manage")) return false;
-     $etdSet = new EtdSet();
-     // FIXME: how do we make sure to get *all* the records ?
-     $etdSet->find(array("AND" => array("status" => "approved"), "start" => 0, "max" => 200));
-     $this->view->etdSet = $etdSet;
-
-     $this->_helper->layout->disableLayout();
-     // add date to the suggested output filename
-     $filename = "ETD_approved_emails_" . date("Y-m-d") . ".csv";
-     $this->getResponse()->setHeader('Content-Type', "text/csv");
-     $this->getResponse()->setHeader('Content-Disposition',
-				     'attachment; filename="' . $filename . '"');
-     // date/time this output was generated to be included inside the file
-     $this->view->date = date("Y-m-d H:i:s");
-   }
-
    
 }
 

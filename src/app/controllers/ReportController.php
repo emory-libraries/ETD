@@ -4,15 +4,69 @@
  * @package Etd_Controllers
  */
 
+//NOTE: "Report viewer"  needs elavated roles (maintenance account) to use Fedora content in the views
+
 require_once("models/etd.php");
 
 class ReportController extends Etd_Controller_Action {
 	protected $requires_fedora = false;
 	protected $params;
+	/* FIXME: what are these for? used anywhere? */
 	private $etd_pid;
 	private $message;
 
+	/**
+	 * copy of fedoraConnection with current user's auth credentials
+	 * (to be restored in postDispatch)
+	 * @var FedoraConnection
+	 */
+	protected $_fedoraConnection;
+
+
+	/**
+	 * report viewers do not have special accesses at the fedora
+	 * level, which some of these reports required.  Temporarily
+	 * overriding fedora connection with a connection that uses
+	 * maintenance account credentials.
+	 * Note: this will be done before all actions in this
+	 * controller, and the default fedora connection will restored
+	 * by postDispatch.
+	 */
+	public function preDispatch() {
+	  // store fedoraConnection with user auth credentials - to be restored in postDispatch
+	  $this->_fedoraConnection = Zend_Registry::get("fedora");
+
+	  // if current user is a report viewer (do NOT have special access at the fedora level),
+	  // temporarily replace fedora connection
+	  if ($this->current_user->role == "report viewer") {
+	    $fedora_cfg = Zend_Registry::get('fedora-config');
+	    try {
+	      $fedora_opts = $fedora_cfg->toArray();
+	      // use default fedora config opts but with maintenance account credentials
+	      $fedora_opts["username"] = $fedora_cfg->maintenance_account->username;
+	      $fedora_opts["password"] = $fedora_cfg->maintenance_account->password;
+	      $maintenance_fedora = new FedoraConnection($fedora_opts);
+	    } catch (FedoraNotAvailable $e) {
+	      $this->logger->err("Error connecting to Fedora with maintenance account - " . $e->getMessage());
+	      $this->_forward("fedoraunavailable", "error");
+	      return;
+	    } 
+	    Zend_Registry::set("fedora", $maintenance_fedora);
+	  }
+	}
+
+	/**
+	 * restore fedoraConnection with currently-logged in user's credentials
+	 */
+	public function postDispatch() {
+	  Zend_Registry::set("fedora", $this->_fedoraConnection);
+	}
+
+	/**
+	 * Display list of reports
+	 */
 	public function indexAction() {
+        if(!$this->_helper->access->allowed("report", "view")) {return false;}
 	}
 	 
 	/**
@@ -20,7 +74,7 @@ class ReportController extends Etd_Controller_Action {
      * from the commencement report
      */
     public function commencementReviewAction() {
-        if (!$this->_helper->access->allowedOnEtd("manage")) {return false;}
+        if(!$this->_helper->access->allowed("report", "view")) {return false;}
 
 		$this->view->title = "Commencement Report Review";
 
@@ -48,7 +102,7 @@ class ReportController extends Etd_Controller_Action {
      *  pids from the previous form
      */
     public function commencementAction() {
-        if (!$this->_helper->access->allowedOnEtd("manage")) {return false;}
+        if(!$this->_helper->access->allowed("report", "view")) {return false;}
 
 		$this->view->title = "Commencement Report";
 
@@ -74,6 +128,7 @@ class ReportController extends Etd_Controller_Action {
 		$optionsArray['NOT']['status'] = "draft";
 		// show ALL records on a single page 
 		$optionsArray['max'] = 1000;
+		/* FIXME: should this really be solrEtd ? */
 		$optionsArray['return_type'] = "solrEtd";
 
 		        
@@ -101,11 +156,12 @@ class ReportController extends Etd_Controller_Action {
      *  Start of year is 12/31 of last year, end is 8/31 of current year
      */
     public function gradDataAction(){
-         if (!$this->_helper->access->allowedOnEtd("manage")) {return false;}
+         if(!$this->_helper->access->allowed("report", "view")) {return false;}
+
         // academic start and end months
         $acStart="Dec 31";
         $acEnd="Aug 31";
-        $numYears=5;  //number of years to include
+        $numYears=2;  //number of years to include before most recent academic year
         $curDate=strtotime("now"); //current date
                 
         //Create first and thus default choice
@@ -154,7 +210,7 @@ class ReportController extends Etd_Controller_Action {
      * Action to create CSV file from submitted date range
      */
     public function gradDataCsvAction(){
-        if (!$this->_helper->access->allowedOnEtd("manage")) {return false;}
+        if(!$this->_helper->access->allowed("report", "view")) {return false;}
 
         //get start and end dates from post
         $inputField="academicYear";
@@ -270,7 +326,7 @@ class ReportController extends Etd_Controller_Action {
          * Action to create CSV file with Embargo data
          */
     public function embargoCsvAction(){
-      if (!$this->_helper->access->allowedOnEtd("manage")) {return false;}
+      if(!$this->_helper->access->allowed("report", "view")) {return false;}
 
         //Query solr
         $optionsArray = array();
@@ -292,6 +348,7 @@ class ReportController extends Etd_Controller_Action {
         foreach($etdSet->etds as $etd){
             $line = array();
             $line[] = $etd->mods->author->full;
+
             $line[] = $etd->authorInfo->mads->permanent->email;
 
             //Get advisor and advisor emails
@@ -332,6 +389,81 @@ class ReportController extends Etd_Controller_Action {
        $this->getResponse()->setHeader('Content-Disposition', 'attachment; filename="' . $filename . '"');
     }
 
+/**
+ *
+ * Action to create CSV file with email data
+ */
+   public function exportemailsAction() {
+     if(!$this->_helper->access->allowed("report", "view")) {return false;}
+     $etdSet = new EtdSet();
+     // FIXME: how do we make sure to get *all* the records ?
+     $etdSet->find(array("AND" => array("status" => "approved"), "start" => 0, "max" => 200));
+
+     // date/time this output was generated to be included inside the file
+     $date = date("Y-m-d H:i:s");
+
+     $data[] = array("Name", "Emory email address", "Permanent email address",
+			"Program", "Output Generated " . $date);
+
+     foreach ($etdSet->etds as $etd){
+         $data[] = array($etd->authorInfo->mads->name->__toString(),
+			$etd->authorInfo->mads->current->email,
+			$etd->authorInfo->mads->permanent->email,
+			$etd->program());
+     }
+
+     $this->view->data = $data;
+
+     $this->_helper->layout->disableLayout();
+     // add date to the suggested output filename
+     $filename = "ETD_approved_emails_" . date("Y-m-d") . ".csv";
+     $this->getResponse()->setHeader('Content-Type', "text/csv");
+     $this->getResponse()->setHeader('Content-Disposition',
+				     'attachment; filename="' . $filename . '"');
+     
+   }
+
+
+   public function summaryStatAction() {
+     if(!$this->_helper->access->allowed("report", "view")) {return false;}
+     $this->view->title = "Summary Statistics";
+
+     $solr = Zend_Registry::get('solr');
+     $solr->clearFacets();
+     $solr->addFacets(array("program_facet", "year", "dateIssued", "embargo_duration", "num_pages",
+			    "degree_level", "degree_name"));
+     // would be nice to also have: degree (level?), embargo duration
+     $solr->setFacetLimit(-1);	// no limit
+     $solr->setFacetMinCount(1);	// minimum one match
+     $result = $solr->query("*:*", 0, 0);	// find facets on all records, return none
+     $this->view->facets = $result->facets;
+     uksort($this->view->facets->embargo_duration, "sort_embargoes");
+
+     // how to do page counts by range?
+     for ($i = 0; $i < 1000; $i += 100) {
+       $range = sprintf("%05d TO %05d", $i, $i +100);
+       if ($i == 0) $label = ">100";
+       else $label = $i . " - " . ($i + 100);
+       $response = $solr->query("num_pages:[$range]", 0, 0);
+       $pages[$label] = $response->numFound;
+     }
+     $response = $solr->query("num_pages:[01000 TO *]", 0, 0);
+     $pages[">1000"] = $response->numFound;
+
+     /*     $response = $solr->query("num_pages:[00000 TO 00100]");
+     $pages[">100"] = $response->numFound;
+     $response = $solr->query("num_pages:[00100 TO 00200]");
+     $pages["100-200"] = $response->numFound;
+     $response = $solr->query("num_pages:[00200 TO 00300]");
+     $pages["200-300"] = $response->numFound;
+     */
+     $this->view->pages = $pages;
+
+   }
+
+
+
+
     /**
  * Function to retun a decorator to be used with the author name
  *
@@ -351,5 +483,8 @@ function getSemesterDecorator($grad_date) {
 		return $decorator;
 }
 
+ 
 
+
+ 
 }

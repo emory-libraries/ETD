@@ -135,7 +135,13 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
   }
       
 
-
+  /**
+   * initialize an etdfile object from a file and user
+   * @param string $filename full path to file
+   * @param string $reltype type of file in relation to etd (pdf, original, supplement)
+   * @param esdPerson $author user this file belongs to (sets creator & owner)
+   * @param string $label optional, label for fedora object; defaults to basename of the file
+   */
   public function initializeFromFile($filename, $reltype, esdPerson $author, $label = null) {
     $this->type = $reltype;
     if (!is_null($label)) $this->label = $label;
@@ -249,24 +255,44 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
     $this->dc->setFilesize(filesize($tmpfile));	// file size in bytes
   }
 
+  /**
+   * set file information for ingest; uploads to Fedora and sets upload id in ingest foxml
+   * @param string $filename full path to file 
+   */
   public function setFile($filename) {
     $upload_id = $this->fedora->upload($filename);
     $this->file->url = $upload_id;
   }
 
+  /**
+   * get the binary file datastream as storeed in fedora
+   * @return binary
+   */
   public function getFile() {
     return $this->fedora->getDatastream($this->pid, "FILE");
   }
 
-  public function checkSum() {
+  /**
+   * return the md5 checksum for the binary file datastream in Fedora
+   * @return string
+   */
+  public function getFileChecksum() {
     return $this->fedora->compareDatastreamChecksum($this->pid, "FILE");
   }
-
-  // wrapper to description - to simplify unit testing
+  
+  /**
+   * return dc:description
+   * (wrapper to description - to simplify unit testing)
+   * @return string
+   */
   public function description() {
     return $this->dc->description;
   }
-  
+
+  /**
+   * generate a nice, human-readable filename based on file type and etd information
+   * @return string
+   */
   public function prettyFilename() {
     // build a nice, user-friendly filename
     $filename = strtolower($this->etd->mods->author->last) . "_";
@@ -298,9 +324,12 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
   }
 
 
-  /**  override default foxml ingest function to use arks for object pids
+  /**
+   * override default foxml ingest function to use arks for object pids
+   * @param string $message
+   * @return string pid on successful ingest
    */
-  public function ingest($message ) {
+  public function ingest($message) {
     // could generate service unavailable exception - should be caught in the controller
     $persis = new Emory_Service_Persis(Zend_Registry::get('persis-config'));
     
@@ -318,7 +347,12 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
 
 
 
-  // remove from parent etd record, THEN purge from fedora
+  /**
+   * purge an etd file object from Fedora  
+   * - removes relation from parent etd record, THEN purges from fedora
+   * @param string $message reason for change
+   * @return string timestamp on success
+   */
   public function purge($message) {
     $rel = "rel:has" . ucfirst($this->type);	
     if ($this->type == "pdf")
@@ -374,7 +408,12 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
   }
 
 
-  
+  /**
+   * update the binary file datastream
+   * @param string $filename full path to new version of the file
+   * @param string $message message string for change
+   * @return string timestamp on success
+   */
   public function updateFile($filename, $message) {
     $this->setFileInfo($filename);   // update mimetype, filesize, and pages if appropriate       
     $upload_id = $this->fedora->upload($filename);
@@ -383,14 +422,21 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
   }
 
 
-  // wrapper for foxml lastModified function - abstract datastream name
+  /**
+   * return information for last modification of file datastream in fedora
+   * (wrapper for foxml lastModified function - abstract datastream name)
+   * @see foxml::lastModified
+   */
   public function fileLastModified() {
     return $this->lastModified("FILE");
   }
 
 
 
-  // for Zend ACL Resource
+  /**
+   * allow etd_file to act as a Zend ACL Resource
+   * @return string
+   */ 
   public function getResourceId() {
     // check for various types
     

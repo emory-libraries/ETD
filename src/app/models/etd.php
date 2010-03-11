@@ -72,6 +72,7 @@ class etd extends foxml implements etdInterface {
    * - if string, retrieve object from Fedora by specified pid
    * - if DOMDocument, initialize from DOM contents (mostly for testing)
    * - if not specified, create a new etd from template
+   * -When modifying constructor check to see if solrEtd needs similar modifications
    */
   public function __construct($arg = null) {
     // if parameter is an instance of zend_config, then store it
@@ -109,7 +110,8 @@ class etd extends foxml implements etdInterface {
       }
       // warn if could not determine school config
       if (! isset($this->school_config))
-	trigger_error("Could not determine per-school configuration based on collection membership", E_USER_WARNING);
+	trigger_error("Could not determine per-school configuration for " . $this->pid . 
+		      " based on collection membership", E_USER_WARNING);
       
     } elseif ($this->init_mode == "dom") {    
       // anything here?
@@ -199,6 +201,7 @@ class etd extends foxml implements etdInterface {
 
   /**
    *  determine a user's role in relation to this ETD (for access controls)
+   * When making changes to this function also make corespondng changeg to getUserRole in solrEtd.php
    * @param esdPerson $user optional
    * @return string role
    * @todo look into using ownerId instead of rels-ext author
@@ -1065,11 +1068,15 @@ class etd extends foxml implements etdInterface {
     // call fedora service - returns html title if user is allowed to see it
     try {
       return $this->__call("title", array());
+    } catch (FoxmlException $e) {
+      // swallow exception, display as a notice
+      trigger_error("FoxmlException accessing title -- " . $e->getMessage(), E_USER_NOTICE);
     } catch (FedoraAccessDenied $e) {
       // swallow acccess denied exception and only display as a notice
       trigger_error("Access denied to title -- " . $e->getMessage(), E_USER_NOTICE);
-      return "";
     }
+    // if title dissemination failed (formatted version), fall back to plain-text title in mods
+    return $this->mods->title;
   }	
   public function author() { return $this->mods->author->full; }
   public function program() { return $this->mods->department; }
@@ -1132,23 +1139,30 @@ class etd extends foxml implements etdInterface {
     // call fedora service - returns html abstract if user is allowed to see it
     try {
       return $this->__call("abstract", array());
-    } catch (FedoraAccessDenied $e) {
-      // swallow acccess denied exception and only display as a notice
-      trigger_error("Access denied to abstract -- " . $e->getMessage(), E_USER_NOTICE);
-      return "";
-    }
 
+    // swallow exceptions, display as notice
+    } catch (FoxmlException $e) {
+      trigger_error("FoxmlException accessing abstract -- " . $e->getMessage(), E_USER_NOTICE);
+    } catch (FedoraAccessDenied $e) {
+      trigger_error("Access denied to abstract -- " . $e->getMessage(), E_USER_NOTICE);
+    }
+    // if dissemination failed (formatted version), fall back to plain-text version in mods
+    return $this->mods->abstract;
   }
+  
   public function tableOfContents() {
     // call fedora service - returns html ToC if user is allowed to see it
     try {
       return $this->__call("tableofcontents", array());
+    // swallow exceptions, display as notice
+    } catch (FoxmlException $e) {
+      trigger_error("FoxmlException accessing abstract -- " . $e->getMessage(), E_USER_NOTICE);
     } catch (FedoraAccessDenied $e) {
-      // swallow acccess denied exception and only display as a notice
       trigger_error("Access denied to table of contents -- " . $e->getMessage(),
 		    E_USER_NOTICE);
-      return "";
     }
+    // if dissemination failed (formatted version), fall back to plain-text version in mods
+    return $this->mods->tableOfContents;
   }
   public function num_pages() { return isset($this->mods->pages) ? $this->mods->pages : ""; }
   
