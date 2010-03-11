@@ -21,11 +21,23 @@
 	</ActionMatch>
        </Action>
 
+      <!-- ** limited API-M calls that should be allowed  ** -->
 
-<!-- api-m getDatastream for high-level datastream info, like time last modified -->
+      <!-- getDatastream for high-level datastream info, like time last modified -->
       <Action>
         <ActionMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">urn:fedora:names:fedora:2.1:action:id-getDatastream</AttributeValue>
+          <ActionAttributeDesignator
+                MustBePresent="false"
+                DataType="http://www.w3.org/2001/XMLSchema#string" 
+                AttributeId="urn:fedora:names:fedora:2.1:action:id"/>
+        </ActionMatch>
+       </Action>
+	
+      <!-- compareDatastreamChecksum -->
+      <Action>
+        <ActionMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">urn:fedora:names:fedora:2.1:action:id-compareDatastreamChecksum</AttributeValue>
           <ActionAttributeDesignator
                 MustBePresent="false"
                 DataType="http://www.w3.org/2001/XMLSchema#string" 

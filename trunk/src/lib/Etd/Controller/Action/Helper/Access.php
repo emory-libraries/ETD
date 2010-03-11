@@ -41,6 +41,35 @@ class Etd_Controller_Action_Helper_Access extends Zend_Controller_Action_Helper_
   }
 
   /**
+   * check if an action is allowed to current user
+   * @param string $role
+   * @param $action
+   * @param $user - optional
+   * @return bool
+   */
+  public function allowed($resource, $action, esdPerson $user = null) {
+    $acl = $this->_actionController->acl;
+
+    if(!is_null($user)){
+        $current_user = $user;
+    }
+    elseif (isset($this->_actionController->current_user)){
+      $current_user = $this->_actionController->current_user;
+    }
+   if(isset($current_user)){
+    $role = $current_user->role;
+   }
+   else{
+    $role = "guest";
+   }
+    $allowed = $acl->isAllowed($role, $resource, $action);
+    if (!$allowed) $this->notAllowed($action, $role, $resource);
+    return $allowed;
+  }
+
+
+
+  /**
    * check if an action is allowed to current user on an etd_file (particular or generic)
    * @param string $action
    * @param etd_file $etdfile particular etd_file to check against - OPTIONAL, checks generic etd_file otherwise

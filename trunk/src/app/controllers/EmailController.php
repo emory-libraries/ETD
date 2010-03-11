@@ -9,7 +9,6 @@ require_once("models/EtdSet.php");
  * @category Etd
  * @package Etd_Controllers
  */
- */
 class EmailController extends Etd_Controller_Action {
   protected $requires_fedora = true;
   
@@ -65,12 +64,30 @@ class EmailController extends Etd_Controller_Action {
 
      // bs with embargo
      unset($searchopts["AND"]["embargo_duration"]);
-     $searchopts["NOT"]["embargo_duration"] = '"0 days"';
+     unset($searchopts["AND"]["date_embargoedUntil"]);
+     //$searchopts["NOT"]["embargo_duration"] = '"0 days"';
+     $searchopts["AND"]["date_embargoedUntil"] = "[" . date("Ymd") . " TO *]";
      $etdset->find($searchopts);
      if ($etdset->numFound) 
        $this->view->etds["BS, embargoed"] = $etdset->etds[0];
+     // ThD without embargo
+     $searchopts["AND"]["degree_name"] = "ThD";
+     $searchopts["AND"]["embargo_duration"] = '"0 days"';
+     $etdset->find($searchopts);
+     if ($etdset->numFound)
+       $this->view->etds["ThD, no embargo"] = $etdset->etds[0];
 
-     // if no pid is specified, just use the first etd in the list of sample records
+     // ThD with embargo
+     unset($searchopts["AND"]["embargo_duration"]);
+     unset($searchopts["AND"]["date_embargoedUntil"]);
+     //$searchopts["NOT"]["embargo_duration"] = '"0 days"';
+     $searchopts["AND"]["date_embargoedUntil"] = "[" . date("Ymd") . " TO *]";
+     $etdset->find($searchopts);
+     if ($etdset->numFound)
+       $this->view->etds["ThD, embargoed"] = $etdset->etds[0];
+
+
+// if no pid is specified, just use the first etd in the list of sample records
      if (!$this->_hasParam("pid")) {
        $keys = array_keys($this->view->etds);
        $this->_setParam("pid", $this->view->etds[$keys[0]]->pid());

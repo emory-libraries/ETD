@@ -30,6 +30,7 @@ class esd_test_data {
 			   array(' ',1,'GADMIN','E','Admin','Graduate',' ','','GSAS Administrator','1007','Graduate School Administration',null,null,null,null,null,null,null,null,'grad.admin@emory.edu'),
 			   // grad dept. coordinator
 			   array(' ',1,'DADMIN','E','Admin','Department',' ','','Department Coordinator','1008','Graduate School',null,null,null,null,null,null,"Philosophy",null,'grad.admin@emory.edu'),
+               array(' ',1,'RVIEWER','E','Bob','Smith',' ','','Analyst','1009','Reports Department',null,null,null,null,null,null,"Philosophy",null,'grad.admin@emory.edu'),
 			   );
 
     $this->addr_fields = array("PRSN_I","PRAD_A_LOCL_LIN1","PRAD_A_LOCL_LIN2","PRAD_A_LOCL_LIN3","PRAD_A_LOCL_CITY","PRAD_A_LOCL_STAT","PRAD_A_LOCL_ZIP","PRAD_A_LOCL_PSTL","PRAD_A_LOCL_CNTR","PRAD_A_LOCL_TLPH","PRAD_A_STDN_LIN1","PRAD_A_STDN_LIN2","PRAD_A_STDN_LIN3","PRAD_A_STDN_CITY","PRAD_A_STDN_STAT","PRAD_A_STDN_ZIP","PRAD_A_STDN_PSTL","PRAD_A_STDN_CNTR","PRAD_A_STDN_TLPH");

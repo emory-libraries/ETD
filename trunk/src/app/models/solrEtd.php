@@ -9,6 +9,7 @@ require_once("etdInterface.php");
 
 class solrEtd implements etdInterface {
 
+  //When modifying constructor check to see if etd needs similar modifications
   public function __construct(Emory_Service_Solr_Response_Document $document) {
 
     // map lucene fields to etd fields - should be named consistently
@@ -16,7 +17,25 @@ class solrEtd implements etdInterface {
       $this->$key = $document->{$key};
     }
     // note that facet fields will be ignored here
-  }
+
+    // member of collections, attempt to find collection that matches a per-school config
+    if(isset($this->collection)){
+        $schools_cfg = Zend_Registry::get("schools-config");
+        for ($i = 0; $i < count($this->collection); $i++) {
+            $coll = $this->collection[$i];
+            if ($school_id = $schools_cfg->getIdByFedoraCollection($coll)) {
+                $this->school_config = $schools_cfg->$school_id;
+            }
+        }
+        
+    }
+
+    if(!isset($this->school_config)){
+      trigger_error("Could not determine per-school configuration for " . $this->PID . " based on collection membership", E_USER_WARNING);
+    }
+
+
+}
 
 
   // fixme: handle fields that could be empty?
@@ -105,6 +124,7 @@ class solrEtd implements etdInterface {
 
 
   // bogus getUserRole function ... do we actually have enough information from Solr to do this ?
+  //When making changes to this function also make corespondng changeg to getUserRole in etd.php
   public function getUserRole(esdPerson $user = null) {
     if (is_null($user)) return "guest";
 
@@ -120,6 +140,12 @@ class solrEtd implements etdInterface {
     
     elseif ($user->isCoordinator($this->program()))
       return "program coordinator";
+    elseif ($pos = strpos($user->role, " admin")) {
+      // if a user is a school-specific admin, determine if they are admin for *this* etd
+      $admin_type = substr($user->role, 0, $pos);
+      if (!empty($admin_type) && !empty($this->school_config->acl_id) && $admin_type == $this->school_config->acl_id)
+        return "admin";
+    }
     else
       return $user->role;
   }

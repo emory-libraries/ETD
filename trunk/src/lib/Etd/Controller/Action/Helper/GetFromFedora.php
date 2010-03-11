@@ -60,6 +60,7 @@ class Etd_Controller_Action_Helper_GetFromFedora extends Zend_Controller_Action_
     try {
       switch($type) {
       case "etd":  $object = new etd($id); break;
+      case "etd_file":  $object = new etd_file($id); break;
       case "user": $object = new user($id); break;
       }
     } catch (FedoraObjectNotFound $e) {

@@ -52,8 +52,12 @@ class SchoolsConfig extends Zend_Config_Xml {
 	  ($school->admin->netid != '' && $user->netid == $school->admin->netid)
 	  || (is_object($school->admin->netid) &&
 	      // multiple netids in config file
-	      in_array($user->netid, $school->admin->netid->toArray()))) {
-	return $school->acl_id;
+	      in_array($user->netid, $school->admin->netid->toArray()))
+      //check for department code
+      && (!empty($school->admin->department) &&
+	   $user->department == $school->admin->department)
+      ) {
+	      return $school->acl_id;
       }
       
       // check if department name OR code is configured & matches user department name/code

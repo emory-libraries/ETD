@@ -31,6 +31,7 @@ class ControllerGroupTest extends GroupTest {
     $this->addTestFile('controllers/TestProgramController.php');
     $this->addTestFile('controllers/TestHelpController.php');
     $this->addTestFile('controllers/TestUnapiController.php');
+    $this->addTestFile('controllers/TestReportController.php');
   }
 }
 
