@@ -59,23 +59,6 @@ class SchoolsConfig extends Zend_Config_Xml {
       ) {
 	      return $school->acl_id;
       }
-      
-      // check if department name OR code is configured & matches user department name/code
-      if ( !empty($school->admin->department) && 
-	   ($user->department == $school->admin->department) ||
-	   (!empty($school->admin->department_code) && 
-	    $school->admin->department_code == $user->department_code)) {
-
-	// if job title specified, do a case-insensitive string compare
-	if ( !empty($school->admin->job_title)) {
-	  if (stristr($user->directory_title, $school->admin->job_title)) {
-	    return $school->acl_id;
-	  }
-	} else {
-	  // job title not specified & department name/code match found
-	  return $school->acl_id;
-	}
-      }
     }
   }
 

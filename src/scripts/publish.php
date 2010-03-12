@@ -193,9 +193,6 @@ if (count($etds)) {
 }
 
 
-/**
- *        Send a summary email to the etd administrator
- */
 
 //Prepare summary email body
 $summary = "SUMMARY:\n" .
