@@ -1,0 +1,16 @@
+<H1>Available Reports</H1>
+<ul>
+  <li><a href="<?= $this->url(array("controller" => "report",
+			"action" => "summary-stat"), '', true); ?>">Summary Statistics</a></li>
+  <li><a href="<?= $this->url(array("controller" => "report",
+			"action" => "commencement-review"), '', true); ?>">Commencement Report</a></li>
+  <li><a href="<?= $this->url(array("controller" => "report",
+		"action" => "grad-data"), '', true); ?>">Graduate School Academic Year Report</a>
+	<?= $this->FiletypeIcon("text/csv") ?></li>
+  <li><a href="<?= $this->url(array("controller" => "report",
+		"action" => "embargo-csv"), '', true); ?>">Upcoming Embargos Report</a>
+	<?= $this->FiletypeIcon("text/csv") ?></li>
+  <li><a href="<?= $this->url(array("controller" => "report",
+    'action' => 'exportemails')) ?>">Export email addresses for approved records</a>
+    <?= $this->FiletypeIcon("text/csv") ?></li>
+</ul>

@@ -1,0 +1,18 @@
+<div class="proquest">
+
+<a
+href="<?= $this->url(array("controller" => "browse", "action" => "proquest"), "", true) ?>">Browse ProQuest</a>
+
+<form action="http://proquest.umi.com.proxy.library.emory.edu/pqdweb"
+    method="get">
+Search ProQuest
+<input type="hidden" name="RQT" value="305"/>
+<input type="hidden" name="querySyntax" value="PQ"/>
+<input type="hidden" name="clientId" value="1917"/>
+<input type="hidden" name="DBId" value="21729"/>
+<input type="text" name="SQ" size="12"/>
+<input class="submitlink" type="submit" value="Go &gt;"/>
+</form>
+</div>
+
+
