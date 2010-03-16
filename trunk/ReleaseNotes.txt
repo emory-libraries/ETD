@@ -31,10 +31,11 @@ Deployment notes:
     * honors admin section is no longer needed, and should be removed
   * Run the following migration scripts:
     * 012-add-candler-programs.php - update program hierarchy for Candler
-    * 013-update_dc - Update all published ETDs with OAI ids
+    * 013-update_dc - Update the Dublin Core for all ETDs using the latest MODS -> DC conversion
   * Publication script has changed; weekly cron job that runs
     publish.php should be revised to send the output to a log file.
   * Entire site should re-indexed.
+  * update fedora xacml policies from latest svn
 
 
 Version 1.5 - November 2009
