@@ -1005,10 +1005,42 @@ class TestEtd extends UnitTestCase {
     }
     
   }
-  
+
+
+  function testReadyToSubmit(){
+    $fname = '../fixtures/etd2.xml';
+    $dom = new DOMDocument();
+    $dom->load($fname);
+    $etd = new etd($dom);
+    $etd->setSchoolConfig($this->school_cfg->graduate_school);
+    $etd->mods->addNote("yes", "admin", "pq_submit");
+
+      $missing = $etd->checkRequired();
+
+
+    $etd->mods->setEmbargoRequestLevel(etd_mods::EMBARGO_NONE);
+    $result = $etd->readyToSubmit("mods");
+    $this->assertTrue($result);
+
+    $etd->mods->setEmbargoRequestLevel(etd_mods::EMBARGO_FILES);
+    $result = $etd->readyToSubmit("mods");
+    $this->assertTrue($result);
+
+    $etd->mods->setEmbargoRequestLevel(etd_mods::EMBARGO_TOC);
+    //print $etd->mods->embargoRequestLevel() . "<br>";
+    $result = $etd->readyToSubmit("mods");
+    $this->assertTrue($result);
+
+    $etd->mods->setEmbargoRequestLevel(etd_mods::EMBARGO_ABSTRACT);
+    $result = $etd->readyToSubmit("mods");
+    $this->assertTrue($result);
+
 
 }
 
+
+
+}
 runtest(new TestEtd());
 
 ?>
