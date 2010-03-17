@@ -462,6 +462,9 @@ class TestEtdMods extends UnitTestCase {
     $this->assertFalse($this->mods->isEmbargoRequested(etd_mods::EMBARGO_TOC));
     $this->assertFalse($this->mods->isEmbargoRequested(etd_mods::EMBARGO_ABSTRACT));
 
+    $embargo_end = date("Y-m-d", strtotime("+1 year", time()));
+    $this->mods->embargo_end = $embargo_end;
+    $this->mods->tableOfContents = "XXXX";
     $this->mods->setEmbargoRequestLevel(etd_mods::EMBARGO_TOC);
     $this->assertEqual($this->mods->embargo_request, "yes:files,toc");
     $this->assertEqual($this->mods->embargoRequestLevel(), etd_mods::EMBARGO_TOC);
@@ -469,7 +472,11 @@ class TestEtdMods extends UnitTestCase {
     $this->assertTrue($this->mods->isEmbargoRequested(etd_mods::EMBARGO_FILES));
     $this->assertTrue($this->mods->isEmbargoRequested(etd_mods::EMBARGO_TOC));
     $this->assertFalse($this->mods->isEmbargoRequested(etd_mods::EMBARGO_ABSTRACT));
+    $this->assertEqual("", $this->mods->tableOfContents);
 
+
+    $this->mods->tableOfContents = "XXXX";
+    $this->mods->abstract = "XXXX";
     $this->mods->setEmbargoRequestLevel(etd_mods::EMBARGO_ABSTRACT);
     $this->assertEqual($this->mods->embargo_request, "yes:files,toc,abstract");
     $this->assertEqual($this->mods->embargoRequestLevel(), etd_mods::EMBARGO_ABSTRACT);
@@ -477,6 +484,8 @@ class TestEtdMods extends UnitTestCase {
     $this->assertTrue($this->mods->isEmbargoRequested(etd_mods::EMBARGO_FILES));
     $this->assertTrue($this->mods->isEmbargoRequested(etd_mods::EMBARGO_TOC));
     $this->assertTrue($this->mods->isEmbargoRequested(etd_mods::EMBARGO_ABSTRACT));
+    $this->assertEqual("", $this->mods->tableOfContents);
+    $this->assertEqual("", $this->mods->abstract);
   }
 
 
