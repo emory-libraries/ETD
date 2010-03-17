@@ -1015,9 +1015,7 @@ class TestEtd extends UnitTestCase {
     $etd->setSchoolConfig($this->school_cfg->graduate_school);
     $etd->mods->addNote("yes", "admin", "pq_submit");
 
-      $missing = $etd->checkRequired();
-
-
+    //Test increasing embarog levels
     $etd->mods->setEmbargoRequestLevel(etd_mods::EMBARGO_NONE);
     $result = $etd->readyToSubmit("mods");
     $this->assertTrue($result);
@@ -1035,7 +1033,20 @@ class TestEtd extends UnitTestCase {
     $result = $etd->readyToSubmit("mods");
     $this->assertTrue($result);
 
+    //Test decreasing embargo levels
 
+    $etd->mods->setEmbargoRequestLevel(etd_mods::EMBARGO_TOC);
+    //print $etd->mods->embargoRequestLevel() . "<br>";
+    $result = $etd->readyToSubmit("mods");
+    $this->assertTrue($result);
+
+    $etd->mods->setEmbargoRequestLevel(etd_mods::EMBARGO_FILES);
+    $result = $etd->readyToSubmit("mods");
+    $this->assertTrue($result);
+
+    $etd->mods->setEmbargoRequestLevel(etd_mods::EMBARGO_NONE);
+    $result = $etd->readyToSubmit("mods");
+    $this->assertTrue($result);
 }
 
 
