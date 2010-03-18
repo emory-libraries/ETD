@@ -1,0 +1,20 @@
+<?/* short record view  for an ETD (list/browse)
+     expects $view->etd to be set with record to display.  */ ?>
+<? $this->role = $this->etd->getUserRole($this->current_user); ?>
+
+<div class="listrecord">
+    <div class="record_title">
+      <a href="<?= $this->url(array("controller" => "view",
+    "action" => "record", "pid" => $this->etd->pid()), "", true, false)?>"><?= $this->etd->title() ?></a>
+   </div>
+   <? if ($this->show_relevance && isset($this->etd->relevance)): ?>
+          <div class="relevance">
+	     <div class="score" style="width:<?=$this->etd->relevance * 2 ?>cm;">&nbsp;</div>
+	  </div>
+          <div class="relevance-label">relevance: <?= $this->etd->relevance ?></div>
+   <? endif ?>
+
+  <?=  $this->render('manage/_actions.phtml'); ?>
+  <?=  $this->render('view/summary.phtml'); ?>
+  <?=  $this->render('view/_lastaction.phtml'); ?>
+</div>

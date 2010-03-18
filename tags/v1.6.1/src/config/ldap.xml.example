@@ -1,0 +1,16 @@
+<ldap>
+  <development>
+   <server>	
+    <host></host>
+    <port></port>
+    <baseDn></baseDn>  
+    <username></username>   
+    <password></password>
+    <accountCanonicalForm></accountCanonicalForm>
+    <bindRequiresDn></bindRequiresDn>  
+    <useSsl></useSsl>
+   </server>
+  </development>
+  <test extends="development"/>
+  <production extends="development"/>
+</ldap>

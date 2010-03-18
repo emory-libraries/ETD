@@ -1,0 +1,33 @@
+<xf:instance id="countries" xmlns="" src="<?= $this->url(array("controller" => "config", "action" => "view",
+ "id" => "countries"), "", true) ?>"/>
+
+<xf:bind nodeset="//mads:namePart[@type='family' or @type='given']" type="xsd:string"  constraint=". != ''"
+   <? if ($this->etd->isRequired("name")): ?> required="true()" <? endif ?>/>
+
+<? if ($this->etd->isRequired("permanent address")): ?>
+  <xf:bind nodeset="//mads:affiliation[mads:position = 'permanent resident']/mads:address/*" type="xsd:string" required="true()"/> 
+  <xf:bind nodeset="//mads:affiliation[mads:position = 'permanent resident']/mads:dateValid" type="xsd:date" required="true()"/>
+<? endif ?>
+
+<xf:bind nodeset="//mads:dateValid" type="xsd:date"/>
+
+<? /* require that permanent email not contain emory.edu */ ?>
+<xf:bind nodeset="/mads:mads/mads:affiliation[mads:position = 'permanent resident']/mads:email"
+   constraint="not(contains(., 'emory.edu')) or contains(., '@alum.emory.edu')"   type="xforms:email"
+  <? if ($this->etd->isRequired("permanent email")): ?> required="true()" <? endif ?> />
+     <? /*        constraint="not(contains(., 'emory.edu')) or contains(., '@alum.emory.edu')"   type="xforms:email" */ ?>
+
+<xf:bind nodeset="/mads:mads/mads:affiliation[mads:position != 'permanent resident']/mads:email"
+   type="xforms:email"
+  <? if ($this->etd->isRequired("email")): ?> required="true()" <? endif ?> /> 
+						 
+<xf:bind nodeset="mads:email" type="xforms:email"/>
+
+ <xf:submission id="submission" action="<?= $this->url(array('controller' => 'user',
+		'action' => 'save', 'id' => $this->pid, 'etd' => $this->etd_pid))?>"	
+		  method="post" > 	<? /* pass along pid of ETD record should be associated with */ ?>
+   <xf:setvalue ref="submit-done" ev:event="xforms-submit-done">true</xf:setvalue>
+</xf:submission>   
+   
+<xf:message level="modal"
+   ev:event="xforms-submit-error">Error: check that all required fields are filled in correctly</xf:message>
