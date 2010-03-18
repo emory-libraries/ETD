@@ -768,22 +768,18 @@ class etd extends foxml implements etdInterface {
   public function readyToSubmit($mode = null) {
     $required_fields = $this->requiredFields();
     $embargoLevel = $this->mods->embargoRequestLevel();
-    //Embarog Levels:
-    //0 - None
-    //2 - Files and TOC
-    //3 - Files, TOC and Abstract
-
+    
     if ($mode == null || $mode == "mods") {
-        if($embargoLevel == etd_mods::EMBARGO_TOC){ //remove table of contents from mod check
+        if($embargoLevel == etd_mods::EMBARGO_TOC){ //remove table of contents from mod check when embargoed. Checking $etd->html instead so records will validate on review page
             unset($required_fields[array_search("table of contents", $required_fields)]);
             unset($this->mods->available_fields[array_search("table of contents", $this->mods->available_fields)]);
 
             $toc = trim($this->html->contents);
-            if(trim($toc) == "" ) {return false;}
+            if($toc == "" ) {return false;}
 
         }
 
-        if($embargoLevel == etd_mods::EMBARGO_ABSTRACT){ //remove table of contents and abstract from mods check
+        if($embargoLevel == etd_mods::EMBARGO_ABSTRACT){ //remove table of contents and abstract from mods check when embargoed. Checking $etd->html instead so records will validate on review page
             unset($required_fields[array_search("table of contents", $required_fields)]);
             unset($this->mods->available_fields[array_search("table of contents", $this->mods->available_fields)]);
 
@@ -793,7 +789,7 @@ class etd extends foxml implements etdInterface {
             $toc = trim($this->html->contents);
             $abstract = trim($this->html->abstract);
 
-            if(trim($toc) == "" || trim($abstract) == "") {return false;}
+            if($toc == "" || $abstract == "") {return false;}
         }
 
 

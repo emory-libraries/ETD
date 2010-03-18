@@ -554,7 +554,7 @@ class etd_mods extends mods {
       }
       $this->embargo_request = "yes:" . substr($embargo_bits, 1);
 
-      //TOC and ABSTRACT should not be stored if embargoed
+      //TOC and ABSTRACT should not be stored in mods if embargoed because mods is not locked donw.
       if($level == etd_mods::EMBARGO_TOC && $this->isEmbargoed()){
           $this->tableOfContents = "";
       }
