@@ -1025,7 +1025,6 @@ class TestEtd extends UnitTestCase {
     $this->assertTrue($result);
 
     $etd->mods->setEmbargoRequestLevel(etd_mods::EMBARGO_TOC);
-    //print $etd->mods->embargoRequestLevel() . "<br>";
     $result = $etd->readyToSubmit("mods");
     $this->assertTrue($result);
 
@@ -1036,7 +1035,6 @@ class TestEtd extends UnitTestCase {
     //Test decreasing embargo levels
 
     $etd->mods->setEmbargoRequestLevel(etd_mods::EMBARGO_TOC);
-    //print $etd->mods->embargoRequestLevel() . "<br>";
     $result = $etd->readyToSubmit("mods");
     $this->assertTrue($result);
 
