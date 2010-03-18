@@ -1,7 +1,15 @@
 ETD Release Notes
 =================
 
-Version 1.6 - February 2010
+Version 1.6.1 - March 2010
+
+* This is a bugfix release
+* Authors may embargo all or part of the ETD record and still be able to pass validations on submission review page
+
+Deployment notes:
+* Swith to tag v1.6.1
+
+Version 1.6 - March 2010
 
 * Added support for receiving and managing submissions from Candler
   School of Theology.  Per-school configuration is now handled largely
