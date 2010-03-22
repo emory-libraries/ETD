@@ -8,10 +8,6 @@
 	       <address></address>
 	       <name></name>
 	    </etd>
-	    <ott>
-	       <address>ott-web@emory.edu</address>
-	       <name>Emory Office of Technology Transfer</name>
-	    </ott>
 	    <test></test>
 	  </email>
 	  <contact>
@@ -38,9 +34,11 @@
 	    <user></user>
             <user></user>
 	  </techsupport>
-      <reportviewer>
-            <department></department>
-      </reportviewer>
+	 <!-- undergraduate honors administrators -->
+ 	  <honors_admin>
+	    <user></user>
+	    <user/>
+ 	  </honors_admin>
 
  <!-- NOTE: for superusers, techsupport, and honors_admin,
       there must be at least 2 user entries so Zend_Config_Xml 

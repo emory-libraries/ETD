@@ -62,7 +62,6 @@
        <allow resource="reviewed etd">approve, request document changes</allow>
        <allow resource="approved etd">publish</allow>	<!-- not technically done by admin... -->
        <allow resource="published etd">inactivate, revise embargo</allow>
-       <allow resource="report">view</allow>
        <!-- should really only be done by superuser -->
        <allow resource="inactive etd">reactivate</allow>    
 
@@ -78,7 +77,6 @@
        <allow resource="etd">edit history, edit status, manage</allow>
        <allow resource="file">view modified</allow>
        <allow resource="user">view</allow>
-       <allow resource="report">view</allow>
     </role>
 
     <!-- administrator for undergraduate honors ETDs -->
@@ -98,8 +96,9 @@
       <allow/>	<!-- allow anything -->
     </role>
 
-    <role name="report viewer" inherits="guest">
-      <allow resource="report">view</allow>
+    <role name="university admin">
+      <!-- view reports -->
+      <allow resource="etd">report</allow>
     </role>
   </roles>
   <resources>
@@ -125,11 +124,7 @@
 
    <resource name="statistics"/>
 
-   <resource name="report"/>
-
    <resource name="log"/>
-
-
 
    <resource name="programs">
      <resource name="undergrad programs"/>
