@@ -26,6 +26,10 @@ class esd_test_data {
 			   array('N',6,'EMIRIT','R','Emiritus','Peter','J','','Retired Professor','1009',null,null,null,null,null,null,null,null,null,null),			   
 			   // student
 			   array(' ',4,'MSTUDEN','B','Student','Mary','Kim',null,null,null,null,'GSAS','PHD','BBSPHD','Bioscience','PHD',null,null,'N','m.student@emory.edu'),
+			   // student employee  -- *two* records in current ESD, one without info we need
+			   array(' ',7,'JSTUDEN','B','Student','Joe','Bob',null,null,null,null,null,null,null,null,null,null,null,'N','j.student@emory.edu'),
+			   array(' ',7,'JSTUDEN','B','Student','Joe','Bob',null,null,null,null,'GSAS','PHD','BBSPHD','Bioscience','PHD',null,null,'N','j.student@emory.edu'),
+
 			   // grad administrator
 			   array(' ',1,'GADMIN','E','Admin','Graduate',' ','','GSAS Administrator','1007','Graduate School Administration',null,null,null,null,null,null,null,null,'grad.admin@emory.edu'),
 			   // grad dept. coordinator
