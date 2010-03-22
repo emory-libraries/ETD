@@ -165,6 +165,7 @@ class SubmissionController extends Etd_Controller_Action {
 	  if ($this->debug) $this->view->filexml = $etdfile->saveXML();
 	  break;
 	}
+	$this->logger->err("Failure uploading pdf to Fedora : " $errtype);
       } else {	// valid pid returned for file
 	$this->logger->info("Created new etd file record with pid $filepid");
 	
@@ -179,26 +180,26 @@ class SubmissionController extends Etd_Controller_Action {
 	if ($this->debug) $this->_helper->flashMessenger->addMessage("Saved etd file as $filepid");
 	
 	//send email if patent screening question is yes
-    if(strval($answers["patent"]) == "1"){
-        $notice = new etd_notifier($etd);
-        $notice->patent_concerns();
+	if(strval($answers["patent"]) == "1"){
+	  $notice = new etd_notifier($etd);
+	  $notice->patent_concerns();
 
-     //Email sent history event
-     $eventMsg="Email sent due to patent concern.";
-     $etd->premis->addEvent("admin", $eventMsg, "success",
-			     array("netid", $this->current_user->netid));
-
-     $message = "Patent email sent";
-     $result = $etd->save($message);
-     if ($result)
+	  //Email sent history event
+	  $eventMsg="Email sent due to patent concern.";
+	  $etd->premis->addEvent("admin", $eventMsg, "success",
+				 array("netid", $this->current_user->netid));
+	  
+	  $message = "Patent email sent";
+	  $result = $etd->save($message);
+	  if ($result)
 	    $this->logger->info("Updated etd " . $etd->pid . " at $result ($message)");
-     else
+	  else
 	    $this->logger->err("Error updating etd " . $etd->pid . " ($message)");
+	  
+	  $this->_helper->flashMessenger->addMessage("An e-mail has been sent to notify the appropriate person of potential patent concerns.");
+	}
 
-        $this->_helper->flashMessenger->addMessage("An e-mail has been sent to notify the appropriate person of potential patent concerns.");
-    }
-
-    $this->_helper->redirector->gotoRoute(array("controller" => "view",
+	$this->_helper->redirector->gotoRoute(array("controller" => "view",
 						    "action" => "record",
 						    "pid" => $etd->pid));
 	
@@ -261,6 +262,12 @@ class SubmissionController extends Etd_Controller_Action {
     // get per-school configuration for the current user
     $school_cfg = Zend_Registry::get("schools-config");
     $school_id = $this->current_user->getSchoolId();
+    // if no school id is found, set a default so no record is created without a school
+    if (!$school_id) {
+      $school_id = "graduate_school";
+      $this->logger->err("Could not determine school for " . $this->current_user->netid .
+			 "; defaulting to Graduate School");
+    }
     // pass school-specific configuration to new etd record
     $etd = new etd($school_cfg->$school_id);
     
