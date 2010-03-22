@@ -10,7 +10,8 @@
       <degree>MS</degree>
     </degrees>
     <admin>
-	<department>GRS: Student Development</department>
+	<!-- switch to/allow for department id ?! -->
+	<department>Graduate School Administration</department>
         <netid>gradqew</netid>
     </admin>
     <submission_fields>
@@ -45,10 +46,11 @@
       <degree>BS</degree>
       <degree>BBA</degree>
     </degrees>
+    <!-- required fields? .. how to specify? -->
+     <!-- optional fields ? -->
     <admin>
-	<department>ECAS: Ofc Undergrad Education</department>
-    <netid>mabell</netid>
-    <netid>efricke</netid>
+	<!-- gracefully handle array / non-array ? -->
+	<netid>mabell</netid>
     </admin>
     <submission_fields>
 	<required>title</required>
@@ -98,9 +100,8 @@
 	<optional>researchfields</optional>
     </submission_fields>
     <admin>
-	<department>Candler School Of Theology</department>
-    <netid>skraftc</netid>
-    <netid>mmcca04</netid>
+	<department>Candler School of Theology</department>
+	<job_title>Academic Admin</job_title> 
     </admin>
   </candler>
 </schools>
