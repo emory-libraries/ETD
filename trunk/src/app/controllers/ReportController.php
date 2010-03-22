@@ -4,16 +4,69 @@
  * @package Etd_Controllers
  */
 
+//NOTE: "Report viewer"  needs elavated roles (maintenance account) to use Fedora content in the views
+
 require_once("models/etd.php");
-require_once("/home/jsun32/etd/etd-trunk/src/public/php-ofc-library/open-flash-chart.php");
 
 class ReportController extends Etd_Controller_Action {
 	protected $requires_fedora = false;
 	protected $params;
+	/* FIXME: what are these for? used anywhere? */
 	private $etd_pid;
 	private $message;
 
+	/**
+	 * copy of fedoraConnection with current user's auth credentials
+	 * (to be restored in postDispatch)
+	 * @var FedoraConnection
+	 */
+	protected $_fedoraConnection;
+
+
+	/**
+	 * report viewers do not have special accesses at the fedora
+	 * level, which some of these reports required.  Temporarily
+	 * overriding fedora connection with a connection that uses
+	 * maintenance account credentials.
+	 * Note: this will be done before all actions in this
+	 * controller, and the default fedora connection will restored
+	 * by postDispatch.
+	 */
+	public function preDispatch() {
+	  // store fedoraConnection with user auth credentials - to be restored in postDispatch
+	  $this->_fedoraConnection = Zend_Registry::get("fedora");
+
+	  // if current user is a report viewer (do NOT have special access at the fedora level),
+	  // temporarily replace fedora connection
+	  if ($this->current_user->role == "report viewer") {
+	    $fedora_cfg = Zend_Registry::get('fedora-config');
+	    try {
+	      $fedora_opts = $fedora_cfg->toArray();
+	      // use default fedora config opts but with maintenance account credentials
+	      $fedora_opts["username"] = $fedora_cfg->maintenance_account->username;
+	      $fedora_opts["password"] = $fedora_cfg->maintenance_account->password;
+	      $maintenance_fedora = new FedoraConnection($fedora_opts);
+	    } catch (FedoraNotAvailable $e) {
+	      $this->logger->err("Error connecting to Fedora with maintenance account - " . $e->getMessage());
+	      $this->_forward("fedoraunavailable", "error");
+	      return;
+	    } 
+	    Zend_Registry::set("fedora", $maintenance_fedora);
+	  }
+	}
+
+	/**
+	 * restore fedoraConnection with currently-logged in user's credentials
+	 */
+	public function postDispatch() {
+	  Zend_Registry::set("fedora", $this->_fedoraConnection);
+	}
+
+	/**
+	 * Display list of reports
+	 */
 	public function indexAction() {
+        if(!$this->_helper->access->allowed("report", "view")) {return false;}
 	}
 	 
 	/**
@@ -21,7 +74,7 @@ class ReportController extends Etd_Controller_Action {
      * from the commencement report
      */
     public function commencementReviewAction() {
-        if (!$this->_helper->access->allowedOnEtd("manage")) {return false;}
+        if(!$this->_helper->access->allowed("report", "view")) {return false;}
 
 		$this->view->title = "Commencement Report Review";
 
@@ -49,7 +102,7 @@ class ReportController extends Etd_Controller_Action {
      *  pids from the previous form
      */
     public function commencementAction() {
-        if (!$this->_helper->access->allowedOnEtd("manage")) {return false;}
+        if(!$this->_helper->access->allowed("report", "view")) {return false;}
 
 		$this->view->title = "Commencement Report";
 
@@ -75,6 +128,7 @@ class ReportController extends Etd_Controller_Action {
 		$optionsArray['NOT']['status'] = "draft";
 		// show ALL records on a single page 
 		$optionsArray['max'] = 1000;
+		/* FIXME: should this really be solrEtd ? */
 		$optionsArray['return_type'] = "solrEtd";
 
 		        
@@ -102,11 +156,12 @@ class ReportController extends Etd_Controller_Action {
      *  Start of year is 12/31 of last year, end is 8/31 of current year
      */
     public function gradDataAction(){
-         if (!$this->_helper->access->allowedOnEtd("manage")) {return false;}
+         if(!$this->_helper->access->allowed("report", "view")) {return false;}
+
         // academic start and end months
         $acStart="Dec 31";
         $acEnd="Aug 31";
-        $numYears=5;  //number of years to include
+        $numYears=2;  //number of years to include before most recent academic year
         $curDate=strtotime("now"); //current date
                 
         //Create first and thus default choice
@@ -155,7 +210,7 @@ class ReportController extends Etd_Controller_Action {
      * Action to create CSV file from submitted date range
      */
     public function gradDataCsvAction(){
-        if (!$this->_helper->access->allowedOnEtd("manage")) {return false;}
+        if(!$this->_helper->access->allowed("report", "view")) {return false;}
 
         //get start and end dates from post
         $inputField="academicYear";
@@ -271,7 +326,7 @@ class ReportController extends Etd_Controller_Action {
          * Action to create CSV file with Embargo data
          */
     public function embargoCsvAction(){
-      if (!$this->_helper->access->allowedOnEtd("manage")) {return false;}
+      if(!$this->_helper->access->allowed("report", "view")) {return false;}
 
         //Query solr
         $optionsArray = array();
@@ -293,6 +348,7 @@ class ReportController extends Etd_Controller_Action {
         foreach($etdSet->etds as $etd){
             $line = array();
             $line[] = $etd->mods->author->full;
+
             $line[] = $etd->authorInfo->mads->permanent->email;
 
             //Get advisor and advisor emails
@@ -333,6 +389,81 @@ class ReportController extends Etd_Controller_Action {
        $this->getResponse()->setHeader('Content-Disposition', 'attachment; filename="' . $filename . '"');
     }
 
+/**
+ *
+ * Action to create CSV file with email data
+ */
+   public function exportemailsAction() {
+     if(!$this->_helper->access->allowed("report", "view")) {return false;}
+     $etdSet = new EtdSet();
+     // FIXME: how do we make sure to get *all* the records ?
+     $etdSet->find(array("AND" => array("status" => "approved"), "start" => 0, "max" => 200));
+
+     // date/time this output was generated to be included inside the file
+     $date = date("Y-m-d H:i:s");
+
+     $data[] = array("Name", "Emory email address", "Permanent email address",
+			"Program", "Output Generated " . $date);
+
+     foreach ($etdSet->etds as $etd){
+         $data[] = array($etd->authorInfo->mads->name->__toString(),
+			$etd->authorInfo->mads->current->email,
+			$etd->authorInfo->mads->permanent->email,
+			$etd->program());
+     }
+
+     $this->view->data = $data;
+
+     $this->_helper->layout->disableLayout();
+     // add date to the suggested output filename
+     $filename = "ETD_approved_emails_" . date("Y-m-d") . ".csv";
+     $this->getResponse()->setHeader('Content-Type', "text/csv");
+     $this->getResponse()->setHeader('Content-Disposition',
+				     'attachment; filename="' . $filename . '"');
+     
+   }
+
+
+   public function summaryStatAction() {
+     if(!$this->_helper->access->allowed("report", "view")) {return false;}
+     $this->view->title = "Summary Statistics";
+
+     $solr = Zend_Registry::get('solr');
+     $solr->clearFacets();
+     $solr->addFacets(array("program_facet", "year", "dateIssued", "embargo_duration", "num_pages",
+			    "degree_level", "degree_name"));
+     // would be nice to also have: degree (level?), embargo duration
+     $solr->setFacetLimit(-1);	// no limit
+     $solr->setFacetMinCount(1);	// minimum one match
+     $result = $solr->query("*:*", 0, 0);	// find facets on all records, return none
+     $this->view->facets = $result->facets;
+     uksort($this->view->facets->embargo_duration, "sort_embargoes");
+
+     // how to do page counts by range?
+     for ($i = 0; $i < 1000; $i += 100) {
+       $range = sprintf("%05d TO %05d", $i, $i +100);
+       if ($i == 0) $label = ">100";
+       else $label = $i . " - " . ($i + 100);
+       $response = $solr->query("num_pages:[$range]", 0, 0);
+       $pages[$label] = $response->numFound;
+     }
+     $response = $solr->query("num_pages:[01000 TO *]", 0, 0);
+     $pages[">1000"] = $response->numFound;
+
+     /*     $response = $solr->query("num_pages:[00000 TO 00100]");
+     $pages[">100"] = $response->numFound;
+     $response = $solr->query("num_pages:[00100 TO 00200]");
+     $pages["100-200"] = $response->numFound;
+     $response = $solr->query("num_pages:[00200 TO 00300]");
+     $pages["200-300"] = $response->numFound;
+     */
+     $this->view->pages = $pages;
+
+   }
+
+
+
+
     /**
  * Function to retun a decorator to be used with the author name
  *
@@ -351,297 +482,9 @@ function getSemesterDecorator($grad_date) {
 		}
 		return $decorator;
 }
-public function pagelenAction() {
 
-}
-/**
- * This function is used to generate page length report by degrees
- */
-public function degreepagelenAction() {
-  $solr = Zend_Registry::get('solr');
-  $solr->clearFacets();
-  //$solr->addFacets(array("program_facet"));
-  $solr->addFacets(array("program_facet"));
-  $solr->setFacetLimit(-1);  // no limit
-  $solr->setFacetMinCount(1);        // minimum one match
-  $this->view->facets = $result->facets;
-  $this->view->title = "Report by number of pages";
-  $page_len_flash_chart = new open_flash_chart();
+ 
 
-  $page_len = array();
-  $num_of_honors = array();
-  $num_of_masters = array();
-  $num_of_dissertations = array();
-  $x_label_array = array();
-  
-  for ($i = 0; $i < 1100; $i += 100) {
-    $range = sprintf("%05d TO %05d", $i, $i +100);
-    if ($i == 0) {
-      $x_label_array[0] = "<100";
-      $range = "* TO 00100";
-    } else if ($i >= 1000) {
-      $range = "01000 TO *";
-      $x_label_array[] = ">1000";
-    } else {
-      $x_label_array[] = $i . " - " . ($i + 100);
-    }
-    $response = $solr->query("num_pages:[$range]", 0, 0);
-    $page_len[] = $response->numFound;
-    $response = $solr->query("{!q.op=AND}num_pages:[$range] degree_name:B*", 0, 0);
-    $num_of_honors[] = $response->numFound;
-    $response = $solr->query("{!q.op=AND}num_pages:[$range] degree_name:M*", 0, 0);
-    $num_of_masters[] = $response->numFound;; 
-    $response = $solr->query("{!q.op=AND}num_pages:[$range] -degree_name:M* -degree_name:B*", 0, 0);
-    $num_of_dissertations[] = $response->numFound;
-  }
 
-  $max_page_num = max($page_len);
-  $steps = ceil($max_page_num / 50);
-  $scaled_max_num = $steps * 50;
-
-  $x_labels = new x_axis_labels();
-  $x_labels->set_vertical();
-  $x_labels->set_labels( $x_label_array );
-
-  $x_legend = new x_legend( 'Pages' );
-  $x_legend->set_style( '{font-size: 12px; color: #333333; font-weight:bold}' );
-  $page_len_flash_chart->set_x_legend( $x_legend );
-  $y_legend = new y_legend( 'Documents' );
-  $y_legend->set_style( '{font-size: 14px; color: #333333; font-weight:bold}' );
-  $page_len_flash_chart->set_y_legend( $y_legend );
-
-  $bar = new bar_glass();
-  $bar->set_colour( '#000000' );
-  $bar->key("Total", 10);
-  $bar->set_values($page_len);
-  $page_len_flash_chart->add_element($bar);
-  $bar = new bar_glass();
-  $bar->set_colour( '#1F78B4' );
-  $bar->key("Honors Theses", 10);
-  $bar->set_values($num_of_honors);
-  $page_len_flash_chart->add_element($bar);
-  $bar = new bar_glass();
-  $bar->set_colour( '#33A02C' );
-  $bar->key("Masters Theses", 10);
-  $bar->set_values($num_of_masters);
-  $page_len_flash_chart->add_element($bar);
-  $bar = new bar_glass();
-  $bar->set_colour( '#FF7F00' );
-  $bar->key("Dissertations", 10);
-  $bar->set_values($num_of_dissertations);
-  $page_len_flash_chart->add_element($bar);
-  
-  $x = new x_axis();
-  $x->set_labels( $x_labels );
-  $page_len_flash_chart->set_x_axis( $x ); 
-
-  $y = new y_axis();
-  $y->set_range( 0, $scaled_max_num, 50);
-  $page_len_flash_chart->add_y_axis( $y );
-
-  $title = new title( "Document Length Report by Degrees" );
-  $title->set_style( '{font-size: 14px; color: #333333; font-weight:bold}' );
-  $page_len_flash_chart->set_title( $title);
-
-  $this->page_len_chart = $page_len_flash_chart;
-  $this->view->flashchart = $this->page_len_chart;
-}
-/**
- * This function is used to generate page length report by programs
- */
-public function programAction() {
-  $this->firstReport = true;
-  $programs = $this->progcolls();
-  $this->view->collection = $programs;
-  $this->programspecificAction();
-}
-
-/**
- * This function returns the programs in the high level program specified by $coll
- */
-private function progcolls($coll = "#grad") {
-
-    try {
-      $programObject = new foxmlPrograms($coll);
-      $programs = $programObject->skos;
-    } catch (XmlObjectException $e) {
-      $message = "Error: Program not found";
-      if ($this->env != "production") $message .= " (<b>" . $e->getMessage() . "</b>)";
-      $this->_helper->flashMessenger->addMessage($message);
-      $this->_helper->redirector->gotoRouteAndExit(array("controller" => "error", "action" => "notfound"), "", true);
-    }
-    return $programs;
-}
-
-/**
- * This function is used to generate page length report by the selected program
- */
-public function programspecificAction() {
-  $progname = $this->_getParam("programname", "humanities");
-  $progtext = $this->_getParam("nametext", "Humanities");
-  
-  $this->view->progtext = $progtext;
-  $solr = Zend_Registry::get('solr');
-  $solr->clearFacets();
-  $solr->addFacets(array("program_facet"));
-  $solr->setFacetLimit(-1);  // no limit
-  $solr->setFacetMinCount(1);        // minimum one match
-  $this->view->facets = $result->facets;
-  $this->view->title = "Report by number of pages" . $coll;
-
-  $page_len_flash_chart = new open_flash_chart();
-  $programs = $this->progcolls("#" . $progname);
-  $page_len = array();
-  
-  for ($i = 0; $i < 1100; $i += 100) {
-    $range = sprintf("%05d TO %05d", $i, $i +100);
-    if ($i == 0) {
-      $x_label_array[0] = "<100";
-      $range = "* TO 00100";
-    } else if ($i >= 1000) {
-      $range = "01000 TO *";
-      $x_label_array[] = ">1000";
-    } else {
-      $x_label_array[] = $i . " - " . ($i + 100);
-    }
-    $totalNum = 0;
-    foreach ($programs->members as $member) {
-      $progname = str_replace("#", '', $member->id);
-      $criteria = sprintf("{!q.op=AND}num_pages:[%s] program_facet:%s", $range, $progname);
-      $response = $solr->query($criteria, 0, 0);
-      $totalNum = $totalNum + $response->numFound;
-    }
-    $page_len[] = $totalNum;
-  }
-
-  $max_page_num = max($page_len);
-  if ($max_page_num > 50) {
-    $steps = ceil($max_page_num / 50);
-    $scaled_max_num = $steps * 50;
-  } else {
-    $scaled_max_num = 50;
-  }
-  $x_labels = new x_axis_labels();
-  $x_labels->set_vertical();
-  $x_labels->set_labels( $x_label_array );
-
-  $x_legend = new x_legend( 'Pages' );
-  $x_legend->set_style( '{font-size: 12px; color: #333333; font-weight:bold}' );
-  $page_len_flash_chart->set_x_legend( $x_legend );
-  $y_legend = new y_legend( 'Documents' );
-  $y_legend->set_style( '{font-size: 14px; color: #333333; font-weight:bold}' );
-  $page_len_flash_chart->set_y_legend( $y_legend );
-  $bar = new bar_glass();
-  $bar->set_colour( '#000000' );
-  $bar->key("Total", 10);
-  $bar->set_values($page_len);
-  $page_len_flash_chart->add_element($bar);
-  $x = new x_axis();
-  $x->set_labels( $x_labels );
-  $page_len_flash_chart->set_x_axis( $x ); 
-
-  $y = new y_axis();
-  $y->set_range( 0, $scaled_max_num, 50);
-  $page_len_flash_chart->add_y_axis( $y );
-
-  $title = new title( "Document Length Report By ". $progtext . " Program");
-  $title->set_style( '{font-size: 14px; color: #333333; font-weight:bold}' );
-  $page_len_flash_chart->set_title( $title);
-  
-  if($this->firstReport == true) {
-    $this->firstReport = false;
-    $this->view->flashchart = $page_len_flash_chart;
-  } else {
-    $this->_helper->layout->disableLayout();
-    $this->_helper->viewRenderer->setNoRender(true);
-    echo $page_len_flash_chart->toPrettyString();
-  }
-}
-public function embargoAction() {
-  $this->firstReport = true;
-  $programs = $this->progcolls();
-  $this->view->collection = $programs;
-  $this->embargobytypeAction();
-}
-public function embargobytypeAction() {
-  $type = $this->_getParam("type", "overall");
-  $subtype = $this->_getParam("subtype", null);
-  $text = $this->_getParam("text", "Overall");
-  
-  $this->view->progtext = $text;
-  $this->view->years = array("2007", "2008");
-  $this->view->programs = array("humannities", "sciences");
-
-  $solr = Zend_Registry::get('solr');
-  $solr->clearFacets();
-  $solr->addFacets(array("embargo_duration"));
-  $solr->setFacetLimit(-1);  // no limit
-  $solr->setFacetMinCount(1);        // minimum one match
-  $this->view->title = "Report by number of pages" . $coll;
-
-  $page_len_flash_chart = new open_flash_chart();
-  if ($type == "overall") {
-    $coll = "#grad";
-  }
-
-  $embargo_len = array();
-  
-  for ($i = 0; $i < 1100; $i += 100) {
-    $range = sprintf("%05d TO %05d", $i, $i +100);
-    if ($i == 0) {
-      $x_label_array[0] = "<100";
-      $range = "* TO 00100";
-    } else if ($i >= 1000) {
-      $range = "01000 TO *";
-      $x_label_array[] = ">1000";
-    } else {
-      $x_label_array[] = $i . " - " . ($i + 100);
-    }
-    $totalNum = 0;
-    $page_len[] = $totalNum;
-  }
-
-  $max_page_num = max($page_len);
-  if ($max_page_num > 50) {
-    $steps = ceil($max_page_num / 50);
-    $scaled_max_num = $steps * 50;
-  } else {
-    $scaled_max_num = 50;
-  }
-  $x_labels = new x_axis_labels();
-  $x_labels->set_vertical();
-  $x_labels->set_labels( $x_label_array );
-
-  $x_legend = new x_legend( 'Pages' );
-  $x_legend->set_style( '{font-size: 12px; color: #333333; font-weight:bold}' );
-  $page_len_flash_chart->set_x_legend( $x_legend );
-  $y_legend = new y_legend( 'Documents' );
-  $y_legend->set_style( '{font-size: 14px; color: #333333; font-weight:bold}' );
-  $page_len_flash_chart->set_y_legend( $y_legend );
-  $bar = new bar_glass();
-  $bar->set_colour( '#000000' );
-  $bar->key("Total", 10);
-  $bar->set_values($page_len);
-  $page_len_flash_chart->add_element($bar);
-  $x = new x_axis();
-  $x->set_labels( $x_labels );
-  $page_len_flash_chart->set_x_axis( $x ); 
-
-  $y = new y_axis();
-  $y->set_range( 0, $scaled_max_num, 50);
-  $page_len_flash_chart->add_y_axis( $y );
-
-  $title = new title( "Document Length Report By ". $progtext . " Program");
-  $title->set_style( '{font-size: 14px; color: #333333; font-weight:bold}' );
-  $page_len_flash_chart->set_title( $title);
-  
-  if($this->firstReport == true) {
-    $this->firstReport = false;
-    $this->view->flashchart = $page_len_flash_chart;
-  } else {
-    $this->_helper->layout->disableLayout();
-    $this->_helper->viewRenderer->setNoRender(true);
-    echo $page_len_flash_chart->toPrettyString();
-  }
-}
+ 
 }
