@@ -157,51 +157,51 @@ class SubmissionController extends Etd_Controller_Action {
 					       "creating record from uploaded pdf",
 					       "file record", $errtype);
       if ($filepid == false) {
-	// any special handling based on error type
-	switch ($errtype) {
-	case "FedoraObjectNotValid":
-	case "FedoraObjectNotFound":
-	  $this->view->errors[] = "Could not save PDF to Fedora.";
-	  if ($this->debug) $this->view->filexml = $etdfile->saveXML();
-	  break;
-	}
-	$this->logger->err("Failure uploading pdf to Fedora : " $errtype);
+        // any special handling based on error type
+        switch ($errtype) {
+            case "FedoraObjectNotValid":
+            case "FedoraObjectNotFound":
+              $this->view->errors[] = "Could not save PDF to Fedora.";
+              if ($this->debug) $this->view->filexml = $etdfile->saveXML();
+              break;
+        }
+        $this->logger->err("Failure uploading pdf to Fedora : " . errtype);
       } else {	// valid pid returned for file
-	$this->logger->info("Created new etd file record with pid $filepid");
-	
-	// add relation to etdfile object and save changes
-	$etd->addPdf($etdfile);
-	$result = $etd->save("added relation to uploaded pdf");	// also saves changed etdfile
-	if ($result)
-	  $this->logger->info("Updated etd " . $etd->pid . " at $result (adding relation to pdf)");
-	else
-	  $this->logger->err("Error updating etd " . $etd->pid . " (adding relation to pdf)");
-	
-	if ($this->debug) $this->_helper->flashMessenger->addMessage("Saved etd file as $filepid");
-	
-	//send email if patent screening question is yes
-	if(strval($answers["patent"]) == "1"){
-	  $notice = new etd_notifier($etd);
-	  $notice->patent_concerns();
+        $this->logger->info("Created new etd file record with pid $filepid");
 
-	  //Email sent history event
-	  $eventMsg="Email sent due to patent concern.";
-	  $etd->premis->addEvent("admin", $eventMsg, "success",
-				 array("netid", $this->current_user->netid));
-	  
-	  $message = "Patent email sent";
-	  $result = $etd->save($message);
-	  if ($result)
-	    $this->logger->info("Updated etd " . $etd->pid . " at $result ($message)");
-	  else
-	    $this->logger->err("Error updating etd " . $etd->pid . " ($message)");
-	  
-	  $this->_helper->flashMessenger->addMessage("An e-mail has been sent to notify the appropriate person of potential patent concerns.");
-	}
+        // add relation to etdfile object and save changes
+        $etd->addPdf($etdfile);
+        $result = $etd->save("added relation to uploaded pdf");	// also saves changed etdfile
+        if ($result)
+          $this->logger->info("Updated etd " . $etd->pid . " at $result (adding relation to pdf)");
+        else
+          $this->logger->err("Error updating etd " . $etd->pid . " (adding relation to pdf)");
 
-	$this->_helper->redirector->gotoRoute(array("controller" => "view",
-						    "action" => "record",
-						    "pid" => $etd->pid));
+        if ($this->debug) $this->_helper->flashMessenger->addMessage("Saved etd file as $filepid");
+
+        //send email if patent screening question is yes
+        if(strval($answers["patent"]) == "1"){
+          $notice = new etd_notifier($etd);
+          $notice->patent_concerns();
+
+          //Email sent history event
+          $eventMsg="Email sent due to patent concern.";
+          $etd->premis->addEvent("admin", $eventMsg, "success",
+                     array("netid", $this->current_user->netid));
+
+          $message = "Patent email sent";
+          $result = $etd->save($message);
+          if ($result)
+            $this->logger->info("Updated etd " . $etd->pid . " at $result ($message)");
+          else
+            $this->logger->err("Error updating etd " . $etd->pid . " ($message)");
+
+          $this->_helper->flashMessenger->addMessage("An e-mail has been sent to notify the appropriate person of potential patent concerns.");
+        }
+
+        $this->_helper->redirector->gotoRoute(array("controller" => "view",
+                                "action" => "record",
+                                "pid" => $etd->pid));
 	
       }  // end file successfully ingested
 
