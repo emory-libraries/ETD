@@ -372,7 +372,18 @@ class esdPersonObject extends Emory_Db_Table {
             $id = preg_replace("/^esdid/", "", $netid);
             return $this->findByPrsnI($id);
         }
-	return $this->findByLogn8ntwrI(strtoupper($netid));
+	
+	// student employees currently have *two* records in ESD, and only one has the information we need
+	// get all records from ESD for the current user, then return the right one if more than one are found
+	$results = $this->findAllByLogn8ntwrI(strtoupper($netid));
+	if ($results->count() == 1) {
+	  return $results->current();
+	} elseif ($results->count() > 1) {
+	  foreach ($results as $record) {
+	    if ($record->academic_career != null) return $record;
+	  }	  
+	}
+	// nothing returned when no match
     }
 
     /**

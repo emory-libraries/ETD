@@ -107,6 +107,12 @@
 
       }
 
+      function testfindByUsername_studentEmployee() {
+	$user = $this->esd->findByUsername("jstuden");
+	$this->assertNotNull($user->academic_career,
+			     "info for student employee with 2 ESD records should include academic career");
+      }
+
       function testFindNonexistent() {
         $user = $this->esd->findByUsername("nonexistent");
         $this->assertFalse($user, "searching non-existent user returns nothing");
