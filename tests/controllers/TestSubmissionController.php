@@ -203,6 +203,13 @@ class SubmissionControllerTest extends ControllerTestCase {
     $this->assertEqual("new etd", $etd->label);
     $this->assertEqual("Candler School of Theology", $etd->admin_agent);
 
+
+    // if academic career missing - should set a default
+    $this->test_user->academic_career = null;
+    $etd = $SubmissionController->initialize_etd($test_info);
+    $this->assertEqual("Graduate School", $etd->admin_agent);
+
+    
     error_reporting($errlevel);	    // restore prior error reporting
   }
     
