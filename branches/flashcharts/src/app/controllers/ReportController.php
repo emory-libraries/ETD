@@ -5,6 +5,7 @@
  */
 
 require_once("models/etd.php");
+require_once("ofc/php-ofc-library/open-flash-chart.php");
 
 class ReportController extends Etd_Controller_Action {
 	protected $requires_fedora = false;
@@ -350,6 +351,465 @@ function getSemesterDecorator($grad_date) {
 		}
 		return $decorator;
 }
+public function pagelenAction() {
 
+}
+/**
+ * This function is used to generate page length report by degrees
+ */
+public function pagelenbydegreeAction() {
+  $solr = Zend_Registry::get('solr');
+  $solr->clearFacets();
+  //$solr->addFacets(array("program_facet"));
+  $solr->addFacets(array("program_facet"));
+  $solr->setFacetLimit(-1);  // no limit
+  $solr->setFacetMinCount(1);        // minimum one match
+  $this->view->facets = $result->facets;
+  $this->view->title = "Report by number of pages";
+  $page_len_degree_chart = new open_flash_chart();
 
+  $page_len = array();
+  $num_of_honors = array();
+  $num_of_masters = array();
+  $num_of_dissertations = array();
+  $x_label_array = array();
+  
+  for ($i = 0; $i < 1100; $i += 100) {
+    $range = sprintf("%05d TO %05d", $i, $i +100);
+    if ($i == 0) {
+      $x_label_array[0] = "<100";
+      $range = "* TO 00100";
+    } else if ($i >= 1000) {
+      $range = "01000 TO *";
+      $x_label_array[] = ">1000";
+    } else {
+      $x_label_array[] = $i . " - " . ($i + 100);
+    }
+    $response = $solr->query("num_pages:[$range]", 0, 0);
+    $page_len[] = $response->numFound;
+    $response = $solr->query("{!q.op=AND}num_pages:[$range] degree_name:B*", 0, 0);
+    $num_of_honors[] = $response->numFound;
+    $response = $solr->query("{!q.op=AND}num_pages:[$range] degree_name:M*", 0, 0);
+    $num_of_masters[] = $response->numFound;; 
+    $response = $solr->query("{!q.op=AND}num_pages:[$range] -degree_name:M* -degree_name:B*", 0, 0);
+    $num_of_dissertations[] = $response->numFound;
+  }
+
+  $max_page_num = max($page_len);
+  $steps = ceil($max_page_num / 50);
+  $scaled_max_num = $steps * 50;
+
+  $x_labels = new x_axis_labels();
+  $x_labels->set_vertical();
+  $x_labels->set_labels( $x_label_array );
+
+  $x_legend = new x_legend( 'Pages' );
+  $x_legend->set_style( '{font-size: 12px; color: #333333; font-weight:bold}' );
+  $page_len_degree_chart->set_x_legend( $x_legend );
+  $y_legend = new y_legend( 'Documents' );
+  $y_legend->set_style( '{font-size: 14px; color: #333333; font-weight:bold}' );
+  $page_len_degree_chart->set_y_legend( $y_legend );
+
+  $bar = new bar_glass();
+  $bar->set_colour( '#000000' );
+  $bar->key("Total", 10);
+  $bar->set_values($page_len);
+  $page_len_degree_chart->add_element($bar);
+  $bar = new bar_glass();
+  $bar->set_colour( '#1F78B4' );
+  $bar->key("Honors Theses", 10);
+  $bar->set_values($num_of_honors);
+  $page_len_degree_chart->add_element($bar);
+  $bar = new bar_glass();
+  $bar->set_colour( '#33A02C' );
+  $bar->key("Masters Theses", 10);
+  $bar->set_values($num_of_masters);
+  $page_len_degree_chart->add_element($bar);
+  $bar = new bar_glass();
+  $bar->set_colour( '#FF7F00' );
+  $bar->key("Dissertations", 10);
+  $bar->set_values($num_of_dissertations);
+  $page_len_degree_chart->add_element($bar);
+  
+  $x = new x_axis();
+  $x->set_labels( $x_labels );
+  $page_len_degree_chart->set_x_axis( $x ); 
+
+  $y = new y_axis();
+  $y->set_range( 0, $scaled_max_num, 50);
+  $page_len_degree_chart->add_y_axis( $y );
+
+  $title = new title( "Document Length Report by Degrees" );
+  $title->set_style( '{font-size: 14px; color: #333333; font-weight:bold}' );
+  $page_len_degree_chart->set_title( $title);
+
+  $this->page_len_chart = $page_len_degree_chart;
+  $this->view->flashchart = $this->page_len_chart;
+}
+/**
+ * This function is used to generate page length report by programs
+ */
+public function pagelenbyprogramAction() {
+  $this->firstReport = true;
+  $programs = $this->progcolls();
+  $this->view->collection = $programs;
+  $this->pagelenbyprogramspecificAction();
+}
+
+/**
+ * This function returns the programs in the high level program specified by $coll
+ */
+private function progcolls($coll = "#grad") {
+
+    try {
+      $programObject = new foxmlPrograms($coll);
+      $programs = $programObject->skos;
+    } catch (XmlObjectException $e) {
+      $message = "Error: Program not found";
+      if ($this->env != "production") $message .= " (<b>" . $e->getMessage() . "</b>)";
+      $this->_helper->flashMessenger->addMessage($message);
+      $this->_helper->redirector->gotoRouteAndExit(array("controller" => "error", "action" => "notfound"), "", true);
+    }
+    return $programs;
+}
+
+/**
+ * This function is used to generate page length report by the selected program
+ */
+public function pagelenbyprogramspecificAction() {
+  $progname = $this->_getParam("programname", "humanities");
+  $progtext = $this->_getParam("nametext", "Humanities");
+  
+  $this->view->progtext = $progtext;
+  $solr = Zend_Registry::get('solr');
+  $solr->clearFacets();
+  $solr->addFacets(array("program_facet"));
+  $solr->setFacetLimit(-1);  // no limit
+  $solr->setFacetMinCount(1);        // minimum one match
+  $this->view->facets = $result->facets;
+  $this->view->title = "Report by number of pages" . $coll;
+
+  $page_len_by_prog_chart = new open_flash_chart();
+  $programs = $this->progcolls("#" . $progname);
+  $page_len = array();
+  $page_len_ms = array();
+  $page_len_phd = array();
+  
+  for ($i = 0; $i < 1100; $i += 100) {
+    $range = sprintf("%05d TO %05d", $i, $i +100);
+    if ($i == 0) {
+      $x_label_array[0] = "<100";
+      $range = "* TO 00100";
+    } else if ($i >= 1000) {
+      $range = "01000 TO *";
+      $x_label_array[] = ">1000";
+    } else {
+      $x_label_array[] = $i . " - " . ($i + 100);
+    }
+    $totalNum = 0;
+    $totalNumMs = 0;
+    $totalNumPhd = 0;
+    foreach ($programs->members as $member) {
+      $progname = str_replace("#", '', $member->id);
+      $criteria = sprintf("{!q.op=AND}num_pages:[%s] program_facet:%s", $range, $progname);
+      $response = $solr->query($criteria, 0, 0);
+      $totalNum = $totalNum + $response->numFound;
+      $criteria = sprintf("{!q.op=AND}num_pages:[%s] program_facet:%s degree_name:M*", $range, $progname);
+      $response = $solr->query($criteria, 0, 0);
+      $totalNumMs = $totalNumMs + $response->numFound;
+      $criteria = sprintf("{!q.op=AND}num_pages:[%s] program_facet:%s -degree_name:M* -degree_name:B*", $range, $progname);
+      $response = $solr->query($criteria, 0, 0);
+      $totalNumPhd = $totalNumPhd + $response->numFound;
+    }
+    $page_len[] = $totalNum;
+    $page_len_ms[] = $totalNumMs;
+    $page_len_phd[] = $totalNumPhd;
+  }
+
+  $max_page_num = max($page_len);
+  if ($max_page_num > 50) {
+    $steps = ceil($max_page_num / 50);
+    $scaled_max_num = $steps * 50;
+  } else {
+    $scaled_max_num = 50;
+  }
+  $x_labels = new x_axis_labels();
+  $x_labels->set_vertical();
+  $x_labels->set_labels( $x_label_array );
+
+  $x_legend = new x_legend( 'Pages' );
+  $x_legend->set_style( '{font-size: 12px; color: #333333; font-weight:bold}' );
+  $page_len_by_prog_chart->set_x_legend( $x_legend );
+  $y_legend = new y_legend( 'Documents' );
+  $y_legend->set_style( '{font-size: 14px; color: #333333; font-weight:bold}' );
+  $page_len_by_prog_chart->set_y_legend( $y_legend );
+  $bar = new bar_glass();
+  $bar->set_colour( '#000000' );
+  $bar->key("Total", 10);
+  $bar->set_values($page_len);
+  $page_len_by_prog_chart->add_element($bar);
+  $bar = new bar_glass();
+  $bar->set_colour( '#33A02C' );
+  $bar->key("Masters Theses", 10);
+  $bar->set_values($page_len_ms);
+  $page_len_by_prog_chart->add_element($bar);
+  $bar = new bar_glass();
+  $bar->set_colour( '#FF7F00' );
+  $bar->key("Dissertations", 10);
+  $bar->set_values($page_len_phd);
+  $page_len_by_prog_chart->add_element($bar);
+  
+  $x = new x_axis();
+  $x->set_labels( $x_labels );
+  $page_len_by_prog_chart->set_x_axis( $x ); 
+
+  $y = new y_axis();
+  $y->set_range( 0, $scaled_max_num, 50);
+  $page_len_by_prog_chart->add_y_axis( $y );
+
+  $title = new title( "Document Length Report By ". $progtext . " Program");
+  $title->set_style( '{font-size: 14px; color: #333333; font-weight:bold}' );
+  $page_len_by_prog_chart->set_title( $title);
+  
+  if($this->firstReport == true) {
+    $this->firstReport = false;
+    $this->view->flashchart = $page_len_by_prog_chart;
+  } else {
+    $this->_helper->layout->disableLayout();
+    $this->_helper->viewRenderer->setNoRender(true);
+    echo $page_len_by_prog_chart->toPrettyString();
+  }
+}
+
+public function embargoAction() {
+}
+
+public function embargobyprogramAction() {
+  $programs = $this->progcolls();
+  $this->view->collection = $programs;
+  $this->firstReport = true;
+  $this->embargobyprogramspecificAction();
+}  
+
+public function embargobyprogramspecificAction() {
+  $progname = $this->_getParam("programname", "humanities");
+  $progtext = $this->_getParam("nametext", "Humanities");
+  $programs = $this->progcolls("#" . $progname);
+  
+  $solr = Zend_Registry::get('solr');
+  $solr->clearFacets();
+  $solr->addFacets(array("program_facet", "year", "dateIssued", "embargo_duration", "degree_name"));
+  $solr->setFacetLimit(-1);  // no limit
+  $solr->setFacetMinCount(1);        // minimum one match
+  $result = $solr->query("*:*", 0, 0);
+  $this->view->title = "Report by Embargo Durations";
+
+  $embargo_chart_program = new open_flash_chart();
+
+  $embargo_len = array("0 days", "6 months", "1 year", "2 years", "6 years");
+  $x_label_array = $embargo_len;
+
+  $embargo_overall = array();
+  $embargo_ms = array();
+  $embargo_phd = array();
+  
+  foreach ($embargo_len as $index => $range) {
+    $totalNum = 0;
+    $msNum = 0;
+    $phdNum = 0;
+    foreach ($programs->members as $member) {
+      $progname = str_replace("#", '', $member->id);
+      $criteria = sprintf("{!q.op=AND}embargo_duration:[%s] program_facet:%s", $range, $progname);
+      $response = $solr->query($criteria, 0, 0);
+      $totalNum = $totalNum + $response->numFound;
+      $criteria = sprintf("{!q.op=AND}embargo_duration:[%s] program_facet:%s degree_name:M*", $range, $progname);
+      $response = $solr->query($criteria, 0, 0);
+      $msNum = $msNum + $response->numFound;
+      $criteria = sprintf("{!q.op=AND}embargo_duration:[%s] program_facet:%s -degree_name:M* -degree_name:B*", $range, $progname);
+      $response = $solr->query($criteria, 0, 0);
+      $phdNum = $phdNum + $response->numFound;
+    }
+    $embargo_overall[] = $totalNum;
+    $embargo_ms[] = $msNum;
+    $embargo_phd[] = $phdNum;
+  }
+  $max_page_num = max($embargo_overall);
+  if ($max_page_num > 50) {
+    $steps = ceil($max_page_num / 50);
+    $scaled_max_num = $steps * 50;
+  } else {
+    $scaled_max_num = 50;
+  }
+  $x_labels = new x_axis_labels();
+  $x_labels->set_vertical();
+  $x_labels->set_labels( $x_label_array );
+
+  $x_legend = new x_legend( 'Embargo Durations' );
+  $x_legend->set_style( '{font-size: 12px; color: #333333; font-weight:bold}' );
+  $embargo_chart_program->set_x_legend( $x_legend );
+  $y_legend = new y_legend( 'Documents' );
+  $y_legend->set_style( '{font-size: 14px; color: #333333; font-weight:bold}' );
+  $embargo_chart_program->set_y_legend( $y_legend );
+
+  $bar = new bar_glass();
+  $bar->set_colour( '#000000' );
+  $bar->key("Total", 10);
+  $bar->set_values($embargo_overall);
+  $embargo_chart_program->add_element($bar);
+
+  $bar = new bar_glass();
+  $bar->set_colour( '#33A02C' );
+  $bar->key("Masters Theses", 10);
+  $bar->set_values($embargo_ms);
+  $embargo_chart_program->add_element($bar);
+ 
+  $bar = new bar_glass();
+  $bar->set_colour( '#FF7F00' );
+  $bar->key("Dissertations", 10);
+  $bar->set_values($embargo_phd);
+  $embargo_chart_program->add_element($bar);
+
+  $x = new x_axis();
+  $x->set_labels( $x_labels );
+  $embargo_chart_program->set_x_axis( $x ); 
+
+  $y = new y_axis();
+  $y->set_range( 0, $scaled_max_num, 50);
+  $embargo_chart_program->add_y_axis( $y );
+
+  $title = new title( "Embargo Duration Report By ". $progtext . " Program");
+  $title->set_style( '{font-size: 14px; color: #333333; font-weight:bold}' );
+  $embargo_chart_program->set_title( $title);
+  
+  if($this->firstReport == true) {
+    $this->firstReport = false;
+    $this->view->flashchart = $embargo_chart_program;
+  } else {
+    $this->_helper->layout->disableLayout();
+    $this->_helper->viewRenderer->setNoRender(true);
+    echo $embargo_chart_program->toPrettyString();
+  }
+}
+public function embargobyyearAction() {
+  $solr = Zend_Registry::get('solr');
+  $solr->clearFacets();
+  $solr->addFacets(array("year"));
+  $solr->setFacetLimit(-1);  // no limit
+  $solr->setFacetMinCount(1);        // minimum one match
+  $result = $solr->query("*:*", 0, 0);
+  $this->view->years = $result->facets->year;
+  $this->firstReport = true;
+  $this->embargobyyearspecificAction();
+}  
+
+public function embargobyyearspecificAction() {
+  $useyear = $this->_getParam("year", "2007");
+  $solr = Zend_Registry::get('solr');
+  $solr->clearFacets();
+  $solr->addFacets(array("year", "dateIssued", "embargo_duration"));
+  $solr->setFacetLimit(-1);  // no limit
+  $solr->setFacetMinCount(1);        // minimum one match
+  $result = $solr->query("*:*", 0, 0);
+  $this->view->title = "Report by Embargo Durations";
+
+  $embargo_chart_year = new open_flash_chart();
+
+  $embargo_len = array("0 days", "6 months", "1 year", "2 years", "6 years");
+  $x_label_array = $embargo_len;
+
+  $embargo_overall = array();
+  $embargo_bs = array();
+  $embargo_ms = array();
+  $embargo_phd = array();
+
+  if($useyear == "Overall") {
+    $year = "[* TO *]";
+  } else {
+    $year = $useyear;
+  }
+  foreach ($embargo_len as $index => $range) {
+    $totalNum = 0;
+    $bsNum = 0;
+    $msNum = 0;
+    $phdNum = 0;
+      $criteria = sprintf("{!q.op=AND}embargo_duration:[%s] year:%s", $range, $year);
+      $response = $solr->query($criteria, 0, 0);
+      $totalNum = $totalNum + $response->numFound;
+      $criteria = sprintf("{!q.op=AND}embargo_duration:[%s] year:%s degree_name:B*", $range, $year);
+      $response = $solr->query($criteria, 0, 0);
+      $bsNum = $bsNum + $response->numFound;
+      $criteria = sprintf("{!q.op=AND}embargo_duration:[%s] year:%s degree_name:M*", $range, $year);
+      $response = $solr->query($criteria, 0, 0);
+      $msNum = $msNum + $response->numFound;
+      $criteria = sprintf("{!q.op=AND}embargo_duration:[%s] year:%s -degree_name:M* -degree_name:B*", $range, $year);
+      $response = $solr->query($criteria, 0, 0);
+      $phdNum = $phdNum + $response->numFound;
+    $embargo_overall[] = $totalNum;
+    $embargo_bs[] = $bsNum;
+    $embargo_ms[] = $msNum;
+    $embargo_phd[] = $phdNum;
+  }
+  $max_page_num = max($embargo_overall);
+  if ($max_page_num > 50) {
+    $steps = ceil($max_page_num / 50);
+    $scaled_max_num = $steps * 50;
+  } else {
+    $scaled_max_num = 50;
+  }
+  $x_labels = new x_axis_labels();
+  $x_labels->set_vertical();
+  $x_labels->set_labels( $x_label_array );
+
+  $x_legend = new x_legend( 'Embargo Durations' );
+  $x_legend->set_style( '{font-size: 12px; color: #333333; font-weight:bold}' );
+  $embargo_chart_year->set_x_legend( $x_legend );
+  $y_legend = new y_legend( 'Documents' );
+  $y_legend->set_style( '{font-size: 14px; color: #333333; font-weight:bold}' );
+  $embargo_chart_year->set_y_legend( $y_legend );
+
+  $bar = new bar_glass();
+  $bar->set_colour( '#000000' );
+  $bar->key("Total", 10);
+  $bar->set_values($embargo_overall);
+  $embargo_chart_year->add_element($bar);
+
+  $bar = new bar_glass();
+  $bar->set_colour( '#1F78B4' );
+  $bar->key("Honors Theses", 10);
+  $bar->set_values($embargo_bs);
+  $embargo_chart_year->add_element($bar);
+ 
+  $bar = new bar_glass();
+  $bar->set_colour( '#33A02C' );
+  $bar->key("Masters Theses", 10);
+  $bar->set_values($embargo_ms);
+  $embargo_chart_year->add_element($bar);
+ 
+  $bar = new bar_glass();
+  $bar->set_colour( '#FF7F00' );
+  $bar->key("Dissertations", 10);
+  $bar->set_values($embargo_phd);
+  $embargo_chart_year->add_element($bar);
+
+  $x = new x_axis();
+  $x->set_labels( $x_labels );
+  $embargo_chart_year->set_x_axis( $x ); 
+
+  $y = new y_axis();
+  $y->set_range( 0, $scaled_max_num, 50);
+  $embargo_chart_year->add_y_axis( $y );
+
+  $title = new title( "Embargo Duration Report ". $useyear);
+  $title->set_style( '{font-size: 14px; color: #333333; font-weight:bold}' );
+  $embargo_chart_year->set_title( $title);
+  
+  if($this->firstReport == true) {
+    $this->firstReport = false;
+    $this->view->flashchart = $embargo_chart_year;
+  } else {
+    $this->_helper->layout->disableLayout();
+    $this->_helper->viewRenderer->setNoRender(true);
+    echo $embargo_chart_year->toPrettyString();
+  }
+}
 }

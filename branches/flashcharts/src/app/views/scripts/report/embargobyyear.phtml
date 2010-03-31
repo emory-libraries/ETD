@@ -1,0 +1,70 @@
+<script type = "text/javascript" src="/~jsun32/etd/js/swfobject.js"></script>
+<script type = "text/javascript" src="/~jsun32/etd/js/json/json2.js"></script>
+<script type = "text/javascript">
+swfobject.embedSWF("<?= $this->linkTo('ofc/open-flash-chart.swf') ?>", "my_chart", "750", "500", "9.0.0");
+</script>
+
+<script type="text/javascript">
+function open_flash_chart_data()
+{
+    return JSON.stringify(data);
+}
+
+function findSWF(movieName) {
+  if (navigator.appName.indexOf("Microsoft")!= -1) {
+    return window[movieName];
+  } else {
+    return document[movieName];
+  }
+}
+    
+function change_chart_type(type)
+{
+	xmlhttp = GetXmlHttpObject();
+	if (xmlhttp == null)
+  	{
+	    	alert ("Your browser does not support AJAX!");
+      		return;
+        }
+	//prepare url here
+	var url = document.URL + 'specific/year/' + type;
+	xmlhttp.onreadystatechange = stateChanged;
+	xmlhttp.open("GET",url,true);
+	xmlhttp.send(null);
+}
+function stateChanged()
+{
+	if (xmlhttp.readyState == 4)
+	{
+	    var adata = xmlhttp.responseText;
+	    tmp = findSWF("my_chart");
+	    tmp.load(adata);
+	    return JSON.stringify(adata);
+	}
+}
+function GetXmlHttpObject()
+{
+	if (window.XMLHttpRequest)
+  	{
+    	// code for IE7+, Firefox, Chrome, Opera, Safari
+      		return new XMLHttpRequest();
+        }
+	if (window.ActiveXObject)
+	{
+	    // code for IE6, IE5
+	      return new ActiveXObject("Microsoft.XMLHTTP");
+	}
+	return null;
+}
+var data = <?php echo $this->flashchart->toPrettyString(); ?>;
+</script>
+<form name = "yearform">
+Please Select A Year: <select name = "yearlist" onchange = "change_chart_type(this.value)">
+<? foreach ($this->years as $year => $count): ?>
+<option value = <?= $year ?>><?= $year?></option>
+<? endforeach ?>
+<option value = Overall>overall</option>
+</select>
+</form>
+<br>
+<div id="my_chart"></div>
