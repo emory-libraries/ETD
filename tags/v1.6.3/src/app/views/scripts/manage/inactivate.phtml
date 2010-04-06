@@ -1,0 +1,14 @@
+<h1>Mark Record as Inactive</h1>
+
+<p><b>Title:</b> <?= $this->etd->title() ?><br/>
+<b>Author:</b> <?= $this->etd->author() ?></p>
+
+<form name="unpublish" method="post"
+   action="<?= $this->url(array("action" => "mark-inactive"))?>">
+<?= $this->formHidden("pid", $this->etd->pid()) ?>
+
+<p><?= $this->formLabel("reason", "Reason for marking inactive: "); ?>   
+<?= $this->formText("reason", "", array("size" => 50)); ?></p>
+
+  <?= $this->formSubmit("inactivate", "Mark Inactive"); ?>
+</form>
