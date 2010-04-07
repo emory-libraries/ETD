@@ -47,14 +47,11 @@ class UserController extends Etd_Controller_Action {
       // if pid is null, action is actually create (user is not author on an object yet)
       if (!$this->_helper->access->allowedOnUser("create")) return false;
 
-      // create new empty user object
-      if (preg_match("/^honors student/", $this->current_user->role)) {
-	// if user is an honors student, create new record as honors user
-	$user = new honors_user();
-      } else {
-	// for all other users, use default user object
-	$user = new user();
-      }
+      // create new, empty user object
+      //  - note: no longer using subclass for honors; configuration for required fields
+      // 	now pulled from per-school configuration
+      $user = new user();
+      
       // need access to etd in the view for displaying correct set of instructions
       $this->view->etd = $this->_helper->getFromFedora("etd", "etd");	  
     } else { 		// if pid is defined, action is editing a particular, existing object
