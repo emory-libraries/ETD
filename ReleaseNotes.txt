@@ -1,9 +1,19 @@
 ETD Release Notes
 =================
 
- Version 1.6.3 - April 2010 (bugfix)
+Version 1.7  (preliminary notes)
 
- * Emory authors from the College and Candler School of Theology can download updated Submission Agreement Forms from the ETD website.
+ * Site news is now pulled from an RSS feed from tagged content on
+   the Digital Libraries drupal site
+
+Deployment notes:
+ * main config.xml has new field for news_feed url
+
+
+Version 1.6.3 - April 2010 (bugfix)
+
+ * Emory authors from the College and Candler School of Theology can
+ * download updated Submission Agreement Forms from the ETD website.
 
 Version 1.6.2 - March 2010 (bugfix)
  * Authors with dual roles such as student/staff will be able to create an ETD based

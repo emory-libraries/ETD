@@ -50,7 +50,8 @@ href="http://proquest.umi.com.proxy.library.emory.edu/pqdweb?RQT=305&amp;SQ=LSCH
 </div>
 <hr/>
 
-<?// FIXME: where should files like this live? ?>
 <?=  $this->render("index/calendar.phtml"); ?>
-<?=  $this->render("index/news.phtml"); ?>
+<? if ($this->news): ?>
+ <?=  $this->render("index/news.phtml"); ?>
+<? endif ?>
 
