@@ -1,27 +1,11 @@
-<script type="text/javascript" src="/~jsun32/etd/js/swfobject.js"></script>
-<script type="text/javascript" src="/~jsun32/etd/js/json/json2.js"></script>
+<script type = "text/javascript" src="<?= $this->linkTo('js/swfobject.js') ?>"></script>
+<script type = "text/javascript" src="<?= $this->linkTo('js/json/json2.js') ?>"></script>
 <script type="text/javascript">
 swfobject.embedSWF("<?= $this->linkTo('ofc/open-flash-chart.swf') ?>", "my_chart", "750", "500", "9.0.0");
 </script>
- 
+<?=  $this->render('report/chart.phtml'); ?> 
 <script type="text/javascript">
-
-
-function open_flash_chart_data()
-{
-    return JSON.stringify(data);
-}
-
-function findSWF(movieName) {
-  if (navigator.appName.indexOf("Microsoft")!= -1) {
-    return window[movieName];
-  } else {
-    return document[movieName];
-  }
-}
-    
 var data = <?php echo $this->flashchart->toPrettyString(); ?>;
-
 </script>
  
 <div id="my_chart"></div>
