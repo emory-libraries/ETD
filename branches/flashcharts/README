@@ -37,6 +37,7 @@ https://techknowhow.library.emory.edu/etd-documentation/development-environment
   - fedora-php (php wrapper for Fedora APIs, foxml & datastream objects
        based on xml-utilities xml object)
   - simpletest (for unit testing, external under test)
+  - ofc (for admin reports), under lib/ofc (php) and public/js/ofc (javascript)
 
 
 Services & Databases 
