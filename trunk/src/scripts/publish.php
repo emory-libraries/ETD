@@ -321,7 +321,8 @@ function get_graduate_etds($filename, $refdate = null) {
   while (($data = fgetcsv($fp, 1500, ",")) !== FALSE) {
     if (count($data) < 2) continue;	// skip blank lines
     if(in_array($data[$degree], $honors_degrees) && empty($data[$honors])) { //skip entry if undergrad and honors not set
-        $logger->debug("Undergrad is not honors, skipping");
+        $name_degree = $data[$lastname] . ", " . $data[$firstname] . " (" . $data[$major] . ")";
+        $logger->debug("Found undergrad, excluding because not honors: " . $data[$netid] . " $name_degree");
         continue;
     } 
     if ($data[$degree_status] == "AW"  // degree status = awarded
