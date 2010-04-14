@@ -61,7 +61,7 @@
        </contentModels>
 
        <collections>
-           <all_etd>emory:ETD-collection</all_etd>
+           <all_etd>emory-control:ETD-collection</all_etd>
            <grad_school>emory:ETD-GradSchool-collection</grad_school>
            <college_honors>emory:17qqk</college_honors>
        </collections>
