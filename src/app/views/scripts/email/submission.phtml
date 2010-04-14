@@ -1,21 +1,6 @@
 <?=  $this->render('email/_debug.phtml'); ?>
 
-<?
-//Build arrays for different types of display
-$summary["grad"] = array("Submit a paper copy for the Dean’s review",
-                         "Review your ETD record",
-                         "Submit all required forms to the Laney Graduate School",
-                         "Take the Graduate Exit Survey");
-
-$summary["honors"] = array("Review your ETD record",
-                           "Submit all required forms to the College Honors Program");
-
-$summary["candler"] = array("Submit a paper copy (or copies) for binding, as necessary",
-                         "Review your ETD record",
-                         "Submit all required forms to the Candler School of Theology");
-?>
-
-<p>Dear <?= $this->etd->mods->author->first ?>,</p>
+<p>Dear <?= $this->etd->authorInfo->mads->name ?>,</p>
 
 <p>Congratulations!  You have successfully submitted your ETD to
 Emory's repository.</p>
