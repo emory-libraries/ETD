@@ -48,6 +48,7 @@ foreach ($etd_pids as $pid) {
               $updated++;
 	      $logger->info("Removing rel:isMemberOfCollection for 'emory-control:ETD-collection'" . " $pid (simulated)");
 	    } else {
+	      $updated++;
 	      $etd->rels_ext->removeRelation("rel:isMemberOfCollection", $config->collections->all_etd);
 	    }  
 	} 
