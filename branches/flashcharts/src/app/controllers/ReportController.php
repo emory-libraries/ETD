@@ -13,6 +13,9 @@ class ReportController extends Etd_Controller_Action {
 	private $etd_pid;
 	private $message;
 	private $chartentity;
+	/**
+ 	* this is only a list of links
+ 	*/
 	public function indexAction() {
 	}
 	 
@@ -351,55 +354,76 @@ function getSemesterDecorator($grad_date) {
 		}
 		return $decorator;
 }
-public function pagelenAction() {
 
+public function pagelengthbydegree(&$solr) {
+//  $this->_setParam($reporttype, $value)
+  $response = $solr->query("*:*", 0, 0);
+  $response = $solr->query("num_pages:[* TO *]", 0, 0);
+  $vector["Total"] = $this->categorize_page_length($response->facets->num_pages);
+  $response = $solr->query("degree_name:B*", 0, 0);
+  $vector["Honors Theses"] = $this->categorize_page_length($response->facets->num_pages);
+  $response = $solr->query("degree_name:M*", 0, 0);
+  $vector["Masters Theses"] = $this->categorize_page_length($response->facets->num_pages);
+  $response = $solr->query("{!q.op=AND}*:* -degree_name:M* -degree_name:B*", 0, 0);
+  $vector["Dissertations"] = $this->categorize_page_length($response->facets->num_pages);
+  return $vector;
 }
+
+private function categorize_page_length(&$page_lengths) {
+  $results = array();
+  $results = array_fill(0, 11, 0);
+  foreach ($page_lengths as $pl => $count) {
+    if ($pl >= 1000) {
+      $i = 10;
+    } else {
+      $i = (int)($pl / 100);
+    }
+    $results[$i] = $results[$i] + $count;
+  }
+  return $results;
+}
+
+private function page_length_report_x_array() {
+  $x_label_array = array();
+  $x_label_array[0] = "<100";
+  for ($i = 1; $i < 1000; $i += 100) {
+      $x_label_array[] = $i . " - " . ($i + 100);
+  }
+  $x_label_array[10] = ">1000";
+  return $x_label_array;
+}
+
 /**
  * This function is used to generate page length report by degrees
  */
 public function pagelenbydegreeAction() {
+  $this->_setParam($reporttype, "degree");
   $solr = Zend_Registry::get('solr');
   $solr->clearFacets();
-  $solr->addFacets(array("program_facet"));
+  $solr->addFacets(array("num_pages"));
   $solr->setFacetLimit(-1);  // no limit
-  $solr->setFacetMinCount(1);        // minimum one match
+  $solr->setFacetMinCount(0);        // minimum zero match
   $this->view->facets = $result->facets;
   $this->view->title = "Report by number of pages";
   $page_len_degree_chart = new open_flash_chart();
 
   $vector = array();
-  $x_label_array = array();
+  $x_label_array = $this->page_length_report_x_array();
+
+//by degree 
+  $vector = $this->pagelengthbydegree($solr);
+  $title = new title( "Document Length Report by Degrees" );
   
-  for ($i = 0; $i < 1100; $i += 100) {
-    $range = sprintf("%05d TO %05d", $i, $i +100);
-    if ($i == 0) {
-      $x_label_array[0] = "<100";
-      $range = "* TO 00100";
-    } else if ($i >= 1000) {
-      $range = "01000 TO *";
-      $x_label_array[] = ">1000";
-    } else {
-      $x_label_array[] = $i . " - " . ($i + 100);
-    }
-    $response = $solr->query("num_pages:[$range]", 0, 0);
-    $vector["Total"][] = $response->numFound;
-    $response = $solr->query("{!q.op=AND}num_pages:[$range] degree_name:B*", 0, 0);
-    $vector["Honors Theses"][] = $response->numFound;
-    $response = $solr->query("{!q.op=AND}num_pages:[$range] degree_name:M*", 0, 0);
-    $vector["Masters Theses"][] = $response->numFound;
-    $response = $solr->query("{!q.op=AND}num_pages:[$range] -degree_name:M* -degree_name:B*", 0, 0);
-    $vector["Dissertations"][] = $response->numFound;
-  }
   $this->addchartelements($page_len_degree_chart, $vector);
   $x_legend_text = 'Pages';
   $y_legend_text = 'Documents';
   $max_page_num = max($vector["Total"]);
   $this->addchartartifacts($page_len_degree_chart, $x_label_array, $max_page_num, $x_legend_text, $y_legend_text);
 
-  $title = new title( "Document Length Report by Degrees" );
   $title->set_style( '{font-size: 14px; color: #333333; font-weight:bold}' );
   $page_len_degree_chart->set_title( $title);
 
+//by degree 
   $this->view->flashchart = $page_len_degree_chart;
 }
 
@@ -407,6 +431,7 @@ public function pagelenbydegreeAction() {
  * This function is used to generate page length report by programs
  */
 public function pagelenbyprogramAction() {
+  $this->_setParam($reporttype, "program");
   $this->firstReport = true;
   $programs = $this->progcolls();
   $this->view->collection = $programs;
@@ -414,86 +439,66 @@ public function pagelenbyprogramAction() {
 }
 
 /**
- * This function returns the programs in the high level program specified by $coll
- */
-private function progcolls($coll = "#grad") {
-
-    try {
-      $programObject = new foxmlPrograms($coll);
-      $programs = $programObject->skos;
-    } catch (XmlObjectException $e) {
-      $message = "Error: Program not found";
-      if ($this->env != "production") $message .= " (<b>" . $e->getMessage() . "</b>)";
-      $this->_helper->flashMessenger->addMessage($message);
-      $this->_helper->redirector->gotoRouteAndExit(array("controller" => "error", "action" => "notfound"), "", true);
-    }
-    return $programs;
-}
-
-/**
  * This function is used to generate page length report by the selected program
  */
 public function pagelenbyprogramspecificAction() {
-  $progname = $this->_getParam("programname", "humanities");
-  $progtext = $this->_getParam("nametext", "Humanities");
   
-  $this->view->progtext = $progtext;
   $solr = Zend_Registry::get('solr');
   $solr->clearFacets();
-  $solr->addFacets(array("program_facet"));
+  $solr->addFacets(array("num_pages"));
   $solr->setFacetLimit(-1);  // no limit
-  $solr->setFacetMinCount(1);        // minimum one match
+  $solr->setFacetMinCount(0);        // minimum one match
   $this->view->facets = $result->facets;
   $this->view->title = "Report by number of pages" . $coll;
 
   $page_len_by_prog_chart = new open_flash_chart();
-  $programs = $this->progcolls("#" . $progname);
   $vector = array();
-  
-  for ($i = 0; $i < 1100; $i += 100) {
-    $range = sprintf("%05d TO %05d", $i, $i +100);
-    if ($i == 0) {
-      $x_label_array[0] = "<100";
-      $range = "* TO 00100";
-    } else if ($i >= 1000) {
-      $range = "01000 TO *";
-      $x_label_array[] = ">1000";
-    } else {
-      $x_label_array[] = $i . " - " . ($i + 100);
-    }
-    $totalNum = 0;
-    $totalNumMs = 0;
-    $totalNumPhd = 0;
-    foreach ($programs->members as $member) {
-      $progname = str_replace("#", '', $member->id);
-      $criteria = sprintf("{!q.op=AND}num_pages:[%s] program_facet:%s", $range, $progname);
-      $response = $solr->query($criteria, 0, 0);
-      $totalNum = $totalNum + $response->numFound;
-      $criteria = sprintf("{!q.op=AND}num_pages:[%s] program_facet:%s degree_name:M*", $range, $progname);
-      $response = $solr->query($criteria, 0, 0);
-      $totalNumMs = $totalNumMs + $response->numFound;
-      $criteria = sprintf("{!q.op=AND}num_pages:[%s] program_facet:%s -degree_name:M* -degree_name:B*", $range, $progname);
-      $response = $solr->query($criteria, 0, 0);
-      $totalNumPhd = $totalNumPhd + $response->numFound;
-    }
-  $vector["Total"][] = $totalNum;
-  $vector["Masters Theses"][] = $totalNumMs;
-  $vector["Dissertations"][] = $totalNumPhd;
-  }
+  $x_label_array = $this->page_length_report_x_array();
+
+//program report specific 
+  $vector = $this->pagelenbyprogram($solr);
+  $progtext = $this->_getParam("nametext", "Humanities");
+  $title = new title( "Document Length Report By ". $progtext . " Program");
+
+
   $this->addchartelements($page_len_by_prog_chart, $vector);
   $x_legend_text = 'Pages';
   $y_legend_text = 'Documents';
   $max_page_num = max($vector["Total"]);
   $this->addchartartifacts($page_len_by_prog_chart, $x_label_array, $max_page_num, $x_legend_text, $y_legend_text);
-
-  $title = new title( "Document Length Report By ". $progtext . " Program");
   $title->set_style( '{font-size: 14px; color: #333333; font-weight:bold}' );
   $page_len_by_prog_chart->set_title( $title);
   
+//program report specific 
   $this->sendchart($page_len_by_prog_chart);  
 }
 
-public function embargoAction() {
+public function pagelenbyprogram(&$solr) {
+  $progname = $this->_getParam("programname", "humanities");
+  $progtext = $this->_getParam("nametext", "Humanities");
+  $this->view->progtext = $progtext;
+  $vector = array();
+
+  $totalNum = array();
+  $totalNumMs = array();
+  $totalNumPhd = array();
+  $programs = $this->progcolls("#" . $progname);
+  foreach ($programs->members as $member) {
+      $progname = str_replace("#", '', $member->id);
+      $criteria = sprintf("{!q.op=AND}num_pages:[* TO *] program_facet:%s", $progname);
+      $response = $solr->query($criteria, 0, 0);
+      $totalNum = $this->combinearrays($response->facets->num_pages, $totalNum);
+      $criteria = sprintf("{!q.op=AND}program_facet:%s degree_name:M*", $progname);
+      $response = $solr->query($criteria, 0, 0);
+      $totalNumMs = $this->combinearrays($response->facets->num_pages, $totalNumMs);
+      $criteria = sprintf("{!q.op=AND}program_facet:%s -degree_name:M* -degree_name:B*", $progname);
+      $response = $solr->query($criteria, 0, 0);
+      $totalNumPhd = $this->combinearrays($response->facets->num_pages, $totalNumPhd);
+  }
+  $vector["Total"] = $this->categorize_page_length($totalNum);
+  $vector["Masters Theses"] = $this->categorize_page_length($totalNumMs);
+  $vector["Dissertations"] = $this->categorize_page_length($totalNumPhd);
+  return $vector;
 }
 
 public function embargobyprogramAction() {
@@ -510,20 +515,20 @@ public function embargobyprogramspecificAction() {
   
   $solr = Zend_Registry::get('solr');
   $solr->clearFacets();
-  $solr->addFacets(array("program_facet", "year", "dateIssued", "embargo_duration", "degree_name"));
+  $solr->addFacets(array("embargo_duration"));
   $solr->setFacetLimit(-1);  // no limit
-  $solr->setFacetMinCount(1);        // minimum one match
+  $solr->setFacetMinCount(0);        // minimum one match
   $result = $solr->query("*:*", 0, 0);
   $this->view->title = "Report by Embargo Durations";
 
-  $embargo_chart_program = new open_flash_chart();
+  $embargo_chart = new open_flash_chart();
 
-  $embargo_len = array("0 days", "6 months", "1 year", "2 years", "6 years");
+  $embargo_len = $this->embargoduration_x_array();
   $x_label_array = $embargo_len;
 
   $vector = array(); 
 
-  foreach ($embargo_len as $index => $range) {
+ /* foreach ($embargo_len as $index => $range) {
     $totalNum = 0;
     $msNum = 0;
     $phdNum = 0;
@@ -543,24 +548,44 @@ public function embargobyprogramspecificAction() {
   $vector["Masters Theses"][] = $msNum;
   $vector["Dissertations"][] = $phdNum;
   }
-  $this->addchartelements($embargo_chart_program, $vector);
+  */
+ //specific to by program 
+  $vector = $this->embargobyprogram($solr);
+  $title = new title( "Embargo Duration Report By ". $progtext . " Program");
+
+  $this->addchartelements($embargo_chart, $vector);
   $x_legend_text = 'Embargo Durations';
   $y_legend_text = 'Documents';
   $max_page_num = max($vector["Total"]);
-  $this->addchartartifacts($embargo_chart_program, $x_label_array, $max_page_num, $x_legend_text, $y_legend_text);
-  
-  $title = new title( "Embargo Duration Report By ". $progtext . " Program");
+  $this->addchartartifacts($embargo_chart, $x_label_array, $max_page_num, $x_legend_text, $y_legend_text);
   $title->set_style( '{font-size: 14px; color: #333333; font-weight:bold}' );
-  $embargo_chart_program->set_title( $title);
-  
-  $this->sendchart($embargo_chart_program);  
+  $embargo_chart->set_title( $title);
+  $this->sendchart($embargo_chart);  
+}
+
+private function embargobyprogram(&$solr) {
+  $progname = $this->_getParam("programname", "humanities");
+  $programs = $this->progcolls("#" . $progname);
+  foreach ($programs->members as $member) {
+    $progname = str_replace("#", '', $member->id);
+    $criteria = sprintf("{!q.op=AND} program_facet:%s", $progname);
+    $response = $solr->query($criteria, 0, 0);
+    $vector["Total"] =  $this->combinearrays($this->mergeblank2zero($response->facets->embargo_duration), $vector["Total"]);
+    $criteria = sprintf("{!q.op=AND} program_facet:%s degree_name:M*", $progname);
+    $response = $solr->query($criteria, 0, 0);
+    $vector["Masters Theses"] =  $this->combinearrays($this->mergeblank2zero($response->facets->embargo_duration), $vector["Masters Theses"]);
+    $criteria = sprintf("{!q.op=AND} program_facet:%s -degree_name:M* -degree_name:B*", $progname);
+    $response = $solr->query($criteria, 0, 0);
+    $vector["Dissertations"] =  $this->combinearrays($this->mergeblank2zero($response->facets->embargo_duration), $vector["Dissertations"]);
+  }
+  return $vector;
 }
 public function embargobyyearAction() {
   $solr = Zend_Registry::get('solr');
   $solr->clearFacets();
   $solr->addFacets(array("year"));
   $solr->setFacetLimit(-1);  // no limit
-  $solr->setFacetMinCount(1);        // minimum one match
+  $solr->setFacetMinCount(0);        // minimum one match
   $result = $solr->query("*:*", 0, 0);
   $this->view->years = $result->facets->year;
   $this->firstReport = true;
@@ -571,19 +596,18 @@ public function embargobyyearspecificAction() {
   $useyear = $this->_getParam("year", "2007");
   $solr = Zend_Registry::get('solr');
   $solr->clearFacets();
-  $solr->addFacets(array("year", "dateIssued", "embargo_duration"));
+  $solr->addFacets(array("embargo_duration"));
   $solr->setFacetLimit(-1);  // no limit
-  $solr->setFacetMinCount(1);        // minimum one match
+  $solr->setFacetMinCount(0);        // minimum one match
   $result = $solr->query("*:*", 0, 0);
   $this->view->title = "Report by Embargo Durations";
 
-  $embargo_chart_year = new open_flash_chart();
+  $embargo_chart = new open_flash_chart();
 
-  $embargo_len = array("0 days", "6 months", "1 year", "2 years", "6 years");
+  $embargo_len = $this->embargoduration_x_array();
   $x_label_array = $embargo_len;
 
-  $embargo_overall = array();
-
+/*
   if($useyear == "Overall") {
     $year = "[* TO *]";
   } else {
@@ -603,18 +627,58 @@ public function embargobyyearspecificAction() {
     $response = $solr->query($criteria, 0, 0);
     $vector["Dissertations"][] =  $response->numFound;
   }
- 
-  $this->addchartelements($embargo_chart_year, $vector);
+  
+  */
+  
+  //embargo by year specific
+  $vector = $this->embargobyyear($solr);
+  $title = new title( "Embargo Duration Report ". $useyear);
+
+  $this->addchartelements($embargo_chart, $vector);
   $x_legend_text = 'Embargo Durations';
   $y_legend_text = 'Documents';
   $max_page_num = max($vector["Total"]);
-  $this->addchartartifacts($embargo_chart_year, $x_label_array, $max_page_num, $x_legend_text, $y_legend_text);
-  
-  $title = new title( "Embargo Duration Report ". $useyear);
+  $this->addchartartifacts($embargo_chart, $x_label_array, $max_page_num, $x_legend_text, $y_legend_text);
   $title->set_style( '{font-size: 14px; color: #333333; font-weight:bold}' );
-  $embargo_chart_year->set_title( $title);
-  $this->sendchart($embargo_chart_year);  
+  $embargo_chart->set_title( $title);
+  $this->sendchart($embargo_chart);  
 }
+
+private function embargoduration_x_array() {
+  return array("0 days", "6 months", "1 year", "2 years", "6 years");
+}
+public function embargobyyear(&$solr) {
+  $useyear = $this->_getParam("year", "2007");
+  if($useyear == "Overall") {
+    $year = "[* TO *]";
+  } else {
+    $year = $useyear;
+  }
+  $criteria = sprintf("{!q.op=AND} year:%s", $year);
+  $response = $solr->query($criteria, 0, 0);
+  $vector["Total"] =  $this->mergeblank2zero($response->facets->embargo_duration);
+  $criteria = sprintf("{!q.op=AND} year:%s degree_name:B*", $year);
+  $response = $solr->query($criteria, 0, 0);
+  $vector["Honors Theses"] = $this->mergeblank2zero($response->facets->embargo_duration);
+  $criteria = sprintf("{!q.op=AND}year:%s degree_name:M*", $year);
+  $response = $solr->query($criteria, 0, 0);
+  $vector["Masters Theses"] = $this->mergeblank2zero($response->facets->embargo_duration);
+  $criteria = sprintf("{!q.op=AND}year:%s -degree_name:M* -degree_name:B*", $year);
+  $response = $solr->query($criteria, 0, 0);
+  $vector["Dissertations"] = $this->mergeblank2zero($response->facets->embargo_duration); 
+  return $vector;
+}
+
+/* this function merges the [] to [0 days] in the embargo_duration array */
+private function mergeblank2zero(&$a) {
+  $result = array();
+  foreach($this->embargoduration_x_array() as $len) {
+    $result[] = $a[$len];
+  }
+  $result[0] += $a[""];
+  return $result;
+}
+
 private function sendchart(&$chart = null) {
   if($this->firstReport == true) {
     $this->firstReport = false;
@@ -662,4 +726,29 @@ private function addchartartifacts(&$chart, $x_label_array, $max_page_num, $x_le
   $y->set_range( 0, $scaled_max_num, 50);
   $chart->add_y_axis( $y );
 }
+/**
+ * This function returns the programs in the high level program specified by $coll
+ */
+private function progcolls($coll = "#grad") {
+
+    try {
+      $programObject = new foxmlPrograms($coll);
+      $programs = $programObject->skos;
+    } catch (XmlObjectException $e) {
+      $message = "Error: Program not found";
+      if ($this->env != "production") $message .= " (<b>" . $e->getMessage() . "</b>)";
+      $this->_helper->flashMessenger->addMessage($message);
+      $this->_helper->redirector->gotoRouteAndExit(array("controller" => "error", "action" => "notfound"), "", true);
+    }
+    return $programs;
+}
+
+private function combinearrays(&$array1, &$array2) {
+  $combined_array = array();
+  foreach(array_keys($array1) as $key) {
+    $combined_array[$key] = $array1[$key] + $array2[$key];
+  }
+  return $combined_array;
+}
+
 }
