@@ -4,8 +4,11 @@ error_reporting(E_ALL);
 ini_set("include_path", "../../src/app/:../../src/app/modules/:../../src/lib:../../src/lib/ZendFramework:../../src/lib/fedora:../../src/lib/xml-utilities:..:../../src/config:../../src/app/models:" . ini_get("include_path"));
 
 
-require('Zend/Loader.php');
-Zend_Loader::registerAutoload();
+
+require("Zend/Loader/Autoloader.php");
+$autoloader = Zend_Loader_Autoloader::getInstance();
+$autoloader->setFallbackAutoloader(true);
+
 require_once("api/FedoraConnection.php");
 
 require_once('simpletest/unit_tester.php');
