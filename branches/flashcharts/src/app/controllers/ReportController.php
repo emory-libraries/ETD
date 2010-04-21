@@ -355,42 +355,19 @@ function getSemesterDecorator($grad_date) {
 		return $decorator;
 }
 
+/* it returns a vector for page length report by year*/
 public function pagelengthbydegree(&$solr) {
 //  $this->_setParam($reporttype, $value)
   $response = $solr->query("*:*", 0, 0);
   $response = $solr->query("num_pages:[* TO *]", 0, 0);
-  $vector["Total"] = $this->categorize_page_length($response->facets->num_pages);
+  $vector["Total"] = $this->group_page_length($response->facets->num_pages);
   $response = $solr->query("degree_name:B*", 0, 0);
-  $vector["Honors Theses"] = $this->categorize_page_length($response->facets->num_pages);
+  $vector["Honors Theses"] = $this->group_page_length($response->facets->num_pages);
   $response = $solr->query("degree_name:M*", 0, 0);
-  $vector["Masters Theses"] = $this->categorize_page_length($response->facets->num_pages);
+  $vector["Masters Theses"] = $this->group_page_length($response->facets->num_pages);
   $response = $solr->query("{!q.op=AND}*:* -degree_name:M* -degree_name:B*", 0, 0);
-  $vector["Dissertations"] = $this->categorize_page_length($response->facets->num_pages);
+  $vector["Dissertations"] = $this->group_page_length($response->facets->num_pages);
   return $vector;
-}
-
-private function categorize_page_length(&$page_lengths) {
-  $results = array();
-  $results = array_fill(0, 11, 0);
-  foreach ($page_lengths as $pl => $count) {
-    if ($pl >= 1000) {
-      $i = 10;
-    } else {
-      $i = (int)($pl / 100);
-    }
-    $results[$i] = $results[$i] + $count;
-  }
-  return $results;
-}
-
-private function page_length_report_x_array() {
-  $x_label_array = array();
-  $x_label_array[0] = "<100";
-  for ($i = 1; $i < 1000; $i += 100) {
-      $x_label_array[] = $i . " - " . ($i + 100);
-  }
-  $x_label_array[10] = ">1000";
-  return $x_label_array;
 }
 
 /**
@@ -405,7 +382,7 @@ public function pagelenbydegreeAction() {
   $solr->setFacetMinCount(0);        // minimum zero match
   $this->view->facets = $result->facets;
   $this->view->title = "Report by number of pages";
-  $page_len_degree_chart = new open_flash_chart();
+  $page_len_chart = new open_flash_chart();
 
   $vector = array();
   $x_label_array = $this->page_length_report_x_array();
@@ -414,34 +391,34 @@ public function pagelenbydegreeAction() {
   $vector = $this->pagelengthbydegree($solr);
   $title = new title( "Document Length Report by Degrees" );
   
-  $this->addchartelements($page_len_degree_chart, $vector);
+  $this->addchartelements($page_len_chart, $vector);
   $x_legend_text = 'Pages';
   $y_legend_text = 'Documents';
   $max_page_num = max($vector["Total"]);
-  $this->addchartartifacts($page_len_degree_chart, $x_label_array, $max_page_num, $x_legend_text, $y_legend_text);
+  $this->addchartartifacts($page_len_chart, $x_label_array, $max_page_num, $x_legend_text, $y_legend_text);
 
   $title->set_style( '{font-size: 14px; color: #333333; font-weight:bold}' );
-  $page_len_degree_chart->set_title( $title);
+  $page_len_chart->set_title( $title);
 
 //by degree 
-  $this->view->flashchart = $page_len_degree_chart;
+  $this->view->flashchart = $page_len_chart;
 }
 
 /**
  * This function is used to generate page length report by programs
  */
-public function pagelenbyprogramAction() {
+public function pagelengthbyprogramAction() {
   $this->_setParam($reporttype, "program");
   $this->firstReport = true;
   $programs = $this->progcolls();
   $this->view->collection = $programs;
-  $this->pagelenbyprogramspecificAction();
+  $this->pagelengthbyprogramspecificAction();
 }
 
 /**
  * This function is used to generate page length report by the selected program
  */
-public function pagelenbyprogramspecificAction() {
+public function pagelengthbyprogramspecificAction() {
   
   $solr = Zend_Registry::get('solr');
   $solr->clearFacets();
@@ -451,29 +428,29 @@ public function pagelenbyprogramspecificAction() {
   $this->view->facets = $result->facets;
   $this->view->title = "Report by number of pages" . $coll;
 
-  $page_len_by_prog_chart = new open_flash_chart();
+  $page_len_chart = new open_flash_chart();
   $vector = array();
   $x_label_array = $this->page_length_report_x_array();
 
 //program report specific 
-  $vector = $this->pagelenbyprogram($solr);
+  $vector = $this->pagelengthbyprogram($solr);
   $progtext = $this->_getParam("nametext", "Humanities");
   $title = new title( "Document Length Report By ". $progtext . " Program");
 
 
-  $this->addchartelements($page_len_by_prog_chart, $vector);
+  $this->addchartelements($page_len_chart, $vector);
   $x_legend_text = 'Pages';
   $y_legend_text = 'Documents';
   $max_page_num = max($vector["Total"]);
-  $this->addchartartifacts($page_len_by_prog_chart, $x_label_array, $max_page_num, $x_legend_text, $y_legend_text);
+  $this->addchartartifacts($page_len_chart, $x_label_array, $max_page_num, $x_legend_text, $y_legend_text);
   $title->set_style( '{font-size: 14px; color: #333333; font-weight:bold}' );
-  $page_len_by_prog_chart->set_title( $title);
+  $page_len_chart->set_title( $title);
   
 //program report specific 
-  $this->sendchart($page_len_by_prog_chart);  
+  $this->sendchart($page_len_chart);  
 }
-
-public function pagelenbyprogram(&$solr) {
+/* it returns a vector for page length report by program */
+public function pagelengthbyprogram(&$solr) {
   $progname = $this->_getParam("programname", "humanities");
   $progtext = $this->_getParam("nametext", "Humanities");
   $this->view->progtext = $progtext;
@@ -495,10 +472,34 @@ public function pagelenbyprogram(&$solr) {
       $response = $solr->query($criteria, 0, 0);
       $totalNumPhd = $this->combinearrays($response->facets->num_pages, $totalNumPhd);
   }
-  $vector["Total"] = $this->categorize_page_length($totalNum);
-  $vector["Masters Theses"] = $this->categorize_page_length($totalNumMs);
-  $vector["Dissertations"] = $this->categorize_page_length($totalNumPhd);
+  $vector["Total"] = $this->group_page_length($totalNum);
+  $vector["Masters Theses"] = $this->group_page_length($totalNumMs);
+  $vector["Dissertations"] = $this->group_page_length($totalNumPhd);
   return $vector;
+}
+/* it groups page lengths into ranges */
+private function group_page_length(&$page_lengths) {
+  $results = array();
+  $results = array_fill(0, 11, 0);
+  foreach ($page_lengths as $pl => $count) {
+    if ($pl >= 1000) {
+      $i = 10;
+    } else {
+      $i = (int)($pl / 100);
+    }
+    $results[$i] = $results[$i] + $count;
+  }
+  return $results;
+}
+
+private function page_length_report_x_array() {
+  $x_label_array = array();
+  $x_label_array[0] = "<100";
+  for ($i = 1; $i < 1000; $i += 100) {
+      $x_label_array[] = $i . " - " . ($i + 100);
+  }
+  $x_label_array[10] = ">1000";
+  return $x_label_array;
 }
 
 public function embargobyprogramAction() {
@@ -562,7 +563,7 @@ public function embargobyprogramspecificAction() {
   $embargo_chart->set_title( $title);
   $this->sendchart($embargo_chart);  
 }
-
+/* it returns a vector for embargo duration report by program */
 private function embargobyprogram(&$solr) {
   $progname = $this->_getParam("programname", "humanities");
   $programs = $this->progcolls("#" . $progname);
@@ -647,6 +648,8 @@ public function embargobyyearspecificAction() {
 private function embargoduration_x_array() {
   return array("0 days", "6 months", "1 year", "2 years", "6 years");
 }
+
+/* it returns a vector for embargo duration report by year*/
 public function embargobyyear(&$solr) {
   $useyear = $this->_getParam("year", "2007");
   if($useyear == "Overall") {
@@ -706,22 +709,18 @@ private function addchartartifacts(&$chart, $x_label_array, $max_page_num, $x_le
   } else {
     $scaled_max_num = 50;
   }
-  
   $x_labels = new x_axis_labels();
   $x_labels->set_vertical();
   $x_labels->set_labels( $x_label_array );
-
   $x_legend = new x_legend( $x_legend_text );
   $x_legend->set_style( '{font-size: 12px; color: #333333; font-weight:bold}' );
   $chart->set_x_legend( $x_legend );
   $y_legend = new y_legend( $y_legend_text );
   $y_legend->set_style( '{font-size: 14px; color: #333333; font-weight:bold}' );
   $chart->set_y_legend( $y_legend );
-
   $x = new x_axis();
   $x->set_labels( $x_labels );
   $chart->set_x_axis( $x ); 
-
   $y = new y_axis();
   $y->set_range( 0, $scaled_max_num, 50);
   $chart->add_y_axis( $y );
@@ -750,5 +749,4 @@ private function combinearrays(&$array1, &$array2) {
   }
   return $combined_array;
 }
-
 }
