@@ -41,7 +41,6 @@ foreach ($etd_pids as $pid) {
 
     try {
         $etd = new etd($pid);
-        print($etd->rels_ext->isMemberOfCollection);
         // if a member of master etd collection, remove  relation to ETD-collection
         if ( $etd->rels_ext->isMemberOfCollections->includes($etd->rels_ext->pidToResource($config->collections->all_etd))) {
 	  if ($opts->noact) {     // noact mode: simulate success                                                                              

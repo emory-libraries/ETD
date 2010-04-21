@@ -120,8 +120,6 @@ class etd extends foxml implements etdInterface {
       if (isset($config)) {
 	$config = Zend_Registry::get("config");
 	$this->rels_ext->addContentModel($config->contentModels->etd);
-	//$this->rels_ext->addRelationToResource("rel:isMemberOfCollection",
-        //					       $config->collections->all_etd);
       } else {
 	trigger_error("Config is not in registry, cannot retrieve contentModel for etd");
       }
