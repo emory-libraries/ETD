@@ -68,14 +68,19 @@ class UserController extends Etd_Controller_Action {
 
     $this->view->title = "Edit User Information";
 
-    // xforms setting - so layout can include needed code in the header
-    $this->view->xforms = true;
-    $this->view->xforms_bind_script = "user/_mads_bind.phtml";
-    $this->view->namespaces = array("mads" => "http://www.loc.gov/mads/");
-    // link to xml rather than embedding directly in the page
+    //Countries for select box
+    $config_dir = Zend_Registry::get("config-dir");
+    $xml = simplexml_load_file($config_dir . "countries.xml");
+    $countries = array();
 
-    $this->view->xforms_model_uri = $this->view->url(array("controller" => "user",
-							   "action" => "mads", "pid" => $pid), '', true, false);
+    foreach($xml as $country)
+    {
+       $countries[(string)$country] = $country;
+    }
+    $this->view->countries = $countries;
+
+    
+
   }
 
 

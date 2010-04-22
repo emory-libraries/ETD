@@ -1,7 +1,5 @@
 <h1>Edit Contact Information</h1>
 
-<?=  $this->render('edit/_xforms_key.phtml'); ?>
-
 <p> <? if ($this->etd->isRequired("send to ProQuest")): ?>
    The personal information below will be collected and sent to
 Proquest with an electronic copy of your thesis or dissertation.
@@ -15,41 +13,191 @@ service provided by the Emory Alumni Association (yourname@alum.emory.edu) is ac
 information will not be available publicly or shared with anyone
 without your consent.</p>
 
-<xf:group nodeset="mads:authority/mads:name"> 
-  <xf:label>name</xf:label> 
+<form>
+<? //NAME ?>
+  <table>
+    <tr>
+        <td>name</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>last</td>
+        <td>first and middle</td>
+    </tr>
+    <tr>
+        <td><?= $this->formText("last", $this->etd->authorInfo->mads->name->last); ?></td>
+        <td><?= $this->formText("first-middle", $this->etd->authorInfo->mads->name->first); ?></td>
+    </tr>
+  </table>
+  
+  <br/>
 
-   <?= $this->xformText("last", "mads:namePart[@type='family']"); ?>
-   <?= $this->xformText("first and middle", "mads:namePart[@type='given']"); ?>
-   <?//= $this->xformText("birth year", "mads:namePart[@type='date']"); ?>
-</xf:group> 
-<br/>
-<xf:group nodeset="mads:affiliation[mads:position != 'permanent resident' or not(mads:position)]">
-   <xf:label>current address</xf:label>
-   <?=  $this->render('user/_mads_address.phtml'); ?>
-   <?= $this->xformText("phone", "mads:phone"); ?> <br/>
-   <?= $this->xformText("email", "mads:email"); ?> <br/>
-   <? /* suppress date valid for current address (confusing) */ ?>
-</xf:group>
+  <? //CURRENT ADDRESS ?>
+  <table>
+    <tr>
+        <td>current address</td>
+        <td></td>
+    </tr>
 
+    <?foreach ($this->etd->authorInfo->mads->current->address->street as $index => $street): ?>
+        <tr>
+            <td>street</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td><?= $this->formText("cur-street-".$index, $street); ?></td>
+            <td></td>
+        </tr>
+    <?endforeach?>
+    <tr>
+        <td>add address line</td>
+        <td>remove last address line</td>
+    </tr>
+    <tr>
+
+        <td>city</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><?= $this->formText("cur-city", $this->etd->authorInfo->mads->current->address->city); ?></td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>state</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><?= $this->formText("cur-state", $this->etd->authorInfo->mads->current->address->state); ?></td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>country</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><?= $this->formSelect("cur-country", $this->etd->authorInfo->mads->current->address->country, null, $this->countries); ?></td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>postcode</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><?= $this->formText("cur-postcode", $this->etd->authorInfo->mads->current->address->postcode); ?></td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>phone</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><?= $this->formText("cur-phone", $this->etd->authorInfo->mads->current->phone); ?></td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>email</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><?= $this->formText("cur-email", $this->etd->authorInfo->mads->current->email); ?></td>
+        <td></td>
+    </tr>
+  </table>
+
+    <? /* suppress date valid for current address (confusing) */ ?>
 <hr/>
 
-<xf:group nodeset="mads:affiliation[mads:position = 'permanent resident']">
-   <xf:label>permanent address</xf:label>
-   <?=  $this->render('user/_mads_address.phtml'); ?>
-   <?= $this->xformText("phone", "mads:phone"); ?> <br/>
-   <?= $this->xformText("non-emory email", "mads:email"); ?> <br/>
-   <?= $this->xformText("date valid", "mads:dateValid"); ?> <br/>
-</xf:group>
+   <? //PERMANET ADDRESS ?>
+ <table>
+    <tr>
+        <td>permanent address</td>
+        <td></td>
+    </tr>
+
+
+    <?foreach ($this->etd->authorInfo->mads->permanent->address->street as $index => $street): ?>
+        <tr>
+            <td>street</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td><?= $this->formText("perm-street-".$index, $street); ?></td>
+            <td></td>
+        </tr>
+    <?endforeach?>
+    <tr>
+        <td>add address line</td>
+        <td>remove last address line</td>
+    </tr>
+    <tr>
+        <td>city</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><?= $this->formText("perm-city", $this->etd->authorInfo->mads->permanent->address->city); ?></td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>state</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><?= $this->formText("perm-state", $this->etd->authorInfo->mads->permanent->address->state); ?></td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>country</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><?= $this->formSelect("perm-country", $this->etd->authorInfo->mads->permanent->address->country, null, $this->countries); ?></td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>postcode</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><?= $this->formText("perm-postcode", $this->etd->authorInfo->mads->permanent->address->postcode); ?></td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>phone</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><?= $this->formText("perm-phone", $this->etd->authorInfo->mads->permanent->phone); ?></td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>non-emory email</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><?= $this->formText("perm-email", $this->etd->authorInfo->mads->permanent->email); ?></td>
+        <td></td>
+    </tr>
+    <tr>
+        <td> date valid</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><?= $this->formText("perm-date", $this->etd->authorInfo->mads->permanent->date); ?></td>
+        <td></td>
+    </tr>
+  </table>
+
 <br/>
 
-<?= $this->xformOutput("netid", "mads:identifier[@type='netid']"); ?> <br/>
-
-<xf:submit submission="submission">
-  <xf:label>Save</xf:label>
-</xf:submit>
+netid
+<br/>
+<?= $this->etd->authorInfo->mads->netid; ?>
+<br/>
+<?= $this->formSubmit("Save", "Save", array("class" => "button")); ?>
+<br/>
+</form>
 
 
 <? if ($this->site_mode == 'development'): ?>
   <p id="status"></p>
-<? endif ?>   
-
+<? endif ?>
