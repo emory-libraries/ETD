@@ -51,6 +51,7 @@ class UserController extends Etd_Controller_Action {
       //  - note: no longer using subclass for honors; configuration for required fields
       // 	now pulled from per-school configuration
       $user = new user();
+      $user->mads->initializeFromEsd($this->view->current_user);
       
       // need access to etd in the view for displaying correct set of instructions
       $this->view->etd = $this->_helper->getFromFedora("etd", "etd");	  
@@ -79,8 +80,9 @@ class UserController extends Etd_Controller_Action {
     }
     $this->view->countries = $countries;
 
-    
-
+//    print "PID: " . $pid;
+//    print "<br>";
+//    print "ETD: " . $this->view->etd_pid;
   }
 
 

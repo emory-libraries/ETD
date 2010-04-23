@@ -25,8 +25,8 @@ without your consent.</p>
         <td>first and middle</td>
     </tr>
     <tr>
-        <td><?= $this->formText("last", $this->etd->authorInfo->mads->name->last); ?></td>
-        <td><?= $this->formText("first-middle", $this->etd->authorInfo->mads->name->first); ?></td>
+        <td><?= $this->formText("last", $this->user->mads->name->last); ?></td>
+        <td><?= $this->formText("first-middle", $this->user->mads->name->first); ?></td>
     </tr>
   </table>
   
@@ -39,7 +39,7 @@ without your consent.</p>
         <td></td>
     </tr>
 
-    <?foreach ($this->etd->authorInfo->mads->current->address->street as $index => $street): ?>
+    <?foreach ($this->user->mads->current->address->street as $index => $street): ?>
         <tr>
             <td>street</td>
             <td></td>
@@ -59,7 +59,7 @@ without your consent.</p>
         <td></td>
     </tr>
     <tr>
-        <td><?= $this->formText("cur-city", $this->etd->authorInfo->mads->current->address->city); ?></td>
+        <td><?= $this->formText("cur-city", $this->user->mads->current->address->city); ?></td>
         <td></td>
     </tr>
     <tr>
@@ -67,7 +67,7 @@ without your consent.</p>
         <td></td>
     </tr>
     <tr>
-        <td><?= $this->formText("cur-state", $this->etd->authorInfo->mads->current->address->state); ?></td>
+        <td><?= $this->formText("cur-state", $this->user->mads->current->address->state); ?></td>
         <td></td>
     </tr>
     <tr>
@@ -75,7 +75,7 @@ without your consent.</p>
         <td></td>
     </tr>
     <tr>
-        <td><?= $this->formSelect("cur-country", $this->etd->authorInfo->mads->current->address->country, null, $this->countries); ?></td>
+        <td><?= $this->formSelect("cur-country", $this->user->mads->current->address->country, null, $this->countries); ?></td>
         <td></td>
     </tr>
     <tr>
@@ -83,7 +83,7 @@ without your consent.</p>
         <td></td>
     </tr>
     <tr>
-        <td><?= $this->formText("cur-postcode", $this->etd->authorInfo->mads->current->address->postcode); ?></td>
+        <td><?= $this->formText("cur-postcode", $this->user->mads->current->address->postcode); ?></td>
         <td></td>
     </tr>
     <tr>
@@ -91,7 +91,7 @@ without your consent.</p>
         <td></td>
     </tr>
     <tr>
-        <td><?= $this->formText("cur-phone", $this->etd->authorInfo->mads->current->phone); ?></td>
+        <td><?= $this->formText("cur-phone", $this->user->mads->current->phone); ?></td>
         <td></td>
     </tr>
     <tr>
@@ -99,7 +99,7 @@ without your consent.</p>
         <td></td>
     </tr>
     <tr>
-        <td><?= $this->formText("cur-email", $this->etd->authorInfo->mads->current->email); ?></td>
+        <td><?= $this->formText("cur-email", $this->user->mads->current->email); ?></td>
         <td></td>
     </tr>
   </table>
@@ -114,8 +114,7 @@ without your consent.</p>
         <td></td>
     </tr>
 
-
-    <?foreach ($this->etd->authorInfo->mads->permanent->address->street as $index => $street): ?>
+    <?foreach ($this->user->mads->permanent->address->street as $index => $street): ?>
         <tr>
             <td>street</td>
             <td></td>
@@ -134,7 +133,7 @@ without your consent.</p>
         <td></td>
     </tr>
     <tr>
-        <td><?= $this->formText("perm-city", $this->etd->authorInfo->mads->permanent->address->city); ?></td>
+        <td><?= $this->formText("perm-city", $this->user->mads->permanent->address->city); ?></td>
         <td></td>
     </tr>
     <tr>
@@ -142,7 +141,7 @@ without your consent.</p>
         <td></td>
     </tr>
     <tr>
-        <td><?= $this->formText("perm-state", $this->etd->authorInfo->mads->permanent->address->state); ?></td>
+        <td><?= $this->formText("perm-state", $this->user->mads->permanent->address->state); ?></td>
         <td></td>
     </tr>
     <tr>
@@ -150,7 +149,7 @@ without your consent.</p>
         <td></td>
     </tr>
     <tr>
-        <td><?= $this->formSelect("perm-country", $this->etd->authorInfo->mads->permanent->address->country, null, $this->countries); ?></td>
+        <td><?= $this->formSelect("perm-country", $this->user->mads->permanent->address->country, null, $this->countries); ?></td>
         <td></td>
     </tr>
     <tr>
@@ -158,7 +157,7 @@ without your consent.</p>
         <td></td>
     </tr>
     <tr>
-        <td><?= $this->formText("perm-postcode", $this->etd->authorInfo->mads->permanent->address->postcode); ?></td>
+        <td><?= $this->formText("perm-postcode", $this->user->mads->permanent->address->postcode); ?></td>
         <td></td>
     </tr>
     <tr>
@@ -166,7 +165,7 @@ without your consent.</p>
         <td></td>
     </tr>
     <tr>
-        <td><?= $this->formText("perm-phone", $this->etd->authorInfo->mads->permanent->phone); ?></td>
+        <td><?= $this->formText("perm-phone", $this->user->mads->permanent->phone); ?></td>
         <td></td>
     </tr>
     <tr>
@@ -174,7 +173,7 @@ without your consent.</p>
         <td></td>
     </tr>
     <tr>
-        <td><?= $this->formText("perm-email", $this->etd->authorInfo->mads->permanent->email); ?></td>
+        <td><?= $this->formText("perm-email", $this->user->mads->permanent->email); ?></td>
         <td></td>
     </tr>
     <tr>
@@ -182,7 +181,7 @@ without your consent.</p>
         <td></td>
     </tr>
     <tr>
-        <td><?= $this->formText("perm-date", $this->etd->authorInfo->mads->permanent->date); ?></td>
+        <td><?= $this->formText("perm-date", $this->user->mads->permanent->date); ?></td>
         <td></td>
     </tr>
   </table>
@@ -191,7 +190,7 @@ without your consent.</p>
 
 netid
 <br/>
-<?= $this->etd->authorInfo->mads->netid; ?>
+<?= $this->user->mads->netid; ?>
 <br/>
 <?= $this->formSubmit("Save", "Save", array("class" => "button")); ?>
 <br/>
