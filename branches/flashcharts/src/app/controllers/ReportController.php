@@ -477,7 +477,7 @@ public function pagelengthbyprogram(&$solr) {
   $vector["Dissertations"] = $this->group_page_length($totalNumPhd);
   return $vector;
 }
-/* it groups page lengths into ranges */
+/* it groups page lengths into ranges. e.g 101 and 116 should be grouped into 101 - 200 */
 private function group_page_length(&$page_lengths) {
   $results = array();
   $results = array_fill(0, 11, 0);
