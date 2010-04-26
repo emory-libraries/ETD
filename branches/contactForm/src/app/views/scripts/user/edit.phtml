@@ -13,7 +13,12 @@ service provided by the Emory Alumni Association (yourname@alum.emory.edu) is ac
 information will not be available publicly or shared with anyone
 without your consent.</p>
 
-<form>
+
+<form name="contact-info" action="<?= $this->url(array("controller" => "user", "action" => "save"), '', true); ?>" method="post">
+
+<?= $this->formHidden("pid", $this->pid, null); ?>
+<?= $this->formHidden("etd", $this->etd_pid, null); ?>
+
 <? //NAME ?>
   <table>
     <tr>
@@ -45,7 +50,7 @@ without your consent.</p>
             <td></td>
         </tr>
         <tr>
-            <td><?= $this->formText("cur-street-".$index, $street); ?></td>
+            <td><?= $this->formText("cur-street[]", $street); ?></td>
             <td></td>
         </tr>
     <?endforeach?>
@@ -120,7 +125,7 @@ without your consent.</p>
             <td></td>
         </tr>
         <tr>
-            <td><?= $this->formText("perm-street-".$index, $street); ?></td>
+            <td><?= $this->formText("perm-street[]", $street); ?></td>
             <td></td>
         </tr>
     <?endforeach?>

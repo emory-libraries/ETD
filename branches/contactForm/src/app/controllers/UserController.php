@@ -67,6 +67,8 @@ class UserController extends Etd_Controller_Action {
     }
     $this->view->user = $user;
 
+    $this->view->pid = $pid;
+
     $this->view->title = "Edit User Information";
 
     //Countries for select box
@@ -87,42 +89,58 @@ class UserController extends Etd_Controller_Action {
 
 
   public function saveAction() {
+    //Get all params form post
     $pid = $this->_getParam("pid", null);
-    // should only be set for new records 
-    $etd_pid = $this->_getParam("etd", null);
+    $etd_pid = $this->_getParam("etd", null); // should only be set for new records
+    $last = $this->_getParam("last", null);
+    $first = $this->_getParam("first-middle", null);
     
-    $user = new user($pid);
-    if (is_null($pid))	{ // if pid is null, action is actually create (user is not author on an object yet)
+    $cur_street = $this->_getParam("cur-street", null);
+    $cur_city = $this->_getParam("cur-city", null);
+    $cur_state = $this->_getParam("cur-state", null);
+    $cur_country = $this->_getParam("cur-country", null);
+    $cur_postcode = $this->_getParam("cur-postcode", null);
+    $cur_phone = $this->_getParam("cur-phone", null);
+    $cur_email = $this->_getParam("cur-email", null);
+    
+    $perm_street = $this->_getParam("perm-street", null);
+    $perm_city = $this->_getParam("perm-city", null);
+    $perm_state = $this->_getParam("perm-state", null);
+    $perm_country = $this->_getParam("perm-country", null);
+    $perm_postcode = $this->_getParam("perm-postcode", null);
+    $perm_phone = $this->_getParam("perm-phone", null);
+    $perm_email = $this->_getParam("perm-email", null);
+    
+    $perm_dae = $this->_getParam("perm-date", null);
+
+
+    print "<pre>";
+    //print "PID: $pid <br>";
+    //print "ETD_PID: $etd_pid <br>";
+    print_r($_POST);
+    print "</pre>";
+    
+    $user = new user();
+    if (empty($pid))	{ // if pid is null, action is actually create (user is not author on an object yet)
       if (!$this->_helper->access->allowedOnUser("create")) return false;
     } else { 		// if pid is defined, action is editing an existing object
       if (!$this->_helper->access->allowedOnUser("edit", $user)) return false;
     }
 
-    global $HTTP_RAW_POST_DATA;
-    $xml = $HTTP_RAW_POST_DATA;
-    if ($xml == "") {
-      // if no xml is submitted, don't modify 
-      // forward to a different view?
-      $this->view->noxml = true;
-    } else {
-
-      if (is_null($pid)) {
+    if (empty($pid)) {
 	// new record - set object label & dc:title, object owner
-	$dom = new DOMDocument();
-	$dom->loadXML($xml);
-	$mads = new mads($dom);
-	$user->label = $mads->name->first . " " . $mads->name->last;
-	$user->owner = $mads->netid;
+	
+    $user->mads->initializeFromEsd($this->view->current_user);
+    $user->label = $user->mads->name->first . " " . $user->mads->name->last;
+	$user->owner = $user->mads->netid;
 	$user->rels_ext->addRelationToResource("rel:authorInfoFor", $etd_pid);
       }
-      
-      $user->mads->updateXML($xml);
 
-      // if no date for current, set to today
-      if (!$user->mads->current->date) $user->mads->current->date = date("Y-m-d");	
+       //if no date for current, set to today
+      if (!$user->mads->current->date) $user->mads->current->date = date("Y-m-d");
       // normalize date format
       $user->normalizeDates();
-      
+
       $resource = "contact information";
       if ($user->mads->hasChanged()) {
 	try {
@@ -144,7 +162,6 @@ class UserController extends Etd_Controller_Action {
 	$this->_helper->flashMessenger->addMessage("No changes made to $resource");
       }
 
-    }
 
     if ($etd_pid) {
       $etd = new etd($etd_pid);
@@ -162,11 +179,11 @@ class UserController extends Etd_Controller_Action {
     //redirect to user view
     $this->_helper->redirector->gotoRoute(array("controller" => "user",
     						"action" => "view", "pid" => $user->pid), "", true);
-
-    
-    $this->view->pid = $user->pid;
-    $this->view->xml = $xml;
-    $this->view->title = "save user information";
+//
+//
+//    $this->view->pid = $user->pid;
+//    $this->view->xml = $xml;
+//    $this->view->title = "save user information";
    }
 
   // show mads xml - referenced as model for xform
