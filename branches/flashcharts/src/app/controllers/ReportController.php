@@ -402,8 +402,7 @@ public function pagelengthreports() {
     $vector = $this->pagelengthbyprogram($solr);
     $progtext = $this->_getParam("nametext", "Humanities");
     $title = new title( "Document Length Report By ". $progtext . " Program");
-  }
-  if ($report_type == "bydegree") {
+  } else {
     $vector = $this->pagelengthbydegree($solr);
     $title = new title( "Document Length Report by Degrees" );
   } 
@@ -419,8 +418,7 @@ public function pagelengthreports() {
 //program report specific 
   if ($report_type == "byprogram") {
     $this->sendchart($page_len_chart);  
-  }
-  if ($report_type == "bydegree") {
+  } else {
     $this->view->flashchart = $page_len_chart;
   }
 }
