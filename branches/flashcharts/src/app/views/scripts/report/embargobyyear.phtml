@@ -1,5 +1,5 @@
 <script type = "text/javascript" src="<?= $this->linkTo('js/swfobject.js') ?>"></script>
-<script type = "text/javascript" src="<?= $this->linkTo('js/json/json2.js') ?>"></script>
+<script type = "text/javascript" src="<?= $this->linkTo('js/json/json2.js') ?>"></script> <? /* FIXME: unused? */?>
 <script type = "text/javascript">
 swfobject.embedSWF("<?= $this->linkTo('js/ofc/open-flash-chart.swf') ?>", "my_chart", "750", "500", "9.0.0");
 </script>
@@ -7,13 +7,14 @@ swfobject.embedSWF("<?= $this->linkTo('js/ofc/open-flash-chart.swf') ?>", "my_ch
 <script type="text/javascript">    
 var data = <?php echo $this->flashchart->toPrettyString(); ?>;
 </script>
-<form name = "yearform">
-Please Select A Year: <select name = "yearlist" onchange = "change_chart_type_by_year(this.value)">
-<? foreach ($this->years as $year => $count): ?>
-<option value = <?= $year ?>><?= $year?></option>
-<? endforeach ?>
-<option value = Overall>overall</option>
+<form name="yearform">
+Filter by Year:
+<select name = "yearlist" onchange = "change_chart_type_by_year(this.value)">
+   <option value="">All</option>
+  <? foreach ($this->years as $year => $count): ?>
+    <option value="<?= $year ?>"><?= $year?></option>
+  <? endforeach ?>
 </select>
 </form>
-<br>
+<br/>
 <div id="my_chart"></div>

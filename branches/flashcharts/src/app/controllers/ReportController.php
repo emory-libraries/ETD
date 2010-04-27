@@ -1,4 +1,4 @@
-<?php
+ <?php
 /**
  * @category Etd
  * @package Etd_Controllers
@@ -524,9 +524,10 @@ public function embargobyyearAction() {
   $solr->setFacetLimit(-1);  // no limit
   $solr->setFacetMinCount(0);        // minimum one match
   $result = $solr->query("*:*", 0, 0);
+  // get a list of years present in all records
   $this->view->years = $result->facets->year;
-  $this->firstReport = true;
-  $this->embargobyyearspecificAction();
+  $this->firstReport = true;  // unused?
+  $this->embargobyyearspecificAction();  // calls embargoreports with report type of year
 }  
 
 /**
@@ -546,20 +547,20 @@ public function embargoreports() {
   $solr->setFacetLimit(-1);  // no limit
   $solr->setFacetMinCount(0);        // minimum one match
   $result = $solr->query("*:*", 0, 0);
-  $this->view->title = "Report by Embargo Durations";
+  $this->view->title = "Report : Requested Embargo Duration";
   $embargo_chart = new open_flash_chart();
-  $embargo_len = $this->embargoduration_x_array();
+  $embargo_len = $this->embargo_durations();	// list of embargo durations, in order (better place to get these?)
   $x_label_array = $embargo_len;
 
   $vector = array(); 
   if ($report_type == "byprogram") {
     $progtext = $this->_getParam("nametext", "Humanities");
     $vector = $this->embargobyprogram($solr);
-    $title = new title( "Embargo Duration Report By ". $progtext . " Program");
+    $title = new title( "Requested Embargo Durations By ". $progtext . " Program");
   } else {
-    $useyear = $this->_getParam("year", "2007");
+    $useyear = $this->_getParam("year", null);
     $vector = $this->embargobyyear($solr);
-    $title = new title( "Embargo Duration Report ". $useyear);
+    $title = new title("Requested Embargo Durations" . ($useyear ? " ($useyear)" : ""));
   }
   $this->addchartelements($embargo_chart, $vector);
   $x_legend_text = 'Embargo Durations';
@@ -579,52 +580,85 @@ private function embargobyprogram(&$solr) {
     $progname = str_replace("#", '', $member->id);
     $criteria = sprintf("{!q.op=AND} program_facet:%s", $progname);
     $response = $solr->query($criteria, 0, 0);
-    $vector["Total"] =  $this->combinearrays($this->mergeblank2zero($response->facets->embargo_duration), $vector["Total"]);
+    $vector["Total"] =  $this->combinearrays($this->clean_embargo_data($response->facets->embargo_duration), $vector["Total"]);
     $criteria = sprintf("{!q.op=AND} program_facet:%s degree_name:M*", $progname);
     $response = $solr->query($criteria, 0, 0);
-    $vector["Masters Theses"] =  $this->combinearrays($this->mergeblank2zero($response->facets->embargo_duration), $vector["Masters Theses"]);
+    $vector["Master's Thesis"] =  $this->combinearrays($this->clean_embargo_data($response->facets->embargo_duration), $vector["Master's Thesis"]);
     $criteria = sprintf("{!q.op=AND} program_facet:%s -degree_name:M* -degree_name:B*", $progname);
-    $response = $solr->query($criteria, 0, 0);
-    $vector["Dissertations"] =  $this->combinearrays($this->mergeblank2zero($response->facets->embargo_duration), $vector["Dissertations"]);
+    $response = $solr->query($criteria, 0, 0); 
+    $vector["Dissertation"] =  $this->combinearrays($this->clean_embargo_data($response->facets->embargo_duration), $vector["Dissertation"]);
   }
   return $vector;
 }
 
 /* it returns a vector for embargo duration report by year*/
 public function embargobyyear(&$solr) {
-  $useyear = $this->_getParam("year", "2007");
-  if($useyear == "Overall") {
-    $year = "[* TO *]";
+  $useyear = $this->_getParam("year", "");	// default to all years
+  if($useyear == "") {
+    //$year = "[* TO *]";		// no date filter
+    $year_filter = "";
   } else {
     $year = $useyear;
+    $year_filter = "year:$useyear AND ";
   }
+  // FIXME: total query unneeded, should just add  other numbers (or better, do a stacked bar graph)
+  // NOTE: using genre/document type instead of degree names, to consistently filter across all schools/degrees
+
+  // FIXME: pull genres/document types from a common config? (create one if it does not yet exist)
+  $document_types = array("Honors Thesis", "Master's Thesis", "Dissertation");
+  foreach ($document_types as $doc) {
+    $response = $solr->query("$year_filter document_type:\"$doc\"", 0, 0);
+    //    print "DEBUG: embargoes for $doc<pre>"; print_r($response->facets->embargo_duration); print "</pre>";
+    $new_vector[$doc] = $this->clean_embargo_data($response->facets->embargo_duration);
+  }
+  // for now, generate total by summing up others (hopefully total can go away...)
+  $totals = array(0, 0, 0, 0, 0);
+  foreach($new_vector as $type => $values) {
+    for ($i = 0; $i < count($values); $i++) {
+      $totals[$i] += $values[$i];
+    }
+  }
+  $new_vector["Total"] = $totals;
+  return $new_vector;
+  /*  
+  
   $criteria = sprintf("{!q.op=AND} year:%s", $year);
   $response = $solr->query($criteria, 0, 0);
-  $vector["Total"] =  $this->mergeblank2zero($response->facets->embargo_duration);
+  $vector["Total"] =  $this->clean_embargo_data($response->facets->embargo_duration);
   $criteria = sprintf("{!q.op=AND} year:%s degree_name:B*", $year);
   $response = $solr->query($criteria, 0, 0);
-  $vector["Honors Theses"] = $this->mergeblank2zero($response->facets->embargo_duration);
+  $vector["Honors Theses"] = $this->clean_embargo_data($response->facets->embargo_duration);
   $criteria = sprintf("{!q.op=AND}year:%s degree_name:M*", $year);
   $response = $solr->query($criteria, 0, 0);
-  $vector["Masters Theses"] = $this->mergeblank2zero($response->facets->embargo_duration);
+  $criteria = sprintf("{!q.op=AND}year:%s document_type:Master*", $year);
+  $response = $solr->query($criteria, 0, 0);
+  $vector["Masters Theses"] = $this->clean_embargo_data($response->facets->embargo_duration);
   $criteria = sprintf("{!q.op=AND}year:%s -degree_name:M* -degree_name:B*", $year);
   $response = $solr->query($criteria, 0, 0);
-  $vector["Dissertations"] = $this->mergeblank2zero($response->facets->embargo_duration); 
-  return $vector;
+  $vector["Dissertations"] = $this->clean_embargo_data($response->facets->embargo_duration);
+  return $vector;*/
 }
 
-private function embargoduration_x_array() {
+// possible embargo durations, in the order we want them (FIXME: get these from a config file?)
+private function embargo_durations() {
   return array("0 days", "6 months", "1 year", "2 years", "6 years");
 }
 
-/* this function merges the [] to [0 days] in the embargo_duration array */
-private function mergeblank2zero(&$a) {
-  $result = array();
-  foreach($this->embargoduration_x_array() as $len) {
-    $result[] = $a[$len];
+/**
+ * clean up embargo data returned from solr so it can be used for chart data
+ * - converts key => value array to a list of totals in duration order
+ * - some early records have no embargo request; combines those totals with "0 days" duration
+ * @param array $embargo_totals key => value of embargo duration => total, as returned by solr facet
+ * @return array list of totals, indexed in order to match ascending embargo duration
+ */
+private function clean_embargo_data($embargo_totals) {
+  $data = array();
+  foreach($this->embargo_durations() as $duration) {
+    $data[] = $embargo_totals[$duration];
   }
-  $result[0] += $a[""];
-  return $result;
+  // if there are any records with no embargo, add to 0 days total
+  $data[0] += $embargo_totals[""];
+  return $data;
 }
 
 
@@ -641,7 +675,9 @@ private function sendchart(&$chart = null) {
   }
 }
 private function addchartelements(&$chart, $vector) {
-  $colors = array ("Total" => '#000000', "Masters Theses" => '#33A02C', "Dissertations" => '#FF7F00', "Honors Theses" => '#1F78B4'); 
+#  $colors = array ("Total" => '#000000', "Masters Theses" => '#33A02C', "Dissertations" => '#FF7F00', "Honors Theses" => '#1F78B4');
+  // NOTE: pull these from a common genre list
+  $colors = array ("Total" => '#000000', "Master's Thesis" => '#33A02C', "Dissertation" => '#FF7F00', "Honors Thesis" => '#1F78B4'); 
   foreach ($vector as $key => $values) {
     $bar = new bar_glass();
     $bar->set_colour( $colors[$key] );
@@ -657,7 +693,8 @@ private function addchartartifacts(&$chart, $x_label_array, $max_page_num, $x_le
   } else {
     $scaled_max_num = 50;
   }
-  $x_labels = new x_axis_labels();
+
+  $x_labels = new x_axis_labels();  
   $x_labels->set_vertical();
   $x_labels->set_labels( $x_label_array );
   $x_legend = new x_legend( $x_legend_text );
