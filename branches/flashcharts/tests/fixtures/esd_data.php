@@ -26,10 +26,15 @@ class esd_test_data {
 			   array('N',6,'EMIRIT','R','Emiritus','Peter','J','','Retired Professor','1009',null,null,null,null,null,null,null,null,null,null),			   
 			   // student
 			   array(' ',4,'MSTUDEN','B','Student','Mary','Kim',null,null,null,null,'GSAS','PHD','BBSPHD','Bioscience','PHD',null,null,'N','m.student@emory.edu'),
+			   // student employee  -- *two* records in current ESD, one without info we need
+			   array(' ',7,'JSTUDEN','B','Student','Joe','Bob',null,null,null,null,null,null,null,null,null,null,null,'N','j.student@emory.edu'),
+			   array(' ',7,'JSTUDEN','B','Student','Joe','Bob',null,null,null,null,'GSAS','PHD','BBSPHD','Bioscience','PHD',null,null,'N','j.student@emory.edu'),
+
 			   // grad administrator
 			   array(' ',1,'GADMIN','E','Admin','Graduate',' ','','GSAS Administrator','1007','Graduate School Administration',null,null,null,null,null,null,null,null,'grad.admin@emory.edu'),
 			   // grad dept. coordinator
 			   array(' ',1,'DADMIN','E','Admin','Department',' ','','Department Coordinator','1008','Graduate School',null,null,null,null,null,null,"Philosophy",null,'grad.admin@emory.edu'),
+               array(' ',1,'RVIEWER','E','Bob','Smith',' ','','Analyst','1009','Reports Department',null,null,null,null,null,null,"Philosophy",null,'grad.admin@emory.edu'),
 			   );
 
     $this->addr_fields = array("PRSN_I","PRAD_A_LOCL_LIN1","PRAD_A_LOCL_LIN2","PRAD_A_LOCL_LIN3","PRAD_A_LOCL_CITY","PRAD_A_LOCL_STAT","PRAD_A_LOCL_ZIP","PRAD_A_LOCL_PSTL","PRAD_A_LOCL_CNTR","PRAD_A_LOCL_TLPH","PRAD_A_STDN_LIN1","PRAD_A_STDN_LIN2","PRAD_A_STDN_LIN3","PRAD_A_STDN_CITY","PRAD_A_STDN_STAT","PRAD_A_STDN_ZIP","PRAD_A_STDN_PSTL","PRAD_A_STDN_CNTR","PRAD_A_STDN_TLPH");

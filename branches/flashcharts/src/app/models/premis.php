@@ -44,7 +44,16 @@ class premis extends foxmlDatastreamAbstract  {
 
 
 
-  // need a function to add another event
+
+  /**
+   * Add a new event to the premis object
+   * @param string $type
+   * @param string $detail
+   * @param string $outcome - "success" or "fail"
+   * @param array $agent - key is the identifer type value is the identifer
+   * @param string $date - optional defaults to current date and time
+   * @todo create constants for event types
+   */
   public function addEvent($type, $detail, $outcome, array $agent, $date = null) {
     // date/time defaults to now
     if (is_null($date)) {

@@ -78,6 +78,7 @@ class SubmissionControllerTest extends ControllerTestCase {
     $SubmissionController = new SubmissionControllerForTest($this->request,$this->response);
     $gff = $SubmissionController->getHelper("GetFromFedora");
     $gff->clearReturnObject();
+    $messages = $SubmissionController->getHelper('FlashMessenger')->getMessages();
   }
 
 
@@ -107,6 +108,14 @@ class SubmissionControllerTest extends ControllerTestCase {
   function testProcessPdfAction() {
     $SubmissionController = new SubmissionControllerForTest($this->request,
 							    $this->response);
+    //valid answers to screeneing questions
+    $this->setUpGet(array("copyright" => 0,
+                       "copyright_permission" => NULL,
+                       "patent" => 0,
+                       "embargo" => 0,
+                       "embargo_abs_toc" => NULL));
+
+
     // unauthorized user
     $this->test_user->role = "guest";
     Zend_Registry::set('current_user', $this->test_user);
@@ -132,7 +141,7 @@ class SubmissionControllerTest extends ControllerTestCase {
     $ioe = $SubmissionController->getHelper("IngestOrError");
     $ioe->setError("FedoraObjectNotValid");
     $SubmissionController->processpdfAction();
-    $this->assertFalse($SubmissionController->redirectRan);
+    $this->assertFalse($SubmissionController->redirectRan, "Should not redirect on successful submission.");
     $messages = $SubmissionController->getHelper('FlashMessenger')->getMessages();
     $this->assertPattern("/Error saving record/", $messages[0]);
     $this->assertPattern("/Could not create record/",
@@ -149,6 +158,10 @@ class SubmissionControllerTest extends ControllerTestCase {
     $messages = $SubmissionController->getHelper('FlashMessenger')->getMessages();
     $this->assertEqual(0, count($messages));
     $this->assertEqual(0, count($SubmissionController->view->errors));
+
+    //Check that copyright and patent questions have been stored in history
+    $this->assertPattern("/copyrighted/", $this->mock_etd->premis->event[2]->detail);
+    $this->assertPattern("/patented/", $this->mock_etd->premis->event[3]->detail);
   }
 
   function testInitializeEtd() {
@@ -190,6 +203,13 @@ class SubmissionControllerTest extends ControllerTestCase {
     $this->assertEqual("new etd", $etd->label);
     $this->assertEqual("Candler School of Theology", $etd->admin_agent);
 
+
+    // if academic career missing - should set a default
+    $this->test_user->academic_career = null;
+    $etd = $SubmissionController->initialize_etd($test_info);
+    $this->assertEqual("Graduate School", $etd->admin_agent);
+
+    
     error_reporting($errlevel);	    // restore prior error reporting
   }
     
@@ -282,6 +302,53 @@ class SubmissionControllerTest extends ControllerTestCase {
     // NOTE: currently no way to test generation of the email, but it may be added in the future
 
     error_reporting($errlevel);	    // restore prior error reporting
+  }
+
+
+  function testValidateQuestions() {
+      $SubmissionController = new SubmissionControllerForTest($this->request, $this->response);
+      
+      //All ansers are no to questions 1, 2, and 3
+      $answers = array("copyright" => 0,
+                       "copyright_permission" => NULL,
+                       "patent" => 0,
+                       "embargo" => 0,
+                       "embargo_abs_toc" => NULL);
+      
+      $valid = $SubmissionController->validateQuestions($answers);
+      $this->assertTrue($valid);
+
+      //All ansers are yes to all questions
+      $answers = array("copyright" => 1,
+                       "copyright_permission" => 1,
+                       "patent" => 1,
+                       "embargo" => 1,
+                       "embargo_abs_toc" => 1);
+
+      $valid = $SubmissionController->validateQuestions($answers);
+      $this->assertTrue($valid);
+
+      //1, 2, 3 answered but sub-questions are not
+      $answers = array("copyright" => 1,
+                       "copyright_permission" => NULL,
+                       "patent" => 0,
+                       "embargo" => 1,
+                       "embargo_abs_toc" => NULL
+                      );
+
+      $valid = $SubmissionController->validateQuestions($answers);
+      $this->assertFalse($valid);
+
+      //1,2,3 are yes sub-questions are no
+      $answers = array("copyright" => 1,
+                       "copyright_permission" => 0,
+                       "patent" => 1,
+                       "embargo" => 1,
+                       "embargo_abs_toc" => 0
+                      );
+
+      $valid = $SubmissionController->validateQuestions($answers);
+      $this->assertTrue($valid);
   }
 
 

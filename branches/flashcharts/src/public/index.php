@@ -10,8 +10,10 @@ ini_set("include_path", "../app/:../config:../app/models:../app/modules/:../lib:
 // NOTE: local models should come before fedora models so that correct
 // xml template files will be found first
 
-require("Zend/Loader.php");
-Zend_Loader::registerAutoload();
+require("Zend/Loader/Autoloader.php");
+$autoloader = Zend_Loader_Autoloader::getInstance();
+$autoloader->setFallbackAutoloader(true);
+
 
 
 // NOTE: php is now outputting a notice when using __set on arrays / objects

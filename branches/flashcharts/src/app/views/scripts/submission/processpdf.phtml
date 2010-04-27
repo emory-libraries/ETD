@@ -49,7 +49,14 @@ ETD system manually. To proceed with the manual process, upload your file below.
 <form name="submission" method="post" enctype="multipart/form-data"
     action="<?= $this->url(array("action" => "processpdf"))?>">
 
-  <?= $this->formHidden("force", "create"); ?> 
+  <? #Hidden form fields for screening questions ?>
+  <?= $this->formHidden("copyright", $this->answers["copyright"]); ?>
+  <?= $this->formHidden("copyright_permission", $this->answers["copyright_permission"]); ?>
+  <?= $this->formHidden("patent", $this->answers["patent"]); ?>
+  <?= $this->formHidden("embargo", $this->answers["embargo"]); ?>
+  <?= $this->formHidden("embargo_abs_toc", $this->answers["embargo_abs_toc"]); ?>
+
+  <?= $this->formHidden("force", "create"); ?>
   <p><b>Your PDF</b> <?= $this->formFile("pdf"); ?>
 <?= $this->formSubmit("Proceed", "Proceed >", array("class" => "button", "style" => "margin-left:10px",
 						"onClick" => "Element.show('processing')")); ?>

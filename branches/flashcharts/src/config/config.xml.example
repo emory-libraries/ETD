@@ -8,6 +8,10 @@
 	       <address></address>
 	       <name></name>
 	    </etd>
+	    <ott>
+	       <address>ott-web@emory.edu</address>
+	       <name>Emory Office of Technology Transfer</name>
+	    </ott>
 	    <test></test>
 	  </email>
 	  <contact>
@@ -15,6 +19,7 @@
 	    <email></email>
 	    <name></name>
 	  </contact>
+	  <news_feed>https://digital.library.emory.edu/taxonomy/term/22/all/feed</news_feed>
 	  <tmpdir></tmpdir>
 	  <logfile></logfile>
   	  <!-- executable for pdftohtml; supply full path if necessary -->
@@ -34,11 +39,9 @@
 	    <user></user>
             <user></user>
 	  </techsupport>
-	 <!-- undergraduate honors administrators -->
- 	  <honors_admin>
-	    <user></user>
-	    <user/>
- 	  </honors_admin>
+      <reportviewer>
+            <department></department>
+      </reportviewer>
 
  <!-- NOTE: for superusers, techsupport, and honors_admin,
       there must be at least 2 user entries so Zend_Config_Xml 
@@ -58,7 +61,7 @@
        </contentModels>
 
        <collections>
-           <all_etd>emory:ETD-collection</all_etd>
+           <all_etd>emory-control:ETD-collection</all_etd>
            <grad_school>emory:ETD-GradSchool-collection</grad_school>
            <college_honors>emory:17qqk</college_honors>
        </collections>

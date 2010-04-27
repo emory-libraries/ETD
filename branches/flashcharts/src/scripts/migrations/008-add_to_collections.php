@@ -51,10 +51,6 @@ foreach ($etd_pids as $pid) {
             $etd->rels_ext->addRelationToResource("rel:isMemberOfCollection", $config->collections->college_honors);
         }
 
-        // if not already a member of master etd collection, add relation
-        if (! $etd->rels_ext->isMemberOfCollections->includes($etd->rels_ext->pidToResource($config->collections->all_etd))) {
-            $etd->rels_ext->addRelationToResource("rel:isMemberOfCollection", $config->collections->all_etd);
-        }
         // if not an honors etd, add to grad school collection
         if (! $etd->rels_ext->isMemberOfCollections->includes($etd->rels_ext->pidToResource($config->collections->college_honors)) &&
             ! $etd->rels_ext->isMemberOfCollections->includes($etd->rels_ext->pidToResource($config->collections->grad_school))) {

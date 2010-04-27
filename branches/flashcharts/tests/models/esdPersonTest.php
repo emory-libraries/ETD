@@ -31,6 +31,7 @@
 	// stub config with just the portion relevant to special user roles
 	$testconfig = new Zend_Config(array("techsupport" => array("user" => array("jolsen")),
 					    "superusers" => array("user" => array("ckent")),
+                        "reportviewer" => array("department" => array("Reports Department")),
 					    ));
 	// temporarily override config with test configuration
 	Zend_Registry::set('config', $testconfig);
@@ -38,9 +39,12 @@
 	// add test users to school config
 	$schools = $this->_schools_config;
 	// override admin configurations for testing
-	$schools->graduate_school->admin->department = $this->grad_department;
-	$schools->emory_college->admin = array("netid" =>
-					   array("llane", "mshonorable"));
+	 $schools->graduate_school->admin = array("netid" => array('gadmin', 'jsmith'),
+                                              "department" => $this->grad_department);
+
+    $schools->emory_college->admin = array("netid" =>
+					   array("llane", "mshonorable"),
+                             "department" => "Emory College");
 
 	// temporarily override school config  with test configuration
 	Zend_Registry::set('schools-config', $schools);
@@ -103,6 +107,12 @@
 
       }
 
+      function testfindByUsername_studentEmployee() {
+	$user = $this->esd->findByUsername("jstuden");
+	$this->assertNotNull($user->academic_career,
+			     "info for student employee with 2 ESD records should include academic career");
+      }
+
       function testFindNonexistent() {
         $user = $this->esd->findByUsername("nonexistent");
         $this->assertFalse($user, "searching non-existent user returns nothing");
@@ -145,6 +155,7 @@
 
         // honors program administrator - based on *school* config 
         $this->user->netid = "llane";
+        $this->user->department = "Emory College";
         $this->user->setRole();
         $this->assertEqual($this->user->role, "honors admin");
 
@@ -152,6 +163,11 @@
         $this->user->netid = "ckent";
         $this->user->setRole();
         $this->assertEqual($this->user->role, "superuser");
+
+        // etd report viewer - based on config
+        $viewer = $this->esd->findByUsername("rviewer");
+        $this->assertEqual($viewer->role, "report viewer");
+        
 
 	// tech support - based on config 
         $this->user->netid = "jolsen";
@@ -163,6 +179,7 @@
 	// gracefully handle multiple *and* single entries in config file usernames
 	$testconfig = new Zend_Config(array("techsupport" => array("user" => "jolsen"),
 					    "superusers" => array("user" => "ckent"),
+                        "reportviewer" => array("department" => "Reports Department")
 					    ));
 	// temporarily override config with test configuration
 	Zend_Registry::set('config', $testconfig);
@@ -184,8 +201,13 @@
 
         // honors program administrator - based on *school* config 
         $this->user->netid = "llane";
+        $this->user->department = "Emory College";
         $this->user->setRole();
         $this->assertEqual($this->user->role, "honors admin");
+
+        // etd report viewer - based on config
+        $viewer = $this->esd->findByUsername("rviewer");
+        $this->assertEqual($viewer->role, "report viewer");
 
       }
 

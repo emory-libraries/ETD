@@ -85,6 +85,8 @@ class SearchController extends Etd_Controller_Action {
       $options["AND"]["status"] = "published";
     }
 
+    $options['return_type'] = "solrEtd";
+    
     $etdSet = new EtdSet();
     $etdSet->find($options);
     $this->view->etdSet = $etdSet;
@@ -96,7 +98,7 @@ class SearchController extends Etd_Controller_Action {
       $this->_helper->flashMessenger->addMessage("Only one match found for search; displaying full record");
       $this->_helper->redirector->gotoRoute(array("controller" => "view",
 						  "action" => "record",
-						  "pid" => $etdSet->etds[0]->pid), "", true);
+						  "pid" => $etdSet->etds[0]->pid()), "", true);
     }
 
     $this->view->show_relevance = true;

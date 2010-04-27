@@ -1,9 +1,9 @@
 <H1>Available Reports</H1>
 <ul>
-  <li><a href="<?= $this->url(array("controller" => "manage",
-			"action" => "report"), '', true); ?>">Summary Statistics</a></li>
   <li><a href="<?= $this->url(array("controller" => "report",
-			"action" => "commencement-review"), '', true); ?>">Commencement Report</a></li>
+			"action" => "summary-stat"), '', true); ?>">Summary Statistics</a></li>
+  <li><a href="<?= $this->url(array("controller" => "report",
+			"action" => "commencement-review"), '', true); ?>">Graduate School Commencement Report</a></li>
   <li><a href="<?= $this->url(array("controller" => "report",
 		"action" => "grad-data"), '', true); ?>">Graduate School Academic Year Report</a>
 	<?= $this->FiletypeIcon("text/csv") ?></li>
@@ -16,10 +16,13 @@
       <a href="<?= $this->url(array("controller" => "report",
 			"action" => "pagelengthbyprogram"), '', true); ?>">by program</a>
   </li>
- <li>Requested Embargo Duration - 
+  <li>Requested Embargo Duration - 
 	<a href="<?= $this->url(array("controller" => "report",
 			"action" => "embargobyyear"), '', true); ?>">by year</a>
         <a href="<?= $this->url(array("controller" => "report",
 			"action" => "embargobyprogram"), '', true); ?>">by program</a>
  </li>
+  <li><a href="<?= $this->url(array("controller" => "report",
+	    'action' => 'exportemails')) ?>">Export email addresses for approved records</a>
+    <?= $this->FiletypeIcon("text/csv") ?></li>
 </ul>

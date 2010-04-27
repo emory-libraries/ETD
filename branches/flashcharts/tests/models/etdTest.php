@@ -432,14 +432,9 @@ class TestEtd extends UnitTestCase {
     $this->assertEqual("draft", $etd->status());
 
     $config = Zend_Registry::get('config');
-    // all etds should be member of etd collection
-    $this->assertTrue(isset($etd->rels_ext->isMemberOfCollection), "RELS-EXT property isMemberOfCollection is set");
-    $this->assertTrue($etd->rels_ext->isMemberOfCollections->includes($etd->rels_ext->pidToResource($config->collections->all_etd)),
-        "template etd has isMemberOfCollection relation to etd collection");
-    $this->assertPattern('|<rel:isMemberOfCollection\s+rdf:resource="info:fedora/' .
-			 $config->collections->all_etd. '".*/>|',
-			 $etd->rels_ext->saveXML());
-
+    // all etds should be member of either the graduate_school, emory_college or candler and not a member of the ETD master collection. 
+    $this->assertFalse($etd->rels_ext->isMemberOfCollections->includes($etd->rels_ext->pidToResource($config->collections->all_etd)),
+        "template etd dos not have a  isMemberOfCollection relation to etd collection");
        
     $honors_etd = new etd($this->school_cfg->emory_college);
     // researchfields should not be present in mods if optional
@@ -1005,10 +1000,51 @@ class TestEtd extends UnitTestCase {
     }
     
   }
-  
 
+
+  function testReadyToSubmit(){
+    $fname = '../fixtures/etd2.xml';
+    $dom = new DOMDocument();
+    $dom->load($fname);
+    $etd = new etd($dom);
+    $etd->setSchoolConfig($this->school_cfg->graduate_school);
+    $etd->mods->addNote("yes", "admin", "pq_submit");
+
+    //Test increasing embarog levels
+    $etd->mods->setEmbargoRequestLevel(etd_mods::EMBARGO_NONE);
+    $result = $etd->readyToSubmit("mods");
+    $this->assertTrue($result);
+
+    $etd->mods->setEmbargoRequestLevel(etd_mods::EMBARGO_FILES);
+    $result = $etd->readyToSubmit("mods");
+    $this->assertTrue($result);
+
+    $etd->mods->setEmbargoRequestLevel(etd_mods::EMBARGO_TOC);
+    $result = $etd->readyToSubmit("mods");
+    $this->assertTrue($result);
+
+    $etd->mods->setEmbargoRequestLevel(etd_mods::EMBARGO_ABSTRACT);
+    $result = $etd->readyToSubmit("mods");
+    $this->assertTrue($result);
+
+    //Test decreasing embargo levels
+
+    $etd->mods->setEmbargoRequestLevel(etd_mods::EMBARGO_TOC);
+    $result = $etd->readyToSubmit("mods");
+    $this->assertTrue($result);
+
+    $etd->mods->setEmbargoRequestLevel(etd_mods::EMBARGO_FILES);
+    $result = $etd->readyToSubmit("mods");
+    $this->assertTrue($result);
+
+    $etd->mods->setEmbargoRequestLevel(etd_mods::EMBARGO_NONE);
+    $result = $etd->readyToSubmit("mods");
+    $this->assertTrue($result);
 }
 
+
+
+}
 runtest(new TestEtd());
 
 ?>

@@ -132,10 +132,25 @@ class EditController extends Etd_Controller_Action {
 
     // embargo
 
-    if ($embargo)
+    if ($embargo){
       $etd->mods->setEmbargoRequestLevel($embargo_level);
-    else
+      
+      //Restore mods values when embargo level decreases
+      if($embargo_level == etd_mods::EMBARGO_TOC)
+      { 
+          $etd->abstract = $etd->html->abstract;
+      }
+      elseif($embargo_level <= etd_mods::EMBARGO_FILES){
+         $etd->abstract = $etd->html->abstract;
+         $etd->contents = $etd->html->contents;
+      }
+    }
+    else{
+      //Restore mods values when no embargo
       $etd->mods->setEmbargoRequestLevel(etd_mods::EMBARGO_NONE);
+      $etd->abstract = $etd->html->abstract;
+      $etd->contents = $etd->html->contents;
+    }
 
     // proquest
 

@@ -1,7 +1,7 @@
 #!/usr/bin/php -q
 <?php
 /**
- * Update all published ETDs with OAI ids
+ * Update the Dublin Core for all ETDs using the latest MODS -> DC conversion
  *
  * @category Etd
  * @package Etd_Scripts
@@ -18,7 +18,7 @@ $opts = new Zend_Console_Getopt($common_getopts);
 // extended usage information - based on option list above, but with explanation/examples
 $scriptname = basename($_SERVER{"SCRIPT_NAME"});
 $usage = $opts->getUsageMessage() . "
- $scriptname adds OAI identifier to RELS-EXT for all published ETDs
+ $scriptname updates the Dublin Core for all ETDs using the latest MODS -> DC conversion
 ";
 
 try {
@@ -35,9 +35,8 @@ $logger = setup_logging($opts->verbose);
 $updated = $unchanged = $error = 0;
 
 $etdSet = new EtdSet();
-$etdSet->find(array("AND" => array("status" => "published"),
-                   "start" => 0, "max" => 50));
-		   //do for both published and unpublished 
+// find all ETDs, regardless of status
+$etdSet->find(array("start" => 0, "max" => 50));
 
 for ( ;$etdSet->hasResults(); $etdSet->next()) {
   $plural = ($etdSet->numFound == "1") ? "" : "s";
@@ -54,10 +53,10 @@ for ( ;$etdSet->hasResults(); $etdSet->next()) {
 	  $result = $etd->save("Updated DC.");
 	  if ($result) {
             $updated++;
-            $logger->info("Successfully updated DC for" . $etd->pid . " at $result");
+            $logger->info("Successfully updated DC for " . $etd->pid . " at $result");
 	  } else {
             $error++;
-            $logger->err("Could not update DC for" . $etd->pid);
+            $logger->err("Could not update DC for " . $etd->pid);
 	  }
 	} else {      // noact mode - simulate save
 	  $logger->info("Saving " .  $etd->pid . " (simulated)");

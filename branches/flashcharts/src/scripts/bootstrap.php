@@ -10,8 +10,9 @@
 // ZendFramework, etc.
 ini_set("include_path", "../app/:../config:../app/models:../app/modules/:../lib:../lib/fedora:../lib/xml-utilities:js/:/home/rsutton/public_html:" . ini_get("include_path")); 
 
-require("Zend/Loader.php");
-Zend_Loader::registerAutoload();
+require("Zend/Loader/Autoloader.php");
+$autoloader = Zend_Loader_Autoloader::getInstance();
+$autoloader->setFallbackAutoloader(true);
 
 require_once("models/etd.php");
 require_once("models/etdfile.php");

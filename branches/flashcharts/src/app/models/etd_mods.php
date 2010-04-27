@@ -553,6 +553,17 @@ class etd_mods extends mods {
         $embargo_bits .= $this->embargo_name_map[$i];
       }
       $this->embargo_request = "yes:" . substr($embargo_bits, 1);
+
+      //TOC and ABSTRACT should not be stored in mods if embargoed because mods is not locked donw.
+      if($level == etd_mods::EMBARGO_TOC && $this->isEmbargoed()){
+          $this->tableOfContents = "";
+      }
+
+      if($level == etd_mods::EMBARGO_ABSTRACT  && $this->isEmbargoed()){
+          $this->tableOfContents = "";
+          $this->abstract = "";
+      }
+
     }
   }
 
@@ -879,6 +890,18 @@ class etd_mods extends mods {
    */
   public function submitToProquest() {
     return ($this->degree->name == "PhD" || $this->pq_submit == "yes");
+  }
+
+  /**
+   * is this record embargoed?
+   * returns true if embargo end date is set and after current time
+   * @return boolean
+   */
+  public function isEmbargoed() {
+    if ($this->embargo_end)
+      return (strtotime($this->embargo_end, 0) > time());
+    else	// no embargo date defined - not (yet) embargoed
+      return false;
   }
 
 }

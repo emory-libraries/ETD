@@ -118,17 +118,28 @@ class esdPerson extends Emory_Db_Table_Row implements Zend_Acl_Role_Interface {
         // etd superuser, techsupport, and honors admin
         if (Zend_Registry::isRegistered('config')) {
             $config = Zend_Registry::get('config');
-	    if ((is_object($config->techsupport->user) &&
-		 in_array($this->netid, $config->techsupport->user->toArray()))
-		|| $config->techsupport->user == $this->netid) {
-                $this->role = "techsupport";
+            if (isset($config->superusers) && ((is_object($config->superusers->user) &&
+            in_array($this->netid, $config->superusers->user->toArray()))
+            || $config->superusers->user == $this->netid)) {
+                    $this->role = "superuser";
+                    //Workaround to set  default school to solve issue when superuser submits a file
+                    $this->academic_career="GSAS";
             }
-            if ((is_object($config->superusers->user) &&
-		 in_array($this->netid, $config->superusers->user->toArray()))
-		|| $config->superusers->user == $this->netid) {
-                $this->role = "superuser";
+            elseif (isset($config->techsupport) && ((is_object($config->techsupport->user) &&
+             in_array($this->netid, $config->techsupport->user->toArray()))
+            || $config->techsupport->user == $this->netid)) {
+                    $this->role = "techsupport";
+                //Workaround to set  default school to solve issue when superuser submits a file
+                $this->academic_career="GSAS";
             }
-        }
+            //detect report viewer role
+            elseif (isset($config->reportviewer) &&  ((is_object($config->reportviewer->department) &&
+             in_array($this->department, $config->reportviewer->department->toArray()))
+            || (!empty($config->reportviewer->department) && $config->reportviewer->department == $this->department))){
+                $this->role = "report viewer";
+            }
+
+        } //end Zend registry if
     }
 
     /**
@@ -361,7 +372,18 @@ class esdPersonObject extends Emory_Db_Table {
             $id = preg_replace("/^esdid/", "", $netid);
             return $this->findByPrsnI($id);
         }
-	return $this->findByLogn8ntwrI(strtoupper($netid));
+	
+	// student employees currently have *two* records in ESD, and only one has the information we need
+	// get all records from ESD for the current user, then return the right one if more than one are found
+	$results = $this->findAllByLogn8ntwrI(strtoupper($netid));
+	if ($results->count() == 1) {
+	  return $results->current();
+	} elseif ($results->count() > 1) {
+	  foreach ($results as $record) {
+	    if ($record->academic_career != null) return $record;
+	  }	  
+	}
+	// nothing returned when no match
     }
 
     /**
