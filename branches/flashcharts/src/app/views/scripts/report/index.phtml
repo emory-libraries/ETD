@@ -8,10 +8,18 @@
 		"action" => "grad-data"), '', true); ?>">Graduate School Academic Year Report</a>
 	<?= $this->FiletypeIcon("text/csv") ?></li>
   <li><a href="<?= $this->url(array("controller" => "report",
-		"action" => "embargo-csv"), '', true); ?>">Upcomming Embargos Report</a>
+		"action" => "embargo-csv"), '', true); ?>">Upcoming Embargos</a>
 	<?= $this->FiletypeIcon("text/csv") ?></li>
-  <li><a href="<?= $this->url(array("controller" => "report",
-			"action" => "pagelen"), '', true); ?>">Page Length Report</a></li>
-  <li><a href="<?= $this->url(array("controller" => "report",
-			"action" => "embargo"), '', true); ?>">Embargo Duration Report</a></li>
+  <li>Page Length -
+      <a href="<?= $this->url(array("controller" => "report",
+			"action" => "pagelengthbydegree"), '', true); ?>">by degree</a>
+      <a href="<?= $this->url(array("controller" => "report",
+			"action" => "pagelengthbyprogram"), '', true); ?>">by program</a>
+  </li>
+ <li>Requested Embargo Duration - 
+	<a href="<?= $this->url(array("controller" => "report",
+			"action" => "embargobyyear"), '', true); ?>">by year</a>
+        <a href="<?= $this->url(array("controller" => "report",
+			"action" => "embargobyprogram"), '', true); ?>">by program</a>
+ </li>
 </ul>
