@@ -82,9 +82,7 @@ class UserController extends Etd_Controller_Action {
     }
     $this->view->countries = $countries;
 
-//    print "PID: " . $pid;
-//    print "<br>";
-//    print "ETD: " . $this->view->etd_pid;
+
   }
 
 
@@ -114,35 +112,54 @@ class UserController extends Etd_Controller_Action {
     $perm_dae = $this->_getParam("perm-date", null);
 
 
-    print "<pre>";
-    //print "PID: $pid <br>";
-    //print "ETD_PID: $etd_pid <br>";
-    print_r($_POST);
-    print "</pre>";
-    
-    $user = new user();
-    if (empty($pid))	{ // if pid is null, action is actually create (user is not author on an object yet)
+    if(empty($pid)){
+     $user = new user();
+     $user->mads->initializeFromEsd($this->view->current_user);
+     // new record - set object label & dc:title, object owner etc
+     $user->label = $user->mads->name->first . " " . $user->mads->name->last;
+     $user->owner = $user->mads->netid;
+     $user->rels_ext->addRelationToResource("rel:authorInfoFor", $etd_pid);
+    }
+    else{
+     $user = new user($pid);
+    }
+
+   if (empty($pid))	{ // if pid is null, action is actually create (user is not author on an object yet)
       if (!$this->_helper->access->allowedOnUser("create")) return false;
     } else { 		// if pid is defined, action is editing an existing object
       if (!$this->_helper->access->allowedOnUser("edit", $user)) return false;
     }
 
-    if (empty($pid)) {
-	// new record - set object label & dc:title, object owner
-	
-    $user->mads->initializeFromEsd($this->view->current_user);
-    $user->label = $user->mads->name->first . " " . $user->mads->name->last;
-	$user->owner = $user->mads->netid;
-	$user->rels_ext->addRelationToResource("rel:authorInfoFor", $etd_pid);
-      }
+    $user->mads->name->last = $last;
+    $user->mads->name->first = $first;
+        
+    $user->mads->current->address->setStreet($cur_street);
+    $user->mads->current->address->city = $cur_city;
+    $user->mads->current->address->state = $cur_state;
+    $user->mads->current->address->country = $cur_country;
+    $user->mads->current->address->postcode = $cur_postcode;
+    $user->mads->current->phone = $cur_phone;
+    $user->mads->current->email = $cur_email;
 
-       //if no date for current, set to today
-      if (!$user->mads->current->date) $user->mads->current->date = date("Y-m-d");
-      // normalize date format
-      $user->normalizeDates();
+    
+    $user->mads->permanent->address->setStreet($perm_street);
+    $user->mads->permanent->address->city = $perm_city;
+    $user->mads->permanent->address->state = $perm_state;
+    $user->mads->permanent->address->country = $perm_country;
+    $user->mads->permanent->address->postcode = $perm_postcode;
+    $user->mads->permanent->phone = $perm_phone;
+    $user->mads->permanent->email = $perm_email;
+    $user->mads->permanent->date = $perm_dae;
 
-      $resource = "contact information";
-      if ($user->mads->hasChanged()) {
+    //if no date for current, set to today
+    if (!$user->mads->current->date) $user->mads->current->date = date("Y-m-d");
+    // normalize date format
+    $user->normalizeDates();
+
+
+
+    $resource = "contact information";
+    if ($user->mads->hasChanged()) {
 	try {
 	  $save_result = $user->save("edited user information");
 	} catch (PersisServiceUnavailable $e) {
@@ -163,7 +180,7 @@ class UserController extends Etd_Controller_Action {
       }
 
 
-    if ($etd_pid) {
+    if (!empty($etd_pid)) {
       $etd = new etd($etd_pid);
       $etd->rels_ext->addRelationToResource("rel:hasAuthorInfo", $user->pid);
       $save_result = $etd->save("associated user object with etd");
@@ -179,11 +196,10 @@ class UserController extends Etd_Controller_Action {
     //redirect to user view
     $this->_helper->redirector->gotoRoute(array("controller" => "user",
     						"action" => "view", "pid" => $user->pid), "", true);
-//
-//
-//    $this->view->pid = $user->pid;
-//    $this->view->xml = $xml;
-//    $this->view->title = "save user information";
+
+
+    $this->view->pid = $user->pid;
+    $this->view->title = "save user information";
    }
 
   // show mads xml - referenced as model for xform
