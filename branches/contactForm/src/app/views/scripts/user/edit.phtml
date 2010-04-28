@@ -37,81 +37,6 @@ without your consent.</p>
   
   <br/>
 
-  <? //CURRENT ADDRESS ?>
-  <table>
-    <tr>
-        <td>current address</td>
-        <td></td>
-    </tr>
-
-    <?foreach ($this->user->mads->current->address->street as $index => $street): ?>
-        <tr>
-            <td>street</td>
-            <td></td>
-        </tr>
-        <tr>
-            <td><?= $this->formText("cur-street[]", $street); ?></td>
-            <td></td>
-        </tr>
-    <?endforeach?>
-    <tr>
-        <td>add address line</td>
-        <td>remove last address line</td>
-    </tr>
-    <tr>
-
-        <td>city</td>
-        <td></td>
-    </tr>
-    <tr>
-        <td><?= $this->formText("cur-city", $this->user->mads->current->address->city); ?></td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>state</td>
-        <td></td>
-    </tr>
-    <tr>
-        <td><?= $this->formText("cur-state", $this->user->mads->current->address->state); ?></td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>country</td>
-        <td></td>
-    </tr>
-    <tr>
-        <td><?= $this->formSelect("cur-country", $this->user->mads->current->address->country, null, $this->countries); ?></td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>postcode</td>
-        <td></td>
-    </tr>
-    <tr>
-        <td><?= $this->formText("cur-postcode", $this->user->mads->current->address->postcode); ?></td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>phone</td>
-        <td></td>
-    </tr>
-    <tr>
-        <td><?= $this->formText("cur-phone", $this->user->mads->current->phone); ?></td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>email</td>
-        <td></td>
-    </tr>
-    <tr>
-        <td><?= $this->formText("cur-email", $this->user->mads->current->email); ?></td>
-        <td></td>
-    </tr>
-  </table>
-
-    <? /* suppress date valid for current address (confusing) */ ?>
-<hr/>
-
    <? //PERMANET ADDRESS ?>
  <table>
     <tr>
@@ -190,6 +115,82 @@ without your consent.</p>
         <td></td>
     </tr>
   </table>
+
+<hr/>
+
+  <? //CURRENT ADDRESS ?>
+  <table>
+    <tr>
+        <td>current address</td>
+        <td></td>
+    </tr>
+
+    <?foreach ($this->user->mads->current->address->street as $index => $street): ?>
+        <tr>
+            <td>street</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td><?= $this->formText("cur-street[]", $street); ?></td>
+            <td></td>
+        </tr>
+    <?endforeach?>
+    <tr>
+        <td>add address line</td>
+        <td>remove last address line</td>
+    </tr>
+    <tr>
+
+        <td>city</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><?= $this->formText("cur-city", $this->user->mads->current->address->city); ?></td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>state</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><?= $this->formText("cur-state", $this->user->mads->current->address->state); ?></td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>country</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><?= $this->formSelect("cur-country", $this->user->mads->current->address->country, null, $this->countries); ?></td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>postcode</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><?= $this->formText("cur-postcode", $this->user->mads->current->address->postcode); ?></td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>phone</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><?= $this->formText("cur-phone", $this->user->mads->current->phone); ?></td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>email</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><?= $this->formText("cur-email", $this->user->mads->current->email); ?></td>
+        <td></td>
+    </tr>
+  </table>
+
+    <? /* suppress date valid for current address (confusing) */ ?>
 
 <br/>
 
