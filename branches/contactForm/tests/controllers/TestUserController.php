@@ -80,14 +80,11 @@ class UserControllerTest extends ControllerTestCase {
     $userController->editAction();	// no pid = create new record
     $view = $userController->view;
     $this->assertTrue(isset($view->title));
-    $this->assertTrue($view->xforms);
     $this->assertIsA($view->user, "user");
     // user should be a new, blank object
     $this->assertEqual("", $view->user->label);
     $this->assertEqual("", $view->user->pid);
-    $this->assertTrue(isset($view->xforms_bind_script));
-    $this->assertIsA($view->namespaces, "Array");
-    $this->assertTrue(isset($view->xforms_model_uri));
+    
 
     // allow to edit record
     $this->test_user->role = "author";
@@ -108,14 +105,10 @@ class UserControllerTest extends ControllerTestCase {
     $userController->editAction();	// no pid = create new record
     $view = $userController->view;
     $this->assertTrue(isset($view->title));
-    $this->assertTrue($view->xforms);
     $this->assertIsA($view->user, "user");
     // user should be a new, blank object
     $this->assertEqual("", $view->user->label);
     $this->assertEqual("", $view->user->pid);
-    $this->assertTrue(isset($view->xforms_bind_script));
-    $this->assertIsA($view->namespaces, "Array");
-    $this->assertTrue(isset($view->xforms_model_uri));
   }
 
 
