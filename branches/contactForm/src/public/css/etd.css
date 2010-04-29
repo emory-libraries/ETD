@@ -1010,3 +1010,18 @@ p.label { font-weight:bold }
 div.subchoice { 
  margin-left:0.5in;
 }
+
+.required{font-weight:bold;}
+.required:after { content: " *"}
+
+.link-trigger {
+  border:none;
+  background-color:transparent;
+  text-decoration:underline;
+  color:blue;
+  font-size:smaller;
+  padding:0px;
+  margin:0px;
+  cursor:pointer;
+}
+
