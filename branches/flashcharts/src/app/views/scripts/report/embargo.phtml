@@ -1,0 +1,42 @@
+<script type = "text/javascript" src="<?= $this->linkTo('js/swfobject.js') ?>"></script>
+<script type = "text/javascript">
+swfobject.embedSWF("<?= $this->linkTo('js/ofc/open-flash-chart.swf') ?>", "my_chart", "750", "500", "9.0.0");
+</script>
+<?=  $this->render('report/chart.phtml'); ?>
+<script type="text/javascript">    
+var data = <?php echo $this->chart->toPrettyString(); ?>;
+</script>
+<? /*
+<form name="yearform">
+Filter by Year:
+<select name = "yearlist" onchange = "change_chart_type_by_year(this.value)">
+   <option value="">All</option>
+  <? foreach ($this->years as $year => $count): ?>
+    <option value="<?= $year ?>"><?= $year?></option>
+  <? endforeach ?>
+</select>
+</form>
+<br/>*/ ?>
+
+<p>Filter by year:
+<? foreach ($this->years as $year => $total): ?>
+   <? if ($year == $this->current_year): ?> <?= $year ?></a> (<?= $total ?>) |
+   <? else: ?>  <a href="<?= $this->url(array('year' => $year)) ?>"><?= $year ?></a> (<?= $total ?>) |
+   <? endif ?>						   
+<? endforeach ?>
+  <? if ($this->current_year): ?> <a href="<?= $this->url(array('year' => null)) ?>">All</a>
+  <? else: ?> All
+  <? endif ?>		   
+</p>
+
+<? /* FIXME/TODO: make these filters drop-downs */ ?>				     
+<p>Filter by Program:
+<? foreach ($this->program->members as $member): ?>
+  <? $link_id = str_replace("#", '', $member->id);?>
+  <a href="<?= $this->url(array('program' => $link_id)) ?>"><?= $member->label ?></a> 
+<? endforeach ?>
+
+				     
+<div id="my_chart"></div>
+
+<pre><? $this->chart->toPrettyString(); ?></pre>
