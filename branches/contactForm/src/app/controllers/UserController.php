@@ -82,7 +82,17 @@ class UserController extends Etd_Controller_Action {
     }
     $this->view->countries = $countries;
 
+    //if there are any errors add errors to post data and redirect back to edit form
+    if($this->_hasParam("errors")){
+        $errors = $this->_getParam("errors");
+        if(count($errors) > 0){
+        $this->view->errors = $this->_getParam("errors");
+        $this->view->allParams =  $this->_getAllParams();
+        }
 
+    }
+        
+    
   }
 
 
@@ -90,6 +100,7 @@ class UserController extends Etd_Controller_Action {
     //Get all params form post
     $pid = $this->_getParam("pid", null);
     $etd_pid = $this->_getParam("etd", null); // should only be set for new records
+
     $last = $this->_getParam("last", null);
     $first = $this->_getParam("first-middle", null);
     
@@ -108,8 +119,20 @@ class UserController extends Etd_Controller_Action {
     $perm_postcode = $this->_getParam("perm-postcode", null);
     $perm_phone = $this->_getParam("perm-phone", null);
     $perm_email = $this->_getParam("perm-email", null);
-    
     $perm_dae = $this->_getParam("perm-date", null);
+
+    //values to validate
+    $values["cur-email"] = $cur_email;
+    $values["perm-email"] = $perm_email;
+
+    $errors = $this->validateContactInfo($values);
+
+    if(count($errors) > 0){
+
+        $this->_setParam("errors", $errors);
+        $this->_forward("edit");
+        return;
+    }
 
 
     if(empty($pid)){
@@ -221,5 +244,27 @@ class UserController extends Etd_Controller_Action {
 
      $this->_helper->displayXml($user->mads->saveXML());
    }
-  
+
+   function validateContactInfo($values){
+    $errors = array();
+
+    //email validator
+    $validator = new Zend_Validate_EmailAddress();
+
+    $values["cur-email"] = trim($values["cur-email"]);
+    $values["perm-email"] = trim($values["perm-email"]);
+
+    if(!$validator->isValid($values["cur-email"])){
+        $errors[] = "Error: email " . $values["cur-email"] .  " is invalid";
+    }
+
+    if(!$validator->isValid($values["perm-email"])){
+        $errors[] = "Error: non-emory email " . $values["perm-email"] .  " is invalid";
+    }
+    elseif(substr($values["perm-email"], -10) == "@emory.edu"){
+        $errors[] = "Error: non-emory email must be an non-emory or alumni address";
+    }
+    return $errors;
+}
+
 }

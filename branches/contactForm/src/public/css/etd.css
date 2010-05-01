@@ -1025,3 +1025,13 @@ div.subchoice {
   cursor:pointer;
 }
 
+.invalid { color:red; font-weight:bold; }
+
+div#key {
+  font-size:90%;
+  border: 2px solid #565656; /* medium grey */
+  background-color: #efefef; /* light grey */
+  width:35%;
+  padding:3px;
+}
+
