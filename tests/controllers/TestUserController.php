@@ -52,6 +52,40 @@ class UserControllerTest extends ControllerTestCase {
     $this->assertFalse($userController->viewAction());
   }
 
+  function testValidateContactInfo(){
+     $userController = new UserControllerForTest($this->request,$this->response);
+
+     //No Errors
+     $emails["cur-email"] = "email@email.com";
+     $emails["perm-email"] = "email@email.com";
+     $results = $userController->validateContactInfo($emails);
+     $this->assertEqual(count($results), 0);
+
+     //Error on  current email
+     $emails["cur-email"] = "emailemail.com";
+     $emails["perm-email"] = "email@email.com";
+     $results = $userController->validateContactInfo($emails);
+     $this->assertEqual(count($results), 1);
+     $this->assertEqual($results[0], "Error: email emailemail.com is invalid");
+
+     //Error on  current and non-emory email
+     $emails["cur-email"] = "emailemail.com";
+     $emails["perm-email"] = "email@email";
+     $results = $userController->validateContactInfo($emails);
+     $this->assertEqual(count($results), 2);
+     $this->assertEqual($results[0], "Error: email emailemail.com is invalid");
+     $this->assertEqual($results[1], "Error: non-emory email email@email is invalid");
+
+     //Error on  non-emory email
+     $emails["cur-email"] = "email@email.com";
+     $emails["perm-email"] = "email@emory.edu";
+     $results = $userController->validateContactInfo($emails);
+     $this->assertEqual(count($results), 1);
+     $this->assertEqual($results[0], "Error: non-emory email must be an non-emory or alumni address");
+     
+
+  }
+
   function testNewAction() {
     $userController = new UserControllerForTest($this->request,$this->response);
     // guest not allowed to create user object
@@ -80,14 +114,11 @@ class UserControllerTest extends ControllerTestCase {
     $userController->editAction();	// no pid = create new record
     $view = $userController->view;
     $this->assertTrue(isset($view->title));
-    $this->assertTrue($view->xforms);
     $this->assertIsA($view->user, "user");
     // user should be a new, blank object
     $this->assertEqual("", $view->user->label);
     $this->assertEqual("", $view->user->pid);
-    $this->assertTrue(isset($view->xforms_bind_script));
-    $this->assertIsA($view->namespaces, "Array");
-    $this->assertTrue(isset($view->xforms_model_uri));
+    
 
     // allow to edit record
     $this->test_user->role = "author";
@@ -108,14 +139,10 @@ class UserControllerTest extends ControllerTestCase {
     $userController->editAction();	// no pid = create new record
     $view = $userController->view;
     $this->assertTrue(isset($view->title));
-    $this->assertTrue($view->xforms);
     $this->assertIsA($view->user, "user");
     // user should be a new, blank object
     $this->assertEqual("", $view->user->label);
     $this->assertEqual("", $view->user->pid);
-    $this->assertTrue(isset($view->xforms_bind_script));
-    $this->assertIsA($view->namespaces, "Array");
-    $this->assertTrue(isset($view->xforms_model_uri));
   }
 
 

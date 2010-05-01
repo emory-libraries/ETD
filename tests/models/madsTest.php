@@ -85,7 +85,34 @@ class TestMads extends UnitTestCase {
     $this->assertEqual("30323", $this->mads->current->address->postcode);
     $this->assertEqual("404-123-3433", $this->mads->current->phone);
   }
-    
+
+
+  function testSetStreet() {
+    //Assuming the fixture starts with 1 addressline
+    $this->assertEqual(count($this->mads->permanent->address->street), 1);
+
+    //Set 1 lines in address
+    $streets = array("Street 1 - 1");
+    $this->mads->permanent->address->setStreet($streets);
+    $this->assertEqual(count($this->mads->permanent->address->street), 1);
+    $this->assertEqual("Street 1 - 1", $this->mads->permanent->address->street[0]);
+
+    //Set 3 lines in address
+    $streets = array("Street 1 - 2", "Street 2 - 2", "Street 3 - 2");
+    $this->mads->permanent->address->setStreet($streets);
+    $this->assertEqual(count($this->mads->permanent->address->street), 3);
+    $this->assertEqual("Street 1 - 2", $this->mads->permanent->address->street[0]);
+    $this->assertEqual("Street 2 - 2", $this->mads->permanent->address->street[1]);
+    $this->assertEqual("Street 3 - 2", $this->mads->permanent->address->street[2]);
+
+    //Set 2 lines in address
+    $streets = array("Street 1 - 3", "Street 2 - 3");
+    $this->mads->permanent->address->setStreet($streets);
+    $this->assertEqual(count($this->mads->permanent->address->street), 2);
+    $this->assertEqual("Street 1 - 3", $this->mads->permanent->address->street[0]);
+    $this->assertEqual("Street 2 - 3", $this->mads->permanent->address->street[1]);
+    $this->assertFalse(isset($this->mads->permanent->address->street[2]));
+  }
     
 }
 

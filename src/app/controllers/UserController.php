@@ -51,6 +51,7 @@ class UserController extends Etd_Controller_Action {
       //  - note: no longer using subclass for honors; configuration for required fields
       // 	now pulled from per-school configuration
       $user = new user();
+      $user->mads->initializeFromEsd($this->view->current_user);
       
       // need access to etd in the view for displaying correct set of instructions
       $this->view->etd = $this->_helper->getFromFedora("etd", "etd");	  
@@ -66,58 +67,122 @@ class UserController extends Etd_Controller_Action {
     }
     $this->view->user = $user;
 
+    $this->view->pid = $pid;
+
     $this->view->title = "Edit User Information";
 
-    // xforms setting - so layout can include needed code in the header
-    $this->view->xforms = true;
-    $this->view->xforms_bind_script = "user/_mads_bind.phtml";
-    $this->view->namespaces = array("mads" => "http://www.loc.gov/mads/");
-    // link to xml rather than embedding directly in the page
+    //Countries for select box
+    $config_dir = Zend_Registry::get("config-dir");
+    $xml = simplexml_load_file($config_dir . "countries.xml");
+    $countries = array();
 
-    $this->view->xforms_model_uri = $this->view->url(array("controller" => "user",
-							   "action" => "mads", "pid" => $pid), '', true, false);
+    foreach($xml as $country)
+    {
+       $countries[(string)$country] = $country;
+    }
+    $this->view->countries = $countries;
+
+    //if there are any errors add errors to post data and redirect back to edit form
+    if($this->_hasParam("errors")){
+        $errors = $this->_getParam("errors");
+        if(count($errors) > 0){
+        $this->view->errors = $this->_getParam("errors");
+        $this->view->allParams =  $this->_getAllParams();
+        }
+
+    }
+        
+    
   }
 
 
   public function saveAction() {
+    //Get all params form post
     $pid = $this->_getParam("pid", null);
-    // should only be set for new records 
-    $etd_pid = $this->_getParam("etd", null);
+    $etd_pid = $this->_getParam("etd", null); // should only be set for new records
+
+    $last = $this->_getParam("last", null);
+    $first = $this->_getParam("first-middle", null);
     
-    $user = new user($pid);
-    if (is_null($pid))	{ // if pid is null, action is actually create (user is not author on an object yet)
+    $cur_street = $this->_getParam("cur-street", null);
+    $cur_city = $this->_getParam("cur-city", null);
+    $cur_state = $this->_getParam("cur-state", null);
+    $cur_country = $this->_getParam("cur-country", null);
+    $cur_postcode = $this->_getParam("cur-postcode", null);
+    $cur_phone = $this->_getParam("cur-phone", null);
+    $cur_email = $this->_getParam("cur-email", null);
+    
+    $perm_street = $this->_getParam("perm-street", null);
+    $perm_city = $this->_getParam("perm-city", null);
+    $perm_state = $this->_getParam("perm-state", null);
+    $perm_country = $this->_getParam("perm-country", null);
+    $perm_postcode = $this->_getParam("perm-postcode", null);
+    $perm_phone = $this->_getParam("perm-phone", null);
+    $perm_email = $this->_getParam("perm-email", null);
+    $perm_dae = $this->_getParam("perm-date", null);
+
+    //values to validate
+    $values["cur-email"] = $cur_email;
+    $values["perm-email"] = $perm_email;
+
+    $errors = $this->validateContactInfo($values);
+
+    if(count($errors) > 0){
+
+        $this->_setParam("errors", $errors);
+        $this->_forward("edit");
+        return;
+    }
+
+
+    if(empty($pid)){
+     $user = new user();
+     $user->mads->initializeFromEsd($this->view->current_user);
+     // new record - set object label & dc:title, object owner etc
+     $user->label = $user->mads->name->first . " " . $user->mads->name->last;
+     $user->owner = $user->mads->netid;
+     $user->rels_ext->addRelationToResource("rel:authorInfoFor", $etd_pid);
+    }
+    else{
+     $user = new user($pid);
+    }
+
+   if (empty($pid))	{ // if pid is null, action is actually create (user is not author on an object yet)
       if (!$this->_helper->access->allowedOnUser("create")) return false;
     } else { 		// if pid is defined, action is editing an existing object
       if (!$this->_helper->access->allowedOnUser("edit", $user)) return false;
     }
 
-    global $HTTP_RAW_POST_DATA;
-    $xml = $HTTP_RAW_POST_DATA;
-    if ($xml == "") {
-      // if no xml is submitted, don't modify 
-      // forward to a different view?
-      $this->view->noxml = true;
-    } else {
+    $user->mads->name->last = $last;
+    $user->mads->name->first = $first;
+        
+    $user->mads->current->address->setStreet($cur_street);
+    $user->mads->current->address->city = $cur_city;
+    $user->mads->current->address->state = $cur_state;
+    $user->mads->current->address->country = $cur_country;
+    $user->mads->current->address->postcode = $cur_postcode;
+    $user->mads->current->phone = $cur_phone;
+    $user->mads->current->email = $cur_email;
 
-      if (is_null($pid)) {
-	// new record - set object label & dc:title, object owner
-	$dom = new DOMDocument();
-	$dom->loadXML($xml);
-	$mads = new mads($dom);
-	$user->label = $mads->name->first . " " . $mads->name->last;
-	$user->owner = $mads->netid;
-	$user->rels_ext->addRelationToResource("rel:authorInfoFor", $etd_pid);
-      }
-      
-      $user->mads->updateXML($xml);
+    
+    $user->mads->permanent->address->setStreet($perm_street);
+    $user->mads->permanent->address->city = $perm_city;
+    $user->mads->permanent->address->state = $perm_state;
+    $user->mads->permanent->address->country = $perm_country;
+    $user->mads->permanent->address->postcode = $perm_postcode;
+    $user->mads->permanent->phone = $perm_phone;
+    $user->mads->permanent->email = $perm_email;
+    $user->mads->permanent->date = $perm_dae;
 
-      // if no date for current, set to today
-      if (!$user->mads->current->date) $user->mads->current->date = date("Y-m-d");	
-      // normalize date format
-      $user->normalizeDates();
-      
-      $resource = "contact information";
-      if ($user->mads->hasChanged()) {
+    //if no date for current, set to today
+    if (!$user->mads->current->date) $user->mads->current->date = date("Y-m-d");
+    // normalize date format
+    $user->normalizeDates();
+
+
+
+    $resource = "contact information";
+    if ($user->mads->hasChanged()) {
 	try {
 	  $save_result = $user->save("edited user information");
 	} catch (PersisServiceUnavailable $e) {
@@ -137,9 +202,8 @@ class UserController extends Etd_Controller_Action {
 	$this->_helper->flashMessenger->addMessage("No changes made to $resource");
       }
 
-    }
 
-    if ($etd_pid) {
+    if (!empty($etd_pid)) {
       $etd = new etd($etd_pid);
       $etd->rels_ext->addRelationToResource("rel:hasAuthorInfo", $user->pid);
       $save_result = $etd->save("associated user object with etd");
@@ -156,9 +220,8 @@ class UserController extends Etd_Controller_Action {
     $this->_helper->redirector->gotoRoute(array("controller" => "user",
     						"action" => "view", "pid" => $user->pid), "", true);
 
-    
+
     $this->view->pid = $user->pid;
-    $this->view->xml = $xml;
     $this->view->title = "save user information";
    }
 
@@ -181,5 +244,27 @@ class UserController extends Etd_Controller_Action {
 
      $this->_helper->displayXml($user->mads->saveXML());
    }
-  
+
+   function validateContactInfo($values){
+    $errors = array();
+
+    //email validator
+    $validator = new Zend_Validate_EmailAddress();
+
+    $values["cur-email"] = trim($values["cur-email"]);
+    $values["perm-email"] = trim($values["perm-email"]);
+
+    if(!$validator->isValid($values["cur-email"])){
+        $errors[] = "Error: email " . $values["cur-email"] .  " is invalid";
+    }
+
+    if(!$validator->isValid($values["perm-email"])){
+        $errors[] = "Error: non-emory email " . $values["perm-email"] .  " is invalid";
+    }
+    elseif(substr($values["perm-email"], -10) == "@emory.edu"){
+        $errors[] = "Error: non-emory email must be an non-emory or alumni address";
+    }
+    return $errors;
+}
+
 }
