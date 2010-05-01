@@ -153,4 +153,29 @@ class mads_address extends XmlObject {
 	));
     parent::__construct($xml, $config, $xpath);
   }
+
+  function setStreet(Array $streets){
+      foreach($streets as $i => $street){
+        if(isset($this->street[$i])){
+            $this->street[$i] = $street;
+        }
+        else{
+            $this->street[] = $street;
+        }
+      }
+
+     //Removing all street nodes under this mads address past the new values only if the total of lines increases
+    $total = count($streets);
+
+    $nodelist = $this->xpath->query("mads:street[position() > $total]", $this->domnode);
+    for ($i = 0; $i < $nodelist->length; $i++) {
+      $node = $nodelist->item($i);
+      $node->parentNode->removeChild($node);
+    }
+    
+    // update in-memory array so it will reflect the change
+    $this->update();
+
+  }
+
 }
