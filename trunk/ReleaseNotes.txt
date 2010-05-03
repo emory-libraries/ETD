@@ -9,6 +9,9 @@ Version 1.7  (preliminary notes)
 Deployment notes:
  * main config.xml has new field for news_feed url
 
+ * Run following migrations:
+ 014-remove_duplicate_collection_membership.php
+
 
 Version 1.6.3 - April 2010 (bugfix)
 
