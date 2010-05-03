@@ -1,0 +1,211 @@
+<?= $this->javascript("contact.js"); ?>
+
+<? //Div used to display validation errors ?>
+<div class = "invalid">
+    <? if(isset($this->errors)): ?>
+        <? foreach ($this->errors as $error):  ?>
+        <?= $error ?>
+        <br/>
+        <? endforeach  ?>
+    <? endif ?>
+</div>
+<br/>
+
+<h1>Edit Contact Information</h1>
+
+<div id="key">
+   <b>Key:</b>
+   <p>Required fields are <span class="required"><span class="xforms-label">bold</span></span></p>
+</div>
+
+<p> <? if ($this->etd->isRequired("send to ProQuest")): ?>
+   The personal information below will be collected and sent to
+Proquest with an electronic copy of your thesis or dissertation.
+(Proquest/UMI collects this information so that they can contact you
+regarding the payment of royalties, etc.)
+<? endif ?>
+We collect a non-Emory permanent 
+email address to inform you of the impending expiration of access
+restrictions you have placed on your document. The free permanent address
+service provided by the Emory Alumni Association (yourname@alum.emory.edu) is acceptable. Your personal
+information will not be available publicly or shared with anyone
+without your consent.</p>
+
+
+<form name="contact-info" action="<?= $this->url(array("controller" => "user", "action" => "save"), '', true); ?>" method="post">
+
+<?= $this->formHidden("pid", $this->pid, null); ?>
+<?= $this->formHidden("etd", $this->etd_pid, null); ?>
+
+<? //NAME ?>
+<?if ($this->etd->isRequired("name"))
+    $class="required"; 
+   else
+    $class=""; ?>
+
+  <table>
+    <tr>
+        <td>name</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td class = "<?= $class?>">last</td>
+        <td class = "<?= $class?>">first and middle</td>
+    </tr>
+    <tr>
+        <td><?= $this->formText("last", (isset($this->allParams["last"]) ? $this->allParams["last"] : $this->user->mads->name->last)); ?></td>
+        <td><?= $this->formText("first-middle", (isset($this->allParams["first-middle"]) ? $this->allParams["first-middle"] : $this->user->mads->name->first)); ?></td>
+    </tr>
+  </table>
+  
+  <br/>
+
+<? //PERMANET ADDRESS ?>
+<?if ($this->etd->isRequired("permanent address"))
+    $class="required";
+   else
+    $class=""; ?>
+
+permanent address
+<div id="perm-streets">
+        <? $streets = (isset($this->allParams) && $this->allParams["perm-street"] ? $this->allParams["perm-street"] : $this->user->mads->permanent->address->street); ?>
+        <? foreach ($streets as $index => $street): ?>
+              <div>
+                  <span class = "<?= $class?>">street</span>
+                  <br/>
+                    <?= $this->formText("perm-street[]", $street); ?>
+                    <br/>
+                    <br/>
+              </div>
+        <?endforeach?>
+</div>
+        
+<p>
+        <?= $this->formButton("addPermStreet", "add address line", array("class" => "link-trigger", "onclick" => "addStreet('perm-streets',  '$class')")); ?>
+        <?= $this->formButton("removePermStreet", "remove last address line", array("class" => "link-trigger", "onclick" => "removeStreet('perm-streets')")); ?>
+</p>
+<p>
+        <span class = "<?= $class?>">city</span>
+        <br/>
+        <?= $this->formText("perm-city", (isset($this->allParams["perm-city"]) ? $this->allParams["perm-city"] : $this->user->mads->permanent->address->city)); ?>
+</p>
+           
+ <p>
+        <span class = "<?= $class?>">state</span>
+        <br/>
+        <?= $this->formText("perm-state", (isset($this->allParams["perm-state"]) ? $this->allParams["perm-state"] : $this->user->mads->permanent->address->state)); ?>
+ </p>
+    
+<p>
+        <span class = "<?= $class?>">country</span>
+        <br/>
+        <?= $this->formSelect("perm-country", (isset($this->allParams["perm-country"]) ? $this->allParams["perm-country"] : $this->user->mads->permanent->address->country), null, $this->countries); ?>
+</p>
+
+<p>
+        <span class = "<?= $class?>">postcode</span>
+        <br/>
+        <?= $this->formText("perm-postcode", (isset($this->allParams["perm-postcode"]) ? $this->allParams["perm-postcode"]: $this->user->mads->permanent->address->postcode)); ?>
+</p>
+    <p>
+        <span>phone</span>
+        <br/>
+        <?= $this->formText("perm-phone", (isset($this->allParams["perm-phone"]) ? $this->allParams["perm-phone"] : $this->user->mads->permanent->phone)); ?>
+    </p>
+<? //PERMANET EMAIL ?>
+<?if ($this->etd->isRequired("permanent email"))
+    $class="required";
+   else
+    $class=""; ?>
+
+<p>
+    <span id="perm-email-label" class = "<?= $class; ?>" >non-emory email</span>
+    <br/>
+    <?= $this->formText("perm-email", (isset($this->allParams["perm-email"]) ? $this->allParams["perm-email"] : $this->user->mads->permanent->email)); ?>
+</p>
+
+
+<p>
+        <span class = "<?= $class; ?>" > date valid</span>
+        <br/>
+        <?= $this->formText("perm-date", (isset($this->allParams["perm-date"]) ? $this->allParams["perm-date"] : $this->user->mads->permanent->date)); ?>
+</p>
+
+<hr/>
+
+<? //CURRENT ADDRESS ?>
+<? $class=""; ?>
+current address
+<div id = "cur-streets">
+    <? $streets = (isset($this->allParams) && $this->allParams["cur-street"] ? $this->allParams["cur-street"] : $this->user->mads->current->address->street); ?>
+    <? foreach ($streets as $index => $street): ?>
+              <div>
+                  <span class = "<?= $class?>">street</span>
+                  <br/>
+                    <?= $this->formText("cur-street[]", $street); ?>
+                    <br/>
+                    <br/>
+              </div>
+    <?endforeach?>
+</div>
+<p>
+        <?= $this->formButton("addCurStreet", "add address line", array("class" => "link-trigger", "onclick" => "addStreet('cur-streets',  '$class')")); ?>
+        <?= $this->formButton("removeCurStreet", "remove last address line", array("class" => "link-trigger", "onclick" => "removeStreet('cur-streets')")); ?>
+</p>
+<p>
+        <span>city</span>
+        <br/>
+        <?= $this->formText("cur-city", (isset($this->allParams["cur-city"]) ? $this->allParams["cur-city"] : $this->user->mads->current->address->city)); ?>
+</p>
+<p>
+        <span>state</span>
+        <br/>
+        <?= $this->formText("cur-state", (isset($this->allParams["cur-state"]) ? $this->allParams["cur-state"] : $this->user->mads->current->address->state)); ?>
+</p>
+<p>
+        <span>country</span>
+        <br/>
+        <?= $this->formSelect("cur-country", (isset($this->allParams["cur-country"]) ? $this->allParams["cur-country"] : $this->user->mads->current->address->country), null, $this->countries); ?>
+</p>
+<p>
+        <span>postcode</span>
+        <br/>
+         <?= $this->formText("cur-postcode", (isset($this->allParams["cur-postcode"]) ? $this->allParams["cur-postcode"] : $this->user->mads->current->address->postcode)); ?>
+</p>
+<p>
+        <span>phone</span>
+        <br/>
+         <?= $this->formText("cur-phone", (isset($this->allParams["cur-phone"]) ? $this->allParams["cur-phone"] : $this->user->mads->current->phone)); ?>
+</p>
+    
+    
+        
+    
+    
+<? //CURRENT EMAIL ?>
+<?if ($this->etd->isRequired("email"))
+    $class="required";
+   else
+    $class=""; ?>
+<p>
+         <span id="cur-email-label" class = "<?= $class; ?>">email</span>
+         <br/>
+         <?= $this->formText("cur-email", (isset($this->allParams["cur-email"]) ? $this->allParams["cur-email"] : $this->user->mads->current->email)); ?>
+</p>
+    
+    <? /* suppress date valid for current address (confusing) */ ?>
+
+<br/>
+
+netid
+<br/>
+<?= $this->user->mads->netid; ?>
+<br/>
+<?= $this->formSubmit("Save", "Save", array("class" => "button")); ?>
+<br/>
+</form>
+
+
+<? if ($this->site_mode == 'development'): ?>
+  <p id="status"></p>
+<? endif ?>
