@@ -58,7 +58,7 @@ class IndexControllerTest extends ControllerTestCase {
 
     // bogus url for news feed
     try {
-      $index->getNews(new Zend_Config(array("news_feed" => "http://localhost/")));
+      $index->getNews(new Zend_Config(array("news_feed" => array("url"  => "http://localhost/"))));
     } catch (Exception $e) {
       $ex = $e;		// store for testing outside the try/catch
     }
@@ -68,6 +68,18 @@ class IndexControllerTest extends ControllerTestCase {
 
     // FIXME: how to test success feed?  how to create mock feed ?
 	
+  }
+
+    function test_createCache() {
+    $index = new IndexControllerForTest($this->request,$this->response);
+
+    //Check that it is a cache object
+    $cache = $index->createCache(60);
+    $this->assertIsA($cache, "Zend_Cache_Frontend_Output");
+
+    //Check that lifetime is set correctly
+    $this->assertEqual($cache->getOption('lifetime'), 60);
+
   }
 
 }
