@@ -11,6 +11,18 @@ class DocsController extends Etd_Controller_Action {
 
     // all pages in this section should have the print view link
     $this->view->printable = true;
+    
+    // information for docs section
+    $config = Zend_Registry::get('config');
+        
+    try {
+      $this->view->topic = $this->getTopic($config);
+    } catch (Exception $e) {
+      $message = "Error retrieving docs: " . $e->getMessage();
+      trigger_error($message, E_USER_WARNING);
+      $this->logger->err($message);
+    }    
+    
   }
 
   public function preDispatch() {
@@ -26,24 +38,69 @@ class DocsController extends Etd_Controller_Action {
     $this->view->printable = false;
   }
   
-  public function aboutAction() {
-    $this->view->title = "About Emory's ETD Repository";
+   /**
+   * extracts the subject content out of the rss feed for documents.
+   * @return extracted data from the rss document feed for the subject. 
+   */  
+  public function topicAction() 
+  {
+    $request = $this->getRequest();
+    $subject = $request->getParam("subject", null);   
+    $this->view->topic = $this->getTopicSubject($subject);
+  }  
+    
+   /**
+   * get docs feed for display on home page
+   * @param Zend_Config $config - used for docs_feed setting; error if not set
+   * @return data from the rss document feed.  
+   */
+  public function getTopic(Zend_Config $config) {
+    // ETD docs - rss feed from drupal site
+    if (! isset($config->docs_feed)) {
+      throw new Exception("Docs feed is not configured");
+    }
+
+    try {
+      $docs_feed = $config->docs_feed;
+      $topic = new Zend_Feed_Rss($docs_feed);
+    } catch (Exception $e) {
+      throw new Exception("Could not parse ETD docs feed '$docs_feed' - " . $e->getMessage());
+    }
+    return $topic;
+  }  
+    
+  /**
+   * get topic subject will extract the subject portion from the feed for display
+   * @param $subject - portion of the rss feed to be extracted.
+   * @return rss feed content for this subject.
+   */
+  public function getTopicSubject($subject) {
+    
+    try {
+      $title_subject = "NOT FOUND";
+      switch ($subject) {       
+          case "about":  $title_subject = "About";  break;
+          case "faq":  $title_subject = "Frequently";  break;
+          case "instructions":  $title_subject = "Instructions";  break;
+          case "ip":  $title_subject = "Intellectual";  break;                    
+          case "policies":  $title_subject = "Policies";  break;
+          case "boundcopies":  $title_subject = "Bound";  break;
+      }
+      
+      $config = Zend_Registry::get('config');
+      $docSubject = "<h3>Subject $subject was not found in the rss feed = " . $config->docs_feed . "</h3>";
+      
+      foreach ($this->view->topic as $part) {
+        // Check if the title string in the feed contains the topic
+        if (!(strpos($part->title(),$title_subject)===false)) {
+          $this->view->title = $part->title();
+          $docSubject = "<h3>" . $part->title() . "</h3>" . $part->description();
+        }
+      }
+    } catch (Exception $e) {
+      throw new Exception("Could not extract topic '$subject' from feed - " . $e->getMessage());
+    }
+    return $docSubject;
   }
-  public function faqAction() {
-    $this->view->title = "Frequently Asked Questions";
-  }
-  public function ipAction() {
-    $this->view->title = "Intellectual Property";
-  }
-  public function policiesAction() {
-    $this->view->title = "Policies & Procedures";
-  }
-  public function boundcopiesAction() {
-    $this->view->title = "Bound Copies";
-  }
-  public function instructionsAction() {
-    $this->view->title = "Submission Instructions";
-  }
-     
 
 }

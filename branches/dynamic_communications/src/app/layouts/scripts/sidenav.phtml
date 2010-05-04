@@ -3,16 +3,16 @@
 
  <? if (isset($this->current_user) && $this->acl->isAllowed($this->current_user, "etd", "create")): ?>
  <p><b><a
- 	href="<?= $this->url(array("controller" => "submission", "action" => "start"), "", true); ?>">Submit your Thesis &gt;</a></b></p>
-<? endif ?>	
+  href="<?= $this->url(array("controller" => "submission", "action" => "start"), "", true); ?>">Submit your Thesis &gt;</a></b></p>
+<? endif ?> 
 
 
 <div class="section">
-  <p><a href="<?= $this->url(array("controller" => "docs", "action" => "about"), '', true); ?>">About Us</a></p>
-  <p><a href="<?= $this->url(array("controller" => "docs", "action" => "faq"), '', true); ?>">Frequently Asked Questions</a></p>
-  <p><a href="<?= $this->url(array("controller" => "docs", "action" => "faq"), '', true); ?>#help" class="help">ETD Help</a></p>
-  <p><a href="<?= $this->url(array("controller" => "docs", "action" => "policies"), '', true); ?>">Policies and Procedures</a></p>
-  <p><a href="<?= $this->url(array("controller" => "docs", "action" => "ip"), '', true); ?>">Intellectual Property</a></p>
+  <p><a href="<?= $this->url(array("controller" => "docs", "action" => "topic", "subject" => "about"), '', true); ?>">About Us</a></p>
+  <p><a href="<?= $this->url(array("controller" => "docs", "action" => "topic", "subject" => "faq"), '', true); ?>">Frequently Asked Questions</a></p>
+  <p><a href="<?= $this->url(array("controller" => "docs", "action" => "topic", "subject" => "faq"), '', true); ?>#help" class="help">ETD Help</a></p>
+  <p><a href="<?= $this->url(array("controller" => "docs", "action" => "topic", "subject" => "policies"), '', true); ?>">Policies and Procedures</a></p>
+  <p><a href="<?= $this->url(array("controller" => "docs", "action" => "topic", "subject" => "ip"), '', true); ?>">Intellectual Property</a></p>
 </div>
 
 
