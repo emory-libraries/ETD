@@ -61,7 +61,11 @@ class DocsController extends Etd_Controller_Action {
     }
 
     try {
-      $docs_feed = $config->docs_feed;
+      // set the cache for this rss feed
+      $cache = $this->createCache($config->docs_feed->lifetime);
+      Zend_Feed_Reader::setCache($cache);
+      // read the rss feed
+      $docs_feed = $config->docs_feed->url;
       $topic = new Zend_Feed_Rss($docs_feed);
     } catch (Exception $e) {
       throw new Exception("Could not parse ETD docs feed '$docs_feed' - " . $e->getMessage());
@@ -88,7 +92,7 @@ class DocsController extends Etd_Controller_Action {
       }
       
       $config = Zend_Registry::get('config');
-      $docSubject = "<h3>Subject $subject was not found in the rss feed = " . $config->docs_feed . "</h3>";
+      $docSubject = "<h3>Subject $subject was not found in the rss feed = " . $config->docs_feed->url . "</h3>";
       
       foreach ($this->view->topic as $part) {
         // Check if the title string in the feed contains the topic
@@ -102,5 +106,15 @@ class DocsController extends Etd_Controller_Action {
     }
     return $docSubject;
   }
+  
+  public function createCache($lifetime){
 
+    //refresh time of cache
+    //make sure value is null if value is not set or empty - null value means forever
+    $lifetime =  (empty($lifetime) ? null : $lifetime);
+    $frontendOptions = array('lifetime' => $lifetime, 'automatic_serialization' => true);
+    $backendOptions = array('cache_dir' => '/tmp/', "file_name_prefix" => "ETD_docs_cache");
+    $cache = Zend_Cache::factory('Output', 'File', $frontendOptions, $backendOptions);
+    return $cache; 
+  }
 }
