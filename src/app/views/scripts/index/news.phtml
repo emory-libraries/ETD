@@ -3,8 +3,8 @@
 
 <? foreach ($this->news as $item): ?>
   <div>
-    <h3><?= $item->title() ?></h3>
-    <?= $item->description() ?>
+    <h3><?= $item->getTitle() ?></h3>
+    <?= $item->getDescription() ?>
   </div>
 <? endforeach ?>
 

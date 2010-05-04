@@ -187,6 +187,12 @@ body h2 { 	/* IE doesn't apply without body */
   font-size:10pt;	
 }
 
+body h3 { 	/* IE doesn't apply without body */
+  margin-top:0px;
+  font-variant:small-caps;
+  font-size:10pt;
+}
+
 div#photo { 
   position:absolute;
   right:25px;
