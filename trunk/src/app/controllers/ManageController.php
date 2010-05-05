@@ -423,6 +423,20 @@ class ManageController extends Etd_Controller_Action {
 
      $this->view->data = $data;
    }
+
+   public function clearRssCacheAction() {
+    //List of caches to clear
+    $cacheNames = array("news");
+
+    foreach($cacheNames as $name){
+       //Create cache object with enough info to identify the correct files
+       $cache = Zend_Cache::factory('Core', 'File', array(), array('cache_dir' => '/tmp/', "file_name_prefix" => "ETD_".$name."_cache"));
+       $cache->clean(Zend_Cache::CLEANING_MODE_ALL);
+    }
+
+    //Go back to the summary page
+    $this->_forward("summary");
+}
    
 }
 
