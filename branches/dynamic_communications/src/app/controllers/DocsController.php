@@ -12,19 +12,7 @@ class DocsController extends Etd_Controller_Action {
     parent::init();
 
     // all pages in this section should have the print view link
-    $this->view->printable = true;
-    
-    // information for docs section
-    $config = Zend_Registry::get('config');
-        
-    try {
-      $this->doc_feed_data = $this->getTopic($config);
-    } catch (Exception $e) {
-      $message = "Error retrieving docs: " . $e->getMessage();
-      trigger_error($message, E_USER_WARNING);
-      $this->logger->err($message);
-    }    
-    
+    $this->view->printable = true;    
   }
 
   public function preDispatch() {
@@ -47,18 +35,14 @@ class DocsController extends Etd_Controller_Action {
   public function topicAction() 
   {
     $request = $this->getRequest();
-    $subject = $request->getParam("subject", null);   
-    $this->view->topic = $this->getTopicSubject($subject);
-  }  
+    $subject = $request->getParam("subject", null);  
+
+    // information for docs section
+    $config = Zend_Registry::get('config');
+    $rss_data =  "";       
     
-   /**
-   * get docs feed for display on home page
-   * @param Zend_Config $config - used for docs_feed setting; error if not set
-   * @return data from the rss document feed.  
-   */
-  public function getTopic(Zend_Config $config) {
     // ETD docs - rss feed from drupal site
-    if (! isset($config->docs_feed)) {
+    if (! isset($config->docs_feed->url)) {
       throw new Exception("Docs feed is not configured");
     }
 
@@ -68,20 +52,20 @@ class DocsController extends Etd_Controller_Action {
       Zend_Feed_Reader::setCache($cache);
       // read the rss feed
       $docs_feed = $config->docs_feed->url;
-      $topic = new Zend_Feed_Rss($docs_feed);
+      $rss_data = new Zend_Feed_Rss($docs_feed);
     } catch (Exception $e) {
       throw new Exception("Could not parse ETD docs feed '$docs_feed' - " . $e->getMessage());
     }
-    return $topic;
-  }  
     
+    $this->view->topic = $this->getTopicSubject($subject, $rss_data, $config->docs_feed->url);
+  }  
+        
   /**
    * get topic subject will extract the subject portion from the feed for display
    * @param $subject - portion of the rss feed to be extracted.
    * @return rss feed content for this subject.
    */
-  public function getTopicSubject($subject) {
-    
+  public function getTopicSubject($subject, $rss_data, $docs_feed_url) {
     try {
       $title_subject = "NOT FOUND";
       switch ($subject) {       
@@ -92,11 +76,9 @@ class DocsController extends Etd_Controller_Action {
           case "policies":  $title_subject = "Policies";  break;
           case "boundcopies":  $title_subject = "Bound";  break;
       }
+      $docSubject = "<h3>Subject $subject was not found in the rss feed = " . $docs_feed_url . "</h3>";
       
-      $config = Zend_Registry::get('config');
-      $docSubject = "<h3>Subject $subject was not found in the rss feed = " . $config->docs_feed->url . "</h3>";
-      
-      foreach ($this->doc_feed_data as $part) {
+      foreach ($rss_data as $part) {      
         // Check if the title string in the feed contains the topic
         if (!(strpos($part->title(),$title_subject)===false)) {
           $this->view->title = $part->title();
@@ -108,6 +90,25 @@ class DocsController extends Etd_Controller_Action {
     }
     return $docSubject;
   }
+  
+    /**
+   * get title subject will take the subject and return a word found in the title.
+   * @param $subject - the document subject.
+   * @return title_subject a word found in the title for the given subject.
+   */
+  public function getTitleSubject($subject) {
+    $title_subject = "NOT FOUND";
+    switch ($subject) {       
+        case "about":  $title_subject = "About";  break;
+        case "faq":  $title_subject = "Frequently";  break;
+        case "instructions":  $title_subject = "Instructions";  break;
+        case "ip":  $title_subject = "Intellectual";  break;                    
+        case "policies":  $title_subject = "Policies";  break;
+        case "boundcopies":  $title_subject = "Bound";  break;
+    }
+    return $title_subject;
+  }
+
   
   public function createCache($lifetime){
 

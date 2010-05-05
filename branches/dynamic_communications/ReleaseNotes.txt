@@ -3,7 +3,7 @@ ETD Release Notes
 
 Version 1.7  (preliminary notes)
 
- * Site news is now pulled from an RSS feed from tagged content on
+ * Site news and subject documents are now pulled from an RSS feed from tagged content on
    the Digital Libraries drupal site
 
 Deployment notes:
