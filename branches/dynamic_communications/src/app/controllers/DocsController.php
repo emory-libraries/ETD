@@ -6,6 +6,8 @@
 
 class DocsController extends Etd_Controller_Action {
 
+  protected $doc_feed_data = "";  // contain the rss feed data for the static docs
+  
   public function init() {
     parent::init();
 
@@ -16,7 +18,7 @@ class DocsController extends Etd_Controller_Action {
     $config = Zend_Registry::get('config');
         
     try {
-      $this->view->topic = $this->getTopic($config);
+      $this->doc_feed_data = $this->getTopic($config);
     } catch (Exception $e) {
       $message = "Error retrieving docs: " . $e->getMessage();
       trigger_error($message, E_USER_WARNING);
@@ -94,7 +96,7 @@ class DocsController extends Etd_Controller_Action {
       $config = Zend_Registry::get('config');
       $docSubject = "<h3>Subject $subject was not found in the rss feed = " . $config->docs_feed->url . "</h3>";
       
-      foreach ($this->view->topic as $part) {
+      foreach ($this->doc_feed_data as $part) {
         // Check if the title string in the feed contains the topic
         if (!(strpos($part->title(),$title_subject)===false)) {
           $this->view->title = $part->title();
