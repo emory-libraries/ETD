@@ -63,24 +63,19 @@ class DocsController extends Etd_Controller_Action {
   /**
    * get topic subject will extract the subject portion from the feed for display
    * @param $subject - portion of the rss feed to be extracted.
-   * @return rss feed content for this subject.
+   * @return the XML extracted data for this subject.
    */
   public function getTopicSubject($subject, $rss_data, $docs_feed_url) {
     try {
-      $title_subject = "NOT FOUND";
-      switch ($subject) {       
-          case "about":  $title_subject = "About";  break;
-          case "faq":  $title_subject = "Frequently";  break;
-          case "instructions":  $title_subject = "Instructions";  break;
-          case "ip":  $title_subject = "Intellectual";  break;                    
-          case "policies":  $title_subject = "Policies";  break;
-          case "boundcopies":  $title_subject = "Bound";  break;
-      }
+      // Get the text in the title that will identify this subject.
+      $title_subject = $this->getTitleSubject($subject);
+      
+      // Store the XML extracted data for this subject.
       $docSubject = "<h3>Subject $subject was not found in the rss feed = " . $docs_feed_url . "</h3>";
       
       foreach ($rss_data as $part) {      
         // Check if the title string in the feed contains the topic
-        if (!(strpos($part->title(),$title_subject)===false)) {
+        if ($this->isSubjectTextInTitle($title_subject,$part->title())) {
           $this->view->title = $part->title();
           $docSubject = "<h3>" . $part->title() . "</h3>" . $part->description();
         }
@@ -88,11 +83,12 @@ class DocsController extends Etd_Controller_Action {
     } catch (Exception $e) {
       throw new Exception("Could not extract topic '$subject' from feed - " . $e->getMessage());
     }
+    // Return the XML extracted data for this subject.
     return $docSubject;
   }
   
-    /**
-   * get title subject will take the subject and return a word found in the title.
+  /**
+   * get the text in the title that will identify this subject.
    * @param $subject - the document subject.
    * @return title_subject a word found in the title for the given subject.
    */
@@ -107,6 +103,18 @@ class DocsController extends Etd_Controller_Action {
         case "boundcopies":  $title_subject = "Bound";  break;
     }
     return $title_subject;
+  }
+  
+    /**
+   * get the text in the title that will identify this subject.
+   * @param $subject - the document subject.
+   * @return title_subject a word found in the title for the given subject.
+   */
+  public function isSubjectTextInTitle($title_subject, $rss_title) {
+    if (!(strpos($rss_title,$title_subject)===false)) {
+      return true;
+    }
+    else return false;
   }
 
   
