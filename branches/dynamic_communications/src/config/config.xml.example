@@ -22,7 +22,7 @@
     <news_feed>https://digital.library.emory.edu/taxonomy/term/22/all/feed</news_feed>
     <docs_feed>
         <url>https://digital.library.emory.edu/taxonomy/term/26/all/feed</url>
-        <lifetime>300</lifetime>>
+        <lifetime>300</lifetime>
     </docs_feed>    
     <tmpdir></tmpdir>
     <logfile></logfile>
