@@ -21,7 +21,21 @@ class DocsController extends Etd_Controller_Action {
     $this->view->contact = $config->contact;
   }
 
+  public function __call($name, $arguments) {
+    echo "<h1><<font color=red>Calling object method '$name' "
+         . implode(', ', $arguments). "</font>/h1>\n";
 
+    // Remove the Action from the name to pass as a subject to the topicAction
+    $len = strlen($name) - strlen("Action");    
+    if ($len > 0 && (substr($name, $len) == "Action")) {
+      $this->topicAction(substr($name, 0, $len));
+    }
+    else {
+      echo "Could not find " . substr($name, 0, $len) . "<br>";
+    }
+    
+  }
+    
   public function indexAction() {
     $this->view->title = "ETD Documents";
     // this is the only page that doesn't make sense to be printable
@@ -32,10 +46,8 @@ class DocsController extends Etd_Controller_Action {
    * extracts the subject content out of the rss feed for documents.
    * @return extracted data from the rss document feed for the subject. 
    */  
-  public function topicAction() 
+  public function topicAction($subject) 
   {
-    $request = $this->getRequest();
-    $subject = $request->getParam("subject", null);  
 
     // information for docs section
     $config = Zend_Registry::get('config');
@@ -58,6 +70,7 @@ class DocsController extends Etd_Controller_Action {
     }
     
     $this->view->topic = $this->getTopicSubject($subject, $rss_data, $config->docs_feed->url);
+    $this->render('topic');
   }  
         
   /**
