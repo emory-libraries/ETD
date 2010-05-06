@@ -7,17 +7,29 @@ require_once("../bootstrap.php");
  * 
  */
 
-
 require_once('../ControllerTestCase.php');
 require_once('controllers/DocsController.php');
       
 class DocsControllerTest extends ControllerTestCase {
-
+  
+  // Test Data
+  private $docs_feed_url = "https://digital.library.emory.edu/taxonomy/term/26/all/feed";
+  private $topics = array(
+    array("subject" => 'about', "link" => 'https://digital.library.emory.edu/content/etd/about'),
+    array("subject" => 'faq', "link" => 'https://digital.library.emory.edu/content/etd/faq'),
+    array("subject" => 'instructions', "link" => 'https://digital.library.emory.edu/content/etd/instructions'),
+    array("subject" => 'ip', "link" => 'https://digital.library.emory.edu/content/etd/ip'),
+    array("subject" => 'policies', "link" => 'https://digital.library.emory.edu/content/etd/policies'),
+    array("subject" => 'boundcopies', "link" => 'https://digital.library.emory.edu/content/etd/boundcopies'),                                                                       
+  );
+  
   function setUp() {
     $this->response = $this->makeResponse();
     $this->request  = $this->makeRequest();
+    $this->rss_data = Zend_Feed_Reader::import($this->docs_feed_url);
   }
-  function tearDown() {}
+  function tearDown() {
+  }
 
   function testIndexAction() {
     $DocsController = new DocsControllerForTest($this->request,$this->response);
@@ -25,49 +37,54 @@ class DocsControllerTest extends ControllerTestCase {
     $this->assertNotNull($DocsController->view->title);
     $this->assertFalse($DocsController->view->printable);
   }
+  
+  function testTopicAction() {
+    $DocsController = new DocsControllerForTest($this->request,$this->response);
+    foreach ($this->topics as $topic) {
+      $DocsController->topicAction($topic["subject"]);
+      $this->assertNotNull($DocsController->view->title);
+    }    
 
-  function testAboutAction() {
-    $DocsController = new DocsControllerForTest($this->request,$this->response);
-    $DocsController->aboutAction();
-    $this->assertTrue(isset($DocsController->view->title));
-    $this->assertEqual("About Emory's ETD Repository", $DocsController->view->title);
-    $this->assertTrue($DocsController->view->printable);
   }
-  function testFaqAction() {
-    $DocsController = new DocsControllerForTest($this->request,$this->response);
-    $DocsController->faqAction();
-    $this->assertTrue(isset($DocsController->view->title));
-    $this->assertEqual("Frequently Asked Questions", $DocsController->view->title);
-    $this->assertTrue($DocsController->view->printable);
+  
+  function test_foundSubjectInFeed() {
+    $index = new DocsControllerForTest($this->request,$this->response);
+    
+    foreach ($this->topics as $topic) {
+      $this->assertTrue($index->foundSubjectInFeed($topic["subject"], $topic["link"]));
+    }
   }
-  function testIpAction() {
-    $DocsController = new DocsControllerForTest($this->request,$this->response);
-    $DocsController->ipAction();
-    $this->assertTrue(isset($DocsController->view->title));
-    $this->assertEqual("Intellectual Property", $DocsController->view->title);
-    $this->assertTrue($DocsController->view->printable);
-  }
-  function testPoliciesAction() {
-    $DocsController = new DocsControllerForTest($this->request,$this->response);
-    $DocsController->policiesAction();
-    $this->assertTrue(isset($DocsController->view->title));
-    $this->assertEqual("Policies & Procedures", $DocsController->view->title);
-    $this->assertTrue($DocsController->view->printable);
-  }
-  function testBoundcopiesAction() {
-    $DocsController = new DocsControllerForTest($this->request,$this->response);
-    $DocsController->boundcopiesAction();
-    $this->assertTrue(isset($DocsController->view->title));
-    $this->assertEqual("Bound Copies", $DocsController->view->title);
-    $this->assertTrue($DocsController->view->printable);
-  }
-  function testInstructionsAction() {
-    $DocsController = new DocsControllerForTest($this->request,$this->response);
-    $DocsController->instructionsAction();
-    $this->assertTrue(isset($DocsController->view->title));
-    $this->assertEqual("Submission Instructions", $DocsController->view->title);
-    $this->assertTrue($DocsController->view->printable);
-  }
+        
+  function test_getTopicSubject() {
+    $index = new DocsControllerForTest($this->request,$this->response);
+    
+    foreach ($this->topics as $topic) {
+
+      $rss_function = "Data pulled from function."; 
+      $rss_feed_section = "Data pulled from rss feed."; 
+
+      // Get the section from the rss feed via getTopicSubject function
+      try {
+        $rss_function = $index->getTopicSubject($topic["subject"], $this->rss_data, $this->docs_feed_url);
+      } catch (Exception $e) {
+        $ex = $e; 
+      }
+
+      // Get the section from the rss feed locally
+      foreach ($this->rss_data as $part) {
+        // Check if the title string in the feed contains the topic
+        if ($index->foundSubjectInFeed($topic["subject"],$part->getLink())) {
+          // If we do have a match on the title, then extract this section.
+          $rss_feed_section = $docSubject = "<h3>" . $part->getTitle() . "</h3>" . $part->getDescription();
+        }
+      }  
+      
+      // Compare the results from the function to those obtained locally.     
+      $this->assertEqual(strlen($rss_feed_section), strlen($rss_function));
+      $this->assertEqual($rss_feed_section, $rss_function);
+      unset($ex); 
+    }
+  }  
 }
 
 class DocsControllerForTest extends DocsController {
@@ -86,7 +103,7 @@ class DocsControllerForTest extends DocsController {
   public function _redirect() {
     $this->redirectRan = true;
   }
-} 	
+}   
 
 runtest(new DocsControllerTest());
 
