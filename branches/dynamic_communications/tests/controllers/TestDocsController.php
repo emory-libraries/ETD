@@ -14,20 +14,14 @@ class DocsControllerTest extends ControllerTestCase {
   
   // Test Data
   private $docs_feed_url = "https://digital.library.emory.edu/taxonomy/term/26/all/feed";
-  private $topics = array( 
-    array("subject" => 'about', "subject_title" => 'About', 
-          "title" => 'About Us'),
-    array("subject" => 'faq', "subject_title" => 'Frequently', 
-          "title" => 'Frequently Asked Questions'),
-    array("subject" => 'instructions', "subject_title" => 'Instructions', 
-          "title" => 'Instructions for Electronic Submission of your Thesis/Dissertation'),
-    array("subject" => 'ip', "subject_title" => 'Intellectual', 
-          "title" => 'Notes on Intellectual Property'),
-    array("subject" => 'policies', "subject_title" => 'Policies', 
-          "title" => 'Policies and Procedures'),
-    array("subject" => 'boundcopies', "subject_title" => 'Bound', 
-          "title" => 'Obtaining Bound Copies of Your Theses and Dissertations'),                                                                          
-  );  
+  private $topics = array(
+    array("subject" => 'about', "link" => 'https://digital.library.emory.edu/content/etd/about'),
+    array("subject" => 'faq', "link" => 'https://digital.library.emory.edu/content/etd/faq'),
+    array("subject" => 'instructions', "link" => 'https://digital.library.emory.edu/content/etd/instructions'),
+    array("subject" => 'ip', "link" => 'https://digital.library.emory.edu/content/etd/ip'),
+    array("subject" => 'policies', "link" => 'https://digital.library.emory.edu/content/etd/policies'),
+    array("subject" => 'boundcopies', "link" => 'https://digital.library.emory.edu/content/etd/boundcopies'),                                                                       
+  );
   
   function setUp() {
     $this->response = $this->makeResponse();
@@ -44,22 +38,23 @@ class DocsControllerTest extends ControllerTestCase {
     $this->assertFalse($DocsController->view->printable);
   }
   
-  function test_getTitleSubject() {
-    $index = new DocsControllerForTest($this->request,$this->response);    
+  function testTopicAction() {
+    $DocsController = new DocsControllerForTest($this->request,$this->response);
     foreach ($this->topics as $topic) {
-      $subject_title = $index->getTitleSubject($topic["subject"]);
-      $this->assertEqual($subject_title, $topic["subject_title"]);
-    }      
+      $DocsController->topicAction($topic["subject"]);
+      $this->assertNotNull($DocsController->view->title);
+    }    
+
   }
   
-  function test_isSubjectTextInTitle() {
-    $index = new DocsControllerForTest($this->request,$this->response);    
+  function test_foundSubjectInFeed() {
+    $index = new DocsControllerForTest($this->request,$this->response);
+    
     foreach ($this->topics as $topic) {
-      $found = $index->isSubjectTextInTitle($topic["subject_title"], $topic["title"]);
-      $this->assertTrue($found);
-    }      
+      $this->assertTrue($index->foundSubjectInFeed($topic["subject"], $topic["link"]));
+    }
   }
-      
+        
   function test_getTopicSubject() {
     $index = new DocsControllerForTest($this->request,$this->response);
     
@@ -78,7 +73,7 @@ class DocsControllerTest extends ControllerTestCase {
       // Get the section from the rss feed locally
       foreach ($this->rss_data as $part) {
         // Check if the title string in the feed contains the topic
-        if (!(strpos($part->title(),$topic["subject_title"])===false)) {
+        if ($index->foundSubjectInFeed($topic["subject"],$part->link())) {
           // If we do have a match on the title, then extract this section.
           $rss_feed_section = $docSubject = "<h3>" . $part->title() . "</h3>" . $part->description();
         }
