@@ -65,7 +65,7 @@ class DocsController extends Etd_Controller_Action {
       Zend_Feed_Reader::setCache($cache);
       // read the rss feed
       $docs_feed = $config->docs_feed->url;
-      $rss_data = new Zend_Feed_Rss($docs_feed);
+      $rss_data = Zend_Feed_Reader::import($docs_feed);
     } catch (Exception $e) {
       throw new Exception("Could not parse ETD docs feed '$docs_feed' - " . $e->getMessage());
     }
@@ -84,13 +84,12 @@ class DocsController extends Etd_Controller_Action {
     try {
       
       // Store the XML extracted data for this subject.
-      $docSubject = "<h3>Subject $subject was not found in the rss feed = " . $docs_feed_url . "</h3>";
-      
-      foreach ($rss_data as $part) {      
+      $docSubject = "<h3>Subject $subject was not found in the rss feed = " . $docs_feed_url . "</h3>"; 
+      foreach ($rss_data as $part) {  
         // Check if the title string in the feed contains the topic
-        if ($this->foundSubjectInFeed($subject,$part->link())) {
-          $this->view->title = $part->title();
-          $docSubject = "<h3>" . $part->title() . "</h3>" . $part->description();
+        if ($this->foundSubjectInFeed($subject,$part->getLink())) {
+          $this->view->title = $part->getTitle();
+          $docSubject = "<h3>" . $part->getTitle() . "</h3>" . $part->getDescription();
         }
       }
     } catch (Exception $e) {
