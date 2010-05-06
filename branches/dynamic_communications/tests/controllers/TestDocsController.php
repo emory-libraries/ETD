@@ -26,7 +26,7 @@ class DocsControllerTest extends ControllerTestCase {
   function setUp() {
     $this->response = $this->makeResponse();
     $this->request  = $this->makeRequest();
-    $this->rss_data = new Zend_Feed_Rss($this->docs_feed_url);
+    $this->rss_data = Zend_Feed_Reader::import($this->docs_feed_url);
   }
   function tearDown() {
   }
@@ -73,9 +73,9 @@ class DocsControllerTest extends ControllerTestCase {
       // Get the section from the rss feed locally
       foreach ($this->rss_data as $part) {
         // Check if the title string in the feed contains the topic
-        if ($index->foundSubjectInFeed($topic["subject"],$part->link())) {
+        if ($index->foundSubjectInFeed($topic["subject"],$part->getLink())) {
           // If we do have a match on the title, then extract this section.
-          $rss_feed_section = $docSubject = "<h3>" . $part->title() . "</h3>" . $part->description();
+          $rss_feed_section = $docSubject = "<h3>" . $part->getTitle() . "</h3>" . $part->getDescription();
         }
       }  
       
