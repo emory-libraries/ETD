@@ -21,10 +21,13 @@ class DocsController extends Etd_Controller_Action {
     $this->view->contact = $config->contact;
   }
 
+  /**
+   * Magic/Missing method to catch all the individual topics so that
+   * they can be routed to the topicAction with the subject as a param.
+   * @param $name - name of the missing method.
+   * @param $arguments - any arguments.
+   */
   public function __call($name, $arguments) {
-    echo "<h1><<font color=red>Calling object method '$name' "
-         . implode(', ', $arguments). "</font>/h1>\n";
-
     // Remove the Action from the name to pass as a subject to the topicAction
     $len = strlen($name) - strlen("Action");    
     if ($len > 0 && (substr($name, $len) == "Action")) {
@@ -48,7 +51,6 @@ class DocsController extends Etd_Controller_Action {
    */  
   public function topicAction($subject) 
   {
-
     // information for docs section
     $config = Zend_Registry::get('config');
     $rss_data =  "";       
@@ -69,8 +71,9 @@ class DocsController extends Etd_Controller_Action {
       throw new Exception("Could not parse ETD docs feed '$docs_feed' - " . $e->getMessage());
     }
     
+    // set the view to the subject extracted from the rss feed.
     $this->view->topic = $this->getTopicSubject($subject, $rss_data, $config->docs_feed->url);
-    $this->render('topic');
+    $this->render('topic'); // send all the subjects to render on this one view page.
   }  
         
   /**
