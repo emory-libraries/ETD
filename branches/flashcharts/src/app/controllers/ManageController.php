@@ -427,37 +427,4 @@ class ManageController extends Etd_Controller_Action {
 }
 
 
-// sort embargo durations logically (days/months/years)
-function sort_embargoes($a, $b) {
-  // check if either is blank
-  if (trim($a) == "") return -1; // a is less than b
-  if (trim($b) == "") return 1; // a is greater than b
-
-  // split into number & time unit
-  list($a_num, $a_time) = explode(' ', $a);
-  list($b_num, $b_time) = explode(' ', $b);
-
-  // convert time unit to numeric for easy comparison
-  // days = 1, months = 2, years = 3
-  foreach (array($a_time, $b_time) as $time) {
-    switch ($time) {
-    case "years":
-    case "year":
-      $t = 3; break;
-    case "months":
-      $t = 2; break;
-    case "days":
-      $t = 1; break;
-    }
-  }
-
-  if ($a_time == $b_time) { 
-    // same time duration - compare by numbers only
-    if ($a_num == $b_num) return 0;
-    return ($a_num < $b_num) ? -1 : 1;
-  } else {
-    // otherwise, compare by time unit only
-    return ($a_time < $b_time) ? -1 : 1;
-  }
-}
 ?>

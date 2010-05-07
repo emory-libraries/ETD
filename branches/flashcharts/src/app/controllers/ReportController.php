@@ -4,15 +4,15 @@
  * @package Etd_Controllers
  */
 
-//NOTE: "Report viewer"  needs elavated roles (maintenance account) to use Fedora content in the views
-
 require_once("models/etd.php");
+require_once("models/charts.php");
+require_once("models/programs.php");
 require_once("ofc/php-ofc-library/open-flash-chart.php");
 
 class ReportController extends Etd_Controller_Action {
 	protected $requires_fedora = false;
 	protected $params;	
-	private $chartentity;
+	
 	/**
 	 * copy of fedoraConnection with current user's auth credentials
 	 * (to be restored in postDispatch)
@@ -33,23 +33,26 @@ class ReportController extends Etd_Controller_Action {
 	public function preDispatch() {
 	  // store fedoraConnection with user auth credentials - to be restored in postDispatch
 	  $this->_fedoraConnection = Zend_Registry::get("fedora");
-
-	  // if current user is a report viewer (do NOT have special access at the fedora level),
-	  // temporarily replace fedora connection
-	  if ($this->current_user->role == "report viewer") {
-	    $fedora_cfg = Zend_Registry::get('fedora-config');
-	    try {
-	      $fedora_opts = $fedora_cfg->toArray();
-	      // use default fedora config opts but with maintenance account credentials
-	      $fedora_opts["username"] = $fedora_cfg->maintenance_account->username;
-	      $fedora_opts["password"] = $fedora_cfg->maintenance_account->password;
-	      $maintenance_fedora = new FedoraConnection($fedora_opts);
-	    } catch (FedoraNotAvailable $e) {
-	      $this->logger->err("Error connecting to Fedora with maintenance account - " . $e->getMessage());
-	      $this->_forward("fedoraunavailable", "error");
-	      return;
-	    } 
-	    Zend_Registry::set("fedora", $maintenance_fedora);
+	  
+	  if (isset($this->current_user)) {
+	    
+	    // if current user is a report viewer (do NOT have special access at the fedora level),
+	    // temporarily replace fedora connection
+	    if ($this->current_user->role == "report viewer") {
+	      $fedora_cfg = Zend_Registry::get('fedora-config');
+	      try {
+		$fedora_opts = $fedora_cfg->toArray();
+		// use default fedora config opts but with maintenance account credentials
+		$fedora_opts["username"] = $fedora_cfg->maintenance_account->username;
+		$fedora_opts["password"] = $fedora_cfg->maintenance_account->password;
+		$maintenance_fedora = new FedoraConnection($fedora_opts);
+	      } catch (FedoraNotAvailable $e) {
+		$this->logger->err("Error connecting to Fedora with maintenance account - " . $e->getMessage());
+		$this->_forward("fedoraunavailable", "error");
+		return;
+	      } 
+	      Zend_Registry::set("fedora", $maintenance_fedora);
+	    }
 	  }
 	}
 
@@ -64,8 +67,8 @@ class ReportController extends Etd_Controller_Action {
 	 * Display list of reports
 	 */
 	public function indexAction() {
-        if(!$this->_helper->access->allowed("report", "view")) {return false;}
-        $this->view->title = "Reports";
+	  if(!$this->_helper->access->allowed("report", "view")) {return false;}
+	  $this->view->title = "Reports";
 	}
 	 
 	/**
@@ -245,7 +248,7 @@ class ReportController extends Etd_Controller_Action {
         //Create data
         foreach($etdSet->etds as $etd){
             //print "<pre>";
-            //print_r($etd);
+            //rint_r($etd);
             //print "</pre>";
             $line = array();
             $line[] = $etd->mods->author->id;
@@ -450,15 +453,7 @@ class ReportController extends Etd_Controller_Action {
      $response = $solr->query("num_pages:[01000 TO *]", 0, 0);
      $pages[">1000"] = $response->numFound;
 
-     /*     $response = $solr->query("num_pages:[00000 TO 00100]");
-     $pages[">100"] = $response->numFound;
-     $response = $solr->query("num_pages:[00100 TO 00200]");
-     $pages["100-200"] = $response->numFound;
-     $response = $solr->query("num_pages:[00200 TO 00300]");
-     $pages["200-300"] = $response->numFound;
-     */
      $this->view->pages = $pages;
-
    }
 
     /**
@@ -480,385 +475,284 @@ class ReportController extends Etd_Controller_Action {
             }
             return $decorator;
     }
-
      
 
-/**
- * This function is used to generate page length report by degrees
- */
-public function pagelengthbydegreeAction() {
-  $this->_setParam("reporttype", "bydegree");
-  $this->pagelengthreports();
-}
+    /*** Open Flash Chart reports  ***/
 
-/**
- * This function is used to generate page length report by programs
- */
-public function pagelengthbyprogramAction() {
-  $this->firstReport = true;
-  $programs = $this->progcolls();
-  $this->view->collection = $programs;
-  $this->pagelengthbyprogramspecificAction();
-}
+    /**
+     * Document length report
+     * stacked bar chart for document length, segmented by document
+     * type, with optional year & program filters.
+     */
+    public function pageLengthAction() {
+      $report_title = "Document Length";
+      $this->view->title = "Report : " . $report_title;
 
-/**
- * It is used to support AJAX when generating page length report by the selected program
- */
-public function pagelengthbyprogramspecificAction() {
-  $this->_setParam("reporttype", "byprogram");
-  $this->pagelengthreports();
-}  
+      // TODO: combine common year/program logic with embargo report
+      
+      // get list of all years we have ETD data for
+      $solr = Zend_Registry::get('solr');
+      $solr->clearFacets()->addFacets(array("year"))->setFacetLimit(-1)->setFacetMinCount(1); 
+      $result = $solr->query("*:*", 0, 0);
+      $this->view->years = $result->facets->year;
 
-public function pagelengthreports() {
-  $report_type = $this->_getParam("reporttype", "byprogram");
+      // use program as a filter-- can drill-down in report just like browse by program
+      $program_id = $this->_getParam("program", "programs");
+      $programObject = new foxmlPrograms("#" . $program_id);
+      $this->view->program = $programObject->skos;
 
-  $solr = Zend_Registry::get('solr');
-  $solr->clearFacets();
-  $solr->addFacets(array("num_pages"));
-  $solr->setFacetLimit(-1);  // no limit
-  $solr->setFacetMinCount(0);        // minimum one match
-  $this->view->facets = $result->facets;
-  $this->view->title = "Report by number of pages" . $coll;
+      $filters = array();
+      $title_filters = array();
+      // filter by year, if specified
+      $current_year = $this->_getParam("year", null);
+      if ($current_year) {
+	$this->view->current_year = $current_year;
+	$filters["year"] = $current_year;
+	$title_filters[] = $current_year;
+      }
+      if ($this->_hasParam('program') && $program_id != "programs") {
+	$filters["program"] = $this->view->program;	// pass the skosCollection object
+	$title_filters[] = $this->view->program->label;
+      }
+      // include any filters in the page & report titles
+      if (count($title_filters)) {
+	$title_detail = " (" . implode(', ', $title_filters) . ")";
+	$report_title .= $title_detail;
+	$this->view->title .= $title_detail;
+      }
+	
+      list($x_legend, $data) = $this->pagelength_totals($filters);
 
-  $page_len_chart = new open_flash_chart();
-  $vector = array();
-  $x_label_array = $this->page_length_report_x_array();
-  
-  if ($report_type == "byprogram") {
-    //program report specific 
-    $vector = $this->pagelengthbyprogram($solr);
-    $progtext = $this->_getParam("nametext", "Humanities");
-    $title = new title( "Document Length Report By ". $progtext . " Program");
-  } else {
-    $vector = $this->pagelengthbydegree($solr);
-    $title = new title( "Document Length Report by Degrees" );
-  } 
+      $max = 0;
+      $all_data = array();
+      for ($i = 0; $i < count($x_legend); $i++) {
+        // FIXME: don't hard code degree levels!
+        $bar_data = array();
+        foreach (array("Dissertation", "Master's Thesis", "Honors Thesis") as $doc_type) {
+          // don't add zeroes, it messes up the tool tips
+          if ($data[$doc_type][$i])  $bar_data[$doc_type] = $data[$doc_type][$i];
+        }
+        $current_total = array_sum(array_values($bar_data));
+        if ($current_total > $max) $max = $current_total;
+	$all_data[] = $bar_data;
+      }
 
-  $this->addchartelements($page_len_chart, $vector);
-  $x_legend_text = 'Pages';
-  $y_legend_text = 'Documents';
-  $max_page_num = max($vector["Total"]);
-  $this->addchartartifacts($page_len_chart, $x_label_array, $max_page_num, $x_legend_text, $y_legend_text);
-  $title->set_style( '{font-size: 14px; color: #333333; font-weight:bold}' );
-  $page_len_chart->set_title( $title);
-  
-//program report specific 
-  if ($report_type == "byprogram") {
-    $this->sendchart($page_len_chart);  
-  } else {
-    $this->view->flashchart = $page_len_chart;
-  }
-}
-
-/* it returns a vector for page length report by year*/
-public function pagelengthbydegree(&$solr) {
-  $response = $solr->query("*:*", 0, 0);
-  $response = $solr->query("num_pages:[* TO *]", 0, 0);
-  $vector["Total"] = $this->group_page_length($response->facets->num_pages);
-  $response = $solr->query("degree_name:B*", 0, 0);
-  $vector["Honors Theses"] = $this->group_page_length($response->facets->num_pages);
-  $response = $solr->query("degree_name:M*", 0, 0);
-  $vector["Masters Theses"] = $this->group_page_length($response->facets->num_pages);
-  $response = $solr->query("{!q.op=AND}*:* -degree_name:M* -degree_name:B*", 0, 0);
-  $vector["Dissertations"] = $this->group_page_length($response->facets->num_pages);
-  return $vector;
-}
-
-/* it returns a vector for page length report by program */
-public function pagelengthbyprogram(&$solr) {
-  $progname = $this->_getParam("programname", "humanities");
-  $progtext = $this->_getParam("nametext", "Humanities");
-  $this->view->progtext = $progtext;
-  $vector = array();
-
-  $totalNum = array();
-  $totalNumMs = array();
-  $totalNumPhd = array();
-  $programs = $this->progcolls("#" . $progname);
-  foreach ($programs->members as $member) {
-      $progname = str_replace("#", '', $member->id);
-      $criteria = sprintf("{!q.op=AND}num_pages:[* TO *] program_facet:%s", $progname);
-      $response = $solr->query($criteria, 0, 0);
-      $totalNum = $this->combinearrays($response->facets->num_pages, $totalNum);
-      $criteria = sprintf("{!q.op=AND}program_facet:%s degree_name:M*", $progname);
-      $response = $solr->query($criteria, 0, 0);
-      $totalNumMs = $this->combinearrays($response->facets->num_pages, $totalNumMs);
-      $criteria = sprintf("{!q.op=AND}program_facet:%s -degree_name:M* -degree_name:B*", $progname);
-      $response = $solr->query($criteria, 0, 0);
-      $totalNumPhd = $this->combinearrays($response->facets->num_pages, $totalNumPhd);
-  }
-  $vector["Total"] = $this->group_page_length($totalNum);
-  $vector["Masters Theses"] = $this->group_page_length($totalNumMs);
-  $vector["Dissertations"] = $this->group_page_length($totalNumPhd);
-  return $vector;
-}
-
-/* 
- * support functions for page length reports 
- */
-
-/* it groups page lengths into ranges. e.g 101 and 116 should be grouped into 101 - 200 */
-private function group_page_length(&$page_lengths) {
-  $results = array();
-  $results = array_fill(0, 11, 0);
-  foreach ($page_lengths as $pl => $count) {
-    if ($pl >= 1000) {
-      $i = 10;
-    } else {
-      $i = (int)($pl / 100);
+      $this->view->chart = new stacked_bar_chart($report_title, $x_legend, "Document Length", $all_data, $max);
+      $this->render("embargo");
     }
-    $results[$i] = $results[$i] + $count;
-  }
-  return $results;
+
+    /**
+     * Embargo duration request report
+     * stacked bar chart for document length, segmented by document
+     * type, with optional year & program filters.
+     */
+    public function embargoAction() {
+      $report_title = "Requested Embargo Duration";
+      $this->view->title = "Report : " . $report_title;
+      // list of embargo durations, in order (better place to get these?)
+      $embargo_opts = $this->embargo_durations();
+
+      // get list of all years we have ETD data for
+      $solr = Zend_Registry::get('solr');
+      $solr->clearFacets()->addFacets(array("year"))->setFacetLimit(-1)->setFacetMinCount(1); 
+      $result = $solr->query("*:*", 0, 0);
+      $this->view->years = $result->facets->year;
+
+      // use program as a filter-- can drill-down in report just like browse by program
+      $program_id = $this->_getParam("program", "programs");
+      $programObject = new foxmlPrograms("#" . $program_id);
+      $this->view->program = $programObject->skos;
+
+      $filters = array();
+      $title_filters = array();
+      // filter by year, if specified
+      $current_year = $this->_getParam("year", null);
+      if ($current_year) {
+	$this->view->current_year = $current_year;
+	$filters["year"] = $current_year;
+	$title_filters[] = $current_year;
+      }
+      if ($this->_hasParam('program') && $program_id != "programs") {
+	$filters["program"] = $this->view->program;	// pass the skosCollection object
+	$title_filters[] = $this->view->program->label;
+      }
+      // include any filters in the page & report titles
+      if (count($title_filters)) {
+	$title_detail = " (" . implode(', ', $title_filters) . ")";
+	$report_title .= $title_detail;
+	$this->view->title .= $title_detail;
+      }
+      
+	
+      $data = $this->embargo_totals($filters);
+      
+      $max = 0;
+      $all_data = array();
+      for ($i = 0; $i < count($embargo_opts); $i++) {
+        // FIXME: don't hard code degree levels!
+        $bar_data = array();
+        foreach (array("Dissertation", "Master's Thesis", "Honors Thesis") as $doc_type) {
+          // don't add zeroes, it messes up the tool tips
+          if ($data[$doc_type][$i])  $bar_data[$doc_type] = $data[$doc_type][$i];
+        }
+        $current_total = array_sum(array_values($bar_data));
+        if ($current_total > $max) $max = $current_total;
+	$all_data[] = $bar_data;
+      }
+      $this->view->chart = new stacked_bar_chart($report_title, $embargo_opts, 'Embargo Duration',
+						 $all_data, $max);
+    }
+ 
+
+    // possible embargo durations, in the order we want them (FIXME: get these from a config file?)
+    private function embargo_durations() {
+      return array("0 days", "6 months", "1 year", "2 years", "6 years");
+    }
+
+    /**
+     * get total # of records for each type of embargo
+     * @param array optional filters - restrict totals by year or program
+     */
+    public function embargo_totals($filters = array()) {
+      $solr = Zend_Registry::get('solr');
+      // only facet on embargo duration, no limit, minimum 0 (include all values)
+      $solr->clearFacets()->addFacets(array("embargo_duration"))->setFacetLimit(-1)->setFacetMinCount(0);
+
+      // build solr query filter based on specified year and program
+      if (isset($filters['year']) and $filters["year"] != null) {
+          $year_filter = "year:" . $filters['year'] . " AND ";
+      } else {
+          $year_filter = "";
+      }
+      if (isset($filters['program'])) {
+	$program_filter = $filters['program']->findEtds_query() . " AND ";
+      } else {
+	$program_filter = "";
+      }
+      $filter = $year_filter . $program_filter;
+      
+      // NOTE: using genre/document type instead of degree names to consistently filter across all schools/degrees
+      // TODO: pull genres/document types from a common config? (create one if it does not yet exist)
+      $document_types = array("Honors Thesis", "Master's Thesis", "Dissertation");
+      foreach ($document_types as $doc) {
+        $response = $solr->query("$filter document_type:\"$doc\"", 0, 0);
+        $totals[$doc] = $this->clean_embargo_data($response->facets->embargo_duration);
+      }
+
+      return $totals;
+    }
+
+ 
+
+    /**
+     * clean up embargo data returned from solr so it can be used for chart data
+     * - converts key => value array to a list of totals in duration order
+     * - some early records have no embargo request; combines those totals with "0 days" duration
+     * @param array $embargo_totals key => value of embargo duration => total, as returned by solr facet
+     * @return array list of totals, indexed in order to match ascending embargo duration
+     */
+    private function clean_embargo_data($embargo_totals) {
+      $data = array();
+      foreach($this->embargo_durations() as $duration) {
+	$data[] = $embargo_totals[$duration];
+      }
+      // if there are any records with no embargo, add to 0 days total
+      $data[0] += $embargo_totals[""];
+      return $data;
+    }
+
+    /**
+     * get total # of records by document length
+     * @param array optional filters - restrict totals by year or program
+     * @return array of page-length labels and array of data for chart
+     */
+    public function pagelength_totals($filters = array()) {
+      $solr = Zend_Registry::get('solr');
+
+      // TODO: facet on genre/document type
+      // NOTE: using genre/document type instead of degree names to consistently filter across all schools/degrees
+      // only facet on embargo duration, no limit, minimum 0 (include all values)
+      $solr->clearFacets()->addFacets(array("document_type"))->setFacetLimit(-1)->setFacetMinCount(1);
+
+      // build solr query filter based on specified year and program
+      if (isset($filters['year']) and $filters["year"] != null) {
+          $year_filter = "year:" . $filters['year'] . " AND ";
+      } else {
+          $year_filter = "";
+      }
+      if (isset($filters['program'])) {
+	$program_filter = $filters['program']->findEtds_query() . " AND ";
+      } else {
+	$program_filter = "";
+      }
+      $filter = $year_filter . $program_filter;
+
+      // TODO: pull genres/document types from a common config? (create one if it does not yet exist)
+      $document_types = array("Honors Thesis", "Master's Thesis", "Dissertation");
+
+      // get page counts by range, segmented by document type
+      $pagelength_labels = array();
+      $totals = array();
+      foreach ($document_types as $doc_type) {
+	$totals[$doc_type] = array();
+      }
+      // generate page length labels and corresponding query
+      for ($i = 0; $i < 1000; $i += 100) {
+	$range = sprintf("%05d TO %05d", $i, $i +100);
+	if ($i == 0) $label = ">100";
+	else $label = $i . " - " . ($i + 100);
+	$pagelength_labels[$label] = $range;
+      }
+      $pagelength_labels[">1000"] = "01000 TO *";
+
+      foreach ($pagelength_labels as $label => $page_range) {
+	$response = $solr->query("$filter num_pages:[$page_range]", 0, 0);
+	foreach ($document_types as $doc_type) {
+	  if (isset($response->facets->document_type[$doc_type]))
+	    $count = $response->facets->document_type[$doc_type];
+	  else $count = 0;
+	  $totals[$doc_type][] = $count;
+	}
+      }
+      return array(array_keys($pagelength_labels), $totals);
+    }
+
 }
 
-private function page_length_report_x_array() {
-  $x_label_array = array();
-  $x_label_array[0] = "<100";
-  for ($i = 1; $i < 1000; $i += 100) {
-      $x_label_array[] = $i . " - " . ($i + 100);
-  }
-  $x_label_array[10] = ">1000";
-  return $x_label_array;
-}
 
 
-/* 
- * embargo flash chart reports
- */
+// sort embargo durations logically (days/months/years) - used by summaryStat action
+function sort_embargoes($a, $b) {
+  // check if either is blank
+  if (trim($a) == "") return -1; // a is less than b
+  if (trim($b) == "") return 1; // a is greater than b
 
-/* It's used to generate embargo duration reports by year */
-public function embargobyprogramAction() {
-  $programs = $this->progcolls();
-  $this->view->collection = $programs;
-  $this->firstReport = true;
-  $this->embargobyprogramspecificAction();
-}  
+  // split into number & time unit
+  list($a_num, $a_time) = explode(' ', $a);
+  list($b_num, $b_time) = explode(' ', $b);
 
-/**
- * It is used to support AJAX when generating embargo duration report by the selected program
- */
-public function embargobyprogramspecificAction() {
-  $report_type = $this->_setParam("report_type", "byprogram");
-  $this->embargoreports();
-}
-
-/* It's used to generate embargo duration reports by year */
-public function embargobyyearAction() {
-  $solr = Zend_Registry::get('solr');
-  $solr->clearFacets();
-  $solr->addFacets(array("year"));
-  $solr->setFacetLimit(-1);  // no limit
-  $solr->setFacetMinCount(0);        // minimum one match
-  $result = $solr->query("*:*", 0, 0);
-  // get a list of years present in all records
-  $this->view->years = $result->facets->year;
-  $this->firstReport = true;  // unused?
-  $this->embargobyyearspecificAction();  // calls embargoreports with report type of year
-}  
-
-/**
- * It is used to support AJAX when generating embargo duration report by the selected year
- */
-public function embargobyyearspecificAction() {
-  $report_type = $this->_setParam("report_type", "byyear");
-  $this->embargoreports();
-}
-
-public function embargoreports() {
-  $report_type = $this->_getParam("report_type", "byprogram");
-  
-  $solr = Zend_Registry::get('solr');
-  $solr->clearFacets();
-  $solr->addFacets(array("embargo_duration"));
-  $solr->setFacetLimit(-1);  // no limit
-  $solr->setFacetMinCount(0);        // minimum one match
-  $result = $solr->query("*:*", 0, 0);
-  $this->view->title = "Report : Requested Embargo Duration";
-  $embargo_chart = new open_flash_chart();
-  $embargo_len = $this->embargo_durations();	// list of embargo durations, in order (better place to get these?)
-  $x_label_array = $embargo_len;
-
-  $vector = array(); 
-  if ($report_type == "byprogram") {
-    $progtext = $this->_getParam("nametext", "Humanities");
-    $vector = $this->embargobyprogram($solr);
-    $title = new title( "Requested Embargo Durations By ". $progtext . " Program");
-  } else {
-    $useyear = $this->_getParam("year", null);
-    $vector = $this->embargobyyear($solr);
-    $title = new title("Requested Embargo Durations" . ($useyear ? " ($useyear)" : ""));
-  }
-  $this->addchartelements($embargo_chart, $vector);
-  $x_legend_text = 'Embargo Durations';
-  $y_legend_text = 'Number or Records';
-  $max_page_num = max($vector["Total"]);
-  $this->addchartartifacts($embargo_chart, $x_label_array, $max_page_num, $x_legend_text, $y_legend_text);
-  $title->set_style( '{font-size: 14px; color: #333333; font-weight:bold}' );
-  $embargo_chart->set_title( $title);
-  $this->sendchart($embargo_chart);  
-}
-
-/* it returns a vector for embargo duration report by program */
-private function embargobyprogram(&$solr) {
-  $progname = $this->_getParam("programname", "humanities");
-  $programs = $this->progcolls("#" . $progname);
-  foreach ($programs->members as $member) {
-    $progname = str_replace("#", '', $member->id);
-    $criteria = sprintf("{!q.op=AND} program_facet:%s", $progname);
-    $response = $solr->query($criteria, 0, 0);
-    $vector["Total"] =  $this->combinearrays($this->clean_embargo_data($response->facets->embargo_duration), $vector["Total"]);
-    $criteria = sprintf("{!q.op=AND} program_facet:%s degree_name:M*", $progname);
-    $response = $solr->query($criteria, 0, 0);
-    $vector["Master's Thesis"] =  $this->combinearrays($this->clean_embargo_data($response->facets->embargo_duration), $vector["Master's Thesis"]);
-    $criteria = sprintf("{!q.op=AND} program_facet:%s -degree_name:M* -degree_name:B*", $progname);
-    $response = $solr->query($criteria, 0, 0); 
-    $vector["Dissertation"] =  $this->combinearrays($this->clean_embargo_data($response->facets->embargo_duration), $vector["Dissertation"]);
-  }
-  return $vector;
-}
-
-/* it returns a vector for embargo duration report by year*/
-public function embargobyyear(&$solr) {
-  $useyear = $this->_getParam("year", "");	// default to all years
-  if($useyear == "") {
-    //$year = "[* TO *]";		// no date filter
-    $year_filter = "";
-  } else {
-    $year = $useyear;
-    $year_filter = "year:$useyear AND ";
-  }
-  // FIXME: total query unneeded, should just add  other numbers (or better, do a stacked bar graph)
-  // NOTE: using genre/document type instead of degree names, to consistently filter across all schools/degrees
-
-  // FIXME: pull genres/document types from a common config? (create one if it does not yet exist)
-  $document_types = array("Honors Thesis", "Master's Thesis", "Dissertation");
-  foreach ($document_types as $doc) {
-    $response = $solr->query("$year_filter document_type:\"$doc\"", 0, 0);
-    //    print "DEBUG: embargoes for $doc<pre>"; print_r($response->facets->embargo_duration); print "</pre>";
-    $new_vector[$doc] = $this->clean_embargo_data($response->facets->embargo_duration);
-  }
-  // for now, generate total by summing up others (hopefully total can go away...)
-  $totals = array(0, 0, 0, 0, 0);
-  foreach($new_vector as $type => $values) {
-    for ($i = 0; $i < count($values); $i++) {
-      $totals[$i] += $values[$i];
+  // convert time unit to numeric for easy comparison
+  // days = 1, months = 2, years = 3
+  foreach (array($a_time, $b_time) as $time) {
+    switch ($time) {
+    case "years":
+    case "year":
+      $t = 3; break;
+    case "months":
+      $t = 2; break;
+    case "days":
+      $t = 1; break;
     }
   }
-  $new_vector["Total"] = $totals;
-  return $new_vector;
-  /*  
-  
-  $criteria = sprintf("{!q.op=AND} year:%s", $year);
-  $response = $solr->query($criteria, 0, 0);
-  $vector["Total"] =  $this->clean_embargo_data($response->facets->embargo_duration);
-  $criteria = sprintf("{!q.op=AND} year:%s degree_name:B*", $year);
-  $response = $solr->query($criteria, 0, 0);
-  $vector["Honors Theses"] = $this->clean_embargo_data($response->facets->embargo_duration);
-  $criteria = sprintf("{!q.op=AND}year:%s degree_name:M*", $year);
-  $response = $solr->query($criteria, 0, 0);
-  $criteria = sprintf("{!q.op=AND}year:%s document_type:Master*", $year);
-  $response = $solr->query($criteria, 0, 0);
-  $vector["Masters Theses"] = $this->clean_embargo_data($response->facets->embargo_duration);
-  $criteria = sprintf("{!q.op=AND}year:%s -degree_name:M* -degree_name:B*", $year);
-  $response = $solr->query($criteria, 0, 0);
-  $vector["Dissertations"] = $this->clean_embargo_data($response->facets->embargo_duration);
-  return $vector;*/
-}
 
-// possible embargo durations, in the order we want them (FIXME: get these from a config file?)
-private function embargo_durations() {
-  return array("0 days", "6 months", "1 year", "2 years", "6 years");
-}
-
-/**
- * clean up embargo data returned from solr so it can be used for chart data
- * - converts key => value array to a list of totals in duration order
- * - some early records have no embargo request; combines those totals with "0 days" duration
- * @param array $embargo_totals key => value of embargo duration => total, as returned by solr facet
- * @return array list of totals, indexed in order to match ascending embargo duration
- */
-private function clean_embargo_data($embargo_totals) {
-  $data = array();
-  foreach($this->embargo_durations() as $duration) {
-    $data[] = $embargo_totals[$duration];
-  }
-  // if there are any records with no embargo, add to 0 days total
-  $data[0] += $embargo_totals[""];
-  return $data;
-}
-
-
-/* common supports to flash chart generation */
-
-private function sendchart(&$chart = null) {
-  if($this->firstReport == true) {
-    $this->firstReport = false;
-    $this->view->flashchart = $chart;
+  if ($a_time == $b_time) { 
+    // same time duration - compare by numbers only
+    if ($a_num == $b_num) return 0;
+    return ($a_num < $b_num) ? -1 : 1;
   } else {
-    $this->_helper->layout->disableLayout();
-    $this->_helper->viewRenderer->setNoRender(true);
-    echo $chart->toPrettyString();
+    // otherwise, compare by time unit only
+    return ($a_time < $b_time) ? -1 : 1;
   }
-}
-private function addchartelements(&$chart, $vector) {
-#  $colors = array ("Total" => '#000000', "Masters Theses" => '#33A02C', "Dissertations" => '#FF7F00', "Honors Theses" => '#1F78B4');
-  // NOTE: pull these from a common genre list
-  $colors = array ("Total" => '#000000', "Master's Thesis" => '#33A02C', "Dissertation" => '#FF7F00', "Honors Thesis" => '#1F78B4'); 
-  foreach ($vector as $key => $values) {
-    $bar = new bar_glass();
-    $bar->set_colour( $colors[$key] );
-    $bar->key($key, 10);
-    $bar->set_values($values);
-    $chart->add_element($bar);
-  }
-}
-private function addchartartifacts(&$chart, $x_label_array, $max_page_num, $x_legend_text, $y_legend_text) {
-  if ($max_page_num > 50) {
-    $steps = ceil($max_page_num / 50);
-    $scaled_max_num = $steps * 50;
-  } else {
-    $scaled_max_num = 50;
-  }
-
-  $x_labels = new x_axis_labels();  
-  $x_labels->set_vertical();
-  $x_labels->set_labels( $x_label_array );
-  $x_legend = new x_legend( $x_legend_text );
-  $x_legend->set_style( '{font-size: 12px; color: #333333; font-weight:bold}' );
-  $chart->set_x_legend( $x_legend );
-  $y_legend = new y_legend( $y_legend_text );
-  $y_legend->set_style( '{font-size: 14px; color: #333333; font-weight:bold}' );
-  $chart->set_y_legend( $y_legend );
-  $x = new x_axis();
-  $x->set_labels( $x_labels );
-  $chart->set_x_axis( $x ); 
-  $y = new y_axis();
-  $y->set_range( 0, $scaled_max_num, 50);
-  $chart->add_y_axis( $y );
-}
-/**
- * This function returns the programs in the high level program specified by $coll
- */
-private function progcolls($coll = "#grad") {
-
-    try {
-      $programObject = new foxmlPrograms($coll);
-      $programs = $programObject->skos;
-    } catch (XmlObjectException $e) {
-      $message = "Error: Program not found";
-      if ($this->env != "production") $message .= " (<b>" . $e->getMessage() . "</b>)";
-      $this->_helper->flashMessenger->addMessage($message);
-      $this->_helper->redirector->gotoRouteAndExit(array("controller" => "error", "action" => "notfound"), "", true);
-    }
-    return $programs;
 }
 
-private function combinearrays(&$array1, &$array2) {
-  $combined_array = array();
-  foreach(array_keys($array1) as $key) {
-    $combined_array[$key] = $array1[$key] + $array2[$key];
-  }
-  return $combined_array;
-}
-}
+

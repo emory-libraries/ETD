@@ -10,18 +10,8 @@
   <li><a href="<?= $this->url(array("controller" => "report",
 		"action" => "embargo-csv"), '', true); ?>">Upcoming Embargos</a>
 	<?= $this->FiletypeIcon("text/csv") ?></li>
-  <li>Page Length -
-      <a href="<?= $this->url(array("controller" => "report",
-			"action" => "pagelengthbydegree"), '', true); ?>">by degree</a>
-      <a href="<?= $this->url(array("controller" => "report",
-			"action" => "pagelengthbyprogram"), '', true); ?>">by program</a>
-  </li>
-  <li>Requested Embargo Duration - 
-	<a href="<?= $this->url(array("controller" => "report",
-			"action" => "embargobyyear"), '', true); ?>">by year</a>
-        <a href="<?= $this->url(array("controller" => "report",
-			"action" => "embargobyprogram"), '', true); ?>">by program</a>
- </li>
+  <li><a href="<?= $this->url(array('action' => 'embargo')) ?>">Requested Embargo Duration</a></li>
+  <li><a href="<?= $this->url(array('action' => 'embargo')) ?>">Document Length</a></li>
   <li><a href="<?= $this->url(array("controller" => "report",
 	    'action' => 'exportemails')) ?>">Export email addresses for approved records</a>
     <?= $this->FiletypeIcon("text/csv") ?></li>
