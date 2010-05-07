@@ -75,7 +75,7 @@ class DocsControllerTest extends ControllerTestCase {
         // Check if the title string in the feed contains the topic
         if ($index->foundSubjectInFeed($topic["subject"],$part->getLink())) {
           // If we do have a match on the title, then extract this section.
-          $rss_feed_section = $docSubject = "<h3>" . $part->getTitle() . "</h3>" . $part->getDescription();
+          $rss_feed_section = $part->getDescription();
         }
       }  
       
