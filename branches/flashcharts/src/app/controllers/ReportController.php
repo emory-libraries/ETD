@@ -35,6 +35,10 @@ class ReportController extends Etd_Controller_Action {
 	 * @var array
 	 */
 	private $document_type;
+	/**
+	 *
+	 */
+	private $report_title;
 	
 	/**
 	 * report viewers do not have special accesses at the fedora
@@ -503,53 +507,14 @@ class ReportController extends Etd_Controller_Action {
       $report_title = "Document Length";
       $this->view->title = "Report : " . $report_title;
 
-      // TODO: combine common year/program logic with embargo report
-      // initialize years, embargo durations, and document types from Solr
-      $this->get_chart_fields();
-      $this->view->years = $this->year;
-	    
-      // use program as a filter-- can drill-down in report just like browse by program
-      $program_id = $this->_getParam("program", "programs");
-      $programObject = new foxmlPrograms("#" . $program_id);
-      $this->view->program = $programObject->skos;
-
-      $filters = array();
-      $title_filters = array();
-      // filter by year, if specified
-      $current_year = $this->_getParam("year", null);
-      if ($current_year) {
-	$this->view->current_year = $current_year;
-	$filters["year"] = $current_year;
-	$title_filters[] = $current_year;
-      }
-      if ($this->_hasParam('program') && $program_id != "programs") {
-	$filters["program"] = $this->view->program;	// pass the skosCollection object
-	$title_filters[] = $this->view->program->label;
-      }
-      // include any filters in the page & report titles
-      if (count($title_filters)) {
-	$title_detail = " (" . implode(', ', $title_filters) . ")";
-	$report_title .= $title_detail;
-	$this->view->title .= $title_detail;
-      }
-	
+      list($filters, $title_detail) =  $this->segmented_chart_setup();      
+      $report_title .= $title_detail;
+      $this->view->title .= $title_detail;
       list($x_legend, $data) = $this->pagelength_totals($filters);
-
-      $max = 0;
-      $all_data = array();
-      for ($i = 0; $i < count($x_legend); $i++) {
-        $bar_data = array();
-        foreach ($this->document_type as $doc_type) {
-          // don't include  zeroes, it messes up the tool tips
-          if ($data[$doc_type][$i])  $bar_data[$doc_type] = $data[$doc_type][$i];
-        }
-        $current_total = array_sum(array_values($bar_data));
-        if ($current_total > $max) $max = $current_total;
-	$all_data[] = $bar_data;
-      }
-
+      
+      list($all_data, $max) = $this->segment_barchart_data($data, count($x_legend));
       $this->view->chart = new stacked_bar_chart($report_title, $x_legend, "Document Length", $all_data, $max);
-      $this->render("embargo");
+      $this->render("filtered-chart");
     }
 
     /**
@@ -560,13 +525,30 @@ class ReportController extends Etd_Controller_Action {
     public function embargoAction() {
       $report_title = "Requested Embargo Duration";
       $this->view->title = "Report : " . $report_title;
+
+      list($filters, $title_detail) =  $this->segmented_chart_setup();
+      $embargo_opts = $this->embargo_duration;
+      $this->view->title .= $title_detail;
+      $report_title .= $title_detail;
       
+      $data = $this->embargo_totals($filters);
+
+      list($all_data, $max) = $this->segment_barchart_data($data, count($embargo_opts));
+      $this->view->chart = new stacked_bar_chart($report_title, $embargo_opts, 'Embargo Duration',
+						 $all_data, $max);
+      $this->render("filtered-chart");
+    }
+
+    /**
+     * common setup for segmented, filterable charts (embargo, page-length)
+     * @return array of filters, title detail
+     */
+    private function segmented_chart_setup() {
       // initialize years, embargo durations, and document types from Solr
       $this->get_chart_fields();
-      $embargo_opts = $this->embargo_duration;
       $this->view->years = $this->year;
 
-      // use program as a filter-- can drill-down in report just like browse by program
+      // use program as drill-down filter (just like browse by program)
       $program_id = $this->_getParam("program", "programs");
       $programObject = new foxmlPrograms("#" . $program_id);
       $this->view->program = $programObject->skos;
@@ -584,30 +566,36 @@ class ReportController extends Etd_Controller_Action {
 	$filters["program"] = $this->view->program;	// pass the skosCollection object
 	$title_filters[] = $this->view->program->label;
       }
-      // include any filters in the page & report titles
+      // add filters to a title detail to be added to page & report titles
+      $title_detail = "";
       if (count($title_filters)) {
 	$title_detail = " (" . implode(', ', $title_filters) . ")";
-	$report_title .= $title_detail;
-	$this->view->title .= $title_detail;
       }
-      
-      $data = $this->embargo_totals($filters);
-      
+      return array($filters, $title_detail);
+    }
+
+    /**
+     * convert data into format needed for bar chart, segmented by document type
+     * @param array $data
+     *  - one entry in the array for each document type, each with a list of $num values
+     * @param int $num  number of sets of data
+     * @return array data, maximum value
+     */
+    private function segment_barchart_data($data, $num) {
       $max = 0;
       $all_data = array();
-      for ($i = 0; $i < count($embargo_opts); $i++) {
+      for ($i = 0; $i < $num; $i++) {
         $bar_data = array();
         foreach ($this->document_type as $doc_type) {
-          // don't add zeroes, it messes up the tool tips
+          // don't add zeroes (messes up the tool tips)
           if ($data[$doc_type][$i])  $bar_data[$doc_type] = $data[$doc_type][$i];
         }
         $current_total = array_sum(array_values($bar_data));
         if ($current_total > $max) $max = $current_total;
 	$all_data[] = $bar_data;
       }
-      $this->view->chart = new stacked_bar_chart($report_title, $embargo_opts, 'Embargo Duration',
-						 $all_data, $max);
-    } 
+      return array($all_data, $max);
+    }
 
     /**
      * data used to build and filter the flash charts reports
