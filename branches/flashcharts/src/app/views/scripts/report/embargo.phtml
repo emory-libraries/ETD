@@ -11,9 +11,9 @@ var data = <?php echo $this->chart->toPrettyString(); ?>;
   <select id="year" name="year" onChange="window.location=$('year').getValue()">
       <option value="<?= $this->url(array('year' => null)) ?>"
         <? if (! $this->current_year): ?> selected="true" <? endif ?> >All</option>
-<? foreach ($this->years as $year => $total): ?>
+<? foreach ($this->years as $year): ?>
    <option value="<?= $this->url(array('year' => $year)) ?>"
-     <? if ($year == $this->current_year): ?> selected="true" <? endif ?> ><?= $year ?></a> (<?= $total ?>)</option>
+     <? if ($year == $this->current_year): ?> selected="true" <? endif ?> ><?= $year ?></a></option>
 <? endforeach ?>
   <? if ($this->current_year): ?> <a href="<?= $this->url(array('year' => null)) ?>">All</a>
   <? else: ?> All

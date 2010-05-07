@@ -20,7 +20,22 @@ class ReportController extends Etd_Controller_Action {
 	 */
 	protected $_fedoraConnection;
 
-
+	/**
+	 * years present in the ETD data (for use in flash charts)
+	 * @var array
+	 */
+	private $year;
+	/**
+	 * possible embargo durations, as present in the ETD data (for use in flash charts)
+	 * @var array 
+	 */
+	private $embargo_duration;
+	/**
+	 * available document types, as present in the ETD data (for use in flash charts)
+	 * @var array
+	 */
+	private $document_type;
+	
 	/**
 	 * report viewers do not have special accesses at the fedora
 	 * level, which some of these reports required.  Temporarily
@@ -489,13 +504,10 @@ class ReportController extends Etd_Controller_Action {
       $this->view->title = "Report : " . $report_title;
 
       // TODO: combine common year/program logic with embargo report
-      
-      // get list of all years we have ETD data for
-      $solr = Zend_Registry::get('solr');
-      $solr->clearFacets()->addFacets(array("year"))->setFacetLimit(-1)->setFacetMinCount(1); 
-      $result = $solr->query("*:*", 0, 0);
-      $this->view->years = $result->facets->year;
-
+      // initialize years, embargo durations, and document types from Solr
+      $this->get_chart_fields();
+      $this->view->years = $this->year;
+	    
       // use program as a filter-- can drill-down in report just like browse by program
       $program_id = $this->_getParam("program", "programs");
       $programObject = new foxmlPrograms("#" . $program_id);
@@ -526,10 +538,9 @@ class ReportController extends Etd_Controller_Action {
       $max = 0;
       $all_data = array();
       for ($i = 0; $i < count($x_legend); $i++) {
-        // FIXME: don't hard code degree levels!
         $bar_data = array();
-        foreach (array("Dissertation", "Master's Thesis", "Honors Thesis") as $doc_type) {
-          // don't add zeroes, it messes up the tool tips
+        foreach ($this->document_type as $doc_type) {
+          // don't include  zeroes, it messes up the tool tips
           if ($data[$doc_type][$i])  $bar_data[$doc_type] = $data[$doc_type][$i];
         }
         $current_total = array_sum(array_values($bar_data));
@@ -549,14 +560,11 @@ class ReportController extends Etd_Controller_Action {
     public function embargoAction() {
       $report_title = "Requested Embargo Duration";
       $this->view->title = "Report : " . $report_title;
-      // list of embargo durations, in order (better place to get these?)
-      $embargo_opts = $this->embargo_durations();
-
-      // get list of all years we have ETD data for
-      $solr = Zend_Registry::get('solr');
-      $solr->clearFacets()->addFacets(array("year"))->setFacetLimit(-1)->setFacetMinCount(1); 
-      $result = $solr->query("*:*", 0, 0);
-      $this->view->years = $result->facets->year;
+      
+      // initialize years, embargo durations, and document types from Solr
+      $this->get_chart_fields();
+      $embargo_opts = $this->embargo_duration;
+      $this->view->years = $this->year;
 
       // use program as a filter-- can drill-down in report just like browse by program
       $program_id = $this->_getParam("program", "programs");
@@ -583,15 +591,13 @@ class ReportController extends Etd_Controller_Action {
 	$this->view->title .= $title_detail;
       }
       
-	
       $data = $this->embargo_totals($filters);
       
       $max = 0;
       $all_data = array();
       for ($i = 0; $i < count($embargo_opts); $i++) {
-        // FIXME: don't hard code degree levels!
         $bar_data = array();
-        foreach (array("Dissertation", "Master's Thesis", "Honors Thesis") as $doc_type) {
+        foreach ($this->document_type as $doc_type) {
           // don't add zeroes, it messes up the tool tips
           if ($data[$doc_type][$i])  $bar_data[$doc_type] = $data[$doc_type][$i];
         }
@@ -601,23 +607,39 @@ class ReportController extends Etd_Controller_Action {
       }
       $this->view->chart = new stacked_bar_chart($report_title, $embargo_opts, 'Embargo Duration',
 						 $all_data, $max);
-    }
- 
+    } 
 
-    // possible embargo durations, in the order we want them (FIXME: get these from a config file?)
-    private function embargo_durations() {
-      return array("0 days", "6 months", "1 year", "2 years", "6 years");
+    /**
+     * data used to build and filter the flash charts reports
+     * initialize year, embargo duration, and document types from ETD data
+     * and store for use
+     */
+    private function get_chart_fields() {
+      $solr = Zend_Registry::get('solr');
+      $facets = array("year", "document_type", "embargo_duration");
+      $solr->clearFacets()->addFacets($facets);
+      $solr->setFacetLimit(-1)->setFacetMinCount(1); 
+      $result = $solr->query("*:*", 0, 0);
+      
+      $data = array();
+      foreach ($facets as $facet) {
+	$values = array_diff(array_keys($result->facets->$facet), array(0 => ''));
+	if ($facet == "embargo_duration") {	// sort by increasing duration (not alphabetically!)
+	  usort($values, "sort_embargoes");
+	}
+	$this->$facet = $values;
+      }
     }
 
     /**
-     * get total # of records for each type of embargo
-     * @param array optional filters - restrict totals by year or program
+     * generate solr queries to filter by requested parameters
+     * @param array associative array of field and value
+     * 	currently supports
+     *   - year
+     *   - program (should pass in a programs skosCollection object at the appropriate level)
+     * @return string solr query filter
      */
-    public function embargo_totals($filters = array()) {
-      $solr = Zend_Registry::get('solr');
-      // only facet on embargo duration, no limit, minimum 0 (include all values)
-      $solr->clearFacets()->addFacets(array("embargo_duration"))->setFacetLimit(-1)->setFacetMinCount(0);
-
+    private function solr_filters($filters = array()) {
       // build solr query filter based on specified year and program
       if (isset($filters['year']) and $filters["year"] != null) {
           $year_filter = "year:" . $filters['year'] . " AND ";
@@ -629,20 +651,26 @@ class ReportController extends Etd_Controller_Action {
       } else {
 	$program_filter = "";
       }
-      $filter = $year_filter . $program_filter;
+      return $year_filter . $program_filter;
+    }
+
+    /**
+     * get total # of records for each type of embargo
+     * @param array optional filters - restrict totals by year or program
+     */
+    public function embargo_totals($filters = array()) {
+      $solr = Zend_Registry::get('solr');
+      // only facet on embargo duration, no limit, minimum 0 (include all values)
+      $solr->clearFacets()->addFacets(array("embargo_duration"))->setFacetLimit(-1)->setFacetMinCount(0);
+      $filter = $this->solr_filters($filters);
       
       // NOTE: using genre/document type instead of degree names to consistently filter across all schools/degrees
-      // TODO: pull genres/document types from a common config? (create one if it does not yet exist)
-      $document_types = array("Honors Thesis", "Master's Thesis", "Dissertation");
-      foreach ($document_types as $doc) {
+      foreach ($this->document_type as $doc) {
         $response = $solr->query("$filter document_type:\"$doc\"", 0, 0);
         $totals[$doc] = $this->clean_embargo_data($response->facets->embargo_duration);
       }
-
       return $totals;
     }
-
- 
 
     /**
      * clean up embargo data returned from solr so it can be used for chart data
@@ -653,7 +681,7 @@ class ReportController extends Etd_Controller_Action {
      */
     private function clean_embargo_data($embargo_totals) {
       $data = array();
-      foreach($this->embargo_durations() as $duration) {
+      foreach($this->embargo_duration as $duration) {
 	$data[] = $embargo_totals[$duration];
       }
       // if there are any records with no embargo, add to 0 days total
@@ -669,34 +697,20 @@ class ReportController extends Etd_Controller_Action {
     public function pagelength_totals($filters = array()) {
       $solr = Zend_Registry::get('solr');
 
-      // TODO: facet on genre/document type
       // NOTE: using genre/document type instead of degree names to consistently filter across all schools/degrees
       // only facet on embargo duration, no limit, minimum 0 (include all values)
       $solr->clearFacets()->addFacets(array("document_type"))->setFacetLimit(-1)->setFacetMinCount(1);
 
-      // build solr query filter based on specified year and program
-      if (isset($filters['year']) and $filters["year"] != null) {
-          $year_filter = "year:" . $filters['year'] . " AND ";
-      } else {
-          $year_filter = "";
-      }
-      if (isset($filters['program'])) {
-	$program_filter = $filters['program']->findEtds_query() . " AND ";
-      } else {
-	$program_filter = "";
-      }
-      $filter = $year_filter . $program_filter;
-
-      // TODO: pull genres/document types from a common config? (create one if it does not yet exist)
-      $document_types = array("Honors Thesis", "Master's Thesis", "Dissertation");
+      // get solr query filter based on specified year and program
+      $filter = $this->solr_filters($filters);
 
       // get page counts by range, segmented by document type
       $pagelength_labels = array();
       $totals = array();
-      foreach ($document_types as $doc_type) {
+      foreach ($this->document_type as $doc_type) {
 	$totals[$doc_type] = array();
       }
-      // generate page length labels and corresponding query
+      // generate page length labels and corresponding page-range solr query
       for ($i = 0; $i < 1000; $i += 100) {
 	$range = sprintf("%05d TO %05d", $i, $i +100);
 	if ($i == 0) $label = ">100";
@@ -707,7 +721,7 @@ class ReportController extends Etd_Controller_Action {
 
       foreach ($pagelength_labels as $label => $page_range) {
 	$response = $solr->query("$filter num_pages:[$page_range]", 0, 0);
-	foreach ($document_types as $doc_type) {
+	foreach ($this->document_type as $doc_type) {
 	  if (isset($response->facets->document_type[$doc_type]))
 	    $count = $response->facets->document_type[$doc_type];
 	  else $count = 0;
@@ -717,11 +731,14 @@ class ReportController extends Etd_Controller_Action {
       return array(array_keys($pagelength_labels), $totals);
     }
 
-}
+}  // end ReportController
 
 
 
-// sort embargo durations logically (days/months/years) - used by summaryStat action
+/**
+ * sort embargo durations logically (days/months/years)
+ * - used by summaryStat and chart data for flash charts
+ */ 
 function sort_embargoes($a, $b) {
   // check if either is blank
   if (trim($a) == "") return -1; // a is less than b
