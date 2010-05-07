@@ -2,11 +2,11 @@
 
 require_once("ofc/php-ofc-library/open-flash-chart.php");
 
-class embargo_chart  {
+class stacked_bar_chart  {
   private $chart;
   private $chart_title;
   private $legend_fontsize = 12;
-  public $x_legend = 'Embargo Duration';
+  public $x_legend;
   public $y_legend = 'Number of Records';
 
   private $style = '{font-size: 14px; color: #333333; font-weight:bold}';
@@ -18,18 +18,20 @@ class embargo_chart  {
    *
    * @param string $title chart title
    * @param array $x_labels labels for the x axis (embargo durations)
+   * @param string $x_legend legend/label for the x-axis
    * @param array $bar_data values for stacked bar chart
    *  - each entry in the array should be an associative array,
    *    where the key is the degree level and the value is the total
    *  - order of arrays should match embargo labels specified
    * @param int $max size of the largest stacked bar
    */
-  public function __construct($title, $x_labels, $bar_data, $max) {
+  public function __construct($title, $x_labels, $x_legend, $bar_data, $max) {
     $this->chart = new open_flash_chart();
     $this->chart_title = new title($title);
     $this->chart_title->set_style((string)$this->style);
     $this->chart->set_title($this->chart_title);
     $this->chart->set_bg_colour((string)$this->bg_color);
+    $this->x_legend = $x_legend;
     
     // color, label
     // FIXME: pull labels from common config somewhere
