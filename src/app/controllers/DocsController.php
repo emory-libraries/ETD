@@ -5,8 +5,6 @@
  */
 
 class DocsController extends Etd_Controller_Action {
-
-  protected $doc_feed_data = "";  // contain the rss feed data for the static docs
   
   public function init() {
     parent::init();
@@ -71,7 +69,7 @@ class DocsController extends Etd_Controller_Action {
     }
     
     // set the view to the subject extracted from the rss feed.
-    $this->view->topic = $this->getTopicSubject($subject, $rss_data, $config->docs_feed->url);
+    $this->view->topic = $this->getTopicSubject($subject, $rss_data);
     $this->render('topic'); // send all the subjects to render on this one view page.
   }  
         
@@ -80,7 +78,7 @@ class DocsController extends Etd_Controller_Action {
    * @param $subject - portion of the rss feed to be extracted.
    * @return the XML extracted data for this subject.
    */
-  public function getTopicSubject($subject, $rss_data, $docs_feed_url) {
+  public function getTopicSubject($subject, $rss_data) {
     $docSubject = "";
     try {
       // Store the XML extracted data for this subject.

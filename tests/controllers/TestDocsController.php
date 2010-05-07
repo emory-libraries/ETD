@@ -13,7 +13,6 @@ require_once('controllers/DocsController.php');
 class DocsControllerTest extends ControllerTestCase {
   
   // Test Data
-  private $docs_feed_url = "https://digital.library.emory.edu/taxonomy/term/26/all/feed";
   private $topics = array(
     array("subject" => 'about', "link" => 'https://digital.library.emory.edu/content/etd/about'),
     array("subject" => 'faq', "link" => 'https://digital.library.emory.edu/content/etd/faq'),
@@ -26,7 +25,7 @@ class DocsControllerTest extends ControllerTestCase {
   function setUp() {
     $this->response = $this->makeResponse();
     $this->request  = $this->makeRequest();
-    $this->rss_data = Zend_Feed_Reader::import($this->docs_feed_url);
+    $this->rss_data = Zend_Feed_Reader::importFile("../fixtures/docs_feed.xml");
   }
   function tearDown() {
   }
@@ -65,7 +64,7 @@ class DocsControllerTest extends ControllerTestCase {
 
       // Get the section from the rss feed via getTopicSubject function
       try {
-        $rss_function = $index->getTopicSubject($topic["subject"], $this->rss_data, $this->docs_feed_url);
+        $rss_function = $index->getTopicSubject($topic["subject"], $this->rss_data);
       } catch (Exception $e) {
         $ex = $e; 
       }
