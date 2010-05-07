@@ -2,9 +2,10 @@
 <script type = "text/javascript">
 swfobject.embedSWF("<?= $this->linkTo('js/ofc/open-flash-chart.swf') ?>", "my_chart", "750", "500", "9.0.0");
 </script>
-<?=  $this->render('report/chart.phtml'); ?>
 <script type="text/javascript">    
-var data = <?php echo $this->chart->toPrettyString(); ?>;
+function open_flash_chart_data(){
+   return JSON.stringify(<?= $this->chart->toPrettyString(); ?>);
+}
 </script>
 
 <p>Filter by year:
