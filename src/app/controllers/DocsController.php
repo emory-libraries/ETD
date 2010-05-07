@@ -81,10 +81,9 @@ class DocsController extends Etd_Controller_Action {
    * @return the XML extracted data for this subject.
    */
   public function getTopicSubject($subject, $rss_data, $docs_feed_url) {
+    $docSubject = "";
     try {
-      
       // Store the XML extracted data for this subject.
-      $docSubject = "<h3>Subject $subject was not found in the rss feed = " . $docs_feed_url . "</h3>"; 
       foreach ($rss_data as $part) {  
         // Check if the title string in the feed contains the topic
         if ($this->foundSubjectInFeed($subject,$part->getLink())) {
@@ -95,6 +94,12 @@ class DocsController extends Etd_Controller_Action {
     } catch (Exception $e) {
       throw new Exception("Could not extract topic '$subject' from feed - " . $e->getMessage());
     }
+    
+    if (! isset($docSubject)) {
+      $message = "Error: Document not found";
+      $this->_helper->flashMessenger->addMessage($message);
+      $this->_helper->redirector->gotoRouteAndExit(array("controller" => "error", "action" => "notfound"), "", true);      
+    }    
     // Return the XML extracted data for this subject.
     return $docSubject;
   }
