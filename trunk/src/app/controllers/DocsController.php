@@ -89,7 +89,7 @@ class DocsController extends Etd_Controller_Action {
         // Check if the title string in the feed contains the topic
         if ($this->foundSubjectInFeed($subject,$part->getLink())) {
           $this->view->title = $part->getTitle();
-          $docSubject = "<h3>" . $part->getTitle() . "</h3>" . $part->getDescription();
+          $docSubject = $part->getDescription();
         }
       }
     } catch (Exception $e) {
@@ -105,6 +105,7 @@ class DocsController extends Etd_Controller_Action {
    * @return title_subject a word found in the title for the given subject.
    */
   public function foundSubjectInFeed($subject, $url) {
+    // compare the subject with the last part of the url    
     $url_subject = substr($url, (strlen($url) - strlen($subject)));
     if ($subject == $url_subject) return true;
     else return false;
