@@ -5,7 +5,7 @@
  <h2>current</h2>
     <div class="indent">
       <? $this->affiliation = $authorInfo->current; ?>
-      <?= $this->render("authorInfo/address.phtml"); ?>
+      <?= $this->render("author-info/address.phtml"); ?>
       <? if ($authorInfo->current->phone): ?>
         <p><b>phone:</b> <?= $authorInfo->current->phone ?></p>
       <? endif ?>   
@@ -17,7 +17,7 @@
   <h2>permanent</h2>
   <div class="indent">
     <? $this->affiliation = $authorInfo->permanent; ?>
-    <?= $this->render("authorInfo/address.phtml"); ?>
+    <?= $this->render("author-info/address.phtml"); ?>
     <? if ($authorInfo->permanent->phone): ?>
        <p><b>phone:</b> <?= $authorInfo->permanent->phone ?></p>
     <? endif ?>

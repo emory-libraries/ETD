@@ -1,5 +1,5 @@
 <h1>Contact Information for <?= $this->authorInfo->mads->name->first ?> <?= $this->authorInfo->mads->name->last ?></h1>
-<?=  $this->render('authorInfo/_view.phtml'); ?>
+<?=  $this->render('author-info/_view.phtml'); ?>
 
 <? if ($this->acl->isAllowed($this->authorInfo->getUserRole($this->current_user), "authorInfo", "edit")): ?>
 <p><a class="button" href="<?= $this->url(array("controller" => "authorInfo",

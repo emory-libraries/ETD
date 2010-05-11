@@ -38,7 +38,7 @@ if ($this->etd->mods->isEmbargoRequested(etd_mods::EMBARGO_ABSTRACT)) $restricte
 		"pid" => $this->etd->authorInfo->pid), '', true) ?>">edit contact information</a>
     <? endif ?>
     <? $this->user = $this->etd->authorInfo; ?>
-    <?=  $this->render('authorInfo/_view.phtml'); ?>
+    <?=  $this->render('author-info/_view.phtml'); ?>
 
   </div>
 </div>
