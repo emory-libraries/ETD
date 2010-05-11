@@ -32,7 +32,7 @@ information will not be available publicly or shared with anyone
 without your consent.</p>
 
 
-<form name="contact-info" action="<?= $this->url(array("controller" => "authorinfo", "action" => "save"), '', true); ?>" method="post">
+<form name="contact-info" action="<?= $this->url(array("controller" => "authorInfo", "action" => "save"), '', true); ?>" method="post">
 
 <?= $this->formHidden("pid", $this->pid, null); ?>
 <?= $this->formHidden("etd", $this->etd_pid, null); ?>

@@ -191,7 +191,7 @@ class authorInfo extends foxml {
     $persis = new Emory_Service_Persis(Zend_Registry::get('persis-config'));
 
     // FIXME: use view/controller to build this url?
-    $ark = $persis->generateArk("http://etd.library.emory.edu/authorinfo/view/pid/emory:{%PID%}", $this->label);
+    $ark = $persis->generateArk("http://etd.library.emory.edu/authorInfo/view/pid/emory:{%PID%}", $this->label);
     $pid = $persis->pidfromArk($ark);
 
     $this->pid = $pid;

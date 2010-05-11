@@ -12,7 +12,7 @@
 ?>
 <h2>submission status</h2>
 <? if (isset($etd->authorInfo)): ?>
-   <? $authorInfo_url = $this->url(array("controller" => "authorinfo", "action" => "view",
+   <? $authorInfo_url = $this->url(array("controller" => "authorInfo", "action" => "view",
 					 "pid" => $etd->authorInfo->pid), '', true, false); ?>
    <? if ($etd->readyToSubmit("authorInfo")): ?>
       <?= $ok ?> <a href="<?= $authorInfo_url ?>">contact information</a><br/>
@@ -27,7 +27,7 @@
         </ul>
    <? endif ?>
  <? else: /* no author info - link to create new record */ ?>
-    <?= $incomplete ?> <a href="<?= $this->url(array('controller' => 'authorinfo', 'action' => 'new',
+    <?= $incomplete ?> <a href="<?= $this->url(array('controller' => 'authorInfo', 'action' => 'new',
 			'etd' => $etd->pid), '', true, false) ?> ">contact information</a><br/>
  <? endif ?>
 

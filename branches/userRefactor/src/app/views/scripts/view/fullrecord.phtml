@@ -5,10 +5,10 @@
     <? endif ?>
 <? if ($this->acl->isAllowed($this->role, "authorInfo", "edit")): ?>
  <? if (isset($this->etd->authorInfo)): ?>
-   <a class="action" href="<?= $this->url(array("controller" => "authorinfo", "action" => "edit",
+   <a class="action" href="<?= $this->url(array("controller" => "authorInfo", "action" => "edit",
 				 "pid" => $this->etd->authorInfo->pid), '', true, false); ?>">edit contact information</a>
  <? else: ?>
-   <a class="action" href="<?= $this->url(array('controller' => 'authorinfo', 'action' => 'new',
+   <a class="action" href="<?= $this->url(array('controller' => 'authorInfo', 'action' => 'new',
 			'etd' => $this->etd->pid), '', true, false) ?> ">enter contact information</a>
  <? endif ?>
 <? endif ?>      

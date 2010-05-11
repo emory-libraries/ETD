@@ -1,0 +1,6 @@
+<? // just printing the xml to see that it was received ?>
+
+<p>record updated on <?= $this->save_result ?></p>
+
+<p><a href="<?= $this->url(array("controller" => "authorInfo", "action" => "view", "pid" => $this->pid), null, true) ?>">view user information</a></p>
+

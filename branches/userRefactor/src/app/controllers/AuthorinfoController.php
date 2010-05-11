@@ -217,7 +217,7 @@ class AuthorInfoController extends Etd_Controller_Action {
     }
 
     //redirect to user view
-    $this->_helper->redirector->gotoRoute(array("controller" => "authorinfo",
+    $this->_helper->redirector->gotoRoute(array("controller" => "authorInfo",
     						"action" => "view", "pid" => $authorInfo->pid), "", true);
 
 
