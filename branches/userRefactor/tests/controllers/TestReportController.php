@@ -57,11 +57,11 @@ class ReportControllerTest extends ControllerTestCase {
     $dom->loadXML(file_get_contents('../fixtures/etd2.xml'));
      $foxml = new etd($dom);
     $foxml->pid = $this->etd_pid;
-    $foxml->rels_ext->hasAuthorInfo = "info:fedora/" . $this->author_pid;	// associate with test authorinfo object
+    $foxml->rels_ext->hasAuthorInfo = "info:fedora/" . $this->author_pid;	// associate with test authorInfo object
     $this->fedora->ingest($foxml->saveXML(), "loading test etd object");
     
     // load author info & set pid 
-    $dom->loadXML(file_get_contents('../fixtures/user.xml'));
+    $dom->loadXML(file_get_contents('../fixtures/authorInfo.xml'));
     $foxml = new foxml($dom);
     $foxml->pid = $this->author_pid;
     $this->fedora->ingest($foxml->saveXML(), "loading test authorInfo");

@@ -18,7 +18,7 @@ require_once("policy.php");
 
 // related objects
 require_once("etdfile.php");
-require_once("user.php");
+require_once("authorInfo.php");
 
 require_once("solrEtd.php");
 
@@ -184,7 +184,7 @@ class etd extends foxml implements etdInterface {
 					  "class_name" => "etd_file", "sort" => "sort_etdfiles");
     $this->relconfig["supplements"] = array("relation" => "hasSupplement", "is_series" => true,
 					    "class_name" => "etd_file", "sort" => "sort_etdfiles");
-    $this->relconfig["authorInfo"] = array("relation" => "hasAuthorInfo", "class_name" => "user");
+    $this->relconfig["authorInfo"] = array("relation" => "hasAuthorInfo", "class_name" => "authorInfo");
   }
 
   /**

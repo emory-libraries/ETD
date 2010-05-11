@@ -4,30 +4,30 @@
  * @package Etd_Controllers
  */
 
-require_once("models/user.php");
+require_once("models/authorInfo.php");
 require_once("models/etd.php");
 
-class UserController extends Etd_Controller_Action {
+class AuthorInfoController extends Etd_Controller_Action {
   protected $requires_fedora = true;
   
   public function viewAction() {
-    $user = $this->_helper->getFromFedora("pid", "user");
-    if (!$this->_helper->access->allowedOnUser("view", $user)) return false;
+    $authorInfo = $this->_helper->getFromFedora("pid", "authorInfo");
+    if (!$this->_helper->access->allowedOnAuthorInfo("view", $authorInfo)) return false;
 
     $this->view->title = "View User Information";
-    $this->view->user = $user;
+    $this->view->authorInfo = $authorInfo;
   }
 
-  // create a new user record
+  // create a new authorInfo record
   public function newAction() {
-    if (!$this->_helper->access->allowedOnUser("create")) return false;
+    if (!$this->_helper->access->allowedOnAuthorInfo("create")) return false;
     $this->_forward("edit");
   }
 
   public function findAction() {
     // FIXME: still needed? may not make sense anymore..
-    $user = user::find_by_username($this->_getParam("id"));
-    $this->view->user = $user;
+    $authorInfo = user::find_by_username($this->_getParam("id"));
+    $this->view->authorInfo = $authorInfo;
     //    print "user pid is " . $user->pid . "\n";
     $this->_helper->viewRenderer->setScriptAction("view");
   }
@@ -45,27 +45,27 @@ class UserController extends Etd_Controller_Action {
     
     if (is_null($pid))	{
       // if pid is null, action is actually create (user is not author on an object yet)
-      if (!$this->_helper->access->allowedOnUser("create")) return false;
+      if (!$this->_helper->access->allowedOnAuthorInfo("create")) return false;
 
       // create new, empty user object
       //  - note: no longer using subclass for honors; configuration for required fields
       // 	now pulled from per-school configuration
-      $user = new user();
-      $user->mads->initializeFromEsd($this->view->current_user);
+      $authorInfo = new authorInfo();
+      $authorInfo->mads->initializeFromEsd($this->view->current_user);
       
       // need access to etd in the view for displaying correct set of instructions
       $this->view->etd = $this->_helper->getFromFedora("etd", "etd");	  
     } else { 		// if pid is defined, action is editing a particular, existing object
 
       // FIXME:  need to initialize as honors user here too...
-      $user = $this->_helper->getFromFedora("pid", "user");	  
-      if (!$this->_helper->access->allowedOnUser("edit", $user)) return false;
+      $authorInfo = $this->_helper->getFromFedora("pid", "authorInfo");
+      if (!$this->_helper->access->allowedOnAuthorInfo("edit", $authorInfo)) return false;
 
       // configure view so etd object will be available in the same
       // place when editing new or existing user info
-      $this->view->etd = $user->etd;
+      $this->view->etd = $authorInfo->etd;
     }
-    $this->view->user = $user;
+    $this->view->authorInfo = $authorInfo;
 
     $this->view->pid = $pid;
 
@@ -136,55 +136,55 @@ class UserController extends Etd_Controller_Action {
 
 
     if(empty($pid)){
-     $user = new user();
-     $user->mads->initializeFromEsd($this->view->current_user);
+     $authorInfo = new authorInfo();
+     $authorInfo->mads->initializeFromEsd($this->view->current_user);
      // new record - set object label & dc:title, object owner etc
-     $user->label = $user->mads->name->first . " " . $user->mads->name->last;
-     $user->owner = $user->mads->netid;
-     $user->rels_ext->addRelationToResource("rel:authorInfoFor", $etd_pid);
+     $authorInfo->label = $authorInfo->mads->name->first . " " . $authorInfo->mads->name->last;
+     $authorInfo->owner = $authorInfo->mads->netid;
+     $authorInfo->rels_ext->addRelationToResource("rel:authorInfoFor", $etd_pid);
     }
     else{
-     $user = new user($pid);
+     $authorInfo = new authorInfo($pid);
     }
 
    if (empty($pid))	{ // if pid is null, action is actually create (user is not author on an object yet)
-      if (!$this->_helper->access->allowedOnUser("create")) return false;
+      if (!$this->_helper->access->allowedOnAuthorInfo("create")) return false;
     } else { 		// if pid is defined, action is editing an existing object
-      if (!$this->_helper->access->allowedOnUser("edit", $user)) return false;
+      if (!$this->_helper->access->allowedOnAuthorInfo("edit", $authorInfo)) return false;
     }
 
-    $user->mads->name->last = $last;
-    $user->mads->name->first = $first;
+    $authorInfo->mads->name->last = $last;
+    $authorInfo->mads->name->first = $first;
         
-    $user->mads->current->address->setStreet($cur_street);
-    $user->mads->current->address->city = $cur_city;
-    $user->mads->current->address->state = $cur_state;
-    $user->mads->current->address->country = $cur_country;
-    $user->mads->current->address->postcode = $cur_postcode;
-    $user->mads->current->phone = $cur_phone;
-    $user->mads->current->email = $cur_email;
+    $authorInfo->mads->current->address->setStreet($cur_street);
+    $authorInfo->mads->current->address->city = $cur_city;
+    $authorInfo->mads->current->address->state = $cur_state;
+    $authorInfo->mads->current->address->country = $cur_country;
+    $authorInfo->mads->current->address->postcode = $cur_postcode;
+    $authorInfo->mads->current->phone = $cur_phone;
+    $authorInfo->mads->current->email = $cur_email;
 
     
-    $user->mads->permanent->address->setStreet($perm_street);
-    $user->mads->permanent->address->city = $perm_city;
-    $user->mads->permanent->address->state = $perm_state;
-    $user->mads->permanent->address->country = $perm_country;
-    $user->mads->permanent->address->postcode = $perm_postcode;
-    $user->mads->permanent->phone = $perm_phone;
-    $user->mads->permanent->email = $perm_email;
-    $user->mads->permanent->date = $perm_dae;
+    $authorInfo->mads->permanent->address->setStreet($perm_street);
+    $authorInfo->mads->permanent->address->city = $perm_city;
+    $authorInfo->mads->permanent->address->state = $perm_state;
+    $authorInfo->mads->permanent->address->country = $perm_country;
+    $authorInfo->mads->permanent->address->postcode = $perm_postcode;
+    $authorInfo->mads->permanent->phone = $perm_phone;
+    $authorInfo->mads->permanent->email = $perm_email;
+    $authorInfo->mads->permanent->date = $perm_dae;
 
     //if no date for current, set to today
-    if (!$user->mads->current->date) $user->mads->current->date = date("Y-m-d");
+    if (!$authorInfo->mads->current->date) $authorInfo->mads->current->date = date("Y-m-d");
     // normalize date format
-    $user->normalizeDates();
+    $authorInfo->normalizeDates();
 
 
 
     $resource = "contact information";
-    if ($user->mads->hasChanged()) {
+    if ($authorInfo->mads->hasChanged()) {
 	try {
-	  $save_result = $user->save("edited user information");
+	  $save_result = $authorInfo->save("edited user information");
 	} catch (PersisServiceUnavailable $e) {
 	  // this can only happen when saving a new record (ingest)
 	  $this->_helper->flashMessenger->addMessage("Error: could not create new record because Persistent Identifier Service is not available");
@@ -193,10 +193,10 @@ class UserController extends Etd_Controller_Action {
 	}
 	if ($save_result) {
 	  $this->_helper->flashMessenger->addMessage("Saved changes to $resource");
-	  $this->logger->info("Saved user " . $user->pid . " at $save_result - changed to $resource");
+	  $this->logger->info("Saved user " . $authorInfo->pid . " at $save_result - changed to $resource");
 	} else {
 	  $this->_helper->flashMessenger->addMessage("Error: could not save changes to $resource");
-	  $this->logger->info("Could not save user " . $user->pid . " - changing $resource");
+	  $this->logger->info("Could not save user " . $authorInfo->pid . " - changing $resource");
 	}
       } else {
 	$this->_helper->flashMessenger->addMessage("No changes made to $resource");
@@ -205,23 +205,23 @@ class UserController extends Etd_Controller_Action {
 
     if (!empty($etd_pid)) {
       $etd = new etd($etd_pid);
-      $etd->rels_ext->addRelationToResource("rel:hasAuthorInfo", $user->pid);
+      $etd->rels_ext->addRelationToResource("rel:hasAuthorInfo", $authorInfo->pid);
       $save_result = $etd->save("associated user object with etd");
       // only display a message if there is a problem
       if ($save_result) {
-	$this->logger->info("Added user " . $user->pid . " to etd " . $etd->pid . " at $save_result");
+	$this->logger->info("Added user " . $authorInfo->pid . " to etd " . $etd->pid . " at $save_result");
       } else {  // record changed but save failed for some reason
 	$this->_helper->flashMessenger->addMessage("Error: problem associating contact information with your ETD record");
-	$this->logger->err("Problem adding user " . $user->pid . " to etd " . $etd->pid);
+	$this->logger->err("Problem adding user " . $authorInfo->pid . " to etd " . $etd->pid);
       }
     }
 
     //redirect to user view
-    $this->_helper->redirector->gotoRoute(array("controller" => "user",
-    						"action" => "view", "pid" => $user->pid), "", true);
+    $this->_helper->redirector->gotoRoute(array("controller" => "authorinfo",
+    						"action" => "view", "pid" => $authorInfo->pid), "", true);
 
 
-    $this->view->pid = $user->pid;
+    $this->view->pid = $authorInfo->pid;
     $this->view->title = "save user information";
    }
 
@@ -231,18 +231,18 @@ class UserController extends Etd_Controller_Action {
      $pid = $this->_getParam("pid", null);
 
      if (is_null($pid))	{ // if pid is null, action is actually create (user is not author on an object yet)
-       $user = new user($pid);	// create new object from template
-       if (!$this->_helper->access->allowedOnUser("create")) return false; 
+       $authorInfo = new authorInfo($pid);	// create new object from template
+       if (!$this->_helper->access->allowedOnAuthorInfo("create")) return false;
        
        // empty template - set a few values
-       $user->mads->initializeFromEsd($this->view->current_user);
+       $authorInfo->mads->initializeFromEsd($this->view->current_user);
      } else { 		// if pid is defined, action is viewing an existing object
-       $user = $this->_helper->getFromFedora("pid", "user");	  
-       if (!$this->_helper->access->allowedOnUser("view", $user)) return false;
+       $authorInfo = $this->_helper->getFromFedora("pid", "authorInfo");
+       if (!$this->_helper->access->allowedOnAuthorInfo("view", $authorInfo)) return false;
      }
-     $this->view->user = $user;
+     $this->view->authorInfo = $authorInfo;
 
-     $this->_helper->displayXml($user->mads->saveXML());
+     $this->_helper->displayXml($authorInfo->mads->saveXML());
    }
 
    function validateContactInfo($values){

@@ -100,22 +100,22 @@ class Etd_Controller_Action_Helper_Access extends Zend_Controller_Action_Helper_
   /**
    * check if an action is allowed to current user on an author_info object (particular or generic)
    * @param string $action
-   * @param user $user particular author_info to check against - OPTIONAL, checks generic authorInfo otherwise
+   * @param authorInfo $authorInfo particular author_info to check against - OPTIONAL, checks generic authorInfo otherwise
    * @return bool 
    */
-  public function allowedOnUser($action, user $user = null) {
+  public function allowedOnAuthorInfo($action, authorInfo $authorInfo = null) {
     $current_user = $this->_actionController->current_user;
     $acl = $this->_actionController->acl;
 
-    // logged in user may have specific role on user object
-    if ($user) {
-      $role = $user->getUserRole($current_user);
+    // logged in user may have specific role on authorInfo object
+    if ($authorInfo) {
+      $role = $authorInfo->getUserRole($current_user);
     } else {
       $role = $current_user->role;
     }
 
-    // but there are no subclasses of user resources
-    $resource = "user";
+    // but there are no subclasses of authorInfo resources
+    $resource = "authorInfo";
 
     $allowed = $acl->isAllowed($role, $resource, $action);
     if (!$allowed) $this->notAllowed($action, $role, $resource);

@@ -571,10 +571,10 @@ class TestEtd extends UnitTestCase {
     // official pub date, 'actual' pub date
     $this->etd->publish($pubdate, $pubdate);		// if not specified, date defaults to today
 
-    $fname = '../fixtures/user.xml';
+    $fname = '../fixtures/authorInfo.xml';
     $dom = new DOMDocument();
     $dom->loadXML(file_get_contents($fname));
-    $authorinfo = new user($dom);
+    $authorinfo = new authorInfo($dom);
     $this->etd->related_objects['authorInfo'] = $authorinfo;
 
     $this->assertEqual($pubdate, $this->etd->mods->originInfo->issued);

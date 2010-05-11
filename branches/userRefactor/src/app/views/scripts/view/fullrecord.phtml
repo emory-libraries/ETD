@@ -3,12 +3,12 @@
     <? if ($this->etd->status() != "published"): ?>
      <p class="note">This record is not published. Current status: <b><?= $this->etd->status() ?></b></p>
     <? endif ?>
-<? if ($this->acl->isAllowed($this->role, "user", "edit")): ?>
+<? if ($this->acl->isAllowed($this->role, "authorInfo", "edit")): ?>
  <? if (isset($this->etd->authorInfo)): ?>
-   <a class="action" href="<?= $this->url(array("controller" => "user", "action" => "edit",
+   <a class="action" href="<?= $this->url(array("controller" => "authorinfo", "action" => "edit",
 				 "pid" => $this->etd->authorInfo->pid), '', true, false); ?>">edit contact information</a>
  <? else: ?>
-   <a class="action" href="<?= $this->url(array('controller' => 'user', 'action' => 'new',
+   <a class="action" href="<?= $this->url(array('controller' => 'authorinfo', 'action' => 'new',
 			'etd' => $this->etd->pid), '', true, false) ?> ">enter contact information</a>
  <? endif ?>
 <? endif ?>      

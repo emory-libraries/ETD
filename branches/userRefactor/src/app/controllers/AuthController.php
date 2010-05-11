@@ -7,7 +7,7 @@
 /** Zend_Controller_Action */
 /* Require models */
 
-require_once("models/user.php");
+require_once("models/authorInfo.php");
 require_once("models/esdPerson.php");
 
 class AuthController extends Etd_Controller_Action {

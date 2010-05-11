@@ -54,7 +54,7 @@ class TestPQSubmission extends UnitTestCase {
     $fedora->ingest($foxml->saveXML(), "loading test etd object");
 
     // load author info
-    $dom->loadXML(file_get_contents('../fixtures/user.xml'));
+    $dom->loadXML(file_get_contents('../fixtures/authorInfo.xml'));
     $foxml = new foxml($dom);
     $foxml->pid = $userpid;
     $fedora->ingest($foxml->saveXML(), "loading test etd authorInfo object");

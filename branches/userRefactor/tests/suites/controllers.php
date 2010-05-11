@@ -14,7 +14,7 @@ if (defined('RUNNER')) {
 class ControllerGroupTest extends GroupTest {
   function ControllerGroupTest() {
     $this->GroupTest('ETD Controller tests');
-    $this->addTestFile('controllers/TestUserController.php');
+    $this->addTestFile('controllers/TestAuthorInfoController.php');
     $this->addTestFile('controllers/TestManageController.php');
     $this->addTestFile('controllers/TestSubmissionController.php');
     $this->addTestFile('controllers/TestAuthController.php');

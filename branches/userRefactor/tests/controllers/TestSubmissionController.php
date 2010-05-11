@@ -55,7 +55,7 @@ class SubmissionControllerTest extends ControllerTestCase {
     $this->fedora->ingest($foxml->saveXML(), "loading test etd object");
 
     // load author info
-    $dom->loadXML(file_get_contents('../fixtures/user.xml'));
+    $dom->loadXML(file_get_contents('../fixtures/authorInfo.xml'));
     $foxml = new foxml($dom);
     $foxml->pid = $this->userpid;
     $this->fedora->ingest($foxml->saveXML(), "loading test etd authorInfo object");

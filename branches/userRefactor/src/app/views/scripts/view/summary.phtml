@@ -13,9 +13,9 @@
      <? else: ?>   <?= $year ?> <? endif ?>
    <? endif ?>
 
-     <? if ($this->acl->isAllowed($this->etd->getUserRole($this->current_user), "user", "view") && 
+     <? if ($this->acl->isAllowed($this->etd->getUserRole($this->current_user), "authorInfo", "view") &&
 	    isset($this->etd->authorInfo)): /* check acl first so we don't initialize unnecessarily  */?>
-      <span class="userinfo">[<a href="<?= $this->url(array('controller' => 'user', 'action' => 'view',
+      <span class="userinfo">[<a href="<?= $this->url(array('controller' => 'authorinfo', 'action' => 'view',
 		'pid' => $this->etd->authorInfo->pid), '', true, false) ?>">contact info</a>]</span>
      <? endif ?>     
 

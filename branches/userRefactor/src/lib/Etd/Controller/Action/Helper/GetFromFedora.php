@@ -1,6 +1,6 @@
 <?php
 /**
- * Retrieve an etd, etdfile, or authorinfo object from Fedora, and handle common errors
+ * Retrieve an etd, etdfile, or authorInfo object from Fedora, and handle common errors
  * - if object is not found, redirects to document not found error page
  * - if access denied or not authorized, redirects to etd access denied page
  *
@@ -61,7 +61,7 @@ class Etd_Controller_Action_Helper_GetFromFedora extends Zend_Controller_Action_
       switch($type) {
       case "etd":  $object = new etd($id); break;
       case "etd_file":  $object = new etd_file($id); break;
-      case "user": $object = new user($id); break;
+      case "authorInfo": $object = new authorInfo($id); break;
       }
     } catch (FedoraObjectNotFound $e) {
       $message = "Record not found";
