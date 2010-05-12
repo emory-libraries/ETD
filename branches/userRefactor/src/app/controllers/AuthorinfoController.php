@@ -43,7 +43,7 @@ class AuthorInfoController extends Etd_Controller_Action {
       throw new Exception("Required parameter 'etd' is not set");
     $this->view->etd_pid = $this->_getParam("etd");	
     
-    if (is_null($pid))	{
+    if (empty($pid))	{
       // if pid is null, action is actually create (user is not author on an object yet)
       if (!$this->_helper->access->allowedOnAuthorInfo("create")) return false;
 
