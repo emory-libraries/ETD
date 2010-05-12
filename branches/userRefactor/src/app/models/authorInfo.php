@@ -10,9 +10,9 @@
 require_once("fedora/models/foxml.php");
 require_once("fedora/api/risearch.php");
 
-require_once("mads.php");
-require_once("etd_rels.php");
-require_once("etd_dc.php");
+require_once("datastreams/mads.php");
+require_once("datastreams/etd_rels.php");
+require_once("datastreams/etd_dc.php");
 
 class authorInfo extends foxml {
 

@@ -10,14 +10,14 @@ require_once("models/foxml.php");
 
 require_once("etdInterface.php");
 // etd datastreams
-require_once("etd_mods.php");
-require_once("etd_html.php");
-require_once("etd_rels.php");
-require_once("premis.php");
-require_once("policy.php");
+require_once("datastreams/etd_mods.php");
+require_once("datastreams/etd_html.php");
+require_once("datastreams/etd_rels.php");
+require_once("datastreams/premis.php");
+require_once("datastreams/policy.php");
 
 // related objects
-require_once("etdfile.php");
+require_once("datastreams/etdfile.php");
 require_once("authorInfo.php");
 
 require_once("solrEtd.php");

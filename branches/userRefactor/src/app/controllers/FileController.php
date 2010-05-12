@@ -5,7 +5,7 @@
  */
 
 require_once("models/etd.php");
-require_once("models/etdfile.php");
+require_once("models/datastreams/etdfile.php");
 
 class FileController extends Etd_Controller_Action {
 

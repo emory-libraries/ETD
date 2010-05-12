@@ -10,7 +10,7 @@ require_once("models/foxml.php");
 
 require_once("etd.php");
 require_once("etd_rels.php");
-require_once("etd_dc.php");
+require_once("datastreams/etd_dc.php");
 require_once("file_policy.php");
 
 // helper for number of pages in a pdf

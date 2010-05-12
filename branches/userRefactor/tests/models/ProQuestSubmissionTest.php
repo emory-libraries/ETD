@@ -2,7 +2,7 @@
 require_once("../bootstrap.php");
 require_once('models/ProQuestSubmission.php');
 require_once('simpletest/mock_objects.php');
-require_once("models/etdfile.php");
+require_once("models/datastreams/etdfile.php");
 Mock::generate('etd_file');
 
 class TestPQSubmission extends UnitTestCase {

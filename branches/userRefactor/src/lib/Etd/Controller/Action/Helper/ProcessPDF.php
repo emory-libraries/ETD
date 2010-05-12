@@ -7,7 +7,7 @@
  */
 
 // include etd html class for getContentXml function
-require_once("models/etd_html.php");
+require_once("models/datastreams/etd_html.php");
 
 class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Helper_Abstract {
 
