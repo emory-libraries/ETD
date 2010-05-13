@@ -6,7 +6,7 @@
  */
 
 // set include path so models, needed libraries,  ZendFramework, etc. will be found
-ini_set("include_path", "../app/:../config:../app/models:../app/modules/:../lib:../lib/fedora:../lib/xml-utilities:js/:" . ini_get("include_path")); // use local copies first (e.g., Zend)
+ini_set("include_path", "../app/:../config:../app/models:../app/modules/:../app/modules/datastreams:../lib:../lib/fedora:../lib/xml-utilities:js/:" . ini_get("include_path")); // use local copies first (e.g., Zend)
 // NOTE: local models should come before fedora models so that correct
 // xml template files will be found first
 
