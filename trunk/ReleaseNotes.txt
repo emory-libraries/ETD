@@ -7,7 +7,7 @@ Version 1.7  (preliminary notes)
    the Digital Libraries drupal site
 
 Deployment notes:
- * main config.xml has new field for news_feed url
+ * main config.xml has new  sections for for news_feed and doc_feed
 
  * Run following migrations:
  014-remove_duplicate_collection_membership.php
