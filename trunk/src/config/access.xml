@@ -20,7 +20,7 @@
 
     <!-- a student who already has a submission should not submit another one -->
     <role name="student with submission" inherits="guest">
-      <allow resource="user">create</allow>
+      <allow resource="authorInfo">create</allow>
     </role>
 
     <!-- undergrad honors student -->
@@ -31,7 +31,7 @@
     <!-- faculty/student with submission (cannot create second record,
   	 but still gets faculty/student view on MyEtds page) -->
     <role name="faculty with submission" inherits="guest">
-      <allow resource="user">create</allow>
+      <allow resource="authorInfo">create</allow>
     </role>
 
 
@@ -46,7 +46,7 @@
       <allow resource="file">view modified</allow>  
       <allow resource="draft etd">edit metadata, add file, order files, submit</allow>
       <allow resource="draft file">edit, remove</allow>
-      <allow resource="user">view, edit</allow>
+      <allow resource="authorInfo">view, edit</allow>
     </role>
     <role name="committee" inherits="view_all"/>	
 	<!--  coordinator for a particular program/department; 
@@ -69,7 +69,7 @@
 
        <allow resource="file">view modified</allow>
 
-       <allow resource="user">view</allow>
+       <allow resource="authorInfo">view</allow>
     </role>
 
     <!-- generic school admin - can do all generic admin tasks, but
@@ -77,7 +77,7 @@
     <role name="school admin" inherits="view_all">
        <allow resource="etd">edit history, edit status, manage</allow>
        <allow resource="file">view modified</allow>
-       <allow resource="user">view</allow>
+       <allow resource="authorInfo">view</allow>
        <allow resource="report">view</allow>
     </role>
 
@@ -90,7 +90,7 @@
       <!-- view/edit any record, view log, but no workflow steps -->
       <allow resource="etd">edit metadata, order files, manage</allow>
       <allow resource="file">edit, view modified</allow>
-      <allow resource="user">view, edit</allow>
+      <allow resource="authorInfo">view, edit</allow>
       <allow resource="log">view</allow>
     </role>
 
@@ -121,7 +121,7 @@
       <resource name="original file"/>	
    </resource>
 
-   <resource name="user"/>
+   <resource name="authorInfo"/>
 
    <resource name="statistics"/>
 

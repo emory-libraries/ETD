@@ -1,7 +1,7 @@
 <?php
 require_once("../bootstrap.php");
 require_once('models/etd.php');
-require_once('models/etd_html.php');
+require_once('models/datastreams/etd_html.php');
 
 class TestEtdHtml extends UnitTestCase {
     private $etd_html;

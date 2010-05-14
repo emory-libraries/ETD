@@ -2,12 +2,12 @@
 
 require_once("../bootstrap.php");
 require_once('ControllerTestCase.php');
-require_once('controllers/UserController.php');
+require_once('controllers/AuthorinfoController.php');
 
-class UserControllerTest extends ControllerTestCase {
+class AuthorInfoControllerTest extends ControllerTestCase {
 
   private $test_user;
-  private $mock_user;
+  private $mock_authorInfo;
     
   function setUp() {
     $ep = new esdPerson();
@@ -20,58 +20,58 @@ class UserControllerTest extends ControllerTestCase {
 
 
     // use mock user object to simplify permissions/roles/etc
-    $this->mock_user = &new MockUser();
-    $this->mock_user->pid = "testuser:1";
-    $this->mock_user->setReturnValue("getUserRole", "author");	// set role to author
+    $this->mock_authorInfo = &new MockAuthorInfo();
+    $this->mock_authorInfo->pid = "testuser:1";
+    $this->mock_authorInfo->setReturnValue("getUserRole", "author");	// set role to author
 
     // set getFromFedora helper to return our mock object
-    $userController = new UserControllerForTest($this->request,$this->response);
-    $gff = $userController->getHelper("GetFromFedora");
-    $gff->setReturnObject($this->mock_user);
+    $authorInfoController = new AuthorinfoControllerForTest($this->request,$this->response);
+    $gff = $authorInfoController->getHelper("GetFromFedora");
+    $gff->setReturnObject($this->mock_authorInfo);
 
   }
   
   function tearDown() {
     Zend_Registry::set('current_user', null);
 
-    $userController = new UserControllerForTest($this->request,$this->response);
-    $gff = $userController->getHelper("GetFromFedora");
+    $authorInfoController = new AuthorinfoControllerForTest($this->request,$this->response);
+    $gff = $authorInfoController->getHelper("GetFromFedora");
     $gff->clearReturnObject();
   }
 
 
   function testViewAction() {
-    $userController = new UserControllerForTest($this->request,$this->response);
-    $userController->viewAction();
-    $view = $userController->view;
+    $authorInfoController = new AuthorinfoControllerForTest($this->request,$this->response);
+    $authorInfoController->viewAction();
+    $view = $authorInfoController->view;
     $this->assertTrue(isset($view->title));
-    $this->assertIsA($view->user, "user");
+    $this->assertIsA($view->authorInfo, "authorInfo");
 
     // access denied
-    $this->mock_user->setReturnValue("getUserRole", "guest");
-    $this->assertFalse($userController->viewAction());
+    $this->mock_authorInfo->setReturnValue("getUserRole", "guest");
+    $this->assertFalse($authorInfoController->viewAction());
   }
 
   function testValidateContactInfo(){
-     $userController = new UserControllerForTest($this->request,$this->response);
+     $authorInfoController = new AuthorinfoControllerForTest($this->request,$this->response);
 
      //No Errors
      $emails["cur-email"] = "email@email.com";
      $emails["perm-email"] = "email@email.com";
-     $results = $userController->validateContactInfo($emails);
+     $results = $authorInfoController->validateContactInfo($emails);
      $this->assertEqual(count($results), 0);
 
      //Error on  current email
      $emails["cur-email"] = "emailemail.com";
      $emails["perm-email"] = "email@email.com";
-     $results = $userController->validateContactInfo($emails);
+     $results = $authorInfoController->validateContactInfo($emails);
      $this->assertEqual(count($results), 1);
      $this->assertEqual($results[0], "Error: email emailemail.com is invalid");
 
      //Error on  current and non-emory email
      $emails["cur-email"] = "emailemail.com";
      $emails["perm-email"] = "email@email";
-     $results = $userController->validateContactInfo($emails);
+     $results = $authorInfoController->validateContactInfo($emails);
      $this->assertEqual(count($results), 2);
      $this->assertEqual($results[0], "Error: email emailemail.com is invalid");
      $this->assertEqual($results[1], "Error: non-emory email email@email is invalid");
@@ -79,7 +79,7 @@ class UserControllerTest extends ControllerTestCase {
      //Error on  non-emory email
      $emails["cur-email"] = "email@email.com";
      $emails["perm-email"] = "email@emory.edu";
-     $results = $userController->validateContactInfo($emails);
+     $results = $authorInfoController->validateContactInfo($emails);
      $this->assertEqual(count($results), 1);
      $this->assertEqual($results[0], "Error: non-emory email must be an non-emory or alumni address");
      
@@ -87,10 +87,10 @@ class UserControllerTest extends ControllerTestCase {
   }
 
   function testNewAction() {
-    $userController = new UserControllerForTest($this->request,$this->response);
+    $authorInfoController = new AuthorinfoControllerForTest($this->request,$this->response);
     // guest not allowed to create user object
     $this->test_user->role = "guest";
-    $this->assertFalse($userController->newAction());
+    $this->assertFalse($authorInfoController->newAction());
 
     // FIXME: how to test other case? can't currently simulating forwarding to other actions
   }
@@ -98,51 +98,51 @@ class UserControllerTest extends ControllerTestCase {
   // not testing findAction  -- probably not still needed or in use anywhere
 
   function testEditAction() {
-    $userController = new UserControllerForTest($this->request,$this->response);
+    $authorInfoController = new AuthorinfoControllerForTest($this->request,$this->response);
     // guest not allowed to create/edit user object
     $this->test_user->role = "guest";
     $this->setUpGet(array('etd' => 'etd:1'));
-    $this->assertFalse($userController->editAction());	// no pid = create new record
+    $this->assertFalse($authorInfoController->editAction());	// no pid = create new record
     // edit (still guest - not allowed)
     $this->setUpGet(array('pid' => 'bogus:1', 'etd' => 'etd:1'));
-    $this->assertFalse($userController->editAction());	// edit existing record
+    $this->assertFalse($authorInfoController->editAction());	// edit existing record
 
     // allow to create new record 
     $this->test_user->role = "student with submission";
     $this->resetGet();
     $this->setUpGet(array('etd' => 'etd:1'));
-    $userController->editAction();	// no pid = create new record
-    $view = $userController->view;
+    $authorInfoController->editAction();	// no pid = create new record
+    $view = $authorInfoController->view;
     $this->assertTrue(isset($view->title));
-    $this->assertIsA($view->user, "user");
+    $this->assertIsA($view->authorInfo, "authorInfo");
     // user should be a new, blank object
-    $this->assertEqual("", $view->user->label);
-    $this->assertEqual("", $view->user->pid);
+    $this->assertEqual("", $view->authorInfo->label);
+    $this->assertEqual("", $view->authorInfo->pid);
     
 
     // allow to edit record
     $this->test_user->role = "author";
     $this->setUpGet(array('pid' => 'bogus:1', 'etd' => 'etd:1'));
-    $userController->editAction();	// edit existing record
-    $view = $userController->view;
+    $authorInfoController->editAction();	// edit existing record
+    $view = $authorInfoController->view;
     // pre-existing record
-    $this->assertEqual("testuser:1", $view->user->pid);
+    $this->assertEqual("testuser:1", $view->authorInfo->pid);
   }
 
   function testEditAction_honors() {
     $this->test_user->role = "honors student with submission";
-    $userController = new UserControllerForTest($this->request,$this->response);
+    $authorInfoController = new AuthorinfoControllerForTest($this->request,$this->response);
     // guest not allowed to create/edit user object
     $this->setUpGet(array('etd' => 'etd:1'));
-    $this->assertFalse($userController->editAction());	// no pid = create new record
+    $this->assertFalse($authorInfoController->editAction());	// no pid = create new record
     $this->setUpGet(array('etd' => 'etd:1'));
-    $userController->editAction();	// no pid = create new record
-    $view = $userController->view;
+    $authorInfoController->editAction();	// no pid = create new record
+    $view = $authorInfoController->view;
     $this->assertTrue(isset($view->title));
-    $this->assertIsA($view->user, "user");
+    $this->assertIsA($view->authorInfo, "authorInfo");
     // user should be a new, blank object
-    $this->assertEqual("", $view->user->label);
-    $this->assertEqual("", $view->user->pid);
+    $this->assertEqual("", $view->authorInfo->label);
+    $this->assertEqual("", $view->authorInfo->pid);
   }
 
 
@@ -150,23 +150,23 @@ class UserControllerTest extends ControllerTestCase {
   // FIXME: how to test saveAction with all the fedora/persis interaction?
 
   function testMadsAction() {
-    $userController = new UserControllerForTest($this->request,$this->response);
+    $authorInfoController = new AuthorinfoControllerForTest($this->request,$this->response);
     // new mads template
     $this->test_user->role = "student with submission";
     $this->test_user->netid = "jsmith";
     $this->test_user->address = null;
-    $userController->madsAction();	// no pid = create new record
-    $view = $userController->view;
-    $this->assertIsA($view->user, "user");
+    $authorInfoController->madsAction();	// no pid = create new record
+    $view = $authorInfoController->view;
+    $this->assertIsA($view->authorInfo, "authorInfo");
     // user should be a new, blank object
-    $this->assertEqual("", $view->user->pid);
+    $this->assertEqual("", $view->authorInfo->pid);
     // mads should have preliminary information from esdPerson object
-    $this->assertEqual($view->user->mads->netid, "jsmith");
+    $this->assertEqual($view->authorInfo->mads->netid, "jsmith");
 
-    $layout = $userController->getHelper("layout");
+    $layout = $authorInfoController->getHelper("layout");
     // confirm xml output settings - layout disabled, content-type set to text/xml
     $this->assertFalse($layout->enabled);
-    $response = $userController->getResponse();
+    $response = $authorInfoController->getResponse();
     $headers = $response->getHeaders();
     $this->assertEqual("Content-Type", $headers[0]["name"]);
     $this->assertEqual("text/xml", $headers[0]["value"]);
@@ -174,7 +174,7 @@ class UserControllerTest extends ControllerTestCase {
 
     // access denied 
     $this->test_user->role = "guest";
-    $this->assertFalse($userController->madsAction());
+    $this->assertFalse($authorInfoController->madsAction());
     
     // not testing editing existing version-- basically the same, but
     // would require mocking user object down to mads level
@@ -183,7 +183,7 @@ class UserControllerTest extends ControllerTestCase {
 }
 
 
-class UserControllerForTest extends UserController {
+class AuthorinfoControllerForTest extends AuthorinfoController {
   
   public $renderRan = false;
   public $redirectRan = false;
@@ -203,7 +203,7 @@ class UserControllerForTest extends UserController {
 } 	
 
 
-runtest(new UserControllerTest());
+runtest(new AuthorInfoControllerTest());
 
 
 

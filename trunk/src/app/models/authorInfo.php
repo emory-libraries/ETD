@@ -3,18 +3,18 @@
 /**
  * @category Etd
  * @package Etd_Models
- * @subpackage Author_Info
+ * @subpackage authorInfo
  */
 
 
 require_once("fedora/models/foxml.php");
 require_once("fedora/api/risearch.php");
 
-require_once("mads.php");
-require_once("etd_rels.php");
-require_once("etd_dc.php");
+require_once("datastreams/mads.php");
+require_once("datastreams/etd_rels.php");
+require_once("datastreams/etd_dc.php");
 
-class user extends foxml {
+class authorInfo extends foxml {
 
   /**
    * submission fields that are provided by user object (could be required or optional)
@@ -191,7 +191,7 @@ class user extends foxml {
     $persis = new Emory_Service_Persis(Zend_Registry::get('persis-config'));
 
     // FIXME: use view/controller to build this url?
-    $ark = $persis->generateArk("http://etd.library.emory.edu/user/view/pid/emory:{%PID%}", $this->label);
+    $ark = $persis->generateArk("http://etd.library.emory.edu/author-info/view/pid/emory:{%PID%}", $this->label);
     $pid = $persis->pidfromArk($ark);
 
     $this->pid = $pid;
@@ -220,7 +220,7 @@ class user extends foxml {
     if (isset($pidlist->results->result)) {
       $pid = $pidlist->results->result[0]->user["uri"];
       $pid = str_replace("info:fedora/", "", $pid);
-      return new user($pid);
+      return new authorInfo($pid);
     } else {
       // no matches found
       return null;	// what should the proper response be?

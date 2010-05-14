@@ -15,7 +15,7 @@ $autoloader = Zend_Loader_Autoloader::getInstance();
 $autoloader->setFallbackAutoloader(true);
 
 require_once("models/etd.php");
-require_once("models/etdfile.php");
+require_once("models/datastreams/etdfile.php");
 require_once("models/etd_notifier.php");
 require_once("api/FedoraConnection.php");
 

@@ -51,8 +51,8 @@ class TestGetFromFedora extends ControllerTestCase {
     $this->_fedora->ingest($etdfile->saveXML(), "test etd_file for retrieving with getfromfedora helper");
 
     $dom = new DOMDocument();
-    $dom->load('../fixtures/user.xml');
-    $authinfo = new user($dom);
+    $dom->load('../fixtures/authorInfo.xml');
+    $authinfo = new authorInfo($dom);
     $authinfo->pid = $this->userpid;
     $this->_fedora->ingest($authinfo->saveXML(), "test authorInfo for retrieving with getfromfedora helper");
   }
@@ -148,8 +148,8 @@ class TestGetFromFedora extends ControllerTestCase {
   function testDirect_user() {
     // retrieve a user object from Fedora
     $this->setUpGet(array("id" => $this->userpid));
-    $result = $this->helper->direct("id", "user");
-    $this->assertIsA($result, "user");
+    $result = $this->helper->direct("id", "authorInfo");
+    $this->assertIsA($result, "authorInfo");
     $this->assertEqual($this->userpid,  $result->pid);
   }
 

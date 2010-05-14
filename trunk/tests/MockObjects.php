@@ -33,15 +33,15 @@ class Mock_Etd_Service_Solr extends Basic_Mock_Etd_Service_Solr {
 /* etd objects */
 
 require_once('models/etd.php');
-require_once('models/etdfile.php');
-require_once('models/etd_dc.php');
+require_once('models/datastreams/etdfile.php');
+require_once('models/datastreams/etd_dc.php');
 Mock::generate('etd', 'BasicMock_Etd');
 Mock::generate('etd_file', "BasicMock_EtdFile");
 Mock::generate('etd_dc', "BasicMock_etd_dc");
 Mock::generate('etd_html', "Mock_etd_html");
 Mock::generate('etd_mods', "BasicMock_etd_mods");
 Mock::generate('premis', "Mock_premis");
-Mock::generate('user',  'BasicMock_User');
+Mock::generate('authorInfo',  'BasicMock_authorInfo');
 
 class MockEtd extends BasicMock_Etd {
   public $pid;
@@ -121,7 +121,7 @@ class MockEtdFile extends BasicMock_EtdFile {
   }
 }
 
-class MockUser extends BasicMock_User {
+class MockAuthorInfo extends BasicMock_AuthorInfo {
   public $pid;
 }
 

@@ -1,7 +1,7 @@
 <?php
 require_once("../bootstrap.php");
 require_once('models/etd.php');
-require_once('models/etd_rels.php');
+require_once('models/datastreams/etd_rels.php');
 
 class TestEtdRels extends UnitTestCase {
   private $rels;

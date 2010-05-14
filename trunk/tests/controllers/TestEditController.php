@@ -72,7 +72,7 @@ class EditControllerTest extends ControllerTestCase {
     $this->fedora->ingest($masters_etd->saveXML(), "test masters etd object");
 
     // load author info
-    $foxml = new foxml($this->loadUserDom());
+    $foxml = new foxml($this->loadAuthorInfoDom());
     $foxml->pid = $this->userpid;
     $this->fedora->ingest($foxml->saveXML(), "loading test etd authorInfo object");
 
@@ -90,9 +90,9 @@ class EditControllerTest extends ControllerTestCase {
 
   // load foxml for a user. only one user right now, but keep this function
   // to maintain analog with loadEtdDom().
-  private function loadUserDom() {
+  private function loadAuthorInfoDom() {
     $dom = new DOMDocument();
-    $dom->loadXML(file_get_contents('../fixtures/user.xml'));
+    $dom->loadXML(file_get_contents('../fixtures/authorInfo.xml'));
     return $dom;
   }
 

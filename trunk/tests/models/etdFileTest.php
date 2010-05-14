@@ -1,6 +1,6 @@
 <?php
 require_once("../bootstrap.php");
-require_once('models/etdfile.php');
+require_once('models/datastreams/etdfile.php');
 
 class TestEtdFile extends UnitTestCase {
   private $etdfile;
