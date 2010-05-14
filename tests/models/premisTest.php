@@ -1,6 +1,6 @@
 <?php
 require_once("../bootstrap.php");
-require_once('models/premis.php');
+require_once('models/datastreams/premis.php');
 
 class TestPremis extends UnitTestCase {
   private $premis;

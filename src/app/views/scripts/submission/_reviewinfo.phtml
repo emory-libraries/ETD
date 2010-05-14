@@ -33,12 +33,12 @@ if ($this->etd->mods->isEmbargoRequested(etd_mods::EMBARGO_ABSTRACT)) $restricte
      
   <div id="contact">
     <h2>Contact information</h2>
-   <? if ($this->acl->isAllowed($this->role, "user", "edit")): ?>
-      <a class="action" href="<?= $this->url(array("controller" => "user", "action" => "edit",
+   <? if ($this->acl->isAllowed($this->role, "authorInfo", "edit")): ?>
+      <a class="action" href="<?= $this->url(array("controller" => "authorInfo", "action" => "edit",
 		"pid" => $this->etd->authorInfo->pid), '', true) ?>">edit contact information</a>
     <? endif ?>
     <? $this->user = $this->etd->authorInfo; ?>
-    <?=  $this->render('user/_view.phtml'); ?>
+    <?=  $this->render('author-info/_view.phtml'); ?>
 
   </div>
 </div>

@@ -1,6 +1,6 @@
 <?php
 require_once("../bootstrap.php");
-require_once('models/mads.php');
+require_once('models/datastreams/mads.php');
 require_once("fixtures/esd_data.php");
 
 class TestMads extends UnitTestCase {

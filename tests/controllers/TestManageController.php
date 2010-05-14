@@ -57,7 +57,7 @@ class ManageControllerTest extends ControllerTestCase {
     $foxml->pid = $this->published_etdpid;
     $this->fedora->ingest($foxml->saveXML(), "loading test etd object");
 
-    // load etd2 & set pid & author relation	-- etd record associated with authorinfo object, status reviewed
+    // load etd2 & set pid & author relation	-- etd record associated with authorInfo object, status reviewed
     $dom->loadXML(file_get_contents('../fixtures/etd2.xml'));
     $foxml = new etd($dom);
     $foxml->setSchoolConfig($school_cfg->graduate_school);
@@ -66,7 +66,7 @@ class ManageControllerTest extends ControllerTestCase {
     $this->fedora->ingest($foxml->saveXML(), "loading test etd object");
 
     // load author info
-    $dom->loadXML(file_get_contents('../fixtures/user.xml'));
+    $dom->loadXML(file_get_contents('../fixtures/authorInfo.xml'));
     $foxml = new foxml($dom);
     $foxml->pid = $this->userpid;
     $this->fedora->ingest($foxml->saveXML(), "loading test etd authorInfo object");

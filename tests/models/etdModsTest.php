@@ -1,6 +1,6 @@
 <?php
 require_once("../bootstrap.php");
-require_once('models/etd_mods.php');
+require_once('models/datastreams/etd_mods.php');
 require_once("fixtures/esd_data.php");
 
 class TestEtdMods extends UnitTestCase {

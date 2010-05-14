@@ -231,7 +231,7 @@ class etd_mods extends mods {
 
     $set_description = false;
 
-    $template = new etd_mods(DOMDocument::loadXML(file_get_contents("mods.xml", FILE_USE_INCLUDE_PATH)));
+    $template = new etd_mods(DOMDocument::loadXML(file_get_contents("etd_mods.xml", FILE_USE_INCLUDE_PATH)));
     
     $newnode = $this->dom->importNode($template->map[$type][0]->domnode, true);
 
@@ -903,6 +903,15 @@ class etd_mods extends mods {
     else	// no embargo date defined - not (yet) embargoed
       return false;
   }
+
+  /**
+   * overrides function from base class to allwo the correct xml file to be loaded
+   */
+  public static function getFedoraTemplate(){
+    return foxml::xmlDatastreamTemplate("MODS", mods::dslabel,
+					file_get_contents("etd_mods.xml", FILE_USE_INCLUDE_PATH));
+  }
+
 
 }
 

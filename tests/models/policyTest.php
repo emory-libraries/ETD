@@ -1,6 +1,6 @@
 <?php
 require_once("../bootstrap.php");
-require_once('models/policy.php');
+require_once('models/datastreams/policy.php');
 
 class TestPolicy extends UnitTestCase {
   private $policy;

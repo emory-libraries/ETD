@@ -1,6 +1,6 @@
 <?php
 require_once("../bootstrap.php");
-require_once('models/etd_mods.php');
+require_once('models/datastreams/etd_mods.php');
 
 class TestEtdmsXslt extends UnitTestCase {
     private $config;
@@ -51,7 +51,7 @@ class TestEtdmsXslt extends UnitTestCase {
 
     function test_StillEmbargoed() {
       $xml = new DOMDocument();
-      $xml->loadXML(file_get_contents("models/mods.xml", FILE_USE_INCLUDE_PATH));
+      $xml->loadXML(file_get_contents("models/datastreams/etd_mods.xml", FILE_USE_INCLUDE_PATH));
       $mods = new etd_mods($xml);
 
       $mods->embargo = "1 year";
@@ -69,7 +69,7 @@ class TestEtdmsXslt extends UnitTestCase {
 
     function test_oldEmbargoDateFormat() {
       $xml = new DOMDocument();
-      $xml->loadXML(file_get_contents("models/mods.xml", FILE_USE_INCLUDE_PATH));
+      $xml->loadXML(file_get_contents("models/datastreams/etd_mods.xml", FILE_USE_INCLUDE_PATH));
       $mods = new etd_mods($xml);
 
       $mods->embargo = "1 year";
