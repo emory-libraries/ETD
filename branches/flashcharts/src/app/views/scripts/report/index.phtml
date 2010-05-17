@@ -1,18 +1,20 @@
 <H1>Available Reports</H1>
-<ul>
+<ul id="reports_ul">
   <li><a href="<?= $this->url(array("controller" => "report",
-			"action" => "summary-stat"), '', true); ?>">Summary Statistics</a></li>
+      "action" => "summary-stat"), '', true); ?>">Summary Statistics</a></li>
   <li><a href="<?= $this->url(array("controller" => "report",
-			"action" => "commencement-review"), '', true); ?>">Graduate School Commencement Report</a></li>
+      "action" => "commencement-review"), '', true); ?>">Graduate School Commencement Report</a></li>
   <li><a href="<?= $this->url(array("controller" => "report",
-		"action" => "grad-data"), '', true); ?>">Graduate School Academic Year Report</a>
-	<?= $this->FiletypeIcon("text/csv") ?></li>
+    "action" => "grad-data"), '', true); ?>">Graduate School Academic Year Report</a>
+  <?= $this->FiletypeIcon("text/csv") ?></li>
   <li><a href="<?= $this->url(array("controller" => "report",
-		"action" => "embargo-csv"), '', true); ?>">Upcoming Embargos</a>
-	<?= $this->FiletypeIcon("text/csv") ?></li>
-  <li><a href="<?= $this->url(array('action' => 'embargo')) ?>">Requested Embargo Duration</a></li>
-  <li><a href="<?= $this->url(array('action' => 'embargo')) ?>">Document Length</a></li>
+    "action" => "embargo-csv"), '', true); ?>">Upcoming Embargos</a>
+  <?= $this->FiletypeIcon("text/csv") ?></li>
+  <li><a href="<?= $this->url(array('action' => 'embargo')) ?>">Requested Embargo Duration</a>
+  <?= $this->FiletypeIcon("text/flash") ?></li>
+  <li><a href="<?= $this->url(array('action' => 'embargo')) ?>">Document Length</a>
+  <?= $this->FiletypeIcon("text/flash") ?></li>
   <li><a href="<?= $this->url(array("controller" => "report",
-	    'action' => 'exportemails')) ?>">Export email addresses for approved records</a>
+      'action' => 'exportemails')) ?>">Export email addresses for approved records</a>
     <?= $this->FiletypeIcon("text/csv") ?></li>
 </ul>

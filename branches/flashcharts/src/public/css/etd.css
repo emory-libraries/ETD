@@ -1,5 +1,5 @@
 body { 
-  position:relative;		/* keep page from getting too small (doesn't work for IE) */
+  position:relative;    /* keep page from getting too small (doesn't work for IE) */
   min-width:900px;
   margin:0px;
   padding:0px;
@@ -35,7 +35,7 @@ div.width {
   height:1px;
   margin:0px;
   padding:0px;
-  overflow:hidden;	/* keep vertical size minimal in IE */
+  overflow:hidden;  /* keep vertical size minimal in IE */
 }
 
 input { 
@@ -62,7 +62,7 @@ input.submitlink * {
 /* correctly position 'submit thesis' link for IE */
 div#sidenav input { 
   text-align:left;
-  width:155px;	
+  width:155px;  
 }
 
 
@@ -83,7 +83,7 @@ div#header {
   /*  height:1.375in;*/
   height:95px;
   text-align:center;
-  z-index:3;	/* for IE (can't just do photo div) */
+  z-index:3;  /* for IE (can't just do photo div) */
 }
 
 /* min-width workaround for IE */
@@ -161,7 +161,7 @@ div#login {
   height:25px;
   z-index:5;
   margin-left:195px;
-  min-width:595px;	/* stop sliding at same point where header photo does */
+  min-width:595px;  /* stop sliding at same point where header photo does */
   margin-right:135px;
   color:black;
   padding:4px;
@@ -181,10 +181,10 @@ div#login input {
 
 
 
-body h2 { 	/* IE doesn't apply without body */
+body h2 {   /* IE doesn't apply without body */
   margin-top:0px;
   font-variant:small-caps;
-  font-size:10pt;	
+  font-size:10pt; 
 }
 
 div#photo { 
@@ -322,8 +322,8 @@ div.content h1 {
 }
 
 div.content hr { 
-  background-color: #f1aa00;	/* mozilla browsers */
-  color: #f1aa00;		/* IE */	
+  background-color: #f1aa00;  /* mozilla browsers */
+  color: #f1aa00;   /* IE */  
   border:0px;
   height: 2px;
   width: 100%;
@@ -334,7 +334,7 @@ div.content hr {
 
 div#footer { 
   clear:both;
-  position:fixed;	/* FIXME: fixed doesn't work properly in IE */
+  position:fixed; /* FIXME: fixed doesn't work properly in IE */
   bottom:0px;
   padding-bottom:2px;
   text-align:center;
@@ -358,7 +358,7 @@ div.shrink p{
   right:0px;
 }
 .bottom { 
-  position:absolute;	
+  position:absolute;  
   bottom:0px;
 }
 
@@ -493,7 +493,7 @@ div.fullrecord h2 {
   margin-top:10px;
   border-top:1px solid #f1aa00;
   border-bottom:1px solid #f1aa00;
-  background-color:#fffdee;	/* very faint yellow */
+  background-color:#fffdee; /* very faint yellow */
   clear:both;
 }
 
@@ -585,7 +585,7 @@ div.buttons {
  padding-bottom:2px;
  border-top:1px solid #f1aa00;
  border-bottom:1px solid #f1aa00;
- background:#fffdee;	/* very faint yellow */
+ background:#fffdee;  /* very faint yellow */
 }
 
 
@@ -613,7 +613,7 @@ div.listnav {
  float:right;
 }
 .admin-nav select { 
- font-size:85%;	/* hack: match the rest of listnav inputs */
+ font-size:85%; /* hack: match the rest of listnav inputs */
  }
 
 /* statistics */
@@ -918,52 +918,55 @@ span.permalink { background-color: #ffda82; /*#fffdee; /* very faint yellow */ }
 .JustifyFull, div.JustifyFull { text-align: justify; }
 
 .formLabel {
-	display:block;
-	margin-left: 10px;
-	width: 150px;
-	float: left;
+  display:block;
+  margin-left: 10px;
+  width: 150px;
+  float: left;
 }
 .formInput {
-	vertical-align: top;
-	margin-right: 20px;
+  vertical-align: top;
+  margin-right: 20px;
 }
 .formInputArea {
-	clear: right;
-	vertical-align: top;
-	_height: 300px;
-	min-height:300px;
-	_width:300px;
-	min-width:300px;
+  clear: right;
+  vertical-align: top;
+  _height: 300px;
+  min-height:300px;
+  _width:300px;
+  min-width:300px;
 }
 .formRow {
-	clear: none;
-	vertical-align: top;
-	margin-top: 15px;
-	margin-bottom: 15px;
+  clear: none;
+  vertical-align: top;
+  margin-top: 15px;
+  margin-bottom: 15px;
 }
 .formRow #message {
-	display: block;
-	clear: none;
-	vertical-align: top;
-	height: 250px;
-	width: 500px;
-	_height: 250px;
-	_width: 500px;
-	min-height: 250px;
-	min-width: 500px;
+  display: block;
+  clear: none;
+  vertical-align: top;
+  height: 250px;
+  width: 500px;
+  _height: 250px;
+  _width: 500px;
+  min-height: 250px;
+  min-width: 500px;
 }
 #helpFormButtons {
-	clear: none;
-	white-space: nowrap;
-/*	margin: 20px; */
+  clear: none;
+  white-space: nowrap;
+/*  margin: 20px; */
 }
 #helpFormFields {
-	margin: 20px;
-	border-color: 0xcccccc;
-	border-width: 1px;
+  margin: 20px;
+  border-color: 0xcccccc;
+  border-width: 1px;
 }
 #helpPageContent {
-	margin-left: 75px;	
+  margin-left: 75px;  
+}
+#reports_ul li {
+  height: 25px;
 }
 
 ul.tree li, ul#select_program li { list-style-type:none; }
