@@ -1,7 +1,7 @@
 <?php
 
 if (defined('RUNNER')) {
-  $is_runner = false;	// running as part of a larger suite
+  $is_runner = false; // running as part of a larger suite
 } else {
   define('RUNNER', true);
   $is_runner = true;
@@ -36,6 +36,8 @@ class ModelGroupTest extends GroupTest {
     $this->addTestFile('models/SchoolsConfigTest.php');
 
     $this->addTestFile('models/solrEtdTest.php');
+    
+    $this->addTestFile('models/chartsTest.php');    
   }
 }
 

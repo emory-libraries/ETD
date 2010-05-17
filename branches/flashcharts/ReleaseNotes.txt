@@ -8,7 +8,7 @@ Version 1.7  (preliminary notes)
 
 Deployment notes:
  * main config.xml has new field for news_feed url
-
+ * svn external version update to 210 for lib/Emory.
 
 Version 1.6.3 - April 2010 (bugfix)
 
