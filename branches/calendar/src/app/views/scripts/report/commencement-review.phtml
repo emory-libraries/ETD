@@ -1,0 +1,36 @@
+<h1>Commencement Report Review</h1>
+
+<p>
+Please select records to <span style="font-weight:bold">exclude</span> from the report
+</p>
+
+<form name="commencement-review" action="commencement" method="post">
+    <table cellpadding="0" cellspacing="0" align="center">
+        <? foreach ($this->etdSet->etds as $etd): ?>
+            <tr>
+		<td class="separator"> <?= $this->formCheckbox('exclude[]', $etd->pid()); ?> </td>
+                <td class="separator">
+                <div class="shrink">
+		   <?= $etd->author()?>
+                    <br />
+                    <div> <?=$etd->program()?>,
+		      <? foreach ($etd->chair() as $advisor): ?>
+   			<?= $advisor ?>, Advisor
+                      <? endforeach ?>
+    		    </div>
+       		    <?= $etd->document_type() ?>:
+                    <br />
+                    <?= $etd->title() ?>
+                    <br />
+                    <?//SUBMIT DATE GOES HERE ? ?>
+		    Publication Date: <?= $etd->pubdate() ?>
+                    </div>
+                </td>
+            </tr>
+        <? endforeach ?>
+        <tr>
+        <td> <?= $this->formSubmit("submit", "Create Report >", Array("class" => "submitlink")); ?> </td>
+        <td> </td>
+        </tr>
+</table>
+</form>
