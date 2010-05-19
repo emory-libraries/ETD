@@ -12,17 +12,16 @@ class TestCharts extends UnitTestCase {
 
   function testOpenFlashChartCreation() {
 
-    $title = new title( "Title of Test Flash Chart" );
+    $bar_stack = new OFC_Charts_Bar_Stack();
+    $bar_stack->set_values( array(9,8,7,6,5,4,3,2,1) );
 
-    $bar = new bar();
-    $bar->set_values( array(9,8,7,6,5,4,3,2,1) );
-
-    $chart = new open_flash_chart();
-    $chart->set_title( $title );
-    $chart->add_element( $bar );
+    $chart = new OFC_Chart();
+    $chart_title = new OFC_Elements_Title("Title of Test Flash Chart");
+    $chart->set_title($chart_title);
+    $chart->add_element( $bar_stack );
     
     $output = $chart->toPrettyString();
-    
+
     // $chart->toPrettyString() returns:
     // { "elements": [ { "type": "bar", "values": [ 9, 8, 7, 6, 5, 4, 3, 2, 1 ] } ], "title": { "text": "Title of Test Flash Chart" } }';
     $this->assertPattern('/elements/', $output, "Test for 'elements' pattern");     
