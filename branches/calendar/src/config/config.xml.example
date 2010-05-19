@@ -27,6 +27,10 @@
       <url>https://digital.library.emory.edu/taxonomy/term/26/all/feed</url>
       <lifetime>3600</lifetime>
     </docs_feed>
+    <calendar_feed>
+      <url>xxx</url>
+      <lifetime>3600</lifetime>
+    </calendar_feed>
     <tmpdir></tmpdir>
     <logfile></logfile>
       <!-- executable for pdftohtml; supply full path if necessary -->

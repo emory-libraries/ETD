@@ -70,11 +70,39 @@ class IndexControllerTest extends ControllerTestCase {
 	
   }
 
+  function test_getCalendar() {
+    $index = new IndexControllerForTest($this->request,$this->response);
+    // calendar feed not configured
+    try {
+      $index->getCalendar($this->testconfig);
+    } catch (Exception $e) {
+      $ex = $e;		// store for testing outside the try/catch
+    }
+    $this->assertIsA($ex, "Exception");
+    $this->assertPattern("/Calendar feed is not configured/", $ex->getMessage());
+    unset($ex);
+
+    // bogus url for calendar feed
+    try {
+      $index->getCalendar(new Zend_Config(array("calendar_feed" => array("url"  => "http://localhost/"))));
+    } catch (Exception $e) {
+      $ex = $e;		// store for testing outside the try/catch
+    }
+    $this->assertIsA($ex, "Exception");
+    $this->assertPattern("/Could not parse ETD calendar feed/", $ex->getMessage());
+    unset($ex);
+
+    // FIXME: how to test success feed?  how to create mock feed ?
+
+  }
+
+
+
     function test_createCache() {
     $index = new IndexControllerForTest($this->request,$this->response);
 
     //Check that it is a cache object
-    $cache = $index->createCache(60);
+    $cache = $index->createCache("name", 60);
     $this->assertIsA($cache, "Zend_Cache_Frontend_Output");
 
     //Check that lifetime is set correctly

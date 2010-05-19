@@ -22,6 +22,15 @@ class IndexController extends Etd_Controller_Action {
       trigger_error($message, E_USER_WARNING);
       $this->logger->err($message);
     }
+
+    //Calendar Section
+    try {
+      $this->view->calendar = $this->getCalendar($config);
+    } catch (Exception $e) {
+      $message = "Error retrieving calendar: " . $e->getMessage();
+      trigger_error($message, E_USER_WARNING);
+      $this->logger->err($message);
+    }
     
     //This section is displayed in the sidebar
     $feed = $this->_getParam("feed", "recent");	// by default, show recently published
@@ -42,7 +51,7 @@ class IndexController extends Etd_Controller_Action {
   /**
    * get news feed for display on home page
    * @param Zend_Config $config - used for news_feed setting; error if not set
-   * @return Zend_Feed_Rss 
+   * @return Zend_Feed_Reader
    */
   public function getNews(Zend_Config $config) {
     // ETD news - rss feed from drupal site
@@ -54,7 +63,7 @@ class IndexController extends Etd_Controller_Action {
       $news_feed = $config->news_feed->url;
 
       //Set Feed_Reeder to use cache
-      $cache = $this->createCache($config->news_feed->lifetime);
+      $cache = $this->createCache("news", $config->news_feed->lifetime);
       Zend_Feed_Reader::setCache($cache);
       //Zend_Feed_Reader::useHttpConditionalGet(); //may use later for conditional get
 
@@ -67,18 +76,49 @@ class IndexController extends Etd_Controller_Action {
     return $news;
   }
 
+
+  /**
+   * get calendar feed for display on home page
+   * @param Zend_Config $config - used for calendar_feed setting; error if not set
+   * @return Zend_Feed_Reader
+   */
+  public function getCalendar(Zend_Config $config) {
+    // ETD calendar - rss feed from trumba
+    if (! isset($config->calendar_feed->url)) {
+      throw new Exception("Calendar feed is not configured");
+    }
+
+    try {
+      $calendar_feed = $config->calendar_feed->url;
+
+      //Set Feed_Reeder to use cache
+      $cache = $this->createCache("calendar", $config->calendar_feed->lifetime);
+      Zend_Feed_Reader::setCache($cache);
+      //Zend_Feed_Reader::useHttpConditionalGet(); //may use later for conditional get
+
+      //Read the feed
+      //NOTE: May have to add logic for user / pass
+      $calendar = Zend_Feed_Reader::import($calendar_feed);
+    } catch (Exception $e) {
+      throw new Exception("Could not parse ETD calendar feed '$calendar_feed' - " . $e->getMessage());
+    }
+
+    return $calendar;
+  }
+
+
   /**
    * creates cache for RSS feeds
    * @return Zend_Cache
    */
-  public function createCache($lifetime){
+  public function createCache($name, $lifetime){
 
         //refresh time of cache
         //make sure value is null if value is not set or empty - null value means forever
         $lifetime =  (empty($lifetime) ? null : $lifetime);
 
         $frontendOptions = array('lifetime' => $lifetime, 'automatic_serialization' => true);
-        $backendOptions = array('cache_dir' => '/tmp/', "file_name_prefix" => "ETD_news_cache");
+        $backendOptions = array('cache_dir' => '/tmp/', "file_name_prefix" => "ETD_".$name."_cache");
         $cache = Zend_Cache::factory('Output', 'File', $frontendOptions, $backendOptions);
         return $cache;
   }

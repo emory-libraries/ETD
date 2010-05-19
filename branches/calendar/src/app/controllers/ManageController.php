@@ -426,7 +426,7 @@ class ManageController extends Etd_Controller_Action {
 
    public function clearRssCacheAction() {
     //List of caches to clear
-    $cacheNames = array("news", "docs");
+    $cacheNames = array("news", "docs", "calendar");
 
     foreach($cacheNames as $name){
        //Create cache object with enough info to identify the correct files

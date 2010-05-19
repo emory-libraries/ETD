@@ -1,27 +1,11 @@
 <div id="calendar">
-<h2>Calendar</h2>
+  <h2>Calendar</h2>
 
-<p><b>Copyright workshops:</b><br/>
-February 16, 12pm, Woodruff Library room 312<br/>
-March 4, 12pm, Woodruff Library room 312<br/>
-March 22, 12pm, RSPH, Rita Rollins room, 8th floor<br/>
-</p>
+<? foreach ($this->calendar as $item): ?>
+  <div>
+    <a href=<?=$item->getLink() ?>><?= $item->getTitle() ?></a>
+    <?= $item->getDescription() ?>
+  </div>
+<? endforeach ?>
 
-<p><b>February 18, 2010:</b> Graduate School ETD orientation (4pm, Woodruff Library room 215)</p>
-
-<p><b>March 3, 2010:</b> College Honors ETD orientation (3pm, Woodruff Library room 215)</p>
-
-<p><b>March 22, 2010:</b> Graduate School ETD orientation (2pm, Woodruff Library room 215)</p>
-
-<p><b>March 30, 2010:</b> Hands-on submission workshop (1:30-3pm, Woodruff Library room 314)</p>
-
-<p><b>April 5, 2010:</b> College Honors ETD orientation (4pm, Woodruff Library room 215)</p>
-
-<p><b>April 6, 2010:</b> Hands-on submission workshop (11:30-1pm, Woodruff Library room 314)</p>
-
-<p><b>April 8, 2010:</b> Hands-on submission workshop (1:30-3pm, Woodruff Library room 310)</p>
-
-<p><b>April 14, 2009:</b> College Honors Program submission deadline for spring</p>
-
-<p><b>April 16, 2010:</b> Graduate School submission deadline for spring</p>
 </div>

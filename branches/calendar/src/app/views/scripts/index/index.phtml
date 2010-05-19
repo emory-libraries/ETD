@@ -50,7 +50,11 @@ href="http://proquest.umi.com.proxy.library.emory.edu/pqdweb?RQT=305&amp;SQ=LSCH
 </div>
 <hr/>
 
+<?// News and Calendar ?>
+<? if ($this->calendar): ?>
 <?=  $this->render("index/calendar.phtml"); ?>
+<? endif ?>
+
 <? if ($this->news): ?>
  <?=  $this->render("index/news.phtml"); ?>
 <? endif ?>

@@ -268,14 +268,19 @@ p.browse_heading a {
 
 div#calendar { 
   float:left;
-  width:185px;
-  margin:0px;
+  width:47.5%;
 }
-div#news { 
-  margin:0px;
-  margin-left:205px;
-  padding:0px;
- }
+
+div#calendar > div > a {
+  font-size:10pt;
+  font-weight:bold;
+}
+
+
+div#news {
+  float:right;
+  width:47.5%;
+}
 
 ul.horizontal { 
   display:inline;
