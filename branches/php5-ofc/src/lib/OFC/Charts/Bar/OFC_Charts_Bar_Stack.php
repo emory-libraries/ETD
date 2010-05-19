@@ -22,25 +22,49 @@ require_once('OFC/Charts/OFC_Charts_Bar.php');
 
 class OFC_Charts_Bar_Stack_Value
 {
-	function OFC_Charts_Bar_Stack_Value( $val, $colour )
+  function OFC_Charts_Bar_Stack_Value( $val, $colour )
     {
-		$this->val = $val;
-		$this->colour = $colour;
-	}
+    $this->val = $val;
+    $this->colour = $colour;
+  }
 }
 
 class OFC_Charts_Bar_Stack extends OFC_Charts_Bar
 {
-	function OFC_Charts_Bar_Stack()
+  function OFC_Charts_Bar_Stack()
     {
-		parent::OFC_Charts_Bar();
+    parent::OFC_Charts_Bar();
 
-		$this->type      = 'bar_stack';
-	}
+    $this->type      = 'bar_stack';
+  }
 
-	function append_stack( $v )
+  function append_stack( $v )
     {
-		$this->append_value( $v );
-	}
+    $this->append_value( $v );
+  }
+  
+  // This was not part of the original download of php5-ofc-library obtained from:
+  // http://sourceforge.net/projects/openflashchart/files/
+  // open-flash-chart-2-Lug-Wyrm-Charmer.zip (2009-07-27)
+  // Added this set_keys function to allow legend key to appear that define the stacks.  
+  function set_keys( $keys )
+  {
+    $this->keys = $keys;
+  }
+}
+
+// This was not part of the original download of php5-ofc-library obtained from:
+// http://sourceforge.net/projects/openflashchart/files/
+// open-flash-chart-2-Lug-Wyrm-Charmer.zip (2009-07-27)
+// Added this class to allow legend key to appear that define the stacks.
+class bar_stack_key
+{
+  function bar_stack_key( $colour, $text, $font_size )
+  {
+    $this->colour = $colour;
+    $this->text = $text;
+    $tmp = 'font-size';
+    $this->$tmp = $font_size;
+  }
 }
 
