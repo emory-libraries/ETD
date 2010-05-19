@@ -18,15 +18,23 @@ class Mock_Emory_Service_Solr_Response extends Basic_Mock_Emory_Service_Solr_Res
 
 class Mock_Etd_Service_Solr extends Basic_Mock_Etd_Service_Solr {
   public $response;
+  public $queries;
   public function __construct() {
     $this->Basic_Mock_Etd_Service_Solr();	// initialize
     $this->response = &new Mock_Emory_Service_Solr_Response();
+    $this->queries = array();
 
     $this->setReturnReference('query', $this->response);
     $this->setReturnReference('suggest', $this->response);
     $this->setReturnReference('browse', $this->response);
     $this->setReturnReference('_browse', $this->response);
   }
+  public function query($query_string) { $this->queries[] = $query_string; return $this->response; }
+  // mimic fluent interface in actual Solr object
+  public function clearFacets() { return $this; }
+  public function addFacets() { return $this; }
+  public function setFacetLimit() { return $this; }
+  public function setFacetMinCount() { return $this; }
 }
 
 
