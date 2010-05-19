@@ -347,6 +347,101 @@ public function testExportEmails() {
 		       "fedora connection in registry is same as main fedora connection - restored by postDispatch");
     
   }
+
+
+  private function solr_chart_data() {
+    // initialize solr facet data required to run flash-chart report actions
+    $this->solr->response->facets = new Emory_Service_Solr_Response_Facets(
+			    array("year" => array("2007" => 1, "2008" => 1, "2009" => 1),
+				  "document_type" => array("Dissertation" => 1,
+							   "Master's Thesis" => 1,
+							   "Honors Thesis" => 1),
+				  "embargo_duration" => array("0 days" => 1, "6 months" => 1,
+							      "1 year" => 1, "2 years" => 1, "6 years" => 1)
+				  ));
+  }
+  
+  function testPageLengthAction() {
+    $this->solr_chart_data();
+    $ReportController = new ReportControllerForTest($this->request,$this->response);
+    $ReportController->pageLengthAction();
+
+    $this->assertTrue(isset($ReportController->view->title));
+    $this->assertTrue(isset($ReportController->view->chart));
+    $this->assertIsA($ReportController->view->chart, "stacked_bar_chart");
+    $this->assertTrue(isset($ReportController->view->years));
+    $this->assertTrue(isset($ReportController->view->program));
+    // report runs several solr queries to group records by number of pages; checking the last one
+    $last_query = $this->solr->queries[count($this->solr->queries) - 1];
+    $this->assertPattern('/num_pages:/', $last_query,
+			  "solr query for page-length report should include num_pages filter");
+
+    $this->setUpPost(array('year' => '2008', 'program' => 'grad'));
+    $ReportController->pageLengthAction();
+    $this->assertPattern('/2008/', $ReportController->view->title,
+			  "page title should include year when filtering report by year");
+    $this->assertPattern('/Graduate/', $ReportController->view->title, 
+			  "page title should include program name when filtering by program");
+    // report runs several solr queries to calculate data; check the last query for year/program filters
+    $last_query = $this->solr->queries[count($this->solr->queries) - 1];
+    $this->assertPattern('/year:2008/', $last_query, 
+			  "solr query should include year when filtering report by year");
+    $this->assertPattern('/program_facet:grad/', $last_query,
+			  "solr query should include program when filtering report by program");
+    
+  }
+
+  function testEmbargoAction() {
+    $this->solr_chart_data();
+    $ReportController = new ReportControllerForTest($this->request,$this->response);
+    $ReportController->embargoAction();
+	
+    $this->assertTrue(isset($ReportController->view->title));
+    $this->assertTrue(isset($ReportController->view->chart));
+    $this->assertIsA($ReportController->view->chart, "stacked_bar_chart");
+    $this->assertTrue(isset($ReportController->view->years));
+    $this->assertTrue(isset($ReportController->view->program));
+    // report runs several solr queries, filtering by document type and using facets for chart data
+    $last_query = $this->solr->queries[count($this->solr->queries) - 1];
+    $this->assertPattern('/document_type:/', $last_query,
+			  "solr query for embargo report should include document type filter");
+
+
+    $this->setUpPost(array('year' => '2009', 'program' => 'undergrad'));
+    $ReportController->embargoAction();
+    $this->assertPattern('/2009/', $ReportController->view->title,
+			  "page title should include year when filtering report by year");
+    $this->assertPattern('/Undergraduate/', $ReportController->view->title, 
+			  "page title should include program name when filtering by program");
+    $last_query = $this->solr->queries[count($this->solr->queries) - 1];
+    $this->assertPattern('/year:2009/', $last_query, 
+			  "solr query should include year when filtering report by year");
+    $this->assertPattern('/program_facet:undergrad/', $last_query,
+			  "solr query should include program when filtering report by program");
+
+  }
+
+  function test_clean_embargo_data(){
+    $this->solr_chart_data();
+    $controller = new ReportControllerForTest($this->request,$this->response);
+    $clean_data = $controller->clean_embargo_data(array("" => 5, "0 days" => 10, "1 year" => 14,
+							"2 years" => 1, "6 months" => 7,
+							"6 years" => 32));
+    // should combine "" with 0 days, numbers sorted by increasing embargo duration
+    $this->assertEqual($clean_data[0], 15);	// empty + 0 days
+    $this->assertEqual($clean_data[1], 7);	// 6 months
+    $this->assertEqual($clean_data[2], 14);	// 1 year
+    $this->assertEqual($clean_data[3], 1);	// 2 years
+    $this->assertEqual($clean_data[4], 32);	// 6 years
+
+
+    // should still work normally when there is no empty facet
+    $clean_data = $controller->clean_embargo_data(array("0 days" => 10, "1 year" => 14,
+							"2 years" => 1, "6 months" => 7,
+							"6 years" => 32));
+    $this->assertEqual($clean_data[0], 10);
+  }
+  
   
 }
 
@@ -373,6 +468,7 @@ class ReportControllerForTest extends ReportController {
   public function getUserFedoraConnection() {
     return $this->_fedoraConnection;
   }
+
 } 	
 
 runtest(new ReportControllerTest());

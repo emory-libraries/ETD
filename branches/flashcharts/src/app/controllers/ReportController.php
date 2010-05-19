@@ -667,13 +667,16 @@ class ReportController extends Etd_Controller_Action {
      * @param array $embargo_totals key => value of embargo duration => total, as returned by solr facet
      * @return array list of totals, indexed in order to match ascending embargo duration
      */
-    private function clean_embargo_data($embargo_totals) {
+    public function clean_embargo_data($embargo_totals) {
       $data = array();
+      if (! isset($this->embargo_duration)) {
+	$this->get_chart_fields();	// requires that embargo_duration be populated
+      }
       foreach($this->embargo_duration as $duration) {
 	$data[] = $embargo_totals[$duration];
       }
       // if there are any records with no embargo, add to 0 days total
-      $data[0] += $embargo_totals[""];
+      if (isset($embargo_totals[""])) $data[0] += $embargo_totals[""];
       return $data;
     }
 
