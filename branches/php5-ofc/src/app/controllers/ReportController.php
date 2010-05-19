@@ -7,115 +7,114 @@
 require_once("models/etd.php");
 require_once("models/charts.php");
 require_once("models/programs.php");
-require_once("ofc/php-ofc-library/open-flash-chart.php");
 
 class ReportController extends Etd_Controller_Action {
-	protected $requires_fedora = false;
-	protected $params;	
-	
-	/**
-	 * copy of fedoraConnection with current user's auth credentials
-	 * (to be restored in postDispatch)
-	 * @var FedoraConnection
-	 */
-	protected $_fedoraConnection;
+  protected $requires_fedora = false;
+  protected $params;  
+  
+  /**
+   * copy of fedoraConnection with current user's auth credentials
+   * (to be restored in postDispatch)
+   * @var FedoraConnection
+   */
+  protected $_fedoraConnection;
 
-	/**
-	 * years present in the ETD data (for use in flash charts)
-	 * @var array
-	 */
-	private $year;
-	/**
-	 * possible embargo durations, as present in the ETD data (for use in flash charts)
-	 * @var array 
-	 */
-	private $embargo_duration;
-	/**
-	 * available document types, as present in the ETD data (for use in flash charts)
-	 * @var array
-	 */
-	private $document_type;
-	/**
-	 *
-	 */
-	private $report_title;
-	
-	/**
-	 * report viewers do not have special accesses at the fedora
-	 * level, which some of these reports required.  Temporarily
-	 * overriding fedora connection with a connection that uses
-	 * maintenance account credentials.
-	 * Note: this will be done before all actions in this
-	 * controller, and the default fedora connection will restored
-	 * by postDispatch.
-	 */
-	public function preDispatch() {
-	  // store fedoraConnection with user auth credentials - to be restored in postDispatch
-	  $this->_fedoraConnection = Zend_Registry::get("fedora");
-	  
-	  if (isset($this->current_user)) {
-	    
-	    // if current user is a report viewer (do NOT have special access at the fedora level),
-	    // temporarily replace fedora connection
-	    if ($this->current_user->role == "report viewer") {
-	      $fedora_cfg = Zend_Registry::get('fedora-config');
-	      try {
-		$fedora_opts = $fedora_cfg->toArray();
-		// use default fedora config opts but with maintenance account credentials
-		$fedora_opts["username"] = $fedora_cfg->maintenance_account->username;
-		$fedora_opts["password"] = $fedora_cfg->maintenance_account->password;
-		$maintenance_fedora = new FedoraConnection($fedora_opts);
-	      } catch (FedoraNotAvailable $e) {
-		$this->logger->err("Error connecting to Fedora with maintenance account - " . $e->getMessage());
-		$this->_forward("fedoraunavailable", "error");
-		return;
-	      } 
-	      Zend_Registry::set("fedora", $maintenance_fedora);
-	    }
-	  }
-	}
+  /**
+   * years present in the ETD data (for use in flash charts)
+   * @var array
+   */
+  private $year;
+  /**
+   * possible embargo durations, as present in the ETD data (for use in flash charts)
+   * @var array 
+   */
+  private $embargo_duration;
+  /**
+   * available document types, as present in the ETD data (for use in flash charts)
+   * @var array
+   */
+  private $document_type;
+  /**
+   *
+   */
+  private $report_title;
+  
+  /**
+   * report viewers do not have special accesses at the fedora
+   * level, which some of these reports required.  Temporarily
+   * overriding fedora connection with a connection that uses
+   * maintenance account credentials.
+   * Note: this will be done before all actions in this
+   * controller, and the default fedora connection will restored
+   * by postDispatch.
+   */
+  public function preDispatch() {
+    // store fedoraConnection with user auth credentials - to be restored in postDispatch
+    $this->_fedoraConnection = Zend_Registry::get("fedora");
+    
+    if (isset($this->current_user)) {
+      
+      // if current user is a report viewer (do NOT have special access at the fedora level),
+      // temporarily replace fedora connection
+      if ($this->current_user->role == "report viewer") {
+        $fedora_cfg = Zend_Registry::get('fedora-config');
+        try {
+    $fedora_opts = $fedora_cfg->toArray();
+    // use default fedora config opts but with maintenance account credentials
+    $fedora_opts["username"] = $fedora_cfg->maintenance_account->username;
+    $fedora_opts["password"] = $fedora_cfg->maintenance_account->password;
+    $maintenance_fedora = new FedoraConnection($fedora_opts);
+        } catch (FedoraNotAvailable $e) {
+    $this->logger->err("Error connecting to Fedora with maintenance account - " . $e->getMessage());
+    $this->_forward("fedoraunavailable", "error");
+    return;
+        } 
+        Zend_Registry::set("fedora", $maintenance_fedora);
+      }
+    }
+  }
 
-	/**
-	 * restore fedoraConnection with currently-logged in user's credentials
-	 */
-	public function postDispatch() {
-	  Zend_Registry::set("fedora", $this->_fedoraConnection);
-	}
+  /**
+   * restore fedoraConnection with currently-logged in user's credentials
+   */
+  public function postDispatch() {
+    Zend_Registry::set("fedora", $this->_fedoraConnection);
+  }
 
-	/**
-	 * Display list of reports
-	 */
-	public function indexAction() {
-	  if(!$this->_helper->access->allowed("report", "view")) {return false;}
-	  $this->view->title = "Reports";
-	}
-	 
-	/**
-	 * commencement review - allow user to select ETDs to be excluded 
-	 * from the commencement report
-	 */
-	public function commencementReviewAction() {
-	  if(!$this->_helper->access->allowed("report", "view")) {return false;}
-	  
-	  $this->view->title = "Reports : Commencement Report Review";
-	  
-	  //Create dates in query and human formats
-	  list($startDate, $endDate) = $this->getCommencementDateRange();
-	  $dateRange= "[" . date("Ymd", $startDate) . " TO " . date("Ymd", $endDate) ."]";
-	  
-	  
-	  $optionsArray = array();
-	  $optionsArray['query'] = "(degree_name:PhD AND (dateIssued:" . $dateRange . ") OR (-dateIssued:[* TO *] AND -status:'inactive'))";
-	  $optionsArray['sort'] = "author";
-	  $optionsArray['NOT']['status'] = "draft";
-	  // show ALL records on a single page 
-	  $optionsArray['max'] = 1000;
-	  $optionsArray['return_type'] = "solrEtd";
-	  
-	  $etdSet = new EtdSet();
-	  $etdSet->find($optionsArray);
-	  $this->view->etdSet = $etdSet;
-	}
+  /**
+   * Display list of reports
+   */
+  public function indexAction() {
+    if(!$this->_helper->access->allowed("report", "view")) {return false;}
+    $this->view->title = "Reports";
+  }
+   
+  /**
+   * commencement review - allow user to select ETDs to be excluded 
+   * from the commencement report
+   */
+  public function commencementReviewAction() {
+    if(!$this->_helper->access->allowed("report", "view")) {return false;}
+    
+    $this->view->title = "Reports : Commencement Report Review";
+    
+    //Create dates in query and human formats
+    list($startDate, $endDate) = $this->getCommencementDateRange();
+    $dateRange= "[" . date("Ymd", $startDate) . " TO " . date("Ymd", $endDate) ."]";
+    
+    
+    $optionsArray = array();
+    $optionsArray['query'] = "(degree_name:PhD AND (dateIssued:" . $dateRange . ") OR (-dateIssued:[* TO *] AND -status:'inactive'))";
+    $optionsArray['sort'] = "author";
+    $optionsArray['NOT']['status'] = "draft";
+    // show ALL records on a single page 
+    $optionsArray['max'] = 1000;
+    $optionsArray['return_type'] = "solrEtd";
+    
+    $etdSet = new EtdSet();
+    $etdSet->find($optionsArray);
+    $this->view->etdSet = $etdSet;
+  }
 
 
     /**
@@ -142,19 +141,19 @@ class ReportController extends Etd_Controller_Action {
         $dateRange= "[" . date("Ymd", $startDate) . " TO " . date("Ymd", $endDate) ."]";
 
 
-		//If Query changes remember to update the query description on in the template
+    //If Query changes remember to update the query description on in the template
         $optionsArray = array();
-		$optionsArray['query'] = "(degree_name:PhD AND (dateIssued:" . $dateRange . ") OR (-dateIssued:[* TO *] AND -status:'inactive'))";
-		$optionsArray['sort'] = "author";
-		$optionsArray['NOT']['status'] = "draft";
-		// show ALL records on a single page 
-		$optionsArray['max'] = 1000;
-		/* FIXME: should this really be solrEtd ? loses title formatting, but is much faster... */
-		$optionsArray['return_type'] = "solrEtd";
+    $optionsArray['query'] = "(degree_name:PhD AND (dateIssued:" . $dateRange . ") OR (-dateIssued:[* TO *] AND -status:'inactive'))";
+    $optionsArray['sort'] = "author";
+    $optionsArray['NOT']['status'] = "draft";
+    // show ALL records on a single page 
+    $optionsArray['max'] = 1000;
+    /* FIXME: should this really be solrEtd ? loses title formatting, but is much faster... */
+    $optionsArray['return_type'] = "solrEtd";
 
-		        
-	    $etdSet = new EtdSet();
-	    $etdSet->find($optionsArray);
+            
+      $etdSet = new EtdSet();
+      $etdSet->find($optionsArray);
         
         //remove ETDs by pid or calculate & save grad semester indicator
         foreach ($etdSet->etds as $index => $etd) {
@@ -240,12 +239,12 @@ class ReportController extends Etd_Controller_Action {
        
         //Query solr
         $optionsArray = array();
-		$optionsArray['query'] = "(degree_name:PhD OR degree_name:MS OR degree_name:MA) AND dateIssued:[$start TO $end]";
-		$optionsArray['sort'] = "author";
-		$optionsArray['max'] = 100;
+    $optionsArray['query'] = "(degree_name:PhD OR degree_name:MS OR degree_name:MA) AND dateIssued:[$start TO $end]";
+    $optionsArray['sort'] = "author";
+    $optionsArray['max'] = 100;
 
-	    $etdSet = new EtdSet();
-	    $etdSet->find($optionsArray);
+      $etdSet = new EtdSet();
+      $etdSet->find($optionsArray);
 
         //Create HeaderRow for CSV file
         $csvHeaderRow=array("Author Netid", "Author Full Name",
@@ -351,12 +350,12 @@ class ReportController extends Etd_Controller_Action {
 
         //Query solr
         $optionsArray = array();
-		$optionsArray['query'] = "(degree_name:PhD OR degree_name:MS OR degree_name:MA)";
-		$optionsArray['sort'] = "author";
-		$optionsArray['max'] = 300;
+    $optionsArray['query'] = "(degree_name:PhD OR degree_name:MS OR degree_name:MA)";
+    $optionsArray['sort'] = "author";
+    $optionsArray['max'] = 300;
 
-	    $etdSet = new EtdSet();
-	    $etdSet->findEmbargoed($optionsArray);
+      $etdSet = new EtdSet();
+      $etdSet->findEmbargoed($optionsArray);
 
         //Create HeaderRow for CSV file
         $csvHeaderRow=array("Author", "Author Email",
@@ -381,8 +380,8 @@ class ReportController extends Etd_Controller_Action {
 
                 $esd = new esdPersonObject();
                 $person = $esd->findByUsername($etd->mods->chair[$i]->id);
-		if ($person) $line[] = $person->email;
-		else $line[] = "";
+    if ($person) $line[] = $person->email;
+    else $line[] = "";
             }
             else{
                 for($i = 0; $i < $max; $i++){
@@ -393,8 +392,8 @@ class ReportController extends Etd_Controller_Action {
 
             $line[] = $etd->ark();
             $line[] = $etd->mods->originInfo->issued;
-	    if (isset($etd->mods->embargo_end)) $line[] = $etd->mods->embargo_end;
-	    else $line[] = "";
+      if (isset($etd->mods->embargo_end)) $line[] = $etd->mods->embargo_end;
+      else $line[] = "";
             
 
             $data[] = $line;
@@ -423,13 +422,13 @@ class ReportController extends Etd_Controller_Action {
      $date = date("Y-m-d H:i:s");
 
      $data[] = array("Name", "Emory email address", "Permanent email address",
-			"Program", "Output Generated " . $date);
+      "Program", "Output Generated " . $date);
 
      foreach ($etdSet->etds as $etd){
          $data[] = array($etd->authorInfo->mads->name->__toString(),
-			$etd->authorInfo->mads->current->email,
-			$etd->authorInfo->mads->permanent->email,
-			$etd->program());
+      $etd->authorInfo->mads->current->email,
+      $etd->authorInfo->mads->permanent->email,
+      $etd->program());
      }
 
      $this->view->data = $data;
@@ -439,7 +438,7 @@ class ReportController extends Etd_Controller_Action {
      $filename = "ETD_approved_emails_" . date("Y-m-d") . ".csv";
      $this->getResponse()->setHeader('Content-Type', "text/csv");
      $this->getResponse()->setHeader('Content-Disposition',
-				     'attachment; filename="' . $filename . '"');
+             'attachment; filename="' . $filename . '"');
      
    }
 
@@ -453,11 +452,11 @@ class ReportController extends Etd_Controller_Action {
      $solr = Zend_Registry::get('solr');
      $solr->clearFacets();
      $solr->addFacets(array("program_facet", "year", "dateIssued", "embargo_duration", "num_pages",
-			    "degree_level", "degree_name"));
+          "degree_level", "degree_name"));
      // would be nice to also have: degree (level?), embargo duration
-     $solr->setFacetLimit(-1);	// no limit
-     $solr->setFacetMinCount(1);	// minimum one match
-     $result = $solr->query("*:*", 0, 0);	// find facets on all records, return none
+     $solr->setFacetLimit(-1);  // no limit
+     $solr->setFacetMinCount(1);  // minimum one match
+     $result = $solr->query("*:*", 0, 0); // find facets on all records, return none
      $this->view->facets = $result->facets;
      uksort($this->view->facets->embargo_duration, "sort_embargoes");
 
@@ -512,8 +511,7 @@ class ReportController extends Etd_Controller_Action {
       $this->view->title .= $title_detail;
       list($x_legend, $data) = $this->pagelength_totals($filters);
       
-      list($all_data, $max) = $this->segment_barchart_data($data, count($x_legend));
-      $this->view->chart = new stacked_bar_chart($report_title, $x_legend, "Document Length", $all_data, $max);
+      $this->view->chart = new stacked_bar_chart($report_title, $x_legend, "Document Length", $data, count($x_legend), $this->document_type);
       $this->render("filtered-chart");
     }
 
@@ -533,12 +531,10 @@ class ReportController extends Etd_Controller_Action {
       
       $data = $this->embargo_totals($filters);
 
-      list($all_data, $max) = $this->segment_barchart_data($data, count($embargo_opts));
       $this->view->chart = new stacked_bar_chart($report_title, $embargo_opts, 'Embargo Duration',
-						 $all_data, $max);
+             $data, count($embargo_opts), $this->document_type);
       $this->render("filtered-chart");
     }
-
     /**
      * common setup for segmented, filterable charts (embargo, page-length)
      * @return array of filters, title detail
@@ -558,43 +554,20 @@ class ReportController extends Etd_Controller_Action {
       // filter by year, if specified
       $current_year = $this->_getParam("year", null);
       if ($current_year) {
-	$this->view->current_year = $current_year;
-	$filters["year"] = $current_year;
-	$title_filters[] = $current_year;
+  $this->view->current_year = $current_year;
+  $filters["year"] = $current_year;
+  $title_filters[] = $current_year;
       }
       if ($this->_hasParam('program') && $program_id != "programs") {
-	$filters["program"] = $this->view->program;	// pass the skosCollection object
-	$title_filters[] = $this->view->program->label;
+  $filters["program"] = $this->view->program; // pass the skosCollection object
+  $title_filters[] = $this->view->program->label;
       }
       // add filters to a title detail to be added to page & report titles
       $title_detail = "";
       if (count($title_filters)) {
-	$title_detail = " (" . implode(', ', $title_filters) . ")";
+  $title_detail = " (" . implode(', ', $title_filters) . ")";
       }
       return array($filters, $title_detail);
-    }
-
-    /**
-     * convert data into format needed for bar chart, segmented by document type
-     * @param array $data
-     *  - one entry in the array for each document type, each with a list of $num values
-     * @param int $num  number of sets of data
-     * @return array data, maximum value
-     */
-    private function segment_barchart_data($data, $num) {
-      $max = 0;
-      $all_data = array();
-      for ($i = 0; $i < $num; $i++) {
-        $bar_data = array();
-        foreach ($this->document_type as $doc_type) {
-          // don't add zeroes (messes up the tool tips)
-          if ($data[$doc_type][$i])  $bar_data[$doc_type] = $data[$doc_type][$i];
-        }
-        $current_total = array_sum(array_values($bar_data));
-        if ($current_total > $max) $max = $current_total;
-	$all_data[] = $bar_data;
-      }
-      return array($all_data, $max);
     }
 
     /**
@@ -611,18 +584,18 @@ class ReportController extends Etd_Controller_Action {
       
       $data = array();
       foreach ($facets as $facet) {
-	$values = array_diff(array_keys($result->facets->$facet), array(0 => ''));
-	if ($facet == "embargo_duration") {	// sort by increasing duration (not alphabetically!)
-	  usort($values, "sort_embargoes");
-	}
-	$this->$facet = $values;
+  $values = array_diff(array_keys($result->facets->$facet), array(0 => ''));
+  if ($facet == "embargo_duration") { // sort by increasing duration (not alphabetically!)
+    usort($values, "sort_embargoes");
+  }
+  $this->$facet = $values;
       }
     }
 
     /**
      * generate solr queries to filter by requested parameters
      * @param array associative array of field and value
-     * 	currently supports
+     *  currently supports
      *   - year
      *   - program (should pass in a programs skosCollection object at the appropriate level)
      * @return string solr query filter
@@ -635,9 +608,9 @@ class ReportController extends Etd_Controller_Action {
           $year_filter = "";
       }
       if (isset($filters['program'])) {
-	$program_filter = $filters['program']->findEtds_query() . " AND ";
+  $program_filter = $filters['program']->findEtds_query() . " AND ";
       } else {
-	$program_filter = "";
+  $program_filter = "";
       }
       return $year_filter . $program_filter;
     }
@@ -670,10 +643,10 @@ class ReportController extends Etd_Controller_Action {
     public function clean_embargo_data($embargo_totals) {
       $data = array();
       if (! isset($this->embargo_duration)) {
-	$this->get_chart_fields();	// requires that embargo_duration be populated
+  $this->get_chart_fields();  // requires that embargo_duration be populated
       }
       foreach($this->embargo_duration as $duration) {
-	$data[] = $embargo_totals[$duration];
+  $data[] = $embargo_totals[$duration];
       }
       // if there are any records with no embargo, add to 0 days total
       if (isset($embargo_totals[""])) $data[0] += $embargo_totals[""];
@@ -699,25 +672,25 @@ class ReportController extends Etd_Controller_Action {
       $pagelength_labels = array();
       $totals = array();
       foreach ($this->document_type as $doc_type) {
-	$totals[$doc_type] = array();
+  $totals[$doc_type] = array();
       }
       // generate page length labels and corresponding page-range solr query
       for ($i = 0; $i < 1000; $i += 100) {
-	$range = sprintf("%05d TO %05d", $i, $i +100);
-	if ($i == 0) $label = ">100";
-	else $label = $i . " - " . ($i + 100);
-	$pagelength_labels[$label] = $range;
+  $range = sprintf("%05d TO %05d", $i, $i +100);
+  if ($i == 0) $label = ">100";
+  else $label = $i . " - " . ($i + 100);
+  $pagelength_labels[$label] = $range;
       }
       $pagelength_labels[">1000"] = "01000 TO *";
 
       foreach ($pagelength_labels as $label => $page_range) {
-	$response = $solr->query("$filter num_pages:[$page_range]", 0, 0);
-	foreach ($this->document_type as $doc_type) {
-	  if (isset($response->facets->document_type[$doc_type]))
-	    $count = $response->facets->document_type[$doc_type];
-	  else $count = 0;
-	  $totals[$doc_type][] = $count;
-	}
+  $response = $solr->query("$filter num_pages:[$page_range]", 0, 0);
+  foreach ($this->document_type as $doc_type) {
+    if (isset($response->facets->document_type[$doc_type]))
+      $count = $response->facets->document_type[$doc_type];
+    else $count = 0;
+    $totals[$doc_type][] = $count;
+  }
       }
       return array(array_keys($pagelength_labels), $totals);
     }
