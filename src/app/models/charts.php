@@ -65,8 +65,9 @@ class stacked_bar_chart  {
           array_push($stack, new OFC_Charts_Bar_Stack_Value($data[$key], $bar_colors[$key]));
         }
       }
-      //$stack->set_tooltip('#x_legend#<br>#x_label#: #val#<br>Total [#total#]');  
-      $bar_stack->append_stack($stack);
+      if (!empty($stack)) { 
+        $bar_stack->append_stack($stack);
+      }
     }
     
     //$bar_stack->set_tooltip('#key#: #val#.00 (#x_label#, #x_legend#)<br>Key: #key#<br>X Label: #x_label#<br>Val: �#val#.00<br>X Legend: #x_legend#');      
@@ -78,7 +79,7 @@ class stacked_bar_chart  {
     $this->set_axes($x_labels, $max);
         
     // #key# does not work in the tooltip.
-    //$bar_stack->set_tooltip('#key#<br>#x_label#: #val#<br>Total [#total#]');              
+    //$bar_stack->set_tooltip('#key#<br>#x_label#: #val#<br>Total [#total#]');  
     $bar_stack->set_tooltip('#x_label#: #val#<br>Total [#total#]');      
  
     $this->chart->add_element($bar_stack);
