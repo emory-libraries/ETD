@@ -1,0 +1,37 @@
+DMDP =
+    (DESCRIPTION =
+      (ADDRESS_LIST =
+        (ADDRESS = (PROTOCOL = TCP)(HOST = eps03-vip.cc.emory.edu)(PORT = 1521))
+	(ADDRESS = (PROTOCOL = TCP)(HOST = eps04-vip.cc.emory.edu)(PORT = 1521))
+	(LOAD_BALANCE = yes)
+      )
+      (CONNECT_DATA =
+        (SERVER = DEDICATED)
+	(SERVICE_NAME = DMDP.CC.emory.edu)
+	(FAILOVER_MODE =
+	  (TYPE = SELECT)
+	  (METHOD = BASIC)
+	  (RETRIES = 180)
+	  (DELAY = 5)
+        )
+       )
+    )
+
+PRDMDP =
+   (DESCRIPTION =
+     (ADDRESS_LIST = 
+       (ADDRESS = (PROTOCOL = TCP)(HOST = triton.cc.emory.edu)(PORT = 1521))
+     )
+     (CONNECT_DATA = 
+        (SERVICE_NAME=PRDMDP.CC.EMORY.EDU)
+      )
+   )
+
+SLFP = (DESCRIPTION =
+     (ADDRESS_LIST = 
+       (ADDRESS = (PROTOCOL = TCP)(HOST = eudb01.cc.emory.edu)(PORT = 1521))
+     )
+     (CONNECT_DATA = 
+        (SERVICE_NAME=SLFP.CC.EMORY.EDU)
+      )
+   )
