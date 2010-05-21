@@ -5,7 +5,9 @@
     <password></password> 
     <domain_id></domain_id>
   </development>
-  <test extends="development"/>
+  <test extends="development">
+    <url>../fixtures/</url>
+  </test>
   <production extends="development">
     <url></url>
   </production>
