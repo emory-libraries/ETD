@@ -9,12 +9,21 @@ Version 1.7 - May 2010 (enhancements)
     download at http://sourceforge.net/projects/openflashchart/files/ 
     open-flash-chart-2-Lug-Wyrm-Charmer.zip (5.0 MB   2009-07-27    68,688)
     Note: modified OFC_Charts_Bar_Stack.php to allow for stacked bar chart legend key to display.
+ * Output of the publication script now has enough information to determine which non-honors undergrad are skipped.
+ * The OAI harvester that harvests ETD records by OAI set now receives a single
+   copy of each ETD record in that set.
+ * Date and program-segmented charts of embargo requests and document length charts are now avaliable.
+ *  Authors now receive ETD system emails addressed to them by their full name
+ * An author now receives feedback about errors when entering contact information. This feature no longer users XForms.
+ * The datastreams portion of the ETD model have been refactored so that the datastream files are in a sub-directory.
+ * Refactored code to change User class to AuthorInfo class.
 
 Deployment notes:
  * main config.xml has new  sections for for news_feed and doc_feed
+ * persis.xml test section has changed
  * svn external version update to 211 for lib/Emory.
  * Run following migrations:
- 014-remove_duplicate_collection_membership.php
+   014-remove_duplicate_collection_membership.php
 
 
 Version 1.6.3 - April 2010 (bugfix)
