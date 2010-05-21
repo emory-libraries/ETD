@@ -5,7 +5,7 @@
  */
 
 class DocsController extends Etd_Controller_Action {
-  
+ 
   public function init() {
     parent::init();
 
@@ -35,43 +35,28 @@ class DocsController extends Etd_Controller_Action {
       echo "Could not find " . substr($name, 0, $len) . "<br>";
     }    
   }
-    
+   
   public function indexAction() {
     $this->view->title = "ETD Documents";
     // this is the only page that doesn't make sense to be printable
     $this->view->printable = false;
   }
-  
+ 
    /**
    * extracts the subject content out of the rss feed for documents.
-   * @return extracted data from the rss document feed for the subject. 
+   * @return extracted data from the rss document feed for the subject.
    */  
-  public function topicAction($subject) 
+  public function topicAction($subject)
   {
     // information for docs section
-    $config = Zend_Registry::get('config');     
-    
+    $config = Zend_Registry::get('config');
+    $rss_data =  "";      
+   
     // ETD docs - rss feed from drupal site
     if (! isset($config->docs_feed->url)) {
       throw new Exception("Docs feed is not configured");
     }
 
-
-    
-    // set the view to the subject extracted from the rss feed.
-    $this->view->topic = $this->getTopicSubject($subject, $config);
-    $this->render('topic'); // send all the subjects to render on this one view page.
-  }  
-        
-  /**
-   * get topic subject will extract the subject portion from the feed for display
-   * @param $subject - portion of the rss feed to be extracted.
-   * @return the XML extracted data for this subject.
-   */
-  public function getTopicSubject($subject, $config) {
-    $docSubject = "";
-    $rss_data =  "";  
-    
     try {
       // set the cache for this rss feed
       $cache = $this->createCache($config->docs_feed->lifetime);
@@ -82,7 +67,19 @@ class DocsController extends Etd_Controller_Action {
     } catch (Exception $e) {
       throw new Exception("Could not parse ETD docs feed '$docs_feed' - " . $e->getMessage());
     }
-        
+   
+    // set the view to the subject extracted from the rss feed.
+    $this->view->topic = $this->getTopicSubject($subject, $rss_data);
+    $this->render('topic'); // send all the subjects to render on this one view page.
+  }  
+       
+  /**
+   * get topic subject will extract the subject portion from the feed for display
+   * @param $subject - portion of the rss feed to be extracted.
+   * @return the XML extracted data for this subject.
+   */
+  public function getTopicSubject($subject, $rss_data) {
+    $docSubject = "";
     try {
       // Store the XML extracted data for this subject.
       foreach ($rss_data as $part) {  
@@ -95,7 +92,7 @@ class DocsController extends Etd_Controller_Action {
     } catch (Exception $e) {
       throw new Exception("Could not extract topic '$subject' from feed - " . $e->getMessage());
     }
-    
+   
     if (! isset($docSubject)) {
       $message = "Error: Document not found";
       $this->_helper->flashMessenger->addMessage($message);
@@ -104,7 +101,7 @@ class DocsController extends Etd_Controller_Action {
     // Return the XML extracted data for this subject.
     return $docSubject;
   }
-  
+ 
   /**
    * get the text in the title that will identify this subject.
    * @param $subject - the document subject.
@@ -116,7 +113,7 @@ class DocsController extends Etd_Controller_Action {
     if ($subject == $url_subject) return true;
     else return false;
   }
-  
+ 
   public function createCache($lifetime){
 
     //refresh time of cache
@@ -125,6 +122,6 @@ class DocsController extends Etd_Controller_Action {
     $frontendOptions = array('lifetime' => $lifetime, 'automatic_serialization' => true);
     $backendOptions = array('cache_dir' => '/tmp/', "file_name_prefix" => "ETD_docs_cache");
     $cache = Zend_Cache::factory('Output', 'File', $frontendOptions, $backendOptions);
-    return $cache; 
+    return $cache;
   }
 }
