@@ -45,8 +45,8 @@ class ReportControllerTest extends ControllerTestCase {
     $this->schools_cfg = Zend_Registry::get("schools-config");
 
     
-    $_GET 	= array();
-    $_POST	= array();
+    $_GET   = array();
+    $_POST  = array();
     
     $this->response = $this->makeResponse();
     $this->request  = $this->makeRequest();
@@ -57,7 +57,7 @@ class ReportControllerTest extends ControllerTestCase {
     $dom->loadXML(file_get_contents('../fixtures/etd2.xml'));
      $foxml = new etd($dom);
     $foxml->pid = $this->etd_pid;
-    $foxml->rels_ext->hasAuthorInfo = "info:fedora/" . $this->author_pid;	// associate with test authorInfo object
+    $foxml->rels_ext->hasAuthorInfo = "info:fedora/" . $this->author_pid; // associate with test authorInfo object
     $this->fedora->ingest($foxml->saveXML(), "loading test etd object");
     
     // load author info & set pid 
@@ -108,7 +108,7 @@ class ReportControllerTest extends ControllerTestCase {
     $this->setUpPost(array('exclude' => array("test:etd2")));
 
     $this->solr->response->docs[] = new Emory_Service_Solr_Response_Document(array("PID" => "test:etd1",
-										    "pubdate" => "20090901", "collection" => array($this->schools_cfg->emory_college->fedora_collection))); //collection now required
+                        "pubdate" => "20090901", "collection" => array($this->schools_cfg->emory_college->fedora_collection))); //collection now required
     $this->solr->response->docs[] = new Emory_Service_Solr_Response_Document(array("PID" => "test:etd2", "collection" => array($this->schools_cfg->emory_college->fedora_collection))); //collection now required
 
     $ReportController->commencementAction();
@@ -140,8 +140,8 @@ class ReportControllerTest extends ControllerTestCase {
 function testgradDataAction() {
     $field = "dateIssued";
     $this->solr->response->facets = new Emory_Service_Solr_Response_Facets(array("dateIssued" =>
-										 array("20070604" => "1",
-										      "20070919" => "2",
+                     array("20070604" => "1",
+                          "20070919" => "2",
                                               "20071231" => "3",
                                               "20080531" => "4",
                                               "20080831" => "5",
@@ -265,7 +265,7 @@ public function testExportEmails() {
       $this->assertIsA($line, "array");
       $this->assertEqual(count($line), 6, "6 entries - id & fullname, 3 times");
       $this->assertEqual("nobody", $line[0], "first entry should be advisor id 'nobody', got '"
-			 . $line[0] . "'");
+       . $line[0] . "'");
       $this->assertEqual("Person, Advisor", $line[1], "first entry should be advisor fullname 'Person, Advisor', got '" . $line[1] . "'");
       $this->assertEqual("", $line[2], "id for second advisor should be blank (no second advisor)");
       $this->assertEqual("", $line[3], "full name for second advisor should be blank (no second advisor)");
@@ -278,7 +278,7 @@ public function testExportEmails() {
       $line = $ReportController->addCSVFields($this->etd, "chair", array("id", "full"), 1);
       $this->assertNotEqual("weird_id", $line[0]);
 
-      error_reporting($errlevel);	    // restore prior error reporting
+      error_reporting($errlevel);     // restore prior error reporting
   }
   
   function testGetSemesterDecorator() {
@@ -319,17 +319,17 @@ public function testExportEmails() {
     $ReportController->preDispatch();
     $tmp_fedoraConnection = Zend_Registry::get("fedora");
     $this->assertEqual($this->fedora, $ReportController->getUserFedoraConnection(),
-		       "main fedora connection stored in controller");   
+           "main fedora connection stored in controller");   
     $this->assertEqual($this->fedora, $tmp_fedoraConnection,
-		       "fedora connection in registry is same as main fedora connection for admin user");
+           "fedora connection in registry is same as main fedora connection for admin user");
 
     $this->test_user->role = "report viewer";
     $ReportController->preDispatch();
     $tmp_fedoraConnection = Zend_Registry::get("fedora");
     $this->assertEqual($this->fedora, $ReportController->getUserFedoraConnection(),
-		       "main fedora connection stored in controller");   
+           "main fedora connection stored in controller");   
     $this->assertNotEqual($this->fedora, $tmp_fedoraConnection,
-			  "fedora connection in registry is NOT same as main fedora connection for a report viewer");
+        "fedora connection in registry is NOT same as main fedora connection for a report viewer");
 
     // undo change - restore real fedora connection
     Zend_Registry::set("fedora", $this->fedora);
@@ -344,9 +344,19 @@ public function testExportEmails() {
     $ReportController->postDispatch();
     $fedoraConnection = Zend_Registry::get("fedora");
     $this->assertEqual($this->fedora, $fedoraConnection,
-		       "fedora connection in registry is same as main fedora connection - restored by postDispatch");
+           "fedora connection in registry is same as main fedora connection - restored by postDispatch");
     
   }
+  
+  function testCleanEmbargoData(){
+    $ReportController = new ReportControllerForTest($this->request,$this->response);
+    $arr = array('' => 21, '0 days' => 97, '1 year' => 51, '2 years' => 84, 
+                  '6 months' => 14, '6 years' => 44);
+    $cleaned_arr = array(118, 14, 51, 84, 44);
+    $ret = $ReportController->clean_embargo_data($arr);
+    print_r($ret);
+    $this->assertEqual($ret, $cleaned_arr, "Test SortEmbargo Data");
+  }  
   
 }
 
@@ -373,7 +383,7 @@ class ReportControllerForTest extends ReportController {
   public function getUserFedoraConnection() {
     return $this->_fedoraConnection;
   }
-} 	
+}   
 
 runtest(new ReportControllerTest());
 

@@ -151,18 +151,7 @@ class collectionHierarchy extends foxmlDatastreamAbstract {
   
   public function findEtds($options = array()) {
      // get all fields of this collection and its members (all the way down)
-     $all_fields = $this->getIndexedFields();
-     
-     // construct a query that will find any of these
-     $queryparts = array();
-     foreach ($all_fields as $field) {
-       if (strpos($field, '&')) $field = urlencode($field);
-       if (strpos($field, ' ')) $searchfield = '"' . $field . '"';
-       else $searchfield = $field;
-       array_push($queryparts, $this->index_field .':' . $searchfield);
-     }
-
-     $query = "(" . join($queryparts, " OR ") . ")"; 
+     $query = $this->findEtds_query();
 
      $options["query"] = $query;
      
@@ -191,6 +180,28 @@ class collectionHierarchy extends foxmlDatastreamAbstract {
      // now blank out facets so they won't be displayed in the view
      $etdSet->facets = null;
      return $etdSet;
+  }
+
+  /**
+   * construct a solr query to find all ETDs that belong to this collection
+   * or any subcollections
+   * @return string solr query string
+   */
+  public function findEtds_query() {
+    // get all fields of this collection and its members (all the way down)
+    $all_fields = $this->getIndexedFields();
+    
+    // construct a query that will find any of these
+    $queryparts = array();
+    foreach ($all_fields as $field) {
+      if (strpos($field, '&')) $field = urlencode($field);
+      if (strpos($field, ' ')) $searchfield = '"' . $field . '"';
+      else $searchfield = $field;
+      array_push($queryparts, $this->index_field .':' . $searchfield);
+    }
+    
+    $query = "(" . join($queryparts, " OR ") . ")";
+    return $query;
   }
 
 

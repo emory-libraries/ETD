@@ -1,14 +1,18 @@
 ETD Release Notes
 =================
 
-Version 1.7  (preliminary notes)
+Version 1.7 - May 2010 (enhancements)
 
  * Site news and subject documents are now pulled from an RSS feed from tagged content on
    the Digital Libraries drupal site
+ * Open Flash Chart Version 2 Lug Wyrm Charmer
+    download at http://sourceforge.net/projects/openflashchart/files/ 
+    open-flash-chart-2-Lug-Wyrm-Charmer.zip (5.0 MB   2009-07-27    68,688)
+    Note: modified OFC_Charts_Bar_Stack.php to allow for stacked bar chart legend key to display.
 
 Deployment notes:
  * main config.xml has new  sections for for news_feed and doc_feed
-
+ * svn external version update to 211 for lib/Emory.
  * Run following migrations:
  014-remove_duplicate_collection_membership.php
 

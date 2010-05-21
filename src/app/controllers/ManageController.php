@@ -33,9 +33,9 @@ class ManageController extends Etd_Controller_Action {
        // find the school config that current user is admin for
        $school = $schools_cfg->getSchoolByAclId($admin_type);
        if ($school) {
-	 // get fedora collection id, then construct query by collection id
-	 $collection = $school->fedora_collection;
-	 if ($collection) return 'collection:"' . $collection . '"';
+   // get fedora collection id, then construct query by collection id
+   $collection = $school->fedora_collection;
+   if ($collection) return 'collection:"' . $collection . '"';
        }
      }
 
@@ -108,15 +108,15 @@ class ManageController extends Etd_Controller_Action {
    public function acceptAction() {
      $etd = $this->_helper->getFromFedora("pid", "etd");
      // accept is part of review workflow
-     if (!$this->_helper->access->allowedOnEtd("review", $etd)) return false;	
+     if (!$this->_helper->access->allowedOnEtd("review", $etd)) return false; 
      
      $newstatus = "reviewed";
      $etd->setStatus($newstatus);
      
      // log event in record history 
      $etd->premis->addEvent("status change", "Record reviewed by " .
-			    $this->current_user->getGenericAgent(),
-			    "success",  array("netid", $this->current_user->netid));
+          $this->current_user->getGenericAgent(),
+          "success",  array("netid", $this->current_user->netid));
      
      $result = $etd->save("set status to '$newstatus'");
      if ($result) {
@@ -130,13 +130,13 @@ class ManageController extends Etd_Controller_Action {
      
      // forward to .. main admin page ?
      $this->_helper->redirector->gotoRoute(array("controller" => "manage",
-						 "action" => "summary"), "", true);
+             "action" => "summary"), "", true);
    }
 
    // request changes to metadata (submitted etd) or document (reviewed etd)
    public function requestchangesAction() {
      $etd = $this->_helper->getFromFedora("pid", "etd");
-     $changetype = $this->_getParam("type", "record");	  // could also be document (record=metadata)
+     $changetype = $this->_getParam("type", "record");    // could also be document (record=metadata)
      if (!$this->_helper->access->allowedOnEtd("request $changetype changes", $etd)) return false;  
 
      $newstatus = "draft";
@@ -148,9 +148,9 @@ class ManageController extends Etd_Controller_Action {
      
      // log event in record history 
      $etd->premis->addEvent("status change",
-			    "Changes to $changetype requested by " .
-			    $this->current_user->getGenericAgent(),
-			    "success",  array("netid", $this->current_user->netid));
+          "Changes to $changetype requested by " .
+          $this->current_user->getGenericAgent(),
+          "success",  array("netid", $this->current_user->netid));
      
      $result = $etd->save("set status to '$newstatus'");
 
@@ -177,7 +177,7 @@ class ManageController extends Etd_Controller_Action {
 
      // forward to main admin page 
      $this->_helper->redirector->gotoRoute(array("controller" => "manage",
-						 "action" => "summary"), "", true);
+             "action" => "summary"), "", true);
    }
 
    
@@ -196,30 +196,30 @@ class ManageController extends Etd_Controller_Action {
      $etd = $this->_helper->getFromFedora("pid", "etd");
      if (!$this->_helper->access->allowedOnEtd("approve", $etd)) return false;
      
-     $embargo = $this->_getParam("embargo");	// duration
+     $embargo = $this->_getParam("embargo");  // duration
      
      // set status to approved
      $newstatus = "approved";
      $etd->setStatus($newstatus);
-     $etd->mods->embargo = $embargo;	// save embargo duration
+     $etd->mods->embargo = $embargo;  // save embargo duration
      
      // log event in record history 
      // log record approval
      $etd->premis->addEvent("status change",
-			    "Record approved by " . $this->current_user->getGenericAgent(),
-			    "success",  array("netid", $this->current_user->netid));
+          "Record approved by " . $this->current_user->getGenericAgent(),
+          "success",  array("netid", $this->current_user->netid));
      // log embargo duration
      // FIXME: should this not be logged if embargo is 0 days ?
      $etd->premis->addEvent("admin",
-			    "Access restriction of $embargo approved",	// by whom ?
-			    "success",  array("netid", $this->current_user->netid));
+          "Access restriction of $embargo approved",  // by whom ?
+          "success",  array("netid", $this->current_user->netid));
      
      // send approval email & log that it was sent
      $notify = new etd_notifier($etd);
-     $to = $notify->approval();		// any way to do error checking? (doesn't seem to be)
+     $to = $notify->approval();   // any way to do error checking? (doesn't seem to be)
      $etd->premis->addEvent("notice",
-			    "Approval Notification sent by ETD system",
-			    "success",  array("software", "etd system"));
+          "Approval Notification sent by ETD system",
+          "success",  array("software", "etd system"));
      $result = $etd->save("approved");
 
      if ($result) {
@@ -232,7 +232,7 @@ class ManageController extends Etd_Controller_Action {
      
      $this->_helper->flashMessenger->addMessage("Approval notification email sent to " . implode(', ', array_keys($to)));
      $this->_helper->redirector->gotoRoute(array("controller" => "manage",
-						 "action" => "summary"), "", true); 
+             "action" => "summary"), "", true); 
    }
    
 
@@ -256,8 +256,8 @@ class ManageController extends Etd_Controller_Action {
      
      // log event in record history 
      $etd->premis->addEvent("status change",
-			    "Marked inactive - $reason",	// by whom ?
-			    "success",  array("netid", $this->current_user->netid));
+          "Marked inactive - $reason",  // by whom ?
+          "success",  array("netid", $this->current_user->netid));
      $result = $etd->save("marked inactivate");
      if ($result) {
        $this->_helper->flashMessenger->addMessage("Record status changed to <b>$newstatus</b>; saved at $result");
@@ -269,7 +269,7 @@ class ManageController extends Etd_Controller_Action {
      }
      
      $this->_helper->redirector->gotoRoute(array("controller" => "manage",
-						 "action" => "summary"), "", true); 
+             "action" => "summary"), "", true); 
    }
 
 
@@ -300,8 +300,8 @@ class ManageController extends Etd_Controller_Action {
      
      // log event in record history 
      $etd->premis->addEvent("status change",
-			    "Reactivated - $reason",	// by whom ?
-			    "success",  array("netid", $this->current_user->netid));
+          "Reactivated - $reason",  // by whom ?
+          "success",  array("netid", $this->current_user->netid));
      $result = $etd->save("reactivated");
      if ($result) {
        $this->_helper->flashMessenger->addMessage("Record status changed to <b>$newstatus</b>; saved at $result");
@@ -313,7 +313,7 @@ class ManageController extends Etd_Controller_Action {
      }
      
      $this->_helper->redirector->gotoRoute(array("controller" => "manage",
-						 "action" => "summary"), "", true); 
+             "action" => "summary"), "", true); 
    }
 
    public function reviseembargoAction() {
@@ -334,14 +334,14 @@ class ManageController extends Etd_Controller_Action {
     
      try
      {
-     	$etd->updateEmbargo($newdate, $message);
+      $etd->updateEmbargo($newdate, $message);
      }
      catch(Exception $e)
      {
-	$this->_helper->flashMessenger->addMessage("Error: " . $e->getMessage());	
-     	$this->_helper->redirector->gotoRoute(array("controller" => "manage",
-						 "action" => "reviseembargo")); 
-	return;
+  $this->_helper->flashMessenger->addMessage("Error: " . $e->getMessage()); 
+      $this->_helper->redirector->gotoRoute(array("controller" => "manage",
+             "action" => "reviseembargo")); 
+  return;
      }
 
      $result = $etd->save("embargo ending date updated");
@@ -356,7 +356,7 @@ class ManageController extends Etd_Controller_Action {
      }
      
      $this->_helper->redirector->gotoRoute(array("controller" => "manage",
-						 "action" => "summary"), "", true); 
+             "action" => "summary"), "", true); 
    }
 
    public function embargoesAction() {
@@ -403,15 +403,15 @@ class ManageController extends Etd_Controller_Action {
      $solr = Zend_Registry::get('solr');
      $solr->clearFacets();
      
-     $result = $solr->browse("dateIssued");	// if desired, sort by most recent and return last 3 (?) only
+     $result = $solr->browse("dateIssued"); // if desired, sort by most recent and return last 3 (?) only
      $semesters = $result->facets->dateIssued;
 
      $data = array();
      foreach ($semesters as $sem => $count) {
        $solr->addFacets(array("embargo_duration"));
-       $solr->setFacetLimit(-1);	// no limit
-       $solr->setFacetMinCount(0);	// minimum one match
-       $result = $solr->query("dateIssued:$sem", 0, 0);	// find facets on all records, return none
+       $solr->setFacetLimit(-1);  // no limit
+       $solr->setFacetMinCount(0);  // minimum one match
+       $result = $solr->query("dateIssued:$sem", 0, 0); // find facets on all records, return none
 
        // FIXME: convert semester date to human-readable format, e.g. spring/summer/fall 2007 
        $data[$sem] = $result->facets->embargo_duration;
@@ -436,42 +436,7 @@ class ManageController extends Etd_Controller_Action {
 
     //Go back to the summary page
     $this->_forward("summary");
-}
+  }
    
-}
-
-
-// sort embargo durations logically (days/months/years)
-function sort_embargoes($a, $b) {
-  // check if either is blank
-  if (trim($a) == "") return -1; // a is less than b
-  if (trim($b) == "") return 1; // a is greater than b
-
-  // split into number & time unit
-  list($a_num, $a_time) = explode(' ', $a);
-  list($b_num, $b_time) = explode(' ', $b);
-
-  // convert time unit to numeric for easy comparison
-  // days = 1, months = 2, years = 3
-  foreach (array($a_time, $b_time) as $time) {
-    switch ($time) {
-    case "years":
-    case "year":
-      $t = 3; break;
-    case "months":
-      $t = 2; break;
-    case "days":
-      $t = 1; break;
-    }
-  }
-
-  if ($a_time == $b_time) { 
-    // same time duration - compare by numbers only
-    if ($a_num == $b_num) return 0;
-    return ($a_num < $b_num) ? -1 : 1;
-  } else {
-    // otherwise, compare by time unit only
-    return ($a_time < $b_time) ? -1 : 1;
-  }
 }
 ?>

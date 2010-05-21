@@ -49,14 +49,29 @@ class DocsController extends Etd_Controller_Action {
   public function topicAction($subject) 
   {
     // information for docs section
-    $config = Zend_Registry::get('config');
-    $rss_data =  "";       
+    $config = Zend_Registry::get('config');     
     
     // ETD docs - rss feed from drupal site
     if (! isset($config->docs_feed->url)) {
       throw new Exception("Docs feed is not configured");
     }
 
+
+    
+    // set the view to the subject extracted from the rss feed.
+    $this->view->topic = $this->getTopicSubject($subject, $config);
+    $this->render('topic'); // send all the subjects to render on this one view page.
+  }  
+        
+  /**
+   * get topic subject will extract the subject portion from the feed for display
+   * @param $subject - portion of the rss feed to be extracted.
+   * @return the XML extracted data for this subject.
+   */
+  public function getTopicSubject($subject, $config) {
+    $docSubject = "";
+    $rss_data =  "";  
+    
     try {
       // set the cache for this rss feed
       $cache = $this->createCache($config->docs_feed->lifetime);
@@ -67,19 +82,7 @@ class DocsController extends Etd_Controller_Action {
     } catch (Exception $e) {
       throw new Exception("Could not parse ETD docs feed '$docs_feed' - " . $e->getMessage());
     }
-    
-    // set the view to the subject extracted from the rss feed.
-    $this->view->topic = $this->getTopicSubject($subject, $rss_data);
-    $this->render('topic'); // send all the subjects to render on this one view page.
-  }  
         
-  /**
-   * get topic subject will extract the subject portion from the feed for display
-   * @param $subject - portion of the rss feed to be extracted.
-   * @return the XML extracted data for this subject.
-   */
-  public function getTopicSubject($subject, $rss_data) {
-    $docSubject = "";
     try {
       // Store the XML extracted data for this subject.
       foreach ($rss_data as $part) {  
