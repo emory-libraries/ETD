@@ -37,6 +37,7 @@ https://techknowhow.library.emory.edu/etd-documentation/development-environment
   - fedora-php (php wrapper for Fedora APIs, foxml & datastream objects
        based on xml-utilities xml object)
   - simpletest (for unit testing, external under test)
+  - OFC (for admin reports), under lib/OFC (php) and public/js/ofc (javascript)
 
 
 Services & Databases 
@@ -44,7 +45,7 @@ Services & Databases
 ETD makes use of or interacts with the following:
  - Fedora repository, with Gsearch
  - Solr (index based on Fedora data, populated by Fedora Generic
-	Search Service)
+  Search Service)
  - LDAP authentication
  - Emory Shared Data (Oracle db)
  - Persistent Id Server (locally developed - persis/pidman)
@@ -84,12 +85,12 @@ Site webroot should be pointed at src/public
  =========
  The following scripts (in src/scripts) should be run as cron jobs:
   - statistics.php : etd-specific view/download usage, based on apache
-	log, stored in sqlite db; should be run daily.
+  log, stored in sqlite db; should be run daily.
   - publish.php : publication & submission to ProQuest; depends on Registrar feed;
-	should be run at least weekly.
+  should be run at least weekly.
   - embargo_expiration.php : checks for expiring embargoes and sends
-     	various notices 60 days, 7 days, and 0 days before an embargo expires.
-	Should be run daily.
+      various notices 60 days, 7 days, and 0 days before an embargo expires.
+  Should be run daily.
 
 
 Code organization

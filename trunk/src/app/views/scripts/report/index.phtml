@@ -1,16 +1,20 @@
 <H1>Available Reports</H1>
-<ul>
+<ul id="reports_ul">
   <li><a href="<?= $this->url(array("controller" => "report",
-			"action" => "summary-stat"), '', true); ?>">Summary Statistics</a></li>
+      "action" => "summary-stat"), '', true); ?>">Summary Statistics</a></li>
   <li><a href="<?= $this->url(array("controller" => "report",
-			"action" => "commencement-review"), '', true); ?>">Graduate School Commencement Report</a></li>
+      "action" => "commencement-review"), '', true); ?>">Graduate School Commencement Report</a></li>
   <li><a href="<?= $this->url(array("controller" => "report",
-		"action" => "grad-data"), '', true); ?>">Graduate School Academic Year Report</a>
-	<?= $this->FiletypeIcon("text/csv") ?></li>
+    "action" => "grad-data"), '', true); ?>">Graduate School Academic Year Report</a>
+  <?= $this->FiletypeIcon("text/csv") ?></li>
   <li><a href="<?= $this->url(array("controller" => "report",
-		"action" => "embargo-csv"), '', true); ?>">Upcoming Embargos Report</a>
-	<?= $this->FiletypeIcon("text/csv") ?></li>
+    "action" => "embargo-csv"), '', true); ?>">Upcoming Embargos</a>
+  <?= $this->FiletypeIcon("text/csv") ?></li>
+  <li><a href="<?= $this->url(array('action' => 'embargo')) ?>">Requested Embargo Duration</a>
+  <?= $this->FiletypeIcon("application/x-shockwave-flash") ?></li>
+  <li><a href="<?= $this->url(array('action' => 'page-length')) ?>">Document Length</a>
+  <?= $this->FiletypeIcon("application/x-shockwave-flash") ?></li>
   <li><a href="<?= $this->url(array("controller" => "report",
-    'action' => 'exportemails')) ?>">Export email addresses for approved records</a>
+      'action' => 'exportemails')) ?>">Export email addresses for approved records</a>
     <?= $this->FiletypeIcon("text/csv") ?></li>
 </ul>
