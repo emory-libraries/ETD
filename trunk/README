@@ -120,6 +120,22 @@ interactive environment (REPL).  In tests/suites there is an
 equivalent console.php that loads the test environment.
 
 
+
+PDF File Parsing
+================
+This section describes the order (and some criteria) that pages must be in for the PDF file to be parsed correctly on submission.
+
+* Distribution Agreement - first page
+* Signature Page (This is where we pull the Title and Advisor / Committee info) - Comes after Distribution Agreement
+* Abstract Cover (No Data read from this page) - Comes after Signature Page.
+* Abstract Page 1 - Comes after Abstract Cover
+* Abstract Page 2 (Optional - Abstract Page 2 is assumed if the next page is not the Title Page) - Comes after Abstract page 1
+* Title Page - (No data read from this page) - Comes after Abstract section
+* Table of Contents Page 1 (Looks for text "Table of Contents") - Comes after Title Page
+* Table of Contents Additional pages (Optional - Assumes page is a TOC if it finds "Chapter" or "...<number>" EXAMPLE: "Chapter 2" "...15") - Comes after Table of Contents Page 1
+
+
+
 See also
 ========
 Additional documentation is found in the  Documentation directory.
