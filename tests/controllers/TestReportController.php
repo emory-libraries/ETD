@@ -2,7 +2,7 @@
 require_once("../bootstrap.php");
 require_once('ControllerTestCase.php');
 require_once('controllers/ReportController.php');
-      
+     
 class ReportControllerTest extends ControllerTestCase {
 
   /**
@@ -10,7 +10,7 @@ class ReportControllerTest extends ControllerTestCase {
    * @var esdPerson
    */
   private $test_user;
-  
+ 
   /**
    * mock solr object - set response document as needed for test
    * @var Mock_Etd_Service_Solr
@@ -35,7 +35,7 @@ class ReportControllerTest extends ControllerTestCase {
     list($this->etd_pid, $this->author_pid) = $this->fedora->getNextPid($fedora_cfg->pidspace, 2);
   }
 
-  
+ 
   function setUp() {
     $ep = new esdPerson();
     $this->test_user = $ep->getTestPerson();
@@ -44,30 +44,30 @@ class ReportControllerTest extends ControllerTestCase {
     Zend_Registry::set('current_user', $this->test_user);
     $this->schools_cfg = Zend_Registry::get("schools-config");
 
-    
-    $_GET   = array();
-    $_POST  = array();
-    
+   
+    $_GET       = array();
+    $_POST      = array();
+   
     $this->response = $this->makeResponse();
     $this->request  = $this->makeRequest();
 
-    
+   
     $dom = new DOMDocument();
-    // load etd & set pid 
+    // load etd & set pid
     $dom->loadXML(file_get_contents('../fixtures/etd2.xml'));
      $foxml = new etd($dom);
     $foxml->pid = $this->etd_pid;
-    $foxml->rels_ext->hasAuthorInfo = "info:fedora/" . $this->author_pid; // associate with test authorInfo object
+    $foxml->rels_ext->hasAuthorInfo = "info:fedora/" . $this->author_pid;       // associate with test authorinfo object
     $this->fedora->ingest($foxml->saveXML(), "loading test etd object");
-    
-    // load author info & set pid 
+   
+    // load author info & set pid
     $dom->loadXML(file_get_contents('../fixtures/authorInfo.xml'));
     $foxml = new foxml($dom);
     $foxml->pid = $this->author_pid;
     $this->fedora->ingest($foxml->saveXML(), "loading test authorInfo");
 
 
-    
+   
     $this->solr = &new Mock_Etd_Service_Solr();
     Zend_Registry::set('solr', $this->solr);
 
@@ -77,7 +77,7 @@ class ReportControllerTest extends ControllerTestCase {
     $this->etd = new etd($dom);
 
   }
-  
+ 
   function tearDown() {
     Zend_Registry::set('solr', null);
     Zend_Registry::set('current_user', null);
@@ -100,7 +100,7 @@ class ReportControllerTest extends ControllerTestCase {
     $this->assertFalse($ReportController->commencementAction() );
 }
 
-  
+ 
   function testcommencementAction() {
     $ReportController = new ReportControllerForTest($this->request,$this->response);
 
@@ -108,7 +108,7 @@ class ReportControllerTest extends ControllerTestCase {
     $this->setUpPost(array('exclude' => array("test:etd2")));
 
     $this->solr->response->docs[] = new Emory_Service_Solr_Response_Document(array("PID" => "test:etd1",
-                        "pubdate" => "20090901", "collection" => array($this->schools_cfg->emory_college->fedora_collection))); //collection now required
+                                                                                    "pubdate" => "20090901", "collection" => array($this->schools_cfg->emory_college->fedora_collection))); //collection now required
     $this->solr->response->docs[] = new Emory_Service_Solr_Response_Document(array("PID" => "test:etd2", "collection" => array($this->schools_cfg->emory_college->fedora_collection))); //collection now required
 
     $ReportController->commencementAction();
@@ -118,7 +118,7 @@ class ReportControllerTest extends ControllerTestCase {
     $this->assertTrue(isset($ReportController->view->endDate));
     $this->assertPattern("/\d{4}\-\d{2}\-\d{2}/", $ReportController->view->startDate, "Format should be Y-m-d");
     $this->assertPattern("/\d{4}\-\d{2}\-\d{2}/", $ReportController->view->endDate, "Format should be Y-m-d");
-    
+   
     $etdSet = $ReportController->view->etdSet;
     $this->assertIsA($etdSet, 'EtdSet', "etdSet is a etdSet object.");
 
@@ -129,19 +129,19 @@ class ReportControllerTest extends ControllerTestCase {
     $this->assertEqual("test:etd1", $etdSet->etds[0]->pid(), "remaining etd maches non-excluded pid");
     $this->assertEqual("**", $etdSet->etds[0]->semester, "etd has semester indicator set correctly");
 
-    
+   
     //test as student,  all other tests are done as admin
     $this->test_user->role = "student";
     Zend_Registry::set('current_user', $this->test_user);
     $this->assertFalse($ReportController->commencementAction() );
-    
+   
 }
 
 function testgradDataAction() {
     $field = "dateIssued";
     $this->solr->response->facets = new Emory_Service_Solr_Response_Facets(array("dateIssued" =>
-                     array("20070604" => "1",
-                          "20070919" => "2",
+                                                                                 array("20070604" => "1",
+                                                                                      "20070919" => "2",
                                               "20071231" => "3",
                                               "20080531" => "4",
                                               "20080831" => "5",
@@ -175,7 +175,7 @@ function testgradDataCsvAction() {
     $ReportController->gradDataCsvAction();
 
     $this->assertTrue(isset($ReportController->view->data));
-    
+   
     //Test to make sure data is an array of arrays
     $this->assertisA($ReportController->view->data, "array");
 
@@ -254,8 +254,8 @@ public function testExportEmails() {
     $this->assertEqual("06-01",  (date("m-d", $startDate)));
     $this->assertEqual("05-31",  (date("m-d", $endDate)));
     $this->assertEqual(1,  date("Y", $endDate) - date("Y", $startDate));
-    
-        
+   
+       
   }
 
   function testAddCSVFields(){
@@ -265,7 +265,7 @@ public function testExportEmails() {
       $this->assertIsA($line, "array");
       $this->assertEqual(count($line), 6, "6 entries - id & fullname, 3 times");
       $this->assertEqual("nobody", $line[0], "first entry should be advisor id 'nobody', got '"
-       . $line[0] . "'");
+                         . $line[0] . "'");
       $this->assertEqual("Person, Advisor", $line[1], "first entry should be advisor fullname 'Person, Advisor', got '" . $line[1] . "'");
       $this->assertEqual("", $line[2], "id for second advisor should be blank (no second advisor)");
       $this->assertEqual("", $line[3], "full name for second advisor should be blank (no second advisor)");
@@ -278,12 +278,12 @@ public function testExportEmails() {
       $line = $ReportController->addCSVFields($this->etd, "chair", array("id", "full"), 1);
       $this->assertNotEqual("weird_id", $line[0]);
 
-      error_reporting($errlevel);     // restore prior error reporting
+      error_reporting($errlevel);           // restore prior error reporting
   }
-  
+ 
   function testGetSemesterDecorator() {
     $ReportController = new ReportControllerForTest($this->request,$this->response);
-    
+   
     $result = $ReportController->getSemesterDecorator("20090101");
     $this->assertEqual($result, "");
 
@@ -310,7 +310,7 @@ public function testExportEmails() {
 
         $result = $ReportController->getSemesterDecorator("20091201");
     $this->assertEqual($result, "**");
-    
+   
   }
 
   function testPreDispatch() {
@@ -319,17 +319,17 @@ public function testExportEmails() {
     $ReportController->preDispatch();
     $tmp_fedoraConnection = Zend_Registry::get("fedora");
     $this->assertEqual($this->fedora, $ReportController->getUserFedoraConnection(),
-           "main fedora connection stored in controller");   
+                       "main fedora connection stored in controller");  
     $this->assertEqual($this->fedora, $tmp_fedoraConnection,
-           "fedora connection in registry is same as main fedora connection for admin user");
+                       "fedora connection in registry is same as main fedora connection for admin user");
 
     $this->test_user->role = "report viewer";
     $ReportController->preDispatch();
     $tmp_fedoraConnection = Zend_Registry::get("fedora");
     $this->assertEqual($this->fedora, $ReportController->getUserFedoraConnection(),
-           "main fedora connection stored in controller");   
+                       "main fedora connection stored in controller");  
     $this->assertNotEqual($this->fedora, $tmp_fedoraConnection,
-        "fedora connection in registry is NOT same as main fedora connection for a report viewer");
+                          "fedora connection in registry is NOT same as main fedora connection for a report viewer");
 
     // undo change - restore real fedora connection
     Zend_Registry::set("fedora", $this->fedora);
@@ -344,25 +344,110 @@ public function testExportEmails() {
     $ReportController->postDispatch();
     $fedoraConnection = Zend_Registry::get("fedora");
     $this->assertEqual($this->fedora, $fedoraConnection,
-           "fedora connection in registry is same as main fedora connection - restored by postDispatch");
-    
+                       "fedora connection in registry is same as main fedora connection - restored by postDispatch");
+   
   }
-  
-  function testCleanEmbargoData(){
+
+
+  private function solr_chart_data() {
+    // initialize solr facet data required to run flash-chart report actions
+    $this->solr->response->facets = new Emory_Service_Solr_Response_Facets(
+                            array("year" => array("2007" => 1, "2008" => 1, "2009" => 1),
+                                  "document_type" => array("Dissertation" => 1,
+                                                           "Master's Thesis" => 1,
+                                                           "Honors Thesis" => 1),
+                                  "embargo_duration" => array("0 days" => 1, "6 months" => 1,
+                                                              "1 year" => 1, "2 years" => 1, "6 years" => 1)
+                                  ));
+  }
+ 
+  function testPageLengthAction() {
+    $this->solr_chart_data();
     $ReportController = new ReportControllerForTest($this->request,$this->response);
-    $arr = array('' => 21, '0 days' => 97, '1 year' => 51, '2 years' => 84, 
-                  '6 months' => 14, '6 years' => 44);
-    $cleaned_arr = array(118, 14, 51, 84, 44);
-    $ret = $ReportController->clean_embargo_data($arr);
-    print_r($ret);
-    $this->assertEqual($ret, $cleaned_arr, "Test SortEmbargo Data");
-  }  
-  
+    $ReportController->pageLengthAction();
+
+    $this->assertTrue(isset($ReportController->view->title));
+    $this->assertTrue(isset($ReportController->view->chart));
+    $this->assertIsA($ReportController->view->chart, "stacked_bar_chart");
+    $this->assertTrue(isset($ReportController->view->years));
+    $this->assertTrue(isset($ReportController->view->program));
+    // report runs several solr queries to group records by number of pages; checking the last one
+    $last_query = $this->solr->queries[count($this->solr->queries) - 1];
+    $this->assertPattern('/num_pages:/', $last_query,
+                          "solr query for page-length report should include num_pages filter");
+
+    $this->setUpPost(array('year' => '2008', 'program' => 'grad'));
+    $ReportController->pageLengthAction();
+    $this->assertPattern('/2008/', $ReportController->view->title,
+                          "page title should include year when filtering report by year");
+    $this->assertPattern('/Graduate/', $ReportController->view->title,
+                          "page title should include program name when filtering by program");
+    // report runs several solr queries to calculate data; check the last query for year/program filters
+    $last_query = $this->solr->queries[count($this->solr->queries) - 1];
+    $this->assertPattern('/year:2008/', $last_query,
+                          "solr query should include year when filtering report by year");
+    $this->assertPattern('/program_facet:grad/', $last_query,
+                          "solr query should include program when filtering report by program");
+   
+  }
+
+  function testEmbargoAction() {
+    $this->solr_chart_data();
+    $ReportController = new ReportControllerForTest($this->request,$this->response);
+    $ReportController->embargoAction();
+       
+    $this->assertTrue(isset($ReportController->view->title));
+    $this->assertTrue(isset($ReportController->view->chart));
+    $this->assertIsA($ReportController->view->chart, "stacked_bar_chart");
+    $this->assertTrue(isset($ReportController->view->years));
+    $this->assertTrue(isset($ReportController->view->program));
+    // report runs several solr queries, filtering by document type and using facets for chart data
+    $last_query = $this->solr->queries[count($this->solr->queries) - 1];
+    $this->assertPattern('/document_type:/', $last_query,
+                          "solr query for embargo report should include document type filter");
+
+
+    $this->setUpPost(array('year' => '2009', 'program' => 'undergrad'));
+    $ReportController->embargoAction();
+    $this->assertPattern('/2009/', $ReportController->view->title,
+                          "page title should include year when filtering report by year");
+    $this->assertPattern('/Undergraduate/', $ReportController->view->title,
+                          "page title should include program name when filtering by program");
+    $last_query = $this->solr->queries[count($this->solr->queries) - 1];
+    $this->assertPattern('/year:2009/', $last_query,
+                          "solr query should include year when filtering report by year");
+    $this->assertPattern('/program_facet:undergrad/', $last_query,
+                          "solr query should include program when filtering report by program");
+
+  }
+
+  function test_clean_embargo_data(){
+    $this->solr_chart_data();
+    $controller = new ReportControllerForTest($this->request,$this->response);
+    $clean_data = $controller->clean_embargo_data(array("" => 5, "0 days" => 10, "1 year" => 14,
+                                                        "2 years" => 1, "6 months" => 7,
+                                                        "6 years" => 32));
+    // should combine "" with 0 days, numbers sorted by increasing embargo duration
+    $this->assertEqual($clean_data[0], 15);     // empty + 0 days
+    $this->assertEqual($clean_data[1], 7);      // 6 months
+    $this->assertEqual($clean_data[2], 14);     // 1 year
+    $this->assertEqual($clean_data[3], 1);      // 2 years
+    $this->assertEqual($clean_data[4], 32);     // 6 years
+
+
+    // should still work normally when there is no empty facet
+    $clean_data = $controller->clean_embargo_data(array("0 days" => 10, "1 year" => 14,
+                                                        "2 years" => 1, "6 months" => 7,
+                                                        "6 years" => 32));
+    $this->assertEqual($clean_data[0], 10);
+  }
+ 
+ 
 }
 
 
 class ReportControllerForTest extends ReportController {
-  
+ 
   public $renderRan = false;
   public $redirectRan = false;
 
@@ -370,11 +455,11 @@ class ReportControllerForTest extends ReportController {
     $this->view = new Zend_View();
     Zend_Controller_Action_HelperBroker::addPrefix('Test_Controller_Action_Helper');
   }
-  
+ 
   public function render() {
     $this->renderRan = true;
   }
-  
+ 
   public function _redirect() {
     $this->redirectRan = true;
   }
@@ -383,7 +468,8 @@ class ReportControllerForTest extends ReportController {
   public function getUserFedoraConnection() {
     return $this->_fedoraConnection;
   }
-}   
+
+}      
 
 runtest(new ReportControllerTest());
 
