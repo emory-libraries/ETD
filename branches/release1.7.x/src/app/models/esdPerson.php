@@ -112,7 +112,6 @@ class esdPerson extends Emory_Db_Table_Row implements Zend_Acl_Role_Interface {
 	// detect if user is a school-specific admin - determined by school config
 	$school_cfg = Zend_Registry::get("schools-config");
 	$admin_type = $school_cfg->isAdmin($this);
-	if ($admin_type) $this->role = $admin_type . " admin";
 
         /*** special roles that must be set in config file ***/
         // etd superuser, techsupport, and honors admin
@@ -125,6 +124,9 @@ class esdPerson extends Emory_Db_Table_Row implements Zend_Acl_Role_Interface {
                     //Workaround to set  default school to solve issue when superuser submits a file
                     $this->academic_career="GSAS";
             }
+
+            elseif ($admin_type) $this->role = $admin_type . " admin";
+            
             elseif (isset($config->techsupport) && ((is_object($config->techsupport->user) &&
              in_array($this->netid, $config->techsupport->user->toArray()))
             || $config->techsupport->user == $this->netid)) {
@@ -375,13 +377,21 @@ class esdPersonObject extends Emory_Db_Table {
 	
 	// student employees currently have *two* records in ESD, and only one has the information we need
 	// get all records from ESD for the current user, then return the right one if more than one are found
+    $retRecord = null;
 	$results = $this->findAllByLogn8ntwrI(strtoupper($netid));
 	if ($results->count() == 1) {
 	  return $results->current();
 	} elseif ($results->count() > 1) {
 	  foreach ($results as $record) {
-	    if ($record->academic_career != null) return $record;
-	  }	  
+	    if ($record->academic_career != null) $retRecord = $record; //Student Employee
+        elseif ($record->current_faculty != "N") $retRecord = $record; //Faculty
+	  }
+
+      //if retRecord still null, just return the first record
+      if(is_null($retRecord)) $retRecord = $results[0];
+
+      return $retRecord;
+
 	}
 	// nothing returned when no match
     }
