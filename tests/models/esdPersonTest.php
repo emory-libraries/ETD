@@ -29,9 +29,11 @@
 	$this->_schools_config = Zend_Registry::get('schools-config');
 	
 	// stub config with just the portion relevant to special user roles
+   //"Laney Graduate School Administration" is a report viewer department section to demonstrate that the correct role precedence is being used
+   //EXAMPLE: If user is configured to be an admin but the department is in the reportviewer section as well, the user will get the admin role
 	$testconfig = new Zend_Config(array("techsupport" => array("user" => array("jolsen")),
 					    "superusers" => array("user" => array("ckent")),
-                        "reportviewer" => array("department" => array("Reports Department")),
+                        "reportviewer" => array("department" => array("Reports Department", "Laney Graduate School Administration")),
 					    ));
 	// temporarily override config with test configuration
 	Zend_Registry::set('config', $testconfig);
@@ -111,6 +113,16 @@
 	$user = $this->esd->findByUsername("jstuden");
 	$this->assertNotNull($user->academic_career,
 			     "info for student employee with 2 ESD records should include academic career");
+      }
+
+      function testfindByUsername_faculty() {
+	//Get the current record for this person
+    $user = $this->esd->findByUsername("vcarter");
+	$this->assertEqual($user->department_code, "900000");
+
+    //when not sure what is current record return the first record
+    $user = $this->esd->findByUsername("noid");
+	$this->assertEqual($user->department_code, "900000");
       }
 
       function testFindNonexistent() {
