@@ -17,6 +17,7 @@ Version 1.7 - May 2010 (enhancements)
  * An author now receives feedback about errors when entering contact information. This feature no longer users XForms.
  * The datastreams portion of the ETD model have been refactored so that the datastream files are in a sub-directory.
  * Refactored code to change User class to AuthorInfo class.
+ * An admin, report viewer etc. will receive the correct role after login
 
 Deployment notes:
  * main config.xml has new  sections for for news_feed and doc_feed
