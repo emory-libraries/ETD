@@ -2,11 +2,48 @@
      <h1><?= $this->list_title ?></h1>
 <? endif ?>
 <? if ($this->list_description): ?><h2><?= $this->list_description ?></h2><? endif ?>
-	
+
 <?=  $this->render('browse/_facets.phtml'); ?>
-<?=  $this->render('browse/_paging.phtml'); ?>	       
-	
-<? foreach ($this->etdSet->etds as $etd): ?>
+
+<? /* Do not display sort options or pagination if the results is less than 2 */ ?>
+<? if (sizeof($this->paginator) > 1): ?>
+  <div class="grayed">
+   <? if (isset($this->sort) && $this->paginator->getTotalItemCount() > 1): ?>
+    Sort by:
+    <? foreach ($this->sort_fields as $sortfield): ?>
+       <? if ($sortfield == $this->sort): ?>
+         <b><?= $this->sort_display[$sortfield] ?></b>
+       <? else: ?>
+         <a href="<?= $this->url(array_merge($this->url_params, array('sort' => $sortfield))) ?>"><?= $this->sort_display[$sortfield] ?></a>
+       <? endif ?>
+       <? if ($sortfield != $this->sort_fields[count($this->sort_fields) - 1]): ?>|<? endif ?>
+    <? endforeach ?>
+   
+   <? endif ?>  
+  <? if ($this->paginator->getPageRange() > 1): ?> 
+  <? /* display pagination links again at the end of search results */ ?>
+  <?= $this->paginationControl($this->paginator, 'Sliding', 'browse/pagination.phtml',
+              array("url_opts" => $this->url_opts)) ?>
+  <? endif ?>              
+  </div>
+<? endif ?>
+
+<? foreach ($this->paginator as $etd): ?>
   <? $this->etd = $etd; ?>
-  <?=  $this->render('view/shortrecord.phtml'); ?>
+  <?=  $this->render('view/shortrecord.phtml'); ?>  
 <? endforeach ?>
+  <? unset($this->etd); ?>
+  
+<? /* Do not display pagination if the results is less than 2 */ ?>
+<? if (sizeof($this->paginator) > 1): ?>  
+<div class="grayed">
+<? /* display pagination links again at the end of search results */ ?>
+<?= $this->paginationControl($this->paginator, 'Sliding', 'browse/pagination.phtml',
+            array("url_opts" => $this->url_opts)) ?>
+</div>
+<? endif ?> 
+<? /* If the result set if empty, then output "No Results Found" msg */ ?>
+<? if (sizeof($this->paginator) == 0): ?>
+<h3>No Results Found</h3>
+<? endif ?> 
+

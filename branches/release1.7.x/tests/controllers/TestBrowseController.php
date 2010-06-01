@@ -9,8 +9,8 @@ class BrowseControllerTest extends ControllerTestCase {
   private $solr;
   
   function setUp() {
-    $_GET 	= array();
-    $_POST	= array();
+    $_GET   = array();
+    $_POST  = array();
     
     $this->response = $this->makeResponse();
     $this->request  = $this->makeRequest();
@@ -46,10 +46,11 @@ class BrowseControllerTest extends ControllerTestCase {
     $BrowseController->browseAction();
     $this->assertTrue(isset($BrowseController->view->title));
     $this->assertIsA($BrowseController->view->etdSet, "EtdSet");
+    $this->assertIsA($BrowseController->view->paginator, "Zend_Paginator");    
 
     // FIXME: test browsefieldAction ?
 
-    error_reporting($errlevel);	    // restore prior error reporting
+    error_reporting($errlevel);     // restore prior error reporting
   }
   
   // committee and year browse are basically the same as author browse
@@ -64,6 +65,7 @@ class BrowseControllerTest extends ControllerTestCase {
     $this->assertIsA($BrowseController->view->collection, "programs");
     $this->assertEqual("Programs", $BrowseController->view->collection->label);
     $this->assertIsA($BrowseController->view->etdSet, "EtdSet");
+    $this->assertIsA($BrowseController->view->paginator, "Zend_Paginator");    
 
     // somewhere deeper in the hierarchy
     $this->setUpGet(array('coll' => 'immunology'));
@@ -74,7 +76,7 @@ class BrowseControllerTest extends ControllerTestCase {
     $this->assertIsA($BrowseController->view->etdSet, "EtdSet");
 
     // bogus collection name
-    /**		NOTE: can't actually test because can't simulate gotoRouteAndExit for testing...
+    /**   NOTE: can't actually test because can't simulate gotoRouteAndExit for testing...
     $this->setUpGet(array('coll' => 'bogus'));
     $BrowseController->programsAction();
     $this->assertTrue($BrowseController->redirectRan);
@@ -101,8 +103,9 @@ class BrowseControllerTest extends ControllerTestCase {
     $this->assertIsA($BrowseController->view->collection, "researchfields");
     $this->assertEqual("Music", $BrowseController->view->collection->label);
     $this->assertIsA($BrowseController->view->etdSet, "EtdSet");
+    $this->assertIsA($BrowseController->view->paginator, "Zend_Paginator");    
   }
-    	
+      
   function testMyAction() {
     // initial role set to student
     $BrowseController = new BrowseControllerForTest($this->request,$this->response);
@@ -110,6 +113,7 @@ class BrowseControllerTest extends ControllerTestCase {
     $BrowseController->myAction();
     $this->assertTrue(isset($BrowseController->view->title));
     $this->assertIsA($BrowseController->view->etdSet, "EtdSet");
+    $this->assertIsA($BrowseController->view->paginator, "Zend_Paginator");    
     $this->assertEqual("Your document", $BrowseController->view->list_description);
     // check that view is correctly set to use list template
     $viewRenderer = $BrowseController->getHelper("viewRenderer");
@@ -143,7 +147,7 @@ class BrowseControllerTest extends ControllerTestCase {
     // user is not a program coordinator
     $BrowseController = new BrowseControllerForTest($this->request,$this->response);
     $result = $BrowseController->myProgramAction();
-    $this->assertFalse($result);		// not authorized
+    $this->assertFalse($result);    // not authorized
     $this->assertFalse(isset($BrowseController->view->title));
     $this->assertFalse(isset($BrowseController->view->list_title));
     $this->assertFalse(isset($BrowseController->view->etdSet));
@@ -158,6 +162,7 @@ class BrowseControllerTest extends ControllerTestCase {
     $this->assertTrue(isset($BrowseController->view->title));
     $this->assertTrue(isset($BrowseController->view->list_title));
     $this->assertIsA($BrowseController->view->etdSet, "EtdSet");
+    $this->assertIsA($BrowseController->view->paginator, "Zend_Paginator");    
     $this->assertTrue($BrowseController->view->show_status);
     // not used currently (switched to solrEtd for response time)
     //    $this->assertTrue($BrowseController->view->show_lastaction);
@@ -168,7 +173,8 @@ class BrowseControllerTest extends ControllerTestCase {
     $BrowseController->recentAction();
     $this->assertTrue(isset($BrowseController->view->title));
     $this->assertTrue(isset($BrowseController->view->list_title));
-    $this->assertIsA($BrowseController->view->etdSet, "EtdSet");
+    $this->assertIsA($BrowseController->view->etdSet, "EtdSet");   
+    $this->assertIsA($BrowseController->view->paginator, "Zend_Paginator");
   }
 
   function testProquestAction() {
@@ -198,7 +204,7 @@ class BrowseControllerForTest extends BrowseController {
     $this->redirectRan = true;
   }
 
-} 	
+}   
     
 runtest(new BrowseControllerTest());
 

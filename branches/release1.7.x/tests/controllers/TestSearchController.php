@@ -44,10 +44,11 @@ class SearchControllerTest extends ControllerTestCase {
     
     $searchController = new SearchControllerForTest($this->request,$this->response);
     $this->setUpGet(array('query' => 'dissertation', 'title' => 'analysis',
-			  'abstract' => 'exploration', 'tableOfContents' => 'chapter'));
+        'abstract' => 'exploration', 'tableOfContents' => 'chapter'));
     $searchController->resultsAction();
     $this->assertTrue(isset($searchController->view->title));
     $this->assertIsA($searchController->view->etdSet, "EtdSet");
+    $this->assertIsA($searchController->view->paginator, "Zend_Paginator");    
     // non-facet filter terms should be passed to view for display & facet links
     $this->assertEqual("dissertation", $searchController->view->url_params["query"]);
     $this->assertEqual("analysis", $searchController->view->url_params['title']);
@@ -142,7 +143,7 @@ class SearchControllerForTest extends SearchController {
   public function _redirect() {
     $this->redirectRan = true;
   }
-} 	
+}   
 
 runtest(new SearchControllerTest());
 ?>

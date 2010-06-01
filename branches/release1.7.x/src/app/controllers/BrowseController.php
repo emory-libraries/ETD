@@ -98,7 +98,7 @@ class BrowseController extends Etd_Controller_Action {
       // generate an array of all the capitalized letters from A-Z
       $this->view->letters = array();
       for ($i = 65; $i < 91; $i++) {
-	$this->view->letters[] = chr($i);
+        $this->view->letters[] = chr($i);
       } 
     }
     $letter = $this->_getParam("letter");
@@ -115,7 +115,7 @@ class BrowseController extends Etd_Controller_Action {
   // list of records by field + value
   public function browseAction() {
     $field = $this->_getParam("field");
-    $_value = urldecode($this->_getParam("value"));	// store original form
+    $_value = urldecode($this->_getParam("value")); // store original form
     $value = $_value;
     $value = urldecode($value);
 
@@ -125,7 +125,7 @@ class BrowseController extends Etd_Controller_Action {
     $exact = $this->_getParam("exact", false);
     if (! $exact) {
       $value = strtolower($value);
-      $value = str_replace(",", "", $value);	// remove commas from names
+      $value = str_replace(",", "", $value);  // remove commas from names
     }
 
     // add year to sort options
@@ -141,8 +141,8 @@ class BrowseController extends Etd_Controller_Action {
     } else {
       $queryparts = array();
       foreach (preg_split('/[ +,.-]+/ ', strtolower($value), -1, PREG_SPLIT_NO_EMPTY) as $part) {
-	if ($part != "a")	// stop words that cause solr problem
-	  array_push($queryparts, "$field:$part");
+        if ($part != "a") // stop words that cause solr problem
+          array_push($queryparts, "$field:$part");
       }
       $query = join($queryparts, '+AND+');
     }
@@ -151,15 +151,21 @@ class BrowseController extends Etd_Controller_Action {
     $options["query"] = $query;
     $options["return_type"] = "solrEtd";
     
-    $etdSet = new EtdSet();
-    $etdSet->findPublished($options);
+    $etdSet = new EtdSet($options, null, 'findPublished');
     $this->view->etdSet = $etdSet;
+    
+    // Pagination Code
+    $paginator = new Zend_Paginator($etdSet);
+    $paginator->setItemCountPerPage(10);
+    
+    if ($this->_hasParam('page')) $paginator->setCurrentPageNumber($this->_getParam('page'));      
+    $this->view->paginator = $paginator;     
 
     // if there's only one match found, forward directly to full record view
     if ($this->view->count == 1) {
       $this->_helper->flashMessenger->addMessage("Only one match found; displaying full record");
       $this->_helper->redirector->gotoRoute(array("controller" => "view",
-      						  "action" => "record", "pid" => $etdSet->etds[0]->pid), "", true);
+                    "action" => "record", "pid" => $etdSet->etds[0]->pid), "", true);
     }
 
     $this->view->value = $_value;
@@ -200,7 +206,14 @@ class BrowseController extends Etd_Controller_Action {
     }
     $this->view->collection = $programs;
     $this->view->browse_mode = "program"; 
-    $this->view->etdSet = $programs->findEtds($options);
+    $etdSet = $programs->findEtds($options);
+    $this->view->etdSet = $etdSet;    
+    
+    // Pagination Code
+    $paginator = new Zend_Paginator($etdSet);
+    $paginator->setItemCountPerPage(10);
+    if ($this->_hasParam('page')) $paginator->setCurrentPageNumber($this->_getParam('page'));      
+    $this->view->paginator = $paginator; 
 
     $this->view->title = "Browse Programs";
     if ($coll != "#programs") $this->view->title .= " : " . $programs->label;
@@ -210,7 +223,7 @@ class BrowseController extends Etd_Controller_Action {
     $this->_helper->viewRenderer->setScriptAction("collection");
 
   //        $this->view->feed = new Zend_Feed_Rss($this->_helper->absoluteUrl('recent', 'feeds', null,
-  //							      array("program" => $programs->label)));
+  //                    array("program" => $programs->label)));
   }
 
   public function researchfieldsAction() {
@@ -234,10 +247,10 @@ class BrowseController extends Etd_Controller_Action {
     } catch (XmlObjectException $e) {
       $message = "Error: Research Field not found";
       if ($this->env != "production")
-	$message .= " (<b>" . $e->getMessage() . "</b>)";
+      $message .= " (<b>" . $e->getMessage() . "</b>)";
       $this->_helper->flashMessenger->addMessage($message);
       $this->_helper->redirector->gotoRouteAndExit(array("controller" => "error",
-							 "action" => "notfound"), "", true);
+               "action" => "notfound"), "", true);
     }
 
     $this->view->collection = $fields;
@@ -245,8 +258,15 @@ class BrowseController extends Etd_Controller_Action {
     // add year to sort options
     $this->view->sort_fields[] = "year";
 
-    $this->view->etdSet = $fields->findEtds($options);
-    $this->view->browse_mode = "researchfield"; 
+    $this->view->browse_mode = "researchfield";
+    $etdSet = $fields->findEtds($options);
+    $this->view->etdSet = $etdSet;
+    
+    // Pagination Code
+    $paginator = new Zend_Paginator($etdSet);
+    $paginator->setItemCountPerPage(10);       
+    if ($this->_hasParam('page')) $paginator->setCurrentPageNumber($this->_getParam('page'));         
+    $this->view->paginator = $paginator;        
     
 
     // shared view script for programs & researchfields
@@ -273,13 +293,13 @@ class BrowseController extends Etd_Controller_Action {
     if ($this->current_user->program_coord) {
       // FIXME: how to give super-user option to view the student/faculty pages?
       $this->_forward("my-program");
-      return;	
+      return; 
     }
 
     $username = strtolower($this->current_user->netid);
 
-    $pluralize = false;		// pluralize list description based on results found? (default is not)
-    $viewscript = "list";	// default view script to use
+    $pluralize = false;   // pluralize list description based on results found? (default is not)
+    $viewscript = "list"; // default view script to use
     
     // expand to find by role, depending on current user - faculty, dept. staff, etc.
     switch ($this->current_user->role) {
@@ -290,7 +310,7 @@ class BrowseController extends Etd_Controller_Action {
       // records for this action : owned by current user (author) and not published
       $options["AND"]["ownerId"] = $username;
       // FIXME: is this filter necessary/useful ?
-      //  $options["NOT"]["status"] = "published";		// any status other than published
+      //  $options["NOT"]["status"] = "published";    // any status other than published
       $this->view->list_description = "Your document";
       // in almost all cases, a student will only have 1 record; 
       // setting a flag to pluralize if necessary
@@ -309,32 +329,41 @@ class BrowseController extends Etd_Controller_Action {
 
       /**  NOTE: faculty could also be students
            (either recently changed status or finishing a second degree)
-	   Also find and list any records where the user is author/owner.  */
-      $myEtds = new EtdSet();
+     Also find and list any records where the user is author/owner.  */
       $myopts = $this->getFilterOptions();
       $myopts["AND"]["ownerId"] = $username;
-      $myEtds->find($myopts);
+      $myEtds = new EtdSet($myopts, null, 'find'); 
       $this->view->myEtds = $myEtds;
       $this->view->my_description = "Your document";
       if ($myEtds->numFound != 1) $this->view->my_description .= "s";
+      // Pagination Code
+      $paginator = new Zend_Paginator($myEtds);
+      $paginator->setItemCountPerPage(10);       
+      if ($this->_hasParam('page')) $paginator->setCurrentPageNumber($this->_getParam('page'));         
+      $this->view->paginator = $paginator;       
 
       // use an alternate view script to display both sets of etd results
       $viewscript = "faculty-my";
       break;
     default:
       // no records to display for this user
-      return;	// exit now-- don't perform a search
+      return; // exit now-- don't perform a search
     }
 
     
     // find records using options set above, according to user role
-    $etdSet = new EtdSet();
-    $etdSet->find($options);
+    $etdSet = new EtdSet($options, null, 'find');
+    $this->view->etdSet = $etdSet;    
     // if there is more than one record and pluralize is set, pluralize the list label
     if ($etdSet->numFound != 1 && $pluralize) {
       $this->view->list_description .= "s";
     }
-    $this->view->etdSet = $etdSet;
+    // Pagination Code
+    $paginator = new Zend_Paginator($etdSet);
+    $paginator->setItemCountPerPage(10);       
+    if ($this->_hasParam('page')) $paginator->setCurrentPageNumber($this->_getParam('page'));         
+    $this->view->paginator = $paginator;    
+    
     $this->view->show_status = true;
     $this->view->show_lastaction = true;
     $this->_helper->viewRenderer->setScriptAction($viewscript);
@@ -354,13 +383,19 @@ class BrowseController extends Etd_Controller_Action {
     
     $options = $this->getFilterOptions();
     $options["return_type"] = "solrEtd";
-	
+  
     // allow program coordinators to sort on last modified
     $this->view->sort_fields[] = "modified";
 
-    $etdSet = new EtdSet();
-    $etdSet->findByDepartment($this->current_user->program_coord, $options);
-    $this->view->etdSet = $etdSet;
+    $etdSet = new EtdSet($options, null, 'findByDepartment', $this->current_user->program_coord);
+    $this->view->etdSet = $etdSet;    
+    
+    // Pagination Code
+    $paginator = new Zend_Paginator($etdSet);
+    $paginator->setItemCountPerPage(10);       
+    if ($this->_hasParam('page')) $paginator->setCurrentPageNumber($this->_getParam('page'));         
+    $this->view->paginator = $paginator;    
+    
     $title = "Program Records : " . $this->current_user->program_coord;
     $this->view->title = $title;
     $this->view->list_title = $title;
@@ -376,12 +411,17 @@ class BrowseController extends Etd_Controller_Action {
     
     $this->view->title = "Browse Recently Published";
     $this->view->list_title = "Recently Published";
-    $etdSet = new EtdSet();
-    $etdSet->findRecentlyPublished($options);
-	
-    $this->view->etdSet = $etdSet;
+    $etdSet = new EtdSet($options, null, 'findRecentlyPublished');
+    $this->view->etdSet = $etdSet;    
+    
     $this->_helper->viewRenderer->setScriptAction("list");
-
+    
+    // Pagination Code
+    $paginator = new Zend_Paginator($etdSet);
+    $paginator->setItemCountPerPage(10);       
+    if ($this->_hasParam('page')) $paginator->setCurrentPageNumber($this->_getParam('page'));         
+    $this->view->paginator = $paginator;
+    
     // don't allow re-sorting by other fields (doesn't make sense)
     $this->view->sort = null;
    }
@@ -391,10 +431,15 @@ class BrowseController extends Etd_Controller_Action {
     $this->view->list_title = "Most Viewed Records";
 
     $options = $this->getFilterOptions();
-    $etdSet = new EtdSet();
-    $etdSet->findMostViewed($options);
+    $etdSet = new EtdSet($options, null, 'findMostViewed');
     $this->view->etdSet = $etdSet;
-	
+    
+    // Pagination Code
+    $paginator = new Zend_Paginator($etdSet);
+    $paginator->setItemCountPerPage(10);       
+    if ($this->_hasParam('page')) $paginator->setCurrentPageNumber($this->_getParam('page'));         
+    $this->view->paginator = $paginator;    
+  
     $this->_helper->viewRenderer->setScriptAction("list");
   }
 

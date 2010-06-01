@@ -15,8 +15,8 @@ class SearchController extends Etd_Controller_Action {
 
   public function resultsAction() {
     $request = $this->getRequest();
-    $query = $request->getParam("query");	// basic keyword/anywhere query
-
+    $query = $request->getParam("query"); // basic keyword/anywhere query
+    $url_opts = array("query" => $query);
 
     // override default sort of author - relevance makes more sense for a search
     if (!$this->_hasParam("sort")) $this->_setParam("sort", "relevance");
@@ -28,15 +28,16 @@ class SearchController extends Etd_Controller_Action {
     // non-facet fields included in advanced search
     $extra_fields = array("title", "abstract", "tableOfContents");
     // also include extra fields to be displayed as search terms
-    $this->view->search_fields = $extra_fields;	
+    $this->view->search_fields = $extra_fields; 
     foreach ($extra_fields as $field) {
       if ($this->_hasParam($field)) {
-	// only include a if the parameter is set and is not blank
-	if ($value = $this->_getParam($field)) {
-	  $field_value = $this->_getParam($field);
-	  $options['AND'][$field] = $field_value;
-	  $this->view->url_params[$field] = $field_value;
-	}
+        // only include a if the parameter is set and is not blank
+        if ($value = $this->_getParam($field)) {
+          $field_value = $this->_getParam($field);
+          $options['AND'][$field] = $field_value;
+          $this->view->url_params[$field] = $field_value;
+          $url_opts[$field] = $field_value;          
+        }
       }
     }
 
@@ -52,8 +53,9 @@ class SearchController extends Etd_Controller_Action {
     if ($unembargoed) {
       // set so it will carry over onto next pages, filtered searches
       $this->view->url_params['unembargoed'] = true;
+      $url_opts['unembargoed'] = true;      
       // restrict to records that have files available - any embargo has ended
-      $today = date("Ymd");	// today's date
+      $today = date("Ymd"); // today's date
       // any embargoes that have ended today or before
       $embargo_query = "date_embargoedUntil:[*  TO $today]";
 
@@ -66,7 +68,7 @@ class SearchController extends Etd_Controller_Action {
       $this->_helper->flashMessenger->addMessage("Error: no search terms specified");
       // where to redirect?
       $this->_helper->redirector->gotoRouteAndExit(array("controller" => "search",
-							 "action" => "index"), "", true);
+               "action" => "index"), "", true);
     }
 
 
@@ -74,11 +76,11 @@ class SearchController extends Etd_Controller_Action {
     // if status parameter is set and user has permission, allow to search all records
     if ($this->_hasParam("status") && $this->acl->isAllowed($this->current_user, "etd", "view status")) {
       $status = $this->_getParam("status");
-      if ($status == "unpublished") {		// special case - find all unpublished records
-	$options["NOT"]["status"] = "published";
-	unset($options["AND"]["status"]);
+      if ($status == "unpublished") {   // special case - find all unpublished records
+        $options["NOT"]["status"] = "published";
+        unset($options["AND"]["status"]);
       } else {
-	$options["AND"]["status"] = $this->_getParam("status");
+        $options["AND"]["status"] = $this->_getParam("status");
       }
     } else {
       // otherwise (by default), limit search to published records
@@ -87,18 +89,31 @@ class SearchController extends Etd_Controller_Action {
 
     $options['return_type'] = "solrEtd";
     
-    $etdSet = new EtdSet();
-    $etdSet->find($options);
+    $etdSet = new EtdSet($options, null, 'find');
     $this->view->etdSet = $etdSet;
+    $this->view->url_opts = $url_opts;    
     
-    $this->view->title = "Search Results"; 
+    $this->view->title = "Search Results";
+     
+    // Set the url options for pagination
+    if (isset($sort)) $url_opts["sort"] = $sort;
+    $this->view->url_opts = $url_opts;
+                
+    // use paginator to display results in segments
+    $paginator = new Zend_Paginator($etdSet);
+    $paginator->setItemCountPerPage(10);     
      
     // if there's only one match found, forward directly to full record view
     if ($etdSet->numFound == 1) {
       $this->_helper->flashMessenger->addMessage("Only one match found for search; displaying full record");
       $this->_helper->redirector->gotoRoute(array("controller" => "view",
-						  "action" => "record",
-						  "pid" => $etdSet->etds[0]->pid()), "", true);
+              "action" => "record",
+              "pid" => $etdSet->etds[0]->pid()), "", true);
+    } 
+    else {  
+      // if page is set, pass to paginator
+      if ($this->_hasParam('page')) $paginator->setCurrentPageNumber($this->_getParam('page'));      
+      $this->view->paginator = $paginator; 
     }
 
     $this->view->show_relevance = true;
@@ -113,7 +128,7 @@ class SearchController extends Etd_Controller_Action {
      different ids; easiest to just allow two different parameters */
     elseif ($this->_hasParam("advisor"))
       $name = $this->_getParam("advisor");
-    else 	// no search parameter : can't proceed
+    else  // no search parameter : can't proceed
       throw new Exception("Either faculty or advisor parameter must be specified");
 
     $former = $this->_getParam("former", 0);
@@ -154,7 +169,7 @@ class SearchController extends Etd_Controller_Action {
 
     // uses query string as facet prefix and returns any facets that match
     // using currently configured default facets
-    $results = $solr->suggest(ucfirst($query));		// FIXME: case sensitive...
+    $results = $solr->suggest(ucfirst($query));   // FIXME: case sensitive...
 
     // combine all values into a single array (doesn't matter which facet they came from)
     $matches = array();

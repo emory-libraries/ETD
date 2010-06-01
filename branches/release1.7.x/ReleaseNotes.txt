@@ -22,7 +22,6 @@ Version 1.7 - May 2010 (enhancements)
 Deployment notes:
  * main config.xml has new  sections for for news_feed and doc_feed
  * persis.xml test section has changed
- * svn external version update to 211 for lib/Emory.
  * Run following migrations:
    014-remove_duplicate_collection_membership.php
 

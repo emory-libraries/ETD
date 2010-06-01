@@ -7,7 +7,7 @@
    <? $link_id = str_replace("#", '', $member->id);?>
 
   <p><a href="<?= $this->url(array('controller' => 'browse', 'action' => $this->action,
-		'coll' => $link_id), '', true) ?>"><?= $member->label ?></a>
+    'coll' => $link_id), '', true) ?>"><?= $member->label ?></a>
    <?/* category totals: only display if non-zero */?>
   <? if ($member->count): ?>
     (<?= $member->count ?>)
@@ -15,11 +15,11 @@
    </p>
 <? endforeach ?>
 
-
-<? if (count($this->etdSet->etds) && count($this->collection->members)) : ?>
+<br>
+<? if (sizeof($this->paginator) && count($this->collection->members)) : ?>
      <hr/> <? /* display a divider if there are both records and categories listed */ ?>
 <? endif ?>
-	
+  
 <? /* don't show etd records at top level */ ?>
 <? if ($this->collection->parent && isset($this->etdSet)): ?>
    <?=  $this->render('browse/list.phtml'); ?>
