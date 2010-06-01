@@ -16,6 +16,7 @@ class SearchController extends Etd_Controller_Action {
   public function resultsAction() {
     $request = $this->getRequest();
     $query = $request->getParam("query"); // basic keyword/anywhere query
+    // TODO:  combine the url_opts with url_params.
     $url_opts = array("query" => $query);
 
     // override default sort of author - relevance makes more sense for a search
