@@ -18,11 +18,11 @@ Version 1.7 - May 2010 (enhancements)
  * The datastreams portion of the ETD model have been refactored so that the datastream files are in a sub-directory.
  * Refactored code to change User class to AuthorInfo class.
  * An admin, report viewer etc. will receive the correct role after login
+ * A user can view a redesigned implementation of the pagination for the search and browse results to provide a simpler navigation experience.
 
 Deployment notes:
  * main config.xml has new  sections for for news_feed and doc_feed
  * persis.xml test section has changed
- * svn external version update to 211 for lib/Emory.
  * svn external version update for public/images/filetypeIcons
  * Run following migrations:
    014-remove_duplicate_collection_membership.php

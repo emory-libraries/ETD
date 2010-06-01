@@ -16,7 +16,7 @@ require_once("stats.php");
  * find functions for retrieving etds
  *
  */
-class EtdSet {
+class EtdSet implements Zend_Paginator_Adapter_Interface {
   
   /**
    * @var array of etds objects (class etd or solrEtd)
@@ -29,6 +29,11 @@ class EtdSet {
   protected $solrResponse;
 
   protected $options;
+  
+  // Zend_Paginator_Adapter_Interface variables
+  private $total;
+  private $query_opts;
+  private $query_facets;  
   
   /**
    * initialize from a Solr response
@@ -43,6 +48,20 @@ class EtdSet {
     $this->etds = array();
     }*/
 
+  /**
+   * create a new paginator
+   * @param array $query_opts
+   * @param array $query_facets
+   * @see EtdSet::find
+   */
+  public function __construct($query_opts=null, $query_facets = null, $type='find', $param=null) {
+    $this->query_opts = $query_opts;
+    $this->query_facets = $query_facets;  
+    $this->type = $type;  
+    $this->param = $param;    
+    $this->getItems(1, 0);   
+  }  
+  
   private function initializeEtds() {
     $this->etds = array();
 
@@ -52,30 +71,30 @@ class EtdSet {
     
     foreach ($this->solrResponse->docs as $doc) {
       if ($this->options["return_type"] == "etd") { 
-	try {
-	  $etd = new etd($doc->PID);
-	  $etd->relevance = $doc->score;
-	  $this->etds[] = $etd;
-	  
-	} catch (FedoraObjectNotFound $e) {
-	  trigger_error("Record not found: " . $doc->PID, E_USER_WARNING);
-	} catch (FoxmlBadContentModel $e) {
-	  // should only get this if query is bad or (in some cases) when Fedora is not responding
-	  trigger_error($doc->PID . " is not an etd", E_USER_NOTICE);
+        try {
+          $etd = new etd($doc->PID);
+          $etd->relevance = $doc->score;
+          $this->etds[] = $etd;
+          
+        } catch (FedoraObjectNotFound $e) {
+          trigger_error("Record not found: " . $doc->PID, E_USER_WARNING);
+        } catch (FoxmlBadContentModel $e) {
+          // should only get this if query is bad or (in some cases) when Fedora is not responding
+          trigger_error($doc->PID . " is not an etd", E_USER_NOTICE);
 
-	 //  if user is not authorized to view this ETD just display a warning
-	 //  (will display however many records are allowed to be viewed)
-         //  Note: the record count will not match what the user sees in this case
-	} catch (FedoraAccessDenied $e) {
-	  trigger_error("Access Denied for " . $doc->PID, E_USER_WARNING);
-	} catch (FedoraNotAuthorized $e) {
-	  trigger_error("Not Authorized to view " . $doc->PID, E_USER_WARNING);
-	}
-	
+         //  if user is not authorized to view this ETD just display a warning
+         //  (will display however many records are allowed to be viewed)
+               //  Note: the record count will not match what the user sees in this case
+        } catch (FedoraAccessDenied $e) {
+          trigger_error("Access Denied for " . $doc->PID, E_USER_WARNING);
+        } catch (FedoraNotAuthorized $e) {
+          trigger_error("Not Authorized to view " . $doc->PID, E_USER_WARNING);
+        }
+  
       } else if ($this->options["return_type"] == "solrEtd") {
-	$this->etds[] =  new solrEtd($doc);	
+        $this->etds[] =  new solrEtd($doc); 
       } else {
-	trigger_error("EtdSet return type $return_type unknown", E_USER_ERROR);
+        trigger_error("EtdSet return type $return_type unknown", E_USER_ERROR);
       }
     }
   }
@@ -90,73 +109,51 @@ class EtdSet {
     return isset($this->solrResponse->$name);
   }
 
-
+  
+  /**** Zend_Paginator_Adapter_Interface functions ****/  
+  
   /**
-   * return the number of the last record in the current set
-   * @return int 
+   * return total number of records
+   * @return int
    */
-  public function currentLast() {
-    return min($this->solrResponse->start + $this->solrResponse->rows, $this->solrResponse->numFound); 
-  }
-
+  public function count() {
+    return $this->total;
+  } 
+  
   /**
-   * return a string with the range ofthe current result set
-   * @return string (e.g., 1 - 25)
+   * get records for pagination, according to query opts used when creating paginator
+   * @param int $start
+   * @param int $max
+   * @return array
+   * @see EtdSet::find
    */
-  public function currentRange() {
-    $range = (string)($this->solrResponse->start + 1);
-    if ($range != $this->currentLast()) {
-      $range .= " - " .  $this->currentLast();
+  public function getItems($start, $max) {     
+    if (isset($this->query_opts)) {
+      $this->query_opts['start'] = $start;
+      $this->query_opts['max'] = $max;
+      $facets = null; 
+      switch ($this->type) {  
+        case 'findByDepartment':
+          return $this->findByDepartment($this->param, $this->query_opts);
+          break; 
+        case 'findMostViewed':
+          return $this->findMostViewed($this->query_opts);
+          break;                               
+        case 'findPublished':
+          return $this->findPublished($this->query_opts);
+          break; 
+        case 'findRecentlyPublished':
+          return $this->findRecentlyPublished($this->query_opts);
+          break;         
+        default:
+          return $this->find($this->query_opts);
+          break;
+      }
     }
-    
-    return  $range;
   }
-
-  /**
-   * check if there more results than returned in the current set
-   * @return boolean 
-   */
-  public function hasMoreResults() {
-    if (isset($this->solrResponse))
-      return ($this->solrResponse->rows < $this->solrResponse->numFound);
-    else return false;
-  }
-
-  /**
-   * check if there are results in the current set
-   * @return boolean
-   */
-  public function hasResults() {
-    return (count($this->etds) > 0);
-  }
-
-
-  /**
-   * build an array of human-readable ranges for the result sets for this query
-   * @return array (key is start number, value is end value, e.g. 1 => 10, 11 => 15)
-   */
-  public function resultSets() {
-    $results = array();
-    for ($i = 1; $i < $this->solrResponse->numFound; $i += $this->solrResponse->rows) {
-      $current_end = min($this->solrResponse->numFound, $i + $this->solrResponse->rows - 1);
-      $results[$i] = $current_end;
-    }
-
-    return $results;
-  }
-
-  /**
-   * get the next set of results from the last query and initialize etds
-   */
-  public function next() {
-    $this->options["start"] = $this->options["start"] + $this->options["max"];
-    $this->find($this->options);
-  }
-
 
 
   /**** FIND functions ****/
-
   
   /**
    * generic etd find with many different parameters
@@ -169,10 +166,10 @@ class EtdSet {
    *  - AND    : hash of field-value pairs that should be included in the query with AND
    *  - NOT    : hash of field-value pairs that should be included in the query with (AND) NOT
    *  - facets : hash with options for facets
-   *  -	facets[clear] : if set to true, default facets will be cleared
-   *  -	facets[limit] : number of facets to return
-   *  -	facets[mincount] : minimum number of matches for a facet to be included
-   *  -	facets[add] : array of facets to be added
+   *  - facets[clear] : if set to true, default facets will be cleared
+   *  - facets[limit] : number of facets to return
+   *  - facets[mincount] : minimum number of matches for a facet to be included
+   *  - facets[add] : array of facets to be added
    *  - return_type : type of etd object to return, one of etd or solrEtd
    *
    * @return EtdSet  ??
@@ -180,8 +177,8 @@ class EtdSet {
   public function find($options) {
     $solr = Zend_Registry::get('solr');
 
-    $start = isset($options['start']) 	? $options['start'] : null;
-    $max = isset($options['max']) 	? $options['max']   : null;
+    $start = isset($options['start'])   ? $options['start'] : null;
+    $max = isset($options['max'])   ? $options['max']   : null;
     $sort = null;
     if (isset($options['sort'])) {
       switch($options['sort']) {
@@ -191,8 +188,8 @@ class EtdSet {
       case "relevance": $sort = "score desc"; break;
       case "year": $sort = "dateIssued asc"; break;
       default:
-	// certain searches use custom sorting (e.g., embargoes or finding recently published records)
-	$sort = $options['sort'];
+        // certain searches use custom sorting (e.g., embargoes or finding recently published records)
+        $sort = $options['sort'];
       }
     }
 
@@ -202,22 +199,22 @@ class EtdSet {
 
     foreach (array("AND", "OR", "NOT") as $op) {
       if (isset($options[$op])) {
-	// field name should match solr index name
-	foreach ($options[$op] as $field => $value) {
-	  // NOTE: when combined, NOT fields are prefixed with AND
-	  // (otherwise Solr may assume OR depending on configuration, with unexpected results)
-	  if ($op == "NOT") $prefix = "AND";
-	  else $prefix = "";
+        // field name should match solr index name
+        foreach ($options[$op] as $field => $value) {
+          // NOTE: when combined, NOT fields are prefixed with AND
+          // (otherwise Solr may assume OR depending on configuration, with unexpected results)
+          if ($op == "NOT") $prefix = "AND";
+          else $prefix = "";
 
-	  // if query is empty, first 'AND' or 'OR' is not needed; NOT must always be used
-	  if (! empty($query) || $op == "NOT") $query .= " $prefix $op ";
-	  // using (...) -- all terms, but not exact phrase "..."
-	  $query .= $field . ':(' . $value . ')'; 
-	}
+          // if query is empty, first 'AND' or 'OR' is not needed; NOT must always be used
+          if (! empty($query) || $op == "NOT") $query .= " $prefix $op ";
+          // using (...) -- all terms, but not exact phrase "..."
+          $query .= $field . ':(' . $value . ')'; 
+        }
       }
     }
 
-	
+  
     if ($query == "") $query = "*:*";
 
     // facet configuration
@@ -237,7 +234,10 @@ class EtdSet {
     $this->options = $options;
 
     $this->initializeEtds();
+    
+    $this->total = $this->solrResponse->numFound;   // set total for pagination   
 
+    return $this->etds;
   }
 
   /** customized find functions -- wrappers to generic find **/
@@ -269,9 +269,9 @@ class EtdSet {
    * @param array $options any filter options to be passed to etd find function
    * @return EtdSet
    */
-  public function findUnpublishedByOwner($username, $options = array()) {
+  public function findUnpublishedByOwner($username, $options = array()) { 
     $options['AND']['ownerId'] = strtolower($username);
-    $options['NOT']['status'] = "published";		// any status other than published
+    $options['NOT']['status'] = "published";    // any status other than published
     return $this->find($options);
   }
 
@@ -287,14 +287,14 @@ class EtdSet {
    * @param array $facets passed by reference - Solr facets found
    * @return EtdSet
    */
-  public function findByDepartment($dept, $options) {
+  public function findByDepartment($dept, $options) {   
     $options['facets'] = array("clear" => true,    // clear all default filters 
-			       "mincount" => 1,    // display even single facets
-			       // add the relevant facets-- status, advisor, subfield
-			       "add" => array("status",
-					      "advisor_facet",
-					      "subfield_facet",
-					      "year"));
+             "mincount" => 1,    // display even single facets
+             // add the relevant facets-- status, advisor, subfield
+             "add" => array("status",
+                "advisor_facet",
+                "subfield_facet",
+                "year"));
     $options['AND']['program'] = 'program:"' . $dept . '"';
     return $this->find($options);
   }
@@ -308,12 +308,12 @@ class EtdSet {
    * @param string $date expiration date in YYYYMMDD format (e.g., 60 days from today)
    * @param array $options options as passed to EtdSet::find function
    * @param array $config additional configuration options
-   * 	- notice_unsent : filter on embargo notice unsent? (default : true)
-   *	- exact_date    : true = exact date, false = date range from today (default)
+   *  - notice_unsent : filter on embargo notice unsent? (default : true)
+   *  - exact_date    : true = exact date, false = date range from today (default)
    * @return EtdSet
    */
-  public function findExpiringEmbargoes($date, $options = array(), $config = array()) {
-    // date *must* be in YYYYMMDD format	(FIXME: check date format)
+  public function findExpiringEmbargoes($date, $options = array(), $config = array()) {  
+    // date *must* be in YYYYMMDD format  (FIXME: check date format)
 
     // use default configuration if not specified
     if (!isset($config["notice_unsent"])) $config["notice_unsent"] = true;
@@ -340,7 +340,7 @@ class EtdSet {
    * @param array $options options as passed to etd find function
    * @return EtdSet
    */
-  public function findEmbargoed($options) {
+  public function findEmbargoed($options) {    
     $options["query"] = "date_embargoedUntil:[" . date("Ymd") . "TO *] NOT embargo_duration:(0 days)";
     $options["sort"] = "date_embargoedUntil asc";
     return $this->find($options);
@@ -367,7 +367,7 @@ class EtdSet {
    * 
    * @param array $options
    */
-  public function findMostViewed($options = array()) {
+  public function findMostViewed($options = array()) {     
     // get the most viewed pids from statistics db
     $stats = new StatObject();
     $pids = $stats->mostViewed(20);
@@ -386,7 +386,7 @@ class EtdSet {
     $sorted_etds = array();
     foreach ($pids as $pid) {
       foreach ($this->etds as $etd) {
-	if ($etd->pid() == $pid) $sorted_etds[] = $etd;
+  if ($etd->pid() == $pid) $sorted_etds[] = $etd;
       }
     }
     $this->etds = $sorted_etds;

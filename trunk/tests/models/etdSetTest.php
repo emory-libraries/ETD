@@ -12,16 +12,16 @@ class TestEtdSet extends UnitTestCase {
   private $fedora;
   
   function __construct() {
+  
     $this->fedora = Zend_Registry::get("fedora");
     $fedora_cfg = Zend_Registry::get('fedora-config');
-
+  
     // get 2 test pids 
     list($this->etdpid, $this->honors_etdpid) = $this->fedora->getNextPid($fedora_cfg->pidspace, 5);
   }
 
   function setUp() {
     $this->etdset = new EtdSet();
-    
     $this->fedora = Zend_Registry::get("fedora");
     $school_cfg = Zend_Registry::get("schools-config");
 
@@ -54,7 +54,7 @@ class TestEtdSet extends UnitTestCase {
   }
 
   function testInitialize() {
-    $this->etdset->find(array());	// find everything
+    $this->etdset->find(array()); // find everything
 
     // first item should be initialized as a regular etd
     $this->assertEqual($this->etdset->etds[0]->pid, $this->etdpid);
@@ -65,7 +65,7 @@ class TestEtdSet extends UnitTestCase {
     $this->assertEqual($this->etdset->etds[1]->pid, $this->honors_etdpid);
     $this->assertIsA($this->etdset->etds[1], "etd");
     $this->assertEqual("College Honors Program", $this->etdset->etds[1]->admin_agent,
-		       "honors etd correctly picked up school config");
+           "honors etd correctly picked up school config");
     
   }
   
