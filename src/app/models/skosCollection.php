@@ -37,17 +37,17 @@ class collectionHierarchy extends foxmlDatastreamAbstract {
     $this->addNamespace("skos", $this->skos_namespace);
     
        $config = $this->config(array(
-	     "collection" => array("xpath" => "skos:Collection[@rdf:about = '" . $this->id . "']",
-				   "class_name" => $this->collection_class),
-	     "parent_id" => array("xpath" => "skos:Collection[skos:member/@rdf:resource = '" . $id . "']/@rdf:about"),
-				       ));
-    parent::__construct($dom, $config, null);	// no xpath
+       "collection" => array("xpath" => "skos:Collection[@rdf:about = '" . $this->id . "']",
+           "class_name" => $this->collection_class),
+       "parent_id" => array("xpath" => "skos:Collection[skos:member/@rdf:resource = '" . $id . "']/@rdf:about"),
+               ));
+    parent::__construct($dom, $config, null); // no xpath
 
     if (! isset($this->collection)) {
       // collection not found - bad initialization
       throw new XmlObjectException("Error in constructor: collection id '" . $id . "' not found");
     }
-	  
+    
     // if this collection has a parent initialize parent as another collection object
     if (isset($this->parent_id)) {
       $this->parent = new collectionHierarchy($this->dom, (string)$this->parent_id);
@@ -162,16 +162,16 @@ class collectionHierarchy extends foxmlDatastreamAbstract {
 
      // for the count to work properly, we need ALL facets for this
      // field where there is at least one item
-     $options['facets'] = array("clear" => true,	// clear all other facets
-				"limit" => -1,		// no limit - return all facets
-				"mincount" => 1,	// any facet with at least one match
-				"add" => array($this->index_field));
+     $options['facets'] = array("clear" => true,  // clear all other facets
+        "limit" => -1,    // no limit - return all facets
+        "mincount" => 1,  // any facet with at least one match
+        "add" => array($this->index_field));
 
      // return minimal solrEtd for quicker browse results
      $options["return_type"] = "solrEtd";
 
-     $etdSet = new EtdSet();
-     $etdSet->findPublished($options);
+     $etdSet = new EtdSet($options, null, 'findPublished');
+     
      // use the facet counts on the indexed field to get totals
      $totals = $etdSet->facets->{$this->index_field};
      // sum up totals recursively
@@ -207,8 +207,8 @@ class collectionHierarchy extends foxmlDatastreamAbstract {
 
   public static function getNamespaces() {
     return array("rdf" => collectionHierarchy::RDF,
-		 "rdfs" => collectionHierarchy::RDFS,
-		 "skos" => collectionHierarchy::SKOS);
+     "rdfs" => collectionHierarchy::RDFS,
+     "skos" => collectionHierarchy::SKOS);
   }
 
 
@@ -216,7 +216,7 @@ class collectionHierarchy extends foxmlDatastreamAbstract {
   /** required to extend foxmlDatastreamAbstract - but not currently used **/
   public static function getFedoraTemplate(){
     return foxml::xmlDatastreamTemplate("SKOS", collectionHierarchy::dslabel,
-					'<rdf:RDF
+          '<rdf:RDF
   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
   xmlns:skos="http://www.w3.org/2004/02/skos/core#"
   xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"/>');
@@ -260,9 +260,9 @@ class skosCollection extends XmlObject {
   public function __construct($dom, $xpath) {
     $this->id = $dom->getAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "about");
     $config = $this->config(array(
-	"label" => array("xpath" => "rdfs:label"), 
-	"members" => array("xpath" => "skos:member", "is_series" => true,
-			   "class_name" => $this->member_class),
+  "label" => array("xpath" => "rdfs:label"), 
+  "members" => array("xpath" => "skos:member", "is_series" => true,
+         "class_name" => $this->member_class),
       
       ));
     parent::__construct($dom, $config, $xpath);
@@ -372,8 +372,8 @@ class skosCollection extends XmlObject {
     foreach ($this->members as $member) {
       if ($label == $member->label) return $member->id;
       if (count($member->members)) {
-	$id = $member->findDescendantIdbyLabel($label);
-	if ($id) return $id;
+  $id = $member->findDescendantIdbyLabel($label);
+  if ($id) return $id;
       }
     }
     return null;  // no match found
@@ -393,10 +393,10 @@ class skosMember extends XmlObject {
   public function __construct($dom, $xpath) {
     $id = $dom->getAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "resource");
     $config = $this->config(array(
-	 "id" =>  array("xpath" => "@rdf:resource"),
-	 "collection" => array("xpath" => "//skos:Collection[@rdf:about='" . $id . "']",
-			       "class_name" => $this->collection_class),
-	 ));
+   "id" =>  array("xpath" => "@rdf:resource"),
+   "collection" => array("xpath" => "//skos:Collection[@rdf:about='" . $id . "']",
+             "class_name" => $this->collection_class),
+   ));
     parent::__construct($dom, $config, $xpath);
   }
 
@@ -419,14 +419,14 @@ class skosMember extends XmlObject {
 
     // add current element if appropriate
     if ($mode == "all" ||
-	($mode == "indexed" && $this->isIndexed())) {
+  ($mode == "indexed" && $this->isIndexed())) {
       array_push($fields, $this->getIndexedData());
     }
 
     // add any collection members
     if ($this->collection)
       foreach ($this->collection->members as $member)
-	$fields = array_merge($fields, $member->getFields($mode));
+  $fields = array_merge($fields, $member->getFields($mode));
     return $fields;
   }
 
@@ -478,6 +478,6 @@ class foxmlSkosCollection extends foxml {
     
     // add mappings for xmlobject
     $this->xmlconfig["skos"] = array("xpath" => "//foxml:datastream[@ID='SKOS']/foxml:datastreamVersion/foxml:xmlContent/rdf:RDF",
-				     "class_name" => "collectionHierarchy", "dsID" => "SKOS");
+             "class_name" => "collectionHierarchy", "dsID" => "SKOS");
   }
 }

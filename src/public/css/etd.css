@@ -187,7 +187,7 @@ body h2 {   /* IE doesn't apply without body */
   font-size:10pt; 
 }
 
-body h3 { 	/* IE doesn't apply without body */
+body h3 {   /* IE doesn't apply without body */
   margin-top:0px;
   font-variant:small-caps;
   font-size:10pt;
@@ -905,7 +905,7 @@ div.relevance-label {
  padding-right:5px;
 }
 
-div.pagination { margin:8px 0px; padding-bottom:5px; border-bottom:1px solid #bcbcbc; }
+div.pagination { margin:5px 0px; padding-bottom:5px; border-bottom:1px solid #bcbcbc; }
 div.pagination p { margin:0px; }
 
 div.letters { text-align:center; border:1px solid grey; padding:2px; }
@@ -1042,5 +1042,15 @@ div#key {
   background-color: #efefef; /* light grey */
   width:35%;
   padding:3px;
+}
+
+div.grayed { 
+  margin-top:5px;
+  padding-left:3px;
+  padding-top:2px;
+  margin-bottom:5px;  
+  background-color: #efefef; /* light grey */
+  color:navy;
+  line-height: 1.1;
 }
 
