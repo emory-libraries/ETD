@@ -144,7 +144,9 @@ class EtdSet implements Zend_Paginator_Adapter_Interface {
           break; 
         case 'findRecentlyPublished':
           return $this->findRecentlyPublished($this->query_opts);
-          break;         
+          break;
+        case 'findEmbargoed':
+          return $this->findEmbargoed($this->query_opts);
         default:
           return $this->find($this->query_opts);
           break;

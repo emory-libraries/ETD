@@ -67,9 +67,18 @@ class ManageController extends Etd_Controller_Action {
      $filter = $this->getAdminFilter();
      if ($filter) $options["query"] = $filter;
      
-     $etdSet = new EtdSet();
-     $etdSet->find($options);
+     $etdSet = new EtdSet($options, null, 'find');
      $this->view->etdSet = $etdSet;
+
+     // Pagination Code
+    // TODO:  find a way to refactor this code that is repeated in this controller.
+    $paginator = new Zend_Paginator($etdSet);
+    $paginator->setItemCountPerPage(10);
+
+    if ($this->_hasParam('page')) $paginator->setCurrentPageNumber($this->_getParam('page'));
+    $this->view->paginator = $paginator;
+
+
      // should always have a status parameter
      $status = $this->_getParam("status");
      $list_title = ucfirst($status) . " records";
@@ -363,10 +372,18 @@ class ManageController extends Etd_Controller_Action {
      if (!$this->_helper->access->allowedOnEtd("manage")) return false;
 
      $options = $this->getFilterOptions();
-     $etdSet = new EtdSet();
-     $etdSet->findEmbargoed($options);
+     $etdSet = new EtdSet($options, null, 'findEmbargoed');
      $this->view->title = "Expiring Embargoes";
      $this->view->etdSet = $etdSet;
+
+     // Pagination Code
+    // TODO:  find a way to refactor this code that is repeated in this controller.
+    $paginator = new Zend_Paginator($etdSet);
+    $paginator->setItemCountPerPage(10);
+
+    if ($this->_hasParam('page')) $paginator->setCurrentPageNumber($this->_getParam('page'));
+    $this->view->paginator = $paginator;
+    
      $this->view->show_lastaction = true;
      // don't allow re-sorting by other fields (doesn't make sense)
      $this->view->sort = null;

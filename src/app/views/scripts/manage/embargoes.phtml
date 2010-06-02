@@ -2,9 +2,20 @@
 
 <p>records ordered by embargo expiration date</p>
 
-<?=  $this->render('browse/_paging.phtml') ?>
+<? /* Do not display pagination if the results is less than 2 */ ?>
+<? if (sizeof($this->paginator) > 1): ?>
+<div class="grayed">
+<? /* display pagination links again at the end of search results */ ?>
+<?= $this->paginationControl($this->paginator, 'Sliding', 'browse/pagination.phtml',
+            array("url_opts" => $this->url_opts)) ?>
+</div>
+<? endif ?>
+<? /* If the result set if empty, then output "No Results Found" msg */ ?>
+<? if (sizeof($this->paginator) == 0): ?>
+<h3>No Results Found</h3>
+<? endif ?> 
 
-<? foreach ($this->etdSet->etds as $this->etd) : ?>
+<? foreach ($this->paginator as $this->etd) : ?>
 <div class="listrecord">	
   <b><?= $this->etd->mods->embargo_end ?></b>
   <span class="embargo_notice">
@@ -25,3 +36,15 @@
 
 <? endforeach ?>
 
+<? /* Do not display pagination if the results is less than 2 */ ?>
+<? if (sizeof($this->paginator) > 1): ?>
+<div class="grayed">
+<? /* display pagination links again at the end of search results */ ?>
+<?= $this->paginationControl($this->paginator, 'Sliding', 'browse/pagination.phtml',
+            array("url_opts" => $this->url_opts)) ?>
+</div>
+<? endif ?>
+<? /* If the result set if empty, then output "No Results Found" msg */ ?>
+<? if (sizeof($this->paginator) == 0): ?>
+<h3>No Results Found</h3>
+<? endif ?>
