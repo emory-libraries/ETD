@@ -155,6 +155,9 @@ class BrowseController extends Etd_Controller_Action {
     $this->view->etdSet = $etdSet;
     
     // Pagination Code
+  /**
+   * @todo refactor this paginator code that is repeated
+   */      
     // TODO:  find a way to refactor this code that is repeated in this controller.
     $paginator = new Zend_Paginator($etdSet);
     $paginator->setItemCountPerPage(10);
