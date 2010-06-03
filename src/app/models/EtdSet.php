@@ -50,10 +50,15 @@ class EtdSet implements Zend_Paginator_Adapter_Interface {
 
   /**
    * create a new paginator
-   * @param array $query_opts
-   * @param array $query_facets
+   * @param array $query_opts - the options for the query for the paginator query.
+   * @param array $query_facets - the facets for the query for the paginator query.
+  * @param String $type The type of the paginator query function to be run.
+   * @param String $param Parameter to the paginator query function to be run. 
    * @see EtdSet::find
    */
+  /**
+   * @todo remove the separate findby* functions so the constructor would just take an optional filter
+   */  
   public function __construct($query_opts=null, $query_facets = null, $type='find', $param=null) {
     $this->query_opts = $query_opts;
     $this->query_facets = $query_facets;  
