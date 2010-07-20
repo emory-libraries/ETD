@@ -25,6 +25,7 @@ Deployment notes:
  * persis.xml test section has changed
  * Run following migrations:
    014-remove_duplicate_collection_membership.php
+ * Run a “forced refresh” on the fedora OAI provider
 
 
 Version 1.6.3 - April 2010 (bugfix)
