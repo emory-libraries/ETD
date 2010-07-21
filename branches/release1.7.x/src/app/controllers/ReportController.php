@@ -679,7 +679,7 @@ class ReportController extends Etd_Controller_Action {
       $pagelength_labels[">1000"] = "01000 TO *";
 
       foreach ($pagelength_labels as $label => $page_range) {
-        $response = $solr->query("$filter num_pages:[$page_range]", 0, 0);
+        $response = $solr->query("$filter num_pages:[$page_range] AND status:published", 0, 0);
         foreach ($this->document_type as $doc_type) {
           if (isset($response->facets->document_type[$doc_type]))
             $count = $response->facets->document_type[$doc_type];
