@@ -23,9 +23,9 @@ Version 1.7 - May 2010 (enhancements)
 Deployment notes:
  * main config.xml has new  sections for for news_feed and doc_feed
  * persis.xml test section has changed
- * svn external version update for public/images/filetypeIcons
  * Run following migrations:
    014-remove_duplicate_collection_membership.php
+ * Run a “forced refresh” on the fedora OAI provider
 
 
 Version 1.6.3 - April 2010 (bugfix)
