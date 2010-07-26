@@ -596,7 +596,7 @@ class ReportController extends Etd_Controller_Action {
      * @return string solr query filter
      */
     private function solr_filters($filters = array()) {
-      // build solr query filter based on specified year and program
+      // build solr query filter based on specified year and program this will later be combined with more parmams so the "AND" is needed
       if (isset($filters['year']) and $filters["year"] != null) {
           $year_filter = "year:" . $filters['year'] . " AND ";
       } else {
@@ -622,7 +622,7 @@ class ReportController extends Etd_Controller_Action {
       
       // NOTE: using genre/document type instead of degree names to consistently filter across all schools/degrees
       foreach ($this->document_type as $doc) {
-        $response = $solr->query("$filter document_type:\"$doc\"", 0, 0);
+        $response = $solr->query("$filter document_type:\"$doc\" AND status:published", 0, 0);
         $totals[$doc] = $this->clean_embargo_data($response->facets->embargo_duration);
       }
       return $totals;
@@ -679,7 +679,7 @@ class ReportController extends Etd_Controller_Action {
       $pagelength_labels[">1000"] = "01000 TO *";
 
       foreach ($pagelength_labels as $label => $page_range) {
-        $response = $solr->query("$filter num_pages:[$page_range]", 0, 0);
+        $response = $solr->query("$filter num_pages:[$page_range] AND status:published", 0, 0);
         foreach ($this->document_type as $doc_type) {
           if (isset($response->facets->document_type[$doc_type]))
             $count = $response->facets->document_type[$doc_type];
