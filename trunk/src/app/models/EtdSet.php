@@ -216,7 +216,7 @@ class EtdSet implements Zend_Paginator_Adapter_Interface {
           // if query is empty, first 'AND' or 'OR' is not needed; NOT must always be used
           if (! empty($query) || $op == "NOT") $query .= " $prefix $op ";
           // using (...) -- all terms, but not exact phrase "..."
-          $query .= $field . ':(' . $value . ')'; 
+          $query .= $field . ':("' . $value . '")'; 
         }
       }
     }
