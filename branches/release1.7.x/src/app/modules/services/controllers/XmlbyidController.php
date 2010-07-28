@@ -52,19 +52,13 @@ class Services_XmlbyidController extends Zend_Controller_Action {
 
       // create a new FedoraConnection using fedora config, but with maintenance account credentials
       $fedora_opts = $fedora_cfg->toArray();
-//      print "<pre>";
-//      print "CFG BEFORE:";
-//      print_r($fedora_opts);
-//      print "<pre>";
       $fedora_opts["username"] = $fedora_cfg->maintenance_account->username;
       $fedora_opts["password"] = $fedora_cfg->maintenance_account->password;
-      //$fedora_opts["server"] = $hostname;
-      //$fedora_opts["port"] = "8280";
+      $fedora_opts["server"] = $hostname;
+      $fedora_opts["port"] = $port;
+      $fedora_opts["protocol"] = $protocol;
       $fedora = new FedoraConnection($fedora_opts);
-//      print "<pre>";
-//      print "CFG AFTER:";
-//      print_r($fedora_opts);
-//      print "<pre>";
+
       
       $xml = $fedora->getDatastream($pid, $datastream);
       
