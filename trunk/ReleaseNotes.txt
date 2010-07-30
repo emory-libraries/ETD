@@ -1,7 +1,7 @@
 ETD Release Notes
 =================
 
-Version 1.7 - May 2010 (enhancements)
+Version 1.7 - August 2010 (enhancements)
 
  * Site news and subject documents are now pulled from an RSS feed from tagged content on
    the Digital Libraries drupal site
@@ -19,6 +19,7 @@ Version 1.7 - May 2010 (enhancements)
  * Refactored code to change User class to AuthorInfo class.
  * An admin, report viewer etc. will receive the correct role after login
  * A user can view a redesigned implementation of the pagination for the search and browse results to provide a simpler navigation experience.
+ * A new option for alternate ports has been added to the fedora config and supporting logic has been added to the xmlById service.
 
 Deployment notes:
  * main config.xml has new  sections for for news_feed and doc_feed
