@@ -1,0 +1,95 @@
+<config>
+  <development>
+      <timezone></timezone>
+    <session_name></session_name> <!-- PHP session name -->
+    <email>
+      <!-- address that ETD emails will be sent from -->
+      <etd>
+         <address></address>
+         <name></name>
+      </etd>
+      <ott>
+         <address>ott-web@emory.edu</address>
+         <name>Emory Office of Technology Transfer</name>
+      </ott>
+      <test></test>
+    </email>
+    <contact>
+      <!-- contact email to be listed on faq / help pages -->
+      <email></email>
+      <name></name>
+    </contact>
+    <news_feed>
+      <url>https://digital.library.emory.edu/taxonomy/term/22/all/feed</url>
+      <lifetime>3600</lifetime>
+    </news_feed>
+    <docs_feed>
+      <url>https://digital.library.emory.edu/taxonomy/term/26/all/feed</url>
+      <lifetime>3600</lifetime>
+    </docs_feed>
+    <tmpdir></tmpdir>
+    <logfile></logfile>
+      <!-- executable for pdftohtml; supply full path if necessary -->
+    <pdftohtml></pdftohtml> 
+  <!-- browsers supported for submission process  
+     Note: should match the "parent" field returned by get_browser() -->
+    <supported_browsers></supported_browsers>
+
+  <!-- override default role for superusers only here:
+    NOTE: these people must also be listed permit-etds-to-etdadmins policy -->
+    <superusers>
+            <user></user> 
+      <user></user>
+    </superusers>
+   <!-- tech support : must also be listed as etdadmins in fedora policy -->
+    <techsupport>
+      <user></user>
+            <user></user>
+    </techsupport>
+      <reportviewer>
+            <department></department>
+      </reportviewer>
+
+ <!-- NOTE: for superusers, techsupport, and honors_admin,
+      there must be at least 2 user entries so Zend_Config_Xml 
+      will treat it as a multiple field -->
+
+<!-- rights statement to be used in the MODS record -->
+     <useAndReproduction></useAndReproduction>
+
+     <!-- pid of the honors collection object in fedora -->
+     <!--<honors_collection></honors_collection> -->
+     <programs_pid></programs_pid>
+
+       <contentModels>
+           <etd>emory-control:ETD-1.0</etd>
+           <etdfile>emory-control:EtdFile-1.0</etdfile>
+           <author>emory-control:AuthorInformation-1.0</author> 
+       </contentModels>
+
+       <collections>
+           <all_etd>emory-control:ETD-collection</all_etd>
+           <grad_school>emory:ETD-GradSchool-collection</grad_school>
+           <college_honors>emory:17qqk</college_honors>
+       </collections>
+
+          <dojo>
+        <cdn>http://dojocdn-test.library.emory.edu/dojo/</cdn>
+        <version>1.2.3</version>
+          </dojo>
+
+  </development>
+
+  <test extends="development">
+       <!-- executable for saxonb-xslt, for testing xslt 2.0; supply full path if necessary -->
+    <saxonb_xslt>/usr/bin/saxonb-xslt</saxonb_xslt>
+       </test>
+
+  <production extends="development">
+        <dojo>
+        <cdn>http://dojocdn.library.emory.edu/dojo/</cdn>
+        <version>1.2.3</version>
+      </dojo>
+        </production>
+
+</config>
