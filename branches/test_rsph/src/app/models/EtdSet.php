@@ -59,11 +59,12 @@ class EtdSet implements Zend_Paginator_Adapter_Interface {
   /**
    * @todo remove the separate findby* functions so the constructor would just take an optional filter
    */  
-  public function __construct($query_opts=null, $query_facets = null, $type='find', $param=null) {
+  public function __construct($query_opts=null, $query_facets = null, $type='find', $param=null, $config=null) {
     $this->query_opts = $query_opts;
     $this->query_facets = $query_facets;  
     $this->type = $type;  
-    $this->param = $param;    
+    $this->param = $param;
+    $this->config = $config;    
     $this->getItems(1, 0);   
   }  
   
@@ -152,6 +153,13 @@ class EtdSet implements Zend_Paginator_Adapter_Interface {
           break;
         case 'findEmbargoed':
           return $this->findEmbargoed($this->query_opts);
+          break;
+        case 'findExpiringEmbargoes':
+          return $this->findExpiringEmbargoes($this->param, $this->query_opts, $this->config);
+          break;
+        case 'findUnpublishedByOwner':
+          return $this->findUnpublishedByOwner($this->param, $this->query_opts);
+          break;                     
         default:
           return $this->find($this->query_opts);
           break;
