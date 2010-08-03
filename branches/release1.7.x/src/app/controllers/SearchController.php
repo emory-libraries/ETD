@@ -101,15 +101,16 @@ class SearchController extends Etd_Controller_Action {
     $this->view->url_opts = $url_opts;
                 
     // use paginator to display results in segments
+    //Once orig object is paginated the orig objeject can be accessed by getItem function (it has a 1 based index).
     $paginator = new Zend_Paginator($etdSet);
     $paginator->setItemCountPerPage(10);     
      
     // if there's only one match found, forward directly to full record view
-    if ($etdSet->numFound == 1) {
+      if ($paginator->getTotalItemCount() == 1) {
       $this->_helper->flashMessenger->addMessage("Only one match found for search; displaying full record");
       $this->_helper->redirector->gotoRoute(array("controller" => "view",
               "action" => "record",
-              "pid" => $etdSet->etds[0]->pid()), "", true);
+              "pid" => $paginator->getItem(1)->pid()), "", true);
     } 
     else {  
       // if page is set, pass to paginator
