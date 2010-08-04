@@ -165,6 +165,9 @@ class EtdSet implements Zend_Paginator_Adapter_Interface {
         case 'find':
           return $this->find($this->query_opts);
           break;
+        case 'totals_by_status':
+          return $this->totals_by_status($this->param);
+          break;        
       }
     }
   }
