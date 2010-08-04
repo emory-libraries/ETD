@@ -10,32 +10,31 @@
       <degree>MS</degree>
     </degrees>
     <admin>
-      <department>GRS: Student Development</department>
-      <netid>gradqew</netid>
+	<department>GRS: Student Development</department>
+        <netid>gradqew</netid>
     </admin>
     <submission_fields>
-      <required>title</required>
-      <required>author</required>
-      <required>program</required>
-      <required>chair</required>
-      <required>committee members</required>
-      <required>researchfields</required>
-      <required>keywords</required>
-      <required>degree</required>
-      <required>language</required>
-      <required>abstract</required>
-      <required>table of contents</required>
-      <required>embargo request</required>
-      <required>submission agreement</required>
-      <required>send to ProQuest</required>
-      <required>copyright</required>
-      <required>name</required>
-      <required>email</required>
-      <required>permanent email</required>
-      <required>permanent address</required>
+	<required>title</required>
+	<required>author</required>
+	<required>program</required>
+	<required>chair</required>
+	<required>committee members</required>
+	<required>researchfields</required>
+	<required>keywords</required>
+	<required>degree</required>
+	<required>language</required>
+	<required>abstract</required>
+	<required>table of contents</required>
+	<required>embargo request</required>
+	<required>submission agreement</required>
+	<required>send to ProQuest</required>
+	<required>copyright</required>
+	<required>name</required>
+	<required>email</required>
+	<required>permanent email</required>
+	<required>permanent address</required>
     </submission_fields>
   </graduate_school>
-  
   <emory_college>
     <label>College Honors Program</label>
     <acl_id>honors</acl_id>
@@ -47,29 +46,29 @@
       <degree>BBA</degree>
     </degrees>
     <admin>
-    <department>ECAS: Ofc Undergrad Education</department>
-      <netid>efricke</netid>
+	<department>ECAS: Ofc Undergrad Education</department>
+    <netid>mabell</netid>
+    <netid>efricke</netid>
     </admin>
     <submission_fields>
-      <required>title</required>
-      <required>author</required>
-      <required>program</required>
-      <required>chair</required>
-      <required>committee members</required>
-      <required>keywords</required>
-      <required>degree</required>
-      <required>language</required>
-      <required>abstract</required>
-      <required>table of contents</required>
-      <required>embargo request</required>
-      <required>submission agreement</required>
-      <required>name</required>
-      <required>email</required>
-      <required>permanent email</required>
-      <optional>researchfields</optional>
+	<required>title</required>
+	<required>author</required>
+	<required>program</required>
+	<required>chair</required>
+	<required>committee members</required>
+	<required>keywords</required>
+	<required>degree</required>
+	<required>language</required>
+	<required>abstract</required>
+	<required>table of contents</required>
+	<required>embargo request</required>
+	<required>submission agreement</required>
+	<required>name</required>
+	<required>email</required>
+	<required>permanent email</required>
+	<optional>researchfields</optional>
     </submission_fields>
   </emory_college>
-  
   <candler>
     <label>Candler School of Theology</label>
     <acl_id>candler</acl_id>
@@ -81,76 +80,27 @@
       <degree>ThD</degree>
     </degrees>
     <submission_fields>
-      <required>title</required>
-      <required>author</required>
-      <required>program</required>
-      <required>chair</required>
-      <required>committee members</required>
-      <required>keywords</required>
-      <required>degree</required>
-      <required>language</required>
-      <required>abstract</required>
-      <required>table of contents</required>
-      <required>embargo request</required>
-      <required>submission agreement</required>
-      <required>name</required>
-      <required>email</required>
-      <required>permanent email</required>
-      <optional>researchfields</optional>
+	<required>title</required>
+	<required>author</required>
+	<required>program</required>
+	<required>chair</required>
+	<required>committee members</required>
+	<required>keywords</required>
+	<required>degree</required>
+	<required>language</required>
+	<required>abstract</required>
+	<required>table of contents</required>
+	<required>embargo request</required>
+	<required>submission agreement</required>
+	<required>name</required>
+	<required>email</required>
+	<required>permanent email</required>
+	<optional>researchfields</optional>
     </submission_fields>
     <admin>
-      <department>Candler School Of Theology</department>
-      <netid>skraftc</netid>
-      <netid>mmcca04</netid>
+	<department>Candler School Of Theology</department>
+    <netid>skraftc</netid>
+    <netid>mmcca04</netid>
     </admin>
   </candler>
-  
-  <rollins>
-    <label>Rollins School of Public Health</label>
-    <acl_id>rollins</acl_id>
-    <db_id>PUBH</db_id>
-    <fedora_collection>emory-control:ETD-Rollins-collection</fedora_collection>
-    <degrees>
-      <degree>MPH</degree>
-      <degree>MSPH</degree>
-    </degrees>
-    <submission_fields>
-      <required>title</required>
-      <required>author</required>
-      <required>program</required>
-      <required>chair</required>
-      <required>committee members</required>
-      <required>researchfields</required>
-      <required>keywords</required>
-      <required>degree</required>
-      <required>language</required>
-      <required>abstract</required>
-      <required>table of contents</required>
-      <required>embargo request</required>
-      <required>submission agreement</required>
-      <required>name</required>
-      <required>email</required>
-      <required>permanent email</required>
-      <required>permanent address</required>
-    </submission_fields>
-    <admin>
-      <department>SPH: Schoolwide</department>
-      <netid>mkrance</netid>
-      <department>SPH: Behavrl Sciences \&amp; Health</department>
-      <netid>ddunba2</netid>
-      <netid>cdettme</netid>
-      <department>SPH: Biostatistics</department>
-      <netid>twachho</netid>  
-      <department>SPH: Envirnmntl \&amp; Occupational</department>
-      <netid>ascarl</netid>  
-      <department>SPH: Schoolwide</department>
-      <netid>jtenley</netid>  
-      <department>SPH: Health Policy and Mngmnt</department>
-      <netid>kwollen</netid>
-      <department>SPH: Global Health</department>      
-      <netid>arozo</netid>   
-      <netid>tnash</netid>                                                  
-    </admin>
-  </rollins>
-    
 </schools>

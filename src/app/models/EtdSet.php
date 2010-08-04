@@ -52,19 +52,23 @@ class EtdSet implements Zend_Paginator_Adapter_Interface {
    * create a new paginator
    * @param array $query_opts - the options for the query for the paginator query.
    * @param array $query_facets - the facets for the query for the paginator query.
-  * @param String $type The type of the paginator query function to be run.
-   * @param String $param Parameter to the paginator query function to be run. 
+   * @param String $type The type of the paginator query function to be run.
+   * @param String $param Parameter to the paginator query function to be run.
+   * @param array $config Configuration array for the query function. 
    * @see EtdSet::find
    */
   /**
    * @todo remove the separate findby* functions so the constructor would just take an optional filter
    */  
-  public function __construct($query_opts=null, $query_facets = null, $type='find', $param=null) {
+  public function __construct($query_opts=null, $query_facets=null, $type=null, $param=null, $config=null) {
     $this->query_opts = $query_opts;
     $this->query_facets = $query_facets;  
     $this->type = $type;  
-    $this->param = $param;    
-    $this->getItems(1, 0);   
+    $this->param = $param;
+    $this->config = $config;    
+    if (isset($type)) {       // Pagination is being used.
+      $this->getItems(1, 0);  // subsequent calls to getItems retrieve (start, max) item chunks.   
+    }
   }  
   
   private function initializeEtds() {
@@ -132,12 +136,15 @@ class EtdSet implements Zend_Paginator_Adapter_Interface {
    * @return array
    * @see EtdSet::find
    */
-  public function getItems($start, $max) {     
-    if (isset($this->query_opts)) {
+  public function getItems($start, $max) {   
+    if (isset($this->query_opts)) { 
       $this->query_opts['start'] = $start;
       $this->query_opts['max'] = $max;
       $facets = null; 
-      switch ($this->type) {  
+      switch ($this->type) { 
+        case 'findApproved':
+          return $this->findApproved($this->query_opts);
+          break;         
         case 'findByDepartment':
           return $this->findByDepartment($this->param, $this->query_opts);
           break; 
@@ -152,9 +159,16 @@ class EtdSet implements Zend_Paginator_Adapter_Interface {
           break;
         case 'findEmbargoed':
           return $this->findEmbargoed($this->query_opts);
-        default:
-          return $this->find($this->query_opts);
           break;
+        case 'findExpiringEmbargoes':
+          return $this->findExpiringEmbargoes($this->param, $this->query_opts, $this->config);
+          break;
+        case 'findUnpublishedByOwner':
+          return $this->findUnpublishedByOwner($this->param, $this->query_opts);
+          break;                     
+        case 'find':
+          return $this->find($this->query_opts);
+          break;       
       }
     }
   }
