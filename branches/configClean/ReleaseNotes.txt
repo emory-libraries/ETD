@@ -1,5 +1,13 @@
 ETD Release Notes
 =================
+Version 1.8 - <date> (enhancements)
+ * Collections config has been consolidated in schools.xml
+
+Deployment notes:
+ * Remove honors_collection section from config.xml
+ * Remove collections section from config.xml
+
+
 Version 1.7.1 - August 2010 (bugfix)
  * Fixed bug in pagination code in searchController that caused results with one item to fail.
  * Changed link to ETD Help page on side nav.

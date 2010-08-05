@@ -1,4 +1,9 @@
 <schools>
+  <all_schools>
+      <label>All School</label>
+      <fedora_collection>emory-control:ETD-collection</fedora_collection>
+      <OAIInfo>ETD</OAIInfo>
+  </all_schools>
   <graduate_school>
     <label>Graduate School</label>
     <acl_id>grad</acl_id>

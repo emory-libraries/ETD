@@ -431,9 +431,8 @@ class TestEtd extends UnitTestCase {
     // check for error found in ticket:150
     $this->assertEqual("draft", $etd->status());
 
-    $config = Zend_Registry::get('config');
     // all etds should be member of either the graduate_school, emory_college or candler and not a member of the ETD master collection. 
-    $this->assertFalse($etd->rels_ext->isMemberOfCollections->includes($etd->rels_ext->pidToResource($config->collections->all_etd)),
+    $this->assertFalse($etd->rels_ext->isMemberOfCollections->includes($etd->rels_ext->pidToResource($this->school_cfg->all_schools->fedora_collection)),
         "template etd dos not have a  isMemberOfCollection relation to etd collection");
        
     $honors_etd = new etd($this->school_cfg->emory_college);
