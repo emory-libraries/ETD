@@ -5,7 +5,8 @@ Version 1.7.2 - August 2010 (bugfix)
  * Fixed bug in embargo_expiration script.
  
 Version 1.7.1 - August 2010 (bugfix)
- * Fixed bug in pagination code in searchController
+ * Fixed bug in pagination code in searchController that caused results with one item to fail.
+ * Changed link to ETD Help page on side nav.
 
 Version 1.7 - August 2010 (enhancements)
 
