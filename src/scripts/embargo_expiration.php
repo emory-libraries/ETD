@@ -34,27 +34,36 @@ try {
 $logger = setup_logging($opts->verbose);
 
 // find ETDs with embargoes that will expire in 60 days
-$expiration = date("Ymd", strtotime("+60 days"));	// 60 days from now
+$expiration = date("Ymd", strtotime("+60 days")); // 60 days from now
 $logger->debug("Searching for records with embargo expiration of $expiration or before and notice not sent");
 
 $options = array("start" => 0, "max" => 100);
-$etdSet = new EtdSet();
-$etdSet->findExpiringEmbargoes($expiration, $options);
+// Use the Zend_Paginator part of EtdSet to retrieve data in sets.
+$etdSet = new EtdSet($options, null, 'findExpiringEmbargoes', $expiration);
 
-for ($count = 0; $etdSet->hasResults(); $etdSet->next()) {
+// Wrap the result set around the paginator to get (page) sets of data to process.
+$paginator = new Zend_Paginator($etdSet);
+$paginator->setItemCountPerPage(100);
+
+$count = 0;
+for ($page = 0; $page<sizeof($paginator); $page++) {
+  
   $plural = ($etdSet->numFound == "1") ? "" : "s";
-  $logger->info("Processing record{$plural} " . $etdSet->currentRange() . " of " . $etdSet->numFound);
+  $logger->info("Processing record{$plural} " . ($page + 1) . " of " . sizeof($paginator));
+  
+  // Set the paginator to get the next set of data.
+  $paginator->setCurrentPageNumber(($page + 1));
 
-  foreach ($etdSet->etds as $etd) {
+  foreach ($paginator as $etd) {
     $logger->debug("Processing " . $etd->pid . " (embargo expires " . $etd->mods->embargo_end .
-		   " - duration of " . $etd->mods->embargo . ")");
+       " - duration of " . $etd->mods->embargo . ")");
 
     /** sanity checks - skip any records returned from Solr that shouldn't be here **/
 
     // double-check that embargo is actually 60-days or less away from expiration date
     if (strtotime($etd->mods->embargo_end) > strtotime($expiration)) {
       $logger->warn("ETD embargo for " . $etd->pid . " ends on " . $etd->mods->embargo_end .
-		   "; does not expire in 60 days, skipping");
+       "; does not expire in 60 days, skipping");
       continue;
     // embargo end date should not be blank
     } elseif ($etd->mods->embargo_end == "") {
@@ -67,7 +76,7 @@ for ($count = 0; $etdSet->hasResults(); $etdSet->next()) {
     }
     
     // double-check that embargo notice has not been sent according to MODS record
- // (this should only happen if Solr index does not get updated -- should be fixed by now?)
+    // (this should only happen if Solr index does not get updated -- should be fixed by now?)
     if (isset($etd->mods->embargo_notice) && strstr($etd->mods->embargo_notice, "sent")) {
       $logger->warn("Notice has already been sent for " . $etd->pid . "; skipping");
       continue;
@@ -77,14 +86,14 @@ for ($count = 0; $etdSet->hasResults(); $etdSet->next()) {
       $notify = new etd_notifier($etd);
       // send email about embargo expiration
       try {
-	$notify->embargo_expiration();
+        $notify->embargo_expiration();
       } catch (Zend_Db_Adapter_Exception $e) {
-	 // if ESD is not accessible, cannot look up faculty email addresses - notification will fail
-	$logger->crit("Error accessing ESD (needed for faculty email addresses); cannot proceed");
+         // if ESD is not accessible, cannot look up faculty email addresses - notification will fail
+        $logger->crit("Error accessing ESD (needed for faculty email addresses); cannot proceed");
 
-	// if ESD is down, it will fail for *ALL* records being processed
-	// -- exit now, don't mark any records as embargoed, etc.
-	return;
+        // if ESD is down, it will fail for *ALL* records being processed
+        // -- exit now, don't mark any records as embargoed, etc.
+        return;
       }
       
       // add an administrative note that embargo expiration notice has been sent,
@@ -93,14 +102,14 @@ for ($count = 0; $etdSet->hasResults(); $etdSet->next()) {
       
       $result = $etd->save("sent embargo expiration 60-day notice");
       if ($result) {
-	$logger->debug("Successfully saved " . $etd->pid . " at $result");
+        $logger->debug("Successfully saved " . $etd->pid . " at $result");
       } else {
-	$logger->err("Could not save embargo expiration notice sent to record history"); 
+        $logger->err("Could not save embargo expiration notice sent to record history"); 
       }
     }
 
     $count++;
-  }	// end looping through current set of etds
+  } // end looping through current set of etds
 }
 
 $logger->info("Sent " . $count . " 60-day notification" . (($count != 1) ? "s" : ""));
@@ -111,10 +120,12 @@ $logger->info("Sent " . $count . " 60-day notification" . (($count != 1) ? "s" :
 $expiration = date("Ymd", strtotime("+7 days"));
 $logger->debug("Searching for records with embargo expiration of $expiration");
 $options = array("start" => 0, "max" => 100, "return_type" => "solrEtd");
+// Use the empty constructor of EtdSet to bypass pagination implementation.
+$etdSet = new EtdSet();
 $etdSet->findExpiringEmbargoes($expiration, $options,
-			       array("notice_unsent" => false, // don't filter on embargo notice unsent
-				     "exact_date" => true)	// exact date instead of a date range
-			       );	
+             array("notice_unsent" => false, // don't filter on embargo notice unsent
+             "exact_date" => true)  // exact date instead of a date range
+             ); 
 $logger->debug("Found " . $etdSet->numFound . " record(s) expiring in 7 days");
 // only send the email if records are found
 if ($etdSet->numFound && !$opts->noact) {
@@ -128,19 +139,27 @@ if ($etdSet->numFound && !$opts->noact) {
 $expiration = date("Ymd");
 $logger->debug("Searching for records with embargo expiring today ($expiration)");
 $options = array("start" => 0, "max" => 100);
-$etdSet->findExpiringEmbargoes($expiration, $options,
-			       array("notice_unsent" => false, // don't filter on embargo notice unsent
-				     "exact_date" => true)	// exact date instead of a date range
-			       );
+// Use the Zend_Paginator part of EtdSet to retrieve data in sets.
+$etdSet = new EtdSet($options, null, 'findExpiringEmbargoes', $expiration,
+             array("notice_unsent" => false, // don't filter on embargo notice unsent
+             "exact_date" => true)  // exact date instead of a date range
+             );
 
-// loop through ETDs in batches of 100
-for ($count = 0; $etdSet->hasResults(); $etdSet->next()) {
+$paginator = new Zend_Paginator($etdSet);
+$paginator->setItemCountPerPage(100);
+
+// loop through ETDs in batches of 100 via paginator
+$count = 0;
+for ($page = 0; $page<sizeof($paginator); $page++) {
   $plural = ($etdSet->numFound == "1") ? "" : "s";
-  $logger->info("Processing record{$plural} " . $etdSet->currentRange() . " of " . $etdSet->numFound);
+  $logger->info("Processing record{$plural} " . ($page + 1) . " of " . sizeof($paginator));
+  // Set the paginator to get the next batch of data.
+  $paginator->setCurrentPageNumber(($page + 1));
 
-  foreach ($etdSet->etds as $etd) {
+  foreach ($paginator as $etd) {
+
     $logger->debug("Processing " . $etd->pid . " (embargo expires " . $etd->mods->embargo_end .
-		   " - duration of " . $etd->mods->embargo . ")");
+       " - duration of " . $etd->mods->embargo . ")");
 
     // if abstract and/or ToC were restricted, they should now be copied to mods/dc
     // for downstream disseminations (OAI, RSS, etc.)
@@ -156,31 +175,31 @@ for ($count = 0; $etdSet->hasResults(); $etdSet->next()) {
       $notify = new etd_notifier($etd);
       // send email about embargo ending
       try {
-	$notify->embargo_end();
+        $notify->embargo_end();
       } catch (Zend_Db_Adapter_Exception $e) {
-	 // if ESD is not accessible, cannot look up faculty email addresses - notification will fail
-	$logger->crit("Error accessing ESD (needed for faculty email addresses); cannot proceed");
+         // if ESD is not accessible, cannot look up faculty email addresses - notification will fail
+        $logger->crit("Error accessing ESD (needed for faculty email addresses); cannot proceed");
 
-	// if ESD is down, it will fail for *ALL* records being processed
-	// -- exit now, don't mark any records as embargoed, etc.
-	return;
+        // if ESD is down, it will fail for *ALL* records being processed
+        // -- exit now, don't mark any records as embargoed, etc.
+        return;
       }
 
       // add 0-day notification event to record history log
       $etd->premis->addEvent("notice",
-			     "Embargo Expiration Notification sent by ETD system",
-			     "success",  array("software", "etd system"));
+           "Embargo Expiration Notification sent by ETD system",
+           "success",  array("software", "etd system"));
       $result = $etd->save("sent embargo expiration 0-day notice");
       if ($result) {
-	$logger->debug("Successfully saved " . $etd->pid . " at $result");
+        $logger->debug("Successfully saved " . $etd->pid . " at $result");
       } else {
-	$logger->err("Could not save embargo expiration 0-day notice sent to record history"); 
+        $logger->err("Could not save embargo expiration 0-day notice sent to record history"); 
       }
     }
 
-      // FIXME: need to add 0-day notice to the history log 
+    // FIXME: need to add 0-day notice to the history log 
     $count++;
-  }	// end looping through current set of etds
+  } // end looping through current set of etds
 }
 
 
