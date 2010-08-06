@@ -1,6 +1,6 @@
 <schools>
   <all_schools>
-      <label>All School</label>
+      <label>All Schools</label>
       <fedora_collection>emory-control:ETD-collection</fedora_collection>
       <OAIInfo>ETD</OAIInfo>
   </all_schools>
