@@ -35,7 +35,6 @@ $logger = setup_logging($opts->verbose);
 //use maintenance_account to connect
 try {
   $fedora_opts = $fedora_cfg->toArray();
-  //print "USER / PASS: {$fedora_cfg->maintenance_account->username} / {$fedora_cfg->maintenance_account->password}\n";
   // use default fedora config opts but with maintenance account credentials
   //$fedora_opts["username"] = $fedora_cfg->maintenance_account->username;
   //$fedora_opts["password"] = $fedora_cfg->maintenance_account->password;
@@ -62,7 +61,6 @@ foreach($schools_config as $school){
     $collections[] = $col; //add each collection to the
 }
 
-print_r($collections);
 $root_collection = array_shift($collections);
 
 
@@ -80,7 +78,7 @@ if (!$collection) {
   $collection  = new FedoraCollection();
   $collection->pid = $root_collection['pid'];
   $collection->label = "ETD {$root_collection['name']} Collection";
-  $logger->notice("Top-level collection {$root_collection['pid']} not found in Fedora; creating it with PID:{$root_collection['pid']} LABEL:{$root_collection['name']}");
+  $logger->notice("Top-level collection {$root_collection['pid']} not found in Fedora creating it");
   if ($opts->noact) {
       $logger->info("Ingesting {$root_collection['pid']} into Fedora (simulated)");
       $logger->debug($collection->saveXML());
@@ -119,7 +117,6 @@ if ($collection->rels_ext->hasChanged() || $collection->label->hasChanged()) {
 }
 
 // now make sure all subcollections exist & are set up properly
-print_r($collections);
 foreach ($collections as $col) {
   // get the collection from fedora if it already exists
   try {
@@ -152,22 +149,20 @@ foreach ($collections as $col) {
     }
   }
 
-  //?? which collection
-  // make sure all sub-collections belong to root ETD collection
-//  if (! $collection->rels_ext->isMemberOfCollections->includes($fedora->risearch->pid_to_risearchpid($config->root_collection->pid))) {
-//    $collection->rels_ext->addRelationToResource("rel:isMemberOfCollection", $config->root_collection->pid);
-//  }
+ // make sure all sub-collections belong to root ETD collection
+   if (! $collection->rels_ext->isMemberOfCollections->includes($fedora->risearch->pid_to_risearchpid($root_collection['pid']))) {
+     $collection->rels_ext->addRelationToResource("rel:isMemberOfCollection", $root_collection['pid']);
+   }
 
   //update label based on config
   $collection->label = $label;
 
   // set/update OAI setSpec & setName on collection object
   // - OAI setSpec must contain only unreserved characters; convert spaces to -
-  $oai_subset = (isset($collection_info->oai_set) ? $collection_info->oai_set : str_replace(" ", "-", $collection_info->name));
-  $setid = $config->root_collection->oai_set . ":" . $oai_subset;
+  $setid = $root_collection['OAI'] . ":" . $col['school_id'];
   // - check that setSpec is valid; assuming only one level of collection hierarchy (no : delimiters)
   //   setSpec should consist of unreserved characters (alphanum plus mark; see rfc2396)
-  if (! preg_match("/^[a-zA-Z-_.!~*'()]+$/", $oai_subset)) {
+  if (! preg_match("/^[a-zA-Z0-9]+:[a-zA-Z0-9]+$/", $setid)) {
     $logger->err("Set id for $label ($setid) is not a valid OAI setSpec");
     // skip to the next collection - do not save/update this record
     continue;
@@ -193,3 +188,4 @@ foreach ($collections as $col) {
   }
 
 }
+$logger->notice("DONE!");
