@@ -36,10 +36,8 @@ $logger = setup_logging($opts->verbose);
 try {
   $fedora_opts = $fedora_cfg->toArray();
   // use default fedora config opts but with maintenance account credentials
-  //$fedora_opts["username"] = $fedora_cfg->maintenance_account->username;
-  //$fedora_opts["password"] = $fedora_cfg->maintenance_account->password;
-  $fedora_opts["username"] = 'fedoraAdmin';
-  $fedora_opts["password"] = 'fedoraAdmin';
+  $fedora_opts["username"] = $fedora_cfg->maintenance_account->username;
+  $fedora_opts["password"] = $fedora_cfg->maintenance_account->password;
   $maintenance_fedora = new FedoraConnection($fedora_opts);
       } catch (FedoraNotAvailable $e) {
   $this->logger->err("Error connecting to Fedora with maintenance account - " . $e->getMessage());
@@ -73,19 +71,21 @@ try {
 }
 
 //root collection does not exists - create it
+$label = "ETD {$root_collection['name']} Collection";
+
 if (!$collection) {
   
+  $logger->notice("Top-level collection {$root_collection['pid']} not found in Fedora creating it");
   $collection  = new FedoraCollection();
   $collection->pid = $root_collection['pid'];
-  $collection->label = "ETD {$root_collection['name']} Collection";
-  $logger->notice("Top-level collection {$root_collection['pid']} not found in Fedora creating it");
+  $collection->label = $label;
   if ($opts->noact) {
-      $logger->info("Ingesting {$root_collection['pid']} into Fedora (simulated)");
+      $logger->notice("Ingesting {$root_collection['pid']} into Fedora (simulated)");
       $logger->debug($collection->saveXML());
   } else {
     $success = $collection->ingest("creating ETD collection object");
     if ($success) {
-      $logger->info("Successfully ingested {$root_collection['pid']} into Fedora");
+      $logger->notice("Successfully ingested {$root_collection['pid']} into Fedora");
     } else {
       $logger->err("Failed to ingest {$root_collection['pid']} into Fedora");
     }
@@ -95,19 +95,19 @@ else{
     $logger->notice("Top-level collection {$root_collection['pid']} found");
 }
 
-$collection->label = "ETD {$root_collection['name']} Collection";
+$collection->label = $label;
 // set/update OAI setSpec & setName
+$logger->notice("Setting SPEC: {$root_collection['OAI']} NAME: {$root_collection['name']}");
 $collection->setOAISetInfo($root_collection['OAI'], $root_collection['name']);
-$logger->notice("Setting SPEC: {$root_collection['OAI']} NAME:{$root_collection['name']}");
 
-if ($collection->rels_ext->hasChanged() || $collection->label->hasChanged()) {
+if ($collection->rels_ext->hasChanged() || $collection->hasInfoChanged()) {
   if ($opts->noact) {
     $logger->notice("Updating {$root_collection['pid']} in Fedora (simulated)");
     $logger->debug($collection->rels_ext->saveXML());
   } else {
     $success = $collection->save("update OAI set information");
     if ($success) {
-      $logger->info("Successfully updated {$root_collection['pid']}  OAI set information");
+      $logger->notice("Successfully updated {$root_collection['pid']}  OAI set information");
     } else {
       $logger->err("Error updating OAI set information for {$root_collection['pid']}");
     }
@@ -119,6 +119,7 @@ if ($collection->rels_ext->hasChanged() || $collection->label->hasChanged()) {
 // now make sure all subcollections exist & are set up properly
 foreach ($collections as $col) {
   // get the collection from fedora if it already exists
+  $collection = NULL;
   try {
     $collection = new FedoraCollection($col['pid']);
   } catch (FedoraObjectNotFound $e) {
@@ -137,20 +138,25 @@ foreach ($collections as $col) {
     $collection->label = $label;
 
     if ($opts->noact) {
-      $logger->info("Ingesting {$col['pid']}) into Fedora (simulated)");
+      $logger->notice("Ingesting {$col['pid']}) into Fedora (simulated)");
       $logger->debug($collection->saveXML());
     } else {
-      $success = $collection->ingest("creating LSDI collection object");
+      $success = $collection->ingest("creating collection object");
       if ($success) {
-        $logger->info("Successfully ingested {$col['pid']} into Fedora");
+        $logger->notice("Successfully ingested {$col['pid']} into Fedora");
       } else {
         $logger->err("Failed to ingest {$col['pid']} into Fedora");
       }
     }
   }
+ else{
+    $logger->notice("Collection {$col['pid']} found");
+ 
+ }
 
  // make sure all sub-collections belong to root ETD collection
    if (! $collection->rels_ext->isMemberOfCollections->includes($fedora->risearch->pid_to_risearchpid($root_collection['pid']))) {
+       $logger->notice("Adding {$col['pid']} to collection {$root_collection['pid']}");
      $collection->rels_ext->addRelationToResource("rel:isMemberOfCollection", $root_collection['pid']);
    }
 
@@ -158,7 +164,7 @@ foreach ($collections as $col) {
   $collection->label = $label;
 
   // set/update OAI setSpec & setName on collection object
-  // - OAI setSpec must contain only unreserved characters; convert spaces to -
+  // - OAI setSpec must contain only unreserved characters; convert spaces to "-"
   $setid = $root_collection['OAI'] . ":" . $col['school_id'];
   // - check that setSpec is valid; assuming only one level of collection hierarchy (no : delimiters)
   //   setSpec should consist of unreserved characters (alphanum plus mark; see rfc2396)
@@ -178,7 +184,7 @@ foreach ($collections as $col) {
     } else {
       $success = $collection->save("update OAI set information");
       if ($success) {
-        $logger->info("Successfully updated {$col['pid']} OAI set information");
+        $logger->notice("Successfully updated {$col['pid']} OAI set information");
       } else {
         $logger->err("Error updating OAI set information for {$col['pid']}");
       }
