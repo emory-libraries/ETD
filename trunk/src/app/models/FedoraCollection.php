@@ -26,7 +26,7 @@ class FedoraCollection extends foxml {
 
         if ($this->init_mode == "pid") {
             // check that this is the right type of object - content model is set correctly
-            if ($this->rels_ext->hasModels->includes($this->fedora->risearch->pid_to_risearchpid($this->config->contentModels->etd)))
+            if (!$this->rels_ext->hasModels->includes($this->fedora->risearch->pid_to_risearchpid($this->cmodel_pid)))
             throw new FoxmlBadContentModel("$arg does not have correct content model");
         } elseif ($this->init_mode == "template") {
             // when creating new objects, add content model relation
