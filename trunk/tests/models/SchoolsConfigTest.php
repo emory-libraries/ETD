@@ -13,6 +13,7 @@ class TestSchoolsConfig extends UnitTestCase {
     $this->assertEqual("Graduate School", $this->schools->getLabel("graduate_school"));
     $this->assertEqual("College Honors Program", $this->schools->getLabel("emory_college"));
     $this->assertEqual("Candler School of Theology", $this->schools->getLabel("candler"));
+    $this->assertEqual("Rollins School of Public Health", $this->schools->getLabel("rollins"));    
 
     $this->assertNull($this->schools->getLabel("bogus"));
   }
@@ -21,6 +22,7 @@ class TestSchoolsConfig extends UnitTestCase {
     $this->assertEqual("graduate_school", $this->schools->getIdByFedoraCollection("emory-control:ETD-GradSchool-collection"));
     $this->assertEqual("emory_college", $this->schools->getIdByFedoraCollection("emory-control:ETD-College-collection"));
     $this->assertEqual("candler", $this->schools->getIdByFedoraCollection("emory-control:ETD-Candler-collection"));
+    $this->assertEqual("rollins", $this->schools->getIdByFedoraCollection("emory-control:ETD-Rollins-collection"));
 
     $this->assertNull($this->schools->getIdByFedoraCollection("bogus"));
   }
@@ -29,6 +31,7 @@ class TestSchoolsConfig extends UnitTestCase {
     $this->assertEqual("graduate_school", $this->schools->getIdByDatabaseId("GSAS"));
     $this->assertEqual("emory_college", $this->schools->getIdByDatabaseId("UCOL"));
     $this->assertEqual("candler", $this->schools->getIdByDatabaseId("THEO"));
+    $this->assertEqual("rollins", $this->schools->getIdByDatabaseId("PUBH"));    
 
     $this->assertNull($this->schools->getIdByDatabaseId("BOGUS"));
   }
@@ -41,19 +44,21 @@ class TestSchoolsConfig extends UnitTestCase {
     $schools = $this->schools;
 
     // override admin configurations for testing
-    $schools->graduate_school->admin = array("netid" =>
-					   array("gadmin"),
+    $schools->graduate_school->admin = array("netid" => array("gadmin"),
                              "department" => "Grad. School");
 
-    $schools->emory_college->admin = array("netid" =>
-					   array("llane", "mshonorable"),
+    $schools->emory_college->admin = array("netid" => array("llane", "mshonorable"),
                              "department" => "College");
 
-    $schools->candler->admin = array("netid" =>
-					   array("mcando"),
+    $schools->candler->admin = array("netid" => array("mcando"),
                              "department" => "Candler School of Theology");
 
     $schools->candler->admin->department = "Candler School of Theology";
+    
+    $schools->rollins->admin = array("netid" => array("phealth"), 
+                              "department" => "SPH: Schoolwide");
+                              
+    $schools->rollins->admin->department = "SPH: Schoolwide";    
 
     //grad
     $user->netid="gadmin";
@@ -71,6 +76,12 @@ class TestSchoolsConfig extends UnitTestCase {
     // blank out job title field for initial test
     $schools->candler->admin->job_title = "";
     $this->assertEqual("candler", $schools->isAdmin($user));
+    // rollins (by dept. only)
+    $user->department = "SPH: Schoolwide";
+    $user->netid = "phealth"; 
+    // blank out job title field for initial test
+    $schools->rollins->admin->job_title = "";
+    $this->assertEqual("rollins", $schools->isAdmin($user));       
 
      // generic user 
     $student = $person->getTestPerson();
@@ -90,11 +101,13 @@ class TestSchoolsConfig extends UnitTestCase {
     $school = $this->schools->getSchoolByAclId("candler");
     $this->assertIsA($school, "Zend_Config");
     $this->assertEqual("Candler School of Theology", $school->label);
+    
+    $school = $this->schools->getSchoolByAclId("rollins");
+    $this->assertIsA($school, "Zend_Config");
+    $this->assertEqual("Rollins School of Public Health", $school->label);    
 
     $this->assertNull($this->schools->getSchoolByAclId("bogus"));
   }
-
-  
 }
 
 runtest(new TestSchoolsConfig());
