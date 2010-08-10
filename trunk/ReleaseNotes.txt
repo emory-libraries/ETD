@@ -6,6 +6,11 @@ Version 1.8 - <date> (enhancements)
 Deployment notes:
  * Remove honors_collection section from config.xml
  * Remove collections section from config.xml
+ * Run the following migrations / scripts
+-  create_collections.php
+-  015-add-rollins-programs.php
+ 
+
 
 Version 1.7.2 - August 2010 (bugfix)
  * Fixed bug in embargo_expiration script.
