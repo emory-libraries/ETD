@@ -9,6 +9,8 @@
     <degree name="MS" pq_code="M.S."/>
     <degree name="MDiv" registrar_code="MDV"/>
     <degree name="MTS"/>
+    <degree name="MPH"/>
+    <degree name="MSPH"/>    
   </level>
   <level name="bachelors" genre="Honors Thesis">
     <degree name="BA"/>
