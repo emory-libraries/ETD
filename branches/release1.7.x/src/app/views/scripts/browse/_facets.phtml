@@ -1,3 +1,23 @@
+<?
+// FIXME: We may way to move this function into the controler.
+//However, new fields are are added in the "Filter your results" section
+//that are not present in the controller
+/**
+ *
+ * @param Array $url_opts - option for the filter links
+ * @return Array - optinos with spaces in them will be quoted
+ * Converts url_options with spaces to a quoted string
+ */
+function convert_options($url_opts){
+    $skip = array("controller", "action", "query"); //do not modify these keys
+    foreach($url_opts as $key => $val){
+        if(in_array($key, $skip)) continue;
+        $url_opts[$key] = '"'.$val.'"';
+    }
+    return $url_opts;
+}
+?>
+
 <? if (isset($this->etdSet->facets) && $this->etdSet->facets->hasValues()): ?>
   <style type="text/css">div.content {padding-right:215px; }</style>
  <? /* FIXME.. better way to do this? (set margin for main div to leave room for faces) */ ?>
@@ -17,7 +37,7 @@
 <?		foreach ($this->filters as $f => $t) if ($f != $facet) $url_opts[$f] = $t; ?>
 	   <? if ($facet == "program")	// convert program id to text label
 		$term = $this->programHierarchy->findLabelbyId($term) ?>
-	    <li><a href="<?= $this->url($url_opts, '', true) ?>"><?= $term ?></a></li>
+	    <li><a href="<?= $this->url($url_opts, '', true) ?>"><?= trim($term, '"') ?></a></li>
           <? endforeach ?>
 	</ul>
         <hr/> 
@@ -44,7 +64,8 @@
      <? $url_opts[$facet] = $label; ?>
      <? if ($facet == "program")	// convert program id to text label
 	  $label = $this->programHierarchy->findLabelbyId($label); ?>
-  	        <a href="<?= $this->url($url_opts) ?>"><?= $label ?></a>
+<?$url_opts = convert_options($url_opts);?>
+<a href="<?= $this->url($url_opts) ?>"><?= $label ?></a>
 	       (<?= $count ?>)</li>
  	    <? endforeach ?>
 	  </ul>
