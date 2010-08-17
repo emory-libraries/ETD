@@ -26,11 +26,13 @@ class TestPrograms extends UnitTestCase {
     $this->assertEqual("#programs", $this->programs->id);
     $this->assertIsA($this->programs->collection, "programCollection");
     $this->assertIsA($this->programs->collection, "skosCollection");
-    $this->assertEqual(2, count($this->programs->members));
+    $this->assertEqual(4, count($this->programs->members));
     $this->assertIsA($this->programs->members[0], "programMember");
     $this->assertIsA($this->programs->members[0], "skosMember");
-    $this->assertEqual("Graduate", $this->programs->members[0]->label);
-    $this->assertEqual("Undergraduate", $this->programs->members[1]->label);
+    $this->assertEqual("Laney Graduate School", $this->programs->members[0]->label, "got " . $this->programs->members[0]->label . " expected Laney Graduate School");
+    $this->assertEqual("Emory College", $this->programs->members[1]->label, "got " . $this->programs->members[1]->label . " expected Emory College");
+    $this->assertEqual("Candler School of Theology", $this->programs->members[2]->label, "got " . $this->programs->members[2]->label . " expected Candler School of Theology"); 
+    $this->assertEqual("Rollins School of Public Health", $this->programs->members[3]->label, "got " . $this->programs->members[3]->label . " expected Rollins School of Public Health");
     $this->assertEqual("Humanities", $this->programs->members[0]->members[0]->label);
 
     // still program-extended members & collections at deeper level of hierarchy?
@@ -44,8 +46,8 @@ class TestPrograms extends UnitTestCase {
   function testInitSubCollection() {
     // initialize programs with an id for a collection other than the top level
     $programObj = new foxmlPrograms("#grad");
-    $this->assertEqual("Graduate", $programObj->skos->label);
-    $this->assertEqual(3, count($programObj->skos->members));
+    $this->assertEqual("Laney Graduate School", $programObj->skos->label, "Got " . $programObj->skos->label . " expected Laney Graduate School");
+    $this->assertEqual(3, count($programObj->skos->members), "Got " . count($programObj->skos->members) . " expected 3");
     $this->assertEqual("Humanities", $programObj->skos->members[0]->label);
     $this->assertEqual("Programs", $programObj->skos->parent->label);
     
