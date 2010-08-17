@@ -411,8 +411,8 @@ public function testExportEmails() {
     $ReportController->embargoAction();
     $this->assertPattern('/2009/', $ReportController->view->title,
                           "page title should include year when filtering report by year");
-    $this->assertPattern('/Undergraduate/', $ReportController->view->title,
-                          "page title should include program name when filtering by program");
+    $this->assertPattern('/Emory College/', $ReportController->view->title,
+                          "page title should include program name when filtering by program, got " . $ReportController->view->title);
     $last_query = $this->solr->queries[count($this->solr->queries) - 1];
     $this->assertPattern('/year:2009/', $last_query,
                           "solr query should include year when filtering report by year");
