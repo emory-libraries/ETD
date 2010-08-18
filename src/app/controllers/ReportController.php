@@ -284,6 +284,9 @@ class ReportController extends Etd_Controller_Action {
        //set HTML headers in response to make output downloadable
        $this->_helper->layout->disableLayout();
        $filename = "GradReport-".date("Ymd", strtotime($start))."-".date("Ymd", strtotime($end)).".csv";
+       $this->getResponse()->setHeader('Cache-Control', 'public', true);
+       $this->getResponse()->setHeader('Pragma','public',true);
+       $this->getResponse()->setHeader('Expires','-1');
        $this->getResponse()->setHeader('Content-Type', "text/csv");
        $this->getResponse()->setHeader('Content-Disposition', 'attachment; filename="' . $filename . '"');
     }
@@ -400,6 +403,9 @@ class ReportController extends Etd_Controller_Action {
       //set HTML headers in response to make output downloadable
       $this->_helper->layout->disableLayout();
       $filename = "EmbargoReport.csv";
+      $this->getResponse()->setHeader('Cache-Control', 'public', true);
+      $this->getResponse()->setHeader('Pragma','public',true);
+      $this->getResponse()->setHeader('Expires','-1');
       $this->getResponse()->setHeader('Content-Type', "text/csv");
       $this->getResponse()->setHeader('Content-Disposition', 'attachment; filename="' . $filename . '"');
     }
@@ -431,7 +437,10 @@ class ReportController extends Etd_Controller_Action {
       $this->_helper->layout->disableLayout();
       // add date to the suggested output filename
       $filename = "ETD_approved_emails_" . date("Y-m-d") . ".csv";
-      $this->getResponse()->setHeader('Content-Type', "text/csv");
+      $this->getResponse()->setHeader('Cache-Control', 'public', true);
+      $this->getResponse()->setHeader('Pragma','public',true);
+      $this->getResponse()->setHeader('Expires','-1');
+      $this->getResponse()->setHeader('Content-Type', 'text/csv');
       $this->getResponse()->setHeader('Content-Disposition',
              'attachment; filename="' . $filename . '"');
    }

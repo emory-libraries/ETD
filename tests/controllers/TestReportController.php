@@ -188,10 +188,16 @@ function testgradDataCsvAction() {
 
     $response = $ReportController->getResponse();
     $headers = $response->getHeaders();
-    $this->assertEqual("Content-Type", $headers[0]["name"]);
-    $this->assertEqual("text/csv", $headers[0]["value"]);
-    $this->assertEqual("Content-Disposition", $headers[1]["name"]);
-    $this->assertPattern("/attachment; filename=\"GradReport-\d{8}-\d{8}\.csv\"/", $headers[1]["value"]);
+    $this->assertEqual("Cache-Control", $headers[0]["name"]);
+    $this->assertEqual("public", $headers[0]["value"]);
+    $this->assertEqual("Pragma", $headers[1]["name"]);
+    $this->assertEqual("public", $headers[1]["value"]);
+    $this->assertEqual("Expires", $headers[2]["name"]);
+    $this->assertEqual("-1", $headers[2]["value"]);
+    $this->assertEqual("Content-Type", $headers[3]["name"]);
+    $this->assertEqual("text/csv", $headers[3]["value"]);
+    $this->assertEqual("Content-Disposition", $headers[4]["name"]);
+    $this->assertPattern("/attachment; filename=\"GradReport-\d{8}-\d{8}\.csv\"/", $headers[4]["value"]);
        
     //test as student,  all other tests are done as admin
     $this->test_user->role = "student";
@@ -220,10 +226,16 @@ function testgradDataCsvAction() {
 
     $response = $ReportController->getResponse();
     $headers = $response->getHeaders();
-    $this->assertEqual("Content-Type", $headers[0]["name"]);
-    $this->assertEqual("text/csv", $headers[0]["value"]);
-    $this->assertEqual("Content-Disposition", $headers[1]["name"]);
-    $this->assertEqual("attachment; filename=\"EmbargoReport.csv\"", $headers[1]["value"]);
+    $this->assertEqual("Cache-Control", $headers[0]["name"]);
+    $this->assertEqual("public", $headers[0]["value"]);
+    $this->assertEqual("Pragma", $headers[1]["name"]);
+    $this->assertEqual("public", $headers[1]["value"]);
+    $this->assertEqual("Expires", $headers[2]["name"]);
+    $this->assertEqual("-1", $headers[2]["value"]);
+    $this->assertEqual("Content-Type", $headers[3]["name"]);
+    $this->assertEqual("text/csv", $headers[3]["value"]);
+    $this->assertEqual("Content-Disposition", $headers[4]["name"]);
+    $this->assertEqual("attachment; filename=\"EmbargoReport.csv\"", $headers[4]["value"]);
 
     //test as student,  all other tests are done as admin
     $this->test_user->role = "student";
@@ -241,9 +253,17 @@ public function testExportEmails() {
     $this->assertFalse($layout->enabled);
     $response = $ReportController->getResponse();
     $headers = $response->getHeaders();
-    $this->assertEqual("Content-Type", $headers[0]["name"]);
-    $this->assertEqual("text/csv", $headers[0]["value"]);
-    $this->assertPattern("|filename=.*csv|", $headers[1]["value"]);
+
+    $this->assertEqual("Cache-Control", $headers[0]["name"]);
+    $this->assertEqual("public", $headers[0]["value"]);
+    $this->assertEqual("Pragma", $headers[1]["name"]);
+    $this->assertEqual("public", $headers[1]["value"]);
+    $this->assertEqual("Expires", $headers[2]["name"]);
+    $this->assertEqual("-1", $headers[2]["value"]);
+    $this->assertEqual("Content-Type", $headers[3]["name"]);
+    $this->assertEqual("text/csv", $headers[3]["value"]);
+    $this->assertEqual("Content-Disposition", $headers[4]["name"]);
+    $this->assertPattern("|filename=.*csv|", $headers[4]["value"]);
   }
 
 
