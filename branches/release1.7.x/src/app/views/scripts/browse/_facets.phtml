@@ -9,7 +9,7 @@
  * Converts url_options with spaces to a quoted string
  */
 function convert_options($url_opts){
-    $skip = array("controller", "action", "query"); //do not modify these keys
+    $skip = array("controller", "action", "query", "program"); //do not modify these keys
     foreach($url_opts as $key => $val){
         if(in_array($key, $skip)) continue;
         $url_opts[$key] = '"'.$val.'"';
