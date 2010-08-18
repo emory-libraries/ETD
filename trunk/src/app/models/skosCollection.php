@@ -209,7 +209,8 @@ class collectionHierarchy extends foxmlDatastreamAbstract {
 
 
   public static function getNamespaces() {
-    return array("rdf" => collectionHierarchy::RDF,
+    return array("dc" => collectionHierarchy::DC,
+     "rdf" => collectionHierarchy::RDF,
      "rdfs" => collectionHierarchy::RDFS,
      "skos" => collectionHierarchy::SKOS);
   }
@@ -476,6 +477,7 @@ class foxmlSkosCollection extends foxml {
   protected function configure() {
     parent::configure();
 
+    $this->addNamespace("dc", collectionHierarchy::DC);
     $this->addNamespace("rdf", collectionHierarchy::RDF);
     $this->addNamespace("rdfs", collectionHierarchy::RDFS);
     $this->addNamespace("skos", collectionHierarchy::SKOS);
