@@ -12,12 +12,14 @@ require_once("fedora/models/foxml.php");
  * xml object mapping for a collection defined with skos and rdf
  */
 class collectionHierarchy extends foxmlDatastreamAbstract {
+  const DC = "http://purl.org/dc/elements/1.1/";
   const RDF = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
   const RDFS = "http://www.w3.org/2000/01/rdf-schema#";
   const SKOS = "http://www.w3.org/2004/02/skos/core#";
 
   const dslabel = "Collection Hierarchy";
     
+  protected $dc_namespace = "http://purl.org/dc/elements/1.1/";
   protected $rdf_namespace = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
   protected $rdfs_namespace = "http://www.w3.org/2000/01/rdf-schema#";
   protected $skos_namespace = "http://www.w3.org/2004/02/skos/core#";
@@ -32,6 +34,7 @@ class collectionHierarchy extends foxmlDatastreamAbstract {
   
   public function __construct($dom, $id) {
     $this->id = $id;
+    $this->addNamespace("dc", $this->dc_namespace);    
     $this->addNamespace("rdf", $this->rdf_namespace);
     $this->addNamespace("rdfs", $this->rdfs_namespace);
     $this->addNamespace("skos", $this->skos_namespace);
@@ -217,6 +220,7 @@ class collectionHierarchy extends foxmlDatastreamAbstract {
   public static function getFedoraTemplate(){
     return foxml::xmlDatastreamTemplate("SKOS", collectionHierarchy::dslabel,
           '<rdf:RDF
+  xmlns:dc="http://purl.org/dc/elements/1.1/"
   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
   xmlns:skos="http://www.w3.org/2004/02/skos/core#"
   xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"/>');
