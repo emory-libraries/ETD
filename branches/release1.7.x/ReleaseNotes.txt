@@ -1,5 +1,8 @@
 ETD Release Notes
 =================
+Version 1.7.3 - August 2010 (bugfix)
+ * Fixed bug in etdSet code which caused email templates to not function correctly.
+* Fixed bug in etd search filtering.
 
 Version 1.7.2 - August 2010 (bugfix)
  * Fixed bug in embargo_expiration script.
