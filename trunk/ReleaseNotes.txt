@@ -9,12 +9,22 @@ Deployment notes:
  * Run the following migrations / scripts
 -  create_collections.php
 -  015-add-rollins-programs.php
- 
+
+Version 1.7.3 - August 2010 (bugfix)
+ * Fixed bug in etdSet code which caused email templates to not function correctly.
+* Fixed bug in etd search filtering. 
 
 
 Version 1.7.2 - August 2010 (bugfix)
  * Fixed bug in embargo_expiration script.
 
+Version 1.7.3 - August 2010 (bugfix)
+ * Fixed bug in etdSet code which caused email templates to not function correctly.
+* Fixed bug in etd search filtering.
+
+Version 1.7.2 - August 2010 (bugfix)
+ * Fixed bug in embargo_expiration script.
+ 
 Version 1.7.1 - August 2010 (bugfix)
  * Fixed bug in pagination code in searchController that caused results with one item to fail.
  * Changed link to ETD Help page on side nav.

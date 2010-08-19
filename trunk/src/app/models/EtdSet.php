@@ -230,7 +230,7 @@ class EtdSet implements Zend_Paginator_Adapter_Interface {
           // if query is empty, first 'AND' or 'OR' is not needed; NOT must always be used
           if (! empty($query) || $op == "NOT") $query .= " $prefix $op ";
           // using (...) -- all terms, but not exact phrase "..."
-          $query .= $field . ':("' . $value . '")'; 
+          $query .= $field . ':(' . $value . ')'; 
         }
       }
     }
@@ -246,7 +246,7 @@ class EtdSet implements Zend_Paginator_Adapter_Interface {
       if (isset($options['facets']['limit'])) $solr->setFacetLimit($options['facets']['limit']);
     }
 
-    //    print $query . "\n";
+    //    print $query . "<br>";
     //    if (!isset($options["return_type"])) $options["return_type"] = "etd";
 
     $this->solrResponse = $solr->query($query, $start, $max, $sort);
