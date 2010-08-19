@@ -33,7 +33,7 @@ $logger = setup_logging($opts->verbose);
 // count records processed
 $updated = $unchanged = $error = 0;
 
-$etd_pids = $fedora->risearch->findByCModel($schools_config->all_schools->fedora_collection);
+$etd_pids = $fedora->risearch->findByCModel($config->contentModels->etd);
 $logger->notice("Found " . count($etd_pids) . " ETD records");
 
 foreach ($etd_pids as $pid) {
@@ -42,13 +42,13 @@ foreach ($etd_pids as $pid) {
     try {
         $etd = new etd($pid);
         // if a member of master etd collection, remove  relation to ETD-collection
-        if ( $etd->rels_ext->isMemberOfCollections->includes($etd->rels_ext->pidToResource($schools_config->all_schools->fedora_collection))) {
+        if ( $etd->rels_ext->isMemberOfCollections->includes($etd->rels_ext->pidToResource($config->collections->all_etd))) {
 	  if ($opts->noact) {     // noact mode: simulate success                                                                              
               $updated++;
 	      $logger->info("Removing rel:isMemberOfCollection for 'emory-control:ETD-collection'" . " $pid (simulated)");
 	    } else {
 	      $updated++;
-	      $etd->rels_ext->removeRelation("rel:isMemberOfCollection", $schools_config->all_schools->fedora_collection);
+	      $etd->rels_ext->removeRelation("rel:isMemberOfCollection", $config->collections->all_etd);
 	    }  
 	} 
 

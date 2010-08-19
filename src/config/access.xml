@@ -29,17 +29,17 @@
 
 
     <!-- faculty/student with submission (cannot create second record,
-     but still gets faculty/student view on MyEtds page) -->
+  	 but still gets faculty/student view on MyEtds page) -->
     <role name="faculty with submission" inherits="guest">
       <allow resource="authorInfo">create</allow>
     </role>
 
 
 <!-- pseudo-role with view privileges inherited by author, committee, dept. staff -->
-    <role name="view_all" inherits="guest"> 
+    <role name="view_all" inherits="guest">	
       <allow resource="etd">view metadata, view history, view status</allow>
-  <!-- files in any status, including embargoed -->
-      <allow resource="file">view, download</allow> 
+	<!-- files in any status, including embargoed -->
+      <allow resource="file">view, download</allow>	
     </role>
 
     <role name="author" inherits="view_all">
@@ -48,8 +48,8 @@
       <allow resource="draft file">edit, remove</allow>
       <allow resource="authorInfo">view, edit</allow>
     </role>
-    <role name="committee" inherits="view_all"/>  
-  <!--  coordinator for a particular program/department; 
+    <role name="committee" inherits="view_all"/>	
+	<!--  coordinator for a particular program/department; 
       role is determined in relation to specific ETDs -->
     <role name="program coordinator" inherits="view_all">
       <allow resource="file">view modified</allow>  
@@ -57,10 +57,10 @@
 
     <role name="admin" inherits="view_all">
        <allow resource="etd">edit history, edit status, manage</allow>
-  <!-- workflow actions according to when they can be done -->
-       <allow resource="submitted etd">review, request record changes</allow> <!-- record=metadata -->
+	<!-- workflow actions according to when they can be done -->
+       <allow resource="submitted etd">review, request record changes</allow>	<!-- record=metadata -->
        <allow resource="reviewed etd">approve, request document changes</allow>
-       <allow resource="approved etd">publish</allow> <!-- not technically done by admin... -->
+       <allow resource="approved etd">publish</allow>	<!-- not technically done by admin... -->
        <allow resource="published etd">inactivate, revise embargo</allow>
        <allow resource="report">view</allow>
        <!-- should really only be done by superuser -->
@@ -73,7 +73,7 @@
     </role>
 
     <!-- generic school admin - can do all generic admin tasks, but
-   only do management tasks on etd where they are admin -->
+	 only do management tasks on etd where they are admin -->
     <role name="school admin" inherits="view_all">
        <allow resource="etd">edit history, edit status, manage</allow>
        <allow resource="file">view modified</allow>
@@ -85,7 +85,6 @@
     <role name="grad admin" inherits="school admin"/>
     <role name="honors admin" inherits="school admin"/>
     <role name="candler admin" inherits="school admin"/>
-    <role name="rollins admin" inherits="school admin"/>    
 
     <role name="techsupport" inherits="view_all">
       <!-- view/edit any record, view log, but no workflow steps -->
@@ -96,7 +95,7 @@
     </role>
 
     <role name="superuser">
-      <allow/>  <!-- allow anything -->
+      <allow/>	<!-- allow anything -->
     </role>
 
     <role name="report viewer" inherits="guest">
@@ -117,9 +116,9 @@
 
    <resource name="file">
       <resource name="embargoed file"/>
-      <resource name="published file"/> <!-- better way to specify these? -->
-      <resource name="draft file"/> 
-      <resource name="original file"/>  
+      <resource name="published file"/>	<!-- better way to specify these? -->
+      <resource name="draft file"/>	
+      <resource name="original file"/>	
    </resource>
 
    <resource name="authorInfo"/>

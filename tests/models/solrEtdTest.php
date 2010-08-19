@@ -163,7 +163,7 @@ class SolrEtdTest  extends ControllerTestCase{
     $result = $this->solrEtd->getUserRole($this->user);
     $this->assertEqual($result, "admin");
 
-    //Candler admin
+    //Test candler admin
     $this->user->role = "candler admin";
     $response = $this->solrResponse;
     $candler_coll = $this->schools_cfg->candler->fedora_collection;
@@ -173,11 +173,11 @@ class SolrEtdTest  extends ControllerTestCase{
     $result = $this->solrEtd->getUserRole($this->user);
     $this->assertEqual($result, "admin");
 
-    //Rollins admin
-    $this->user->role = "rollins admin";
+    //Candler admin
+    $this->user->role = "candler admin";
     $response = $this->solrResponse;
-    $rollins_coll = $this->schools_cfg->rollins->fedora_collection;
-    $response["collection"] = array($rollins_coll);
+    $candler_coll = $this->schools_cfg->candler->fedora_collection;
+    $response["collection"] = array($candler_coll);
     $response = new Emory_Service_Solr_Response_Document($response);
     $this->solrEtd = new solrEtd($response);
     $result = $this->solrEtd->getUserRole($this->user);

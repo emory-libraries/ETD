@@ -153,7 +153,7 @@ $tester->ok();
 $tester->load_xmlconfig($config_dir . "config.xml", $env_mode);
 $tester->check_notblank(array("session_name", "tmpdir", "logfile", "pdftohtml",
 			      "supported_browsers", "useAndReproduction",
-			      "programs_pid",
+			      "honors_collection", "programs_pid",
 			      "email" => array("test", "etd/address", "etd/name"),
 			      "contact" => array("email"),
                   "contentModels" => array("etd", "etdfile", "author")
@@ -174,7 +174,10 @@ $tester->plural("honors_admin/user");
 if ($fedoraConnection) {
   
     require_once("models/foxml.php");
-    foreach (array("program hierarchy" => $tester->config->programs_pid,
+    foreach (array("ETD collection" => $tester->config->collections->all_etd,
+            "grad school collection" => $tester->config->collections->grad_school,
+            "honors collection" => $tester->config->collections->college_honors,
+            "program hierarchy" => $tester->config->programs_pid,
             "ETD content model" => $tester->config->contentModels->etd,
             "EtdFile content model" => $tester->config->contentModels->etdfile,
             "Author content model" => $tester->config->contentModels->author,

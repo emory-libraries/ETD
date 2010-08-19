@@ -54,9 +54,6 @@ class EditController extends Etd_Controller_Action {
     case 'candler':      
       $this->view->program_section = $programObject->skos->candler;
       break;
-      case 'rollins':
-      $this->view->program_section = $programObject->skos->rollins;
-      break;
       // NOTE: currently no default; view falls back to full program hierarchy if section is not set
     }
 

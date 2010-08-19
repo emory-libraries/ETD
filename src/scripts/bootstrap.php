@@ -100,7 +100,7 @@ function setup_logging($level) {
 
 // build an array of pids for ALL etd-related objects (etd, file, author, etc)
 function all_etd_pids() {
-    global $fedora, $logger, $config, $schools_config;
+    global $fedora, $logger, $config;
     // find all ETD objects by content models
     $etd_pids = $fedora->risearch->findByCModel($config->contentModels->etd);
     $logger->notice("Found " . count($etd_pids) . " ETD objects");
@@ -109,16 +109,11 @@ function all_etd_pids() {
     $author_pids = $fedora->risearch->findByCModel($config->contentModels->author);
     $logger->notice("Found " . count($author_pids) . " AuthorInfo objects");
     
-    //Get all school collection pids from the schools config file
-    $school_pids = array();
-    foreach ($schools_config as $school){
-    $school_pids[] = $school->fedora_collection;
-}
-
     // combine all pids into a single array
     $all_pids = array_merge($etd_pids, $etdfile_pids, $author_pids,
         // include pids for special objects
-        $school_pids, array($config->programs_pid)
+        array($config->collections->all_etd, $config->collections->grad_school,
+            $config->collections->college_honors, $config->programs_pid)
     );
 
     return $all_pids;

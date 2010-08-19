@@ -47,11 +47,10 @@ class SchoolsConfig extends Zend_Config_Xml {
     foreach ($this as $school) {
       // check for user netids explicitly specified
       // -- handle single netid or multiple
-      // -- have to add additional check for admin section because all_schools does not have admin section
-      if ((isset($school->admin) && isset($school->admin->netid)) &&
+      if (isset($school->admin->netid) &&
 	  // single netid in config file
 	  ($school->admin->netid != '' && $user->netid == $school->admin->netid)
-	  || ((isset($school->admin) && (is_object($school->admin->netid))) &&
+	  || (is_object($school->admin->netid) &&
 	      // multiple netids in config file
 	      in_array($user->netid, $school->admin->netid->toArray()))
       //check for department code

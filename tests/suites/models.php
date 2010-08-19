@@ -37,8 +37,7 @@ class ModelGroupTest extends GroupTest {
 
     $this->addTestFile('models/solrEtdTest.php');
     
-    $this->addTestFile('models/chartsTest.php');
-    $this->addTestFile('models/TestFedoraCollection.php');
+    $this->addTestFile('models/chartsTest.php');    
   }
 }
 

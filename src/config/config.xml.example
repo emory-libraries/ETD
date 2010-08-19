@@ -57,7 +57,8 @@
 <!-- rights statement to be used in the MODS record -->
      <useAndReproduction></useAndReproduction>
 
-     <!-- Top Level Program Collection -->
+     <!-- pid of the honors collection object in fedora -->
+     <!--<honors_collection></honors_collection> -->
      <programs_pid></programs_pid>
 
        <contentModels>
@@ -65,6 +66,12 @@
            <etdfile>emory-control:EtdFile-1.0</etdfile>
            <author>emory-control:AuthorInformation-1.0</author> 
        </contentModels>
+
+       <collections>
+           <all_etd>emory-control:ETD-collection</all_etd>
+           <grad_school>emory:ETD-GradSchool-collection</grad_school>
+           <college_honors>emory:17qqk</college_honors>
+       </collections>
 
           <dojo>
         <cdn>http://dojocdn-test.library.emory.edu/dojo/</cdn>

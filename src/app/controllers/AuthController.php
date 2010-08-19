@@ -27,7 +27,7 @@ class AuthController extends Etd_Controller_Action {
      if ($username == '' || $password == '') {
        $this->_helper->flashMessenger->addMessage("Error: please supply username and password");
        $this->_helper->redirector->gotoRoute(array("controller" => "index",
-               "action" => "index"), "", true);
+						   "action" => "index"), "", true);
      }
 
      $config_dir = Zend_Registry::get("config-dir");
@@ -42,13 +42,13 @@ class AuthController extends Etd_Controller_Action {
        switch($result->getCode()) {
        case Zend_Auth_Result::FAILURE_IDENTITY_NOT_FOUND :
        case Zend_Auth_Result::FAILURE_IDENTITY_AMBIGUOUS :
-   $message .= " - wrong username?";
-   break;
+	 $message .= " - wrong username?";
+	 break;
        case Zend_Auth_Result::FAILURE_CREDENTIAL_INVALID:
-   $message .= " - wrong password?";
-   break;
+	 $message .= " - wrong password?";
+	 break;
        default:
-   // no additional information for user
+	 // no additional information for user
        }
 
        // display information about failed login / reason
@@ -56,23 +56,23 @@ class AuthController extends Etd_Controller_Action {
 
        // reload the last page
        $this->_helper->redirector->gotoUrl($url, array("prependBase" => false));
-     } else { 
+     } else {	
        $this->_helper->flashMessenger->addMessage("Login successful");
 
        // find this user in ESD and save their user information
        $esd = new esdPersonObject();
        try {
-   $current_user = $esd->findByUsername($username);
+	 $current_user = $esd->findByUsername($username);
 
-   // if user is not found in ESD, force init without ESD
-   if (! $current_user instanceOf esdPerson)
-     throw new Exception("Username $username not found in ESD");
+	 // if user is not found in ESD, force init without ESD
+	 if (! $current_user instanceOf esdPerson)
+	   throw new Exception("Username $username not found in ESD");
        } catch (Exception $e) {
-   // if ESD is not accessible, create an esdPerson object with netid only
-   $current_user = $esd->initializeWithoutEsd($username);
-   $this->logger->warn("could not access ESD; logging in without full user information");
-   
-   $this->_helper->flashMessenger->addMessage("Warning: could not access Emory Shared Data; some functionality may not be available");
+	 // if ESD is not accessible, create an esdPerson object with netid only
+	 $current_user = $esd->initializeWithoutEsd($username);
+	 $this->logger->warn("could not access ESD; logging in without full user information");
+	 
+	 $this->_helper->flashMessenger->addMessage("Warning: could not access Emory Shared Data; some functionality may not be available");
        }
 
        // store username for newly logged in user
@@ -98,15 +98,14 @@ class AuthController extends Etd_Controller_Action {
      $role = $this->_getParam("role");
      if (strstr($role, "coordinator")) {
        $dept = str_replace("coordinator:", "", $role);
-       $this->current_user->role = "staff"; // shouldn't matter
-       $this->current_user->program_coord = $dept;  // program coordinator of department
+       $this->current_user->role = "staff";	// shouldn't matter
+       $this->current_user->program_coord = $dept;	// program coordinator of department
      } elseif (strpos($role, " student")) {
        $schools_cfg = Zend_Registry::get("schools-config");
        switch ($role) {
        case "grad student": $school = "graduate_school"; break;
        case "honors student": $school = "emory_college"; break;
        case "candler student": $school = "candler"; break;
-       case "rollins student": $school = "rollins"; break;       
        }
        // set student to be recognized for appropriate school
        $this->current_user->academic_career = $schools_cfg->$school->db_id;
@@ -135,7 +134,7 @@ class AuthController extends Etd_Controller_Action {
 
      // forward to ... ?
      $this->_helper->redirector->gotoRoute(array("controller" => "index",
-             "action" => "index"), "", true);
+						 "action" => "index"), "", true);
 
    }
 
