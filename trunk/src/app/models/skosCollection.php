@@ -39,11 +39,11 @@ class collectionHierarchy extends foxmlDatastreamAbstract {
     $this->addNamespace("rdfs", $this->rdfs_namespace);
     $this->addNamespace("skos", $this->skos_namespace);
     
-       $config = $this->config(array(
+    $config = $this->config(array(
        "collection" => array("xpath" => "skos:Collection[@rdf:about = '" . $this->id . "']",
-           "class_name" => $this->collection_class),
+                              "class_name" => $this->collection_class),
        "parent_id" => array("xpath" => "skos:Collection[skos:member/@rdf:resource = '" . $id . "']/@rdf:about"),
-               ));
+    ));
     parent::__construct($dom, $config, null); // no xpath
 
     if (! isset($this->collection)) {
@@ -139,7 +139,22 @@ class collectionHierarchy extends foxmlDatastreamAbstract {
     else return null;
   }
 
-  
+  /**
+   * find a dc:identifier element by value
+   * @param string $value $value dc:identifier element value.
+   * @return true/false if element exists.
+   */
+  // find the dc:indentifier for a matching word - used to map dc:identifier to program
+  public function findIdentifier($value) {  
+    $xpath = "//dc:identifier[. = '$value']";          
+    $nodeList = $this->xpath->query($xpath, $this->domnode);
+    if ($nodeList->length == 1) {
+      return $nodeList->item(0)->nodeValue;
+    } else {
+      return null;
+    }
+  }
+    
 
   public function findOrphans() {
     $xpath = "//skos:Collection[not(@rdf:about = //skos:Collection/skos:member/@rdf:resource)][count(skos:member) = 0]";
@@ -221,10 +236,10 @@ class collectionHierarchy extends foxmlDatastreamAbstract {
   public static function getFedoraTemplate(){
     return foxml::xmlDatastreamTemplate("SKOS", collectionHierarchy::dslabel,
           '<rdf:RDF
-  xmlns:dc="http://purl.org/dc/elements/1.1/"
-  xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-  xmlns:skos="http://www.w3.org/2004/02/skos/core#"
-  xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"/>');
+          xmlns:dc="http://purl.org/dc/elements/1.1/"
+          xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+          xmlns:skos="http://www.w3.org/2004/02/skos/core#"
+          xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"/>');
   }
   
   public function datastream_label() {
@@ -240,19 +255,29 @@ class collectionHierarchy extends foxmlDatastreamAbstract {
       $this->collection->setMembers($ids);
   }
 
-
-  public function addCollection($id, $label) {
+  /**
+   * Add a Collection
+   * @param string id of collection
+   * @param string label string of rdfs label value.
+   * @param array codes array of dc:identifier element value.
+   * @return true/false if element exists.
+   */
+  public function addCollection($id, $label, $codes=null) {    
     $newnode = $this->dom->createElementNS(collectionHierarchy::SKOS, "skos:Collection");
     $newnode->setAttributeNS(collectionHierarchy::RDF, "rdf:about", $id);
     $newnode = $this->domnode->appendChild($newnode);
     $label = $this->dom->createElementNS(collectionHierarchy::RDFS, "rdfs:label", $label);
     $newnode->appendChild($label);
+    if (isset($codes)) {
+      foreach ($codes as $label) {
+        $label = $this->dom->createElementNS(collectionHierarchy::DC, "dc:identifier", $label);
+        $newnode->appendChild($label);        
+      }     
+    }
     $this->update();
   }
 
-  
 }
-
 
 
 class skosCollection extends XmlObject {
@@ -265,11 +290,11 @@ class skosCollection extends XmlObject {
   public function __construct($dom, $xpath) {
     $this->id = $dom->getAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "about");
     $config = $this->config(array(
-  "label" => array("xpath" => "rdfs:label"), 
-  "members" => array("xpath" => "skos:member", "is_series" => true,
-         "class_name" => $this->member_class),
+      "label" => array("xpath" => "rdfs:label"), 
+      "members" => array("xpath" => "skos:member", "is_series" => true,
+      "class_name" => $this->member_class),
       
-      ));
+    ));
     parent::__construct($dom, $config, $xpath);
     $this->set_members_by_id();
   }
@@ -301,7 +326,6 @@ class skosCollection extends XmlObject {
       return true;
     else return parent::__isset($name);
   }
-
 
   public function calculateTotal($totals) {
     $sum = isset($totals[$this->getIndexedData()]) ? $totals[$this->getIndexedData()] : 0;
@@ -365,7 +389,15 @@ class skosCollection extends XmlObject {
     $this->update();
   }
 
-
+  /**
+   * add a dc:identifier element to this collection
+   * @param string $value dc:identifier element value.
+   */
+  public function addIdentifier($value) {  
+    $newnode = $this->dom->createElementNS(collectionHierarchy::DC, "dc:identifier", $value);   
+    $this->domnode->appendChild($newnode);     
+    $this->update();    
+  }
 
   /**
    * find a member of this collection or ANY sub-collection by label and return id
@@ -377,8 +409,8 @@ class skosCollection extends XmlObject {
     foreach ($this->members as $member) {
       if ($label == $member->label) return $member->id;
       if (count($member->members)) {
-  $id = $member->findDescendantIdbyLabel($label);
-  if ($id) return $id;
+        $id = $member->findDescendantIdbyLabel($label);
+        if ($id) return $id;
       }
     }
     return null;  // no match found
@@ -398,9 +430,9 @@ class skosMember extends XmlObject {
   public function __construct($dom, $xpath) {
     $id = $dom->getAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "resource");
     $config = $this->config(array(
-   "id" =>  array("xpath" => "@rdf:resource"),
-   "collection" => array("xpath" => "//skos:Collection[@rdf:about='" . $id . "']",
-             "class_name" => $this->collection_class),
+      "id" =>  array("xpath" => "@rdf:resource"),
+      "collection" => array("xpath" => "//skos:Collection[@rdf:about='" . $id . "']",
+                            "class_name" => $this->collection_class),
    ));
     parent::__construct($dom, $config, $xpath);
   }
@@ -423,15 +455,14 @@ class skosMember extends XmlObject {
     $fields = array();
 
     // add current element if appropriate
-    if ($mode == "all" ||
-  ($mode == "indexed" && $this->isIndexed())) {
+    if ($mode == "all" || ($mode == "indexed" && $this->isIndexed())) {
       array_push($fields, $this->getIndexedData());
     }
 
     // add any collection members
     if ($this->collection)
       foreach ($this->collection->members as $member)
-  $fields = array_merge($fields, $member->getFields($mode));
+        $fields = array_merge($fields, $member->getFields($mode));
     return $fields;
   }
 
