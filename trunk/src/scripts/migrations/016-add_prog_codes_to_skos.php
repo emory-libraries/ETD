@@ -1,9 +1,9 @@
 #!/usr/bin/php -q
 <?php
 /**
- * Update SKOs program codes with new element dc:identifier 
+ * Update SKOs programs with new element dc:identifier 
  * that contains the program-department code.
- * There could be more that one code for each collection.
+ * There could be more that one identifier for each collection.
  *
  * @category Etd
  * @package Etd_Scripts
