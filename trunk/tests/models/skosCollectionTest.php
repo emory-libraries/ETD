@@ -102,8 +102,23 @@ class TestSkosCollection extends UnitTestCase {
   public function testfindDescendantIdByLabel() {
     $this->assertEqual("#one", $this->skos->collection->findDescendantIdbyLabel("a member"));
     $this->assertEqual("#three",
-		       $this->skos->collection->findDescendantIdbyLabel("third-level member"));
+           $this->skos->collection->findDescendantIdbyLabel("third-level member"));
   }
+  
+  public function testFindIdentifier() {
+    $this->assertEqual("degree code one", $this->skos->findIdentifier("degree code one"));
+    $this->assertEqual("degree code two", $this->skos->findIdentifier("degree code two"));
+  } 
+  
+  public function testAddIdentifier() {
+    // test when multiple identifier element is added when the collection is added.
+    $this->skos->collection->addIdentifier("EMORYBS");
+    $this->assertPattern('/<dc:identifier>EMORYBS<\/dc:identifier>/', $this->skos->saveXML(),
+       "pgm collection PGMBS identifier present in xml"); 
+  }     
+  
+  
+   
   
 
   public function testCalculateTotals() {
@@ -120,7 +135,7 @@ class TestSkosCollection extends UnitTestCase {
 
     $this->assertEqual(1, $this->skos->members[0]->count);
     $this->assertEqual(2, $this->skos->members[1]->members[0]->count);
-    $this->assertEqual(3, $this->skos->members[1]->count);	// 2 (third-level) + 1 (self)
+    $this->assertEqual(3, $this->skos->members[1]->count);  // 2 (third-level) + 1 (self)
     $this->assertEqual(4, $this->skos->count);
     
   }
@@ -149,7 +164,7 @@ class TestSkosCollection extends UnitTestCase {
     $this->assertEqual("level 3", $this->skos->members[1]->members[0]->label);
     $this->assertPattern("|<rdfs:label>level 3</rdfs:label>|", $this->skos->saveXML());
 
-    error_reporting($this->errlevel);	    // restore prior error reporting
+    error_reporting($this->errlevel);     // restore prior error reporting
   }
 
   public function testSetMembers() {
@@ -220,18 +235,53 @@ class TestSkosCollection extends UnitTestCase {
   function testAddCollection() {
     $this->skos->addCollection("#newcoll", "New Collection");
     $this->assertPattern('/<skos:Collection rdf:about="#newcoll">/', $this->skos->saveXML(),
-			 "new collection id present in xml");
+       "new collection id present in xml");
     $this->assertPattern('/<rdfs:label>New Collection<\/rdfs:label>/', $this->skos->saveXML(),
-			 "new collection label present in xml");
+       "new collection label present in xml");
 
     // add to top-level collection and access via object 
     $this->skos->collection->addMember("#newcoll");
     $this->assertIsA($this->skos->newcoll, "skosMember",
-		     "new collection added to top-level collection & accessible by id");
+         "new collection added to top-level collection & accessible by id");
     $this->assertEqual($this->skos->newcoll->id, "#newcoll",
-		       "new collection id accessible through skos object");
+           "new collection id accessible through skos object");
     $this->assertEqual($this->skos->newcoll->label, "New Collection",
-		       "new collection label accessible through skos object");
+           "new collection label accessible through skos object");
+           
+    $this->skos->addCollection("#newcoll", "New Collection");
+    $this->assertPattern('/<skos:Collection rdf:about="#newcoll">/', $this->skos->saveXML(),
+       "new collection id present in xml");
+    $this->assertPattern('/<rdfs:label>New Collection<\/rdfs:label>/', $this->skos->saveXML(),
+       "new collection label present in xml");
+
+    // add to top-level collection and access via object 
+    $this->skos->collection->addMember("#newcoll");
+    $this->assertIsA($this->skos->newcoll, "skosMember",
+         "new collection added to top-level collection & accessible by id");
+    $this->assertEqual($this->skos->newcoll->id, "#newcoll",
+           "new collection id accessible through skos object");
+    $this->assertEqual($this->skos->newcoll->label, "New Collection",
+           "new collection label accessible through skos object"); 
+          
+    // test when single identifier element is added when the collection is added.
+    $this->skos->addCollection("#pgmcoll", "PGM Collection", array("PGMPHD"));
+    $this->assertPattern('/<dc:identifier>PGMPHD<\/dc:identifier>/', $this->skos->saveXML(),
+       "pgm collection PGMPHD identifier present in xml");                      
+    $this->assertPattern('/<skos:Collection rdf:about="#pgmcoll">/', $this->skos->saveXML(),
+       "pgm collection id present in xml");
+    $this->assertPattern('/<rdfs:label>PGM Collection<\/rdfs:label>/', $this->skos->saveXML(),
+       "pgm collection label present in xml"); 
+       
+    // test when multiple identifier element is added when the collection is added.
+    $this->skos->addCollection("#pgmcoll", "PGM Collection", array("PGMPHD", "PGMBS"));
+    $this->assertPattern('/<dc:identifier>PGMBS<\/dc:identifier>/', $this->skos->saveXML(),
+       "pgm collection PGMBS identifier present in xml"); 
+    $this->assertPattern('/<dc:identifier>PGMPHD<\/dc:identifier>/', $this->skos->saveXML(),
+       "pgm collection PGMPHD identifier present in xml");                     
+    $this->assertPattern('/<skos:Collection rdf:about="#pgmcoll">/', $this->skos->saveXML(),
+       "pgm collection id present in xml");
+    $this->assertPattern('/<rdfs:label>PGM Collection<\/rdfs:label>/', $this->skos->saveXML(),
+       "pgm collection label present in xml");                          
 
   }
 
