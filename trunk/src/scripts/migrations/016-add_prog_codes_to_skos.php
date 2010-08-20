@@ -1,7 +1,9 @@
 #!/usr/bin/php -q
 <?php
 /**
- * Update SKOs program codes for all schools.
+ * Update SKOs program codes with new element dc:identifier 
+ * that contains the program-department code.
+ * There could be more that one code for each collection.
  *
  * @category Etd
  * @package Etd_Scripts
@@ -18,7 +20,7 @@ $opts = new Zend_Console_Getopt($common_getopts);
 // extended usage information - based on option list above, but with explanation/examples
 $scriptname = basename($_SERVER{"SCRIPT_NAME"});
 $usage = $opts->getUsageMessage() . "
- $scriptname updates program list to add program codes to all schools
+ $scriptname updates program list to add program-degree codes in a dc:identifier element
 ";
 
 try {
@@ -30,144 +32,206 @@ try {
 // output logging - common setup function in bootstrap
 $logger = setup_logging($opts->verbose);
 
-
+// Schools
+// Top level for Rollins school
+$schools = array("grad", "undergrad", "candler", "rollins");
+     
+     
+/**
+* @todo remove dept and subdept from the dataset, and calculate the collection path
+* by writing a function in skosCollection to retrieve the collection path of the id.
+* 
+* @todo allow the identifiers elements to be cleaned up by deleting any element not 
+* found in the identifiers array list.
+*/ 
+   
+        
 // Program Codes for all schools
-$degcodes = array(
+$dataset = array(
 
 // GSAS - Graduates
-array('school' => 'grad', 'id' => '#arthistory', 'dc_id' => array('ARTHISTMA')),
-array('school' => 'grad', 'id' => '#complit', 'dc_id' => array('COMPLITMA','COMPLITPHD')),
-array('school' => 'grad', 'id' => '#english', 'dc_id' => array('ENGLISHMA','ENGLISHPHD')),
-array('school' => 'grad', 'id' => '#filmstudies', 'dc_id' => array('FILMSTMA')),
-array('school' => 'grad', 'id' => '#french', 'dc_id' => array('FRENCHPHD')),
-array('school' => 'grad', 'id' => '#ILA', 'dc_id' => array('ILAMA','ILAPHD')),
-array('school' => 'grad', 'id' => '#history', 'dc_id' => array('HISTORYMA','HISTORYMA')),
-array('school' => 'grad', 'id' => '#jewishstudies', 'dc_id' => array('JEWISHMA')),
-//array('school' => 'grad', 'id' => '#music', 'dc_id' => array('')),
-array('school' => 'grad', 'id' => '#philosophy', 'dc_id' => array('PHILMA','PHILPHD')),
-array('school' => 'grad', 'id' => '#spanish', 'dc_id' => array('SPANISHMA','SPANISHPHD')),
-array('school' => 'grad', 'id' => '#religion', 'dc_id' => array('RELPHD')),
-//array('school' => 'grad', 'id' => '#american', 'dc_id' => array('')),
-//array('school' => 'grad', 'id' => '#comparative', 'dc_id' => array('')),
-//array('school' => 'grad', 'id' => '#ethics', 'dc_id' => array('')),
-//array('school' => 'grad', 'id' => '#hebrew', 'dc_id' => array('')),
-//array('school' => 'grad', 'id' => '#historical', 'dc_id' => array('')),
-//array('school' => 'grad', 'id' => '#newtestament', 'dc_id' => array('')),
-//array('school' => 'grad', 'id' => '#religiouspractices', 'dc_id' => array('')),
-//array('school' => 'grad', 'id' => '#theological', 'dc_id' => array('')),
-//array('school' => 'grad', 'id' => '#asian', 'dc_id' => array('')),
-array('school' => 'grad', 'id' => '#behavsci', 'dc_id' => array('SPHBSHEPHD')),
-array('school' => 'grad', 'id' => '#biosci', 'dc_id' => array('BBSMS','BBSPHD')),
-//array('school' => 'grad', 'id' => '#biochem', 'dc_id' => array('')),
-//array('school' => 'grad', 'id' => '#genetics', 'dc_id' => array('')),
-//array('school' => 'grad', 'id' => '#immunology', 'dc_id' => array('')),
-//array('school' => 'grad', 'id' => '#microbiology', 'dc_id' => array('')),
-//array('school' => 'grad', 'id' => '#pharmacology', 'dc_id' => array('')),
-//array('school' => 'grad', 'id' => '#neuroscience', 'dc_id' => array('')),
-//array('school' => 'grad', 'id' => '#nutrition', 'dc_id' => array('')),
-//array('school' => 'grad', 'id' => '#population', 'dc_id' => array('')),
-//array('school' => 'grad', 'id' => '#biomedeng', 'dc_id' => array('')),
-array('school' => 'grad', 'id' => '#biostat', 'dc_id' => array('BIOSTATMS','BIOSTATPHD')),
-array('school' => 'grad', 'id' => '#chemistry', 'dc_id' => array('CHEMMS','CHEMPHD')),
-array('school' => 'grad', 'id' => '#clinicalresearch', 'dc_id' => array('CLNRSRCHMS')),
-array('school' => 'grad', 'id' => '#epi', 'dc_id' => array('EPIDMS','EPIDPHD')),
-//array('school' => 'grad', 'id' => '#healthpolicy', 'dc_id' => array('')),
-//array('school' => 'grad', 'id' => '#mathcompsci', 'dc_id' => array('')),
-array('school' => 'grad', 'id' => '#nursing', 'dc_id' => array('NURSINGPHD')),
-array('school' => 'grad', 'id' => '#physics', 'dc_id' => array('PHYSICSPHD')),
-array('school' => 'grad', 'id' => '#anthro', 'dc_id' => array('ANTHMA','ANTHPHD')),
-array('school' => 'grad', 'id' => '#business', 'dc_id' => array('BUSPHD')),
-array('school' => 'grad', 'id' => '#econ', 'dc_id' => array('ECONMA','ECONPHD')),
-array('school' => 'grad', 'id' => '#education', 'dc_id' => array('EDSMA','EDSPHD')),
-array('school' => 'grad', 'id' => '#polisci', 'dc_id' => array('POLISCIMA''POLISCIPHD')),
-array('school' => 'grad', 'id' => '#psychology', 'dc_id' => array('PSYCMA','PSYCPHD')),
-//array('school' => 'grad', 'id' => '#clinicalpsych', 'dc_id' => array('')),
-//array('school' => 'grad', 'id' => '#cognitivepsych', 'dc_id' => array('')),
-//array('school' => 'grad', 'id' => '#animalbehavior', 'dc_id' => array('')),
-array('school' => 'grad', 'id' => '#sociology', 'dc_id' => array('SOCMA','SOCPHD')),
-array('school' => 'grad', 'id' => '#womensstudies', 'dc_id' => array('WMNSTMA','WMNSTPHD')),
+array("school"=>'grad', "dept"=>'humanities', "id"=>'arthistory', "identifiers"=>array('ARTHISTMA')),
+array("school"=>'grad', "dept"=>'humanities', "id"=>'complit', "identifiers"=>array('COMPLITMA','COMPLITPHD')),
+array("school"=>'grad', "dept"=>'humanities', "id"=>'english', "identifiers"=>array('ENGLISHMA','ENGLISHPHD')),
+array("school"=>'grad', "dept"=>'humanities', "id"=>'filmstudies', "identifiers"=>array('FILMSTMA')),
+array("school"=>'grad', "dept"=>'humanities', "id"=>'french', "identifiers"=>array('FRENCHPHD')),
+array("school"=>'grad', "dept"=>'humanities', "id"=>'ILA', "identifiers"=>array('ILAMA','ILAPHD')),
+array("school"=>'grad', "dept"=>'humanities', "id"=>'history', "identifiers"=>array('HISTORYMA','HISTORYMA')),
+array("school"=>'grad', "dept"=>'humanities', "id"=>'jewishstudies', "identifiers"=>array('JEWISHMA')),
+//array("school"=>'grad', "dept"=>'', "id"=>'music', "identifiers"=>array('')),
+array("school"=>'grad', "dept"=>'humanities', "id"=>'philosophy', "identifiers"=>array('PHILMA','PHILPHD')),
+array("school"=>'grad', "dept"=>'humanities', "id"=>'spanish', "identifiers"=>array('SPANISHMA','SPANISHPHD')),
+//array("school"=>'grad', "dept"=>'humanities', "subdept"=>'religion', "id"=>'american', "identifiers"=>array('')),
+//array("school"=>'grad', "dept"=>'', "subdept"=>'', "id"=>'comparative', "identifiers"=>array('')),
+//array("school"=>'grad', "dept"=>'humanities', "subdept"=>'religion', "id"=>'ethics', "identifiers"=>array('')),
+//array("school"=>'grad', "dept"=>'', "subdept"=>'', "id"=>'historical', "identifiers"=>array('')),
+//array("school"=>'grad', "dept"=>'', "subdept"=>'', "id"=>'newtestament', "identifiers"=>array('')),
+//array("school"=>'grad', "dept"=>'', "subdept"=>'', "id"=>'religiouspractices', "identifiers"=>array('')),
+//array("school"=>'grad', "dept"=>'', "subdept"=>'', "id"=>'theological', "identifiers"=>array('')),
+//array("school"=>'grad', "dept"=>'', "subdept"=>'', "id"=>'asian', "identifiers"=>array('')),
+
+//array("school"=>'grad', "dept"=>'natlhealthsci', "subdept"=>'biosci', "id"=>'biochem', "identifiers"=>array('')),
+//array("school"=>'grad', "dept"=>'natlhealthsci', "subdept"=>'biosci', "id"=>'genetics', "identifiers"=>array('')),
+//array("school"=>'grad', "dept"=>'natlhealthsci', "subdept"=>'biosci', "id"=>'immunology', "identifiers"=>array('')),
+//array("school"=>'grad', "dept"=>'natlhealthsci', "subdept"=>'biosci', "id"=>'microbiology', "identifiers"=>array('')),
+//array("school"=>'grad', "dept"=>'natlhealthsci', "subdept"=>'biosci', "id"=>'pharmacology', "identifiers"=>array('')),
+//array("school"=>'grad', "dept"=>'natlhealthsci', "subdept"=>'biosci', "id"=>'neuroscience', "identifiers"=>array('')),
+//array("school"=>'grad', "dept"=>'natlhealthsci', "subdept"=>'biosci', "id"=>'nutrition', "identifiers"=>array('')),
+//array("school"=>'grad', "dept"=>'natlhealthsci', "subdept"=>'biosci', "id"=>'population', "identifiers"=>array('')),
+//array("school"=>'grad', "dept"=>'natlhealthsci', "subdept"=>'biosci', "id"=>'biomedeng', "identifiers"=>array('')),
+array("school"=>'grad', "dept"=>'natlhealthsci', "id"=>'biostat', "identifiers"=>array('BIOSTATMS','BIOSTATPHD')),
+array("school"=>'grad', "dept"=>'natlhealthsci', "id"=>'chemistry', "identifiers"=>array('CHEMMS','CHEMPHD')),
+array("school"=>'grad', "dept"=>'natlhealthsci', "id"=>'clinicalresearch', "identifiers"=>array('CLNRSRCHMS')),
+array("school"=>'grad', "dept"=>'natlhealthsci', "id"=>'epi', "identifiers"=>array('EPIDMS','EPIDPHD')),
+//array("school"=>'grad', "dept"=>'natlhealthsci', "subdept"=>'', "id"=>'healthpolicy', "identifiers"=>array('')),
+//array("school"=>'grad', "dept"=>'natlhealthsci', "subdept"=>'', "id"=>'mathcompsci', "identifiers"=>array('')),
+array("school"=>'grad', "dept"=>'natlhealthsci', "id"=>'nursing', "identifiers"=>array('NURSINGPHD')),
+array("school"=>'grad', "dept"=>'natlhealthsci', "id"=>'physics', "identifiers"=>array('PHYSICSPHD')),
+array("school"=>'grad', "dept"=>'socsci', "id"=>'anthro', "identifiers"=>array('ANTHMA','ANTHPHD')),
+array("school"=>'grad', "dept"=>'socsci', "id"=>'business', "identifiers"=>array('BUSPHD')),
+array("school"=>'grad', "dept"=>'socsci', "id"=>'econ', "identifiers"=>array('ECONMA','ECONPHD')),
+array("school"=>'grad', "dept"=>'socsci', "id"=>'education', "identifiers"=>array('EDSMA','EDSPHD')),
+array("school"=>'grad', "dept"=>'socsci', "id"=>'polisci', "identifiers"=>array('POLISCIMA','POLISCIPHD')),
+array("school"=>'grad', "dept"=>'socsci', "id"=>'psychology', "identifiers"=>array('PSYCMA','PSYCPHD')),
+//array("school"=>'grad', "dept"=>'socsci', "subdept"=>'psychology', "id"=>'clinicalpsych', "identifiers"=>array('')),
+//array("school"=>'grad', "dept"=>'socsci', "subdept"=>'psychology', "id"=>'cognitivepsych', "identifiers"=>array('')),
+//array("school"=>'grad', "dept"=>'socsci', "subdept"=>'psychology', "id"=>'animalbehavior', "identifiers"=>array('')),
+array("school"=>'grad', "dept"=>'socsci', "id"=>'sociology', "identifiers"=>array('SOCMA','SOCPHD')),
+array("school"=>'grad', "dept"=>'socsci', "id"=>'womensstudies', "identifiers"=>array('WMNSTMA','WMNSTPHD')),
   
 // UCOL - Undergraduates
-array('school' => 'undergrad', 'id' => '#uafr', 'dc_id' => array('AFSBA')),
-array('school' => 'undergrad', 'id' => '#uamerican', 'dc_id' => array('AMERSTBA')),
-array('school' => 'undergrad', 'id' => '#uanc', 'dc_id' => array('ANCMEDBA')),
-array('school' => 'undergrad', 'id' => '#uanthro', 'dc_id' => array('ANTHBA')),
-array('school' => 'undergrad', 'id' => '#uarthist', 'dc_id' => array('ARTHISTBA')),
-array('school' => 'undergrad', 'id' => '#uarthistvis', 'dc_id' => array('ARTHVARTBA')),
-array('school' => 'undergrad', 'id' => '#uasian', 'dc_id' => array('ASIANAMBA')),
-array('school' => 'undergrad', 'id' => '#ubio', 'dc_id' => array('BIOLOGYBA','BIOLOGYBS','BIOLGYBSMS')),
-array('school' => 'undergrad', 'id' => '#uchem', 'dc_id' => array('CHEMBA','CHEMBS','CHEMBSMS')),
-array('school' => 'undergrad', 'id' => '#uchinese', 'dc_id' => array('CHINLLBA')),
-array('school' => 'undergrad', 'id' => '#uclassics', 'dc_id' => array('CLASSICSBA')),
-array('school' => 'undergrad', 'id' => '#uclassichist', 'dc_id' => array('CLASHISTBA')),
-//array('school' => 'undergrad', 'id' => '#uclassicphil', 'dc_id' => array('')),
-array('school' => 'undergrad', 'id' => '#ucomplit', 'dc_id' => array('LITBA')),
-array('school' => 'undergrad', 'id' => '#ucompsci', 'dc_id' => array('COMPSCIBA','COMPSCIBS')),
-array('school' => 'undergrad', 'id' => '#udance', 'dc_id' => array('DNCMVSTBA')),
-array('school' => 'undergrad', 'id' => '#uecon', 'dc_id' => array('ECONBA')),
-array('school' => 'undergrad', 'id' => '#ueconhist', 'dc_id' => array('ECONHISTBA')),
-array('school' => 'undergrad', 'id' => '#ueconmath', 'dc_id' => array('ECONMATHBA')),
-array('school' => 'undergrad', 'id' => '#ued', 'dc_id' => array('EDSBA')),
-array('school' => 'undergrad', 'id' => '#ueng', 'dc_id' => array('ENGLISHBA','ENGLSHBAMA')),
-array('school' => 'undergrad', 'id' => '#uengwri', 'dc_id' => array('ENGCWBA')),
-array('school' => 'undergrad', 'id' => '#uenghist', 'dc_id' => array('ENVSBS','ENVSBA')),
-array('school' => 'undergrad', 'id' => '#uenv', 'dc_id' => array('ENVSBA','ENVSBS')),
-array('school' => 'undergrad', 'id' => '#ufilm', 'dc_id' => array('FILMSTBA')),
-array('school' => 'undergrad', 'id' => '#ufrench', 'dc_id' => array('FRENSTUDBA')),
-array('school' => 'undergrad', 'id' => '#ugerman', 'dc_id' => array('GERMANSTBA')),
-array('school' => 'undergrad', 'id' => '#uhist', 'dc_id' => array('HISTORYBA','HISTRYBAMA')),
-array('school' => 'undergrad', 'id' => '#uhistart', 'dc_id' => array('HSTARHSTBA')),
-array('school' => 'undergrad', 'id' => '#uids', 'dc_id' => array('IDSSCBA')),
-array('school' => 'undergrad', 'id' => '#uintl', 'dc_id' => array('INTLSTUBA')),
-array('school' => 'undergrad', 'id' => '#uitalian', 'dc_id' => array('ITALSTBA')),
-array('school' => 'undergrad', 'id' => '#ujapan', 'dc_id' => array('JAPANBA')),
-array('school' => 'undergrad', 'id' => '#ujewish', 'dc_id' => array('JEWISHBA')),
-//array('school' => 'undergrad', 'id' => '#ujournalism', 'dc_id' => array('')),
-array('school' => 'undergrad', 'id' => '#ulatinam', 'dc_id' => array('LACSBA')),
-array('school' => 'undergrad', 'id' => '#uling', 'dc_id' => array('LINGBA')),
-array('school' => 'undergrad', 'id' => '#umath', 'dc_id' => array('MATHBA','MATHBS')),
-array('school' => 'undergrad', 'id' => '#umathcs', 'dc_id' => array('MATHCSBS','MATHCSBSMS')),
-array('school' => 'undergrad', 'id' => '#umathpolisci', 'dc_id' => array('MATHPOLSBA')),
-array('school' => 'undergrad', 'id' => '#umideast', 'dc_id' => array('MESASBA')),
-array('school' => 'undergrad', 'id' => '#umusic', 'dc_id' => array('MUSICBA')),
-array('school' => 'undergrad', 'id' => '#uneuro', 'dc_id' => array('NEUROBBBS')),
-array('school' => 'undergrad', 'id' => '#uphil', 'dc_id' => array('PHILBA','PHILBAMA')),
-array('school' => 'undergrad', 'id' => '#uphilrel', 'dc_id' => array('PHILRELBA')),
-array('school' => 'undergrad', 'id' => '#uphysics', 'dc_id' => array('PHYSICSBA','PHYSICSBS')),
-array('school' => 'undergrad', 'id' => '#uphysastronomy', 'dc_id' => array('PHYSASTBA','PHYSASTBS')),
-array('school' => 'undergrad', 'id' => '#upolisci', 'dc_id' => array('POLISCIBA','POLISCBAMA')),
-array('school' => 'undergrad', 'id' => '#upsych', 'dc_id' => array('PSYCHBA')),
-array('school' => 'undergrad', 'id' => '#upsychling', 'dc_id' => array('PSYCLINGBA')),
-array('school' => 'undergrad', 'id' => '#urel', 'dc_id' => array('RELBA')),
-array('school' => 'undergrad', 'id' => '#urelanthro', 'dc_id' => array('RELANTHBA')),
-//array('school' => 'undergrad', 'id' => '#urelciv', 'dc_id' => array('')),
-array('school' => 'undergrad', 'id' => '#urelhist', 'dc_id' => array('RELHISTBA')),
-array('school' => 'undergrad', 'id' => '#urelsoc', 'dc_id' => array('RELSOCBA')),
-array('school' => 'undergrad', 'id' => '#urussian', 'dc_id' => array('RUSSLCBA')),
-array('school' => 'undergrad', 'id' => '#usociology', 'dc_id' => array('SOCBA')),
-array('school' => 'undergrad', 'id' => '#uspanish', 'dc_id' => array('SPANISHBA')),
-array('school' => 'undergrad', 'id' => '#utheater', 'dc_id' => array('THEASTBA')),
-array('school' => 'undergrad', 'id' => '#uwomens', 'dc_id' => array('WOMENSTBA')),
-array('school' => 'undergrad', 'id' => '#uclassicciv', 'dc_id' => array('CLCIVBA')),
+array("school"=>'undergrad', "dept"=>'uhumanities', "id"=>'uafr', "identifiers"=>array('AFSBA')),
+array("school"=>'undergrad', "dept"=>'uhumanities', "id"=>'uamerican', "identifiers"=>array('AMERSTBA')),
+array("school"=>'undergrad', "dept"=>'uhumanities', "id"=>'uanc', "identifiers"=>array('ANCMEDBA')),
+array("school"=>'undergrad', "dept"=>'usocsci', "id"=>'uanthro', "identifiers"=>array('ANTHBA')),
+array("school"=>'undergrad', "dept"=>'uhumanities', "id"=>'uarthist', "identifiers"=>array('ARTHISTBA')),
+array("school"=>'undergrad', "dept"=>'uhumanities', "id"=>'uarthistvis', "identifiers"=>array('ARTHVARTBA')),
+array("school"=>'undergrad', "dept"=>'uhumanities', "id"=>'uasian', "identifiers"=>array('ASIANAMBA')),
+array("school"=>'undergrad', "dept"=>'unatlhealthsci', "id"=>'ubio', "identifiers"=>array('BIOLOGYBA','BIOLOGYBS','BIOLGYBSMS')),
+array("school"=>'undergrad', "dept"=>'unatlhealthsci', "id"=>'uchem', "identifiers"=>array('CHEMBA','CHEMBS','CHEMBSMS')),
+array("school"=>'undergrad', "dept"=>'uhumanities', "id"=>'uchinese', "identifiers"=>array('CHINLLBA')),
+array("school"=>'undergrad', "dept"=>'uhumanities', "id"=>'uclassics', "identifiers"=>array('CLASSICSBA')),
+array("school"=>'undergrad', "dept"=>'uhumanities', "id"=>'uclassichist', "identifiers"=>array('CLASHISTBA')),
+//array("school"=>'undergrad', "dept"=>'uhumanities', "id"=>'uclassicphil', "identifiers"=>array('')),
+array("school"=>'undergrad', "dept"=>'uhumanities', "id"=>'ucomplit', "identifiers"=>array('LITBA')),
+array("school"=>'undergrad', "dept"=>'unatlhealthsci', "id"=>'ucompsci', "identifiers"=>array('COMPSCIBA','COMPSCIBS')),
+array("school"=>'undergrad', "dept"=>'uhumanities', "id"=>'udance', "identifiers"=>array('DNCMVSTBA')),
+array("school"=>'undergrad', "dept"=>'usocsci', "id"=>'uecon', "identifiers"=>array('ECONBA')),
+array("school"=>'undergrad', "dept"=>'usocsci', "id"=>'ueconhist', "identifiers"=>array('ECONHISTBA')),
+array("school"=>'undergrad', "dept"=>'usocsci', "id"=>'ueconmath', "identifiers"=>array('ECONMATHBA')),
+array("school"=>'undergrad', "dept"=>'usocsci', "id"=>'ued', "identifiers"=>array('EDSBA')),
+array("school"=>'undergrad', "dept"=>'uhumanities', "id"=>'ueng', "identifiers"=>array('ENGLISHBA','ENGLSHBAMA')),
+array("school"=>'undergrad', "dept"=>'uhumanities', "id"=>'uengwri', "identifiers"=>array('ENGCWBA')),
+array("school"=>'undergrad', "dept"=>'uhumanities', "id"=>'uenghist', "identifiers"=>array('ENVSBS','ENVSBA')),
+array("school"=>'undergrad', "dept"=>'usocsci', "id"=>'uenv', "identifiers"=>array('ENVSBA','ENVSBS')),
+array("school"=>'undergrad', "dept"=>'uhumanities', "id"=>'ufilm', "identifiers"=>array('FILMSTBA')),
+array("school"=>'undergrad', "dept"=>'uhumanities', "id"=>'ufrench', "identifiers"=>array('FRENSTUDBA')),
+array("school"=>'undergrad', "dept"=>'uhumanities', "id"=>'ugerman', "identifiers"=>array('GERMANSTBA')),
+array("school"=>'undergrad', "dept"=>'usocsci', "id"=>'uhist', "identifiers"=>array('HISTORYBA','HISTRYBAMA')),
+array("school"=>'undergrad', "dept"=>'usocsci', "id"=>'uhistart', "identifiers"=>array('HSTARHSTBA')),
+array("school"=>'undergrad', "dept"=>'uhumanities', "id"=>'uids', "identifiers"=>array('IDSSCBA')),
+array("school"=>'undergrad', "dept"=>'usocsci', "id"=>'uintl', "identifiers"=>array('INTLSTUBA')),
+array("school"=>'undergrad', "dept"=>'uhumanities', "id"=>'uitalian', "identifiers"=>array('ITALSTBA')),
+array("school"=>'undergrad', "dept"=>'uhumanities', "id"=>'ujapan', "identifiers"=>array('JAPANBA')),
+array("school"=>'undergrad', "dept"=>'uhumanities', "id"=>'ujewish', "identifiers"=>array('JEWISHBA')),
+//array("school"=>'undergrad', "dept"=>'usocsci', "id"=>'ujournalism', "identifiers"=>array('')),
+array("school"=>'undergrad', "dept"=>'usocsci', "id"=>'ulatinam', "identifiers"=>array('LACSBA')),
+array("school"=>'undergrad', "dept"=>'uhumanities', "id"=>'uling', "identifiers"=>array('LINGBA')),
+array("school"=>'undergrad', "dept"=>'unatlhealthsci', "id"=>'umath', "identifiers"=>array('MATHBA','MATHBS')),
+array("school"=>'undergrad', "dept"=>'unatlhealthsci', "id"=>'umathcs', "identifiers"=>array('MATHCSBS','MATHCSBSMS')),
+array("school"=>'undergrad', "dept"=>'unatlhealthsci', "id"=>'umathpolisci', "identifiers"=>array('MATHPOLSBA')),
+array("school"=>'undergrad', "dept"=>'uhumanities', "id"=>'umideast', "identifiers"=>array('MESASBA')),
+array("school"=>'undergrad', "dept"=>'uhumanities', "id"=>'umusic', "identifiers"=>array('MUSICBA')),
+array("school"=>'undergrad', "dept"=>'unatlhealthsci', "id"=>'uneuro', "identifiers"=>array('NEUROBBBS')),
+array("school"=>'undergrad', "dept"=>'uhumanities', "id"=>'uphil', "identifiers"=>array('PHILBA','PHILBAMA')),
+array("school"=>'undergrad', "dept"=>'uhumanities', "id"=>'uphilrel', "identifiers"=>array('PHILRELBA')),
+array("school"=>'undergrad', "dept"=>'unatlhealthsci', "id"=>'uphysics', "identifiers"=>array('PHYSICSBA','PHYSICSBS')),
+array("school"=>'undergrad', "dept"=>'unatlhealthsci', "id"=>'uphysastronomy', "identifiers"=>array('PHYSASTBA','PHYSASTBS')),
+array("school"=>'undergrad', "dept"=>'usocsci', "id"=>'upolisci', "identifiers"=>array('POLISCIBA','POLISCBAMA')),
+array("school"=>'undergrad', "dept"=>'usocsci', "id"=>'upsych', "identifiers"=>array('PSYCHBA')),
+array("school"=>'undergrad', "dept"=>'usocsci', "id"=>'upsychling', "identifiers"=>array('PSYCLINGBA')),
+array("school"=>'undergrad', "dept"=>'uhumanities', "id"=>'urel', "identifiers"=>array('RELBA')),
+array("school"=>'undergrad', "dept"=>'uhumanities', "id"=>'urelanthro', "identifiers"=>array('RELANTHBA')),
+//array("school"=>'undergrad', "dept"=>'uhumanities', "id"=>'urelciv', "identifiers"=>array('')),
+array("school"=>'undergrad', "dept"=>'uhumanities', "id"=>'urelhist', "identifiers"=>array('RELHISTBA')),
+array("school"=>'undergrad', "dept"=>'uhumanities', "id"=>'urelsoc', "identifiers"=>array('RELSOCBA')),
+array("school"=>'undergrad', "dept"=>'uhumanities', "id"=>'urussian', "identifiers"=>array('RUSSLCBA')),
+array("school"=>'undergrad', "dept"=>'usocsci', "id"=>'usociology', "identifiers"=>array('SOCBA')),
+array("school"=>'undergrad', "dept"=>'uhumanities', "id"=>'uspanish', "identifiers"=>array('SPANISHBA')),
+array("school"=>'undergrad', "dept"=>'uhumanities', "id"=>'utheater', "identifiers"=>array('THEASTBA')),
+array("school"=>'undergrad', "dept"=>'usocsci', "id"=>'uwomens', "identifiers"=>array('WOMENSTBA')),
+array("school"=>'undergrad', "dept"=>'uhumanities', "id"=>'uclassicciv', "identifiers"=>array('CLCIVBA')),
 
 // THEO - Candler School of Theology
-array('school' => 'candler', 'id' => '#cstdivinity', 'dc_id' => array('MDVDIVIN')),
-array('school' => 'candler', 'id' => '#csttheo', 'dc_id' => array('THEOLSTMTS')),
-array('school' => 'candler', 'id' => '#cstpc', 'dc_id' => array('THDCOUNSEL')),
+array("school"=>'candler', "id"=>'cstdivinity', "identifiers"=>array('MDVDIVIN')),
+array("school"=>'candler', "id"=>'csttheo', "identifiers"=>array('THEOLSTMTS')),
+array("school"=>'candler', "id"=>'cstpc', "identifiers"=>array('THDCOUNSEL')),
 
 // PUBH - Rollins School of Public Health
-array('school' => 'rollins', 'id' => '#apepi', 'dc_id' => array('APEPIMPH')),
-array('school' => 'rollins', 'id' => '#hcom', 'dc_id' => array('HCOMMPH')),
-array('school' => 'rollins', 'id' => '#mchepi', 'dc_id' => array('MCHEPIMPH')),
-array('school' => 'rollins', 'id' => '#ms', 'dc_id' => array('MSMPH')),
-array('school' => 'rollins', 'id' => '#ps', 'dc_id' => array('PSMPH')),
-array('school' => 'rollins', 'id' => '#bios',  'dc_id' => array('BIOSMPH','BIOSMSPH')),
-array('school' => 'rollins', 'id' => '#info',  'dc_id' => array('INFOMSPH')),
-array('school' => 'rollins', 'id' => '#eoh', 'dc_id' => array('EOHMPH')),
-array('school' => 'rollins', 'id' => '#eohepi', 'dc_id' => array('EOHEPIMPH')),
-array('school' => 'rollins', 'id' => '#eohih', 'dc_id' => array('EOHIHMPH')),
-array('school' => 'rollins', 'id' => '#epi', 'dc_id' => array('EPIMPH', 'EPIMPSH')),
-array('school' => 'rollins', 'id' => '#glepi', 'dc_id' => array('GLEPIMPH','GLEPIMSPH'))
+array("school"=>'rollins', "dept"=>'cmph', "id"=>'apepi', "identifiers"=>array('APEPIMPH')),
+array("school"=>'rollins', "dept"=>'cmph', "id"=>'hcom', "identifiers"=>array('HCOMMPH')),
+array("school"=>'rollins', "dept"=>'cmph', "id"=>'mchepi', "identifiers"=>array('MCHEPIMPH')),
+array("school"=>'rollins', "dept"=>'cmph', "id"=>'ms', "identifiers"=>array('MSMPH')),
+array("school"=>'rollins', "dept"=>'cmph', "id"=>'ps', "identifiers"=>array('PSMPH')),
+array("school"=>'rollins', "dept"=>'bb', "id"=>'bios',  "identifiers"=>array('BIOSMPH','BIOSMSPH')),
+array("school"=>'rollins', "dept"=>'bb', "id"=>'info',  "identifiers"=>array('INFOMSPH')),
+array("school"=>'rollins', "dept" =>'eh', "id"=>'eoh', "identifiers"=>array('EOHMPH')),
+array("school"=>'rollins', "dept" =>'eh', "id"=>'eohepi', "identifiers"=>array('EOHEPIMPH')),
+array("school"=>'rollins', "dept" =>'eh', "id"=>'eohih', "identifiers"=>array('EOHIHMPH')),
+array("school"=>'rollins', "dept" =>'ep', "id"=>'epi', "identifiers"=>array('EPIMPH', 'EPIMPSH')),
+array("school"=>'rollins', "dept" =>'ep', "id"=>'glepi', "identifiers"=>array('GLEPIMPH','GLEPIMSPH')),
 );
+
+
+$programs = new foxmlPrograms();
+$skos = $programs->skos;
+        
+//add school identifiers to programs
+foreach ($dataset as $data) {
+    
+  foreach ($data['identifiers'] as $identifier) {  // allow for more than one dc_id
+    //print "\nProcess {$data['school']} dept={$data['dept']} prog={$data['id']} {$identifier}";    
+    if ($skos->findIdentifier($identifier) == null) {      
+      $logger->info("{$data['school']} dept={$data['dept']} prog={$data['id']} does not yet include dc:identifier {$identifier}, adding.\n");
+      if (isset($data['dept']) && isset($data['subdept'])) {        
+        $skos->{$data['school']}->{$data['dept']}->{$data['subdept']}->{$data['id']}->collection->addIdentifier($identifier);
+      }
+      else if (isset($data['dept'])) {
+        $skos->{$data['school']}->{$data['dept']}->{$data['id']}->collection->addIdentifier($identifier);
+      }
+      else {
+        $skos->{$data['school']}->{$data['id']}->collection->addIdentifier($identifier);
+      }     
+    } else {
+      if (isset($data['dept']) && isset($data['subdept'])) {        
+        $logger->info("{$data['school']} dept={$data['dept']} subdept={$data['subdept']} prog={$data['id']} dc:identifier {$identifier} is already present");
+      }
+      else if (isset($data['dept'])) {
+        $logger->info("{$data['school']} dept={$data['dept']} prog={$data['id']} dc:identifier {$identifier} is already present");
+      }
+      else {
+        $logger->info("{$data['school']} prog={$data['id']} dc:identifier {$identifier} is already present");
+      }      
+    }
+  }
+}
+
+// if record has changed, save to Fedora
+if ($skos->hasChanged()){
+  if (!$opts->noact) {
+    $result = $programs->save("updating program list to include identifiers");
+    if ($result) {
+      $logger->info("Successfully updated identifiers (" . $programs->pid .
+        ") at $result");
+    } else {
+      $logger->err("Error updating identifiers (" . $programs->pid . ")");
+    }
+  } else {  // no-act mode, simulate saving
+    $logger->info("Updating identifiers " .  $programs->pid . " (simulated)");
+  }
+
+} else {
+  $logger->info("Program listing is unchanged, not saving.");
+}
 
 ?>
