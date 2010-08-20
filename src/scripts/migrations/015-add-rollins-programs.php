@@ -33,7 +33,7 @@ $logger = setup_logging($opts->verbose);
 
 // Top level for Rollins school
 $rollins_school = array("id" => "#rollins",
-		 "label" => "Rollins School of Public Health");
+     "label" => "Rollins School of Public Health");
 
 
 //departments / sub sections for Rollins
@@ -49,24 +49,23 @@ $rollins_departments= array(
 );
 
 
-
 // programs for Rollins
 // department code does not have # because it is only referenced at this point and is referenced without the #
 $rollins_programs = array(
-array('id' => '#apepi',	'label' => 'Applied Epidemiology', 'department' => 'cmph'),
-array('id' => '#hcom',	'label' => 'Health Care Outcomes Management', 'department' => 'cmph'),
-array('id' => '#mchepi',	'label' => 'Maternal and Child Health Epidemiology', 'department' => 'cmph'),
-array('id' => '#ms',	'label' => 'Management Science', 'department' => 'cmph'),
-array('id' => '#ps',	'label' => 'Prevention Science', 'department' => 'cmph'),
-array('id' => '#bios',	'label' => 'Biostatistics', 'department' => 'bb'),
-array('id' => '#info',	'label' => 'Public Health Informatics', 'department' =>'bb'),
-array('id' => '#eoh',	'label' => 'Environmental and Occupational Health', 'department' =>'eh'),
-array('id' => '#eohepi',	'label' => 'Environmental&; Occupational Health Epidemiology', 'department' =>'eh'),
-array('id' => '#eohih',	'label' => 'Global Environmental Health', 'department' =>'eh'),
-array('id' => '#epi',	'label' => 'Epidemiology', 'department' =>'ep'),
-array('id' => '#glepi',	'label' => 'Global Epidemiology', 'department' =>'ep')
-
+array('id' => '#apepi', 'label' => 'Applied Epidemiology', 'department' => 'cmph', "identifiers" => array('APEPIMPH')),
+array('id' => '#hcom',  'label' => 'Health Care Outcomes Management', 'department' => 'cmph', "identifiers" => array('HCOMMPH')),
+array('id' => '#mchepi',  'label' => 'Maternal and Child Health Epidemiology', 'department' => 'cmph', "identifiers" => array('MCHEPIMPH')),
+array('id' => '#ms',  'label' => 'Management Science', 'department' => 'cmph', "identifiers" => array('MSMPH')),
+array('id' => '#ps',  'label' => 'Prevention Science', 'department' => 'cmph', "identifiers" => array('PSMPH')),
+array('id' => '#bios',  'label' => 'Biostatistics', 'department' => 'bb',  "identifiers" => array('BIOSMPH','BIOSMSPH')),
+array('id' => '#info',  'label' => 'Public Health Informatics', 'department' =>'bb',  "identifiers" => array('INFOMSPH')),
+array('id' => '#eoh', 'label' => 'Environmental and Occupational Health', 'department' =>'eh', "identifiers" => array('EOHMPH')),
+array('id' => '#eohepi',  'label' => 'Environmental&; Occupational Health Epidemiology', 'department' =>'eh', "identifiers" => array('EOHEPIMPH')),
+array('id' => '#eohih', 'label' => 'Global Environmental Health', 'department' =>'eh', "identifiers" => array('EOHIHMPH')),
+array('id' => '#epi', 'label' => 'Epidemiology', 'department' =>'ep', "identifiers" => array('EPIMPH', 'EPIMPSH')),
+array('id' => '#glepi', 'label' => 'Global Epidemiology', 'department' =>'ep', "identifiers" => array('GLEPIMPH','GLEPIMSPH'))
 );
+
 
 $programs = new foxmlPrograms();
 $skos = $programs->skos;
@@ -107,7 +106,7 @@ foreach ($rollins_departments as $id => $label) {
 foreach ($rollins_programs as $program) {
   // create collection item if not already present
   if ($skos->findLabelbyId($program['id']) == null) {
-    $skos->addCollection($program['id'], $program['label']);
+    $skos->addCollection($program['id'], $program['label'], $program['identifiers']);
     $logger->info("Adding Rollins program {$program['id']}, ({$program['label']})");
   } else {
     $logger->info("Rollins program {$program['id']}, ({$program['label']}) is already present");
@@ -133,11 +132,11 @@ if ($skos->hasChanged()){
     $result = $programs->save("updating program list to include Rollins");
     if ($result) {
       $logger->info("Successfully updated progams (" . $programs->pid .
-		    ") at $result");
+        ") at $result");
     } else {
       $logger->err("Error updating programs (" . $programs->pid . ")");
     }
-  } else {	// no-act mode, simulate saving
+  } else {  // no-act mode, simulate saving
     $logger->info("Updating programs " .  $programs->pid . " (simulated)");
   }
 
