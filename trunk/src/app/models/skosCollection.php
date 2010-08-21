@@ -107,25 +107,6 @@ class collectionHierarchy extends foxmlDatastreamAbstract {
    
   }
 
-  public function findIdbyLabel($string) {
-    // look for an exact match first
-    $xpath = '//skos:Collection[rdfs:label = "' . $string . '"]'; 
-    $nodeList = $this->xpath->query($xpath, $this->domnode);
-    if ($nodeList->length >= 1) {
-      // NOTE: if multiple matches are found, returns the first only (not ideal)
-      return $nodeList->item(0)->getAttributeNS($this->rdf_namespace, "about");
-    } 
-
-    // if exact match fails, find a partial match
-    $xpath = "//skos:Collection[contains(rdfs:label, '$string')]";
-    if ($nodeList->length == 1) {
-      return $nodeList->item(0)->getAttributeNS($this->rdf_namespace, "about");
-    } else {
-      return null;
-    }
-   
-  }
-
   public function findLabelbyId($id) {
     // if id does not have leading #, prepend it since all ids should
     $id = preg_replace("/^([^#])/", '#$1', $id);
@@ -141,7 +122,7 @@ class collectionHierarchy extends foxmlDatastreamAbstract {
 
   /**
    * find a dc:identifier element by value
-   * @param string $value $value dc:identifier element value.
+   * @param string $value dc:identifier element value.
    * @return true/false if element exists.
    */
   // find the dc:indentifier for a matching word - used to map dc:identifier to program
@@ -154,7 +135,31 @@ class collectionHierarchy extends foxmlDatastreamAbstract {
       return null;
     }
   }
-    
+  
+  /**
+   * find an id by element and element value
+   * @param string $element i.e. dc:identifier or rdfs:label
+   * @param string $string element value.
+   * @return string $prog_id if element exists.
+   */  
+  public function findIdbyElement($element, $string=null) {
+    // look for an exact match first
+    $xpath = '//skos:Collection[' . $element . ' = "' . $string . '"]'; 
+    $nodeList = $this->xpath->query($xpath, $this->domnode);
+    if ($nodeList->length >= 1) {
+      // NOTE: if multiple matches are found, returns the first only (not ideal)
+      return $nodeList->item(0)->getAttributeNS($this->rdf_namespace, "about");
+    } 
+
+    // if exact match fails, find a partial match
+    $xpath = "//skos:Collection[contains(" . $element . ", '$string')]";
+    if ($nodeList->length == 1) {
+      return $nodeList->item(0)->getAttributeNS($this->rdf_namespace, "about");
+    } else {
+      return null;
+    }
+  }
+
 
   public function findOrphans() {
     $xpath = "//skos:Collection[not(@rdf:about = //skos:Collection/skos:member/@rdf:resource)][count(skos:member) = 0]";

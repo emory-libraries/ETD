@@ -78,15 +78,7 @@ class TestSkosCollection extends UnitTestCase {
   }
 
   public function testfindIdByLabel() {
-    $this->assertEqual("#toplevel", $this->skos->findIdbylabel("Top Level"));
-    $this->assertEqual("#one", $this->skos->findIdbylabel("a member"));
-    $this->assertEqual("#three", $this->skos->findIdbylabel("third-level member"));
 
-    // find when label has special characters
-    $this->skos->label = "Women's Studies";
-    $this->assertEqual("#toplevel", $this->skos->findIdbylabel("Women's Studies"));
-    $this->skos->label = "Cell & Developmental Biology";
-    $this->assertEqual("#toplevel", $this->skos->findIdbylabel("Cell & Developmental Biology"));
   }
 
   public function testfindLabelById() {
@@ -106,20 +98,32 @@ class TestSkosCollection extends UnitTestCase {
   }
   
   public function testFindIdentifier() {
-    $this->assertEqual("degree code one", $this->skos->findIdentifier("degree code one"));
-    $this->assertEqual("degree code two", $this->skos->findIdentifier("degree code two"));
+    $this->assertEqual("ONEBA", $this->skos->findIdentifier("ONEBA"));
+    $this->assertEqual("TWOBS", $this->skos->findIdentifier("TWOBS"));
   } 
   
+  public function testFindIdbyElement() {
+    $this->assertEqual("#three", $this->skos->findIdbyElement("dc:identifier", "ONEBA"));
+    $this->assertEqual("#three", $this->skos->findIdbyElement("dc:identifier", "TWOBS"));
+    $this->assertEqual("#three", $this->skos->findIdbyElement("rdfs:label", "third-level member"));
+    
+    $this->assertEqual("#toplevel", $this->skos->findIdbyElement("rdfs:label", "Top Level"));
+    $this->assertEqual("#one", $this->skos->findIdbyElement("rdfs:label", "a member"));
+    $this->assertEqual("#three", $this->skos->findIdbyElement("rdfs:label", "third-level member"));
+
+    // find when label has special characters
+    $this->skos->label = "Women's Studies";
+    $this->assertEqual("#toplevel", $this->skos->findIdbyElement("rdfs:label", "Women's Studies"));
+    $this->skos->label = "Cell & Developmental Biology";
+    $this->assertEqual("#toplevel", $this->skos->findIdbyElement("rdfs:label", "Cell & Developmental Biology"));    
+  }
+
   public function testAddIdentifier() {
     // test when multiple identifier element is added when the collection is added.
     $this->skos->collection->addIdentifier("EMORYBS");
     $this->assertPattern('/<dc:identifier>EMORYBS<\/dc:identifier>/', $this->skos->saveXML(),
        "pgm collection PGMBS identifier present in xml"); 
   }     
-  
-  
-   
-  
 
   public function testCalculateTotals() {
     $totals = array("a member" => 2, "third-level member" => 1);

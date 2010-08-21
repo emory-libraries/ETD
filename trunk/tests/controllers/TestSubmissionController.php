@@ -214,7 +214,7 @@ class SubmissionControllerTest extends ControllerTestCase {
     $etd = $SubmissionController->initialize_etd($test_info);
     $this->assertEqual("Graduate School", $etd->admin_agent);
     
-    // test setting the program and department from the academic_plan_id
+    // PUBH test setting the program and department from the academic_plan_id
     $this->test_user->academic_plan_id = "MCHEPIMPH";    
     $this->test_user->academic_career = "PUBH";
     $etd = $SubmissionController->initialize_etd($test_info);
@@ -223,6 +223,36 @@ class SubmissionControllerTest extends ControllerTestCase {
     $this->assertEqual("Maternal and Child Health Epidemiology", $etd->mods->department);
     $this->assertEqual("Maternal and Child Health Epidemiology", $etd->policy->view->condition->department);
     $this->assertEqual("mchepi", $etd->rels_ext->program); 
+    
+    // THEO test setting the program and department from the academic_plan_id
+    $this->test_user->academic_plan_id = "THDCOUNSEL";    
+    $this->test_user->academic_career = "THEO";
+    $etd = $SubmissionController->initialize_etd($test_info);
+    $this->assertIsA($etd, "etd");
+    $this->assertEqual("Candler School of Theology", $etd->admin_agent);
+    $this->assertEqual("Pastoral Counseling", $etd->mods->department);
+    $this->assertEqual("Pastoral Counseling", $etd->policy->view->condition->department);
+    $this->assertEqual("cstpc", $etd->rels_ext->program);
+    
+    // GRAD test setting the program and department from the academic_plan_id
+    $this->test_user->academic_plan_id = "ENGLISHPHD";    
+    $this->test_user->academic_career = "GRAD";
+    $etd = $SubmissionController->initialize_etd($test_info);
+    $this->assertIsA($etd, "etd");
+    $this->assertEqual("Graduate School", $etd->admin_agent);
+    $this->assertEqual("English", $etd->mods->department);
+    $this->assertEqual("English", $etd->policy->view->condition->department);
+    $this->assertEqual("english", $etd->rels_ext->program);
+    
+    // UCOL test setting the program and department from the academic_plan_id
+    $this->test_user->academic_plan_id = "ECONHISTBA";    
+    $this->test_user->academic_career = "UCOL";
+    $etd = $SubmissionController->initialize_etd($test_info);
+    $this->assertIsA($etd, "etd");
+    $this->assertEqual("College Honors Program", $etd->admin_agent);
+    $this->assertEqual("Economics and History", $etd->mods->department);
+    $this->assertEqual("Economics and History", $etd->policy->view->condition->department);
+    $this->assertEqual("ueconhist", $etd->rels_ext->program); 
 
     error_reporting($errlevel);     // restore prior error reporting
   }

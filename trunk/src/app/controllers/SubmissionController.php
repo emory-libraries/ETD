@@ -292,51 +292,37 @@ class SubmissionController extends Etd_Controller_Action {
     }
     
     $programObject = new foxmlPrograms($section); 
-    $programs = $programObject->skos;
+    $programs = $programObject->skos;    
     
-    switch ($school_id) { 
-      case "graduate_school": 
-      case "emory_college":  
-      case "candler":        
-        // first try to use "academic plan" from ESD to set department
-        if ($current_user->academic_plan) {
-          $department = $programs->findLabel($current_user->academic_plan);
-        } elseif (isset($this->view->etd_info['department'])) {
-          // otherwise, use department picked up from the PDF (if any)
-          $department = $programs->findLabel($this->view->etd_info['department']);
-        }
-        // if we found a department either way, set text in mods and id in rels-ext
-        if (isset($department) && $department) {
-          $etd->department = $department;
-          // find program id and store in rels
-          $prog_id = $programs->findIdByLabel($department);
-          if ($prog_id) $etd->rels_ext->program = $prog_id;
-        }
-        break;    
-     
-      case "rollins":    
-        // Since the "about" tag in the skosCollection object maps
-        // to the prefix of the academic_plan_id for rollins only, 
-        // the program id can be retrieved using the academic_plan_id. 
-        if ($current_user->academic_plan_id) { 
-          $rollins_degs = $school_cfg->$school_id->degrees->degree->toArray();
-          $degcode = strtoupper($current_user->academic_plan_id); // e.g. GLEPIMPH
-          foreach($rollins_degs as $deg) { // Look for each degree as a ACPL_I suffix    
-            // e.g. GLEPIMPH will remove MPH, return prog_id = GLEPHI      
-            if (substr($degcode, -(strlen($deg))) == $deg)  {
-              $prog_id = substr($degcode, 0, (strlen($degcode)-strlen($deg)));        
-              break;
-            }
-          }          
- 
-          if (isset($prog_id)) {         
-            $etd->rels_ext->program = strtolower($prog_id);
-            $etd->department = $programs->findLabelbyId("#" . strtolower($prog_id));
-          }
-        }
-        break;        
+    // first try to use the academic_plan_id mapped to dc:identifier
+    // to set the program, department, and subfield (if exists). 
+    if ($current_user->academic_plan_id) {
+      $prog_id = $programs->findIdbyElement("dc:identifier", $current_user->academic_plan_id);
+      $dept = $programs->findLabelbyId($prog_id);
+      // If there is a need to get the parent, do this:
+      //$level_01 = new collectionHierarchy($programs->dom, $level_01_id); 
+      //$level_02_id = $level_01->parent->id;
+      
+      $dept = $programs->findLabelbyId($prog_id);        
+      if (isset($prog_id)) $etd->rels_ext->program = strtolower($prog_id);
+      if (isset($dept))    $etd->department = $dept;  // set the department name       
     }
-    
+    else {
+      // second try to use "academic plan" from ESD to set department
+      if ($current_user->academic_plan) {
+        $department = $programs->findLabel($current_user->academic_plan);
+      } elseif (isset($this->view->etd_info['department'])) {
+        // otherwise, use department picked up from the PDF (if any)
+        $department = $programs->findLabel($this->view->etd_info['department']);
+      }
+      // if we found a department either way, set text in mods and id in rels-ext
+      if (isset($department) && $department) {
+        $etd->department = $department;
+        // find program id and store in rels       
+        $prog_id = $programs->findIdbyElement("rdfs:label", $department);
+        if ($prog_id) $etd->rels_ext->program = $prog_id;
+      }      
+    }    
     
     // match faculty names found in the PDF to persons in ESD
     $esd = new esdPersonObject();
