@@ -21,8 +21,8 @@
 
   <skos:Collection rdf:about="#three">
    <rdfs:label>third-level member</rdfs:label>
-   <dc:identifier>degree code one</dc:identifier>
-   <dc:identifier>degree code two</dc:identifier>
+   <dc:identifier>ONEBA</dc:identifier>
+   <dc:identifier>TWOBS</dc:identifier>
   </skos:Collection>
 
 </rdf:RDF>
