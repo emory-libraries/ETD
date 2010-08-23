@@ -9,6 +9,10 @@ Deployment notes:
  * Run the following migrations / scripts
 -  create_collections.php
 -  015-add-rollins-programs.php
+-  016-add-prog_codes_to_skos.php - before running this script, 
+    manually edit the config.xml defined programs_pid.
+    Select the SKOS datastream for edit, then add this attribute to first line:
+    xmlns:dc="http://purl.org/dc/elements/1.1/"
 
 Version 1.7.3 - August 2010 (bugfix)
  * Fixed bug in etdSet code which caused email templates to not function correctly.
