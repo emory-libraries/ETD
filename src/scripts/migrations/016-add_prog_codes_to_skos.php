@@ -61,30 +61,29 @@ array("school"=>'grad', "dept"=>'humanities', "id"=>'jewishstudies', "identifier
 //array("school"=>'grad', "dept"=>'', "id"=>'music', "identifiers"=>array('')),
 array("school"=>'grad', "dept"=>'humanities', "id"=>'philosophy', "identifiers"=>array('PHILMA','PHILPHD')),
 array("school"=>'grad', "dept"=>'humanities', "id"=>'spanish', "identifiers"=>array('SPANISHMA','SPANISHPHD')),
-//array("school"=>'grad', "dept"=>'humanities', "subdept"=>'religion', "id"=>'american', "identifiers"=>array('')),
-//array("school"=>'grad', "dept"=>'', "subdept"=>'', "id"=>'comparative', "identifiers"=>array('')),
-//array("school"=>'grad', "dept"=>'humanities', "subdept"=>'religion', "id"=>'ethics', "identifiers"=>array('')),
-//array("school"=>'grad', "dept"=>'', "subdept"=>'', "id"=>'historical', "identifiers"=>array('')),
-//array("school"=>'grad', "dept"=>'', "subdept"=>'', "id"=>'newtestament', "identifiers"=>array('')),
-//array("school"=>'grad', "dept"=>'', "subdept"=>'', "id"=>'religiouspractices', "identifiers"=>array('')),
-//array("school"=>'grad', "dept"=>'', "subdept"=>'', "id"=>'theological', "identifiers"=>array('')),
-//array("school"=>'grad', "dept"=>'', "subdept"=>'', "id"=>'asian', "identifiers"=>array('')),
-
-//array("school"=>'grad', "dept"=>'natlhealthsci', "subdept"=>'biosci', "id"=>'biochem', "identifiers"=>array('')),
-//array("school"=>'grad', "dept"=>'natlhealthsci', "subdept"=>'biosci', "id"=>'genetics', "identifiers"=>array('')),
-//array("school"=>'grad', "dept"=>'natlhealthsci', "subdept"=>'biosci', "id"=>'immunology', "identifiers"=>array('')),
-//array("school"=>'grad', "dept"=>'natlhealthsci', "subdept"=>'biosci', "id"=>'microbiology', "identifiers"=>array('')),
-//array("school"=>'grad', "dept"=>'natlhealthsci', "subdept"=>'biosci', "id"=>'pharmacology', "identifiers"=>array('')),
-//array("school"=>'grad', "dept"=>'natlhealthsci', "subdept"=>'biosci', "id"=>'neuroscience', "identifiers"=>array('')),
-//array("school"=>'grad', "dept"=>'natlhealthsci', "subdept"=>'biosci', "id"=>'nutrition', "identifiers"=>array('')),
-//array("school"=>'grad', "dept"=>'natlhealthsci', "subdept"=>'biosci', "id"=>'population', "identifiers"=>array('')),
-//array("school"=>'grad', "dept"=>'natlhealthsci', "subdept"=>'biosci', "id"=>'biomedeng', "identifiers"=>array('')),
+//array("school"=>'grad', "dept"=>'humanities', "id"=>'american', "identifiers"=>array('')),
+//array("school"=>'grad', "dept"=>'', "id"=>'comparative', "identifiers"=>array('')),
+//array("school"=>'grad', "dept"=>'humanities', "id"=>'ethics', "identifiers"=>array('')),
+//array("school"=>'grad', "dept"=>'', "id"=>'historical', "identifiers"=>array('')),
+//array("school"=>'grad', "dept"=>'', "id"=>'newtestament', "identifiers"=>array('')),
+//array("school"=>'grad', "dept"=>'', "id"=>'religiouspractices', "identifiers"=>array('')),
+//array("school"=>'grad', "dept"=>'', "id"=>'theological', "identifiers"=>array('')),
+//array("school"=>'grad', "dept"=>'', "id"=>'asian', "identifiers"=>array('')),
+//array("school"=>'grad', "dept"=>'natlhealthsci', "id"=>'biochem', "identifiers"=>array('')),
+//array("school"=>'grad', "dept"=>'natlhealthsci', "id"=>'genetics', "identifiers"=>array('')),
+//array("school"=>'grad', "dept"=>'natlhealthsci', "id"=>'immunology', "identifiers"=>array('')),
+//array("school"=>'grad', "dept"=>'natlhealthsci', "id"=>'microbiology', "identifiers"=>array('')),
+//array("school"=>'grad', "dept"=>'natlhealthsci', "id"=>'pharmacology', "identifiers"=>array('')),
+//array("school"=>'grad', "dept"=>'natlhealthsci', "id"=>'neuroscience', "identifiers"=>array('')),
+//array("school"=>'grad', "dept"=>'natlhealthsci', "id"=>'nutrition', "identifiers"=>array('')),
+//array("school"=>'grad', "dept"=>'natlhealthsci', "id"=>'population', "identifiers"=>array('')),
+//array("school"=>'grad', "dept"=>'natlhealthsci', "id"=>'biomedeng', "identifiers"=>array('')),
 array("school"=>'grad', "dept"=>'natlhealthsci', "id"=>'biostat', "identifiers"=>array('BIOSTATMS','BIOSTATPHD')),
 array("school"=>'grad', "dept"=>'natlhealthsci', "id"=>'chemistry', "identifiers"=>array('CHEMMS','CHEMPHD')),
 array("school"=>'grad', "dept"=>'natlhealthsci', "id"=>'clinicalresearch', "identifiers"=>array('CLNRSRCHMS')),
 array("school"=>'grad', "dept"=>'natlhealthsci', "id"=>'epi', "identifiers"=>array('EPIDMS','EPIDPHD')),
-//array("school"=>'grad', "dept"=>'natlhealthsci', "subdept"=>'', "id"=>'healthpolicy', "identifiers"=>array('')),
-//array("school"=>'grad', "dept"=>'natlhealthsci', "subdept"=>'', "id"=>'mathcompsci', "identifiers"=>array('')),
+//array("school"=>'grad', "dept"=>'natlhealthsci', "id"=>'healthpolicy', "identifiers"=>array('')),
+//array("school"=>'grad', "dept"=>'natlhealthsci', "id"=>'mathcompsci', "identifiers"=>array('')),
 array("school"=>'grad', "dept"=>'natlhealthsci', "id"=>'nursing', "identifiers"=>array('NURSINGPHD')),
 array("school"=>'grad', "dept"=>'natlhealthsci', "id"=>'physics', "identifiers"=>array('PHYSICSPHD')),
 array("school"=>'grad', "dept"=>'socsci', "id"=>'anthro', "identifiers"=>array('ANTHMA','ANTHPHD')),
@@ -93,9 +92,9 @@ array("school"=>'grad', "dept"=>'socsci', "id"=>'econ', "identifiers"=>array('EC
 array("school"=>'grad', "dept"=>'socsci', "id"=>'education', "identifiers"=>array('EDSMA','EDSPHD')),
 array("school"=>'grad', "dept"=>'socsci', "id"=>'polisci', "identifiers"=>array('POLISCIMA','POLISCIPHD')),
 array("school"=>'grad', "dept"=>'socsci', "id"=>'psychology', "identifiers"=>array('PSYCMA','PSYCPHD')),
-//array("school"=>'grad', "dept"=>'socsci', "subdept"=>'psychology', "id"=>'clinicalpsych', "identifiers"=>array('')),
-//array("school"=>'grad', "dept"=>'socsci', "subdept"=>'psychology', "id"=>'cognitivepsych', "identifiers"=>array('')),
-//array("school"=>'grad', "dept"=>'socsci', "subdept"=>'psychology', "id"=>'animalbehavior', "identifiers"=>array('')),
+//array("school"=>'grad', "dept"=>'socsci', "id"=>'clinicalpsych', "identifiers"=>array('')),
+//array("school"=>'grad', "dept"=>'socsci', "id"=>'cognitivepsych', "identifiers"=>array('')),
+//array("school"=>'grad', "dept"=>'socsci', "id"=>'animalbehavior', "identifiers"=>array('')),
 array("school"=>'grad', "dept"=>'socsci', "id"=>'sociology', "identifiers"=>array('SOCMA','SOCPHD')),
 array("school"=>'grad', "dept"=>'socsci', "id"=>'womensstudies', "identifiers"=>array('WMNSTMA','WMNSTPHD')),
   
@@ -193,20 +192,14 @@ foreach ($dataset as $data) {
     //print "\nProcess {$data['school']} dept={$data['dept']} prog={$data['id']} {$identifier}";    
     if ($skos->findIdentifier($identifier) == null) {      
       $logger->info("{$data['school']} dept={$data['dept']} prog={$data['id']} does not yet include dc:identifier {$identifier}, adding.\n");
-      if (isset($data['dept']) && isset($data['subdept'])) {        
-        $skos->{$data['school']}->{$data['dept']}->{$data['subdept']}->{$data['id']}->collection->addIdentifier($identifier);
-      }
-      else if (isset($data['dept'])) {
+      if (isset($data['dept'])) {
         $skos->{$data['school']}->{$data['dept']}->{$data['id']}->collection->addIdentifier($identifier);
       }
       else {
         $skos->{$data['school']}->{$data['id']}->collection->addIdentifier($identifier);
       }     
     } else {
-      if (isset($data['dept']) && isset($data['subdept'])) {        
-        $logger->info("{$data['school']} dept={$data['dept']} subdept={$data['subdept']} prog={$data['id']} dc:identifier {$identifier} is already present");
-      }
-      else if (isset($data['dept'])) {
+      if (isset($data['dept'])) {
         $logger->info("{$data['school']} dept={$data['dept']} prog={$data['id']} dc:identifier {$identifier} is already present");
       }
       else {
