@@ -49,6 +49,11 @@ Zend_Registry::set('esd-db', $esd);
 Zend_Registry::set('esd-config', $esdconfig);
 Zend_Db_Table_Abstract::setDefaultAdapter($esd);
 
+// create DB object for access to etd MYSQL database
+$etdDBconfig = new Zend_Config_Xml($config_dir . 'etd-db.xml', $mode);
+Zend_Registry::set('etd-db-config', $etdDBconfig);
+$etdDB = Zend_Db::factory($etdDBconfig);
+Zend_Registry::set('etd-db', $etdDB);
 
 
 // set up access controls

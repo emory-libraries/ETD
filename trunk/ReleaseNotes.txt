@@ -2,10 +2,12 @@ ETD Release Notes
 =================
 Version 1.8 - <date> (enhancements)
  * Collections config has been consolidated in schools.xml
+ * MySql database config file has been added
 
 Deployment notes:
  * Remove honors_collection section from config.xml
  * Remove collections section from config.xml
+ * Add etd-db.xml as specified in etd-db.xml.example file
  * Run the following migrations / scripts
 -  create_collections.php
 -  015-add-rollins-programs.php
@@ -13,6 +15,8 @@ Deployment notes:
     manually edit the config.xml defined programs_pid.
     Select the SKOS datastream for edit, then add this attribute to first line:
     xmlns:dc="http://purl.org/dc/elements/1.1/"
+- DB/001-create_db_user_table.sql - See notes at top of script. You have to replace <DB NAME> and <PASSWORD> values.  Run this thru PHPMyAdmin
+- DB/002-load_init_data.php
 
 Version 1.7.3 - August 2010 (bugfix)
  * Fixed bug in etdSet code which caused email templates to not function correctly.

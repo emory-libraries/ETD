@@ -55,6 +55,13 @@ $esd = Zend_Db::factory($esdconfig);
 Zend_Registry::set('esd-db', $esd);
 Zend_Db_Table_Abstract::setDefaultAdapter($esd);
 
+// create DB object for access to etd MYSQL database
+$etdDBconfig = new Zend_Config_Xml($config_dir . 'etd-db.xml', $env_config->mode);
+Zend_Registry::set('etd-db-config', $etdDBconfig);
+$etdDB = Zend_Db::factory($etdDBconfig);
+Zend_Registry::set('etd-db', $etdDB);
+
+
 // sqlite db for statistics data
 $stat_config = new Zend_Config_Xml($config_dir . 'statistics.xml', $env_config->mode);
 $db = Zend_Db::factory($stat_config);
