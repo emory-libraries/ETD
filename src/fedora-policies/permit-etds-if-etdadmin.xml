@@ -44,18 +44,18 @@ access and modify (with some limitations) etd objects (etd, etdfile, user)</Desc
         </ResourceMatch>
       </Resource>
 
-      <!-- programs hierarchy -->
+      <!-- This is a catch-all rule that allows collections and program hierarchies to be edited -->
       <Resource>
         <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
-            <AttributeValue 
-		DataType="http://www.w3.org/2001/XMLSchema#string">emory:17r1x</AttributeValue>
-            <ResourceAttributeDesignator 
-		AttributeId="urn:fedora:names:fedora:2.1:resource:object:pid" 
-                DataType="http://www.w3.org/2001/XMLSchema#string"/>
+            <AttributeValue
+		DataType="http://www.w3.org/2001/XMLSchema#string">etdadmin</AttributeValue>
+            <ResourceAttributeDesignator
+		AttributeId="urn:fedora:names:fedora:2.1:resource:object:owner"
+                DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="false"/>
         </ResourceMatch>
       </Resource>
 
-
+      
     </Resources>    
     <Actions>
       <AnyAction/>
@@ -150,17 +150,17 @@ access and modify (with some limitations) etd objects (etd, etdfile, user)</Desc
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">libmhk</AttributeValue>
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">liblna</AttributeValue>
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">elfarr</AttributeValue>
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">athom09</AttributeValue>
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">etdadmin</AttributeValue>
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">etdmaint</AttributeValue>
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">sconna2</AttributeValue>
 	  <!-- tech support users - THESE NEED TO BE IN APP CONFIG TOO! -->
-          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">cboswel</AttributeValue>
-          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">jfenton</AttributeValue>
-          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">mrodri5</AttributeValue>
-          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">libfct</AttributeValue>
-          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">phornsb</AttributeValue>
-          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">ekoffsk</AttributeValue>
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">aafonja</AttributeValue>
-          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">rwrober</AttributeValue>
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">nllambe</AttributeValue>
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">libah</AttributeValue>
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">athom09</AttributeValue>
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">scolli9</AttributeValue>
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">tcarte5</AttributeValue>
         </Apply>
       </Apply>
 
@@ -188,9 +188,11 @@ access and modify (with some limitations) etd objects (etd, etdfile, user)</Desc
         <SubjectAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:subject:loginId" DataType="http://www.w3.org/2001/XMLSchema#string"/>
         <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-bag">
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">rsutton</AttributeValue>
-          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">croddy</AttributeValue>
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">elfarr</AttributeValue>
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">etdsuper</AttributeValue>
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">fedoraAdmin</AttributeValue>
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">etdmaint</AttributeValue>
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">scolli9</AttributeValue>
         </Apply>
    </Condition>
 

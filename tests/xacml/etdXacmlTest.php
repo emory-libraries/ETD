@@ -2,6 +2,7 @@
 
 require_once("../bootstrap.php");
 require_once('models/etd.php');
+require_once('models/FedoraCollection.php');
 
 
 /* NOTE: this test depends on having these user accounts defined in the test fedora instance:
@@ -14,6 +15,7 @@ require_once('models/etd.php');
 
 class TestEtdXacml extends UnitTestCase {
   private $pid;
+  private $collectionpid;
 
   /**
    * FedoraConnection with default test user credentials
@@ -29,8 +31,9 @@ class TestEtdXacml extends UnitTestCase {
     $fedora_cfg = Zend_Registry::get('fedora-config');
     $this->fedoraAdmin = new FedoraConnection($fedora_cfg);
     
-    // get test pid for fedora fixture
+    // get test pids for fedora fixture
     $this->pid = $this->fedoraAdmin->getNextPid($fedora_cfg->pidspace);
+    $this->collectionpid = $this->fedoraAdmin->getNextPid($fedora_cfg->pidspace);
   }
 
     
@@ -56,11 +59,21 @@ class TestEtdXacml extends UnitTestCase {
     if (isset($etd->policy->published)) $etd->policy->removeRule("published");
     
     $this->fedoraAdmin->ingest($etd->saveXML(), "loading test object");
+
+    //ingest collection object
+     $collection = new FedoraCollection();
+     $collection->pid = $this->collectionpid;
+     $collection->owner = "etdadmin";	// set owner to etdadmin  to allow for editing by superusers
+    $collection->ingest("creating test object");
+
+
+
   }
 
   function tearDown() {
     setFedoraAccount("fedoraAdmin");
     $this->fedoraAdmin->purge($this->pid, "removing test object");
+    $this->fedoraAdmin->purge($this->collectionpid, "removing test object");
   }
 
 
@@ -598,6 +611,37 @@ class TestEtdXacml extends UnitTestCase {
     $this->assertEqual("department", $etd->policy->view->condition->department);
 
   }
+
+  function testCollectionEtdadminCanModify() {
+    // set user account to etd admin
+    setFedoraAccount("etdadmin");
+
+    // for etdadmin, it shouldn't matter if etd is draft, published, etc.
+    $collection = new FedoraCollection($this->collectionpid);
+
+     // should be able to modify fields
+    $collection->label = "testing modify";
+    $saveresult = $collection->save("test etdadmin permissions - modify collection");
+    $this->assertNotNull($saveresult,
+			 "etdadmin can modify label");
+  }
+
+  function testCollectionEtdmaintCanModify() {
+    // set user account to etdmaint
+    setFedoraAccount("etdmaint");
+
+    // for etdmaint, it shouldn't matter if etd is draft, published, etc.
+    $collection = new FedoraCollection($this->collectionpid);
+
+    // should be able to modify these fields
+    $collection->label = "testing modify";
+    $saveresult = $collection->save("test etdmaint permissions - modify collection");
+    $this->assertNotNull($saveresult,
+			 "etdadmin can modify label");
+
+  }
+
+
   
 }
 
