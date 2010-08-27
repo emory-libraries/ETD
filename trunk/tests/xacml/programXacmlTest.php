@@ -19,21 +19,41 @@ class TestProgramXacml extends UnitTestCase {
    * FedoraConnection with default test user credentials
    */
   private $fedoraAdmin;
+  private $fedora_cfg;
+
+
+  function __construct() {
+    $this->fedora_cfg = Zend_Registry::get('fedora-config');
+    $this->fedoraAdmin = new FedoraConnection($this->fedora_cfg);
+
+    // get test pid for fedora fixture
+    $this->pid = $this->fedoraAdmin->getNextPid($this->fedora_cfg->pidspace);
+  }
+
+
     
   function setUp() {
-    $config = Zend_Registry::get("config");
-    $this->pid = $config->programs_pid;
     $this->dsid = "SKOS";
     
     if (!isset($this->fedoraAdmin)) {
-      $fedora_cfg = Zend_Registry::get('fedora-config');
-      $this->fedoraAdmin = new FedoraConnection($fedora_cfg);
+      $this->fedora_cfg = Zend_Registry::get('fedora-config');
+      $this->fedoraAdmin = new FedoraConnection($this->fedora_cfg);
     }
 
+    //ingest progrmas object that has the correct owner that will allow it to be modified
+    $fname = '../fixtures/programs2.xml';
+    $dom = new DOMDocument();
+    $dom->load($fname);
+    $etd = new etd($dom);
+    $etd->pid = $this->pid;
+    $etd->owner = "etdadmin";	// set ownere to etdadmin
+    $this->fedoraAdmin->ingest($etd->saveXML(), "loading test object");
   }
+
 
   function tearDown() {
     setFedoraAccount("fedoraAdmin");
+    $this->fedoraAdmin->purge($this->pid, "removing test object");
   }
 
 
@@ -55,22 +75,33 @@ class TestProgramXacml extends UnitTestCase {
     $this->assertNull($result, "xacml does not allow guest to modify programs");
   }
 
-  function testModify() {
+  function testModifyByAdmin() {
     setFedoraAccount("etdadmin");
     $fedora = Zend_Registry::get("fedora");
     
     $xml = $fedora->getDatastream($this->pid, $this->dsid);
     $this->assertNotNull($xml);
     
-    // *can* modify
+    // *can modify*
     $result = $fedora->modifyXMLDatastream($this->pid, $this->dsid, "program hierarchy",
 					   $xml, "modify as etdadmin");
-    $this->assertNotNull($result, "xacml allows etdadmin to modify programs");
+    $this->assertNotNull($result, "xacml does allows etdadmin to modify programs");
 
-    // FIXME: how to we keep from messing up the test programs instance by changing it?!? 
-    
   }
-   
+
+    function testModifyByMaint() {
+    setFedoraAccount("etdmaint");
+    $fedora = Zend_Registry::get("fedora");
+
+    $xml = $fedora->getDatastream($this->pid, $this->dsid);
+    $this->assertNotNull($xml);
+
+    // *can modify*
+    $result = $fedora->modifyXMLDatastream($this->pid, $this->dsid, "program hierarchy",
+					   $xml, "modify as etdmaint");
+    $this->assertNotNull($result, "xacml allows etdmaint to modify programs");
+
+  }
 
 }
 
