@@ -5,10 +5,12 @@ Version 1.8 - <date> (enhancements)
  * MySql database config file has been added
 
 Deployment notes:
- * Remove honors_collection section from config.xml
+* Update fedora policies
+* Remove honors_collection section from config.xml
  * Remove collections section from config.xml
  * Add etd-db.xml as specified in etd-db.xml.example file
  * Run the following migrations / scripts
+ * 015a-add-collection_program_owners.php - Change maintenance_account to use fedoraAdmin for this migration then change back to etdmaint
 -  create_collections.php
 -  015-add-rollins-programs.php
 -  016-add-prog_codes_to_skos.php - before running this script, 

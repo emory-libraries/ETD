@@ -56,7 +56,7 @@ foreach($schools_config as $school){
     if(isset($school->acl_id)) $col['school_id'] = $school->acl_id;
     if(isset($school->OAIInfo)) $col['OAI'] = $school->OAIInfo;
 
-    $collections[] = $col; //add each collection to the
+    $collections[] = $col; //add each collection to the array
 }
 
 $root_collection = array_shift($collections);
@@ -79,6 +79,7 @@ if (!$collection) {
   $collection  = new FedoraCollection();
   $collection->pid = $root_collection['pid'];
   $collection->label = $label;
+  $collection->owner = 'etdadmin';
   if ($opts->noact) {
       $logger->notice("Ingesting {$root_collection['pid']} into Fedora (simulated)");
       $logger->debug($collection->saveXML());
@@ -96,6 +97,7 @@ else{
 }
 
 $collection->label = $label;
+$collection->owner = "etdadmin";
 // set/update OAI setSpec & setName
 $logger->notice("Setting SPEC: {$root_collection['OAI']} NAME: {$root_collection['name']}");
 $collection->setOAISetInfo($root_collection['OAI'], $root_collection['name']);
@@ -122,7 +124,7 @@ foreach ($collections as $col) {
   $collection = NULL;
   try {
     $collection = new FedoraCollection($col['pid']);
-  } catch (FedoraObjectNotFound $e) {
+  } catch (Exception $e) {
     $logger->debug("FedoraObjectNotFound on {$col['pid']}: " . $e->getMessage());
     unset($collection);
   }
@@ -136,6 +138,7 @@ foreach ($collections as $col) {
     $collection  = new FedoraCollection();
     $collection->pid = $col['pid'];
     $collection->label = $label;
+    $collection->owner = "etdadmin";
 
     if ($opts->noact) {
       $logger->notice("Ingesting {$col['pid']}) into Fedora (simulated)");
@@ -162,6 +165,7 @@ foreach ($collections as $col) {
 
   //update label based on config
   $collection->label = $label;
+  $collection->owner = "etdadmin";
 
   // set/update OAI setSpec & setName on collection object
   // - OAI setSpec must contain only unreserved characters; convert spaces to "-"
