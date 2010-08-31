@@ -208,6 +208,9 @@ class TestEtd extends UnitTestCase {
     $this->person->role = "honors admin";
     $this->assertEqual("honors admin", $this->etd->getUserRole($this->person),
            "honors admin is honors admin on grad etd");
+    $this->person->role = "rollins admin";
+    $this->assertEqual("rollins admin", $this->etd->getUserRole($this->person),
+           "rollins admin has rollins admin role on grad etd");
 
     $this->etd->setSchoolConfig($this->school_cfg->emory_college);
     $this->person->role = "grad admin";
@@ -216,6 +219,20 @@ class TestEtd extends UnitTestCase {
     $this->person->role = "honors admin";
     $this->assertEqual("admin", $this->etd->getUserRole($this->person),
            "honors admin is admin on honors etd");
+    $this->person->role = "rollins admin";
+    $this->assertEqual("rollins admin", $this->etd->getUserRole($this->person),
+           "rollins admin has rollins admin role on honors etd");
+
+    $this->etd->setSchoolConfig($this->school_cfg->rollins);
+    $this->person->role = "grad admin";
+    $this->assertEqual("grad admin", $this->etd->getUserRole($this->person),
+           "grad admin is grad admin on rollins etd");
+    $this->person->role = "honors admin";
+    $this->assertEqual("honors admin", $this->etd->getUserRole($this->person),
+           "honors admin is honors admin on rollins etd");
+    $this->person->role = "rollins admin";
+    $this->assertEqual("admin", $this->etd->getUserRole($this->person),
+           "rollins admin has admin role on rollins etd");
 
     
   }
