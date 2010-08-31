@@ -138,6 +138,8 @@
       <required>permanent email</required>
       <required>permanent address</required>
     </submission_fields>
+    <!-- Looking for the admin config for Rollins?
+    Admins for Rollins are configured in etd mySql database -->
   </rollins>
     
 </schools>
