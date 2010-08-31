@@ -1,13 +1,25 @@
 <?php
 require_once("../bootstrap.php");
 require_once('models/SchoolsConfig.php');
+require_once("fixtures/etd_data.php");
 
 class TestSchoolsConfig extends UnitTestCase {
   private $schools;
+  private $etd_data;
   
   function setUp() {
     $this->schools = Zend_Registry::get("schools-config");
+
+    //load etd database fixtures
+    $this->etd_data = new etd_test_data();
+    $this->etd_data->loadAll();
   }
+
+  function tearDown() {
+      // clear etd database test data
+      $this->etd_data->cleanUp();
+    }
+
   
   function testGetLabelById() {
     $this->assertEqual("Graduate School", $this->schools->getLabel("graduate_school"));
@@ -55,11 +67,6 @@ class TestSchoolsConfig extends UnitTestCase {
 
     $schools->candler->admin->department = "Candler School of Theology";
     
-    $schools->rollins->admin = array("netid" => array("phealth"), 
-                              "department" => "SPH: Schoolwide");
-                              
-    $schools->rollins->admin->department = "SPH: Schoolwide";    
-
     //grad
     $user->netid="gadmin";
     $user->department = "Grad. School";
@@ -76,14 +83,11 @@ class TestSchoolsConfig extends UnitTestCase {
     // blank out job title field for initial test
     $schools->candler->admin->job_title = "";
     $this->assertEqual("candler", $schools->isAdmin($user));
-    // rollins (by dept. only)
-    $user->department = "SPH: Schoolwide";
-    $user->netid = "phealth"; 
-    // blank out job title field for initial test
-    $schools->rollins->admin->job_title = "";
-    $this->assertEqual("rollins", $schools->isAdmin($user));       
+    //rollins
+    $user->netid="epusr";
+    $this->assertEqual("rollins", $schools->isAdmin($user));
 
-     // generic user 
+    // generic user
     $student = $person->getTestPerson();
     $this->assertFalse($schools->isAdmin($student));
 

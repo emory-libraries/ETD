@@ -138,24 +138,6 @@
       <required>permanent email</required>
       <required>permanent address</required>
     </submission_fields>
-    <admin>
-      <department>SPH: Schoolwide</department>
-      <netid>mkrance</netid>
-      <department>SPH: Behavrl Sciences \&amp; Health</department>
-      <netid>ddunba2</netid>
-      <netid>cdettme</netid>
-      <department>SPH: Biostatistics</department>
-      <netid>twachho</netid>  
-      <department>SPH: Envirnmntl \&amp; Occupational</department>
-      <netid>ascarl</netid>  
-      <department>SPH: Schoolwide</department>
-      <netid>jtenley</netid>  
-      <department>SPH: Health Policy and Mngmnt</department>
-      <netid>kwollen</netid>
-      <department>SPH: Global Health</department>      
-      <netid>arozo</netid>   
-      <netid>tnash</netid>                                                  
-    </admin>
   </rollins>
     
 </schools>

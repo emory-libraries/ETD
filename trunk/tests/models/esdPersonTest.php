@@ -2,16 +2,19 @@
   require_once("../bootstrap.php");
   require_once('models/esdPerson.php');
   require_once("fixtures/esd_data.php");
+  require_once("fixtures/etd_data.php");
 
   class TestEsdPerson extends UnitTestCase {
     private $esd;
     private $user;
-    private $data;
+    private $esd_data;
+    private $etd_data;
 
     private $_realconfig;
     private $_schools_config;
 
     private $grad_department = "Laney Graduate School Administration";
+    private $candler_department = "Candler Department";
 
     function setUp() {
       $this->esd = new esdPersonObject();
@@ -19,8 +22,13 @@
       $person = new esdPerson();
       $this->user = $person->getTestPerson();
 
-      $this->data = new esd_test_data();
-      $this->data->loadAll();
+      //ESD database fixtures
+      $this->esd_data = new esd_test_data();
+      $this->esd_data->loadAll();
+
+      //ETD database fixtures
+      $this->etd_data = new etd_test_data();
+      $this->etd_data->loadAll();
 
       // store real config files to restore later
       $this->_realconfig = Zend_Registry::get('config');
@@ -46,6 +54,10 @@
                 array("llane", "mshonorable"),
                              "department" => "Emory College");
 
+        $schools->candler->admin = array("netid" =>
+                array("cand1", "cand2"),
+                             "department" => $this->candler_department);
+
       // temporarily override school config  with test configuration
       Zend_Registry::set('schools-config', $schools);
     }
@@ -55,7 +67,8 @@
       Zend_Registry::set('config', $this->_realconfig);
       Zend_Registry::set('schools-config', $this->_schools_config);
       
-      $this->data->cleanUp();
+      $this->esd_data->cleanUp();
+      $this->etd_data->cleanUp();
     }
 
     function testBasicProperties() {
@@ -100,6 +113,14 @@
       $user->department = $this->grad_department;
       $user->setRole();
       $this->assertEqual("grad admin", $user->getRoleId(), "grad admin user role should be 'grad admin', got " . $user->getRoleId());
+
+      $user->netid = "cand1";
+      $user->department = $this->candler_department;
+      $user->setRole();
+      $this->assertEqual("candler admin", $user->getRoleId(), "canldler admin user role should be 'candler admin', got " . $user->getRoleId());
+
+      $user = $this->esd->findByUsername("epusr");
+      $this->assertEqual("rollins admin", $user->getRoleId(), "should be rollins admin', got " . $user->getRoleId());
 
       $user = $this->esd->findByUsername("dadmin");
       $this->assertEqual("staff", $user->getRoleId(), "dept. admin user role should be 'staff', got " . $user->getRoleId());

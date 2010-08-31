@@ -32,6 +32,8 @@ class esd_test_data {
 
 			   // grad administrator
 			   array(' ',1,'GADMIN','E','Admin','Graduate',' ','','GSAS Administrator','1007','Graduate School Administration',null,null,null,null,null,null,null,null,'grad.admin@emory.edu'),
+               // rollins admin
+               array(' ',1,'EPUSR','E','Admin','Rollins',' ','','PUBH Administrator','1007','Rollins School Administration',null,null,null,null,null,null,null,null,'rollins.admin@emory.edu'),
 			   // grad dept. coordinator
 			   array(' ',1,'DADMIN','E','Admin','Department',' ','','Department Coordinator','1008','Graduate School',null,null,null,null,null,null,"Philosophy",null,'grad.admin@emory.edu'),
                array(' ',1,'RVIEWER','E','Bob','Smith',' ','','Analyst','1009','Reports Department',null,null,null,null,null,null,"Philosophy",null,'grad.admin@emory.edu'),

@@ -44,6 +44,7 @@ class SchoolsConfig extends Zend_Config_Xml {
    * @return string|false
    */
   public function isAdmin(esdPerson $user) {
+    $etd_db = Zend_Registry::get("etd-db"); //etd util DB
     foreach ($this as $school) {
       // check for user netids explicitly specified
       // -- handle single netid or multiple
@@ -59,6 +60,16 @@ class SchoolsConfig extends Zend_Config_Xml {
 	   $user->department == $school->admin->department)
       ) {
 	      return $school->acl_id;
+      }
+      
+      //FIXME: Migrate all admin logic to use db instead of config files
+      
+      //see if user exists in admins table for correct school when admin section is not set in config
+      elseif(isset($school->acl_id) && !isset($school->admin)){
+          $where = 'netid = upper(?) AND schoolid = ?';
+          $bind = array(':netid' => $user->netid, ':schoolid' => $school->db_id);
+          $result = $etd_db->fetchall($etd_db->select()->from("etd_admins")->where($where)->bind($bind));
+          if($result) return $school->acl_id;  // at least one result for user + school
       }
     }
   }
