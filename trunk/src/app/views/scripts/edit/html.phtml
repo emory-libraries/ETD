@@ -28,7 +28,7 @@ if ( $this->mode == "title") {
 }
 
 $editor_opts["css"] = $this->linkTo("css/etd.css");
-if ($this->current_user->role == "superuser") $editor_opts["toolbar"] = "etd-admin";
+if ($this->current_user->role == "superuser" || $this->current_user->role == "techsupport") $editor_opts["toolbar"] = "etd-admin";
 ?>
 
 <?= $this->FckEditor("edit_content", (string)$this->edit_content, $editor_opts) ?>
