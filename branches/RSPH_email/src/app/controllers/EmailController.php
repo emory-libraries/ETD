@@ -17,6 +17,11 @@ class EmailController extends Etd_Controller_Action {
    }
 
    public function viewAction() {
+     $config = Zend_Registry::get('config');
+    // Contact information
+    // Should normally be set in the notifer
+    //This is passed to the view.phtml and then to the partial as "contact"
+     $this->view->contact = $config->contact;
      $template = $this->_getParam("template");
      $this->view->template = $template;
      $this->view->template_label = ucwords(str_replace("_", " ", $template));
