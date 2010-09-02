@@ -14,7 +14,9 @@ class etd_test_data {
     
     $this->data = array(
     array('EPUSR', 'PUBH', 'AEPI'),
-    array('GHUSR', 'PUBH', 'IH')
+    array('GHUSR', 'PUBH', 'IH'),
+    array('ROLL1', 'PUBH', 'PS'),
+    array('ROLL1', 'PUBH', 'MS'),
 );
   }
 
