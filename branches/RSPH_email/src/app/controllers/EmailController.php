@@ -91,6 +91,23 @@ class EmailController extends Etd_Controller_Action {
      if ($etdset->numFound)
        $this->view->etds["ThD, embargoed"] = $etdset->etds[0];
 
+       // MPH without embargo
+     unset($searchopts["AND"]["date_embargoedUntil"]);
+     $searchopts["AND"]["degree_name"] = "MPH";
+     $searchopts["AND"]["embargo_duration"] = '"0 days"';
+     $etdset->find($searchopts);
+     if ($etdset->numFound)
+       $this->view->etds["MPH, no embargo"] = $etdset->etds[0];
+
+     // MPH with embargo
+     unset($searchopts["AND"]["embargo_duration"]);
+     unset($searchopts["AND"]["date_embargoedUntil"]);
+     //$searchopts["NOT"]["embargo_duration"] = '"0 days"';
+     $searchopts["AND"]["date_embargoedUntil"] = "[" . date("Ymd") . " TO *]";
+     $etdset->find($searchopts);
+     if ($etdset->numFound)
+       $this->view->etds["MPH, embargoed"] = $etdset->etds[0];
+
 
 // if no pid is specified, just use the first etd in the list of sample records
      if (!$this->_hasParam("pid")) {
