@@ -2,6 +2,7 @@
 require_once("../bootstrap.php");
 require_once('ControllerTestCase.php');
 require_once('controllers/ManageController.php');
+require_once('../fixtures/etd_data.php');
       
 class ManageControllerTest extends ControllerTestCase {
 
@@ -9,6 +10,8 @@ class ManageControllerTest extends ControllerTestCase {
   private $etdxml;
   private $test_user;
   private $solr;
+  private $etd_data;
+  private $schools_cfg;
   
   // fedoraConnection
   private $fedora;
@@ -26,6 +29,8 @@ class ManageControllerTest extends ControllerTestCase {
     // get 3 test pids to be used throughout test
     $this->pids = $this->fedora->getNextPid($fedora_cfg->pidspace, 3);
     list($this->published_etdpid, $this->reviewed_etdpid,  $this->userpid) = $this->pids;
+
+    $this->schools_cfg = Zend_Registry::get('schools-config');
   }
 
 
@@ -35,6 +40,10 @@ class ManageControllerTest extends ControllerTestCase {
     $this->test_user->role = "admin";
     $this->test_user->netid = "test_user";
     Zend_Registry::set('current_user', $this->test_user);
+
+    //load etd util DB data
+    $this->etd_data = new etd_test_data();
+    $this->etd_data->loadAll();
 
     
     $_GET   = array();
@@ -86,6 +95,9 @@ class ManageControllerTest extends ControllerTestCase {
 
     Zend_Registry::set('solr', null);
     Zend_Registry::set('current_user', null);
+
+    //delete etd util DB data
+    $this->etd_data->cleanUp();
   }
   
   function testSummaryAction() {
@@ -526,10 +538,41 @@ class ManageControllerTest extends ControllerTestCase {
     $this->assertEqual('collection:"' . $school_cfg->candler->fedora_collection . '"',
            $filter);
            
-    // rollins admin
+    // rollins admin - should only happen in testing mode when no admins are configured in etd util DB
     $this->test_user->role = "rollins admin";
     $filter = $ManageController->testGetAdminFilter(); 
-    $this->assertEqual('collection:"' . $school_cfg->rollins->fedora_collection . '"', $filter);           
+    $this->assertEqual('collection:"' . $school_cfg->rollins->fedora_collection . '"', $filter);
+
+    //Correct Role and user is configured with programs in etd util DB
+    $this->test_user->role = "rollins admin";
+    $this->test_user->netid = "roll1";
+    Zend_Registry::set('current_user', $this->test_user);
+    $filter = $ManageController->testGetAdminFilter();
+    $this->assertTrue(strpos($filter, 'collection:"emory-control:ETD-Rollins-collection"') === 0);
+    $this->assertTrue(strpos($filter, 'program_id: "ms"'));
+    $this->assertTrue(strpos($filter, 'program_id: "ps"'));
+  }
+
+  function testGetAdminPrograms() {
+
+    $ManageController = new ManageControllerForTest($this->request,$this->response);
+    $ManageController->school = $this->schools_cfg->rollins;
+    $result = $ManageController->testGetAdminPrograms();
+
+    //No results because "admin" user is not in DB
+    $this->assertIsA($result, "array", "Return object should be an array");
+    $this->assertEqual(count($result), 0, "No records returned");
+
+
+    //Roll1 user has entries in etd util DB
+    $this->test_user->role = "rollins admin";
+    $this->test_user->netid = "roll1";
+    Zend_Registry::set('current_user', $this->test_user);
+    $result = $ManageController->testGetAdminPrograms();
+    $this->assertIsA($result, "array", "Return object should be an array");
+    $this->assertEqual(count($result), 2, "2 records returned");
+    $this->assertTrue(in_array("ps", $result));
+    $this->assertTrue(in_array("ms", $result));
   }
   
 }
@@ -539,6 +582,8 @@ class ManageControllerForTest extends ManageController {
   
   public $renderRan = false;
   public $redirectRan = false;
+  public $schools_cfg;
+  public $school;
 
   public function initView() {
     $this->view = new Zend_View();
@@ -558,6 +603,13 @@ class ManageControllerForTest extends ManageController {
   
     return $this->getAdminFilter();
   }
+  // expose private function for testing
+  public function testGetAdminPrograms() {
+
+    return $this->getAdminPrograms();
+  }
+
+
 }   
 
 runtest(new ManageControllerTest());

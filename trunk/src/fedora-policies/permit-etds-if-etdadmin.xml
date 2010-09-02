@@ -140,7 +140,7 @@ access and modify (with some limitations) etd objects (etd, etdfile, user)</Desc
     </Apply>  <!-- end or -->
 
 
-      <!-- usernames for etd admins -->
+      <!-- usernames for etd admins(NOT Rollins) - THESE NEED TO BE IN SCHOOLS CONFIG TOO -->
       <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-at-least-one-member-of">
         <SubjectAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:subject:loginId" DataType="http://www.w3.org/2001/XMLSchema#string"/>
         <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-bag">
@@ -154,6 +154,16 @@ access and modify (with some limitations) etd objects (etd, etdfile, user)</Desc
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">etdadmin</AttributeValue>
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">etdmaint</AttributeValue>
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">sconna2</AttributeValue>
+      <!-- usernames for etd Rollins admins - THESE NEED TO BE IN ETD DATABASE TOO -->
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">arozo</AttributeValue>
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">ascarl</AttributeValue>
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">cdettme</AttributeValue>
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">ddunba2</AttributeValue>
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">jtenley</AttributeValue>
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">kwollen</AttributeValue>
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">mkrance</AttributeValue>
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">tnash</AttributeValue>
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">twachho</AttributeValue>
 	  <!-- tech support users - THESE NEED TO BE IN APP CONFIG TOO! -->
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">aafonja</AttributeValue>
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">nllambe</AttributeValue>

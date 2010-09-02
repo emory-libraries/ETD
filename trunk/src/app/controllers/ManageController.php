@@ -9,6 +9,8 @@ require_once("models/etd_notifier.php");
 
 class ManageController extends Etd_Controller_Action {
   protected $requires_fedora = true;
+  protected $schools_cfg;
+  protected $school;
   
    public function indexAction() {
      // forward to appropriate action based on user's role
@@ -24,23 +26,66 @@ class ManageController extends Etd_Controller_Action {
 
    // generate filter needed (if any) based on type of administrator
    protected function getAdminFilter() {
+
+     $filter = null;
+
      // retrieve multi-school configuration from registry
-     $schools_cfg = Zend_Registry::get("schools-config");
+     $this->schools_cfg = Zend_Registry::get("schools-config");
      
      // if user ir a school-specific admin, determine which school
      if ($pos = strpos($this->current_user->role, " admin")) {
        $admin_type = substr($this->current_user->role, 0, $pos);
        // find the school config that current user is admin for
-       $school = $schools_cfg->getSchoolByAclId($admin_type);
-       if ($school) {
-   // get fedora collection id, then construct query by collection id
-   $collection = $school->fedora_collection;
-   if ($collection) return 'collection:"' . $collection . '"';
+       $this->school = $this->schools_cfg->getSchoolByAclId($admin_type);
+       if ($this->school) {
+           // get fedora collection id, then construct query by collection id
+        $collection = $this->school->fedora_collection;
+        if ($collection){
+           $filter .= 'collection:"' . $collection . '"';
+
+           //TODO: Special case for rolins because admins determined by program and configured in mySql DB
+          //       All schools should be migrated to use the DB instead of the config files for admin config
+           if($collection == $this->schools_cfg->rollins->fedora_collection){
+                $programs = $this->getAdminPrograms();
+
+                // if user has programs associated in etd_admins table, add them to filter
+                if($programs){
+                    //build each program part in the original array
+                    foreach($programs as &$program){
+                        $program = "program_id: \"$program\"";
+                    }
+                    unset($program);
+                    $filter .= " AND " . "(" . join(" OR ", $programs) . ")";
+                }
+
+
+
+           }
+        }
        }
      }
 
-     // no filter
-     return null;
+     // return filter if one was created
+     return $filter;
+   }
+
+   /*
+    * Selects the program codes for an admin user from the mysql DB
+    * @returns Array - list of programs configured for the current user
+    */
+   protected function getAdminPrograms() {
+       $etd_db = Zend_Registry::get("etd-db"); //etd util DB
+       $programs = array();
+
+       $results = $etd_db->select()
+       ->from(array("etd_admins"), array('programid'))
+       ->where("netid= UPPER(?)", $this->current_user->netid)->where("schoolid = UPPER(?)", $this->school->db_id);
+       $results = $etd_db->fetchAssoc($results);
+
+       foreach($results as $row){
+           $programs[] = strtolower($row['programid']);
+       }
+       return $programs;
    }
 
 

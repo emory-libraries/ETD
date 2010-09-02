@@ -1,4 +1,5 @@
 <schools>
+    <!-- NOTE: All school admins MUST also be configured in permit-etds-to-etdadmins Fedora XACML policy -->
   <all_schools>
       <label>All Schools</label>
       <fedora_collection>emory-control:ETD-collection</fedora_collection>
