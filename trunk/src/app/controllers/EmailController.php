@@ -17,6 +17,11 @@ class EmailController extends Etd_Controller_Action {
    }
 
    public function viewAction() {
+     $config = Zend_Registry::get('config');
+    // Contact information
+    // Should normally be set in the notifer
+    //This is passed to the view.phtml and then to the partial as "contact"
+     $this->view->contact = $config->contact;
      $template = $this->_getParam("template");
      $this->view->template = $template;
      $this->view->template_label = ucwords(str_replace("_", " ", $template));
@@ -85,6 +90,23 @@ class EmailController extends Etd_Controller_Action {
      $etdset->find($searchopts);
      if ($etdset->numFound)
        $this->view->etds["ThD, embargoed"] = $etdset->etds[0];
+
+       // MPH without embargo
+     unset($searchopts["AND"]["date_embargoedUntil"]);
+     $searchopts["AND"]["degree_name"] = "MPH";
+     $searchopts["AND"]["embargo_duration"] = '"0 days"';
+     $etdset->find($searchopts);
+     if ($etdset->numFound)
+       $this->view->etds["MPH, no embargo"] = $etdset->etds[0];
+
+     // MPH with embargo
+     unset($searchopts["AND"]["embargo_duration"]);
+     unset($searchopts["AND"]["date_embargoedUntil"]);
+     //$searchopts["NOT"]["embargo_duration"] = '"0 days"';
+     $searchopts["AND"]["date_embargoedUntil"] = "[" . date("Ymd") . " TO *]";
+     $etdset->find($searchopts);
+     if ($etdset->numFound)
+       $this->view->etds["MPH, embargoed"] = $etdset->etds[0];
 
 
 // if no pid is specified, just use the first etd in the list of sample records
