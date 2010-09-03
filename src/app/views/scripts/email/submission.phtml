@@ -14,7 +14,14 @@ Emory's repository.</p>
 <li>Submit a paper copy (or copies) for binding, as necessary</li>
 <? endif ?>
 <li>Review your ETD record</li>
-<li>Submit all required forms to the <?if($this->etd->schoolId() == "grad"):?>Laney <?endif?><?=$this->etd->admin_agent?></li>
+<? if ($this->etd->schoolId() == "rollins"): ?>
+<li>Submit all required forms to the ADAP in your department</li>
+<? endif ?>
+<? if ($this->etd->schoolId() != "rollins"): ?>
+    <li>Submit all required forms to the <?if($this->etd->schoolId() == "grad"):?>Laney <?endif?><?=$this->etd->admin_agent?></li>
+<? else: ?>
+    <li>Take the Graduate Information Survey and the Rollins Exit Survey</li>
+<? endif ?>
 <? if ($this->etd->schoolId() == "grad"): ?>
 <li>Take the Graduate Exit Survey</li>
 <? endif ?>
@@ -31,7 +38,7 @@ Emory's repository.</p>
 <li>Please review your record, checking for accuracy and formatting:<br>
   <a href="<?= $this->etd->ark() ?>"><?= $this->etd->ark() ?></a></li>
 
-<? if ($this->etd->schoolId() == "grad" || $this->etd->schoolId() == "candler"):?>
+<? if ($this->etd->schoolId() == "grad" || $this->etd->schoolId() == "candler" || $this->etd->schoolId() == "rollins"):?>
 <li><p>All students must submit the ETD Submission Agreement Form with the paper copy of their
 dissertation or thesis. In part 3 of that form, you must choose between the "Open" or "Restricted" Access options.
 <? if ($this->etd->mods->isEmbargoRequested()): ?>
@@ -47,6 +54,10 @@ dissertation or thesis. In part 3 of that form, you must choose between the "Ope
  <p>You will receive written notification confirming whether or not your dissertation or thesis has been approved by the <?= $this->etd->admin_agent ?>. Upon approval you will receive further information regarding the publication of your ETD in our repository, as well as your opportunity to order bound copies.</p>
 </li>
 
+<? if($this->etd->schoolId() == "rollins"): ?>
+<li>You will soon receive communication from Rollins Career Services about the Graduate Information Survey and the Rollins Exit Survey. Please take the time to complete these surveys, as information gathered from them is important to both Rollins and future students.</li>
+<? endif ?>
+
 <? elseif($this->etd->schoolId() == "honors"): ?>
 <li><p>All students must submit a hard copy of the ETD Submission Agreement Form to Ms. Elizabeth Fricker in White Hall 300 by April 22, 2010 along with other required forms. You may find these requirements in the guidelines distributed earlier or on the LearnLink conference for College Honors.</p>
 <? if ($this->etd->mods->isEmbargoRequested()): ?>
@@ -60,10 +71,7 @@ dissertation or thesis. In part 3 of that form, you must choose between the "Ope
 
  <p>You will receive written notification confirming whether or not your dissertation or thesis has been approved by the <?= $this->etd->admin_agent ?>. Upon approval you will receive further information regarding the publication of your ETD in our repository, as well as your opportunity to order bound copies.</p>
 </li>
-
-
 <? endif ?>
 <? if ($this->etd->schoolId() == "grad"): /* not applicable to honors etds */ ?>
 <li>Soon after graduation, you will receive an email message notifying you that your dissertation or thesis has been published by the ETD system. You will find a link to the Graduate Exit Survey in that email. Please take the time to provide valuable feedback to the Graduate School by completing this survey.</li>
 <? endif ?>
-

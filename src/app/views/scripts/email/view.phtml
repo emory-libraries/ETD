@@ -18,8 +18,8 @@
 
 <? if (isset($this->etd)): ?>
  <div class="email_template">
-   <?=  $this->partial("email/" . $this->template . ".phtml",
-		       array("etd" => $this->etd, "environment" => "production")); ?>
+   <?=  $this->partial("email/" . $this->template . ".phtml",           //environment set to production to supress debug output
+		       array("etd" => $this->etd, "contact" => $this->contact , "environment" => "production")); ?>
  </div>
 <? else: ?>
   <p>You must select an ETD record in order to display the template.</p>
