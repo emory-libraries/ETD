@@ -15,7 +15,8 @@ Version 1.8 - September 2010 (enhancements)
 Deployment notes:
 * Update fedora policies under FEDORA_HOME to branch:
 - staging: https://svn.library.emory.edu/svn/fedora/repository-policies/branches/etd_1.8.x
-- production: https://svn.library.emory.edu/svn/fedora/repository-policies/trunk
+- production: https://svn.library.emory.edu/svn/fedora/repository-policies/tags/?
+* Add etdOwner to config
 * Remove honors_collection section from config.xml
  * Remove collections section from config.xml
  * Add etd-db.xml as specified in etd-db.xml.example file

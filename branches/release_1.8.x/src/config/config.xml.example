@@ -1,5 +1,6 @@
 <config>
   <development>
+      <etdOwner>etdadmin</etdOwner>
       <timezone></timezone>
     <session_name></session_name> <!-- PHP session name -->
     <email>
