@@ -179,6 +179,9 @@ array("school"=>'rollins', "dept" =>'eh', "id"=>'eohepi', "identifiers"=>array('
 array("school"=>'rollins', "dept" =>'eh', "id"=>'eohih', "identifiers"=>array('EOHIHMPH')),
 array("school"=>'rollins', "dept" =>'ep', "id"=>'epi', "identifiers"=>array('EPIMPH', 'EPIMPSH')),
 array("school"=>'rollins', "dept" =>'ep', "id"=>'glepi', "identifiers"=>array('GLEPIMPH','GLEPIMSPH')),
+array("school"=>'rollins', "dept" =>'', "id"=>'hpm', "identifiers"=>array('HPMMPH','HPMMSPH')),
+array("school"=>'rollins', "dept" =>'', "id"=>'ih', "identifiers"=>array('IHMPH')),
+array("school"=>'rollins', "dept" =>'', "id"=>'bshe', "identifiers"=>array('BSHEMPH')),
 );
 
 
@@ -192,14 +195,14 @@ foreach ($dataset as $data) {
     //print "\nProcess {$data['school']} dept={$data['dept']} prog={$data['id']} {$identifier}";    
     if ($skos->findIdentifier($identifier) == null) {      
       $logger->info("{$data['school']} dept={$data['dept']} prog={$data['id']} does not yet include dc:identifier {$identifier}, adding.\n");
-      if (isset($data['dept'])) {
+      if (!empty($data['dept'])) {
         $skos->{$data['school']}->{$data['dept']}->{$data['id']}->collection->addIdentifier($identifier);
       }
       else {
         $skos->{$data['school']}->{$data['id']}->collection->addIdentifier($identifier);
       }     
     } else {
-      if (isset($data['dept'])) {
+      if (!empty($data['dept'])) {
         $logger->info("{$data['school']} dept={$data['dept']} prog={$data['id']} dc:identifier {$identifier} is already present");
       }
       else {
