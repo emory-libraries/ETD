@@ -13,7 +13,7 @@ Version 1.8 - September 2010 (enhancements)
 * Mime-type detection has been refactored for PDF files
 
 Deployment notes:
-* Update fedora policies under FEDORA_HOME to branch:
+* Update fedora policies under FEDORA_HOME to new branch and restart Fedora:
 - staging: https://svn.library.emory.edu/svn/fedora/repository-policies/branches/etd_1.8.x
 - production: https://svn.library.emory.edu/svn/fedora/repository-policies/tags/?
 * Add etdOwner to config
