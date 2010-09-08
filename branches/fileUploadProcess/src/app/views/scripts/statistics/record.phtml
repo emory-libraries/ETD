@@ -1,0 +1,35 @@
+<?= $this->render("statistics/_links.phtml"); ?>
+<h1>Access Statistics</h1>
+
+<p>
+<a href="<?= $this->url(array('controller' => 'view', 'action' => 'record',
+	'pid' => $this->etd->pid), '', true, false) ?>"><?= $this->etd->title() ?></a>,
+   <?= $this->etd->author() ?> (<?= $this->etd->year() ?>)
+</p>
+
+<table class="statistics">
+  <?= $this->render("statistics/_statkey.phtml") ?>
+<? if ($this->total['abstract'] == 0 && $this->total['file'] == 0): ?>
+  <tr><td colspan="4">This record has not been viewed during this period.</td></tr>
+<? else: ?>  
+  <tr>
+     <td class="caption" colspan="4">Abstract views and document downloads <? /* fixme: duration */ ?></td>
+  </tr>
+  <tr>
+	   <th>Views</th>
+	   <td class="count abstract"><?= $this->total['abstract'] ?></td>
+	   <td class="count download"><?= $this->total['file'] ?></td>
+	   <td>
+  	       <div class="abstractviews" style="width:<?= $this->total['abstract'] ?>px"><?= $this->total['abstract'] ?></div> 
+  	       <div class="downloads"
+	    style="width:<?= $this->total['file'] ?>px"><?= $this->total['file'] ?></div>
+	   </td>
+        </tr>
+
+<? endif ?>
+
+<?= $this->render("statistics/_country.phtml") ?>
+     
+<?= $this->render("statistics/_monthly.phtml") ?>
+	     
+</table>

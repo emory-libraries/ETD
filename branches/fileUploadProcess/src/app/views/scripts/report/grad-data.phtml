@@ -1,0 +1,33 @@
+<?
+/*print "<br>";
+print $this->curDate;
+print "<br>";
+print $this->curStart;
+print "<br>";
+print $this->curEnd;
+print "<br>";
+print_r ($this->options);
+ */
+?>
+<h1>Graduate School Academic Year Report Download</h1>
+
+<p>
+    Select the desired academic year and click Download to create Graduation Report
+</p>
+
+<form name="gradDataRange" action="grad-data-csv" method="post">
+    <table>
+        <tr>
+            <td>
+                Academic Year: <?=$this->formSelect("academicYear", null, null, $this->options) ?>
+            </td>
+        </tr>
+        <tr>
+        <td>
+            <?= $this->formSubmit("download", "Download >", Array("class" => "submitlink")); ?>
+        </td>
+
+        </tr>
+    </table>
+
+</form>
