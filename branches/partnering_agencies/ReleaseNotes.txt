@@ -1,5 +1,16 @@
 ETD Release Notes
 =================
+Version 1.8.1 - September 2010 (enhancements)
+* Add partnering agency to an ETD.
+
+Deployment notes:
+* Update partnering agencies:
+- add this property to config.xml (place below <programs_pid>):
+  <vocabularies_pid>emory-control:ETD-vocabulary</vocabularies_pid>
+- 017-add-partnering_agencies_RSPH.php.php - before running this script, 
+    make sure the pid "emory-control:ETD-vocabulary" exists in fedora.
+
+
 Version 1.8 - September 2010 (enhancements)
 * Collections config has been consolidated in schools.xml
 * MySql database config file has been added

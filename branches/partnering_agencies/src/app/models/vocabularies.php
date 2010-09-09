@@ -43,7 +43,7 @@ class foxmlVocabularies extends foxmlSkosCollection {
 }
 
 /**
- * custom version of collectionHierarchy for programs/departments
+ * custom version of collectionHierarchy for partnering agencies
  */
 class vocabularies extends collectionHierarchy  {
 
