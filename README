@@ -48,6 +48,7 @@ ETD makes use of or interacts with the following:
   Search Service)
  - LDAP authentication
  - Emory Shared Data (Oracle db)
+- ETD Util DB (MySQL db)
  - Persistent Id Server (locally developed - persis/pidman)
  - sqlite3 database for ETD usage statistics
  - CSV graduation feed from Registrar (triggers publication)

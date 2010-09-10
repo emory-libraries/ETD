@@ -34,7 +34,7 @@ class FileControllerTest extends ControllerTestCase {
 
     $ep = new esdPerson();
     $this->test_user = $ep->getTestPerson();
-    $this->test_user->role = "author";		// slight hack - test without etd roles logic
+    $this->test_user->role = "author";    // slight hack - test without etd roles logic
     $this->test_user->netid = "author";
     $this->test_user->firstname = "Author";
     $this->test_user->lastname = "Jones";
@@ -82,12 +82,12 @@ class FileControllerTest extends ControllerTestCase {
     $this->assertFalse($layout->enabled);
     $headers = $FileController->getResponse()->getHeaders();
     $this->assertTrue(in_array(array("name" => "Content-Disposition",
-				     "value" => 'attachment; filename="author_dissertation.pdf"',
-				     "replace" => ''), $headers));
+             "value" => 'attachment; filename="author_dissertation.pdf"',
+             "replace" => ''), $headers));
 
     $this->assertTrue(in_array(array("name" => "Content-Type",
-				     "value" => 'application/pdf',
-				     "replace" => ''), $headers));
+             "value" => 'application/pdf',
+             "replace" => ''), $headers));
 
 
     // should not be allowed to view
@@ -139,8 +139,8 @@ class FileControllerTest extends ControllerTestCase {
   
     // uploading a non-pdf for pdf file should fail
     $_FILES['file'] = array("tmp_name" => $tmpfile, "size" => 150,
-			    "type" => "text/plain", "error" => UPLOAD_ERR_OK,
-			    "name" => "original.txt");
+          "type" => "text/plain", "error" => UPLOAD_ERR_OK,
+          "name" => "original.txt");
     $this->setUpGet(array('etd' => $this->etdpid, "filetype" => "pdf"));
     $this->assertFalse($FileController->newAction());
     $this->assertFalse(isset($FileController->view->file_pid));
@@ -166,22 +166,30 @@ class FileControllerTest extends ControllerTestCase {
     $this->mock_etdfile->etd = new Etd($this->etdpid);
 
     $FileController = new FileControllerForTest($this->request, $this->response);
-    
     $tmpfile = tempnam("/tmp", "etdtest-");
   
     // uploading a non-pdf to update pdf object should fail
     $_FILES['file'] = array("tmp_name" => $tmpfile, "size" => 150,
-			    "type" => "text/plain", "error" => UPLOAD_ERR_OK,
-			    "name" => "original.txt");
-    $this->setUpGet(array('pid' => "mock_etdfilepid"));
-    $this->assertFalse($FileController->updateAction());
+          "type" => "text/plain", "error" => UPLOAD_ERR_OK,
+          "name" => "original.txt");        
+    $this->setUpGet(array('pid' => "mock_etdfilepid"));   
+    $this->assertFalse($FileController->updateAction());   
     $this->assertFalse(isset($FileController->view->file_pid));
     $messages = $FileController->getHelper('FlashMessenger')->getMessages();
     $this->assertPattern("/file is not an allowed type./", $messages[0]);
 
     // updating mock etdfile object
-    $_FILES['file']["type"] = "application/pdf";
-    $this->assertFalse($FileController->updateAction());
+    # copy pdf fixture file into tmp dir for this test.
+    $srcfile = "../fixtures/tinker_sample.pdf";
+    $testfile = "/tmp/tinker_sample.pdf";
+    copy($srcfile, $testfile);
+    
+    $_FILES['file'] = array("tmp_name" => $testfile,
+         "size" => filesize($testfile),
+          "type" => "application/pdf", "error" => UPLOAD_ERR_OK,
+          "name" => "diss.pdf");
+    $allowed_types = array("text/plain"); 
+    $this->assertFalse($FileController->updateAction());    
     $messages = $FileController->getHelper('FlashMessenger')->getMessages();
     $this->assertPattern("/Successfully updated file/", $messages[0]); 
   }
@@ -210,7 +218,7 @@ class FileControllerTest extends ControllerTestCase {
   public function testRemoveAction() {
     $FileController = new FileControllerForTest($this->request,$this->response);
     $this->setUpGet(array('pid' => $this->filepid));
-	
+  
     // guest should not be allowed to remove
     $this->test_user->role = "guest";
     $this->assertFalse($FileController->removeAction());
@@ -254,7 +262,7 @@ class FileControllerForTest extends FileController {
   public function _redirect() {
     $this->redirectRan = true;
   }
-} 	
+}   
 
 runtest(new FileControllerTest());
 ?>

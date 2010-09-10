@@ -2,7 +2,7 @@
 <?php
 /**
  * Adds the owner etdadmin to all the school collection objects and the program hierarchy object
- * THIS MUST BE RUN AS fedoraAdmin
+ * THIS MUST BE RUN AS fedoraAdmin due xacml policy rule.  The rule does not allow any other user to update unless the owner is etdadmin.
  *
  * @category Etd
  * @package Etd_Scripts
@@ -33,7 +33,7 @@ try {
 // output logging - common setup function in bootstrap
 $logger = setup_logging($opts->verbose);
 
-
+$cfg = Zend_Registry::get('config');
 //use maintenance_account to connect
 try {
   $fedora_opts = $fedora_cfg->toArray();
@@ -48,7 +48,8 @@ try {
 Zend_Registry::set("fedora", $maintenance_fedora);
 
 
-$owner = "etdadmin"; //ownerid
+$owner = $cfg->etdOwner; //ownerid
+print "OWNER: $owner";
 $programs = new foxmlPrograms(); //programs object
 
 //collection objects
