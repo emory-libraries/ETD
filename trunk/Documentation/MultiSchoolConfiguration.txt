@@ -39,7 +39,7 @@ Field Details
      department 	department name in ESD
      netid		one or more user netids
 
-     An admin is defined by the combination of department + netid.
+     For all schools EXCEPT Rollins an admin is defined by the combination of department + netid.
      Department and netid must match the config file for the user to be an admin.
      
 
@@ -48,6 +48,13 @@ Field Details
    need to be given etd-admin level permissions at the Fedora
    repository level specified in the permit-etd-admins xacml policy in
    order to view and modify records.
+
+   Rollins admins are configured in the ETD MySQL database in the table etd_admins.
+   It is the intention to eventually migrate all schools to use this database
+   instead of the config files. Each admin is associated with the program_id
+   they are to administer.  They also require etd-admin level
+   permissions at the Fedora.
+
  
  degrees
  

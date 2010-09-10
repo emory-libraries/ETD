@@ -31,6 +31,7 @@ try {
 // output logging - common setup function in bootstrap
 $logger = setup_logging($opts->verbose);
 
+$cfg = Zend_Registry::get('config');
 
 //use maintenance_account to connect
 try {
@@ -79,7 +80,7 @@ if (!$collection) {
   $collection  = new FedoraCollection();
   $collection->pid = $root_collection['pid'];
   $collection->label = $label;
-  $collection->owner = 'etdadmin';
+  $collection->owner = $cfg->etdOwner;
   if ($opts->noact) {
       $logger->notice("Ingesting {$root_collection['pid']} into Fedora (simulated)");
       $logger->debug($collection->saveXML());
@@ -97,7 +98,7 @@ else{
 }
 
 $collection->label = $label;
-$collection->owner = "etdadmin";
+$collection->owner = $cfg->etdOwner;
 // set/update OAI setSpec & setName
 $logger->notice("Setting SPEC: {$root_collection['OAI']} NAME: {$root_collection['name']}");
 $collection->setOAISetInfo($root_collection['OAI'], $root_collection['name']);
@@ -124,8 +125,8 @@ foreach ($collections as $col) {
   $collection = NULL;
   try {
     $collection = new FedoraCollection($col['pid']);
-  } catch (Exception $e) {
-    $logger->debug("FedoraObjectNotFound on {$col['pid']}: " . $e->getMessage());
+  } catch (FedoraException $e) {
+    $logger->debug("FedoraException on {$col['pid']}: " . $e->getMessage());
     unset($collection);
   }
 
@@ -138,7 +139,7 @@ foreach ($collections as $col) {
     $collection  = new FedoraCollection();
     $collection->pid = $col['pid'];
     $collection->label = $label;
-    $collection->owner = "etdadmin";
+    $collection->owner = $cfg->etdOwner;
 
     if ($opts->noact) {
       $logger->notice("Ingesting {$col['pid']}) into Fedora (simulated)");
@@ -165,7 +166,7 @@ foreach ($collections as $col) {
 
   //update label based on config
   $collection->label = $label;
-  $collection->owner = "etdadmin";
+  $collection->owner = $cfg->etdOwner;
 
   // set/update OAI setSpec & setName on collection object
   // - OAI setSpec must contain only unreserved characters; convert spaces to "-"
