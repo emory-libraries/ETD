@@ -87,30 +87,6 @@ try { // Does the pid exist?
   return;
 } 
 
-// TODO: root vocab does not exists - create it
-// This does not create a SKOS datastream, but this will create the object.
-if (!$vocabs) {
-  $logger->notice("Collection '$pid' not found in configured Fedora instance, creating it");
-  $vocabs  = new foxml();
-  $vocabs->pid = $pid;
-  $vocabs->label = $vocabs_label;
-  $vocab_collection->owner = $owner; 
-  if ($opts->noact) {    
-      $logger->notice("Ingesting {$root_vocab['pid']} into Fedora (simulated)");
-      $logger->debug($vocabs->saveXML());
-  } else {
-    $success = $vocabs->ingest("creating ETD vocab object");
-    if ($success) {     
-      $logger->notice("Successfully ingested {$root_vocab['pid']} into Fedora");
-    } else {
-      $logger->err("Failed to ingest {$root_vocab['pid']} into Fedora");
-    }
-  }
-}
-else{
-    $logger->notice("Top-level vocab '$pid' found");
-}
-
 // Get the vocabularies SKOS datastream
 $skos = $vocabs->skos;
 

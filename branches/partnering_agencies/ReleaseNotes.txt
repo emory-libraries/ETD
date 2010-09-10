@@ -7,8 +7,10 @@ Deployment notes:
 * Update partnering agencies:
 - add this property to config.xml (place below <programs_pid>):
   <vocabularies_pid>emory-control:ETD-vocabulary</vocabularies_pid>
-- 017-add-partnering_agencies_RSPH.php.php - before running this script, 
-    make sure the pid "emory-control:ETD-vocabulary" exists in fedora.
+- create the "emory-control:ETD-vocabulary" fedora object if it does not exist, 
+  by ingesting this file: dev11:\tmp\etd\emory-control_ETD-vocabulary.xml
+- 017-add-partnering_agencies_RSPH.php
+
 
 
 Version 1.8 - September 2010 (enhancements)

@@ -7,9 +7,13 @@
 
 require_once("skosCollection.php");
 
+/**
+ * TODO: consider consolidating this functionality 
+ * with foxmlPrograms.
+ */
 
 /**
- * Foxml object with programs/SKOS datastream.
+ * Foxml object with vocabulary SKOS datastream.
  * Extending from foxml class in order to inherit existing
  * functionality for interacting with Fedora.
  * 
