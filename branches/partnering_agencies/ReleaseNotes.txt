@@ -9,7 +9,7 @@ Deployment notes:
   <vocabularies_pid>emory-control:ETD-vocabulary</vocabularies_pid>
 - create the "emory-control:ETD-vocabulary" fedora object if it does not exist, 
   by ingesting this file: dev11:\tmp\etd\emory-control_ETD-vocabulary.xml
-- 017-add-partnering_agencies_RSPH.php
+- 017-add_vocabularies.php
 
 
 
