@@ -1,0 +1,24 @@
+<?=  $this->render('email/_debug.phtml'); ?>
+<p>Dear <?= $this->etd->authorInfo->mads->name ?>,</p>
+
+<p>Congratulations! Your dissertation or thesis has been reviewed
+and approved by the <?= $this->etd->admin_agent ?>. You have successfully
+submitted your dissertation or thesis in partial fulfillment of the
+requirements for your degree.</p>
+
+<p>This notification is not intended to communicate information
+regarding your graduation status. Please contact the registrar or
+consult OPUS to confirm that you have satisfied all the requirements
+for graduation.</p>
+
+<p>Your ETD will now be processed by the library for inclusion in the Emory ETD Repository. After your
+graduation status has been confirmed, you will receive notice shortly
+that your ETD is
+<? if ($this->etd->mods->embargo_request == "no"): ?>
+available for immediate access via the World Wide Web.  
+<? else: ?>  
+unavailable for a period of <?= $this->etd->mods->embargo ?> according to
+the terms of the access restriction application to which you, your
+committee and the <?= $this->etd->admin_agent ?> have previously agreed.
+<? endif ?>
+</p>
