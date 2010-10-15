@@ -204,6 +204,37 @@ class EditController extends Etd_Controller_Action {
                                                 'pid' => $etd->pid), '', true);
   }
 
+    // edit school membership
+  public function schoolAction() {
+    $etd = $this->_helper->getFromFedora("pid", "etd");
+    
+    //Make sure only superuser can access page
+    if ($this->current_user->getRoleId() != "superuser"){
+        $this->_helper->access->notAllowed("view", $this->current_user->getRoleId(), "edit school");
+        return false;
+    }
+
+    $schools = $config = Zend_Registry::get('schools-config');
+
+    $this->view->title = "Edit School";
+    $this->view->etd = $etd;
+    $this->view->schoold = $etd->schoolId(); //Current schoolId used for default value in select list
+
+
+    //Create options for select box
+    foreach ($schools as $school){
+        if(isset($school->acl_id)){ //This excludes the All Schools collection
+            $options[$school->acl_id] = $school->label;
+        }
+        
+    }
+    $this->view->options = $options;
+
+
+  }
+
+
+
   /**
    * Sanity-check input from rights edit form.
    * @return boolean valid/invalid
