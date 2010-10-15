@@ -381,6 +381,31 @@ class EditControllerTest extends ControllerTestCase {
    * end rights
    */
 
+
+  /**
+   * Test school action
+   * * @todo test for incorrect role
+   */
+  function testSchoolAction() {
+    $this->honors_etdpid;
+
+    ///Test with superuser - this is the only one who should be able to access the view
+    $this->test_user->role = "superuser";
+    Zend_Registry::set('current_user', $this->test_user);
+
+    $EditController = new EditControllerForTest($this->request,$this->response);
+
+    $this->setUpGet(array('pid' => $this->honors_etdpid));
+    $EditController->schoolAction();
+    $this->assertIsA($EditController->view->etd, "etd");
+    $this->assertEqual($EditController->view->title,  "Edit School");
+    $this->assertEqual($EditController->view->schoolId,  "honors");
+    $this->assertIsA($EditController->view->options, "array");
+    $this->assertEqual(count($EditController->view->options),  4);
+
+
+  }
+
   function testFacultyAction() {
     $EditController = new EditControllerForTest($this->request,$this->response);
 

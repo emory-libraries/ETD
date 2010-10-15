@@ -4,7 +4,7 @@
 <p>Select the school to which the ETD should be moved</p>
 
 <form action="<?= $this->url(array("action" => "save-school")) ?>" method="post">
-<?= $this->formSelect("school", $this->schoold, null, $this->options); ?>
+<?= $this->formSelect("school", $this->schoolId, null, $this->options); ?>
   
  <p><input class="button" type="submit" value="save"/></p>
 </form>

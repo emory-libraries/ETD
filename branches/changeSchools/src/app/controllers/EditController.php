@@ -206,19 +206,19 @@ class EditController extends Etd_Controller_Action {
 
     // edit school membership
   public function schoolAction() {
-    $etd = $this->_helper->getFromFedora("pid", "etd");
-    
     //Make sure only superuser can access page
-    if ($this->current_user->getRoleId() != "superuser"){
-        $this->_helper->access->notAllowed("view", $this->current_user->getRoleId(), "edit school");
-        return false;
-    }
+      if(!$this->acl->isAllowed($this->current_user, "school", "view")) {
+          $this->_helper->access->notAllowed("edit", $this->current_user->role, "school");
+          return false;
+      }
+
+    $etd = $this->_helper->getFromFedora("pid", "etd");
 
     $schools = $config = Zend_Registry::get('schools-config');
 
     $this->view->title = "Edit School";
     $this->view->etd = $etd;
-    $this->view->schoold = $etd->schoolId(); //Current schoolId used for default value in select list
+    $this->view->schoolId = $etd->schoolId(); //Current schoolId used for default value in select list
 
 
     //Create options for select box

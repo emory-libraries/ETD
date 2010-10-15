@@ -134,6 +134,7 @@
 
    <resource name="programs">
      <resource name="undergrad programs"/>
+     <resource name="school"/> <!-- school collection in rels_ext only superuser has access -->
    </resource>
 
   </resources>
