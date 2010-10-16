@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<foxml:digitalObject PID="emory:17r1x" VERSION="1.1" xmlns:foxml="info:fedora/fedora-system:def/foxml#"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="info:fedora/fedora-system:def/foxml# http://www.fedora.info/definitions/1/0/foxml1-1.xsd">
+  <foxml:objectProperties>
+    <foxml:property NAME="info:fedora/fedora-system:def/model#state" VALUE="Active"/>
+    <foxml:property NAME="info:fedora/fedora-system:def/model#label" VALUE="ETD Programs Hierarchy"/>
+    <foxml:property NAME="info:fedora/fedora-system:def/model#ownerId" VALUE="fedoraAdmin"/>
+  </foxml:objectProperties>
+  <foxml:datastream CONTROL_GROUP="X" ID="SKOS" STATE="A" VERSIONABLE="true">
+    <foxml:datastreamVersion FORMAT_URI="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+      ID="SKOS.1" LABEL="Programs SKOS/RDF hierarchy (subset)" MIMETYPE="text/xml">
+      <foxml:xmlContent>
+        <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+          xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" 
+	  xmlns:skos="http://www.w3.org/2004/02/skos/core#">
+          <skos:Collection rdf:about="#programs">
+            <rdfs:label>Programs</rdfs:label>
+            <skos:member rdf:resource="#grad"/>
+<!--            <skos:member rdf:resource="#undergrad"/> -->
+          </skos:Collection>
+          <skos:Collection rdf:about="#grad">
+            <rdfs:label>Graduate</rdfs:label>
+            <skos:member rdf:resource="#humanities"/>
+<!--            <skos:member rdf:resource="#natlhealthsci"/>
+            <skos:member rdf:resource="#socsci"/> -->
+          </skos:Collection>
+          <skos:Collection rdf:about="#humanities">
+            <rdfs:label>Humanities</rdfs:label>
+            <skos:member rdf:resource="#religion"/>
+          </skos:Collection>
+          <skos:Collection rdf:about="#religion">
+            <rdfs:label>Religion</rdfs:label>
+            <skos:member rdf:resource="#american"/>
+            <skos:member rdf:resource="#comparative"/>
+            <skos:member rdf:resource="#ethics"/>
+            <skos:member rdf:resource="#hebrew"/>
+            <skos:member rdf:resource="#historical"/>
+            <skos:member rdf:resource="#newtestament"/>
+            <skos:member rdf:resource="#religiouspractices"/>
+            <skos:member rdf:resource="#theological"/>
+            <skos:member rdf:resource="#asian"/>
+          </skos:Collection>
+          <skos:Collection rdf:about="#american">
+            <rdfs:label>American Religious Cultures</rdfs:label>
+          </skos:Collection>
+          <skos:Collection rdf:about="#comparative">
+            <rdfs:label>Comparative Literature and Religion</rdfs:label>
+          </skos:Collection>
+          <skos:Collection rdf:about="#ethics">
+            <rdfs:label>Ethics and Society</rdfs:label>
+          </skos:Collection>
+          <skos:Collection rdf:about="#hebrew">
+            <rdfs:label>Hebrew Bible</rdfs:label>
+          </skos:Collection>
+          <skos:Collection rdf:about="#historical">
+            <rdfs:label>Historical Studies in Theology and Religion</rdfs:label>
+          </skos:Collection>
+          <skos:Collection rdf:about="#newtestament">
+            <rdfs:label>New Testament</rdfs:label>
+          </skos:Collection>
+          <skos:Collection rdf:about="#religiouspractices">
+            <rdfs:label>Person, Community and Religious Practices</rdfs:label>
+          </skos:Collection>
+          <skos:Collection rdf:about="#theological">
+            <rdfs:label>Theological Studies</rdfs:label>
+          </skos:Collection>
+          <skos:Collection rdf:about="#asian">
+            <rdfs:label>West and South Asian Religions</rdfs:label>
+          </skos:Collection>
+          <skos:Collection rdf:about="#music">
+            <rdfs:label>Music</rdfs:label>
+          </skos:Collection>
+        </rdf:RDF>
+      </foxml:xmlContent>
+    </foxml:datastreamVersion>
+  </foxml:datastream>
+  <foxml:datastream CONTROL_GROUP="X" ID="DC" STATE="A" VERSIONABLE="false">
+    <foxml:datastreamVersion FORMAT_URI="http://www.openarchives.org/OAI/2.0/oai_dc/"
+      ID="DC.1" LABEL="Dublin Core Metadata" MIMETYPE="text/xml">
+      <foxml:xmlContent>
+        <oai_dc:dc xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/">
+          <dc:title>ETD Programs Hierarchy</dc:title>
+          <dc:description>program hierarchy for ETD site</dc:description>
+          <dc:identifier>emory:17r1x</dc:identifier>
+        </oai_dc:dc>
+      </foxml:xmlContent>
+    </foxml:datastreamVersion>
+  </foxml:datastream>
+  <foxml:datastream CONTROL_GROUP="X" ID="RELS-EXT" STATE="A" VERSIONABLE="true">
+    <foxml:datastreamVersion CREATED="2009-10-06T18:16:09.775Z" FORMAT_URI="info:fedora/fedora-system:FedoraRELSExt-1.0"
+      ID="RELS-EXT.0" LABEL="RDF Statements about this object" MIMETYPE="application/rdf+xml" SIZE="308">
+      <foxml:xmlContent>
+        <rdf:RDF xmlns:fedora-model="info:fedora/fedora-system:def/model#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+          <rdf:Description rdf:about="info:fedora/emory:17r1x">
+            <fedora-model:hasModel rdf:resource="info:fedora/emory-control:Hierarchy-1.0"/>
+          </rdf:Description>
+        </rdf:RDF>
+      </foxml:xmlContent>
+    </foxml:datastreamVersion>
+  </foxml:datastream>
+</foxml:digitalObject>

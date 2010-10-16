@@ -1,0 +1,26 @@
+<p class="browse_heading">
+   <?=  $this->render('browse/_collection_breadcrumb.phtml'); ?>
+</p>
+  
+    <? if ($this->coll != '') $linkmode = "subcoll"; else $linkmode = "coll"; ?>
+<? foreach ($this->collection->members as $member): ?>
+   <? $link_id = str_replace("#", '', $member->id);?>
+
+  <p><a href="<?= $this->url(array('controller' => 'browse', 'action' => $this->action,
+    'coll' => $link_id), '', true) ?>"><?= $member->label ?></a>
+   <?/* category totals: only display if non-zero */?>
+  <? if ($member->count): ?>
+    (<?= $member->count ?>)
+  <? endif ?>
+   </p>
+<? endforeach ?>
+
+<br>
+<? if (sizeof($this->paginator) && count($this->collection->members)) : ?>
+     <hr/> <? /* display a divider if there are both records and categories listed */ ?>
+<? endif ?>
+  
+<? /* don't show etd records at top level */ ?>
+<? if ($this->collection->parent && isset($this->etdSet)): ?>
+   <?=  $this->render('browse/list.phtml'); ?>
+<? endif ?> 
