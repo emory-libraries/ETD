@@ -79,7 +79,7 @@ class ProgramControllerTest extends ControllerTestCase {
   function testIndexAction() {
     $programController = new ProgramControllerForTest($this->request,$this->response);
     $programController->indexAction();
-    $this->assertIsA($programController->view->programs, "gencoll");
+    $this->assertIsA($programController->view->programs, "programs");
     $this->assertIsA($programController->view->programs, "collectionHierarchy");
     $this->assertEqual("Programs", $programController->view->programs->collection->label);
     $this->assertTrue(isset($programController->view->title), "view has a title");

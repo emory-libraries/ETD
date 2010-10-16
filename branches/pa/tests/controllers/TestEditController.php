@@ -157,7 +157,7 @@ class EditControllerTest extends ControllerTestCase {
     $EditController->programAction();
     $this->assertIsA($EditController->view->etd, "etd");
     $this->assertTrue(isset($EditController->view->programs));
-    $this->assertIsA($EditController->view->programs, 'gencoll');
+    $this->assertIsA($EditController->view->programs, 'programs');
     $this->assertIsA($EditController->view->programs, 'collectionHierarchy');
     $this->assertTrue(isset($EditController->view->program_section), "progam section is set");
     $this->assertEqual("#grad", $EditController->view->program_section->id);

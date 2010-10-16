@@ -3,12 +3,12 @@ require_once("../bootstrap.php");
 require_once('models/foxmlCollection.php');
 
 class TestFoxmlCollection extends UnitTestCase {
-  private $gencoll;
+  private $programs;
   private $genObj;
 
   function setUp() {
     $this->genObj = new foxmlCollection();
-    $this->gencoll = $this->genObj->skos;
+    $this->programs = $this->genObj->skos;
   }
 
   function tearDown() {
@@ -19,24 +19,24 @@ class TestFoxmlCollection extends UnitTestCase {
   }
 
   function testBasicProperties() {
-    $this->assertIsA($this->gencoll, "gencoll");
-    $this->assertIsA($this->gencoll, "collectionHierarchy");
+    $this->assertIsA($this->programs, "programs");
+    $this->assertIsA($this->programs, "collectionHierarchy");
     
-    $this->assertEqual("Programs", $this->gencoll->label);
-    $this->assertEqual("#programs", $this->gencoll->id);
-    $this->assertIsA($this->gencoll->collection, "genCollection");
-    $this->assertIsA($this->gencoll->collection, "skosCollection");
-    $this->assertEqual(4, count($this->gencoll->members));
-    $this->assertIsA($this->gencoll->members[0], "genMember");
-    $this->assertIsA($this->gencoll->members[0], "skosMember");
-    $this->assertEqual("Laney Graduate School", $this->gencoll->members[0]->label, "got " . $this->gencoll->members[0]->label . " expected Laney Graduate School");
-    $this->assertEqual("Emory College", $this->gencoll->members[1]->label, "got " . $this->gencoll->members[1]->label . " expected Emory College");
-    $this->assertEqual("Candler School of Theology", $this->gencoll->members[2]->label, "got " . $this->gencoll->members[2]->label . " expected Candler School of Theology"); 
-    $this->assertEqual("Rollins School of Public Health", $this->gencoll->members[3]->label, "got " . $this->gencoll->members[3]->label . " expected Rollins School of Public Health");
-    $this->assertEqual("Humanities", $this->gencoll->members[0]->members[0]->label);
+    $this->assertEqual("Programs", $this->programs->label);
+    $this->assertEqual("#programs", $this->programs->id);
+    $this->assertIsA($this->programs->collection, "programCollection");
+    $this->assertIsA($this->programs->collection, "skosCollection");
+    $this->assertEqual(4, count($this->programs->members));
+    $this->assertIsA($this->programs->members[0], "programMember");
+    $this->assertIsA($this->programs->members[0], "skosMember");
+    $this->assertEqual("Laney Graduate School", $this->programs->members[0]->label, "got " . $this->programs->members[0]->label . " expected Laney Graduate School");
+    $this->assertEqual("Emory College", $this->programs->members[1]->label, "got " . $this->programs->members[1]->label . " expected Emory College");
+    $this->assertEqual("Candler School of Theology", $this->programs->members[2]->label, "got " . $this->programs->members[2]->label . " expected Candler School of Theology"); 
+    $this->assertEqual("Rollins School of Public Health", $this->programs->members[3]->label, "got " . $this->programs->members[3]->label . " expected Rollins School of Public Health");
+    $this->assertEqual("Humanities", $this->programs->members[0]->members[0]->label);
 
     // still program-extended members & collections at deeper level of hierarchy?
-    $this->assertIsA($this->gencoll->members[0]->collection, "genCollection");
+    $this->assertIsA($this->programs->members[0]->collection, "programCollection");
 
     $this->assertIsA($this->genObj, "foxml");
     $this->assertIsA($this->genObj, "foxmlSkosCollection");
@@ -54,7 +54,7 @@ class TestFoxmlCollection extends UnitTestCase {
   }
 
   function testGetIndexedFields() {
-    $fields = $this->gencoll->getIndexedFields();
+    $fields = $this->programs->getIndexedFields();
     $this->assertIsA($fields, "array");
 
     // should not contain higher-level hierarchy stuff

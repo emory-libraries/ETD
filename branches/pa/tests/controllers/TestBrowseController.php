@@ -62,7 +62,7 @@ class BrowseControllerTest extends ControllerTestCase {
     $BrowseController = new BrowseControllerForTest($this->request,$this->response);
     $BrowseController->programsAction();
     $this->assertTrue(isset($BrowseController->view->title));
-    $this->assertIsA($BrowseController->view->collection, "gencoll");
+    $this->assertIsA($BrowseController->view->collection, "programs");
     $this->assertEqual("Programs", $BrowseController->view->collection->label);
     $this->assertIsA($BrowseController->view->etdSet, "EtdSet");
     $this->assertIsA($BrowseController->view->paginator, "Zend_Paginator");    
@@ -71,7 +71,7 @@ class BrowseControllerTest extends ControllerTestCase {
     $this->setUpGet(array('coll' => 'immunology'));
     $BrowseController->programsAction();
     $this->assertTrue(isset($BrowseController->view->title));
-    $this->assertIsA($BrowseController->view->collection, "gencoll");
+    $this->assertIsA($BrowseController->view->collection, "programs");
     $this->assertEqual("Immunology", $BrowseController->view->collection->label);
     $this->assertIsA($BrowseController->view->etdSet, "EtdSet");
 

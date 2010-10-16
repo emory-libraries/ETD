@@ -21,9 +21,12 @@ class foxmlCollection extends foxmlSkosCollection {
       throw new FoxmlException("Configuration not registered, cannot retrieve pid");
     }
     $config = Zend_Registry::get("config");
+  
+            
     if (! isset($config->programs_collection->pid) || $config->programs_collection->pid == "") {
       throw new FoxmlException("Configuration does not contain program pid, cannot initialize");
     }
+    
     parent::__construct($config->programs_collection->pid);
 
     // initializing SKOS datastream here in order to pass a collection id
@@ -37,7 +40,7 @@ class foxmlCollection extends foxmlSkosCollection {
   }
   protected function configure() {
     parent::configure();
-    $this->xmlconfig["skos"]["class_name"] = "gencoll";
+    $this->xmlconfig["skos"]["class_name"] = "programs";
   }  
 
 }
@@ -45,8 +48,8 @@ class foxmlCollection extends foxmlSkosCollection {
 /**
  * custom version of collectionHierarchy for programs/departments
  */
-class gencoll extends collectionHierarchy  {
-  protected $collection_class = "genCollection";
+class programs extends collectionHierarchy  {
+  protected $collection_class = "programCollection";
 
   public function __construct($dom, $id = "#programs") {
     parent::__construct($dom, $id);
@@ -74,8 +77,8 @@ class gencoll extends collectionHierarchy  {
 */
 
 
-class genCollection extends skosCollection {
-  protected $member_class = "genMember";
+class programCollection extends skosCollection {
+  protected $member_class = "programMember";
 
   // indexed on id instead of label
   protected function getIndexedData() {
@@ -84,8 +87,8 @@ class genCollection extends skosCollection {
   
 }
 
-class genMember extends skosMember {
-  protected $collection_class = "genCollection";
+class programMember extends skosMember {
+  protected $collection_class = "programCollection";
 
   protected function isIndexed() {
     // bottom level element - field with no subfields or subfield
@@ -105,6 +108,5 @@ class genMember extends skosMember {
   protected function getIndexedData() {
     return (string)$this->getId();
   }
-    
 
 }
