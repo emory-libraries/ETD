@@ -15,19 +15,23 @@ require_once("skosCollection.php");
  * 
  */
 class foxmlCollection extends foxmlSkosCollection {
-  public function __construct($id = "#programs") {
+  private $collection_id;
+  
+  public function __construct($id = "#programs", $collection = "#programs") {
     // initialize with a pid specified in the config - complain if it is not available
     if (! Zend_Registry::isRegistered("config")) {
       throw new FoxmlException("Configuration not registered, cannot retrieve pid");
     }
-    $config = Zend_Registry::get("config");
-  
-            
-    if (! isset($config->programs_collection->pid) || $config->programs_collection->pid == "") {
+    $config = Zend_Registry::get("config");    
+    $this->collection_id = preg_replace("/^#/", '', $collection);
+    $config_collection = $this->collection_id . "_collection";    
+
+                
+    if (! isset($config->$config_collection->pid) || $config->$config_collection->pid == "") {
       throw new FoxmlException("Configuration does not contain program pid, cannot initialize");
     }
     
-    parent::__construct($config->programs_collection->pid);
+    parent::__construct($config->$config_collection->pid);
 
     // initializing SKOS datastream here in order to pass a collection id
     $ds = "skos";
@@ -39,8 +43,8 @@ class foxmlCollection extends foxmlSkosCollection {
     }
   }
   protected function configure() {
-    parent::configure();
-    $this->xmlconfig["skos"]["class_name"] = "programs";
+    parent::configure();  
+    $this->xmlconfig["skos"]["class_name"] = $this->collection_id;
   }  
 
 }
@@ -51,7 +55,7 @@ class foxmlCollection extends foxmlSkosCollection {
 class programs extends collectionHierarchy  {
   protected $collection_class = "programCollection";
 
-  public function __construct($dom, $id = "#programs") {
+  public function __construct($dom, $id = "#programs") {    
     parent::__construct($dom, $id);
     $this->index_field = "program_facet";
   }
