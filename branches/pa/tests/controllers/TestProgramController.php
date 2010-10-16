@@ -51,8 +51,8 @@ class ProgramControllerTest extends ControllerTestCase {
     // store real config to restore later
     $this->_realconfig = Zend_Registry::get('config');
 
-    // stub config with test pid for programs_pid
-    $testconfig = new Zend_Config(array("programs_pid" => $this->pid));
+    // stub config with test pid for programs_collection->pid
+    $testconfig = new Zend_Config(array("programs_collection" => array("pid" => $this->pid)));
     
     // temporarily override config in with test configuration
     Zend_Registry::set('config', $testconfig);

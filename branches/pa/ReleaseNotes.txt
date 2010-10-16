@@ -1,5 +1,9 @@
 ETD Release Notes
 =================
+Version 1.8 - December 2010 (enhancements)
+ * Remove <programs_pid>emory:17r1x</programs_pid> from config.xml
+ * Add new sections to config for <programs_collection> and <vocabularies_collection>
+
 Version 1.8 - October 2010 (enhancements)
 * Collections config has been consolidated in schools.xml
 * MySql database config file has been added

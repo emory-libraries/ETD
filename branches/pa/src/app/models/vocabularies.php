@@ -25,10 +25,10 @@ class foxmlVocabularies extends foxmlSkosCollection {
       throw new FoxmlException("Configuration not registered, cannot retrieve pid");
     }
     $config = Zend_Registry::get("config");
-    if (! isset($config->vocabularies_pid) || $config->vocabularies_pid == "") {
+    if (! isset($config->vocabularies_collection->pid) || $config->vocabularies_collection->pid == "") {
       throw new FoxmlException("Configuration does not contain vocabularies pid, cannot initialize");
     }
-    parent::__construct($config->vocabularies_pid);
+    parent::__construct($config->vocabularies_collection->pid);
 
     // initializing SKOS datastream here in order to pass a collection id
     $ds = "skos";

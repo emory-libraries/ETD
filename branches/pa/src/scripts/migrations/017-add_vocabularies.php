@@ -35,10 +35,10 @@ if (! Zend_Registry::isRegistered("config")) {
   throw new FoxmlException("Configuration not registered, cannot retrieve pid");
 }
 $config = Zend_Registry::get("config");
-if (! isset($config->vocabularies_pid) || $config->vocabularies_pid == "") {
+if (! isset($config->vocabularies_collection->pid) || $config->vocabularies_collection->pid == "") {
   throw new FoxmlException("Configuration does not contain vocabulary pid, cannot initialize");
 }
-$pid = $config->vocabularies_pid;
+$pid = $config->vocabularies_collection->pid;
 $owner = $config->etdOwner;
 
 // Vocabularies collection

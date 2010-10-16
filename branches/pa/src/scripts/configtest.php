@@ -58,19 +58,19 @@ if ($env_mode) {
 $tester->load_xmlconfig($config_dir . "ldap.xml", $env_mode);
 // configuration fields have to be nested under the server field
 $tester->check_notblank(array("server" =>
-			      array("host", "port", "baseDn", "username", "password",
-				    "accountCanonicalForm", "bindRequiresDn", "useSsl")
-			      )
-			);
+            array("host", "port", "baseDn", "username", "password",
+            "accountCanonicalForm", "bindRequiresDn", "useSsl")
+            )
+      );
 $tester->ok();
 
 // fedora
 $tester->load_xmlconfig($config_dir . "fedora.xml", $env_mode);
 $tester->check_notblank(array("server", "port", "username", "password",
-			      "protocol", "risearch",
-			      "maintenance_account" => array("username", "password")
-			      )
-			);
+            "protocol", "risearch",
+            "maintenance_account" => array("username", "password")
+            )
+      );
 $tester->ok();
 
 // initialize test connection to fedora
@@ -86,9 +86,9 @@ $tester->ok();
 // ESD
 $tester->load_xmlconfig($config_dir . "esd.xml", $env_mode);
 $tester->check_notblank(array("adapter", "dbSchema",
-			      "params" => array("username", "password", "dbname")
-			      )
-			);
+            "params" => array("username", "password", "dbname")
+            )
+      );
 $tester->check_recommended("adapter", "Oracle");
 // fixme: try to initialize esd & check connection? how to test?
 $tester->ok();
@@ -116,8 +116,8 @@ require_once("Etd/Service/Solr.php");
 // solr requires main config in registry
 Zend_Registry::set("config", new Zend_Config_Xml($config_dir . "config.xml", $env_mode));
 $solr = new Etd_Service_Solr($tester->config->server,
-			     $tester->config->port,
-			     $tester->config->path);
+           $tester->config->port,
+           $tester->config->path);
 $solr->addFacets($tester->config->facet->toArray());
 try {
   $result = $solr->query("*:*", 0, 0);
@@ -137,8 +137,8 @@ $tester->ok();
 // proquest
 $tester->load_xmlconfig($config_dir . "proquest.xml", $env_mode);
 $tester->check_notblank(array("ftp" => array("server", "user", "password"),
-			      "abstract_max_words", "email")
-			);
+            "abstract_max_words", "email")
+      );
 $tester->email("email");
 $tester->ok();
 
@@ -152,13 +152,15 @@ $tester->ok();
 // test main config
 $tester->load_xmlconfig($config_dir . "config.xml", $env_mode);
 $tester->check_notblank(array("session_name", "tmpdir", "logfile", "pdftohtml",
-			      "supported_browsers", "useAndReproduction",
-			      "programs_pid",
-			      "email" => array("test", "etd/address", "etd/name"),
-			      "contact" => array("email"),
-                  "contentModels" => array("etd", "etdfile", "author")
-			      )
-			);
+            "supported_browsers", "useAndReproduction",
+            "programs_pid",
+            "programs_collection" => array("pid", "label", "model_object"),
+            "vocabularies_collection" => array("pid", "label", "model_object"), 
+            "email" => array("test", "etd/address", "etd/name"),
+            "contact" => array("email"),
+            "contentModels" => array("etd", "etdfile", "author")
+            )
+      );
 $tester->email("email/etd/address");
 $tester->email("email/test");
 $tester->email("contact/email");
@@ -179,14 +181,14 @@ if ($fedoraConnection) {
             "EtdFile content model" => $tester->config->contentModels->etdfile,
             "Author content model" => $tester->config->contentModels->author,
         )
-	     as $label => $pid) {
+       as $label => $pid) {
       if (! trim($pid)) continue;
         // test that configured objects are actually in fedora
         try {
             $obj = new foxml($pid);
         } catch (FedoraObjectNotFound $e) {
             $tester->err("Fedora Object $label '" . $pid .
-			 "' not found in configured Fedora instance");
+       "' not found in configured Fedora instance");
         } catch (Exception $e) {        // could be not authorized, access denied, etc.
             $tester->err("Could not access Fedora object $label '" . $pid ."' in Fedora:" .
                 get_class($e) . " " . $e->getMessage());

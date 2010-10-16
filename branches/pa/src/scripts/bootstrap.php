@@ -65,7 +65,7 @@ Zend_Registry::set('etd-db', $etdDB);
 // sqlite db for statistics data
 $stat_config = new Zend_Config_Xml($config_dir . 'statistics.xml', $env_config->mode);
 $db = Zend_Db::factory($stat_config);
-Zend_Registry::set('stat-db', $db);	
+Zend_Registry::set('stat-db', $db); 
 
 Zend_Registry::set('persis-config',
     new Zend_Config_Xml($config_dir . "persis.xml", $env_config->mode));
@@ -75,8 +75,8 @@ Zend_Registry::set('schools-config', $schools_config);
 
 // common getopt configurations that used by most scripts
 $common_getopts = array('verbose|v=s'  => 'Output level/verbosity; one of error, warn, notice, info, debug (default: error)',
-			'noact|n'      => "Test/simulate - don't actually do anything (no actions)");
-			
+      'noact|n'      => "Test/simulate - don't actually do anything (no actions)");
+      
 
 
 
@@ -125,7 +125,8 @@ function all_etd_pids() {
     // combine all pids into a single array
     $all_pids = array_merge($etd_pids, $etdfile_pids, $author_pids,
         // include pids for special objects
-        $school_pids, array($config->programs_pid)
+        $school_pids, array($config->programs_collection->pid),
+        array($config->vocabularies_collection->pid)
     );
 
     return $all_pids;
