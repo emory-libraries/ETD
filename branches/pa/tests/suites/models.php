@@ -26,6 +26,8 @@ class ModelGroupTest extends GroupTest {
     $this->addTestFile('models/madsTest.php');
     $this->addTestFile('models/skosCollectionTest.php');
     $this->addTestFile('models/foxmlCollectionTest.php');
+    $this->addTestFile('models/programsTest.php');
+    $this->addTestFile('models/vocabulariesTest.php');        
 
     $this->addTestFile('models/ProQuestSubmissionTest.php');
     $this->addTestFile('models/esdPersonTest.php');

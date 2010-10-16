@@ -7,7 +7,6 @@
 require_once("models/etd.php");
 require_once("models/foxmlCollection.php");
 require_once("models/researchfields.php");
-require_once("models/vocabularies.php");
 
 class EditController extends Etd_Controller_Action {
 
@@ -632,7 +631,7 @@ class EditController extends Etd_Controller_Action {
     $this->view->title = "Edit Partnering Agencies";
     $this->view->etd = $etd;
 
-    $vocabularyObject = new foxmlVocabularies();
+    $vocabularyObject = new foxmlCollection("#vocabularies", "#vocabularies");
     $this->view->partnering_agencies = $vocabularyObject->skos;
     // select correct sub-section of vocabulary hierarchy based on which school ETD belongs to
     switch ($etd->schoolId()) {

@@ -18,6 +18,7 @@ class foxmlCollection extends foxmlSkosCollection {
   private $collection_id;
   
   public function __construct($id = "#programs", $collection = "#programs") {
+
     // initialize with a pid specified in the config - complain if it is not available
     if (! Zend_Registry::isRegistered("config")) {
       throw new FoxmlException("Configuration not registered, cannot retrieve pid");
@@ -28,7 +29,7 @@ class foxmlCollection extends foxmlSkosCollection {
 
                 
     if (! isset($config->$config_collection->pid) || $config->$config_collection->pid == "") {
-      throw new FoxmlException("Configuration does not contain program pid, cannot initialize");
+      throw new FoxmlException("Configuration does not contain " . $this->collection_id . " pid, cannot initialize");
     }
     
     parent::__construct($config->$config_collection->pid);
@@ -111,6 +112,17 @@ class programMember extends skosMember {
   // indexed on id instead of label
   protected function getIndexedData() {
     return (string)$this->getId();
+  }
+
+}
+
+/**
+ * custom version of collectionHierarchy for partnering agencies
+ */
+class vocabularies extends collectionHierarchy  {
+
+  public function __construct($dom, $id = "#vocabularies") {
+    parent::__construct($dom, $id);
   }
 
 }
