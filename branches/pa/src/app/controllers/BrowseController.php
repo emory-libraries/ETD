@@ -6,7 +6,7 @@
 
 require_once("models/etd.php");
 require_once("models/etd_feed.php");
-require_once("models/programs.php");
+require_once("models/foxmlCollection.php");
 require_once("models/researchfields.php");
 
 class BrowseController extends Etd_Controller_Action {
@@ -191,7 +191,7 @@ class BrowseController extends Etd_Controller_Action {
       $this->view->url_params = array("coll" => $coll);
       $coll = "#$coll";
     } else {
-      $programObject = new foxmlPrograms();
+      $programObject = new foxmlCollection();
       $prog = $programObject->skos;
       $coll = $prog->findIdbyLabel($name);
     }
@@ -200,7 +200,7 @@ class BrowseController extends Etd_Controller_Action {
     $this->view->sort_fields[] = "year";
     
     try {
-      $programObject = new foxmlPrograms($coll);
+      $programObject = new foxmlCollection($coll);
       $programs = $programObject->skos;
     } catch (XmlObjectException $e) {
       $message = "Error: Program not found";

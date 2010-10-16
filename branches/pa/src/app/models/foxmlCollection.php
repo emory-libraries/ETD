@@ -14,7 +14,7 @@ require_once("skosCollection.php");
  * functionality for interacting with Fedora.
  * 
  */
-class foxmlPrograms extends foxmlSkosCollection {
+class foxmlCollection extends foxmlSkosCollection {
   public function __construct($id = "#programs") {
     // initialize with a pid specified in the config - complain if it is not available
     if (! Zend_Registry::isRegistered("config")) {
@@ -37,7 +37,7 @@ class foxmlPrograms extends foxmlSkosCollection {
   }
   protected function configure() {
     parent::configure();
-    $this->xmlconfig["skos"]["class_name"] = "programs";
+    $this->xmlconfig["skos"]["class_name"] = "gencoll";
   }  
 
 }
@@ -45,8 +45,8 @@ class foxmlPrograms extends foxmlSkosCollection {
 /**
  * custom version of collectionHierarchy for programs/departments
  */
-class programs extends collectionHierarchy  {
-  protected $collection_class = "programCollection";
+class gencoll extends collectionHierarchy  {
+  protected $collection_class = "genCollection";
 
   public function __construct($dom, $id = "#programs") {
     parent::__construct($dom, $id);
@@ -74,8 +74,8 @@ class programs extends collectionHierarchy  {
 */
 
 
-class programCollection extends skosCollection {
-  protected $member_class = "programMember";
+class genCollection extends skosCollection {
+  protected $member_class = "genMember";
 
   // indexed on id instead of label
   protected function getIndexedData() {
@@ -84,8 +84,8 @@ class programCollection extends skosCollection {
   
 }
 
-class programMember extends skosMember {
-  protected $collection_class = "programCollection";
+class genMember extends skosMember {
+  protected $collection_class = "genCollection";
 
   protected function isIndexed() {
     // bottom level element - field with no subfields or subfield

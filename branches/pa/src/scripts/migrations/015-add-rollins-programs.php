@@ -12,7 +12,7 @@
 chdir("..");
 // set paths, load config files, set up connection objects for fedora, solr, and ESD
 require_once("bootstrap.php");
-require_once("models/programs.php");
+require_once("models/foxmlCollection.php");
 $opts = new Zend_Console_Getopt($common_getopts);
 
 // extended usage information - based on option list above, but with explanation/examples
@@ -67,7 +67,7 @@ array('id' => '#glepi', 'label' => 'Global Epidemiology', 'department' =>'ep', "
 );
 
 
-$programs = new foxmlPrograms();
+$programs = new foxmlCollection();
 $skos = $programs->skos;
 
 // add Rollins top-level item

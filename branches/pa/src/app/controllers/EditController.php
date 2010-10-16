@@ -5,7 +5,7 @@
  */
 
 require_once("models/etd.php");
-require_once("models/programs.php");
+require_once("models/foxmlCollection.php");
 require_once("models/researchfields.php");
 require_once("models/vocabularies.php");
 
@@ -42,7 +42,7 @@ class EditController extends Etd_Controller_Action {
     $this->view->title = "Edit Program";
     $this->view->etd = $etd;
 
-    $programObject = new foxmlPrograms();
+    $programObject = new foxmlCollection();
     $this->view->programs = $programObject->skos;
     // select correct sub-section of progam hierarchy based on which school ETD belongs to
     switch ($etd->schoolId()) {
@@ -77,7 +77,7 @@ class EditController extends Etd_Controller_Action {
     
 
     $etd->rels_ext->program = $program_id;
-    $programObject = new foxmlPrograms();
+    $programObject = new foxmlCollection();
     $etd->department = $programObject->skos->findLabelbyId("#" . $program_id);  
     if ($subfield_id == null) {
       // blank out rel if already set (don't add empty relation if not needed)

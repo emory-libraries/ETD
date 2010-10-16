@@ -79,7 +79,7 @@ class ProgramControllerTest extends ControllerTestCase {
   function testIndexAction() {
     $programController = new ProgramControllerForTest($this->request,$this->response);
     $programController->indexAction();
-    $this->assertIsA($programController->view->programs, "programs");
+    $this->assertIsA($programController->view->programs, "gencoll");
     $this->assertIsA($programController->view->programs, "collectionHierarchy");
     $this->assertEqual("Programs", $programController->view->programs->collection->label);
     $this->assertTrue(isset($programController->view->title), "view has a title");
@@ -95,33 +95,33 @@ class ProgramControllerTest extends ControllerTestCase {
 
     // edit one subsection
     $this->setUpGet(array('section' => 'religion', 'religion' => "Religion LABEL",
-			   "religion_members" => "american ethics hebrew asian music",
-			   "american" => "American Religion"));
+         "religion_members" => "american ethics hebrew asian music",
+         "american" => "American Religion"));
     $programController->saveAction();
     $messages = $programController->getHelper('FlashMessenger')->getMessages();
     $this->assertPattern("/saved changes.*religion/i", $messages[0]);
     $this->assertTrue($programController->redirectRan);
 
-    $programObj = new foxmlPrograms("#religion");
+    $programObj = new foxmlCollection("#religion");
     // labels updated
     $this->assertEqual("Religion LABEL", $programObj->skos->label, "label updated");
     $this->assertEqual("American Religion", $programObj->skos->collection->american->label,
-		       "sub-label updated");
+           "sub-label updated");
     $this->assertTrue($programObj->skos->collection->hasMember("ethics"),
-		      "religion has member ethics after update");
+          "religion has member ethics after update");
     $this->assertTrue($programObj->skos->collection->hasMember("american"),
-		      "religion has member american after update");
+          "religion has member american after update");
     $this->assertTrue($programObj->skos->collection->hasMember("hebrew"),
-		      "religion has member hebrew after update");
+          "religion has member hebrew after update");
     $this->assertTrue($programObj->skos->collection->hasMember("asian"),
-		      "religion has member asian after update");
+          "religion has member asian after update");
     $this->assertTrue($programObj->skos->collection->hasMember("music"),
-		      "religion has member music after update");
+          "religion has member music after update");
     // former collection members should have been removed
     $this->assertFalse($programObj->skos->collection->hasMember("comparative"),
-		       "religion no longer has member comparative");
+           "religion no longer has member comparative");
     $this->assertFalse($programObj->skos->collection->hasMember("historical"),
-		       "religion no longer has member historical");
+           "religion no longer has member historical");
 
   }
 
@@ -162,7 +162,7 @@ class ProgramControllerForTest extends ProgramController {
   public function _redirect() {
     $this->redirectRan = true;
   }
-} 	
+}   
 
 runtest(new ProgramControllerTest());
 

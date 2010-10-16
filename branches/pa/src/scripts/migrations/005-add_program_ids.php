@@ -13,7 +13,7 @@ chdir("..");
 
 // set paths, load config files, set up connection objects for fedora, solr, and ESD
 require_once("bootstrap.php");
-require_once("models/programs.php");
+require_once("models/foxmlCollection.php");
 
 $opts = new Zend_Console_Getopt($common_getopts);
 
@@ -47,13 +47,13 @@ $error = 0;
 // program hierarchy
 // - initialize separately to avoid getting the wrong ids where label
 //   collisions occur between grad and undergrad programs
-$programObj = new foxmlPrograms();
+$programObj = new foxmlCollection();
 $programs = $programObj->skos;
 
 for ( ;$etdSet->hasResults(); $etdSet->next()) {
   $plural = ($etdSet->numFound == "1") ? "" : "s";
   $logger->info("Processing record{$plural} " . $etdSet->currentRange()
-		. " of " . $etdSet->numFound);
+    . " of " . $etdSet->numFound);
 
   foreach ($etdSet->etds as $etd) {
     // search within the appropriate section of the programs hierarchy
@@ -63,10 +63,10 @@ for ( ;$etdSet->hasResults(); $etdSet->next()) {
       $programs_section = $programs->grad;
     }
     // if record has a department, get id & store in rels_ext
-    if ($etd->mods->department != "") {	
+    if ($etd->mods->department != "") { 
       $program_id = $programs_section->findDescendantIdbyLabel($etd->mods->department);
       $logger->debug("Processing " . $etd->pid . "; program id for " . $etd->mods->department .
-		     " is " . $program_id);
+         " is " . $program_id);
       if ($program_id) $etd->rels_ext->program = $program_id;
       else $logger->warn("Could not find id for '" . $etd->mods->department . "'");
     } elseif ($etd->status() != "draft" && $etd->status() != "inactive") {
@@ -78,23 +78,23 @@ for ( ;$etdSet->hasResults(); $etdSet->next()) {
     if (isset($etd->mods->subfield) && $etd->mods->subfield != "") {
       $subfield_id = $programs_section->findDescendantIdbyLabel($etd->mods->subfield);
       $logger->debug("Processing " . $etd->pid . "; subfield id for " . $etd->mods->subfield .
-		     " is " . $subfield_id);
+         " is " . $subfield_id);
       if ($subfield_id) $etd->rels_ext->subfield = $subfield_id;
       else $logger->warn("Could not find id for '" . $etd->mods->subfield . "'");
     }
     
     if ($etd->rels_ext->hasChanged()) {
       if (!$opts->noact) {
-	$result = $etd->save("updated program/subfield ids");
-	if ($result) {
-	  $updated++;
-	  $logger->info("Successfully updated " . $etd->pid . " at $result");
-	} else {
-	  $error++;
-	  $logger->err("Could not update " . $etd->pid); 
-	}
+  $result = $etd->save("updated program/subfield ids");
+  if ($result) {
+    $updated++;
+    $logger->info("Successfully updated " . $etd->pid . " at $result");
+  } else {
+    $error++;
+    $logger->err("Could not update " . $etd->pid); 
+  }
       }
-    } else {	// record was not modified
+    } else {  // record was not modified
       $unchanged++;
     }
   }

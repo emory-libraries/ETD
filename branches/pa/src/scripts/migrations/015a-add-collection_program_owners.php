@@ -14,7 +14,7 @@ chdir("..");
 
 // set paths, load config files, set up connection objects for fedora, solr, and ESD
 require_once("bootstrap.php");
-require_once("models/programs.php");
+require_once("models/foxmlCollection.php");
 
 $opts = new Zend_Console_Getopt($common_getopts);
 
@@ -50,7 +50,7 @@ Zend_Registry::set("fedora", $maintenance_fedora);
 
 $owner = $cfg->etdOwner; //ownerid
 print "OWNER: $owner";
-$programs = new foxmlPrograms(); //programs object
+$programs = new foxmlCollection(); //programs object
 
 //collection objects
 $collections = array(

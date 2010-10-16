@@ -12,7 +12,7 @@
 chdir("..");
 // set paths, load config files, set up connection objects for fedora, solr, and ESD
 require_once("bootstrap.php");
-require_once("models/programs.php");
+require_once("models/foxmlCollection.php");
 $opts = new Zend_Console_Getopt($common_getopts);
 
 // extended usage information - based on option list above, but with explanation/examples
@@ -32,17 +32,17 @@ $logger = setup_logging($opts->verbose);
 
 // new labels
 $new_labels = array("grad" => "Laney Graduate School",
-		"undergrad" => "Emory College");
+    "undergrad" => "Emory College");
 
 // items to be added
 $candler = array("id" => "#candler",
-		 "label" => "Candler School of Theology");
+     "label" => "Candler School of Theology");
 $candler_programs = array("#cstdivinity" => "Divinity",
-			  "#csttheo" => "Theological Studies",
-			  "#cstpc" => "Pastoral Counseling");
+        "#csttheo" => "Theological Studies",
+        "#cstpc" => "Pastoral Counseling");
 
 
-$programs = new foxmlPrograms();
+$programs = new foxmlCollection();
 $skos = $programs->skos;
 // updating the existing labels to clearly separate grad, undergrad, and now candler
 $logger->debug("Updating existing top-level program labels");
@@ -85,11 +85,11 @@ if ($skos->hasChanged()){
     $result = $programs->save("updating program list to include Candler");
     if ($result) {
       $logger->info("Successfully updated progams (" . $programs->pid .
-		    ") at $result");
+        ") at $result");
     } else {
       $logger->err("Error updating programs (" . $programs->pid . ")");
     }
-  } else {	// no-act mode, simulate saving
+  } else {  // no-act mode, simulate saving
     $logger->info("Updating programs " .  $programs->pid . " (simulated)");
   }
   

@@ -6,7 +6,7 @@
 
 require_once("models/etd.php");
 require_once("models/etd_notifier.php");
-require_once("models/programs.php");
+require_once("models/foxmlCollection.php");
 
 class SubmissionController extends Etd_Controller_Action {
   protected $requires_fedora = true;
@@ -291,7 +291,7 @@ class SubmissionController extends Etd_Controller_Action {
       default: $section = "#grad"; break;
     }
     
-    $programObject = new foxmlPrograms($section); 
+    $programObject = new foxmlCollection($section); 
     $programs = $programObject->skos;    
     
     // first try to use the academic_plan_id mapped to dc:identifier
@@ -379,7 +379,7 @@ class SubmissionController extends Etd_Controller_Action {
     $this->view->messages = array();
     $this->view->etd_info = $this->_helper->processPDF($_FILES['pdf']);
 
-    $programObject = new foxmlPrograms();
+    $programObject = new foxmlCollection();
     $programs = $programObject->skos;
     $this->view->department =  $programs->findLabel($this->view->etd_info['department']);
     

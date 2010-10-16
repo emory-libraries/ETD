@@ -6,7 +6,6 @@
 
 require_once("models/etd.php");
 require_once("models/etd_feed.php");
-require_once("models/programs.php");
 
 class FeedsController extends Etd_Controller_Action {
   protected $requires_fedora = true;
@@ -47,9 +46,9 @@ class FeedsController extends Etd_Controller_Action {
 
     // pass in title for the feed, absolute url, and array of etds to be included      
     $this->feed = new Etd_Feed($feed_title,
-			       $this->_helper->absoluteUrl("recent", "feeds", null, $this->view->url_params),
-			       // FIXME: what was $opts (last param here)
-			       $etdset->etds);
+             $this->_helper->absoluteUrl("recent", "feeds", null, $this->view->url_params),
+             // FIXME: what was $opts (last param here)
+             $etdset->etds);
   }
 
 
@@ -63,9 +62,9 @@ class FeedsController extends Etd_Controller_Action {
     
     // pass in title for the feed, absolute url, and array of etds to be included      
     $this->feed = new Etd_Feed($feed_title,
-			       $this->_helper->absoluteUrl("most-viewed", "feeds", null, $this->view->url_params),
-			       // FIXME: as above
-			       $etdset->etds);
+             $this->_helper->absoluteUrl("most-viewed", "feeds", null, $this->view->url_params),
+             // FIXME: as above
+             $etdset->etds);
   }
 
 }

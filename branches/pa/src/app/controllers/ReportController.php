@@ -6,7 +6,7 @@
 
 require_once("models/etd.php");
 require_once("models/charts.php");
-require_once("models/programs.php");
+require_once("models/foxmlCollection.php");
 
 class ReportController extends Etd_Controller_Action {
   protected $requires_fedora = false;
@@ -550,7 +550,7 @@ class ReportController extends Etd_Controller_Action {
 
       // use program as drill-down filter (just like browse by program)
       $program_id = $this->_getParam("program", "programs");
-      $programObject = new foxmlPrograms("#" . $program_id);
+      $programObject = new foxmlCollection("#" . $program_id);
       $this->view->program = $programObject->skos;
 
       $filters = array();
