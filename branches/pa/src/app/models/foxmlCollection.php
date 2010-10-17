@@ -18,6 +18,8 @@ class foxmlCollection extends foxmlSkosCollection {
   private $collection_id;
   
   public function __construct($id = "#programs", $collection = "#programs") {
+    
+    $create_collection = false;
 
     // initialize with a pid specified in the config - complain if it is not available
     if (! Zend_Registry::isRegistered("config")) {
@@ -32,19 +34,32 @@ class foxmlCollection extends foxmlSkosCollection {
       throw new FoxmlException("Configuration does not contain " . $this->collection_id . " pid, cannot initialize");
     }
     
-    parent::__construct($config->$config_collection->pid);
-
-    // initializing SKOS datastream here in order to pass a collection id
-    $ds = "skos";
-    $dom = new DOMDocument();
-    $xml = $this->fedora->getDatastream($this->pid, $this->xmlconfig[$ds]['dsID']);
-    if ($xml) {
-      $dom->loadXML($xml);
-      $this->map[$ds] = new $this->xmlconfig[$ds]['class_name']($dom, $id);
+    try {    
+      parent::__construct($config->$config_collection->pid);
+      // initializing SKOS datastream here in order to pass a collection id
+      $ds = "skos";
+      $dom = new DOMDocument();
+      $xml = $this->fedora->getDatastream($this->pid, $this->xmlconfig[$ds]['dsID']);
+      if ($xml) {
+        $dom->loadXML($xml);
+        $this->map[$ds] = new $this->xmlconfig[$ds]['class_name']($dom, $id);
+      }      
     }
+    catch (FedoraObjectNotFound $e) { // Collection does not exist in fedora.   
+      $create_collection = true;      
+    }
+    
+    if ($create_collection) {
+      $col = new foxmlSkosCollection();
+      //$col->id = $id;      
+      $col->pid = $config->$config_collection->pid;      
+      $col->label = $config->$config_collection->label; 
+      $col->owner = $config->etdOwner;    
+      $col->ingest("creating ETD foxmlSkosCollection object for " . $this->collection_id . " collection hierarchy");      
+    }     
   }
-  protected function configure() {
-    parent::configure();  
+  protected function configure() {   
+    parent::configure(); 
     $this->xmlconfig["skos"]["class_name"] = $this->collection_id;
   }  
 

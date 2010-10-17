@@ -33,6 +33,9 @@ class collectionHierarchy extends foxmlDatastreamAbstract {
   public $parent;
   
   public function __construct($dom, $id) {
+    
+    if (!is_string($id))  return;    
+    
     $this->id = $id;
     $this->addNamespace("dc", $this->dc_namespace);    
     $this->addNamespace("rdf", $this->rdf_namespace);
