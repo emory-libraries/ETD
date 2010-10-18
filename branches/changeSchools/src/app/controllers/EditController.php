@@ -233,6 +233,46 @@ class EditController extends Etd_Controller_Action {
 
   }
 
+    // save school collection in RELS-EXT
+  public function saveSchoolAction() {
+    if(!$this->acl->isAllowed($this->current_user, "school", "edit")) {
+          $this->_helper->access->notAllowed("edit", $this->current_user->role, "school");
+          return false;
+      }
+      $etd = $this->_helper->getFromFedora("pid", "etd");
+      $schoolId = $this->_getParam('schoolId', null);
+      $schoolIdOld = $this->_getParam('schoolIdOld', null);
+      $school_cfg = Zend_Registry::get("schools-config");
+
+      //Get old collection name based on acl id from form
+      $school = $school_cfg->getSchoolByAclId($schoolIdOld);
+      $collectionOld = $school->fedora_collection;
+      $labelOld = $school->label;
+
+      //Get new collection name based on acl id from form
+      $school = $school_cfg->getSchoolByAclId($schoolId);
+      $collection = $school->fedora_collection;
+      $label = $school->label;
+
+     //Remove old collection and add new collection
+     $etd->rels_ext->removeRelation("rel:isMemberOfCollection", $collectionOld);
+     $etd->rels_ext->addRelation("rel:isMemberOfCollection", $collection, true);
+
+     //Remove Program info so it will have to be set again for the new school
+     $etd->rels_ext->program = "";
+     $etd->department = "";
+     if (isset($etd->rels_ext->subfield)) $etd->rels_ext->subfield = "";
+     $etd->mods->subfield = "";
+
+    $etd->save("Changed school collection from $collectionOld to $collection");
+    $this->logger->info("Changed {$etd->pid} School from $labelOld to $label");
+    $this->_helper->flashMessenger->addMessage("School has been changed from $labelOld to $label");
+    $this->_helper->flashMessenger->addMessage("Program will have to be reassigned");
+
+    $this->_helper->redirector->gotoRoute(array("controller" => "view", "action" => "record",
+						"pid" => $etd->pid), '', true);
+  }
+
 
 
   /**
