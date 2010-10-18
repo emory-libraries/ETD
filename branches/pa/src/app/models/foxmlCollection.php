@@ -28,7 +28,6 @@ class foxmlCollection extends foxmlSkosCollection {
     $config = Zend_Registry::get("config");    
     $this->collection_id = preg_replace("/^#/", '', $collection);
     $config_collection = $this->collection_id . "_collection";    
-
                 
     if (! isset($config->$config_collection->pid) || $config->$config_collection->pid == "") {
       throw new FoxmlException("Configuration does not contain " . $this->collection_id . " pid, cannot initialize");
@@ -50,7 +49,12 @@ class foxmlCollection extends foxmlSkosCollection {
     }
     
     if ($create_collection) {
-      $this->createCollection($config->$config_collection->pid, $config->$config_collection->label, $config->etdOwner);
+      $this->createCollection(
+          $config->$config_collection->pid, 
+          $config->$config_collection->label, 
+          $config->etdOwner,
+          $config->$config_collection->model_object
+      );
     }     
   }
   protected function configure() {   
@@ -58,12 +62,16 @@ class foxmlCollection extends foxmlSkosCollection {
     $this->xmlconfig["skos"]["class_name"] = $this->collection_id;
   }
 
-  public function createCollection($pid, $label, $owner) {
-    $col = new foxmlSkosCollection();  
+  public function createCollection($pid, $label, $owner, $model) {
+    $col = new foxmlSkosCollection();
+    
+    // Add a model in the RELS-EXT datastream (Subject/Predicate/Object)
+    $col->setContentModel($model);    
+           
     $col->pid = $pid;      
     $col->label = $label; 
     $col->owner = $owner;  
-    $col->ingest("creating ETD foxmlSkosCollection object for " . $this->collection_id . " collection hierarchy");   
+    $col->ingest("creating ETD foxmlSkosCollection object for [$pid] collection hierarchy");  
     return $col;
   }     
 
