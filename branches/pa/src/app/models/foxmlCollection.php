@@ -50,18 +50,22 @@ class foxmlCollection extends foxmlSkosCollection {
     }
     
     if ($create_collection) {
-      $col = new foxmlSkosCollection();
-      //$col->id = $id;      
-      $col->pid = $config->$config_collection->pid;      
-      $col->label = $config->$config_collection->label; 
-      $col->owner = $config->etdOwner;    
-      $col->ingest("creating ETD foxmlSkosCollection object for " . $this->collection_id . " collection hierarchy");      
+      $this->createCollection($config->$config_collection->pid, $config->$config_collection->label, $config->etdOwner);
     }     
   }
   protected function configure() {   
     parent::configure(); 
     $this->xmlconfig["skos"]["class_name"] = $this->collection_id;
-  }  
+  }
+
+  public function createCollection($pid, $label, $owner) {
+    $col = new foxmlSkosCollection();  
+    $col->pid = $pid;      
+    $col->label = $label; 
+    $col->owner = $owner;  
+    $col->ingest("creating ETD foxmlSkosCollection object for " . $this->collection_id . " collection hierarchy");   
+    return $col;
+  }     
 
 }
 

@@ -5,8 +5,10 @@ require_once('models/foxmlCollection.php');
 class TestFoxmlCollection extends UnitTestCase {
   private $gencoll;
   private $genObj;
+  private $fedora;    // fedoraConnection
 
   function setUp() {
+    $this->fedora = Zend_Registry::get("fedora"); 
     $this->genObj = new foxmlCollection();
     $this->gencoll = $this->genObj->skos;
   }
@@ -26,6 +28,26 @@ class TestFoxmlCollection extends UnitTestCase {
     $this->assertIsA($this->genObj, "foxmlSkosCollection");
     $this->assertIsA($this->genObj, "foxmlCollection");
   }
+  
+  function testCreateCollection() {
+    $pid = 'emory:foxmlCollection-createCollectionTest';
+    $label = 'Test Collection Label';
+    try {
+      $this->fedora->purge($pid, "removing test etd");    
+    }
+    catch (FedoraObjectNotFound $e) { // Collection does not exist in fedora.        
+    }    
+    $newColl = $this->genObj->createCollection($pid, $label, 'etdadmin');    
+    $this->assertIsA($newColl, "foxmlSkosCollection");
+    $this->assertTrue($this->genObj->has_datastream('SKOS'));
+    $this->assertTrue($this->genObj->has_datastream('DC'));
+    $this->assertTrue($this->genObj->has_datastream('RELS-EXT'));            
+    try {
+      $this->fedora->purge($pid, "removing test etd");    
+    }
+    catch (FedoraObjectNotFound $e) { // Collection does not exist in fedora.        
+    }    
+  }  
 
   function testInitWithBadConfig() {
     Zend_Registry::set("config", new Zend_Config());
