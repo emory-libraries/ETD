@@ -204,15 +204,11 @@ class EditController extends Etd_Controller_Action {
                                                 'pid' => $etd->pid), '', true);
   }
 
-    // edit school membership
+    // form for editing school membership
   public function schoolAction() {
     //Make sure only superuser can access page
-      if(!$this->acl->isAllowed($this->current_user, "school", "view")) {
-          $this->_helper->access->notAllowed("edit", $this->current_user->role, "school");
-          return false;
-      }
-
     $etd = $this->_helper->getFromFedora("pid", "etd");
+    if (!$this->_helper->access->allowedOnEtd("view school", $etd)) return;
 
     $schools = $config = Zend_Registry::get('schools-config');
 
@@ -235,11 +231,9 @@ class EditController extends Etd_Controller_Action {
 
     // save school collection in RELS-EXT
   public function saveSchoolAction() {
-    if(!$this->acl->isAllowed($this->current_user, "school", "edit")) {
-          $this->_helper->access->notAllowed("edit", $this->current_user->role, "school");
-          return false;
-      }
-      $etd = $this->_helper->getFromFedora("pid", "etd");
+    $etd = $this->_helper->getFromFedora("pid", "etd");
+    if (!$this->_helper->access->allowedOnEtd("edit school", $etd)) return;
+
       $schoolId = $this->_getParam('schoolId', null);
       $schoolIdOld = $this->_getParam('schoolIdOld', null);
       $school_cfg = Zend_Registry::get("schools-config");
