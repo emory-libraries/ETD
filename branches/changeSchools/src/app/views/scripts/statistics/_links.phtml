@@ -1,7 +1,0 @@
-<div style="float:right">
-   <b>Statistics for all ETDs:</b>
-   <a <? if ($this->controller == "statistics" && $this->action == "monthly"): ?> class="current" <? endif ?>
-      href="<?= $this->url(array("controller" => "statistics", "action" => "monthly"), '', true) ?>">by Year/month</a> |
-   <a <? if ($this->controller == "statistics" && $this->action == "country"): ?> class="current" <? endif ?>
-      href="<?= $this->url(array("controller" => "statistics", "action" => "country"), '', true) ?>">by Country</a>
-</div>
