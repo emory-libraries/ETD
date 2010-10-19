@@ -7,6 +7,7 @@ Version 1.8.1 - October 2010 (bugfix)
  * Run the migration scripts to reload the rollins school data: 
     015-add-rollins-programs.php
     016-add_prog_codes_to_skos.php
+ * Update the etd mysql table with the new rollins program ids.     
 
 Version 1.8 - October 2010 (enhancements)
 * Collections config has been consolidated in schools.xml
