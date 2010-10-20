@@ -35,16 +35,19 @@ $logger = setup_logging($opts->verbose);
 $rollins_school = array("id" => "#rollins",
      "label" => "Rollins School of Public Health");
 
+/**
+ * WARNING: There cannot be any duplicate id values.
+ */
 
 //departments / sub sections for Rollins
 $rollins_departments= array(
-    '#cmph' => 'Career Masters of Public Health',
-    '#bshe' => 'Behavioral Sciences and Health Education',
-    '#bb' => 'Biostatistics and Bioinformatics',
-    '#eh' => 'Environmental Health',
-    '#ep' => 'Epidemiology',
-    '#hpm' => 'Health Policy and Management',
-    '#ih' => 'Hubert Department of Global Health'
+    '#rsph-cmph' => 'Career Masters of Public Health',
+    '#rsph-bshe' => 'Behavioral Sciences and Health Education',
+    '#rsph-bb' => 'Biostatistics and Bioinformatics',
+    '#rsph-eh' => 'Environmental Health',
+    '#rsph-ep' => 'Epidemiology',
+    '#rsph-hpm' => 'Health Policy and Management',
+    '#rsph-ih' => 'Hubert Department of Global Health'
 
 );
 
@@ -52,18 +55,18 @@ $rollins_departments= array(
 // programs for Rollins
 // department code does not have # because it is only referenced at this point and is referenced without the #
 $rollins_programs = array(
-array('id' => '#apepi', 'label' => 'Applied Epidemiology', 'department' => 'cmph', "identifiers" => array('APEPIMPH')),
-array('id' => '#hcom',  'label' => 'Health Care Outcomes Management', 'department' => 'cmph', "identifiers" => array('HCOMMPH')),
-array('id' => '#mchepi',  'label' => 'Maternal and Child Health Epidemiology', 'department' => 'cmph', "identifiers" => array('MCHEPIMPH')),
-array('id' => '#ms',  'label' => 'Management Science', 'department' => 'cmph', "identifiers" => array('MSMPH')),
-array('id' => '#ps',  'label' => 'Prevention Science', 'department' => 'cmph', "identifiers" => array('PSMPH')),
-array('id' => '#bios',  'label' => 'Biostatistics', 'department' => 'bb',  "identifiers" => array('BIOSMPH','BIOSMSPH')),
-array('id' => '#info',  'label' => 'Public Health Informatics', 'department' =>'bb',  "identifiers" => array('INFOMSPH')),
-array('id' => '#eoh', 'label' => 'Environmental and Occupational Health', 'department' =>'eh', "identifiers" => array('EOHMPH')),
-array('id' => '#eohepi',  'label' => 'Environmental&; Occupational Health Epidemiology', 'department' =>'eh', "identifiers" => array('EOHEPIMPH')),
-array('id' => '#eohih', 'label' => 'Global Environmental Health', 'department' =>'eh', "identifiers" => array('EOHIHMPH')),
-array('id' => '#epi', 'label' => 'Epidemiology', 'department' =>'ep', "identifiers" => array('EPIMPH', 'EPIMPSH')),
-array('id' => '#glepi', 'label' => 'Global Epidemiology', 'department' =>'ep', "identifiers" => array('GLEPIMPH','GLEPIMSPH'))
+array('id' => '#rsph-apepi', 'label' => 'Applied Epidemiology', 'department' => 'rsph-cmph', "identifiers" => array('APEPIMPH')),
+array('id' => '#rsph-hcom',  'label' => 'Health Care Outcomes Management', 'department' => 'rsph-cmph', "identifiers" => array('HCOMMPH')),
+array('id' => '#rsph-mchepi',  'label' => 'Maternal and Child Health Epidemiology', 'department' => 'rsph-cmph', "identifiers" => array('MCHEPIMPH')),
+array('id' => '#rsph-ms',  'label' => 'Management Science', 'department' => 'rsph-cmph', "identifiers" => array('MSMPH')),
+array('id' => '#rsph-ps',  'label' => 'Prevention Science', 'department' => 'rsph-cmph', "identifiers" => array('PSMPH')),
+array('id' => '#rsph-bios',  'label' => 'Biostatistics', 'department' => 'rsph-bb',  "identifiers" => array('BIOSMPH','BIOSMSPH')),
+array('id' => '#rsph-info',  'label' => 'Public Health Informatics', 'department' =>'rsph-bb',  "identifiers" => array('INFOMSPH')),
+array('id' => '#rsph-eoh', 'label' => 'Environmental and Occupational Health', 'department' =>'rsph-eh', "identifiers" => array('EOHMPH')),
+array('id' => '#rsph-eohepi',  'label' => 'Environmental&; Occupational Health Epidemiology', 'department' =>'rsph-eh', "identifiers" => array('EOHEPIMPH')),
+array('id' => '#rsph-eohih', 'label' => 'Global Environmental Health', 'department' =>'rsph-eh', "identifiers" => array('EOHIHMPH')),
+array('id' => '#rsph-epi', 'label' => 'Epidemiology', 'department' =>'rsph-ep', "identifiers" => array('EPIMPH', 'EPIMPSH')),
+array('id' => '#rsph-glepi', 'label' => 'Global Epidemiology', 'department' =>'rsph-ep', "identifiers" => array('GLEPIMPH','GLEPIMSPH'))
 );
 
 

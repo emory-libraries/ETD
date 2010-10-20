@@ -1,5 +1,15 @@
 ETD Release Notes
 =================
+Version 1.8.1 - October 2010 (bugfix)
+ * Fixed bug in programs collection, so that there are not duplicate ids (epi, was in both Laney and RSPH).
+ Deployment notes:
+ * Edit the programs collection (emory:17r1x) and delete the last version of the SKOS datastream.
+ * Run the migration scripts to reload the rollins school data: 
+    - 015-add-rollins-programs.php
+    - 016-add_prog_codes_to_skos.php
+* Delete all the records from etd_admins in the etd database
+* Reload the data by running DB/002-load_init_data.php
+
 Version 1.8 - October 2010 (enhancements)
 * Collections config has been consolidated in schools.xml
 * MySql database config file has been added

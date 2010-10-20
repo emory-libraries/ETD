@@ -13,10 +13,10 @@ class etd_test_data {
     $this->fields = array('netid', 'schoolid', 'programid');
     
     $this->data = array(
-    array('EPUSR', 'PUBH', 'AEPI'),
-    array('GHUSR', 'PUBH', 'IH'),
-    array('ROLL1', 'PUBH', 'PS'),
-    array('ROLL1', 'PUBH', 'MS'),
+    array('EPUSR', 'PUBH', 'RSPH-AEPI'),
+    array('GHUSR', 'PUBH', 'RSPH-IH'),
+    array('ROLL1', 'PUBH', 'RSPH-PS'),
+    array('ROLL1', 'PUBH', 'RSPH-MS'),
 );
   }
 
