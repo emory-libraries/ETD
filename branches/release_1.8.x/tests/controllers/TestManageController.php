@@ -549,8 +549,8 @@ class ManageControllerTest extends ControllerTestCase {
     Zend_Registry::set('current_user', $this->test_user);
     $filter = $ManageController->testGetAdminFilter();
     $this->assertTrue(strpos($filter, 'collection:"emory-control:ETD-Rollins-collection"') === 0);
-    $this->assertTrue(strpos($filter, 'program_id: "ms"'));
-    $this->assertTrue(strpos($filter, 'program_id: "ps"'));
+    $this->assertTrue(strpos($filter, 'program_id: "rsph-ms"'));
+    $this->assertTrue(strpos($filter, 'program_id: "rsph-ps"'));
   }
 
   function testGetAdminPrograms() {
@@ -571,8 +571,8 @@ class ManageControllerTest extends ControllerTestCase {
     $result = $ManageController->testGetAdminPrograms();
     $this->assertIsA($result, "array", "Return object should be an array");
     $this->assertEqual(count($result), 2, "2 records returned");
-    $this->assertTrue(in_array("ps", $result));
-    $this->assertTrue(in_array("ms", $result));
+    $this->assertTrue(in_array("rsph-ps", $result));
+    $this->assertTrue(in_array("rsph-ms", $result));
   }
   
 }
