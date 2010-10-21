@@ -222,7 +222,7 @@ class SubmissionControllerTest extends ControllerTestCase {
     $this->assertEqual("Rollins School of Public Health", $etd->admin_agent);
     $this->assertEqual("Maternal and Child Health Epidemiology", $etd->mods->department);
     $this->assertEqual("Maternal and Child Health Epidemiology", $etd->policy->view->condition->department);
-    $this->assertEqual("mchepi", $etd->rels_ext->program); 
+    $this->assertEqual("rsph-mchepi", $etd->rels_ext->program); 
     
     // THEO test setting the program and department from the academic_plan_id
     $this->test_user->academic_plan_id = "THDCOUNSEL";    
