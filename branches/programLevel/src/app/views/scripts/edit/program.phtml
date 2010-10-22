@@ -61,9 +61,9 @@ function setSubfield(id, parent_id) {
 
 
 <ul id="select_program">
-  <? if (isset($this->program_section)): /* display only relevant section of program list */?>
+  <? if (isset($this->program_section)): /* display only relevant section of program list and pass in current schoolId*/?>
     <?=  $this->partial('edit/_subprogram.phtml' , array("collection" => $this->program_section,
-						     "level" => 1)); ?>
+						     "level" => 1, "school" => preg_replace("/^#/", "", $this->program_section->id))); ?>
   <? else: /* fallback - display entire program tree */ ?>
     <?=  $this->partial('edit/_subprogram.phtml' , array("collection" => $this->programs,
 						     "level" => 0)); ?>

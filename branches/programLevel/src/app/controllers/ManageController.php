@@ -50,9 +50,9 @@ class ManageController extends Etd_Controller_Action {
 
                 // if user has programs associated in etd_admins table, add them to filter
                 if($programs){
-                    //build each program part in the original array
+                    //build each program and subfield part in the original array
                     foreach($programs as &$program){
-                        $program = "program_id: \"$program\"";
+                        $program = "program_id: \"$program\" OR subfield_id: \"$program\"";
                     }
                     unset($program);
                     $filter .= " AND " . "(" . join(" OR ", $programs) . ")";
