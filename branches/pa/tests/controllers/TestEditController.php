@@ -381,6 +381,76 @@ class EditControllerTest extends ControllerTestCase {
    * end rights
    */
 
+  /**
+   * Test school action
+   */
+  function testSchoolAction() {
+    //Test with regular user - should return false
+    $EditController = new EditControllerForTest($this->request,$this->response);
+    $this->assertFalse($EditController->schoolAction(), "Should return false because user is not superuser");
+
+    ///Test with superuser - this is the only one who should be able to access the view
+    $this->test_user->role = "superuser";
+    Zend_Registry::set('current_user', $this->test_user);
+
+    $EditController = new EditControllerForTest($this->request,$this->response);
+
+    $this->setUpGet(array('pid' => $this->honors_etdpid));
+    $EditController->schoolAction();
+    $this->assertIsA($EditController->view->etd, "etd");
+    $this->assertEqual($EditController->view->title,  "Edit School");
+    $this->assertEqual($EditController->view->schoolId,  "honors");
+    $this->assertIsA($EditController->view->options, "array");
+    $this->assertEqual(count($EditController->view->options),  4);
+  }
+
+  /*
+   * Test save School
+   */
+  function testSaveSchool() {
+
+    //Test with regular user - should return false
+    $EditController = new EditControllerForTest($this->request,$this->response);
+    $this->assertFalse($EditController->saveSchoolAction(), "Should return false because user is not superuser");
+
+
+    ///Test with superuser - this is the only one who should be able to access the view
+    $this->test_user->role = "superuser";
+    Zend_Registry::set('current_user', $this->test_user);
+
+    $school_cfg = $school_cfg = Zend_Registry::get("schools-config");
+
+    //Set and save some info to show it is cleared later
+    $etd = new etd($this->etdpid);
+    $etd->rels_ext->program = "ahist";
+    $etd->rels_ext->subfield = "sub 1";
+    $etd->mods->subfield = "sub 2";
+    $etd->save("Test INFO");
+    $etd = new etd($this->etdpid);
+
+    //Test value before save function is called
+    $this->assertEqual($etd->rels_ext->isMemberOfCollection, $school_cfg->graduate_school->fedora_collection);
+    $this->assertTrue($etd->rels_ext->program);
+    $this->assertTrue($etd->rels_ext->subfield);
+    $this->assertTrue($etd->mods->department);
+    $this->assertTrue($etd->mods->subfield);
+
+    $this->setUpPost(array('pid' => $this->etdpid, 'schoolId' => 'rollins',  'schoolIdOld' => 'grad'));
+    $EditController = new EditControllerForTest($this->request,$this->response);
+    $EditController->saveSchoolAction();
+
+    //Get the values again after function has been called
+    //Should have new collection and no program values
+    $etd = new etd($this->etdpid);
+    $this->assertEqual($etd->rels_ext->isMemberOfCollection, $school_cfg->rollins->fedora_collection);
+    $this->assertFalse($etd->rels_ext->program);
+    $this->assertFalse($etd->rels_ext->subfield);
+    $this->assertFalse($etd->mods->department);
+    $this->assertFalse($etd->mods->subfield);
+  }
+
+
+
   function testFacultyAction() {
     $EditController = new EditControllerForTest($this->request,$this->response);
 

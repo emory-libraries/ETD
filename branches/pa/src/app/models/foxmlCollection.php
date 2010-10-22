@@ -12,29 +12,30 @@ require_once("skosCollection.php");
  * Foxml object with programs/SKOS datastream.
  * Extending from foxml class in order to inherit existing
  * functionality for interacting with Fedora.
- * 
+ *
  */
 class foxmlCollection extends foxmlSkosCollection {
   private $collection_id;
-  
+ 
   public function __construct($id = "#programs", $collection = "#programs") {
-    
+   
     $create_collection = false;
 
     // initialize with a pid specified in the config - complain if it is not available
     if (! Zend_Registry::isRegistered("config")) {
       throw new FoxmlException("Configuration not registered, cannot retrieve pid");
     }
-    $config = Zend_Registry::get("config");    
+    $config = Zend_Registry::get("config"); 
+       
     $this->collection_id = preg_replace("/^#/", '', $collection);
-    $config_collection = $this->collection_id . "_collection";    
-                
-    if (! isset($config->$config_collection->pid) || $config->$config_collection->pid == "") {
+    $config_collection = $this->collection_id . "_collection";
+               
+    if (! isset($config->{$config_collection}->pid) || $config->{$config_collection}->pid == "") {
       throw new FoxmlException("Configuration does not contain " . $this->collection_id . " pid, cannot initialize");
     }
-    
+   
     try {    
-      parent::__construct($config->$config_collection->pid);
+      parent::__construct($config->{$config_collection}->pid);
       // initializing SKOS datastream here in order to pass a collection id
       $ds = "skos";
       $dom = new DOMDocument();
@@ -44,36 +45,36 @@ class foxmlCollection extends foxmlSkosCollection {
         $this->map[$ds] = new $this->xmlconfig[$ds]['class_name']($dom, $id);
       }      
     }
-    catch (FedoraObjectNotFound $e) { // Collection does not exist in fedora.   
+    catch (FedoraObjectNotFound $e) { // Collection does not exist in fedora.  
       $create_collection = true;      
     }
-    
+   
     if ($create_collection) {
       $this->createCollection(
-          $config->$config_collection->pid, 
-          $config->$config_collection->label, 
+          $config->{$config_collection}->pid,
+          $config->{$config_collection}->label,
           $config->etdOwner,
-          $config->$config_collection->model_object
+          $config->{$config_collection}->model_object
       );
-    }     
+    }    
   }
-  protected function configure() {   
-    parent::configure(); 
+  protected function configure() {  
+    parent::configure();
     $this->xmlconfig["skos"]["class_name"] = $this->collection_id;
   }
 
   public function createCollection($pid, $label, $owner, $model) {
     $col = new foxmlSkosCollection();
-    
+   
     // Add a model in the RELS-EXT datastream (Subject/Predicate/Object)
     $col->setContentModel($model);    
            
     $col->pid = $pid;      
-    $col->label = $label; 
+    $col->label = $label;
     $col->owner = $owner;  
     $col->ingest("creating ETD foxmlSkosCollection object for [$pid] collection hierarchy");  
     return $col;
-  }     
+  }    
 
 }
 
@@ -116,7 +117,7 @@ class programCollection extends skosCollection {
   protected function getIndexedData() {
     return (string)$this->getId();
   }
-  
+ 
 }
 
 class programMember extends skosMember {
@@ -133,7 +134,7 @@ class programMember extends skosMember {
     if (in_array($this->id, array("#religion", "#biosci", "#psychology"))) return true;
 
     // otherwise, this item is not indexed
-    return false; 
+    return false;
   }
 
   // indexed on id instead of label
@@ -149,6 +150,17 @@ class programMember extends skosMember {
 class vocabularies extends collectionHierarchy  {
 
   public function __construct($dom, $id = "#vocabularies") {
+    parent::__construct($dom, $id);
+  }
+
+}
+
+/**
+ * custom version of collectionHierarchy for partnering agencies
+ */
+class test extends collectionHierarchy  {
+
+  public function __construct($dom, $id = "#test") {
     parent::__construct($dom, $id);
   }
 

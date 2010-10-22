@@ -14,7 +14,7 @@
 chdir("..");
 // set paths, load config files, set up connection objects for fedora, solr, and ESD
 require_once("bootstrap.php");
-require_once("models/foxmlCollection.php");
+require_once("models/programs.php");
 $opts = new Zend_Console_Getopt($common_getopts);
 
 // extended usage information - based on option list above, but with explanation/examples
@@ -48,7 +48,9 @@ $schools = array("grad", "undergrad", "candler", "rollins");
         
 // Program Codes for all schools
 $dataset = array(
-
+/**
+ * WARNING: There cannot be any duplicate id values.
+ */
 // GSAS - Graduates
 array("school"=>'grad', "dept"=>'humanities', "id"=>'arthistory', "identifiers"=>array('ARTHISTMA')),
 array("school"=>'grad', "dept"=>'humanities', "id"=>'complit', "identifiers"=>array('COMPLITMA','COMPLITPHD')),
@@ -167,38 +169,38 @@ array("school"=>'candler', "id"=>'csttheo', "identifiers"=>array('THEOLSTMTS')),
 array("school"=>'candler', "id"=>'cstpc', "identifiers"=>array('THDCOUNSEL')),
 
 // PUBH - Rollins School of Public Health
-array("school"=>'rollins', "dept"=>'cmph', "id"=>'apepi', "identifiers"=>array('APEPIMPH')),
-array("school"=>'rollins', "dept"=>'cmph', "id"=>'hcom', "identifiers"=>array('HCOMMPH')),
-array("school"=>'rollins', "dept"=>'cmph', "id"=>'mchepi', "identifiers"=>array('MCHEPIMPH')),
-array("school"=>'rollins', "dept"=>'cmph', "id"=>'ms', "identifiers"=>array('MSMPH')),
-array("school"=>'rollins', "dept"=>'cmph', "id"=>'ps', "identifiers"=>array('PSMPH')),
-array("school"=>'rollins', "dept"=>'bb', "id"=>'bios',  "identifiers"=>array('BIOSMPH','BIOSMSPH')),
-array("school"=>'rollins', "dept"=>'bb', "id"=>'info',  "identifiers"=>array('INFOMSPH')),
-array("school"=>'rollins', "dept" =>'eh', "id"=>'eoh', "identifiers"=>array('EOHMPH')),
-array("school"=>'rollins', "dept" =>'eh', "id"=>'eohepi', "identifiers"=>array('EOHEPIMPH')),
-array("school"=>'rollins', "dept" =>'eh', "id"=>'eohih', "identifiers"=>array('EOHIHMPH')),
-array("school"=>'rollins', "dept" =>'ep', "id"=>'epi', "identifiers"=>array('EPIMPH', 'EPIMPSH')),
-array("school"=>'rollins', "dept" =>'ep', "id"=>'glepi', "identifiers"=>array('GLEPIMPH','GLEPIMSPH')),
-array("school"=>'rollins', "dept" =>'', "id"=>'hpm', "identifiers"=>array('HPMMPH','HPMMSPH')),
-array("school"=>'rollins', "dept" =>'', "id"=>'ih', "identifiers"=>array('IHMPH')),
-array("school"=>'rollins', "dept" =>'', "id"=>'bshe', "identifiers"=>array('BSHEMPH')),
+array("school"=>'rollins', "dept"=>'rsph-cmph', "id"=>'rsph-apepi', "identifiers"=>array('APEPIMPH')),
+array("school"=>'rollins', "dept"=>'rsph-cmph', "id"=>'rsph-hcom', "identifiers"=>array('HCOMMPH')),
+array("school"=>'rollins', "dept"=>'rsph-cmph', "id"=>'rsph-mchepi', "identifiers"=>array('MCHEPIMPH')),
+array("school"=>'rollins', "dept"=>'rsph-cmph', "id"=>'rsph-ms', "identifiers"=>array('MSMPH')),
+array("school"=>'rollins', "dept"=>'rsph-cmph', "id"=>'rsph-ps', "identifiers"=>array('PSMPH')),
+array("school"=>'rollins', "dept"=>'rsph-bb', "id"=>'rsph-bios',  "identifiers"=>array('BIOSMPH','BIOSMSPH')),
+array("school"=>'rollins', "dept"=>'rsph-bb', "id"=>'rsph-info',  "identifiers"=>array('INFOMSPH')),
+array("school"=>'rollins', "dept" =>'rsph-eh', "id"=>'rsph-eoh', "identifiers"=>array('EOHMPH')),
+array("school"=>'rollins', "dept" =>'rsph-eh', "id"=>'rsph-eohepi', "identifiers"=>array('EOHEPIMPH')),
+array("school"=>'rollins', "dept" =>'rsph-eh', "id"=>'rsph-eohih', "identifiers"=>array('EOHIHMPH')),
+array("school"=>'rollins', "dept" =>'rsph-ep', "id"=>'rsph-epi', "identifiers"=>array('EPIMPH', 'EPIMPSH')),
+array("school"=>'rollins', "dept" =>'rsph-ep', "id"=>'rsph-glepi', "identifiers"=>array('GLEPIMPH','GLEPIMSPH')),
+array("school"=>'rollins', "dept" =>'', "id"=>'rsph-hpm', "identifiers"=>array('HPMMPH','HPMMSPH')),
+array("school"=>'rollins', "dept" =>'', "id"=>'rsph-ih', "identifiers"=>array('IHMPH')),
+array("school"=>'rollins', "dept" =>'', "id"=>'rsph-bshe', "identifiers"=>array('BSHEMPH')),
 );
 
-
-$programs = new foxmlCollection();
+$programs = new foxmlPrograms();
 $skos = $programs->skos;
         
 //add school identifiers to programs
 foreach ($dataset as $data) {
     
   foreach ($data['identifiers'] as $identifier) {  // allow for more than one dc_id
-    //print "\nProcess {$data['school']} dept={$data['dept']} prog={$data['id']} {$identifier}";    
     if ($skos->findIdentifier($identifier) == null) {      
-      $logger->info("{$data['school']} dept={$data['dept']} prog={$data['id']} does not yet include dc:identifier {$identifier}, adding.\n");
+      
       if (!empty($data['dept'])) {
+        $logger->info("{$data['school']} dept={$data['dept']} prog={$data['id']} does not yet include dc:identifier {$identifier}, adding.\n");        
         $skos->{$data['school']}->{$data['dept']}->{$data['id']}->collection->addIdentifier($identifier);
       }
       else {
+        $logger->info("{$data['school']} dept={null} prog={$data['id']} does not yet include dc:identifier {$identifier}, adding.\n");        
         $skos->{$data['school']}->{$data['id']}->collection->addIdentifier($identifier);
       }     
     } else {
@@ -206,7 +208,7 @@ foreach ($dataset as $data) {
         $logger->info("{$data['school']} dept={$data['dept']} prog={$data['id']} dc:identifier {$identifier} is already present");
       }
       else {
-        $logger->info("{$data['school']} prog={$data['id']} dc:identifier {$identifier} is already present");
+        $logger->info("{$data['school']}  dept={null} prog={$data['id']} dc:identifier {$identifier} is already present");
       }      
     }
   }

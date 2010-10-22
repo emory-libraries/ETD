@@ -37,23 +37,23 @@ $fields = array('netid', 'schoolid', 'programid'); //field names
 //data
 $data = array(
 
-    array(strtoupper('mkrance'), 'PUBH', 'APEPI'),
-    array(strtoupper('mkrance'), 'PUBH', 'HCOM'),
-    array(strtoupper('mkrance'), 'PUBH', 'MCHEPI'),
-    array(strtoupper('mkrance'), 'PUBH', 'MS'),
-    array(strtoupper('mkrance'), 'PUBH', 'PS'),
-    array(strtoupper('ddunba2'), 'PUBH', 'BSHE'),
-    array(strtoupper('cdettme'), 'PUBH', 'BSHE'),
-    array(strtoupper('twachho'), 'PUBH', 'BIOS'),
-    array(strtoupper('twachho'), 'PUBH', 'INFO'),
-    array(strtoupper('ascarl'), 'PUBH', 'EOH'),
-    array(strtoupper('ascarl'), 'PUBH', 'EOHEPI'),
-    array(strtoupper('ascarl'), 'PUBH', 'EOHIH'),
-    array(strtoupper('jtenley'), 'PUBH', 'EPI'),
-    array(strtoupper('jtenley'), 'PUBH', 'GLEPI'),
-    array(strtoupper('kwollen'), 'PUBH', 'HPM'),
-    array(strtoupper('arozo'), 'PUBH', 'IH'),
-    array(strtoupper('tnash'), 'PUBH', 'IH')
+    array(strtoupper('mkrance'), 'PUBH', 'RSPH-APEPI'),
+    array(strtoupper('mkrance'), 'PUBH', 'RSPH-HCOM'),
+    array(strtoupper('mkrance'), 'PUBH', 'RSPH-MCHEPI'),
+    array(strtoupper('mkrance'), 'PUBH', 'RSPH-MS'),
+    array(strtoupper('mkrance'), 'PUBH', 'RSPH-PS'),
+    array(strtoupper('ddunba2'), 'PUBH', 'RSPH-BSHE'),
+    array(strtoupper('cdettme'), 'PUBH', 'RSPH-BSHE'),
+    array(strtoupper('twachho'), 'PUBH', 'RSPH-BIOS'),
+    array(strtoupper('twachho'), 'PUBH', 'RSPH-INFO'),
+    array(strtoupper('ascarl'), 'PUBH', 'RSPH-EOH'),
+    array(strtoupper('ascarl'), 'PUBH', 'RSPH-EOHEPI'),
+    array(strtoupper('ascarl'), 'PUBH', 'RSPH-EOHIH'),
+    array(strtoupper('jtenley'), 'PUBH', 'RSPH-EPI'),
+    array(strtoupper('jtenley'), 'PUBH', 'RSPH-GLEPI'),
+    array(strtoupper('kwollen'), 'PUBH', 'RSPH-HPM'),
+    array(strtoupper('arozo'), 'PUBH', 'RSPH-IH'),
+    array(strtoupper('tnash'), 'PUBH', 'RSPH-IH')
 );
 
 
