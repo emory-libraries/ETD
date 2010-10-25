@@ -53,7 +53,8 @@ $data = array(
     array(strtoupper('jtenley'), 'PUBH', 'GLEPI'),
     array(strtoupper('kwollen'), 'PUBH', 'HPM'),
     array(strtoupper('arozo'), 'PUBH', 'IH'),
-    array(strtoupper('tnash'), 'PUBH', 'IH')
+    array(strtoupper('tnash'), 'PUBH', 'IH'),
+    array(strtoupper('rfeem2'), 'PUBH', '') //super-dupper rollins admin
 );
 
 

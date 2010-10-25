@@ -66,6 +66,7 @@ class ManageController extends Etd_Controller_Action {
      }
 
      // return filter if one was created
+     //print "FILTER: $filter";
      return $filter;
    }
 

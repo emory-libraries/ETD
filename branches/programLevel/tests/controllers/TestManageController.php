@@ -549,8 +549,8 @@ class ManageControllerTest extends ControllerTestCase {
     Zend_Registry::set('current_user', $this->test_user);
     $filter = $ManageController->testGetAdminFilter();
     $this->assertTrue(strpos($filter, 'collection:"emory-control:ETD-Rollins-collection"') === 0);
-    $this->assertTrue(strpos($filter, 'program_id: "ms"'));
-    $this->assertTrue(strpos($filter, 'program_id: "ps"'));
+    $this->assertTrue(strpos($filter, 'program_id: "ms" OR subfield_id: "ms"'));
+    $this->assertTrue(strpos($filter, 'program_id: "ps" OR subfield_id: "ps"'));
   }
 
   function testGetAdminPrograms() {
