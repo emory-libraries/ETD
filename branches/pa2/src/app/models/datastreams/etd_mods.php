@@ -838,6 +838,9 @@ class etd_mods extends mods {
       // complete if there is at least one non-blank research field
       return ((count($this->researchfields) != 0) &&
         ($this->researchfields[0]->id != "" || $this->researchfields[0]->topic != ""));
+    case "partneringagencies":
+      // complete if there is at least one non-blank partnering agency
+      return ("FIX ME");         
     case "keywords":
       // complete if there is at least one non-blank keyword
       return ((count($this->keywords) != 0) && (trim($this->keywords[0]->topic) != ""));
