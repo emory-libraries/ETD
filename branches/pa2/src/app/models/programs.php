@@ -20,11 +20,11 @@ class foxmlPrograms extends foxmlSkosCollection {
     if (! Zend_Registry::isRegistered("config")) {
       throw new FoxmlException("Configuration not registered, cannot retrieve pid");
     }
-    $config = Zend_Registry::get("config");
-    if (! isset($config->programs_pid) || $config->programs_pid == "") {
+    $config = Zend_Registry::get("config");   
+    if (! isset($config->programs_collection->pid) || $config->programs_collection->pid == "") {
       throw new FoxmlException("Configuration does not contain program pid, cannot initialize");
     }
-    parent::__construct($config->programs_pid);
+    parent::__construct($config->programs_collection->pid);
 
     // initializing SKOS datastream here in order to pass a collection id
     $ds = "skos";
