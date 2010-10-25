@@ -32,6 +32,7 @@
 
 <script language="JavaScript">
 function setProgram(id, label) {
+  school = '<?= $this->etd->schoolId()?>';
   $('program_id').value = id;
   // get label from display field on the page
   $('program_label').innerHTML = $(id + '_label').innerHTML;
@@ -41,7 +42,12 @@ function setProgram(id, label) {
     selected[i].removeClassName('selected');
   }
   // highlight currently selected program
-  $(id).addClassName('selected');
+  if(school != 'rollins')
+    $(id).addClassName('selected');
+  else{
+    id_label = id+"_label";
+    $(id_label).addClassName('selected');
+  }
 
   // clear out any subfield
   $('subfield_id').value = '';
