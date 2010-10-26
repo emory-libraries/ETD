@@ -7,7 +7,7 @@ class TestVocabularies extends UnitTestCase {
   private $vocabularyObj;
 
   function setUp() {
-    $this->vocabularyObj = new foxmlVocabularies();
+    $this->vocabularyObj = new foxmlVocabularies("#vocabularies");
     $this->vocabularies = $this->vocabularyObj->skos;
   }
 
@@ -63,7 +63,7 @@ class TestVocabularies extends UnitTestCase {
     Zend_Registry::set("config", new Zend_Config());
     // test with an empty config that has no vocabulary pid
     $this->expectException(new FoxmlException("Configuration does not contain vocabularies pid, cannot initialize"));
-    $vocabularyObj = new foxmlVocabularies();
+    $vocabularyObj = new foxmlVocabularies("#vocabularies");
   }
 
   function testInitWithoutConfig() {
@@ -72,7 +72,7 @@ class TestVocabularies extends UnitTestCase {
     $reg = Zend_Registry::getInstance();
     unset($reg["config"]);
     $this->expectException(new FoxmlException("Configuration not registered, cannot retrieve pid"));
-    $vocabularyObj = new foxmlVocabularies();
+    $vocabularyObj = new foxmlVocabularies("#vocabularies");
   }
 
 }

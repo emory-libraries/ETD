@@ -38,7 +38,7 @@ class foxmlPrograms extends foxmlSkosCollection {
   protected function configure() {
     parent::configure();
     $this->xmlconfig["skos"]["class_name"] = "programs";
-  }  
+  }    
 
 }
 
@@ -64,8 +64,18 @@ class programs extends collectionHierarchy  {
     return $fields;
   }
 
-
-
+  // this template is used when creating a new fedora object to ingest.
+  public static function getFedoraTemplate(){   
+    return foxml::xmlDatastreamTemplate("SKOS", collectionHierarchy::dslabel,
+          '<rdf:RDF
+          xmlns:dc="http://purl.org/dc/elements/1.1/"
+          xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+          xmlns:skos="http://www.w3.org/2004/02/skos/core#"
+          xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
+          <skos:Collection rdf:about="#programs">
+          <rdfs:label>Programs</rdfs:label>
+          </skos:Collection></rdf:RDF>');
+  }
 }
 
 /* Using custom program collection & member classes in order to

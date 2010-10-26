@@ -7,7 +7,7 @@ class TestPrograms extends UnitTestCase {
   private $programObj;
 
   function setUp() {
-    $this->programObj = new foxmlPrograms();
+    $this->programObj = new foxmlPrograms("#programs");
     $this->programs = $this->programObj->skos;
   }
 
@@ -70,7 +70,7 @@ class TestPrograms extends UnitTestCase {
     Zend_Registry::set("config", new Zend_Config());
     // test with an empty config that has no program pid
     $this->expectException(new FoxmlException("Configuration does not contain program pid, cannot initialize"));
-    $programObj = new foxmlPrograms();
+    $programObj = new foxmlPrograms("#programs");
   }
 
   function testInitWithoutConfig() {
@@ -79,7 +79,7 @@ class TestPrograms extends UnitTestCase {
     $reg = Zend_Registry::getInstance();
     unset($reg["config"]);
     $this->expectException(new FoxmlException("Configuration not registered, cannot retrieve pid"));
-    $programObj = new foxmlPrograms();
+    $programObj = new foxmlPrograms("#programs");
   }
 
 

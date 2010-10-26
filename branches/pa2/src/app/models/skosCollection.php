@@ -32,12 +32,20 @@ class collectionHierarchy extends foxmlDatastreamAbstract {
   // reference to parent collection (if not at top level)
   public $parent;
   
-  public function __construct($dom, $id) {
+  public function __construct($dom, $id=null) {
+     
+    if (!is_string($id))  {
+      // if $id is not defined as a string, 
+      // then we are creating a new fedora object;
+      // and we are not accessing an existing fedora object.
+      return;    
+    }
+                
     $this->id = $id;
     $this->addNamespace("dc", $this->dc_namespace);    
     $this->addNamespace("rdf", $this->rdf_namespace);
     $this->addNamespace("rdfs", $this->rdfs_namespace);
-    $this->addNamespace("skos", $this->skos_namespace);
+    $this->addNamespace("skos", $this->skos_namespace);   
     
     $config = $this->config(array(
        "collection" => array("xpath" => "skos:Collection[@rdf:about = '" . $this->id . "']",
@@ -50,13 +58,13 @@ class collectionHierarchy extends foxmlDatastreamAbstract {
       // collection not found - bad initialization
       throw new XmlObjectException("Error in constructor: collection id '" . $id . "' not found");
     }
-    
+       
     // if this collection has a parent initialize parent as another collection object
-    if (isset($this->parent_id)) {
+    if (isset($this->parent_id)) {      
       $this->parent = new collectionHierarchy($this->dom, (string)$this->parent_id);
-    } else {
+    } else {      
       $this->parent = null;
-    }
+    }   
   }
 
   // shortcuts to fields that are really attributes of the collection 
@@ -235,9 +243,8 @@ class collectionHierarchy extends foxmlDatastreamAbstract {
      "skos" => collectionHierarchy::SKOS);
   }
 
-
-
   /** required to extend foxmlDatastreamAbstract - but not currently used **/
+  
   public static function getFedoraTemplate(){
     return foxml::xmlDatastreamTemplate("SKOS", collectionHierarchy::dslabel,
           '<rdf:RDF
@@ -246,7 +253,7 @@ class collectionHierarchy extends foxmlDatastreamAbstract {
           xmlns:skos="http://www.w3.org/2004/02/skos/core#"
           xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"/>');
   }
-  
+
   public function datastream_label() {
     return collectionHierarchy::dslabel;
   }
@@ -281,7 +288,6 @@ class collectionHierarchy extends foxmlDatastreamAbstract {
     }
     $this->update();
   }
-
 }
 
 
@@ -510,9 +516,9 @@ class skosMember extends XmlObject {
 class foxmlSkosCollection extends foxml {
 
   // configure additional datastreams here 
-  protected function configure() {
+  protected function configure() {    
     parent::configure();
-
+    
     $this->addNamespace("dc", collectionHierarchy::DC);
     $this->addNamespace("rdf", collectionHierarchy::RDF);
     $this->addNamespace("rdfs", collectionHierarchy::RDFS);
@@ -520,6 +526,6 @@ class foxmlSkosCollection extends foxml {
     
     // add mappings for xmlobject
     $this->xmlconfig["skos"] = array("xpath" => "//foxml:datastream[@ID='SKOS']/foxml:datastreamVersion/foxml:xmlContent/rdf:RDF",
-             "class_name" => "collectionHierarchy", "dsID" => "SKOS");
+             "class_name" => "collectionHierarchy", "dsID" => "SKOS");             
   }
 }
