@@ -5,8 +5,10 @@ require_once('models/vocabularies.php');
 class TestVocabularies extends UnitTestCase {
   private $vocabularies;
   private $vocabularyObj;
+  private $fedora;
 
   function setUp() {
+    $this->fedora = Zend_Registry::get('fedora');
     $this->vocabularyObj = new foxmlVocabularies("#vocabularies");
     $this->vocabularies = $this->vocabularyObj->skos;
   }
@@ -57,6 +59,48 @@ class TestVocabularies extends UnitTestCase {
     $this->assertTrue(in_array("Partnering Agencies", $fields), "second level");
     $this->assertTrue(in_array("Rollins School of Public Health", $fields), "third level");
     $this->assertTrue(in_array("CDC", $fields), "forth level");
+  }
+
+  function testCreateFedoraObject() {
+    $pid = "emory-control:ETD-vocabulary-TEST";
+    
+    // store real config to restore later
+    $prev_config = Zend_Registry::get('config');
+
+    // stub config with test pid for programs_pid just for this test.
+    $tmp_config = new Zend_Config(array("vocabularies_collection" => array("pid" => $pid)));
+    
+    // temporarily override config in with test configuration
+    Zend_Registry::set('config', $tmp_config);     
+
+    try { // Remove the test pid from fedora, if it exists.
+      $this->fedora->purge($pid, "removing test pid if it exists"); 
+    } catch (FedoraObjectNotFound $e) {}
+    
+    $new_collection  = new foxmlVocabularies();  
+    //$collection  = new foxmlSkosCollection();
+    $new_collection->pid = $pid;
+    $new_collection->label = "ETD Controlled Vocabularies TEST Hierarchy";
+    $new_collection->owner = "etdOwner";
+    
+    // Add a model in the RELS-EXT datastream (Subject/Predicate/Object)
+    $new_collection->setContentModel("emory-control:Hierarchy-1.0");
+    $new_collection->ingest("creating TEST SKOS collection object");
+    
+    $new_vocab = new foxmlVocabularies("#vocabularies");
+    $new_vocab_skos = $new_vocab->skos;    
+    $this->assertIsA($new_vocab_skos, "vocabularies");
+    $this->assertIsA($new_vocab_skos, "collectionHierarchy");
+    $this->assertEqual("Vocabularies Hierarchy", $new_vocab_skos->label);
+    $this->assertEqual("#vocabularies", $new_vocab_skos->id);
+    
+    //Zend_Registry::set('config', $prev_config);
+    try { // Remove the test pid from fedora, if it exists.
+      //$this->fedora->purge($pid, "removing test pid if it exists"); 
+    } catch (FedoraObjectNotFound $e) {}
+    
+    // Restore the previous configuration
+    Zend_Registry::set('config', $prev_config); 
   }
 
   function testInitWithBadConfig() {
