@@ -94,6 +94,10 @@ class TestVocabularies extends UnitTestCase {
     $this->assertEqual("Vocabularies Hierarchy", $new_vocab_skos->label);
     $this->assertEqual("#vocabularies", $new_vocab_skos->id);
     
+    // content model
+    $this->assertNotNull($new_vocab->rels_ext->hasModel);
+    $this->assertEqual("emory-control:Hierarchy-1.0", $new_vocab->rels_ext->hasModel);    
+    
     //Zend_Registry::set('config', $prev_config);
     try { // Remove the test pid from fedora, if it exists.
       //$this->fedora->purge($pid, "removing test pid if it exists"); 
