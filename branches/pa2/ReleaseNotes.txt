@@ -1,5 +1,21 @@
 ETD Release Notes
 =================
+    
+Version 1.9.0 - November 2010 (bugfix)
+ * Create and populate the vocabularies fedora collection.
+ * Add the ability to select partenering agencies for a rollins student.
+ Deployment notes:
+ * Edit the config.xml
+    - remove the previous :
+      <!-- Top Level Program Collection -->
+      <programs_pid></programs_pid>
+      <vocabularies_pid>
+    - replace with new configuration found in config.xml.example
+        <!-- Foxml Collections -->  section
+
+ * Run the migration scripts to reload the rollins school data: 
+    - 017-add_vocabularies.php
+
 Version 1.8.5 - October 2010 (enhancements)
  * RSPH user may reference two new academic programs to the College school:
     - African American Studies (where degree = 'AASBA')
