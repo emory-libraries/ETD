@@ -15,7 +15,7 @@ require_once("skosCollection.php");
  * 
  */
 class foxmlPrograms extends foxmlSkosCollection {
-  public function __construct($id = "#programs") {
+  public function __construct($id=null) {
     // initialize with a pid specified in the config - complain if it is not available
     if (! Zend_Registry::isRegistered("config")) {
       throw new FoxmlException("Configuration not registered, cannot retrieve pid");
@@ -24,16 +24,22 @@ class foxmlPrograms extends foxmlSkosCollection {
     if (! isset($config->programs_collection->pid) || $config->programs_collection->pid == "") {
       throw new FoxmlException("Configuration does not contain program pid, cannot initialize");
     }
-    parent::__construct($config->programs_collection->pid);
+    
+    if (isset($id)) { // We attempt to open an existing fedora object.     
+      parent::__construct($config->programs_collection->pid);
 
-    // initializing SKOS datastream here in order to pass a collection id
-    $ds = "skos";
-    $dom = new DOMDocument();
-    $xml = $this->fedora->getDatastream($this->pid, $this->xmlconfig[$ds]['dsID']);
-    if ($xml) {
-      $dom->loadXML($xml);
-      $this->map[$ds] = new $this->xmlconfig[$ds]['class_name']($dom, $id);
+      // initializing SKOS datastream here in order to pass a collection id
+      $ds = "skos";
+      $dom = new DOMDocument();
+      $xml = $this->fedora->getDatastream($this->pid, $this->xmlconfig[$ds]['dsID']);
+      if ($xml) {
+        $dom->loadXML($xml);
+        $this->map[$ds] = new $this->xmlconfig[$ds]['class_name']($dom, $id);
+      }
     }
+    else {  // Create a new fedora object using contruct_by_template
+      parent::__construct();      
+    }       
   }
   protected function configure() {
     parent::configure();

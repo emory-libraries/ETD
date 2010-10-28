@@ -42,7 +42,7 @@ class EditController extends Etd_Controller_Action {
     $this->view->title = "Edit Program";
     $this->view->etd = $etd;
 
-    $programObject = new foxmlPrograms();
+    $programObject = new foxmlPrograms("#programs");
     $this->view->programs = $programObject->skos;
     // select correct sub-section of progam hierarchy based on which school ETD belongs to
     switch ($etd->schoolId()) {
@@ -76,7 +76,7 @@ class EditController extends Etd_Controller_Action {
     
 
     $etd->rels_ext->program = $program_id;
-    $programObject = new foxmlPrograms();
+    $programObject = new foxmlPrograms("#programs");
     $etd->department = $programObject->skos->findLabelbyId("#" . $program_id);  
     if ($subfield_id == null) {
       // blank out rel if already set (don't add empty relation if not needed)
@@ -92,11 +92,11 @@ class EditController extends Etd_Controller_Action {
       $save_result = $etd->save("updated program");
       $this->view->save_result = $save_result;
       if ($save_result) {
-  $this->_helper->flashMessenger->addMessage("Saved changes to program");
-  $this->logger->info("Updated etd " . $etd->pid . " program at $save_result");
+        $this->_helper->flashMessenger->addMessage("Saved changes to program");
+        $this->logger->info("Updated etd " . $etd->pid . " program at $save_result");
       } else {
-  $this->_helper->flashMessenger->addMessage("Could not save changes to program (permission denied?)");
-  $this->logger->err("Could not save changes to program on  etd " . $etd->pid);
+        $this->_helper->flashMessenger->addMessage("Could not save changes to program (permission denied?)");
+        $this->logger->err("Could not save changes to program on  etd " . $etd->pid);
       }
     } else {
       $this->_helper->flashMessenger->addMessage("No changes made to program");
@@ -118,7 +118,7 @@ class EditController extends Etd_Controller_Action {
       // more specific error messages may be set by validateRights function
       // - if there is no error message, add a generic 'invalid' message
       if (! $this->_helper->flashMessenger->hasMessages()) 
-  $this->_helper->flashMessenger->addMessage('Error: invalid input, please check and resubmit.');
+        $this->_helper->flashMessenger->addMessage('Error: invalid input, please check and resubmit.');
       $this->view->messages = $this->_helper->flashMessenger->getCurrentMessages();
       
       $this->_forward("rights", "edit", null, array("pid" => $etd->pid));
@@ -348,9 +348,9 @@ class EditController extends Etd_Controller_Action {
     // don't allow the same id to be added to both chair and member lists (results in duplicate ids ->  invalid xml)
     foreach ($committee as $id) {
       if (in_array($id, $chair_ids)) {  // don't add to committee list, display a message to the user
-  $this->_helper->flashMessenger->addMessage("Warning: cannot add '$id' as both Committee Chair and Member; adding as Chair only");
+        $this->_helper->flashMessenger->addMessage("Warning: cannot add '$id' as both Committee Chair and Member; adding as Chair only");
       } else {    // add to the list of committee ids that will be processed
-  $committee_ids[] = $id;
+        $committee_ids[] = $id;
       }
     }
     $this->view->committee_ids = $committee_ids;
@@ -363,13 +363,13 @@ class EditController extends Etd_Controller_Action {
     foreach ($chair_ids as $id) {
       if ($this->_hasParam($id . "_affiliation") &&
     ($affiliation = $this->_getParam($id . "_affiliation", "")) != "") {
-  $etd->mods->setCommitteeAffiliation($id, $affiliation, "chair");
+        $etd->mods->setCommitteeAffiliation($id, $affiliation, "chair");
       }
     }
     foreach ($committee_ids as $id) {
       if ($this->_hasParam($id . "_affiliation") &&
     ($affiliation = $this->_getParam($id . "_affiliation", "")) != "") {
-  $etd->mods->setCommitteeAffiliation($id, $affiliation);
+        $etd->mods->setCommitteeAffiliation($id, $affiliation);
       }
     }
 
@@ -380,7 +380,7 @@ class EditController extends Etd_Controller_Action {
     $nonemory_affiliation = $this->_getParam("nonemory_affiliation");
     for ($i = 0; $i < count($nonemory_first); $i++) {
       if ($nonemory_last[$i] != '')
-  $etd->mods->addCommittee($nonemory_last[$i], $nonemory_first[$i], "nonemory_committee",
+        $etd->mods->addCommittee($nonemory_last[$i], $nonemory_first[$i], "nonemory_committee",
          $nonemory_affiliation[$i]);
     }
     
@@ -388,11 +388,11 @@ class EditController extends Etd_Controller_Action {
       $save_result = $etd->save("updated committe chair(s) & members");
       $this->view->save_result = $save_result;
       if ($save_result) {
-  $this->_helper->flashMessenger->addMessage("Saved changes to committee chairs & members");
-  $this->logger->info("Updated etd " . $etd->pid . " committee chairs & members at $save_result");
+        $this->_helper->flashMessenger->addMessage("Saved changes to committee chairs & members");
+        $this->logger->info("Updated etd " . $etd->pid . " committee chairs & members at $save_result");
       } else {
-  $this->_helper->flashMessenger->addMessage("Could not save changes to committee chair(s) & members (permission denied?)");
-  $this->logger->err("Could not save changes to committee chairs & members on  etd " . $etd->pid);
+        $this->_helper->flashMessenger->addMessage("Could not save changes to committee chair(s) & members (permission denied?)");
+        $this->logger->err("Could not save changes to committee chairs & members on  etd " . $etd->pid);
       }
     } else {
       $this->_helper->flashMessenger->addMessage("No changes made to committee chair(s) & members");
@@ -477,9 +477,9 @@ class EditController extends Etd_Controller_Action {
     $values = array();
     foreach ($this->view->fields as $i => $value) {
       if(preg_match("/#([0-9]{4}) (.*)$/", $value, $matches)) {
-  $id = $matches[1];
-  $text = $matches[2];
-  $values[$id] = $text;
+        $id = $matches[1];
+        $text = $matches[2];
+        $values[$id] = $text;
       }
     }
     $etd->mods->setResearchFields($values);
@@ -488,11 +488,11 @@ class EditController extends Etd_Controller_Action {
       $save_result = $etd->save("modified research fields");
       $this->view->save_result = $save_result;
       if ($save_result) {
-  $this->_helper->flashMessenger->addMessage("Saved changes to research fields");
-  $this->logger->info("Updated etd " . $etd->pid . " research fields at $save_result");
+        $this->_helper->flashMessenger->addMessage("Saved changes to research fields");
+        $this->logger->info("Updated etd " . $etd->pid . " research fields at $save_result");
       } else {  // record changed but save failed for some reason
-  $this->_helper->flashMessenger->addMessage("Could not save changes to research fields");
-  $this->logger->err("Could not save etd " . $etd->pid . " research fields");
+        $this->_helper->flashMessenger->addMessage("Could not save changes to research fields");
+        $this->logger->err("Could not save etd " . $etd->pid . " research fields");
       }
     } else {
       $this->_helper->flashMessenger->addMessage("No changes made to research fields");
@@ -570,11 +570,11 @@ class EditController extends Etd_Controller_Action {
       $save_result = $etd->save("modified $mode");
       $this->view->save_result = $save_result;
       if ($save_result) {
-  $this->_helper->flashMessenger->addMessage("Saved changes to $mode");
-  $this->logger->info("Updated etd " . $etd->pid . " html $mode at $save_result");
+        $this->_helper->flashMessenger->addMessage("Saved changes to $mode");
+        $this->logger->info("Updated etd " . $etd->pid . " html $mode at $save_result");
       } else {  // record changed but save failed for some reason
-  $this->_helper->flashMessenger->addMessage("Could not save changes to $mode");
-  $this->logger->err("Could not save changes to etd " . $etd->pid . " html $mode");
+        $this->_helper->flashMessenger->addMessage("Could not save changes to $mode");
+        $this->logger->err("Could not save changes to etd " . $etd->pid . " html $mode");
       }
     } else {
       $this->_helper->flashMessenger->addMessage("No changes made to $mode");
@@ -612,18 +612,18 @@ class EditController extends Etd_Controller_Action {
       $etd->department = $etd->mods->department;
       
       if ($etd->mods->hasChanged()) {
-  $save_result = $etd->save($log_message);
-  $this->view->save_result = $save_result;
-  if ($save_result) {
-    $this->_helper->flashMessenger->addMessage("Saved changes to $component");  // more info?
-    $this->logger->info("Saved etd " . $etd->pid . " changes to $component at $save_result");
-  } else {  // record changed but save failed for some reason
-    $message = "Could not save changes to $component";
-    $this->_helper->flashMessenger->addMessage($message);
-    $this->logger->err($message);
-  }
+        $save_result = $etd->save($log_message);
+        $this->view->save_result = $save_result;
+        if ($save_result) {
+          $this->_helper->flashMessenger->addMessage("Saved changes to $component");  // more info?
+          $this->logger->info("Saved etd " . $etd->pid . " changes to $component at $save_result");
+        } else {  // record changed but save failed for some reason
+          $message = "Could not save changes to $component";
+          $this->_helper->flashMessenger->addMessage($message);
+          $this->logger->err($message);
+        }
       } else {
-  $this->_helper->flashMessenger->addMessage("No changes made to $component");
+        $this->_helper->flashMessenger->addMessage("No changes made to $component");
       }
     }
 
@@ -659,18 +659,18 @@ class EditController extends Etd_Controller_Action {
 
     foreach ($order as $type) {
       for ($i = 0; $i < count($type); $i++) {
-  $file = new etd_file($type[$i]);
-  $seq = ($i + 1);
-  // only set it if it's changed
-  if ($file->rels_ext->sequence != $seq) {
-    $file->rels_ext->sequence = $seq;
-    $result = $file->save("re-ordered in sequence");
-    if ($result) {
-      $this->logger->info("Saved re-ordered file sequence on " . $file->pid);
-    } else {
-      $this->logger->err("Could not saved re-ordered file sequence for " . $file->pid);
-    }
-  }
+        $file = new etd_file($type[$i]);
+        $seq = ($i + 1);
+        // only set it if it's changed
+        if ($file->rels_ext->sequence != $seq) {
+          $file->rels_ext->sequence = $seq;
+          $result = $file->save("re-ordered in sequence");
+          if ($result) {
+            $this->logger->info("Saved re-ordered file sequence on " . $file->pid);
+          } else {
+            $this->logger->err("Could not saved re-ordered file sequence for " . $file->pid);
+          }
+        }
       }
     }
     // error checking ?

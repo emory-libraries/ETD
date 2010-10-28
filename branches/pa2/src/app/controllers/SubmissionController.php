@@ -379,7 +379,7 @@ class SubmissionController extends Etd_Controller_Action {
     $this->view->messages = array();
     $this->view->etd_info = $this->_helper->processPDF($_FILES['pdf']);
 
-    $programObject = new foxmlPrograms();
+    $programObject = new foxmlPrograms("#programs");
     $programs = $programObject->skos;
     $this->view->department =  $programs->findLabel($this->view->etd_info['department']);
     

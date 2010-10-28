@@ -5,8 +5,10 @@ require_once('models/programs.php');
 class TestPrograms extends UnitTestCase {
   private $programs;
   private $programObj;
+  private $fedora;
 
   function setUp() {
+    $this->fedora = Zend_Registry::get('fedora');
     $this->programObj = new foxmlPrograms("#programs");
     $this->programs = $this->programObj->skos;
   }
@@ -65,6 +67,51 @@ class TestPrograms extends UnitTestCase {
     $this->assertTrue(in_array("psychology", $fields), "program with subfields");
     $this->assertTrue(in_array("immunology", $fields), "subfield of a program");
   }
+  
+  function testCreateFedoraObject() {
+    $pid = "emory-control:ETD-programs-TEST";
+    
+    // store real config to restore later
+    $prev_config = Zend_Registry::get('config');
+
+    // stub config with test pid for programs_pid just for this test.
+    $tmp_config = new Zend_Config(array("programs_collection" => array("pid" => $pid)));
+    
+    // temporarily override config in with test configuration
+    Zend_Registry::set('config', $tmp_config);     
+
+    try { // Remove the test pid from fedora, if it exists.
+      $this->fedora->purge($pid, "removing test pid if it exists"); 
+    } catch (FedoraObjectNotFound $e) {}
+    
+    $new_collection  = new foxmlPrograms();  
+    $new_collection->pid = $pid;
+    $new_collection->label = "ETD Controlled Programs TEST Hierarchy";
+    $new_collection->owner = "etdOwner";
+    
+    // Add a model in the RELS-EXT datastream (Subject/Predicate/Object)
+    $new_collection->setContentModel("emory-control:Hierarchy-1.0");
+    $new_collection->ingest("creating TEST SKOS collection object");
+    
+    $new_pgms_coll = new foxmlPrograms("#programs");
+    $new_pgms_coll_skos = $new_pgms_coll->skos;    
+    $this->assertIsA($new_pgms_coll_skos, "programs");
+    $this->assertIsA($new_pgms_coll_skos, "collectionHierarchy");
+    $this->assertEqual("Programs", $new_pgms_coll_skos->label);
+    $this->assertEqual("#programs", $new_pgms_coll_skos->id);
+    
+    // content model
+    $this->assertNotNull($new_pgms_coll->rels_ext->hasModel);
+    $this->assertEqual("emory-control:Hierarchy-1.0", $new_pgms_coll->rels_ext->hasModel);    
+    
+    //Zend_Registry::set('config', $prev_config);
+    try { // Remove the test pid from fedora, if it exists.
+      //$this->fedora->purge($pid, "removing test pid if it exists"); 
+    } catch (FedoraObjectNotFound $e) {}
+    
+    // Restore the previous configuration
+    Zend_Registry::set('config', $prev_config); 
+  }  
 
   function testInitWithBadConfig() {
     Zend_Registry::set("config", new Zend_Config());
@@ -81,8 +128,6 @@ class TestPrograms extends UnitTestCase {
     $this->expectException(new FoxmlException("Configuration not registered, cannot retrieve pid"));
     $programObj = new foxmlPrograms("#programs");
   }
-
-
 }
 
 runtest(new TestPrograms());

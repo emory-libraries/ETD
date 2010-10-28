@@ -70,7 +70,7 @@ array('id' => '#rsph-glepi', 'label' => 'Global Epidemiology', 'department' =>'r
 );
 
 
-$programs = new foxmlPrograms();
+$programs = new foxmlPrograms("#programs");
 $skos = $programs->skos;
 
 // add Rollins top-level item

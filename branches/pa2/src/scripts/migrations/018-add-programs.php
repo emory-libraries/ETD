@@ -50,7 +50,7 @@ $add_pgms_data = array(
       "label"=>'Playwriting', "identifiers"=>array('PLAYWRTBA')),
 );
 
-$programs = new foxmlPrograms();
+$programs = new foxmlPrograms("#programs");
 $skos = $programs->skos;
 
 if (count($add_school_data) > 0) { // Add any new schools

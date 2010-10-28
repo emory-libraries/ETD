@@ -186,7 +186,7 @@ array("school"=>'rollins', "dept" =>'', "id"=>'rsph-ih', "identifiers"=>array('I
 array("school"=>'rollins', "dept" =>'', "id"=>'rsph-bshe', "identifiers"=>array('BSHEMPH')),
 );
 
-$programs = new foxmlPrograms();
+$programs = new foxmlPrograms("#programs");
 $skos = $programs->skos;
         
 //add school identifiers to programs

@@ -191,7 +191,7 @@ class BrowseController extends Etd_Controller_Action {
       $this->view->url_params = array("coll" => $coll);
       $coll = "#$coll";
     } else {
-      $programObject = new foxmlPrograms();
+      $programObject = new foxmlPrograms("#programs");
       $prog = $programObject->skos;
       $coll = $prog->findIdbyLabel($name);
     }

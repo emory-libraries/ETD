@@ -50,7 +50,7 @@ Zend_Registry::set("fedora", $maintenance_fedora);
 
 $owner = $cfg->etdOwner; //ownerid
 print "OWNER: $owner";
-$programs = new foxmlPrograms(); //programs object
+$programs = new foxmlPrograms("#programs"); //programs object
 
 //collection objects
 $collections = array(
