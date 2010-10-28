@@ -282,6 +282,21 @@ class collectionHierarchy extends foxmlDatastreamAbstract {
     $this->update();
   }
 
+  public function getLevel() {
+    // determins the level of the collection
+    //#program = 0  #school = 1 etc.
+
+    $level = 0;
+    $col= $this;
+    while($col->id != "#programs" && $level < 10){ //This is the top level of the hierarcy object
+        $col = $col->parent;
+        $level++;
+    }
+
+    return $level;
+
+  }
+
 }
 
 
