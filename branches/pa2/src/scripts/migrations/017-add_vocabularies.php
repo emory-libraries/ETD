@@ -35,14 +35,10 @@ if (! Zend_Registry::isRegistered("config")) {
   throw new FoxmlException("Configuration not registered, cannot retrieve pid");
 }
 $config = Zend_Registry::get("config");
-if (! isset($config->vocabularies_pid) || $config->vocabularies_pid == "") {
+if (! isset($config->vocabularies_collection->pid) || $config->vocabularies_collection->pid == "") {
   throw new FoxmlException("Configuration does not contain vocabulary pid, cannot initialize");
 }
-$pid = $config->vocabularies_pid;
-$owner = $config->etdOwner;
-
-// Vocabularies collection
-$vocabs_label = "ETD Controlled Vocabularies Hierarchy";
+$pid = $config->vocabularies_collection->pid;
      
 // Partnering Agencies collection
 $partnering_agencies = array("id" => "#partnering_agencies",
@@ -75,17 +71,50 @@ array('id' => '#com', 'label' => 'Industrial or Commercial (for-profit) organiza
 
 $vocabs = NULL;
 
+
 try { // Does the pid exist?
-  $vocabs = new foxmlVocabularies();
-} catch (FedoraObjectNotFound $e) {
-  echo "FedoraObjectNotFound for $pid: " . $e->getMessage() . "\n";  
+  $vocabs = new foxmlVocabularies("#vocabularies");
+} catch (FoxmlException $e) {  
+  $logger->debug("FoxmlException for $pid: " . $e->getMessage());
+  return;  
+} catch (FedoraObjectNotFound $e) {  
   $logger->debug("FedoraObjectNotFound for $pid: " . $e->getMessage());
-  return;
-} catch (FedoraAccessDenied $e) {
-  echo "Error connecting to Fedora with maintenance account - " . $e->getMessage() . "\n";    
+} catch (FedoraAccessDenied $e) {   
   $logger->err("Error connecting to Fedora with maintenance account - " . $e->getMessage());
   return;
-} 
+}
+
+if (!$vocabs) { // The fedora object does not exist, so create 
+  $logger->notice("Top-level collection {$config->vocabularies_collection->label} ($pid) not found in Fedora; creating it");
+  $new_collection  = new foxmlVocabularies(); // no parameter indicates create collection.
+  
+  // Set the initial values for the fedora collection
+  $new_collection->pid = $config->vocabularies_collection->pid;
+  $new_collection->label = $config->vocabularies_collection->label;
+  $new_collection->owner = $config->etdOwner;  
+  
+  // Add a model in the RELS-EXT datastream (Subject/Predicate/Object)
+  $new_collection->setContentModel($config->vocabularies_collection->model_object);
+    
+  if ($opts->noact) {   
+      $logger->info("Ingesting {$config->vocabularies_collection->label} ($pid) into Fedora (simulated)");
+      $logger->debug($new_collection->saveXML());
+  } else {
+    $success = $new_collection->ingest("creating LSDI collection object");
+    if ($success) {     
+      $logger->info("Successfully ingested {$config->vocabularies_collection->label} ($pid) into Fedora");
+      // fedora object has been create, now load it.
+      $vocabs = new foxmlVocabularies("#vocabularies");
+    } else {     
+      $logger->err("Failed to ingest {$config->vocabularies_collection->label} ($pid) into Fedora");
+    }
+  }
+}
+
+if (!$vocabs) {
+  $logger->err("Failed to create the  {$config->vocabularies_collection->label} ($pid) in Fedora");
+  return;
+}
 
 // Get the vocabularies SKOS datastream
 $skos = $vocabs->skos;
@@ -133,6 +162,7 @@ foreach ($rollins_partnering_agencies as $rpa) {
     $skos->partnering_agencies->rollins->collection->addMember($rpa['id']);
   }
 }
+
 // if record has changed, save to Fedora
 if ($skos->hasChanged()){
   if (!$opts->noact) {
@@ -149,4 +179,5 @@ if ($skos->hasChanged()){
 } else {
   $logger->info("Partnering_agencies listing is unchanged, not saving.");
 }
+
 ?>
