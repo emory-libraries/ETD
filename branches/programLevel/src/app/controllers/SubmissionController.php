@@ -303,7 +303,7 @@ class SubmissionController extends Etd_Controller_Action {
 
       if(isset($prog_id)){
           $collection = new collectionHierarchy($programs->dom, $prog_id);
-          $level = $collection->getLevel();
+          $level = $collection->getLevel("#programs");
           $parent_id = $collection->parent->id;
       }
 
