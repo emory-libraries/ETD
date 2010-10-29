@@ -7,11 +7,21 @@
 <?
 $id = $this->collection->id;
 $label = $this->collection->label;
+// This is used to determine the current school
+//Currently only specal case is rollins)
+//This is passed into the partial view
+$school = $this->school;
 $hasMembers = (count($this->collection->members) != 0);
 ?>
 
 <li id="<?= $id ?>">
-<? if ($this->level ==  4 && isset($this->parent_id)): ?>
+<!-- Specal cases for Rollins School-->
+<? if ($school ==  "rollins" && $this->level == 2 && ! $hasMembers): ?>
+ <a onClick="setProgram('<?= $id ?>')" id="<?= $id ?>_label"><?= $label ?></a>
+<? elseif ($school ==  "rollins" && $this->level == 3): ?>
+ <a onClick="setSubfield('<?= $id ?>', '<?= $this->parent_id ?>')" id="<?= $id ?>_label"><?= $label ?></a>
+
+<? elseif ($this->level ==  4 && isset($this->parent_id)): ?>
  <a onClick="setSubfield('<?= $id ?>', '<?= $this->parent_id ?>')"
     id="<?= $id ?>_label"><?= $label ?></a>   
 <? elseif (! $hasMembers || $this->level ==  3): ?>
@@ -27,7 +37,7 @@ $hasMembers = (count($this->collection->members) != 0);
      <? foreach ($this->collection->members as $subcollection): ?>
 	<?=  $this->partial('edit/_subprogram.phtml', array("collection" => $subcollection,
 							    "level" => $this->level + 1,
-							    "parent_id" => $id)); ?>
+							    "parent_id" => $id, "school" => $school)); ?>
      <? endforeach ?>
      </ul>
 <? endif ?>	  
