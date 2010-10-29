@@ -52,7 +52,8 @@ Field Details
    Rollins admins are configured in the ETD MySQL database in the table etd_admins.
    It is the intention to eventually migrate all schools to use this database
    instead of the config files. Each admin is associated with the program_id
-   they are to administer.  They also require etd-admin level
+   they are to administer. The rollins "super admin" which can view all rollins
+   programs has no value for the program_id in etd_admins.  All admins also require etd-admin level
    permissions at the Fedora.
 
  

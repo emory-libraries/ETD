@@ -36,7 +36,6 @@ $fields = array('netid', 'schoolid', 'programid'); //field names
 
 //data
 $data = array(
-
     array(strtoupper('mkrance'), 'PUBH', 'RSPH-APEPI'),
     array(strtoupper('mkrance'), 'PUBH', 'RSPH-HCOM'),
     array(strtoupper('mkrance'), 'PUBH', 'RSPH-MCHEPI'),
@@ -54,6 +53,7 @@ $data = array(
     array(strtoupper('kwollen'), 'PUBH', 'RSPH-HPM'),
     array(strtoupper('arozo'), 'PUBH', 'RSPH-IH'),
     array(strtoupper('tnash'), 'PUBH', 'RSPH-IH')
+    array(strtoupper('rfeem2'), 'PUBH', '') //super-dupper rollins admin
 );
 
 

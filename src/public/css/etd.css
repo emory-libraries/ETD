@@ -742,7 +742,7 @@ div#select_researchfields {
   border:1px solid gray;
 }
 
-div#select_researchfields a.selected, ul#select_program li.selected > a { 
+div#select_researchfields a.selected, ul#select_program li.selected > a, span.selected{
  background-color:yellow;
 }
 
