@@ -168,22 +168,23 @@ array("school"=>'candler', "id"=>'cstdivinity', "identifiers"=>array('MDVDIVIN')
 array("school"=>'candler', "id"=>'csttheo', "identifiers"=>array('THEOLSTMTS')),
 array("school"=>'candler', "id"=>'cstpc', "identifiers"=>array('THDCOUNSEL')),
 
-// PUBH - Rollins School of Public Health
-array("school"=>'rollins', "dept"=>'rsph-cmph', "id"=>'rsph-apepi', "identifiers"=>array('APEPIMPH')),
-array("school"=>'rollins', "dept"=>'rsph-cmph', "id"=>'rsph-hcom', "identifiers"=>array('HCOMMPH')),
-array("school"=>'rollins', "dept"=>'rsph-cmph', "id"=>'rsph-mchepi', "identifiers"=>array('MCHEPIMPH')),
-array("school"=>'rollins', "dept"=>'rsph-cmph', "id"=>'rsph-ms', "identifiers"=>array('MSMPH')),
-array("school"=>'rollins', "dept"=>'rsph-cmph', "id"=>'rsph-ps', "identifiers"=>array('PSMPH')),
-array("school"=>'rollins', "dept"=>'rsph-bb', "id"=>'rsph-bios',  "identifiers"=>array('BIOSMPH','BIOSMSPH')),
-array("school"=>'rollins', "dept"=>'rsph-bb', "id"=>'rsph-info',  "identifiers"=>array('INFOMSPH')),
-array("school"=>'rollins', "dept" =>'rsph-eh', "id"=>'rsph-eoh', "identifiers"=>array('EOHMPH')),
-array("school"=>'rollins', "dept" =>'rsph-eh', "id"=>'rsph-eohepi', "identifiers"=>array('EOHEPIMPH')),
-array("school"=>'rollins', "dept" =>'rsph-eh', "id"=>'rsph-eohih', "identifiers"=>array('EOHIHMPH')),
-array("school"=>'rollins', "dept" =>'rsph-ep', "id"=>'rsph-epi', "identifiers"=>array('EPIMPH', 'EPIMPSH')),
-array("school"=>'rollins', "dept" =>'rsph-ep', "id"=>'rsph-glepi', "identifiers"=>array('GLEPIMPH','GLEPIMSPH')),
-array("school"=>'rollins', "dept" =>'', "id"=>'rsph-hpm', "identifiers"=>array('HPMMPH','HPMMSPH')),
-array("school"=>'rollins', "dept" =>'', "id"=>'rsph-ih', "identifiers"=>array('IHMPH')),
-array("school"=>'rollins', "dept" =>'', "id"=>'rsph-bshe', "identifiers"=>array('BSHEMPH')),
+  // PUBH - Rollins School of Public Health
+  array("school"=>'rollins', "dept"=>'', "id"=>'rsph-hpm', "label"=>'Health Policy and Management', "identifiers"=>array('HPMMPH','HPMMSPH')),
+  array("school"=>'rollins', "dept"=>'', "id"=>'rsph-ih', "label"=>'Hubert Department of Global Health', "identifiers"=>array('IHMPH')),
+  array("school"=>'rollins', "dept"=>'', "id"=>'rsph-bshe', "label"=>'Behavioral Sciences and Health Education', "identifiers"=>array('BSHEMPH')),
+  array("school"=>'rollins', "dept"=>'rsph-cmph', "id"=>'rsph-apepi', "label"=>'Applied Epidemiology', "identifiers"=>array('APEPIMPH')),
+  array("school"=>'rollins', "dept"=>'rsph-cmph', "id"=>'rsph-hcom', "label"=>'Health Care Outcomes Management', "identifiers"=>array('HCOMMPH')),
+  array("school"=>'rollins', "dept"=>'rsph-cmph', "id"=>'rsph-mchepi', "label"=>'Maternal and Child Health Epidemiology', "identifiers"=>array('MCHEPIMPH')),
+  array("school"=>'rollins', "dept"=>'rsph-cmph', "id"=>'rsph-ms', "label"=>'Management Science', "identifiers"=>array('MSMPH')),
+  array("school"=>'rollins', "dept"=>'rsph-cmph', "id"=>'rsph-ps', "label"=>'Prevention Science', "identifiers"=>array('PSMPH')),
+  array("school"=>'rollins', "dept"=>'rsph-bb', "id"=>'rsph-bios', "label"=>'Biostatistics', "identifiers"=>array('BIOSMPH','BIOSMSPH')),
+  array("school"=>'rollins', "dept"=>'rsph-bb', "id"=>'rsph-info', "label"=>'Public Health Informatics', "identifiers"=>array('INFOMSPH')),
+  array("school"=>'rollins', "dept"=>'rsph-eh', "id"=>'rsph-eoh', "label"=>'Environmental and Occupational Health', "identifiers"=>array('EOHMPH')),
+  array("school"=>'rollins', "dept"=>'rsph-eh', "id"=>'rsph-eohepi', "label"=>'Environmental&; Occupational Health Epidemiology', "identifiers"=>array('EOHEPIMPH')),
+  array("school"=>'rollins', "dept"=>'rsph-eh', "id"=>'rsph-eohih', "label"=>'Global Environmental Health', "identifiers"=>array('EOHIHMPH')),
+  array("school"=>'rollins', "dept"=>'rsph-ep', "id"=>'rsph-epi', "label"=>'Epidemiology', "identifiers"=>array('EPIMPH', 'EPIMPSH')),
+  array("school"=>'rollins', "dept"=>'rsph-ep', "id"=>'rsph-glepi', "label"=>'Global Epidemiology', "identifiers"=>array('GLEPIMPH','GLEPIMSPH'))
+
 );
 
 $programs = new foxmlPrograms("#programs");

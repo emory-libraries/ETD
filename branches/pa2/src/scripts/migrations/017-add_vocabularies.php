@@ -73,10 +73,7 @@ $vocabs = NULL;
 
 
 try { // Does the pid exist?
-  $vocabs = new foxmlVocabularies("#vocabularies");
-} catch (FoxmlException $e) {  
-  $logger->debug("FoxmlException for $pid: " . $e->getMessage());
-  return;  
+  $vocabs = new foxmlVocabularies("#vocabularies");  
 } catch (FedoraObjectNotFound $e) {  
   $logger->debug("FedoraObjectNotFound for $pid: " . $e->getMessage());
 } catch (FedoraAccessDenied $e) {   
