@@ -14,6 +14,8 @@
     exclude-result-prefixes="xs" >
     <xsl:output method="xml"/>
     
+    <!-- remove partneragencytype notes from output -->
+    <xsl:template match="mods:note[@type='partneragencytype']"/>    
 
     <!-- remove administrative notes from output -->
     <xsl:template match="mods:note[@type='admin']"/>
