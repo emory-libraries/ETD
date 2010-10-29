@@ -32,6 +32,7 @@
 
 <script language="JavaScript">
 function setProgram(id, label) {
+  school = '<?= $this->etd->schoolId()?>';
   $('program_id').value = id;
   // get label from display field on the page
   $('program_label').innerHTML = $(id + '_label').innerHTML;
@@ -41,7 +42,12 @@ function setProgram(id, label) {
     selected[i].removeClassName('selected');
   }
   // highlight currently selected program
-  $(id).addClassName('selected');
+  if(school != 'rollins')
+    $(id).addClassName('selected');
+  else{
+    id_label = id+"_label";
+    $(id_label).addClassName('selected');
+  }
 
   // clear out any subfield
   $('subfield_id').value = '';
@@ -61,9 +67,9 @@ function setSubfield(id, parent_id) {
 
 
 <ul id="select_program">
-  <? if (isset($this->program_section)): /* display only relevant section of program list */?>
+  <? if (isset($this->program_section)): /* display only relevant section of program list and pass in current schoolId*/?>
     <?=  $this->partial('edit/_subprogram.phtml' , array("collection" => $this->program_section,
-						     "level" => 1)); ?>
+						     "level" => 1, "school" => preg_replace("/^#/", "", $this->program_section->id))); ?>
   <? else: /* fallback - display entire program tree */ ?>
     <?=  $this->partial('edit/_subprogram.phtml' , array("collection" => $this->programs,
 						     "level" => 0)); ?>

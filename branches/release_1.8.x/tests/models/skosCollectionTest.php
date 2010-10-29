@@ -289,6 +289,30 @@ class TestSkosCollection extends UnitTestCase {
 
   }
 
+  public function testGetLevel() {
+      //Test top level
+      $expected = 0;
+      $got = $this->skos->getLevel("#toplevel");
+      $this->assertEqual($expected, $got, "Expected $expected, Got $got");
+
+      //Test level 1
+      $xml = new DOMDocument();
+      $xml->load("../fixtures/skos.xml");
+      $collection = new collectionHierarchy($xml, "#two");
+      $expected = 1;
+      $got = $collection->getLevel("#toplevel");
+      $this->assertEqual($expected, $got, "Expected $expected, Got $got");
+      
+      //Test level 2
+      $xml = new DOMDocument();
+      $xml->load("../fixtures/skos.xml");
+      $collection = new collectionHierarchy($xml, "#three");
+      $expected = 2;
+      $got = $collection->getLevel("#toplevel");
+      $this->assertEqual($expected, $got, "Expected $expected, Got $got");
+      
+  }
+
 
 }
 
