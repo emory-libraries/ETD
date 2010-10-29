@@ -73,7 +73,7 @@ class TestModsToMarcXslt extends UnitTestCase {
       $this->assertPattern('|<marc:datafield tag="856" ind1="4" ind2="0">|', $result,
          "marc:datafield 845 ind1=4, ind2=0 is present in xml result");
 
-      //$this->assertNoPattern('|partneragencytype|', $result,
+      // partnering agency note should not be part of result set
       $this->assertNoPattern('/partneragencytype/', $result,
                         "partneragencytype notes are not present in cleaned MODS2MARC21 output");  
                            

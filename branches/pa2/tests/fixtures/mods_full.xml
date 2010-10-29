@@ -178,6 +178,9 @@ TABLES: AT THE END OF THE DISSERTATION 133-163</mods:tableOfContents>
       <etd:discipline>Neuroscience</etd:discipline>
     </etd:degree>
   </mods:extension>
+  <mods:note ID="pa-health" type="partneragencytype" displayLabel="Type of partner agency">Hospital or other health care provider</mods:note>  
+  <mods:note ID="pa-cdc" type="partneragencytype" displayLabel="Type of partner agency">CDC</mods:note>  
+  <mods:note ID="pa-edu" type="partneragencytype" displayLabel="Type of partner agency">University, college or educational institution (other than Emory)</mods:note>
   <mods:note ID="copyright" type="admin">registering copyright? no</mods:note>
   <mods:note ID="embargo" type="admin">embargo requested? no</mods:note>
   <mods:note ID="pq_submit" type="admin">yes</mods:note>
