@@ -697,21 +697,7 @@ class EditController extends Etd_Controller_Action {
 
     $vocabularyObject = new foxmlVocabularies("#vocabularies", "#vocabularies");
     $this->view->partnering_agencies = $vocabularyObject->skos;
-    // select correct sub-section of vocabulary hierarchy based on which school ETD belongs to
-    switch ($etd->schoolId()) {
-    case 'grad':
-      $this->view->vocabulary_section = $vocabularyObject->skos->partnering_agencies->grad;
-      break;
-    case 'honors':
-      $this->view->vocabulary_section = $vocabularyObject->skos->partnering_agencies->undergrad;
-      break;
-    case 'candler':      
-      $this->view->vocabulary_section = $vocabularyObject->skos->partnering_agencies->candler;
-      break;
-    case 'rollins':
-      $this->view->vocabulary_section = $vocabularyObject->skos->partnering_agencies->rollins;
-      break;
-    }
+    $this->view->vocabulary_section = $vocabularyObject->skos->partnering_agencies;  
   }   
   
 }
