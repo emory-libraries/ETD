@@ -50,23 +50,23 @@ $rollins = array("id" => "#rollins",
 
 // Rollins Partnering Agencies members
 $rollins_partnering_agencies = array(
-array('id' => '#na', 'label' => 'Does not apply (no collaborating organization)'),
-array('id' => '#cdc',  'label' => 'CDC'),
-array('id' => '#usfed',  'label' => 'US (Federal) agency other than CDC'),
-array('id' => '#gahealth',  'label' => 'Georgia state or local health department'),
-array('id' => '#us',  'label' => 'State or local health department (not in Georgia)'),
-array('id' => '#ga',  'label' => 'Georgia state or local agency (not a health department)'),
-array('id' => '#statelocal',  'label' => 'State or local governmental agency (not a health department and not in Georgia)'),
-array('id' => '#nat', 'label' => 'National or regional non-profit organization (e.g., American Cancer Society)'),
-array('id' => '#commun',  'label' => 'Community-based non-profit organization (e.g., AID Atlanta)'),
-array('id' => '#inat', 'label' => 'International Non-governmental organization (e.g., CARE, Inc.)'),
-array('id' => '#inatgov', 'label' => 'International governmental organization (e.g., Agency for International Development, etc.)'),
-array('id' => '#nonus', 'label' => 'Non-US governmental agency (e.g., Minister of Health in Haiti)'),
-array('id' => '#emory', 'label' => 'Emory University schools, faculty or affiliated programs'),
-array('id' => '#edu', 'label' => 'University, college or educational institution (other than Emory)'),
-array('id' => '#health', 'label' => 'Hospital or other health care provider'),
-array('id' => '#relig', 'label' => 'Religious-based organization'),
-array('id' => '#com', 'label' => 'Industrial or Commercial (for-profit) organization')
+array('id' => '#pa-na', 'label' => 'Does not apply (no collaborating organization)'),
+array('id' => '#pa-cdc',  'label' => 'CDC'),
+array('id' => '#pa-usfed',  'label' => 'US (Federal) agency other than CDC'),
+array('id' => '#pa-gahealth',  'label' => 'Georgia state or local health department'),
+array('id' => '#pa-us',  'label' => 'State or local health department (not in Georgia)'),
+array('id' => '#pa-ga',  'label' => 'Georgia state or local agency (not a health department)'),
+array('id' => '#pa-statelocal',  'label' => 'State or local governmental agency (not a health department and not in Georgia)'),
+array('id' => '#pa-nat', 'label' => 'National or regional non-profit organization (e.g., American Cancer Society)'),
+array('id' => '#pa-commun',  'label' => 'Community-based non-profit organization (e.g., AID Atlanta)'),
+array('id' => '#pa-inat', 'label' => 'International Non-governmental organization (e.g., CARE, Inc.)'),
+array('id' => '#pa-inatgov', 'label' => 'International governmental organization (e.g., Agency for International Development, etc.)'),
+array('id' => '#pa-nonus', 'label' => 'Non-US governmental agency (e.g., Minister of Health in Haiti)'),
+array('id' => '#pa-emory', 'label' => 'Emory University schools, faculty or affiliated programs'),
+array('id' => '#pa-edu', 'label' => 'University, college or educational institution (other than Emory)'),
+array('id' => '#pa-health', 'label' => 'Hospital or other health care provider'),
+array('id' => '#pa-relig', 'label' => 'Religious-based organization'),
+array('id' => '#pa-com', 'label' => 'Industrial or Commercial (for-profit) organization')
 );
 
 $vocabs = NULL;
