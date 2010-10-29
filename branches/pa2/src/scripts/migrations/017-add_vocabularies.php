@@ -44,12 +44,9 @@ $pid = $config->vocabularies_collection->pid;
 $partnering_agencies = array("id" => "#partnering_agencies",
      "label" => "Partnering Agencies");
 
-// Rollins school collection
-$rollins = array("id" => "#rollins",
-     "label" => "Rollins School of Public Health");
 
-// Rollins Partnering Agencies members
-$rollins_partnering_agencies = array(
+// Partnering Agencies members
+$partnering_agencies_data = array(
 array('id' => '#pa-na', 'label' => 'Does not apply (no collaborating organization)'),
 array('id' => '#pa-cdc',  'label' => 'CDC'),
 array('id' => '#pa-usfed',  'label' => 'US (Federal) agency other than CDC'),
@@ -129,41 +126,26 @@ if ($skos->findLabelbyId($partnering_agencies["id"]) == null) {
   $skos->partnering_agencies->label = $partnering_agencies["label"];
 }
 
-// add Rollins top-level item
-// - check if already present (don't add more than once)
-if ($skos->findLabelbyId($rollins["id"]) == null) { 
-  $logger->info("Adding Rollins Collection ");
-  // add Rollins as another top-level item
-  $skos->addCollection($rollins["id"], $rollins["label"]);
-  $logger->info("Adding Rollins Collection added.\n"); 
-  $skos->partnering_agencies->collection->addMember($rollins["id"]);  
-  $logger->info("Adding Rollins Collection as member.\n");  
-} else { 
-  $logger->info("Not adding Rollins - already present in vocabularies list");
-  // set/update label, just to make sure it is set properly
-  $skos->partnering_agencies->rollins->label = $rollins["label"];
-}
-
- //add Rollins partnering agencies
-foreach ($rollins_partnering_agencies as $rpa) { 
+ //add partnering agencies
+foreach ($partnering_agencies_data as $rpa) { 
   // create collection item if not already present
   if ($skos->findLabelbyId($rpa['id']) == null) {
     $skos->addCollection($rpa['id'], $rpa['label']);
-    $logger->info("Adding Rollins Partnering Agency (" . $rpa['id'] . ")");
+    $logger->info("Adding Partnering Agency (" . $rpa['id'] . ")");
   } else {    
-    $logger->info("Rollins Partnering Agency (" . $rpa['id'] . ") is already present");
+    $logger->info("Partnering Agency (" . $rpa['id'] . ") is already present");
   }
-  // add to Rollins partnering agencies collection if not already included
-  if (! $skos->partnering_agencies->rollins->collection->hasMember(preg_replace("/^#/", "", $rpa['id']))) {
+  // add to partnering agencies collection if not already included
+  if (! $skos->partnering_agencies->collection->hasMember(preg_replace("/^#/", "", $rpa['id']))) {
     $logger->info("Partnering Agency does not yet include  (" . $rpa['id'] . ") , adding as member");
-    $skos->partnering_agencies->rollins->collection->addMember($rpa['id']);
+    $skos->partnering_agencies->collection->addMember($rpa['id']);
   }
 }
 
 // if record has changed, save to Fedora
 if ($skos->hasChanged()){
   if (!$opts->noact) {
-    $result = $vocabs->save("Updating partnering_agencies list to include Rollins");
+    $result = $vocabs->save("Updating partnering_agencies list");
     if ($result) {
       $logger->info("Successfully updated partnering_agencies ($pid) at $result");
     } else {
