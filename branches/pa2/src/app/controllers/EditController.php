@@ -698,6 +698,45 @@ class EditController extends Etd_Controller_Action {
     $vocabularyObject = new foxmlVocabularies("#vocabularies", "#vocabularies");
     $this->view->partnering_agencies = $vocabularyObject->skos;
     $this->view->vocabulary_section = $vocabularyObject->skos->partnering_agencies;  
-  }   
+  }
+  
+  public function savepartneringagencyAction() {
+       
+    $etd = $this->_helper->getFromFedora("pid", "etd");
+    if (!$this->_helper->access->allowedOnEtd("edit metadata", $etd)) return;
+    
+    $this->view->fields = $this->_getParam("fields");
+
+    // construct an array of id => text name
+    $values = array();
+    $output = count($this->view->fields);
+    foreach ($this->view->fields as $i => $value) {      
+      if(preg_match("/#([a-z\-]*) (.*)$/", $value, $matches)) {
+        $id = $matches[1];
+        $text = $matches[2];
+        $values[$id] = $text; 
+        //$this->_helper->flashMessenger->addMessage("FIELD[$id] = [$text]<br>");             
+      }
+    }
+    $etd->mods->setPartneringAgencies($values);
+
+    if ($etd->mods->hasChanged()) {
+      $save_result = $etd->save("modified partnering agencies");
+      $this->view->save_result = $save_result;
+      if ($save_result) {
+        $this->_helper->flashMessenger->addMessage("Saved changes to partnering agencies");
+        $this->logger->info("Updated etd " . $etd->pid . " partnering agencies at $save_result");
+      } else {  // record changed but save failed for some reason
+        $this->_helper->flashMessenger->addMessage("Could not save changes to partnering agencies");
+        $this->logger->err("Could not save etd " . $etd->pid . " partnering agencies");
+      }
+    } else {
+      $this->_helper->flashMessenger->addMessage("No changes made to partnering agencies");
+    }
+    
+    // return to record (fixme: make this a generic function of this controller? used frequently)
+    $this->_helper->redirector->gotoRoute(array("controller" => "view", "action" => "record",
+                "pid" => $etd->pid), '', true);
+  }
   
 }

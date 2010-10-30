@@ -79,25 +79,25 @@ class etd_mods extends mods {
     $this->addNamespace("etd", etd_mods::ETDMS_NS);
     
     $this->xmlconfig["author"] = array("xpath" => "mods:name[mods:role/mods:roleTerm = 'author']",
-               "class_name" => "mods_name");
+            "class_name" => "mods_name");
     $this->xmlconfig["department"] = array("xpath" => "mods:name[mods:role/mods:roleTerm = 'author']/mods:affiliation");
     $this->xmlconfig["subfield"] = array("xpath" => "mods:extension/etd:degree/etd:discipline");
 
     // committee chair - may be more than one
     $this->xmlconfig["chair"] = array("xpath" => "mods:name[mods:role/mods:roleTerm = 'Thesis Advisor']",
-              "class_name" => "mods_name", "is_series" => true);
+            "class_name" => "mods_name", "is_series" => true);
     $this->xmlconfig["committee"] = array("xpath" => "mods:name[mods:description = 'Emory Committee Member']",
-            "class_name" => "mods_name", "is_series" => "true");
+            "class_name" => "mods_name", "is_series" => true);
     $this->xmlconfig["nonemory_committee"] = array("xpath" =>
-               "mods:name[mods:description = 'Non-Emory Committee Member']",
-               "class_name" => "mods_name", "is_series" => "true");
+           "mods:name[mods:description = 'Non-Emory Committee Member']",
+           "class_name" => "mods_name", "is_series" => true);
     $this->xmlconfig["degree_grantor"] = array("xpath" =>
-                 "mods:name[@type='corporate'][mods:role/mods:roleTerm='Degree grantor']",
-                 "class_name" => "mods_name");  
+           "mods:name[@type='corporate'][mods:role/mods:roleTerm='Degree grantor']",
+           "class_name" => "mods_name");  
     
     $this->xmlconfig["researchfields"] = array("xpath" =>
-                 "mods:subject[@authority='proquestresearchfield']",
-                 "is_series" => true, "class_name" => "etdmods_subject");
+           "mods:subject[@authority='proquestresearchfield']",
+           "is_series" => true, "class_name" => "etdmods_subject");
     $this->xmlconfig["keywords"] = array("xpath" => "mods:subject[@authority='keyword']",
            "is_series" => true, "class_name" => "etdmods_subject");
     $this->xmlconfig["pages"] = array("xpath" => "mods:physicalDescription/mods:extent");
@@ -110,7 +110,6 @@ class etd_mods extends mods {
     $this->xmlconfig["embargo"] = array("xpath" => "mods:accessCondition[@type='restrictionOnAccess']");
     $this->xmlconfig["embargo_end"] = array("xpath" => "mods:originInfo/mods:dateOther[@type='embargoedUntil']");
     $this->xmlconfig["embargo_notice"] = array("xpath" => "mods:note[@type='admin'][@ID='embargo_expiration_notice']");
-
 
     $this->xmlconfig["pq_submit"] = array("xpath" => "mods:note[@type='admin'][@ID='pq_submit']");
     
@@ -127,9 +126,7 @@ class etd_mods extends mods {
     
     // partnering agencies- one to three entries for rollins
     $this->xmlconfig["partneringagencies"] = array("xpath" =>
-                 "mods:note[@type='partneragencytype'][@displayLabel='Type of partner agency']",
-                 "is_series" => true);     
-    
+            "mods:note[@type='partneragencytype']", "is_series" => true);     
   }
   
 
@@ -160,7 +157,7 @@ class etd_mods extends mods {
       break;
     case "embargo_notice":
       $value = str_replace("sent ", "", $value);    // return date only
-      break;
+      break;      
     }
     return $value;
   }
@@ -180,16 +177,28 @@ class etd_mods extends mods {
    * @param string $id optional
    */
   public function addPartneringAgency($text, $id = "") { 
+    //print "etd_mods addPartneringAgency id[$id]  text[$text]\n";
     /**
-     * <mods:note type="partneragencytype" displayLabel="Type of partner agency">US (Federal) agency other than CDC</mods:note>
+     * <mods:note type="partneragencytype" ID="" displayLabel="Type of partner agency"></mods:note> 
      **/
-    $this->addNote($text, "partneragencytype", $id, "Type of partner agency");
-      if (array_key_exists($i, $this->partneringagencies)) {
+    if (isset($this->partneringagencies)) {
+      //print "etd_mods addPartneringAgency partneringagencies IS SET.\n";
+
+      if (isset($this->partneringagencies) && array_key_exists($i, $this->partneringagencies)) {
+        //print "etd_mods addPartneringAgency exists.\n";      
         $this->partneringagencies[$i]->id = $id;
         $this->partneringagencies[$i]->topic = $text;
       } else {
-        //$this->addPartneringAgency($text, $id);
+        //print "etd_mods addPartneringAgency does not exists.\n";         
+        //$this->addNote($text, "partneragencytype", $id, "Type of partner agency");
       }
+    }
+    else {
+      //print "etd_mods addPartneringAgency partneringagencies IS NOT SET.\n";      
+      //print "etd_mods addPartneringAgency create partneringagencies and add [$id].\n";      
+      // create the partnering agencies list, and add the value.
+      $this->partneringagencies = array("id"=>$id, "topic"=>$text);
+    }  
   }  
   
 
@@ -215,7 +224,7 @@ class etd_mods extends mods {
       $subject->setAttribute("authority", $authority);
       // proquest fields need an ID attribute, even if it is not set when the field is created
       if ($authority == "proquestresearchfield") {
-  $subject->setAttribute("ID", "id$id");    // id can't start with a number to be valid xml
+        $subject->setAttribute("ID", "id$id");    // id can't start with a number to be valid xml
       }
     }
 
@@ -287,9 +296,9 @@ class etd_mods extends mods {
       // if adding a non-emory committee member and there are none in the xml,
       // then add after last emory committee member
       if (isset($this->map['committee']) && count($this->committee))
-  $contextnode = $this->map['committee'][count($this->committee) - 1]->domnode;
+        $contextnode = $this->map['committee'][count($this->committee) - 1]->domnode;
       else
-  $contextnode = $this->map["chair"][count($this->chair) - 1]->domnode;
+        $contextnode = $this->map["chair"][count($this->chair) - 1]->domnode;
     } else {
       // this shouldn't happen unless there is something wrong with the xml.... 
       trigger_error("Couldn't find context node to insert new committee member", E_USER_NOTICE);
@@ -342,12 +351,12 @@ class etd_mods extends mods {
     $i = 0; // index for looping over committee array
     foreach ($people as $person) {
       if (isset($this->map[$type][$i])) {
-  $this->setNameFromPerson($this->map[$type][$i], $person);
+        $this->setNameFromPerson($this->map[$type][$i], $person);
       } else {
-  $this->addCommittee($person->lastname, $person->name);
-  // FIXME: need a better way store netid... - should be part of addCommittee function ?
-  $this->{$type}[$i]->id = $person->netid;
-  $needUpdate = true; // DOM has changed - new nodes
+        $this->addCommittee($person->lastname, $person->name);
+        // FIXME: need a better way store netid... - should be part of addCommittee function ?
+        $this->{$type}[$i]->id = $person->netid;
+        $needUpdate = true; // DOM has changed - new nodes
       }
       $i++;
     }
@@ -372,22 +381,22 @@ class etd_mods extends mods {
     
     foreach ($netids as $id) {  // if id is unchanged, don't lookup/reset
       if (isset($this->map[$type][$i]) && $this->committee[$i]->id == $id) {
-  $i++;
-  continue;
+        $i++;
+        continue;
       }
 
       $person = $esd->findByUsername($id);
       if ($person) {
-  if (isset($this->map[$type][$i])) {
-    $this->setNameFromPerson($this->{$type}[$i], $person);
-  } else {
-    $this->addCommittee($person->lastname, $person->name, $type);
-    // FIXME: need a better way store netid... - should be part of addCommittee function ?
-    $this->{$type}[$i]->id = $id;
-  }
+        if (isset($this->map[$type][$i])) {
+          $this->setNameFromPerson($this->{$type}[$i], $person);
+        } else {
+          $this->addCommittee($person->lastname, $person->name, $type);
+          // FIXME: need a better way store netid... - should be part of addCommittee function ?
+          $this->{$type}[$i]->id = $id;
+        }
       } else {
-  // shouldn't come here, since ids should be selected by drop-down populated from ESD...
-  trigger_error("Could not find person information for '$id' in Emory Shared Data", E_USER_WARNING);
+        // shouldn't come here, since ids should be selected by drop-down populated from ESD...
+        trigger_error("Could not find person information for '$id' in Emory Shared Data", E_USER_WARNING);
       }
       $i++;
     }
@@ -463,10 +472,10 @@ class etd_mods extends mods {
     $i = 0; // research field array index
     foreach ($values as $id => $text) {
       if (array_key_exists($i, $this->researchfields)) {
-  $this->researchfields[$i]->id = $id;
-  $this->researchfields[$i]->topic = $text;
+        $this->researchfields[$i]->id = $id;
+        $this->researchfields[$i]->topic = $text;
       } else {
-  $this->addResearchField($text, $id);
+        $this->addResearchField($text, $id);
       }
       $i++;
     }
@@ -500,7 +509,7 @@ class etd_mods extends mods {
     for ($i = 0; count($this->researchfields); $i++) {
       $field = $this->researchfields[$i];
       if ($field->id == $id)
-  return $i;
+        return $i;
     }
   }
   /**
@@ -511,7 +520,7 @@ class etd_mods extends mods {
   public function hasResearchField($id) {
     foreach ($this->researchfields as $field) {
       if ($field->id == $id)
-  return true;
+        return true;
     }
     return false;
   }
@@ -522,6 +531,9 @@ class etd_mods extends mods {
    * @param array $values associative array of partnering agency id => name
    */
   public function setPartneringAgencies(array $values) {
+    //echo "<pre>setPartneringAgencies<br>";
+    //print_r($values);
+    //echo "</pre>";
     $i = 0; // partnering agency array index
     foreach ($values as $id => $text) {
       if (array_key_exists($i, $this->partneringagencies)) {
@@ -576,10 +588,12 @@ class etd_mods extends mods {
    * @param string $type note type (set in mods note type attribute)
    * @param string $id note id (set in mods note id attribute)
    */
-  public function addNote($text, $type, $id) {
+  public function addNote($text, $type, $id, $displaylabel=null) {
     $note = $this->domnode->appendChild($this->dom->createElementNS($this->namespaceList["mods"], "mods:note", $text));
     $note->setAttribute("type", $type);
     $note->setAttribute("ID", $id);
+    // This is an attribute for partnering agencies only
+    if (isset($displaylabel)) $note->setAttribute("displayLabel", $displaylabel);
     $this->update();
   }
 
@@ -733,10 +747,10 @@ class etd_mods extends mods {
     if ($this->map[$mapname] instanceof DOMElementArray ||
         isset($this->xmlconfig[$mapname]["is_series"]) && $this->xmlconfig[$mapname]["is_series"]) {
       foreach ($this->map[$mapname] as $el) {
-  if ($el instanceof XmlObject) 
-    $el->domnode->parentNode->removeChild($el->domnode);
-  else
-    $el->parentNode->removeChild($el->domnode);
+        if ($el instanceof XmlObject) 
+          $el->domnode->parentNode->removeChild($el->domnode);
+        else
+          $el->parentNode->removeChild($el->domnode);
       }
     } else if ($this->map[$mapname] instanceof XmlObject) {
       $this->map[$mapname]->domnode->parentNode->removeChild($this->map[$mapname]->domnode);
@@ -769,18 +783,18 @@ class etd_mods extends mods {
 
       // if logger object is registered, log any validation errors
       if (Zend_Registry::isRegistered('logger')) {
-  $logger = Zend_Registry::get('logger');
-  // Note: no access to foxml record id at this level, cannot include in log file
-  $logger->err("MODS XML is not valid according to MODS schema");
-  $errors = libxml_get_errors();
-  foreach ($errors as $error) {
-    $message = $error->message . "(Line " . $error->line . ", column " . $error->column . ")";
-    switch ($error->level) {
-    case LIBXML_ERR_WARNING: $logger->warn($message); break;
-    case LIBXML_ERR_ERROR:   $logger->err($message); break;
-    case LIBXML_ERR_FATAL:   $logger->crit($message); break;
-    }
-  }
+        $logger = Zend_Registry::get('logger');
+        // Note: no access to foxml record id at this level, cannot include in log file
+        $logger->err("MODS XML is not valid according to MODS schema");
+        $errors = libxml_get_errors();
+        foreach ($errors as $error) {
+          $message = $error->message . "(Line " . $error->line . ", column " . $error->column . ")";
+          switch ($error->level) {
+          case LIBXML_ERR_WARNING: $logger->warn($message); break;
+          case LIBXML_ERR_ERROR:   $logger->err($message); break;
+          case LIBXML_ERR_FATAL:   $logger->crit($message); break;
+          }
+        }
       }
       return false;
     }      
@@ -868,10 +882,10 @@ class etd_mods extends mods {
     default:
       // if requested field matches a mapped variable, do a simple check
       if (isset($this->$field))
-  return (trim($this->$field) != ""); 
+        return (trim($this->$field) != ""); 
       else
-  // otherwise, complain
-  trigger_error("Cannot determine if '$field' is complete", E_USER_NOTICE);
+        // otherwise, complain
+        trigger_error("Cannot determine if '$field' is complete", E_USER_NOTICE);
     }
   }
 
@@ -1039,10 +1053,10 @@ class etd_degree extends modsXmlObject {
   protected $namespace = etd_mods::ETDMS_NS;
   public function __construct($xml, $xpath) {
     $config = $this->config(array(
-  "name" => array("xpath" => "etd:name"),
-  "level" => array("xpath" => "etd:level"),
-  "discipline" => array("xpath" => "etd:discipline"),
-   ));
+                        "name" => array("xpath" => "etd:name"),
+                        "level" => array("xpath" => "etd:level"),
+                        "discipline" => array("xpath" => "etd:discipline"),
+                         ));
     parent::__construct($xml, $config, $xpath);
   }
 
