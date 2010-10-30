@@ -50,7 +50,7 @@ $hasMembers = (count($this->collection->members) != 0);
 ?>
 
 <form method="post" id="agency_form"  action="<?= $this->url(array("action" => "savePartneringagency"))?>">
-<br/><input class="button" id="save_button" type="submit" value="save"/>
+<br/>
   <ul id="user_fields">
   <? if (isset($this->etd->mods->partneringagencies[0]) &&
    $this->etd->mods->partneringagencies[0]->id != ""): ?>
@@ -61,7 +61,10 @@ $hasMembers = (count($this->collection->members) != 0);
      </li>
     <? endforeach ?>
   <? endif ?> 
-  </ul>     
+  </ul>
+  <input class="button" id="save_button" type="submit" value="save"/>  
+</form>
+<br/> 
 
 <div id="select_researchfields">
   <? if (isset($this->vocabulary_section)): /* display only relevant section of program list */?>

@@ -81,7 +81,7 @@ class solrEtd implements etdInterface {
   }
 
         // how to handle non-emory committee?
-  	// dissertation/thesis/etc
+    // dissertation/thesis/etc
   public function document_type() { return $this->getField("document_type"); }
   public function language() { return $this->getField("language"); }
   public function year() { return $this->getField("year"); }
@@ -90,9 +90,10 @@ class solrEtd implements etdInterface {
   public function tableOfContents() { return $this->getField("tableOfContents"); }
   public function num_pages() { return $this->getField("num_pages"); }
   
-  public function keywords() { return $this->getField("keyword", true); }	//array
-  public function researchfields() { return $this->getField("subject", true); } 	//array
-
+  public function keywords() { return $this->getField("keyword", true); } //array
+  public function researchfields() { return $this->getField("subject", true); }   //array
+  public function partneringagencies() { return $this->getField("partneringagencies", true); }   //array
+  
   public function ark() {
     // FIXME: not a great way to do this
     // should all the arks be stored in the lucene index just for this?
@@ -104,7 +105,7 @@ class solrEtd implements etdInterface {
   private function getField($name, $array = false) {
     if (isset($this->$name))
       return $this->$name;
-    elseif (isset($this->{$name . "_facet"}))	// program, keyword, subject
+    elseif (isset($this->{$name . "_facet"})) // program, keyword, subject
       return $this->{$name . "_facet"};
     else if ($array)
       return array();
@@ -135,8 +136,8 @@ class solrEtd implements etdInterface {
      if ($user->netid == $this->rels_ext->author)
       return "author";
     elseif ($this->rels_ext->committee instanceof DOMElementArray
-	    && $this->rels_ext->committee->includes($user->netid))	
-	    return "committee";*/
+      && $this->rels_ext->committee->includes($user->netid))  
+      return "committee";*/
     
     elseif ($user->isCoordinator($this->program()))
       return "program coordinator";

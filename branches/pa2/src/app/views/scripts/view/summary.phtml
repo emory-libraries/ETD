@@ -111,10 +111,18 @@
 <? endif ?>
 
 <? if (!$published && $this->etd->schoolId() == "rollins"): ?>
-  <b>Partnering Agency:</b>
-  <? if (isset($this->etd->mods->partnering_agency)): ?>
-    <?= $this->etd->mods->partnering_agency ?>
-  <? endif ?>
+  <b>Partnering Agency:</b> 
+
+   <? $fields = $this->etd->partneringagencies(); ?>
+
+   <? foreach ($fields as $field): ?>      
+      <? $label = $field; ?>
+      <? $url = $this->url(array('controller' => 'browse', 'action' => 'researchfields', 'name' => $field), '', true); ?>     
+      <? if ($published): ?><a href="<?= $url ?>"><?= $label ?></a>
+      <? else: ?><?= $label ?><? endif ?>
+      <? if ($field != $fields[count($fields) - 1]): ?>; <? endif ?>
+   <? endforeach ?><br/>  
+  
   <br/>
 <? endif ?>
            
