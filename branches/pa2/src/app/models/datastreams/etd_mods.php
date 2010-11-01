@@ -126,7 +126,7 @@ class etd_mods extends mods {
     
     // partnering agencies- one to three entries for rollins
     $this->xmlconfig["partneringagencies"] = array("xpath" =>
-            "mods:note[@type='partneragencytype']", "is_series" => true);     
+            "mods:note[@type='partneragencytype']", "is_series" => true, "class_name" => "mods_note");     
   }
   
 
@@ -177,25 +177,20 @@ class etd_mods extends mods {
    * @param string $id optional
    */
   public function addPartneringAgency($text, $id = "") { 
-    //print "etd_mods addPartneringAgency id[$id]  text[$text]\n";
     /**
+     * Example:
      * <mods:note type="partneragencytype" ID="" displayLabel="Type of partner agency"></mods:note> 
      **/
     if (isset($this->partneringagencies)) {
-      //print "etd_mods addPartneringAgency partneringagencies IS SET.\n";
 
-      if (isset($this->partneringagencies) && array_key_exists($i, $this->partneringagencies)) {
-        //print "etd_mods addPartneringAgency exists.\n";      
+      if (isset($this->partneringagencies) && array_key_exists($i, $this->partneringagencies)) {     
         $this->partneringagencies[$i]->id = $id;
         $this->partneringagencies[$i]->topic = $text;
-      } else {
-        //print "etd_mods addPartneringAgency does not exists.\n";         
-        //$this->addNote($text, "partneragencytype", $id, "Type of partner agency");
+      } else {         
+        $this->addNote($text, "partneragencytype", $id, "Type of partner agency");
       }
     }
-    else {
-      //print "etd_mods addPartneringAgency partneringagencies IS NOT SET.\n";      
-      //print "etd_mods addPartneringAgency create partneringagencies and add [$id].\n";      
+    else {    
       // create the partnering agencies list, and add the value.
       $this->partneringagencies = array("id"=>$id, "topic"=>$text);
     }  
@@ -531,9 +526,6 @@ class etd_mods extends mods {
    * @param array $values associative array of partnering agency id => name
    */
   public function setPartneringAgencies(array $values) {
-    //echo "<pre>setPartneringAgencies<br>";
-    //print_r($values);
-    //echo "</pre>";
     $i = 0; // partnering agency array index
     foreach ($values as $id => $text) {
       if (array_key_exists($i, $this->partneringagencies)) {
