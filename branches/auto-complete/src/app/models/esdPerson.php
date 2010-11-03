@@ -455,10 +455,15 @@ class esdPersonObject extends Emory_Db_Table {
         // handle multiple names - split on spaces and search for all names
         $names = preg_split('|\s|', $name, null, PREG_SPLIT_NO_EMPTY);
 
+        //Assume the format: "lastname" or "lastname, firstname"
         for ($i = 0; $i < count($names); $i++) {
-            if ($i != 0) $where .= " AND ";
-            $where .= $db->quoteInto(" (LOWER(PRSN_N_LAST) LIKE ? OR LOWER(PRSN_N_FRST) LIKE ? OR
-                LOWER(PRSN_N_MIDL) LIKE ? OR LOWER(PRSN_N_FM_DTRY) LIKE ?) ", "%" . $names[$i] . "%");
+            if ($i != 0) {
+                $where .= " AND ";
+                $where .= $db->quoteInto(" LOWER(PRSN_N_FRST) LIKE ? ", $names[$i] . "%");
+            }
+            else{
+                $where .= $db->quoteInto(" LOWER(PRSN_N_LAST) LIKE ? ", $names[$i] . "%");
+            }
         }
         // optional filters if specified        
         // if set, filter on current faculty using flag passed in
