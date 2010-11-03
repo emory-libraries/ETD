@@ -6,6 +6,7 @@ Version 1.8.5 - October 2010 (enhancements)
     - Playwriting (where degree = 'PLAYWRTBA')
   * A superuser can change the school to which an ETD records belongs.
   * A user can select the program and sub-field for the Rollins School of Public Health for a more meaningful definition of their program choice.
+
  Deployment notes:
  * Run the migration scripts to add two new programs the emory college school: 
     - 018-add-programs.php
