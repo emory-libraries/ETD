@@ -220,10 +220,9 @@ class SubmissionControllerTest extends ControllerTestCase {
     $etd = $SubmissionController->initialize_etd($test_info);
     $this->assertIsA($etd, "etd");
     $this->assertEqual("Rollins School of Public Health", $etd->admin_agent);
-    $this->assertEqual("Career Masters of Public Health", $etd->mods->department);
-    $this->assertEqual("Maternal and Child Health Epidemiology", $etd->mods->subfield);
-    $this->assertEqual("Career Masters of Public Health", $etd->policy->view->condition->department);
-    $this->assertEqual("rsph-cmph", $etd->rels_ext->program);
+    $this->assertEqual("Maternal and Child Health Epidemiology", $etd->mods->department);
+    $this->assertEqual("Maternal and Child Health Epidemiology", $etd->policy->view->condition->department);
+    $this->assertEqual("rsph-mchepi", $etd->rels_ext->program); 
     
     // THEO test setting the program and department from the academic_plan_id
     $this->test_user->academic_plan_id = "THDCOUNSEL";    

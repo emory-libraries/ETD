@@ -309,7 +309,7 @@
 
     function testMatchFaculty() {
       // name that matches two different people
-      $matches = $this->esd->match_faculty("Scholar");
+      $matches = $this->esd->match_faculty("Brad Scholar");
       $this->assertIsA($matches, "esdPeople");
       $this->assertIsA($matches[0], "esdPerson");
       $this->assertEqual(2, count($matches));
@@ -318,12 +318,12 @@
     }
 
     function testFindFacultyByName() {
-      $result = $this->esd->findFacultyByName("Thinker, Michele");
+      $result = $this->esd->findFacultyByName("Michele Thinker");
       $this->assertIsA($result, "esdPerson");
       $this->assertEqual($result->netid, "mthink");
 
       // searching by directory name
-      $result = $this->esd->findFacultyByName("Scholar, Roger");
+      $result = $this->esd->findFacultyByName("Bradley Scholar");
       $this->assertIsA($result, "esdPerson");
       $this->assertEqual($result->netid, "engrbs");
      

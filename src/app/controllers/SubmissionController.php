@@ -295,30 +295,17 @@ class SubmissionController extends Etd_Controller_Action {
     $programs = $programObject->skos;    
     
     // first try to use the academic_plan_id mapped to dc:identifier
-    // to set the program, department, and subfield (if exists).
-
+    // to set the program, department, and subfield (if exists). 
     if ($current_user->academic_plan_id) {
       $prog_id = $programs->findIdbyElement("dc:identifier", $current_user->academic_plan_id);
-
-
-      if(isset($prog_id)){
-          $collection = new collectionHierarchy($programs->dom, $prog_id);
-          $level = $collection->getLevel("#programs");
-          $parent_id = $collection->parent->id;
-      }
-
+      $dept = $programs->findLabelbyId($prog_id);
+      // If there is a need to get the parent, do this:
+      //$level_01 = new collectionHierarchy($programs->dom, $level_01_id); 
+      //$level_02_id = $level_01->parent->id;
       
-      if(($section == "#grad" && $level == 4) || ($section == "#rollins" && $level == 3)){  //These are the casese where subfiled is populated
-          $etd->rels_ext->program = strtolower($parent_id);
-          $etd->department = $programObject->skos->findLabelbyId($parent_id);
-          $etd->rels_ext->subfield = $prog_id;
-          $etd->mods->subfield = $programObject->skos->findLabelbyId($prog_id);
-      }
-      elseif(isset($prog_id)){
-          $etd->rels_ext->program = strtolower($prog_id);
-          $etd->department = $programs->findLabelbyId($prog_id);;  // set the department name
-      }
-
+      $dept = $programs->findLabelbyId($prog_id);        
+      if (isset($prog_id)) $etd->rels_ext->program = strtolower($prog_id);
+      if (isset($dept))    $etd->department = $dept;  // set the department name       
     }
     else {
       // second try to use "academic plan" from ESD to set department
