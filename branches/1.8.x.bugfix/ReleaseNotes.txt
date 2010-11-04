@@ -1,5 +1,8 @@
 ETD Release Notes
 =================
+Version 1.8.2 - October 2010 (bugfix)
+ * Updated calendar entries for ETD main page
+
 Version 1.8.1 - October 2010 (bugfix)
  * Fixed bug in programs collection, so that there are not duplicate ids (epi, was in both Laney and RSPH).
  Deployment notes:
