@@ -55,6 +55,33 @@ ETD makes use of or interacts with the following:
  - ProQuest ftp server (electronic submissions)
  - Google Analytics
 
+
+Installation
+============
+ETD requires that fedora-commons be configured as follows:
+ - RIsearch enabled, with sync updates turned on
+ - xacml enforcement enabled and combining algorithm set to ordered, permit overrides 
+   (set XACML-COMBINING-ALGORITHM to com.sun.xacml.combine.OrderedPermitOverridesPolicyAlg
+   in fedora.fcfg)
+ - etd repository-wide policies (in src/fedora-policies) should be
+   included in xacml policies, and default policy to allow all API-A
+   should be disabled.  Recommended: check this out of svn and replace
+   default fedora xacml policies https://svn.library.emory.edu/svn/fedora/repository-policies/  
+ - Fedora 3.x requires a patch to allow cmodel xacml filtering
+ - working LDAP authentication filter
+ - custom ESD DeptData filter
+ - Generic Search Service installed; use index script src/public/xslt/etdFoxmlToSolr.xslt
+   - Solr instance, with schema from src/scripts/solr-schema.xml
+ - ETD control objects (cmodel/sdef/sdep) loaded 
+
+Site webroot should be pointed at src/public
+ - requires apache override, mod_rewrite
+ - copy src/htaccess-sample to public/.htaccess and edit
+ - edit config files in src/config 
+    - copy *.xml.example to *.xml and edit
+    - which section of the config file is loaded depends on mode
+      setting in environment.xml
+
  cron jobs
  =========
  The following scripts (in src/scripts) should be run as cron jobs:
@@ -114,6 +141,5 @@ See also
 ========
 Additional documentation is found in the  Documentation directory.
 
-Documentation/README-Roles - summary of the roles used in ETD, and how they work
-Documentation/README-Services - explanation of the Fedora services used
-Documentation/README-MultiSchoolConfiguration - explanation of the per-school configuration and fields supported
+ Roles - summary of the roles used in ETD, and how they work
+ MultiSchoolConfiguration - explanation of the per-school configuration and fields supported
