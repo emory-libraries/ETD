@@ -1,17 +1,17 @@
 CHANGE LOG 
 =================
 
-Version 1.8.2 - October 2010 (bugfix)
--------------------------------------
-* Updated calendar entries for ETD main page
-
-Version 1.8.5 - October 2010 (enhancements)
+Version 1.8.3 - October 2010 (enhancements)
 -------------------------------------------
 * RSPH user may reference two new academic programs to the College school:
    - African American Studies (where degree = 'AASBA')
    - Playwriting (where degree = 'PLAYWRTBA')
 * A superuser can change the school to which an ETD records belongs.
 * A user can select the program and sub-field for the Rollins School of Public Health for a more meaningful definition of their program choice.
+
+Version 1.8.2 - October 2010 (bugfix)
+-------------------------------------
+* Updated calendar entries for ETD main page
 
 Version 1.8.1 - October 2010 (bugfix)
 -------------------------------------
