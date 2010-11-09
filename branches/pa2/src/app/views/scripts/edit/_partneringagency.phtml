@@ -10,9 +10,9 @@ $hasMembers = (count($this->collection->members) != 0);
 $etdmods = isset($this->etdmods) ? $this->etdmods : array();
 ?>
 
-<li id="<?= $id ?>">
+<li>
 <? if (! $hasMembers): ?>
-  <a id="<?= $current_field->id ?>" href="#"
+  <a id="<?= $id ?>" href="#"
    <? $paid = str_replace('#', '', $id); ?>
    <? if ($this->etdmods->hasPartneringAgency($paid)): ?>class="selected" <? endif ?>
    onclick="javascript:toggle_selection('<?= $id ?>', '<?= addslashes($label) ?>');return false;"><?= $label ?></a>
