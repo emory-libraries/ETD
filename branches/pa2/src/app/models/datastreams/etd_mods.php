@@ -527,10 +527,10 @@ class etd_mods extends mods {
   public function setPartneringAgencies(array $values) {
     foreach ($this->partneringagencies as $field) {
       $this->removePartneringAgency($field->id);
-    }    
-    foreach ($values as $id => $text) {
-      $this->addPartneringAgency($text, $id);
     }     
+    foreach ($values as $id => $text) {     
+      $this->addPartneringAgency($text, $id);
+    }
   }
   
   /**
@@ -538,7 +538,14 @@ class etd_mods extends mods {
    * @param string|int $id
    */
   public function removePartneringAgency($id) {
-    // TODO: add functionality
+    $nodelist = $this->xpath->query("//mods:note[@ID = '$id']");
+    for ($i = 0; $i < $nodelist->length; $i++) {
+      $node = $nodelist->item($i);      
+      $node->parentNode->removeChild($node);
+    }
+
+    // update in-memory array so it will reflect the change
+    $this->update();
   }
 
   /**

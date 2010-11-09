@@ -14,24 +14,23 @@ var field_count = <?= $blank ? 0 : count($this->etd->mods->partneringagencies); 
 var field_max = 3;
      function toggle_selection(id, text) {
       if (Element.hasClassName(id, 'selected')) {
-  // unselect & remove from list
-  field_count--;
-  Element.removeClassName(id, 'selected');
-  Element.remove(id + '_list');
-  updatePrimary(id);
+        // unselect & remove from list
+        field_count--;
+        Element.removeClassName(id, 'selected');
+        Element.remove(id + '_list');
       } else if (field_count < field_max) {
-  field_count++;
-  // select & add to list
-  var label = "";
-  new Insertion.Bottom('user_fields', '<li id="' + id + '_list">' + text + label +
-           '<input id="' + id + '_input" type="hidden" name="fields[]" value="'
-           + id + ' ' + text + '"/>' + '</li>');
-  Element.addClassName(id, 'selected');
+        field_count++;
+        // select & add to list
+        var label = "";
+        new Insertion.Bottom('user_fields', '<li id="' + id + '_list">' + text + label +
+                 '<input id="' + id + '_input" type="hidden" name="fields[]" value="'
+                 + id + ' ' + text + '"/>' + '</li>');
+        Element.addClassName(id, 'selected');
       } else {
-  // alert user, don't select
-  alert("You may choose a maximum of " + field_max + " fields. Save your choices or reselect.");
+        // alert user, don't select
+        alert("You may choose a maximum of " + field_max + " fields. Save your choices or reselect.");
       }
-      Sortable.create("user_fields");
+      Sortable.create("user_fields");     
 }
 </script> 
 
@@ -54,10 +53,10 @@ $hasMembers = (count($this->collection->members) != 0);
   <ul id="user_fields">
   <? if (isset($this->etd->mods->partneringagencies[0]) &&
    $this->etd->mods->partneringagencies[0]->id != ""): ?>
-   <? foreach ($this->etd->mods->partneringagencies as $agency): ?>
-     <li id="#<?= $agency->id ?>_list"><?= $agency->topic ?>
-       <input type="hidden" name="agency[]"
-       value="#<?= $agency->id ?> <?= $agency->topic ?>"/>
+   <? foreach ($this->etd->mods->partneringagencies as $field): ?>
+     <li id="#<?= $field->id ?>_list"><?= $field->topic ?>
+       <input type="hidden" name="fields[]"
+       value="#<?= $field->id ?> <?= $field->topic ?>"/>
      </li>
     <? endforeach ?>
   <? endif ?> 
