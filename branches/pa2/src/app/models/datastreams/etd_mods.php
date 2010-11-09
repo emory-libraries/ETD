@@ -521,26 +521,18 @@ class etd_mods extends mods {
   }
 
   /**
-   * set all partnering agencies from an array, overwriting any currently set agencies
-   * and adding new agencies as necessary
+   * clear out the old partnering agencies, and write in the new.
    * @param array $values associative array of partnering agency id => name
    */
   public function setPartneringAgencies(array $values) {
-    $i = 0; // partnering agency array index
+    foreach ($this->partneringagencies as $field) {
+      $this->removePartneringAgency($field->id);
+    }    
     foreach ($values as $id => $text) {
-      if (array_key_exists($i, $this->partneringagencies)) {
-        $this->partneringagencies[$i]->id = $id;
-        $this->partneringagencies[$i]->topic = $text;
-      } else {
-        $this->addPartneringAgency($text, $id);
-      }
-      $i++;
-    }
-    // remove any partnering agencies beyond the set of new ones
-    while (isset($this->partneringagencies[$i]) ) {
-      $this->removePartneringAgency($this->partneringagencies[$i]->id);
-    }
+      $this->addPartneringAgency($text, $id);
+    }     
   }
+  
   /**
    * remove a partnering agency by id
    * @param string|int $id
