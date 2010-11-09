@@ -510,7 +510,7 @@ class etd extends foxml implements etdInterface {
     // in some cases, a properly escaped ampersand in the MODS shows
     // up not escaped in the DC, even though unit test indicates it does not
     // -- circumvent this problem whenever possible
-    if ($this->dc->description != $this->mods->abstract)
+    if (!isset($this->dc->description) || $this->dc->description != $this->mods->abstract)
       $this->dc->description = $this->mods->abstract;
 
     // author
