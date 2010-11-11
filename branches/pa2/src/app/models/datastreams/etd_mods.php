@@ -177,23 +177,7 @@ class etd_mods extends mods {
    * @param string $id optional
    */
   public function addPartneringAgency($text, $id = "") { 
-    /**
-     * Example:
-     * <mods:note type="partneragencytype" ID="" displayLabel="Type of partner agency"></mods:note> 
-     **/
-    if (isset($this->partneringagencies)) {
-
-      if (isset($this->partneringagencies) && array_key_exists($i, $this->partneringagencies)) {     
-        $this->partneringagencies[$i]->id = $id;
-        $this->partneringagencies[$i]->topic = $text;
-      } else {         
-        $this->addNote($text, "partneragencytype", $id, "Type of partner agency");
-      }
-    }
-    else {    
-      // create the partnering agencies list, and add the value.
-      $this->partneringagencies = array("id"=>$id, "topic"=>$text);
-    }  
+      $this->addNote($text, "partneragencytype", $id, "Type of partner agency"); 
   }  
   
 

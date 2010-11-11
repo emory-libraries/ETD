@@ -709,7 +709,6 @@ class EditController extends Etd_Controller_Action {
 
     // construct an array of id => text name
     $values = array();
-    $output = count($this->view->fields);
     foreach ($this->view->fields as $i => $value) {      
       if(preg_match("/#([a-z\-]*) (.*)$/", $value, $matches)) {
         $id = $matches[1];

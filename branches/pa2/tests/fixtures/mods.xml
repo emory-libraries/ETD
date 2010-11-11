@@ -67,7 +67,7 @@
   <mods:originInfo>
     <mods:issuance>monographic</mods:issuance>
     <mods:dateIssued keyDate="yes">2009-05-31</mods:dateIssued>
-	<!-- convert to 4-digit year, set encoding="marc" before handing off to marc transform -->
+  <!-- convert to 4-digit year, set encoding="marc" before handing off to marc transform -->
     <mods:dateOther type="embargoedUntil"/> 
   </mods:originInfo>
   <mods:language>
@@ -92,4 +92,6 @@
   </mods:extension>
 
   <mods:note type="admin" ID="embargo">embargo requested? </mods:note>
+  <mods:note ID="pa-blue" displayLabel="Type of partner agency" type="partneragencytype">Blue Skies</mods:note>
+  <mods:note ID="pa-yellow" displayLabel="Type of partner agency" type="partneragencytype">Yellow Sun</mods:note>
 </mods:mods>
