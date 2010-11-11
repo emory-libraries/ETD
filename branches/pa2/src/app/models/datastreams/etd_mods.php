@@ -811,6 +811,7 @@ class etd_mods extends mods {
    * @return boolean
    */
   public function isComplete($field) {
+   
     switch($field) {
     case "author":
       return ($this->author->id != "" &&
@@ -828,8 +829,9 @@ class etd_mods extends mods {
       return ((count($this->researchfields) != 0) &&
         ($this->researchfields[0]->id != "" || $this->researchfields[0]->topic != ""));
     case "partneringagencies":
-      // complete if there is at least one non-blank partnering agency
-      return ("FIX ME");         
+      // complete if there is at least one non-blank research field
+      return ((count($this->partneringagencies) != 0) &&
+        ($this->partneringagencies[0]->id != "" || $this->partneringagencies[0]->topic != ""));        
     case "keywords":
       // complete if there is at least one non-blank keyword
       return ((count($this->keywords) != 0) && (trim($this->keywords[0]->topic) != ""));

@@ -203,7 +203,11 @@ class TestEtdMods extends UnitTestCase {
     $this->mods->abstract = "";
     $missing = $this->mods->checkAllFields();
     $this->assertTrue(in_array("abstract", $missing), "incomplete abstract detected");
-    
+    //  - partnering agencies
+    $this->mods->partneringagencies[0]->id = $this->mods->partneringagencies[0]->topic = "";
+    $missing = $this->mods->checkAllFields();
+    $this->assertTrue(in_array("partneringagencies", $missing),
+          "incomplete partnering agencies detected");    
     
     error_reporting($errlevel);     // restore prior error reporting
   }
@@ -533,13 +537,13 @@ class TestEtdMods extends UnitTestCase {
     
     $this->assertPattern('|ID="pa-white"|', $this->mods->saveXML());
 
-    // check hasResearchField when there are multiple fields
+    // check hasPartneringAgency when there are multiple fields
     $this->assertTrue($this->mods->hasPartneringAgency("pa-green"));
     $this->assertTrue($this->mods->hasPartneringAgency("pa-brown"));
     $this->assertTrue($this->mods->hasPartneringAgency("pa-white"));    
     $this->assertFalse($this->mods->hasPartneringAgency("pa-orange"));
 
-    // set by array with a shorter list - research fields should only contain new values
+    // set by array with a shorter list - partnering agencies should only contain new values
     $newfields = array("pa-orange" => "Orange Sky");
     $this->mods->setPartneringAgencies($newfields);
     $this->assertEqual(1, count($this->mods->partneringagencies));
