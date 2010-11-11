@@ -1,6 +1,14 @@
 CHANGE LOG 
 =================
 
+Manual Config Change - November 2010
+------------------------------------
+* schools.xml ->  rollins -> submission_fields:
+    Changed <required>committee members</required> 
+    to
+    <optional>committee members</optional>
+
+
 Version 1.8.3 - October 2010 (enhancements)
 -------------------------------------------
 * RSPH user may reference two new academic programs to the College school:

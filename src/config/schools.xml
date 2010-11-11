@@ -125,7 +125,7 @@
       <required>author</required>
       <required>program</required>
       <required>chair</required>
-      <required>committee members</required>
+      <optional>committee members</optional>
       <required>researchfields</required>
       <required>keywords</required>
       <required>degree</required>
