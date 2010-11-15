@@ -6,6 +6,7 @@ require_once("fixtures/esd_data.php");
 class TestMads extends UnitTestCase {
   private $mads;
   private $data;
+  private $fedora;  // reference to FedoraConnection  
 
   function setUp() {
     $xml = new DOMDocument();
@@ -112,6 +113,11 @@ class TestMads extends UnitTestCase {
     $this->assertEqual("Street 1 - 3", $this->mads->permanent->address->street[0]);
     $this->assertEqual("Street 2 - 3", $this->mads->permanent->address->street[1]);
     $this->assertFalse(isset($this->mads->permanent->address->street[2]));
+  }
+  
+  function testCreateMadsFromScratch() {
+    $this->scratch_mads = new mads(); 
+    $this->assertIsA($this->scratch_mads, "mads");    
   }
     
 }
