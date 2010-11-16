@@ -1,0 +1,121 @@
+<h1>Author Rights and Access Restrictions</h1>
+<p><b><?= $this->etd->title() ?></b></p>
+
+<script language="JavaScript">
+function radioValue(name) { /* get radio button value by name */ 
+   return Form.getInputs("rightsForm","radio", name).find(function(radio) { return radio.checked; }).value;
+ }   
+   function embargoDetails() {	/* show/hide embargo details based on embargo choice */ 
+  var choice = radioValue("embargo");
+    if (choice == 1) $("embargo-details").show();
+    else $("embargo-details").hide();
+ }
+function pqDetails() {  /* show/hide PQ copyright question based on PQ submit choice */ 
+  var choice = radioValue("pq_submit");
+    if (choice == 1) $("pq-copyright").show();
+    else $("pq-copyright").hide();
+ }
+
+</script>   
+
+<? print_r($this->err) ?>
+
+<form id="rightsForm" action="<?= $this->url(array("action" => "save-rights"))?>" method="post">
+   
+<p>Indicate below whether you and your Committee Chair are requesting that
+access to the full text of your thesis or dissertation be restricted
+for a period of time.  (An administrator will enter the term of the
+access restriction after it is approved.)</p>
+<p><b>NOTE:</b> requests for an access restriction must be made on the
+paper ETD Submission Agreement Form which you will present to 
+<?= $this->etd->admin_agent ?> for approval.</p>
+
+<? $required = $this->etd->isRequired("embargo request"); ?>
+<p class="label<? if ($required): ?> required<? endif ?>">
+   Access Restriction (Embargo) <? if ($required): ?>* <? endif ?></p>
+
+   
+<?= $this->formRadio("embargo", $this->embargo,
+		     array("onChange" => "embargoDetails()"),
+		     array(0 => "No, my ETD can be published immediately after graduation.",
+			   1 => "Yes, I want an access restriction.")); ?> 
+
+<div id="embargo-details"
+  <? if (! $this->embargo): ?>
+  style="display:none"
+ <? endif ?>
+ class="subchoice"> <? /* only relevant if embargo=yes */ ?>
+   <p>Which parts of your record do you want restricted?</p>
+    <?= $this->formRadio("embargo_level", $this->embargo_level,
+			 array("onChange" => "embargoDetails()"),
+			 array(etd_mods::EMBARGO_FILES => "Restrict files only",
+			       etd_mods::EMBARGO_TOC => "Restrict files and table of contents.",
+			       etd_mods::EMBARGO_ABSTRACT => "Restrict files, table of contents, and abstract")); ?>
+ </div>
+
+<hr/>
+
+<? if ($this->etd->isRequired("send to ProQuest")):  /*  only ask about PQ if relevant */ ?>
+  <p class="label">Submit to Proquest? *</p>
+  <? if ($this->etd->mods->degree->name == ''): /* should be redirected by controller */ ?>
+     <p>You have not yet entered your degree information; you should
+        <a href="<?= $this->url(array("action" => "record")) ?>">edit your thesis information</a>
+        before proceeding.</p>
+  <? elseif ($this->etd->mods->ProquestRequired()): ?>
+     <p>Because you are receiving a(n) <b><?= $this->etd->mods->degree->name ?></b> degree,
+	your record will automatically be submitted to ProQuest/UMI.</p>
+  <? else: ?>
+     <p>Submitting to ProQuest/UMI is optional for students who are not receiving PhDs.</p>
+     <?= $this->formRadio("pq_submit", $this->pq_submit, array("onChange" => "pqDetails()"),
+			  array(0 => "No, I do not wish to submit to ProQuest",
+				1 => "Yes, I intend to submit to ProQuest")); ?>
+  <? endif ?>
+   
+  <div id="pq-copyright"
+    <? if (! $this->pq_submit): ?>
+       style="display:none"
+    <? endif ?>
+	 class="subchoice"><? /* only relevant if sending to PQ */ ?>
+    <p>Indicate below whether you would like Proquest/UMI to register your copyright.
+       (Note that this service requires the submission of a fee and the appropriate Proquest/UMI form.)</p>
+
+    <p class="label">Registering copyright? <? if ($this->etd->isRequired("copyright")): ?>*<? endif ?> </p>
+       <?= $this->formRadio("pq_copyright", $this->etd->mods->copyright, null,
+			    array(1 => "Yes, I intend to have Proquest register copyright on my behalf.
+			(See Proquest/UMI Publishing Agreement, page 5.)",
+				  0 => "No"));  ?>
+   </div>
+  
+<hr/>
+<? endif /* submit to proquest */ ?> 
+
+
+<div>  
+  <p>Check the box below to indicate that you agree to the terms of
+  Emory's general submission agreement.  (Note that this merely
+  supplements the paper form signed by you and your Committee Chair.)</p>
+
+  <p class="label">Submission Agreement
+    <? if ($this->etd->isRequired("submission agreement")): ?>*<? endif ?></p>
+  <p><?= $this->formCheckbox("submission_agreement", null,
+     array("checked" => $this->submission_agreement)); ?> 
+    I hereby grant to Emory University and its agents the
+    non-exclusive license to archive, make accessible, and display
+    (subject to the conditions agreed upon in the separate written
+    agreement I have submitted to <?= $this->etd->admin_agent ?>) my
+    thesis or dissertation in whole or in part in all forms of media,
+    now or hereafter known, including the display of the thesis or
+    dissertation on the world wide web. I retain all ownership rights
+    to the copyright of the thesis or dissertation. I also retain the
+    right to use in future works (such as articles or books) all or
+    part of this thesis or dissertation. I certify that my electronic
+    submission is the version of my thesis/dissertation that was
+    approved by my committee.</p>
+</div>
+
+<hr/>
+
+<?= $this->formSubmit("Save", "Save >", array("class" => "button")); ?>
+
+</form>
+

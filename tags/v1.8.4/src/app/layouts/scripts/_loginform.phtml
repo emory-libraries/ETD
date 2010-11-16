@@ -1,0 +1,15 @@
+Emory Login: 
+  <form name="login" method="post"
+    action="<?= $this->url(array("controller" => "auth", "action" => "login"), "", true)?>">
+  <?= $this->formText("login[username]", ""); ?>
+  <?= $this->formHidden("login[url]", $_SERVER['REQUEST_URI']); ?>
+  <?= $this->formPassword("login[password]", "", array("size" => 32)); ?>
+  <?= $this->formSubmit("Submit", "Login >", array("class" => "button submitlink")); ?>
+</form>	
+
+ <ul class="horizontal">
+   <li><a href="#" onClick="Element.toggle('whylogin')" class="help">Why Login?</a>
+   <div id="whylogin" style="display:none"><a class="close" href="#" onClick="Element.hide('whylogin')">X</a>
+The ETD system is an open access repository of Theses and Dissertations. Certain features on this site, however, such as submitting documents or searching in the ProQuest database, can only be accessed by the Emory Community, and therefore require Emory users to log in.</div>
+</li>
+ </ul>

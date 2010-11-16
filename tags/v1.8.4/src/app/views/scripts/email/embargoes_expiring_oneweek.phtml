@@ -1,0 +1,6 @@
+<p>The following dissertations and/or theses have embargoes expiring in seven days:</p>
+
+<? foreach ($this->etdSet->etds as $etd): ?>
+<p><?= $etd->author() ?>: <?= $etd->title() ?> <br/>
+  <a href="<?= $etd->ark() ?>"><?= $etd->ark() ?></a></p>
+<? endforeach ?>
