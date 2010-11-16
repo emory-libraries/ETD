@@ -1,5 +1,8 @@
 ETD Release Notes
 =================
+Version 1.8.4 - October 2010 (bugfix)
+ * Corrected permission check for edit school link:
+
 Version 1.8.3 - October 2010 (enhancements)
  * RSPH user may reference two new academic programs to the College school:
     - African American Studies (where degree = 'AASBA')
