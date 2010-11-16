@@ -10,7 +10,7 @@ require_once("models/foxmlDatastreamAbstract.php");
 
 class mads extends foxmlDatastreamAbstract {
   
-  public $label = "Agent Information";
+  public $dslabel = "Agent Information";
   public $control_group = FedoraConnection::MANAGED_DATASTREAM;
   public $state = FedoraConnection::STATE_ACTIVE;
   public $versionable = true;
