@@ -17,9 +17,19 @@ class premis extends foxmlDatastreamAbstract  {
   protected $namespace = "http://www.loc.gov/standards/premis/v1";
 
   protected $xmlconfig;
-  const dslabel = "Preservation Metadata - Record History";
+
+  public $dslabel = "Preservation Metadata - Record History";
+  public $control_group = FedoraConnection::MANAGED_DATASTREAM;
+  public $state = FedoraConnection::STATE_ACTIVE;
+  public $versionable = false;
+  public $mimetype = 'text/xml';  
   
-  public function __construct($xml) {
+  public function __construct($xml=null) {
+    
+    if (is_null($xml)) {
+      $xml = $this->construct_from_template();
+    }
+    
     $this->addNamespace("premis", $this->namespace);
 
     $this->xmlconfig =  array(
@@ -32,18 +42,11 @@ class premis extends foxmlDatastreamAbstract  {
 
   }
   
-  public static function getFedoraTemplate(){
-    return foxml::xmlDatastreamTemplate("PREMIS", premis::dslabel,
-					file_get_contents("premis.xml", FILE_USE_INCLUDE_PATH),
-					"A", "false");		// datastream should NOT be versionable
-  }
-
-  public function datastream_label() {
-    return premis::dslabel;
-  }
-
-
-
+  private function construct_from_template() {
+    $dom = new DOMDocument();
+    $dom->loadXML(file_get_contents("premis.xml", FILE_USE_INCLUDE_PATH));
+    return $dom;
+  }  
 
   /**
    * Add a new event to the premis object
@@ -62,7 +65,7 @@ class premis extends foxmlDatastreamAbstract  {
 
     // if the first event is empty, use that one
     if ((count($this->map{"event"}) == 1)
-	&& $this->map{"event"}[0]->identifier->value == "") {
+  && $this->map{"event"}[0]->identifier->value == "") {
       $event = $this->map{"event"}[0];
     } else {
       // otherwise, clone the xml for the first event and set all the values
