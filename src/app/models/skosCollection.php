@@ -17,7 +17,7 @@ class collectionHierarchy extends foxmlDatastreamAbstract {
   const RDFS = "http://www.w3.org/2000/01/rdf-schema#";
   const SKOS = "http://www.w3.org/2004/02/skos/core#";
   
-  public $label;
+  public $dslabel;
   public $control_group = FedoraConnection::MANAGED_DATASTREAM;
   public $state = FedoraConnection::STATE_ACTIVE;
   public $versionable = true;
