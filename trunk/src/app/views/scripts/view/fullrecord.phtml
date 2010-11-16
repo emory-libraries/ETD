@@ -27,7 +27,7 @@
    <a class="action" href="<?= $this->url(array("controller" => "edit", "action" => "researchfield")) ?>">edit research fields</a>
    <a class="action" href="<?= $this->url(array("controller" => "edit", "action" => "program")) ?>">edit program</a>
    <? endif ?>
-   <? if ($this->current_user->getRoleId() == "superuser"): ?>
+   <? if ($this->acl->isAllowed($this->role, $this->etd, "edit school")): ?>
       <a class="action" href="<?= $this->url(array("controller" => "edit", "action" => "school")) ?>">edit school</a>
    <? endif ?>
   <?=  $this->render('view/summary.phtml'); ?>

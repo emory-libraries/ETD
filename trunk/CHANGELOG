@@ -9,6 +9,10 @@ Manual Config Change - November 2010
     <optional>committee members</optional>
 
 
+Version 1.8.4 - November 2010 (bugfix)
+-------------------------------------------
+* Corrected permission check for "edit school" link on fullrecord
+
 Version 1.8.3 - October 2010 (enhancements)
 -------------------------------------------
 * RSPH user may reference two new academic programs to the College school:
