@@ -9,38 +9,7 @@
       <AnySubject/>
     </Subjects>
     <Resources>
-<!-- restrict to etds, etd files, and etd user objects -->
-
-      <Resource>
-        <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
-            <AttributeValue 
-		DataType="http://www.w3.org/2001/XMLSchema#string">info:fedora/emory-control:ETD-1.0</AttributeValue>
-		<!-- DataType="http://www.w3.org/2001/XMLSchema#string">etd</AttributeValue> -->
-            <ResourceAttributeDesignator 
-		AttributeId="info:fedora/fedora-system:def/model#hasModel" 
-                DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="false"/>
-        </ResourceMatch>
-      </Resource>
-
-      <Resource>
-        <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
-            <AttributeValue 
-		DataType="http://www.w3.org/2001/XMLSchema#string">info:fedora/emory-control:EtdFile-1.0</AttributeValue>
-            <ResourceAttributeDesignator 
-		AttributeId="info:fedora/fedora-system:def/model#hasModel" 
-                DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="false"/>
-        </ResourceMatch>
-      </Resource>
-
-      <Resource>
-        <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
-            <AttributeValue 
-		DataType="http://www.w3.org/2001/XMLSchema#string">info:fedora/emory-control:AuthorInformation-1.0</AttributeValue> 
-            <ResourceAttributeDesignator 
-		AttributeId="info:fedora/fedora-system:def/model#hasModel" 
-                DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="false"/>
-        </ResourceMatch>
-      </Resource>
+      <AnyResource/>
     </Resources>    
     <Actions>
       <Action>

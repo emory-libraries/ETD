@@ -80,7 +80,7 @@ class TestEtdMods extends UnitTestCase {
     
     // set all fields from an array 
     $newfields = array("7334" => "Animated Arts", "8493" => "Cheese and Mice",
-           "8593" => "Disney Studies");
+		       "8593" => "Disney Studies");
     $this->mods->setResearchFields($newfields);
 
     $this->assertEqual(3, count($this->mods->researchfields));
@@ -99,19 +99,13 @@ class TestEtdMods extends UnitTestCase {
     $this->assertTrue($this->mods->hasResearchField("8593"));
     $this->assertTrue($this->mods->hasResearchField("8493"));
     $this->assertFalse($this->mods->hasResearchField("6006"));
-    
-    // set by array by deleting the primary - research fields should contain remainder
-    // set all fields from an array 
-    $newfields = array("8593" => "Disney Studies", "8493" => "Cheese and Mice");
-    $this->mods->setResearchFields($newfields);
-    $this->assertEqual(2, count($this->mods->researchfields));
 
     // set by array with a shorter list - research fields should only contain new values
     $newfields = array("7024" => "Cheese Studies");
     $this->mods->setResearchFields($newfields);
     $this->assertEqual(1, count($this->mods->researchfields));
 
-    error_reporting($errlevel);     // restore prior error reporting
+    error_reporting($errlevel);	    // restore prior error reporting
   }
 
   function testCheckFields() {
@@ -126,7 +120,7 @@ class TestEtdMods extends UnitTestCase {
     $this->assertFalse(in_array("author", $missing), "author is not missing");
     $this->assertFalse(in_array("program", $missing), "program is not missing");
     $this->assertFalse(in_array("researchfields", $missing),
-           "researh fields are not missing");
+		       "researh fields are not missing");
     $this->assertFalse(in_array("keywords", $missing), "keywords are not missing");
     $this->assertFalse(in_array("degree", $missing), "degree is not missing");
     $this->assertFalse(in_array("language", $missing), "language is not missing");
@@ -135,7 +129,7 @@ class TestEtdMods extends UnitTestCase {
 
     // required fields missing in the unmodified mods fixture
     $this->assertTrue(in_array("table of contents", $missing),
-          "table of contents is missing");
+		      "table of contents is missing");
     $this->assertFalse($this->mods->readyToSubmit($this->mods->available_fields));
     $this->mods->tableOfContents = "1. a chapter -- 2. another chapter";
     $this->assertTrue(in_array("chair", $missing), "chair is missing");
@@ -145,10 +139,10 @@ class TestEtdMods extends UnitTestCase {
 
     $missing = $this->mods->checkAllFields();
     $this->assertFalse(in_array("table of contents", $missing),
-          "table of contents is no longer missing");
+		      "table of contents is no longer missing");
     $this->assertFalse(in_array("chair", $missing), "chair no longer missing");
     $this->assertFalse(in_array("committe members", $missing),
-           "committe members no longer missing");
+		       "committe members no longer missing");
     
     // does not have rights or copyright yet - not ready  
     $this->assertFalse($this->mods->readyToSubmit($this->mods->available_fields));
@@ -172,27 +166,27 @@ class TestEtdMods extends UnitTestCase {
     $this->mods->author->id = "";
     $missing = $this->mods->checkAllFields();
     $this->assertTrue(in_array("author", $missing),
-          "incomplete author detected (no id)");
+		      "incomplete author detected (no id)");
     $this->mods->author->id = "testid";
     $this->mods->author->first = "";
     $missing = $this->mods->checkAllFields();
     $this->assertTrue(in_array("author", $missing),
-          "incomplete author detected (no first name)");
+		      "incomplete author detected (no first name)");
     $this->mods->author->first = "Firstname";
     $this->mods->author->last = "";
     $missing = $this->mods->checkAllFields();
     $this->assertTrue(in_array("author", $missing),
-          "incomplete author detected (no last name)");
+		      "incomplete author detected (no last name)");
     //  - program
     $this->mods->author->affiliation = "";
     $missing = $this->mods->checkAllFields();
     $this->assertTrue(in_array("program", $missing),
-          "incomplete program detected");  
+		      "incomplete program detected");  
     //  - research fields
     $this->mods->researchfields[0]->id = $this->mods->researchfields[0]->topic = "";
     $missing = $this->mods->checkAllFields();
     $this->assertTrue(in_array("researchfields", $missing),
-          "incomplete research fields detected");
+		      "incomplete research fields detected");
     //  - keywords
     $this->mods->keywords[0]->topic = "";
     $missing = $this->mods->checkAllFields();
@@ -211,7 +205,7 @@ class TestEtdMods extends UnitTestCase {
     $this->assertTrue(in_array("abstract", $missing), "incomplete abstract detected");
     
     
-    error_reporting($errlevel);     // restore prior error reporting
+    error_reporting($errlevel);	    // restore prior error reporting
   }
 
   function testFieldLabels() {
@@ -243,7 +237,7 @@ class TestEtdMods extends UnitTestCase {
     // test adding committee after all committee members AND advisor have been removed
     // FIXME: this section is TIMING OUT for some reason...
     // ids need to be set so names can be removed
-    $this->mods->committee[0]->id = "test"; 
+    $this->mods->committee[0]->id = "test";	
     $this->mods->committee[1]->id = "dduck";
     $this->mods->chair[0]->id = "wdisney";
     $this->mods->setCommittee(array(), "chair");
@@ -253,7 +247,7 @@ class TestEtdMods extends UnitTestCase {
     $this->assertEqual(1, count($this->mods->committee));
     $this->assertEqual("Duck", $this->mods->committee[0]->last);
     
-    error_reporting($errlevel);     // restore prior error reporting
+    error_reporting($errlevel);	    // restore prior error reporting
   }
 
 
@@ -303,7 +297,7 @@ class TestEtdMods extends UnitTestCase {
     $this->assertEqual("bschola", $this->mods->committee[1]->id);
     $this->assertEqual("Scholar", $this->mods->committee[1]->last);
 
-    error_reporting($errlevel);     // restore prior error reporting
+    error_reporting($errlevel);	    // restore prior error reporting
   }
 
   // testing adding a second chair
@@ -315,7 +309,7 @@ class TestEtdMods extends UnitTestCase {
 
   function testCommitteeAffiliation() {
     $errlevel = error_reporting(E_ALL ^ E_NOTICE);
-  
+	
     // set affiliation by id
     $this->mods->committee[0]->id = "testid";
     $this->mods->setCommitteeAffiliation("testid", "Harvard");
@@ -323,7 +317,7 @@ class TestEtdMods extends UnitTestCase {
 
     //    print "<pre>" . htmlentities($this->mods->saveXML()) . "</pre>";
     $this->assertPattern("|<mods:affiliation>Harvard</mods:affiliation>|",
-       $this->mods->saveXML());
+			 $this->mods->saveXML());
 
 
     // setting name should remove affiliation
@@ -337,7 +331,7 @@ class TestEtdMods extends UnitTestCase {
     $this->assertFalse(isset($this->mods->committee[0]->affiliation));
     $this->assertNoPattern('|<mods:name ID="dokey".*<mods:affiliation>Harvard</mods:affiliation>|', $this->mods->saveXML());
 
-    error_reporting($errlevel);     // restore prior error reporting
+    error_reporting($errlevel);	    // restore prior error reporting
   }
 
   function testAddNote() {
@@ -357,7 +351,7 @@ class TestEtdMods extends UnitTestCase {
   function testPQSubmitNote() {
     // won't be present initially (on records created before it was added)
     $this->assertFalse(isset($this->mods->pq_submit));
-    $this->mods->addNote("yes", "admin", "pq_submit");  // add
+    $this->mods->addNote("yes", "admin", "pq_submit");	// add
     $this->assertTrue(isset($this->mods->pq_submit));
     $this->assertPattern('|<mods:note type="admin" ID="pq_submit">|',  $this->mods->saveXML());
 

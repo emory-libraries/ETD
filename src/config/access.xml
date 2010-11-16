@@ -64,7 +64,8 @@
        <allow resource="published etd">inactivate, revise embargo</allow>
        <allow resource="report">view</allow>
        <!-- should really only be done by superuser -->
-       <allow resource="inactive etd">reactivate</allow>    
+       <allow resource="inactive etd">reactivate</allow>
+       <!-- "edit school"  is not explicitly defined it is for super user only-->
 
 
        <allow resource="file">view modified</allow>
