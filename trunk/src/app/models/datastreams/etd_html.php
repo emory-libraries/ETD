@@ -12,17 +12,25 @@ require_once("models/foxmlDatastreamAbstract.php");
  * @property string $contents formatted table of contents
  */
 class etd_html extends foxmlDatastreamAbstract {
-  const id = "XHTML";
-  const dslabel = "Formatted ETD Fields";
-
-
   
-  public function __construct($dom) {
+  public $id = "XHTML";
+  public $dslabel = "Formatted ETD Fields";
+  public $control_group = FedoraConnection::MANAGED_DATASTREAM;
+  public $state = FedoraConnection::STATE_ACTIVE;
+  public $versionable = true;
+  public $mimetype = 'text/xml';  
+  
+  public function __construct($dom=null) {
+    
+    if (is_null($dom)) {
+      $dom = $this->construct_from_template();
+    }    
+    
     $config = $this->config(array(
-				  "title" => array("xpath" => "div[@id='title']"),
-				  "abstract" => array("xpath" => "div[@id='abstract']"),
-				  "contents" => array("xpath" => "div[@id='contents']"),
-				  ));
+          "title" => array("xpath" => "div[@id='title']"),
+          "abstract" => array("xpath" => "div[@id='abstract']"),
+          "contents" => array("xpath" => "div[@id='contents']"),
+          ));
     parent::__construct($dom, $config);
   }
 
@@ -31,23 +39,21 @@ class etd_html extends foxmlDatastreamAbstract {
   */
   public static function getTemplate() {
     return '<html>
-	    <div id="title">test</div>
-	    <div id="abstract"/>
-	    <div id="contents"/>
-	</html>';
+      <div id="title">test</div>
+      <div id="abstract"/>
+      <div id="contents"/>
+      </html>';
   }
 
-  public static function getFedoraTemplate(){
-    return foxml::xmlDatastreamTemplate("XHTML", etd_html::dslabel, self::getTemplate());
-  }
-
-  public function datastream_label() {
-    return etd_html::dslabel;
+  private function construct_from_template() {
+    $dom = new DOMDocument();
+    $dom->loadXML(file_get_contents(getTemplate(), FILE_USE_INCLUDE_PATH));
+    return $dom;
   }
 
   public function __set($name, $value) {
     switch ($name) {
-    case "title":	
+    case "title": 
     case "abstract":
     case "contents":
       $this->map{$name} = etd_html::tags_to_nodes($this->map{$name}, $value);
@@ -93,8 +99,8 @@ class etd_html extends foxmlDatastreamAbstract {
 
     if ($node->hasChildNodes()) {
       for ($i = 0; $i < $node->childNodes->length; $i++) {
-	$child = $node->childNodes->item($i);
-	$content .= $node->ownerDocument->saveXML($child);
+        $child = $node->childNodes->item($i);
+        $content .= $node->ownerDocument->saveXML($child);
       }
     } else {
       $content = $node->nodeValue;
@@ -111,8 +117,8 @@ class etd_html extends foxmlDatastreamAbstract {
     $content = "";
     if ($node->hasChildNodes()) {
       for ($i = 0; $i < $node->childNodes->length; $i++) {
-	$child = $node->childNodes->item($i);
-	$content .= etd_html::getContentText($child);
+        $child = $node->childNodes->item($i);
+        $content .= etd_html::getContentText($child);
       }
     } elseif ($node instanceof DOMText) {
       $content .= $node->ownerDocument->saveXML($node);
@@ -146,7 +152,7 @@ class etd_html extends foxmlDatastreamAbstract {
 
     // remove Microsoft class names (by themselves or mixed with classes we want to preserve)
     $string = preg_replace(array('/ *class="Mso[a-zA-Z]+"/', '/class="([^"]*)?Mso[a-zA-Z]+([^"]*)?"/'),
-			   array('', 'class="$1$2"'),  $string);
+         array('', 'class="$1$2"'),  $string);
     // remove style attributes (all FCKeditor formatting should now use css classes)
     $string = preg_replace('/ *style="[^"]+"/', '', $string);
     // remove Microsoft language encoding  (FIXME: any case where we would want to preserve this?)
@@ -154,15 +160,15 @@ class etd_html extends foxmlDatastreamAbstract {
     
     // use Tidy to clean up the formatting, tags, etc.
     $tidy_opts = array("output-xhtml" => true,
-		       "drop-font-tags" => true,
-		       "drop-proprietary-attributes" => true,
-		       "join-styles" => false,
-		       "numeric-entities" => true,
-		       "show-body-only" => true,
-		       // strip out MS Word junk 
-		       //"word-2000" => true,	-- breaks things
-		       //"clean" => true,	-- generates classes, requires css
-		       );
+           "drop-font-tags" => true,
+           "drop-proprietary-attributes" => true,
+           "join-styles" => false,
+           "numeric-entities" => true,
+           "show-body-only" => true,
+           // strip out MS Word junk 
+           //"word-2000" => true, -- breaks things
+           //"clean" => true, -- generates classes, requires css
+           );
     /** NOTE: cannot use  option "clean" because it converts inline styles to
         css styles, which is much harder to manage & display correctly.
      */
@@ -184,7 +190,7 @@ class etd_html extends foxmlDatastreamAbstract {
 
     // remove extra spaces, unused tags, clean up break tags; also remove empty tags
     $search = array("|<br\s+/?>|", "|</?i/?>|", "|</?b/?>|", "|</?em/?>|", "|</?strong/?>|",
-		    "|</?sup/?>|", "|</?sub/?>|", "|</?span/?>|", "|</?st1:[^>]+/?>|", "|</?o:p/?>|");
+        "|</?sup/?>|", "|</?sub/?>|", "|</?span/?>|", "|</?st1:[^>]+/?>|", "|</?o:p/?>|");
     $replace = array("<br/>");  // standardize break tags to simplify split pattern later
     $string = preg_replace($search, $replace, $string);
 
@@ -225,20 +231,20 @@ class etd_html extends foxmlDatastreamAbstract {
 
       /* split on:
          - breaks
-	 - divs
-	 - li tags (<ul> tags in pattern so they will not be in output)
+   - divs
+   - li tags (<ul> tags in pattern so they will not be in output)
        */
       $unfiltered_toc_lines = preg_split('{(<ul>\s*)?</?(li|p|div|br/)>(\s*</ul>)?}', $text);
       
       $toc_lines = array();
       foreach ($unfiltered_toc_lines as $line) {
-	// filter out blank lines
-	if (preg_match("/^\s*$/", $line)) continue;
+        // filter out blank lines
+        if (preg_match("/^\s*$/", $line)) continue;
 
-	// remove unnecessary whitespace at beginning and end of lines
-	$line = trim($line);
-	
-	array_push($toc_lines, $line);
+        // remove unnecessary whitespace at beginning and end of lines
+        $line = trim($line);
+        
+        array_push($toc_lines, $line);
       }
 
       // reassemble split lines, marking sections with -- 
@@ -285,8 +291,8 @@ class etd_html extends foxmlDatastreamAbstract {
     // append all nodes under top-level doc to the node being converted
     if ($tmpdoc->documentElement->hasChildNodes()) {
       for ($i = 0; $i < $tmpdoc->documentElement->childNodes->length; $i++) {
-	$newnode = $node->ownerDocument->importNode($tmpdoc->documentElement->childNodes->item($i), true);
-	$node->appendChild($newnode);
+        $newnode = $node->ownerDocument->importNode($tmpdoc->documentElement->childNodes->item($i), true);
+        $node->appendChild($newnode);
       }
     }
     

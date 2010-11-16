@@ -23,63 +23,61 @@ class TestEtdHtml extends UnitTestCase {
     $this->assertEqual("Why <i>I</i> like cheese", $this->etd_html->title);
     $this->assertEqual("<b>gouda</b> or <i>cheddar</i>?", $this->etd_html->abstract);
     $this->assertEqual("Chapter 1: Gouda<br/> Chapter 2: Brie", $this->etd_html->contents);
-
-
   }
 
   function testCleanTags() {
     // unnecessary entities
     $this->assertPattern("|\s*\"they're great! -\"|",
-		       etd_html::cleanTags("&lt;b&gt;&ldquo;they&rsquo;re great!&nbsp;&ndash;&rdquo;"));
+           etd_html::cleanTags("&lt;b&gt;&ldquo;they&rsquo;re great!&nbsp;&ndash;&rdquo;"));
     //    $this->assertEqual("text",
-    //		       etd_html::cleanTags("<p class='MSONORMAL'>text</p>"));
+    //           etd_html::cleanTags("<p class='MSONORMAL'>text</p>"));
 
     $this->assertPattern("|first line\s*second line|",
-			 etd_html::cleanTags("first line<br/> second line"));
+       etd_html::cleanTags("first line<br/> second line"));
     $this->assertPattern("|first line\s*<br/>\s*second line|",
-			 etd_html::cleanTags("first line<br/> second line", true));
+       etd_html::cleanTags("first line<br/> second line", true));
 
     $this->assertPattern("|first line\s*<br clear=['\"]all['\"]\s*/>\s*second line|",
-			 etd_html::cleanTags("first line<br clear='all'/> second line", true));
+       etd_html::cleanTags("first line<br clear='all'/> second line", true));
     
     $this->assertEqual("some text",
-		       etd_html::cleanTags("<strong/>some text", true));
+           etd_html::cleanTags("<strong/>some text", true));
 
 
     // remove microsoft junk formatting (Trac ticket #355)
     $this->assertPattern("|<p>text</p>|",
-		       etd_html::cleanTags('<p class="MsoNormal">text</p>', true));
+           etd_html::cleanTags('<p class="MsoNormal">text</p>', true));
     $this->assertPattern("|<p>text</p>|",
-		       etd_html::cleanTags('<p style="margin: 0cm 0cm 0pt; font-weight:bold;line-height:200%">text</p>', true));
+           etd_html::cleanTags('<p style="margin: 0cm 0cm 0pt; font-weight:bold;line-height:200%">text</p>', true));
     $this->assertPattern("|<p>text</p>|",
-		       etd_html::cleanTags('<p><span lang="EN-US" xml:lang="EN-US">text</p>', true));
+           etd_html::cleanTags('<p><span lang="EN-US" xml:lang="EN-US">text</p>', true));
 
     // MS classes mixed with FCKeditor classes: remove only the unwanted MS classname
     $this->assertPattern("|<p class=\"Indent1\">text</p>|",
-		       etd_html::cleanTags('<p class="Indent1 MsoNormal">text</p>', true));
+           etd_html::cleanTags('<p class="Indent1 MsoNormal">text</p>', true));
     $this->assertPattern("|<p class=\"JustifyLeft\">text</p>|",
-		       etd_html::cleanTags('<p class="MsoNormal JustifyLeft">text</p>', true));
+           etd_html::cleanTags('<p class="MsoNormal JustifyLeft">text</p>', true));
     $this->assertPattern("|<p class=\"Indent2 JustifyRight\">text</p>|",
-		       etd_html::cleanTags('<p class="Indent2 MsoNormal JustifyRight">text</p>', true));
+           etd_html::cleanTags('<p class="Indent2 MsoNormal JustifyRight">text</p>', true));
   }
 
   function testRemoveTags() {
     $this->assertPattern("/^content in divs\s*$/",
-		       etd_html::removeTags("<div>content in divs</div>", true));
+           etd_html::removeTags("<div>content in divs</div>", true));
     // no top-level wrapping element
     $this->assertPattern("/paragraph 1\s+paragraph 2/",
-		       etd_html::removeTags("<p>paragraph 1</p> <p>paragraph 2</p>", true));
+           etd_html::removeTags("<p>paragraph 1</p> <p>paragraph 2</p>", true));
     $this->assertPattern("/^formatting\s*$/",
-		       etd_html::removeTags("<p class='MsoNormal' font-color='black'>formatting</p>", true));
+           etd_html::removeTags("<p class='MsoNormal' font-color='black'>formatting</p>", true));
 
     // non-encoded special characters should be tidied, not lost
     // checking for unicode OR character entity, using utf-8 mode
     $this->assertPattern("/Development (\x{03c6}|&#x3C6;)(\x{03b3}|&#x3B3;)(\x{03c5}|&#x3C5;) (\x{03bb}|&#x3BB;)(\x{03bf}|&#x3BF;)(\x{03c6}|&#x3C6;)(\x{03b3}|&#x3B3;)(\x{03b2}|&#x3B2;)/u",
-			 etd_html::removeTags("Development &phi;&gamma;&upsilon; &lambda;&omicron;&phi;&gamma;&beta;"), "html-style entities converted to unicode");
+       etd_html::removeTags("Development &phi;&gamma;&upsilon; &lambda;&omicron;&phi;&gamma;&beta;"), "html-style entities converted to unicode");
 
     // ampersand
     $this->assertEqual("Masquerading Politics: Power &amp; Transformation",
-		       etd_html::removeTags("Masquerading Politics: Power & Transformation"));
+           etd_html::removeTags("Masquerading Politics: Power & Transformation"));
     
   }
 
@@ -88,19 +86,19 @@ class TestEtdHtml extends UnitTestCase {
     
     // paragraphs with breaks
     $this->assertEqual("chapter 1 -- chapter 2",
-		       etd_html::formattedTOCtoText("<p>chapter 1 <br/> chapter 2</p>"));
+           etd_html::formattedTOCtoText("<p>chapter 1 <br/> chapter 2</p>"));
 
     // html list 
     $this->assertEqual("chapter 3 -- chapter 4",
-		       etd_html::formattedTOCtoText("<ul><li>chapter 3</li> <li>chapter 4</li></ul>"));
+           etd_html::formattedTOCtoText("<ul><li>chapter 3</li> <li>chapter 4</li></ul>"));
 
     // html list with divs
     $this->assertEqual("chapter 5 -- chapter 6",
-	       etd_html::formattedTOCtoText("<ul><li>chapter 5</li> <li><div>chapter 6</div></li></ul>"));
+         etd_html::formattedTOCtoText("<ul><li>chapter 5</li> <li><div>chapter 6</div></li></ul>"));
 
     // divs only
     $this->assertEqual("chapter 7 -- chapter 8",
-	       etd_html::formattedTOCtoText("<div>chapter 7</div> <div>chapter 8</div>"));
+         etd_html::formattedTOCtoText("<div>chapter 7</div> <div>chapter 8</div>"));
 
   }
 
@@ -146,12 +144,12 @@ class TestEtdHtml extends UnitTestCase {
     // losing Greek characters
     $this->etd_html->abstract = 'character &beta; mid-sentence';
     $this->assertPattern('/character (\x{03b2}|&#x3B2;) mid-sentence/u', $this->etd_html->abstract,
-			 "mid-sentence named character entity converted to unicode");
+       "mid-sentence named character entity converted to unicode");
 
     // named entities can't be saved - should be converted to numeric
     $this->etd_html->abstract = 'named entity &eacute; character';
     $this->assertPattern('/named entity (\x{00e9}|&#xE9;) character/u', $this->etd_html->abstract,
-			 "named character entity converted to unicode");
+       "named character entity converted to unicode");
 
     
     // indentation getting stripped out
@@ -184,9 +182,14 @@ class TestEtdHtml extends UnitTestCase {
   public function testSetContentsWithWhitespace() {
     $this->etd_html->setContentsWithWhitespace("Here is some text &nbsp;&nbsp; and some more");
     $this->assertPattern("/Here is some text (\x{00a0}|&#xA0;)(\x{00a0}|&#xA0;) and some more/u",
-			 $this->etd_html->contents,
-			 "non-breaking spaces converted to unicode");
+       $this->etd_html->contents,
+       "non-breaking spaces converted to unicode");
   }
+  
+  function testCreateMadsFromScratch() {
+    $this->scratch_mads = new mads(); 
+    $this->assertIsA($this->scratch_mads, "mads");    
+  }  
   
 }
 
