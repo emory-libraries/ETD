@@ -896,12 +896,13 @@ class etd_mods extends mods {
   }
 
   /**
-   * overrides function from base class to allwo the correct xml file to be loaded
+   * overrides function from base class to allow the correct xml file to be loaded
    */
-  public static function getFedoraTemplate(){
-    return foxml::xmlDatastreamTemplate("MODS", mods::dslabel,
-          file_get_contents("etd_mods.xml", FILE_USE_INCLUDE_PATH));
-  }
+  private function construct_from_template() {
+    $dom = new DOMDocument();
+    $dom->loadXML(file_get_contents("etd_mods.xml", FILE_USE_INCLUDE_PATH));
+    return $dom;
+  }  
 
 
 }

@@ -494,7 +494,10 @@ class TestEtdMods extends UnitTestCase {
     $this->assertEqual("", $this->mods->abstract);
   }
 
-
+  function testCreateEtdModsFromScratch() {
+    $this->scratch_etd_mods = new etd_mods(); 
+    $this->assertIsA($this->scratch_etd_mods, "etd_mods");    
+  } 
 
 }
 
