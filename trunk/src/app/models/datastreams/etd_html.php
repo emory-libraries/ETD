@@ -47,7 +47,7 @@ class etd_html extends foxmlDatastreamAbstract {
 
   private function construct_from_template() {
     $dom = new DOMDocument();
-    $dom->loadXML(file_get_contents(getTemplate(), FILE_USE_INCLUDE_PATH));
+    $dom->loadXML(self::getTemplate());
     return $dom;
   }
 
