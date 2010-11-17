@@ -42,7 +42,7 @@ class premis extends foxmlDatastreamAbstract  {
 
   }
   
-  private function construct_from_template() {
+  protected function construct_from_template() {
     $dom = new DOMDocument();
     $dom->loadXML(file_get_contents("premis.xml", FILE_USE_INCLUDE_PATH));
     return $dom;

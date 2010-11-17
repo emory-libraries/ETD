@@ -165,8 +165,7 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
         // ONLY override doctype if this is set, do NOT set it to blank!
         $doctype = $this->etd->document_type();
       }
-    }    
-
+    }
     if ($this->type == "pdf") {
       $this->dc->title = $doctype;
       $this->dc->description = "Access copy of " . $doctype;

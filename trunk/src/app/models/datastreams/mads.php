@@ -96,13 +96,8 @@ class mads extends foxmlDatastreamAbstract {
     $addr->phone = $esdAddress->telephone;
   }    
 
-
-  /*   should have already from base class
-  public function isValid() {
-    return $this->dom->schemaValidate($this->schema);
-    }*/
   
-  private function construct_from_template() {
+  protected function construct_from_template() {
     $dom = new DOMDocument();
     $dom->loadXML(file_get_contents("mads.xml", FILE_USE_INCLUDE_PATH));
     return $dom;

@@ -122,7 +122,7 @@ class XacmlPolicy extends foxmlDatastreamAbstract {
     return $policy->saveXML();
   }
   
-  private function construct_from_template() {
+  protected function construct_from_template() {
     $dom = new DOMDocument();
     $dom->loadXML(self::getTemplate());
     return $dom;
