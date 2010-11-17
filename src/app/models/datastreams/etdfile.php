@@ -7,6 +7,7 @@
 
 require_once("XmlObject.class.php");
 require_once("models/foxml.php");
+require_once("fedora/models/fileDatastream.php");
 
 require_once("etd.php");
 require_once("etd_rels.php");
@@ -63,16 +64,15 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
   protected function configure() {
     parent::configure();
     // add to template for new foxml
-    $this->datastreams[] = "file_for_ingest";
 
     // add mappings for xmlobject
     $this->xmlconfig["file"] = array("xpath" => "foxml:datastream[@ID='FILE']",
-				     "class_name" => "file_for_ingest");
+             "class_name" => "fileDatastream", "dsID" => "FILE");
 
     // xacml policy
     $this->addNamespace("x", "urn:oasis:names:tc:xacml:1.0:policy");
     $this->xmlconfig["policy"] = array("xpath" => "//foxml:xmlContent/x:Policy",
-				       "class_name" => "EtdFileXacmlPolicy", "dsID" => "POLICY");
+               "class_name" => "EtdFileXacmlPolicy", "dsID" => "POLICY");
 
     
     // use custom rels-ext class
@@ -85,29 +85,29 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
   // set the type of this object (if not already set), and return the relation to the parent etd
   private function getRelType() {
     if ($this->init_mode != "pid" && $this->init_mode != "dom") {
-      return false;		// not applicable if not in one of these modes
+      return false;   // not applicable if not in one of these modes
     }
 
-    if (!isset($this->type)) {		// if not set, configure
+    if (!isset($this->type)) {    // if not set, configure
       try {
-	$this->rels_ext != null;
+  $this->rels_ext != null;
       } catch  (FedoraAccessDenied $e) {
-	// if the current user doesn't have access to RELS-EXT, they don't have full access to this object
-	throw new FoxmlException("Access Denied to " . $this->pid);
-	//	trigger_error("Access Denied to rels-ext for " . $this->pid, E_USER_WARNING);
+  // if the current user doesn't have access to RELS-EXT, they don't have full access to this object
+  throw new FoxmlException("Access Denied to " . $this->pid);
+  //  trigger_error("Access Denied to rels-ext for " . $this->pid, E_USER_WARNING);
       }
       
       if ($this->rels_ext) {
-	// determine what type of etd file this is based on what is in the rels-ext
-	if (isset($this->rels_ext->pdfOf)) {
-	  $this->type = "pdf";
-	} elseif (isset($this->rels_ext->originalOf)) {
-	  $this->type = "original";
-	} elseif (isset($this->rels_ext->supplementOf)) {
-	  $this->type = "supplement";
-	} else {
-	  trigger_error("etdFile object " . $this->pid . " is not related to an etd object", E_USER_WARNING);
-	}
+  // determine what type of etd file this is based on what is in the rels-ext
+  if (isset($this->rels_ext->pdfOf)) {
+    $this->type = "pdf";
+  } elseif (isset($this->rels_ext->originalOf)) {
+    $this->type = "original";
+  } elseif (isset($this->rels_ext->supplementOf)) {
+    $this->type = "supplement";
+  } else {
+    trigger_error("etdFile object " . $this->pid . " is not related to an etd object", E_USER_WARNING);
+  }
       }
     }
 
@@ -124,7 +124,7 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
     case "owner":
       // add author's username to the appropriate rules
       if (isset($this->policy) && isset($this->policy->draft))
-	$this->policy->draft->condition->user = $value;
+  $this->policy->draft->condition->user = $value;
 
       // set ownerId property
       parent::__set($name, $value);
@@ -149,20 +149,21 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
     $this->owner = $author->netid;
 
     // set reasonable defaults for author, description
-    $this->dc->creator = $author->fullname;	// most likely the case...
-    $this->dc->type = "Text";			// most likely; can be overridden based on mimetype below
+    $this->dc->creator = $author->fullname; // most likely the case...
+    $this->dc->type = "Text";     // most likely; can be overridden based on mimetype below
+
 
     // store original filename, mimetype, filesize, and number of pages (when appropriate)
     $this->setFileInfo($filename, $label);
 
     // set a default document type
     $doctype = "Dissertation/Thesis";
-    if ($this->etd) {	// if associated etd is available, set doctype to something more accurate
+    if ($this->etd) { // if associated etd is available, set doctype to something more accurate
       if ($this->etd->isHonors()) {
-	$doctype = "Honors Thesis";
+        $doctype = "Honors Thesis";
       } elseif ($this->etd->document_type() != "") {
-	// ONLY override doctype if this is set, do NOT set it to blank!
-	$doctype = $this->etd->document_type();
+        // ONLY override doctype if this is set, do NOT set it to blank!
+        $doctype = $this->etd->document_type();
       }
     }    
 
@@ -172,7 +173,7 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
     } elseif ($this->type == "original") {
       $this->dc->title = "Original Document";
       $this->dc->description = "Archival copy of " . $doctype;
-    } else {	// supplemental files
+    } else {  // supplemental files
       // make a "best guess" at the type of content based on mimetype  (other than text)
       list($major, $minor) = split('/', $this->dc->mimetype);
       switch ($major) { 
@@ -180,21 +181,18 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
       case "audio": $this->dc->type = "Sound"; break;
       case "video": $this->dc->type = "MovingImage"; break;
       case "application":
-	switch ($minor) {
-	case "vnc.ms-excel":
-	case "vnd.openxmlformats-officedocument.spreadsheetml.sheet":
-	case "vnd.oasis.opendocument.spreadsheet":
-	  $this->dc->type = "Dataset"; break;	// spreadsheets
-	  
-	}
+        switch ($minor) {
+        case "vnc.ms-excel":
+        case "vnd.openxmlformats-officedocument.spreadsheetml.sheet":
+        case "vnd.oasis.opendocument.spreadsheet":
+          $this->dc->type = "Dataset"; break; // spreadsheets
+          
+        }
       }
     }
-
     // now actually upload the file and set ingest url to upload id
-    $this->setFile($filename);
+    $this->setFile($filename);   
   }
-
-
 
   /**
    * store information about a newly uploaded file
@@ -202,8 +200,9 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
    * @param string $userfilename (optional) user's file name (instead of php temporary name)
    */
   public function setFileInfo($tmpfile, $userfilename = null) {
+    
     // note: using fileinfo because mimetype reported by the browser is unreliable
-    $finfo = finfo_open(FILEINFO_MIME);	
+    $finfo = finfo_open(FILEINFO_MIME); 
     $filetype = finfo_file($finfo, $tmpfile);
 
     if (isset($userfilename)) $filename = $userfilename;
@@ -221,26 +220,26 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
       
       $ext = $parts[count($parts)-1];
       switch ($ext) {
-	// Microsoft Office 2007 formats
+  // Microsoft Office 2007 formats
       case "docx":
-	$filetype = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"; break;
+  $filetype = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"; break;
       case "xslx":
-	$filetype = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"; break;
+  $filetype = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"; break;
       case "pptx":
-	$filetype = "application/vnd.openxmlformats-officedocument.presentationml.presentation"; break;
+  $filetype = "application/vnd.openxmlformats-officedocument.presentationml.presentation"; break;
 
-	// OpenOffice.org formats
+  // OpenOffice.org formats
       case "odt":    $filetype = "application/vnd.oasis.opendocument.text"; break;
       case "ods":    $filetype = "application/vnd.oasis.opendocument.spreadsheet"; break;
       case "odp":    $filetype = "application/vnd.oasis.opendocument.presentation"; break;
       }
     }
     
-    $this->dc->setMimetype($filetype);	// mimetype
-    if (isset($this->file))	// new record, not yet ingested into Fedora
+    $this->dc->setMimetype($filetype);  // mimetype
+    if (isset($this->file)) // new record, not yet ingested into Fedora
       $this->file->mimetype = $filetype;
 
-    $this->dc->setFilename(basename($filename));	// temporary file, so directory doesn't matter
+    $this->dc->setFilename(basename($filename));  // temporary file, so directory doesn't matter
 
     /* if this is a PDF, we can get the number of pages
        - this is especially important for pdf of dissertation,
@@ -250,9 +249,10 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
       $pagecalc = new Etd_Controller_Action_Helper_PdfPageTotal();
       $this->dc->setPages($pagecalc->pagetotal($tmpfile));
     }
-    
+      
     // since mimetype from upload info is not reliable, don't rely on that for size either
-    $this->dc->setFilesize(filesize($tmpfile));	// file size in bytes
+    $this->dc->setFilesize(filesize($tmpfile)); // file size in bytes
+    
   }
 
   /**
@@ -260,10 +260,15 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
    * @param string $filename full path to file 
    */
   public function setFile($filename) {
-    $upload_id = $this->fedora->upload($filename);
-    $this->file->url = $upload_id;
-  }
-
+    $this->file->filename = $filename;
+    // calculate and store datastream mimetype here
+    $finfo = finfo_open(FILEINFO_MIME); 
+    $filetype = finfo_file($finfo, $filename);
+    $this->file->mimetype = $filetype;
+    // calculate and set checksum
+    $this->file->checksum = md5_file($filename);          
+  } 
+  
   /**
    * get the binary file datastream as storeed in fedora
    * @return binary
@@ -296,13 +301,13 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
   public function prettyFilename() {
     // build a nice, user-friendly filename
     $filename = strtolower($this->etd->mods->author->last) . "_";
-    $nonfilechars = array("'", ",");	// what other characters are likely to occur in names?
-    $replace = array();	// replace all with empty strings 
+    $nonfilechars = array("'", ",");  // what other characters are likely to occur in names?
+    $replace = array(); // replace all with empty strings 
     $filename =  str_replace($nonfilechars, $replace, $filename);
 
     switch ($this->type) {
-    case "pdf":	$filename .= "dissertation"; break;
-    case "original":	$filename .= "original";  break;
+    case "pdf": $filename .= "dissertation"; break;
+    case "original":  $filename .= "original";  break;
     case "supplement": $filename .= "supplement"; break;
     }
 
@@ -314,9 +319,9 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
     case "application/pdf":  $ext = "pdf"; break;
     case "application/msword":  $ext = "doc"; break;
     default:
-      if (isset($this->dc->filename)) {		// stored original filename
-	$parts = explode(".", $this->dc->filename);
-	$ext = $parts[count($parts)-1];	// trust user's extension from original file
+      if (isset($this->dc->filename)) {   // stored original filename
+  $parts = explode(".", $this->dc->filename);
+  $ext = $parts[count($parts)-1]; // trust user's extension from original file
       }
     }
     if (isset($ext)) $filename .= "." . $ext;
@@ -335,14 +340,15 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
     
     // FIXME: is there any way to use view/controller helper to build this url?
     $ark = $persis->generateArk("http://etd.library.emory.edu/file/view/pid/emory:{%PID%}",
-				$this->etd->label . " : " . $this->label . " (" . $this->type . ")");
+        $this->etd->label . " : " . $this->label . " (" . $this->type . ")");
     $pid = $persis->pidfromArk($ark);
     $this->pid = $pid;
 
     // store the full ark as an additional identifier
     $this->dc->setArk($ark);
     
-    return $this->fedora->ingest($this->saveXML(), $message);
+    // use parent ingest logic to construct new foxml & datastreams appropriately
+    return parent::ingest($message);    
     }
 
 
@@ -354,7 +360,7 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
    * @return string timestamp on success
    */
   public function purge($message) {
-    $rel = "rel:has" . ucfirst($this->type);	
+    $rel = "rel:has" . ucfirst($this->type);  
     if ($this->type == "pdf")
       $rel = "rel:hasPDF";
     // maybe add removePdf, removeSupplement, etc. functions for etd_rels ?
@@ -378,7 +384,7 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
    * @return string date modified
    */
   public function delete($message) {
-    $rel = "rel:has" . ucfirst($this->type);	
+    $rel = "rel:has" . ucfirst($this->type);  
     if ($this->type == "pdf")
       $rel = "rel:hasPDF";
     // maybe add removePdf, removeSupplement, etc. functions for etd_rels ?
@@ -397,14 +403,14 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
       $owner = "";
       
       if (Zend_Registry::isRegistered('logger')) {
-	$logger = Zend_Registry::get('logger');
-	$logger->warn("Could not determine owner for etdFile " . $this->pid . "; owner will be lost in marking object as deleted");
+  $logger = Zend_Registry::get('logger');
+  $logger->warn("Could not determine owner for etdFile " . $this->pid . "; owner will be lost in marking object as deleted");
       }
     }
 
     return $this->fedora->modifyObject($this->pid, $this->label, $message,
-				       "D",	// set status to Deleted
-				       $owner);
+               "D", // set status to Deleted
+               $owner);
   }
 
 
@@ -418,7 +424,7 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
     $this->setFileInfo($filename);   // update mimetype, filesize, and pages if appropriate       
     $upload_id = $this->fedora->upload($filename);
     return $this->fedora->modifyBinaryDatastream($this->pid, "FILE", "Binary File", $this->dc->mimetype,
-						 $upload_id, $message);
+             $upload_id, $message);
   }
 
 
@@ -459,9 +465,8 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
 }  
 
 
-class file_for_ingest extends foxmlIngestStream {
-  public static function getFedoraTemplate(){
-    return foxml::ingestDatastreamTemplate("FILE", "Binary File", "application/pdf", "M");
-    // note: pdf is just a guess, should be updated by script that initializes this
-  }
+class masterDatastream extends fileDatastream {
+    public $label = 'Binary File (archival copy)';
+    public $mimetype = 'application/pdf';   // default, should be updated if different
+    public $checksum_type = 'MD5';
 }
