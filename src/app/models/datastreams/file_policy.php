@@ -42,8 +42,8 @@ class EtdFileXacmlPolicy extends XacmlPolicy {
     //    valid according to the schema
     if (isset($this->published)) {
       if (! preg_match("/^\d{4}-\d{2}-\d{2}$/",
-		       $this->published->condition->embargo_end))
-	return false;
+           $this->published->condition->embargo_end))
+        return false;
     }
     return parent::isValid();
   }
@@ -60,13 +60,12 @@ class EtdFileXacmlPolicy extends XacmlPolicy {
     
     return $policy->saveXML();
   }
-
-  public static function getFedoraTemplate(){
-    return foxml::xmlDatastreamTemplate("POLICY", XacmlPolicy::dslabel,
-					EtdFileXacmlPolicy::getTemplate(), "A", "false");
-  }
-
-
+  
+  private function construct_from_template() {
+    $dom = new DOMDocument();
+    $dom->loadXML(self::getTemplate());
+    return $dom;
+  }  
 
 }
 
@@ -116,9 +115,9 @@ class EtdFileXacmlRules {
       <Resource>
         <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
             <AttributeValue 
-		DataType="http://www.w3.org/2001/XMLSchema#string">info:fedora/emory-control:EtdFile-1.0</AttributeValue>
+    DataType="http://www.w3.org/2001/XMLSchema#string">info:fedora/emory-control:EtdFile-1.0</AttributeValue>
             <ResourceAttributeDesignator 
-		AttributeId="info:fedora/fedora-system:def/model#hasModel"
+    AttributeId="info:fedora/fedora-system:def/model#hasModel"
                 DataType="http://www.w3.org/2001/XMLSchema#string"/>
         </ResourceMatch>
       </Resource>
@@ -139,7 +138,7 @@ class EtdFileXacmlRules {
           </ActionMatch>
         </Action>
 
-	<!-- using modifyObject to set object status to Deleted -->
+  <!-- using modifyObject to set object status to Deleted -->
         <Action>
           <ActionMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
             <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">urn:fedora:names:fedora:2.1:action:id-modifyObject</AttributeValue>
@@ -208,7 +207,7 @@ const published = '<Rule xmlns="urn:oasis:names:tc:xacml:1.0:policy"  RuleId="pu
      <Condition FunctionId="urn:oasis:names:tc:xacml:1.0:function:date-greater-than-or-equal">
        <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:date-one-and-only">
          <EnvironmentAttributeDesignator 
-	    AttributeId="urn:fedora:names:fedora:2.1:environment:currentDate"
+      AttributeId="urn:fedora:names:fedora:2.1:environment:currentDate"
             DataType="http://www.w3.org/2001/XMLSchema#date"/>
        </Apply>
        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#date"/>
