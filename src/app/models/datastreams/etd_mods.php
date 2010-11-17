@@ -901,7 +901,7 @@ class etd_mods extends mods {
   /**
    * overrides function from base class to allow the correct xml file to be loaded
    */
-  private function construct_from_template() {
+  protected function construct_from_template() {
     $dom = new DOMDocument();
     $dom->loadXML(file_get_contents("etd_mods.xml", FILE_USE_INCLUDE_PATH));
     return $dom;

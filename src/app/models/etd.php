@@ -92,9 +92,11 @@ class etd extends foxml implements etdInterface {
       $this->rels_ext;
 
       // check that etd content model is present; otherwise, wrong type of object
-      if (isset($config) && (!isset($this->rels_ext->hasModel) ||
-           !$this->rels_ext->hasModels->includes($this->fedora->risearch->pid_to_risearchpid($config->contentModels->etd)))) {
-  throw new FoxmlBadContentModel("$arg does not have etd content model " . $config->contentModels->etd);
+      if ($this->rels_ext) {
+          if (isset($config) && (!isset($this->rels_ext->hasModel) ||
+               !$this->rels_ext->hasModels->includes($this->fedora->risearch->pid_to_risearchpid($config->contentModels->etd)))) {
+            throw new FoxmlBadContentModel("$arg does not have etd content model " . $config->contentModels->etd);
+          }
       }
 
       // member of collections, attempt to find collection that matches a per-school config
