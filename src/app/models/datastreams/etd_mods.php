@@ -499,6 +499,9 @@ class etd_mods extends mods {
    * @return int|null null if not set
    */
   public function embargoRequestLevel() {
+    
+    if (!isset($this->embargo_request)) return NULL;
+    
     $embargo = $this->embargo_request;
 
     if (strpos($embargo, "no") === 0)
