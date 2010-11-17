@@ -25,9 +25,9 @@ class etd_dc extends dublin_core {
     parent::configure();
 
     // adjustments a few stock dc fields
+    // TODO: update etd code to use base class mappings of identifiers and subjects
     $this->xmlconfig['identifier']['is_series'] = true;
     $this->xmlconfig['subject']['is_series'] = true;	 
-    $this->xmlconfig['format']['is_series'] = true;	 // ?
 
     // a few special cases 
     $this->xmlconfig["ark"] = array("xpath" => "dc:identifier[contains(., 'ark')]");
@@ -52,10 +52,13 @@ class etd_dc extends dublin_core {
     $this->update();
     if (isset($this->mimetype)) {
       $this->mimetype = $type;
+    } else if (! count($this->formats)) {
+      // if no dc:format elements are present, append will fail, so just set first format element
+      $this->format = $type;
     } else {
-      $this->format->append($type);
-      $this->update();
+      $this->formats->append($type);
     }
+    $this->update();
   }
 
   /**
@@ -64,12 +67,15 @@ class etd_dc extends dublin_core {
    */
   public function setPages($num) {
     $this->update();
+    $value = "$num p.";
     if (isset($this->pages)) {
       $this->pages = "$num p.";
+    } else if (! count($this->formats)) {
+      $this->format = "$num p.";
     } else {
-      $this->format->append("$num p.");
-      $this->update();
+      $this->formats->append("$num p.");
     }
+    $this->update();
   }
 
   /**
@@ -80,10 +86,12 @@ class etd_dc extends dublin_core {
     $this->update();
     if (isset($this->filesize)) {
       $this->filesize = $num;
+    } else if (! count($this->formats)) {
+      $this->format = $num;
     } else {
-      $this->format->append($num);
-      $this->update();
+      $this->formats->append($num);
     }
+    $this->update();
   }
 
   /**
