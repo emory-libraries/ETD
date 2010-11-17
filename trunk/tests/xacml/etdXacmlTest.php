@@ -334,7 +334,7 @@ class TestEtdXacml extends UnitTestCase {
     $result = null;
     try {
         $result = $fedora->modifyXMLDatastream($etd->pid, "PREMIS",
-						    $etd->premis->datastream_label(),
+						    $etd->premis->dslabel,
 						    $etd->premis->saveXML(),
                             "test author permissions - modify PREMIS on non-draft etd");
     } catch (Exception $e) {
@@ -349,7 +349,7 @@ class TestEtdXacml extends UnitTestCase {
     $etd->policy->removeRule("view");    // POLICY
     try {
         $result = $fedora->modifyXMLDatastream($etd->pid, "POLICY",
-						    $etd->policy->datastream_label(),
+						    $etd->policy->dslabel,
 						    $etd->policy->saveXML(), "test author permissions - modify POLICY on non-draft etd");
     } catch (Exception $e) {
         $exception = $e;
@@ -390,7 +390,7 @@ class TestEtdXacml extends UnitTestCase {
     $result = null;
     try {
       $result = $fedora->modifyXMLDatastream($etd->pid, "DC",
-                                $etd->dc->datastream_label(),
+                                $etd->dc->dslabel,
                                 $etd->dc->saveXML(), "test committee permissions - modify DC");
     } catch (Exception $e) {
         $exception = $e;
@@ -405,7 +405,7 @@ class TestEtdXacml extends UnitTestCase {
     // save just the datastream we want to test
     try {        
         $result = $fedora->modifyXMLDatastream($etd->pid, "MODS",
-						    $etd->mods->datastream_label(),
+						    $etd->mods->dslabel,
 						    $etd->mods->saveXML(), "test committee permissions - modify MODS");
     } catch (Exception $e) {
         $exception = $e;
@@ -419,7 +419,7 @@ class TestEtdXacml extends UnitTestCase {
     $etd->html->title = "newest title";    //   XHTML
     try {        
         $result = $fedora->modifyXMLDatastream($etd->pid, "XHTML",
-						    $etd->html->datastream_label(),
+						    $etd->html->dslabel,
 						    $etd->html->saveXML(), "test committee permissions - modify XHTML");
     } catch (Exception $e) {
         $exception = $e;        
@@ -433,7 +433,7 @@ class TestEtdXacml extends UnitTestCase {
     $etd->rels_ext->status = "reviewed";    // RELS-EXT
     try {
       $result = $fedora->modifyXMLDatastream($etd->pid, "RELS-EXT",
-						   $etd->rels_ext->datastream_label(),
+						   $etd->rels_ext->dslabel,
 						   $etd->rels_ext->saveXML(), "test committee permissions - modify RELS-EXT");
     } catch (Exception $e) {
       $exception = $e;
@@ -447,7 +447,7 @@ class TestEtdXacml extends UnitTestCase {
                             array("testid", "author"));    	// PREMIS
     try {
         $result = $fedora->modifyXMLDatastream($etd->pid, "PREMIS",
-						    $etd->premis->datastream_label(),
+						    $etd->premis->dslabel,
 						    $etd->premis->saveXML(), "test committee permissions - modify PREMIS");
     } catch (Exception $e) {
         $exception = $e;
@@ -461,7 +461,7 @@ class TestEtdXacml extends UnitTestCase {
     $etd->policy->removeRule("view");    // POLICY
     try {
         $result = $fedora->modifyXMLDatastream($etd->pid, "POLICY",
-						     $etd->policy->datastream_label(),
+						     $etd->policy->dslabel,
 						     $etd->policy->saveXML(), "test committee permissions - modify POLICY");
     } catch (Exception $e) {
       $exception = $e;
@@ -520,14 +520,14 @@ class TestEtdXacml extends UnitTestCase {
     // admin needs access to modify MODS for setting embargo duration, admin notes, etc.
     $etd->mods->title = "new title";    //   MODS
     $this->assertNotNull($fedora->modifyXMLDatastream($etd->pid, "MODS",
-                                $etd->mods->datastream_label(),
+                                $etd->mods->dslabel,
                                 $etd->mods->saveXML(), "test etdadmin permissions - modify MODS"),
                    "etdadmin can modify MODS");
     
     // if MODS is modified, DC will be updated also   - so etdadmin needs permissions
     $etd->dc->title = "newer title";	  //   DC
     $this->assertNotNull($fedora->modifyXMLDatastream($etd->pid, "DC",
-                                $etd->dc->datastream_label(),
+                                $etd->dc->dslabel,
                                 $etd->dc->saveXML(), "test etdadmin permissions - modify DC"),
                    "etdadmin can modify DC");
 
@@ -535,7 +535,7 @@ class TestEtdXacml extends UnitTestCase {
     $etd->html->calculateChecksum();
     $etd->html->title = "newest title";    //   XHTML
     $this->assertNotNull($fedora->modifyXMLDatastream($etd->pid, "XHTML",
-                                $etd->html->datastream_label(),
+                                $etd->html->dslabel,
                                 $etd->html->saveXML(), "test etdadmin permissions - modify XHTML"),
 			 "etdadmin can modify XHTML");
 
@@ -543,7 +543,7 @@ class TestEtdXacml extends UnitTestCase {
     $etd->html->calculateChecksum();
     $etd->html->title = "newest title";    //   XHTML
     $this->assertNotNull($fedora->modifyXMLDatastream($etd->pid, "XHTML",
-                                $etd->html->datastream_label(),
+                                $etd->html->dslabel,
                                 $etd->html->saveXML(), "test etdadmin permissions - modify XHTML"),
                    "etdadmin can modify XHTML");
   }
