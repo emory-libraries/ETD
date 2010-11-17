@@ -429,12 +429,12 @@ class etd extends foxml implements etdInterface {
     if ($relation != "Original") {
       // add netids for advisor and committee if they have already been set
       foreach (array_merge($this->mods->chair, $this->mods->committee) as $committee) {
-  if ($committee->id != "")
-    $etdfile->policy->view->condition->addUser($committee->id);
+        if ($committee->id != "")
+          $etdfile->policy->view->condition->addUser($committee->id);
       }
       // if department has already been set, add to the view rule for departmental staff
-      if ($this->mods->department != "")
-  $etdfile->policy->view->condition->department = $this->mods->department;
+      if (isset($this->mods->department) && $this->mods->department != "")
+        $etdfile->policy->view->condition->department = $this->mods->department;
     }
 
 
