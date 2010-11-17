@@ -1152,9 +1152,11 @@ class etd extends foxml implements etdInterface {
     }
     return $committee;
   }
-        // how to handle non-emory committee?
-    // dissertation/thesis/etc
-  public function document_type() { return $this->mods->genre; }
+  // how to handle non-emory committee?
+  // dissertation/thesis/etc
+  public function document_type() { 
+    return (isset($this->mods->genre)) ? $this->mods->genre : null; 
+  }
   public function language() { return $this->mods->language; }
   public function year() {
     if ($date = $this->mods->date)    // if date is set
