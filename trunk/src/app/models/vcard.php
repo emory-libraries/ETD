@@ -15,7 +15,13 @@ require_once("fedora/models/foxml.php");
 class vcard extends XmlObject {
   const namespace = "http://www.w3.org/2001/vcard-rdf/3.0#";
   
-  public function __construct($dom, $xpath = null) {
+  public $dslabel = "User Information";
+  public $control_group = FedoraConnection::MANAGED_DATASTREAM;
+  public $state = FedoraConnection::STATE_ACTIVE;
+  public $versionable = true;
+  public $mimetype = 'text/xml';  
+  
+  public function __construct($dom=null, $xpath = null) { 
     $this->addNamespace("v", self::namespace);
 
     $config = $this->config(array(
@@ -40,35 +46,33 @@ class vcard extends XmlObject {
    */
   public static function getTemplate() {
     return '<v:VCARD xmlns:v="http://www.w3.org/2001/vcard-rdf/3.0#">
-  <v:FN/>
-  <v:N>
-    <v:Family/>
-    <v:Given/>
-    <v:Other/>
-    <v:Prefix/>
-    <v:Suffix/>
-  </v:N>
-  <v:TEL/>
-  <v:EMAIL OTHERTYPE="current"/>
-  <v:EMAIL OTHERTYPE="permanent"/>
-  <v:ADR>
-    <v:Street/>
-    <v:Locality/>
-    <v:Region/>
-    <v:Pcode/>
-    <v:Country/>
-  </v:ADR>
-  <v:UID TYPE="netid"/>
-</v:VCARD>';
+      <v:FN/>
+      <v:N>
+        <v:Family/>
+        <v:Given/>
+        <v:Other/>
+        <v:Prefix/>
+        <v:Suffix/>
+      </v:N>
+      <v:TEL/>
+      <v:EMAIL OTHERTYPE="current"/>
+      <v:EMAIL OTHERTYPE="permanent"/>
+      <v:ADR>
+        <v:Street/>
+        <v:Locality/>
+        <v:Region/>
+        <v:Pcode/>
+        <v:Country/>
+      </v:ADR>
+      <v:UID TYPE="netid"/>
+    </v:VCARD>';
   }
 
-  public static function getFedoraTemplate(){
-    return foxml::xmlDatastreamTemplate("vCard", "User Information", self::getTemplate());
+  private function construct_from_template() {
+    $dom = new DOMDocument();
+    $dom->loadXML(self::getTemplate());
+    return $dom;
   }
-
-  /*  public function getDOM() {
-    return $this->dom;
-    }*/
 }
 
 class vcard_name extends XmlObject {
