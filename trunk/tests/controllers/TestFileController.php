@@ -45,7 +45,7 @@ class FileControllerTest extends ControllerTestCase {
     $dom->loadXML(file_get_contents('../fixtures/etd2.xml'));
     $foxml = new foxml($dom);
     $foxml->pid = $this->etdpid;
-    $this->fedora->ingest($foxml->saveXML(), "loading test etd object");
+    $foxml->ingest("loading test etd object");
 
     // use mock etd object to simplify permissions/roles/etc
     $this->mock_etdfile = &new MockEtdFile();

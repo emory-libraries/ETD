@@ -29,12 +29,12 @@ class TestEtdSet extends UnitTestCase {
     $etd = new etd($school_cfg->graduate_school);
     $etd->pid = $this->etdpid;
     $etd->title = "regular etd";
-    $this->fedora->ingest($etd->saveXML(), "test etd factory init");
+    $etd->ingest("test etd factory init");
     
     $etd = new etd($school_cfg->emory_college);
     $etd->pid = $this->honors_etdpid;
     $etd->title = "honors etd";
-    $this->fedora->ingest($etd->saveXML(), "test etd factory init");
+    $etd->ingest("test etd factory init");
     
 
     $solr = new Mock_Etd_Service_Solr();

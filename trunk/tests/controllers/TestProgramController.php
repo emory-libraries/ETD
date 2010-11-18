@@ -46,7 +46,7 @@ class ProgramControllerTest extends ControllerTestCase {
     $foxml = new foxml($dom);
     $foxml->pid = $this->pid;
 
-    $this->fedora->ingest($foxml->saveXML(), "loading test object");
+    $foxml->ingest("loading test object");
 
     // store real config to restore later
     $this->_realconfig = Zend_Registry::get('config');
