@@ -42,8 +42,9 @@ class TestEtdFileXacml extends UnitTestCase {
     //    $etdfile->policy->view->condition->department = "department";
     $etdfile->policy->addRule("draft");
     $etdfile->policy->draft->condition->user = "author";
-    
-    $this->fedoraAdmin->ingest($etdfile->saveXML(), "loading test object");
+
+    setFedoraAccount("fedoraAdmin");
+    $etdfile->ingest("loading test object");
   }
 
   function tearDown() {
@@ -74,6 +75,7 @@ class TestEtdFileXacml extends UnitTestCase {
     $yesterday = time() - (24 * 60 * 60);	// now - 1 day (24 hours; 60 mins; 60 secs)
     $etdfile->policy->published->condition->embargo_end = date("Y-m-d", $yesterday);
     $result = $etdfile->save("added published rule to test guest permissions");
+    $this->assertNotNull($result);
 
     setFedoraAccount("guest");
     $etdfile = new etd_file($this->pid);

@@ -334,18 +334,20 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
    * @return string pid on successful ingest
    */
   public function ingest($message) {
-    // could generate service unavailable exception - should be caught in the controller
-    $persis = new Emory_Service_Persis(Zend_Registry::get('persis-config'));
-    
-    // FIXME: is there any way to use view/controller helper to build this url?
-    $ark = $persis->generateArk("http://etd.library.emory.edu/file/view/pid/emory:{%PID%}",
-        $this->etd->label . " : " . $this->label . " (" . $this->type . ")");
-    $pid = $persis->pidfromArk($ark);
-    $this->pid = $pid;
+    // mint a new pid if the pid is not already set
+    if ($this->pid == "") {
+        // could generate service unavailable exception - should be caught in the controller
+        $persis = new Emory_Service_Persis(Zend_Registry::get('persis-config'));
 
-    // store the full ark as an additional identifier
-    $this->dc->setArk($ark);
-    
+        // FIXME: is there any way to use view/controller helper to build this url?
+        $ark = $persis->generateArk("http://etd.library.emory.edu/file/view/pid/emory:{%PID%}",
+            $this->etd->label . " : " . $this->label . " (" . $this->type . ")");
+        $pid = $persis->pidfromArk($ark);
+        $this->pid = $pid;
+
+        // store the full ark as an additional identifier
+        $this->dc->setArk($ark);
+    }    
     // use parent ingest logic to construct new foxml & datastreams appropriately
     return parent::ingest($message);    
     }
