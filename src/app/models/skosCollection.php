@@ -244,7 +244,7 @@ class collectionHierarchy extends foxmlDatastreamAbstract {
      "skos" => collectionHierarchy::SKOS);
   }
 
-  private function construct_from_template() {
+  protected function construct_from_template() {
     $base = '<rdf:RDF
           xmlns:dc="http://purl.org/dc/elements/1.1/"
           xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"

@@ -34,6 +34,10 @@ class foxmlPrograms extends foxmlSkosCollection {
       $dom->loadXML($xml);
       $this->map[$ds] = new $this->xmlconfig[$ds]['class_name']($dom, $id);
     }
+    // set datastream info on datastream object so it can be saved correctly
+    $info = $this->fedora->getDatastreamInfo($this->pid, $this->xmlconfig[$ds]['dsID']);
+    $this->map[$ds]->setDatastreamInfo($info, $this);
+
   }
   protected function configure() {
     parent::configure();
