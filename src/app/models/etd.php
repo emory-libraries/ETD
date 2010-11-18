@@ -905,22 +905,25 @@ class etd extends foxml implements etdInterface {
        but the policy->isValid can only validate the entire record (since it is all in one DOM).
      */
 
-    // could generate service unavailable exception - should be caught in the controller
-    $persis = new Emory_Service_Persis(Zend_Registry::get('persis-config'));
-    
-    // FIXME: use view/controller to build this url?
-    $ark = $persis->generateArk("http://etd.library.emory.edu/view/record/pid/emory:{%PID%}", $this->label);
-    $pid = $persis->pidfromArk($ark);
-    list($nma, $naan, $noid) = $persis->parseArk($ark);
+    // mint a new pid if the pid is not already set
+    if ($this->pid == "") {
+        // could generate service unavailable exception - should be caught in the controller
+        $persis = new Emory_Service_Persis(Zend_Registry::get('persis-config'));
 
-    $this->pid = $pid;
-    // resolvable uri ark is identifier and primary display
-    $this->mods->identifier = $ark;
-    $this->mods->location->primary = $ark;
-    // also store short-form ark
-    $this->mods->ark = "ark:/" . $naan . "/" . $noid;
+        // FIXME: use view/controller to build this url?
+        $ark = $persis->generateArk("http://etd.library.emory.edu/view/record/pid/emory:{%PID%}", $this->label);
+        $pid = $persis->pidfromArk($ark);
+        list($nma, $naan, $noid) = $persis->parseArk($ark);
 
-    return $this->fedora->ingest($this->saveXML(), $message);
+        $this->pid = $pid;
+        // resolvable uri ark is identifier and primary display
+        $this->mods->identifier = $ark;
+        $this->mods->location->primary = $ark;
+        // also store short-form ark
+        $this->mods->ark = "ark:/" . $naan . "/" . $noid;
+    }
+    // use parent ingest logic to construct new foxml & datastreams appropriately
+    return parent::ingest($message);
   }
 
 

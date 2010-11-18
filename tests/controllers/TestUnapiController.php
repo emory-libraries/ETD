@@ -35,7 +35,7 @@ class UnapiControllerTest extends ControllerTestCase {
     $dom->loadXML(file_get_contents('../fixtures/etd1.xml'));
     $foxml = new foxml($dom);
     $foxml->pid = $this->testpid;
-    $fedora->ingest($foxml->saveXML(),  "loading test etd");
+    $foxml("loading test etd");
     // construct fake ark to use for unAPI id
     $this->testark = 'http://pid/ark:/123/' . preg_replace("/^.*:/", "", $this->testpid);
   }
