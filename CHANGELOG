@@ -1,6 +1,10 @@
 CHANGE LOG 
 =================
 
+Version 1.8.5 - November 2010 (minor update - utility script)
+-------------------------------------------------------------
+* New script that can be used to index just ETD content in GSearch: reindex.php
+
 Manual Config Change - November 2010
 ------------------------------------
 * schools.xml ->  rollins -> submission_fields:
