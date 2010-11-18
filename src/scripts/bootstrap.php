@@ -6,9 +6,11 @@
  */
 
 
-
-// ZendFramework, etc.
-ini_set("include_path", "../app/:../config:../app/models:../app/modules/:../lib:../lib/fedora:../lib/xml-utilities:js/:/home/rsutton/public_html:" . ini_get("include_path")); 
+// set include path to include local libraries, ZendFramework, etc.
+$srcdir = dirname(__FILE__) . '/..';
+ini_set("include_path", "$srcdir/app/:$srcdir/config:$srcdir/app/models:" .
+    "$srcdir/app/modules/:$srcdir/lib:$srcdir/lib/fedora:$srcdir/lib/xml-utilities:" .
+    "$srcdir/js/:" . ini_get("include_path"));
 
 require("Zend/Loader/Autoloader.php");
 $autoloader = Zend_Loader_Autoloader::getInstance();
@@ -19,11 +21,12 @@ require_once("models/datastreams/etdfile.php");
 require_once("models/etd_notifier.php");
 require_once("api/FedoraConnection.php");
 
-$env_config = new Zend_Config_Xml("../config/environment.xml", "environment");
+$env_config = new Zend_Config_Xml("$srcdir/config/environment.xml", "environment");
 Zend_Registry::set('env-config', $env_config);
-$config = new Zend_Config_Xml("../config/config.xml", $env_config->mode);
+$config = new Zend_Config_Xml("$srcdir/config/config.xml", $env_config->mode);
 Zend_Registry::set('config', $config);
-$fedora_cfg = new Zend_Config_Xml("../config/fedora.xml", $env_config->mode);
+$fedora_cfg = new Zend_Config_Xml("$srcdir/config/fedora.xml", $env_config->mode);
+Zend_Registry::set('fedora-config', $fedora_cfg);
 
 // needs to connect to Fedora using maintenance account to view and modify unpublished records
 try {
