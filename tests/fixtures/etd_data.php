@@ -22,7 +22,6 @@ class etd_test_data {
 
   public function loadAll() {
     // combine field names as array keys, data for values to generate format needed for db insert
-    $this->db->query("truncate table {$this->table}");    
     foreach ($this->data as $row) {
       $this->db->insert($this->table, array_combine($this->fields, $row));
     }
@@ -30,7 +29,7 @@ class etd_test_data {
   }
 
   public function cleanUp() {
-    $this->db->query("truncate table {$this->table}");
+          $this->db->query("truncate table {$this->table}");
   }
 }
 

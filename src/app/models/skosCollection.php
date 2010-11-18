@@ -16,13 +16,9 @@ class collectionHierarchy extends foxmlDatastreamAbstract {
   const RDF = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
   const RDFS = "http://www.w3.org/2000/01/rdf-schema#";
   const SKOS = "http://www.w3.org/2004/02/skos/core#";
-  
-  public $dslabel;
-  public $control_group = FedoraConnection::MANAGED_DATASTREAM;
-  public $state = FedoraConnection::STATE_ACTIVE;
-  public $versionable = true;
-  public $mimetype = 'text/xml';  
 
+  const dslabel = "Collection Hierarchy";
+    
   protected $dc_namespace = "http://purl.org/dc/elements/1.1/";
   protected $rdf_namespace = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
   protected $rdfs_namespace = "http://www.w3.org/2000/01/rdf-schema#";
@@ -36,12 +32,7 @@ class collectionHierarchy extends foxmlDatastreamAbstract {
   // reference to parent collection (if not at top level)
   public $parent;
   
-  public function __construct($dom=null, $id) {
-    
-    if (is_null($dom)) {
-      $dom = $this->construct_from_template();
-    }    
-    
+  public function __construct($dom, $id) {
     $this->id = $id;
     $this->addNamespace("dc", $this->dc_namespace);    
     $this->addNamespace("rdf", $this->rdf_namespace);
@@ -244,15 +235,20 @@ class collectionHierarchy extends foxmlDatastreamAbstract {
      "skos" => collectionHierarchy::SKOS);
   }
 
-  protected function construct_from_template() {
-    $base = '<rdf:RDF
+
+
+  /** required to extend foxmlDatastreamAbstract - but not currently used **/
+  public static function getFedoraTemplate(){
+    return foxml::xmlDatastreamTemplate("SKOS", collectionHierarchy::dslabel,
+          '<rdf:RDF
           xmlns:dc="http://purl.org/dc/elements/1.1/"
           xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
           xmlns:skos="http://www.w3.org/2004/02/skos/core#"
-          xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"/>';
-    $dom = new DOMDocument();
-    $dom->loadXML($base);
-    return $dom;
+          xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"/>');
+  }
+  
+  public function datastream_label() {
+    return collectionHierarchy::dslabel;
   }
 
   public function getId() {

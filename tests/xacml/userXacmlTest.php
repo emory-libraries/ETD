@@ -78,13 +78,13 @@ class TestUserXacml extends UnitTestCase {
     // should be able to modify these datastreams
     $authorInfo->dc->title = "new title";    	//   DC
     $this->assertNotNull($fedora->modifyXMLDatastream($authorInfo->pid, "DC",
-                                $authorInfo->dc->dslabel,
+                                $authorInfo->dc->datastream_label(),
                                 $authorInfo->dc->saveXML(), "test etdadmin permissions - modify DC"),
                    "test owner permissions - modify DC");
     
     $authorInfo->mads->netid = "username";   // MADS
     $this->assertNotNull($fedora->modifyXMLDatastream($authorInfo->pid, "MADS",
-                                $authorInfo->mads->dslabel,
+                                $authorInfo->mads->datastream_label(),
                                 $authorInfo->mads->saveXML(), "test etdadmin permissions - modify MADS"),
                     "owner can modify MADS");
   }

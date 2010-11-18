@@ -52,7 +52,7 @@ class EditControllerTest extends ControllerTestCase {
     $etd->setSchoolConfig($school_cfg->graduate_school);
     $etd->pid = $this->etdpid;
     $this->prepareForEtdTest($etd);
-    $etd->ingest("test etd object");
+    $this->fedora->ingest($etd->saveXML(), "test etd object");
 
     $honors_etd = new etd($this->loadEtdDom());
     $honors_etd->setSchoolConfig($school_cfg->emory_college);
@@ -63,18 +63,18 @@ class EditControllerTest extends ControllerTestCase {
     $honors_etd->rels_ext->addRelationToResource("rel:isMemberOfCollection",
                                                  $school_cfg->emory_college->fedora_collection);
     $this->prepareForEtdTest($honors_etd);
-    $honors_etd->ingest("test honors etd object");
+    $this->fedora->ingest($honors_etd->saveXML(), "test honors etd object");
 
     $masters_etd = new etd($this->loadEtdDom());
     $masters_etd->pid = $this->masters_etdpid;
     $masters_etd->mods->degree->name = "MA";
     $this->prepareForEtdTest($masters_etd);
-    $masters_etd->ingest("test masters etd object");
+    $this->fedora->ingest($masters_etd->saveXML(), "test masters etd object");
 
     // load author info
     $foxml = new foxml($this->loadAuthorInfoDom());
     $foxml->pid = $this->userpid;
-    $foxml->ingest("loading test etd authorInfo object");
+    $this->fedora->ingest($foxml->saveXML(), "loading test etd authorInfo object");
 
     $this->data = new esd_test_data();
     $this->data->loadAll();

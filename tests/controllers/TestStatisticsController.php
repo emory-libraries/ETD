@@ -71,7 +71,7 @@ class StatisticsControllerTest extends ControllerTestCase {
     $dom->loadXML(file_get_contents('../fixtures/etd1.xml'));
     $foxml = new foxml($dom);
     $foxml->pid = $this->etdpid;
-    $foxml->ingest("loading test etd object");
+    $this->fedora->ingest($foxml->saveXML(), "loading test etd object");
 
     
     

@@ -44,9 +44,9 @@ class TestPremis extends UnitTestCase {
   }
 
   function testAddingEvent() {
-    $date = "2008-01-02T13:00:00-05:00";  // set a date for testing
+    $date = "2008-01-02T13:00:00-05:00";	// set a date for testing
     $this->premis->addEvent("modification", "modified thesis record", "success",
-          array("ldap","testuser"), $date);
+			    array("ldap","testuser"), $date);
 
     $this->assertEqual(2, count($this->premis->event));
     $this->assertIsa($this->premis->event[1], "premis_event");
@@ -63,7 +63,7 @@ class TestPremis extends UnitTestCase {
     $this->premis->removeEvent("emory:0011.1");
     $this->assertEqual(0, count($this->premis->event));
     $this->assertNoPattern("|<premis:eventIdentifierValue>emory:0011.1</premis:eventIdentifierValue>|",
-         $this->premis->saveXML());
+			   $this->premis->saveXML());
 
     // bogus id should generate an error
     $this->expectError("No premis events found matching identifier 'nonexistent'");
@@ -71,10 +71,6 @@ class TestPremis extends UnitTestCase {
     
   }
   
-  function testCreatePremisFromScratch() {
-    $this->scratch_premis = new premis(); 
-    $this->assertIsA($this->scratch_premis, "premis");    
-  }   
 
 }
 

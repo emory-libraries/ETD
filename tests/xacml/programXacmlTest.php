@@ -46,8 +46,8 @@ class TestProgramXacml extends UnitTestCase {
     $dom->load($fname);
     $etd = new etd($dom);
     $etd->pid = $this->pid;
-    $etd->owner = "etdadmin"; // set ownere to etdadmin
-    $etd->ingest("loading test object");    
+    $etd->owner = "etdadmin";	// set ownere to etdadmin
+    $this->fedoraAdmin->ingest($etd->saveXML(), "loading test object");
   }
 
 
@@ -68,9 +68,9 @@ class TestProgramXacml extends UnitTestCase {
 
     // cannot modify
     $this->expectException(new FedoraAccessDenied("modify datastream - " . $this->pid
-                . "/" . $this->dsid));
+					      . "/" . $this->dsid));
     $result = $fedora->modifyXMLDatastream($this->pid, $this->dsid, "program hierarchy",
-             $xml, "testing modify");
+					   $xml, "testing modify");
     // no result from attempted modify
     $this->assertNull($result, "xacml does not allow guest to modify programs");
   }
@@ -84,7 +84,7 @@ class TestProgramXacml extends UnitTestCase {
     
     // *can modify*
     $result = $fedora->modifyXMLDatastream($this->pid, $this->dsid, "program hierarchy",
-             $xml, "modify as etdadmin");
+					   $xml, "modify as etdadmin");
     $this->assertNotNull($result, "xacml does allows etdadmin to modify programs");
 
   }
@@ -98,7 +98,7 @@ class TestProgramXacml extends UnitTestCase {
 
     // *can modify*
     $result = $fedora->modifyXMLDatastream($this->pid, $this->dsid, "program hierarchy",
-             $xml, "modify as etdmaint");
+					   $xml, "modify as etdmaint");
     $this->assertNotNull($result, "xacml allows etdmaint to modify programs");
 
   }

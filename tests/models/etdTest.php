@@ -20,13 +20,13 @@ class TestEtd extends UnitTestCase {
     
     function __construct() {
       $this->fedora = Zend_Registry::get("fedora");
-      $this->fedora_cfg = Zend_Registry::get('fedora-config');
+      $fedora_cfg = Zend_Registry::get('fedora-config');
 
       $this->school_cfg = Zend_Registry::get("schools-config");
       
       // get test pids for fedora objects
       list($this->etdpid, $this->gradpid,
-     $this->non_etdpid) = $this->fedora->getNextPid($this->fedora_cfg->pidspace, 3);
+     $this->non_etdpid) = $this->fedora->getNextPid($fedora_cfg->pidspace, 3);
     }
 
     
@@ -491,7 +491,7 @@ class TestEtd extends UnitTestCase {
     $e->pid = $this->gradpid;
     $e->title = "test grad etd";
     $e->mods->ark = "ark:/123/bcd";
-    $e->ingest("test init with school config");
+    $this->fedora->ingest($e->saveXML(), "test init with school config");
 
     // initialize from fedora
     $etd = new etd($this->gradpid);
@@ -521,14 +521,13 @@ class TestEtd extends UnitTestCase {
 
   function testInitByPid_badcmodel() {
     $obj = new foxml();
-    $obj->pid = $this->fedora->getNextPid($this->fedora_cfg->pidspace);
+    $obj->pid = $this->non_etdpid;
     $obj->label = "test object - non-etd";
-    $pid = $obj->ingest("test init etd - object with wrong cmodel");
-    $this->assertNotNull($pid);
+    $this->fedora->ingest($obj->saveXML(), "test init etd - object with wrong cmodel");
 
     // initialize from fedora - should cause an exception
     try {
-      $etd = new etd($pid);
+      $etd = new etd($this->non_etdpid);
     } catch (FoxmlBadContentModel $e) {
       $exception = $e;
     }
@@ -538,7 +537,7 @@ class TestEtd extends UnitTestCase {
       $this->assertPattern("/does not have etd content model/", $exception->getMessage());
     }
     
-    $this->fedora->purge($pid, "removing test object");
+    $this->fedora->purge($this->non_etdpid, "removing test object");
   }
 
   
@@ -843,7 +842,7 @@ class TestEtd extends UnitTestCase {
       $etd->title = "test etd";
       $etd->mods->ark = "ark:/123/bcd";
       $etd->setStatus("published");            
-      $etd->ingest("test etd magic methods");
+      $this->fedora->ingest($etd->saveXML(), "test etd magic methods");
 
       $etd = new etd($this->etdpid);
       $marcxml = $etd->getMarcxml();
@@ -883,13 +882,12 @@ class TestEtd extends UnitTestCase {
   function testGetPreviousStatus() {
     // ingest a minimal, published record to test fedora methods as object methods
     $etd = new etd($this->school_cfg->emory_college);
-    $etd->pid = $this->fedora->getNextPid($this->fedora_cfg->pidspace);
+    $etd->pid = $this->etdpid;
     $etd->title = "test etd";
     $etd->mods->ark = "ark:/123/bcd";
     $etd->rels_ext->addRelation("rel:author", "me");  
     $etd->setStatus("draft");            
-    $pid = $etd->ingest("test previousStatus");
-    $this->assertNotNull($pid);
+    $this->fedora->ingest($etd->saveXML(), "test previousStatus");
     $this->assertEqual(null, $etd->previousStatus(),
            "previousStatus should return null when there is no previous status, got '"
            . $etd->previousStatus() . "'");
@@ -897,7 +895,7 @@ class TestEtd extends UnitTestCase {
 
     
     // setting status to reviewed; previous status is draft
-    $etd = new etd($pid);
+    $etd = new etd($this->etdpid);
     $etd->setStatus("reviewed");
     $etd->save("setting status to reviewed");
 
@@ -907,7 +905,7 @@ class TestEtd extends UnitTestCase {
 
 
     // setting status to published; previous status is reviewed
-    $etd = new etd($pid);
+    $etd = new etd($this->etdpid);
     $etd->setStatus("published");
     $etd->save("setting status to published");
     // make a non-status-related change to rels-ext; previous status is 2 versions ago, still reviewed
@@ -918,7 +916,7 @@ class TestEtd extends UnitTestCase {
            "previousStatus should return reviewed, got '"
            . $etd->previousStatus() . "'");
 
-    $this->fedora->purge($pid, "removing test etd");
+    $this->fedora->purge($this->etdpid, "removing test etd");
   }
 
   function testUpdateEmbargo() {

@@ -120,12 +120,13 @@ class TestEtdFile extends UnitTestCase {
 		       $etdfile->dc->type . "'");
 
     // file info pulled automatically from the file itself
-    $this->assertEqual(filesize("../fixtures/tinker_sample.pdf"), $etdfile->dc->filesize,
+    // NOTE: assuming a certain order in format fields, may not be reliable
+    $this->assertEqual(filesize("../fixtures/tinker_sample.pdf"), $etdfile->dc->formats[0],
 		       "filesize in dc:format should match '" .
 		       filesize("../fixtures/tinker_sample.pdf") . "', got '" .
-		       $etdfile->dc->filesize . "' instead");
-    $this->assertEqual("application/pdf", $etdfile->dc->mimetype);
-    $this->assertEqual("8", $etdfile->dc->pages);
+		       $etdfile->dc->formats[0] . "' instead");
+    $this->assertEqual("application/pdf", $etdfile->dc->formats[1]);
+    $this->assertEqual("8 p.", $etdfile->dc->formats[2]);
     $this->assertEqual("filename:tinker_sample.pdf", $etdfile->dc->source);
 
     // if genre/doctype is set in etd record, that should be used for title
