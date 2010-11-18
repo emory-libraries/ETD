@@ -58,12 +58,12 @@ class TestEtdXacml extends UnitTestCase {
     $etd->policy->draft->condition->user = "author";
     if (isset($etd->policy->published)) $etd->policy->removeRule("published");
     
-    $this->fedoraAdmin->ingest($etd->saveXML(), "loading test object");
+    $etd->ingest("loading test object");
 
     //ingest collection object
-     $collection = new FedoraCollection();
-     $collection->pid = $this->collectionpid;
-     $collection->owner = "etdadmin";	// set owner to etdadmin  to allow for editing by superusers
+    $collection = new FedoraCollection();
+    $collection->pid = $this->collectionpid;
+    $collection->owner = "etdadmin";	// set owner to etdadmin  to allow for editing by superusers
     $collection->ingest("creating test object");
 
 
