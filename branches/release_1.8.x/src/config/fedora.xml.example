@@ -21,6 +21,10 @@
 	<server>dev11.library.emory.edu</server>
 	<server/>
       </alternate_hosts>
+    <gsearch>
+      <index>ETDsolr</index>
+      <repository>FedoraRepository</repository>
+    </gsearch>
   </development>
   <test extends="development">
      <port></port>

@@ -1,5 +1,14 @@
 ETD Release Notes
 =================
+
+Version 1.8.5 - October 2010 (minor update)
+ * New script that can be used to index just ETD content in GSearch: reindex.php
+
+ Deployment notes:
+ * Using the new reindex.php script that can be used to update the GSearch index
+   for all ETD content requires updating config/fedora.xml
+   with the gsearch index and repository name; see fedora.xml.example.
+
 Version 1.8.4 - October 2010 (bugfix)
  * Corrected permission check for edit school link:
 
