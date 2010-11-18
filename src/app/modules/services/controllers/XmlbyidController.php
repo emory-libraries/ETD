@@ -30,24 +30,23 @@ class Services_XmlbyidController extends Zend_Controller_Action {
     $id = $this->_getParam("id");   
     try {
       
-      // parse the datastream url into component pieces
-      if (preg_match("|(https?)://([a-z0-9.]+):([0-9]+)/[^/]+/get/([-a-zA-z:0-9]+)/([a-zA-Z0-9]+)/?(.*)?|", $url, $matches)) {
-	list($full_match, $protocol, $hostname, $port, $pid, $datastream, $datetime) = $matches;
+      // parse the datastream url into component pieces - expects REST API datastream url
+      if (preg_match("|(https?)://([a-z0-9.]+):([0-9]+)/[^/]+/objects/([-a-zA-z:0-9]+)/datastreams/([a-zA-Z0-9]+)/?(.*)?|", $url, $matches)) {
+        list($full_match, $protocol, $hostname, $port, $pid, $datastream, $datetime) = $matches;
 
 
-	// check url against the configured fedora instance before sending credentials
-	if (! $this->authorized($hostname, $port)) {
 
+        // check url against the configured fedora instance before sending credentials
+        if (! $this->authorized($hostname, $port)) {
+              // should match either main protocol & port or http & nonssl port (if configured)
+              // hostnames should resolve to the same ip
 
-	  // should match either main protocol & port or http & nonssl port (if configured)
-	  // hostnames should resolve to the same ip
-	  
-      $this->_response->setHttpResponseCode(403);
-      $this->_response->setBody("Not configured to access '$url'");
+              $this->_response->setHttpResponseCode(403);
+              $this->_response->setBody("Not configured to access '$url'");
 
-      //throw new Exception("Not configured to access '$url'");
-      return;
-} 
+              //throw new Exception("Not configured to access '$url'");
+              return;
+        }
       
 
       // create a new FedoraConnection using fedora config, but with maintenance account credentials
