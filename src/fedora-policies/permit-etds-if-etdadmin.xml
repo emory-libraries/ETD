@@ -210,7 +210,7 @@ access and modify (with some limitations) etd objects (etd, etdfile, user)</Desc
 
 
   <Rule RuleId="permit-info" Effect="Permit">
-  <!--  by default, deny access (unless granted in object's policy) -->
+  <!--  allow certain object info methods that php object init relies on -->
     <Target>
       <Subjects>
         <AnySubject/>
@@ -229,6 +229,16 @@ access and modify (with some limitations) etd objects (etd, etdfile, user)</Desc
           <ActionMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
             <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">urn:fedora:names:fedora:2.1:action:id-listDatastreams</AttributeValue>
             <ActionAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:action:id" DataType="http://www.w3.org/2001/XMLSchema#string"/>
+          </ActionMatch>
+        </Action>
+       <!-- allow access to datastream profile info, to allow datastream retrieval & init -->
+        <Action>
+          <ActionMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+            <AttributeValue
+            DataType="http://www.w3.org/2001/XMLSchema#string">urn:fedora:names:fedora:2.1:action:id-getDatastream</AttributeValue>
+            <ActionAttributeDesignator
+            AttributeId="urn:fedora:names:fedora:2.1:action:id"
+            DataType="http://www.w3.org/2001/XMLSchema#string"/>
           </ActionMatch>
         </Action>
       </Actions>
