@@ -27,6 +27,12 @@ Site webroot should be pointed at src/public
 UPGRADE NOTES
 =================
 
+Version 1.8.5
+-------------
+* Using the new reindex.php script that can be used to update the GSearch index
+  for all ETD content requires updating config/fedora.xml
+  with the gsearch index and repository name; see fedora.xml.example.
+
 Version 1.8.3
 -------------
 * Run the migration scripts to add two new programs the emory college school: 
