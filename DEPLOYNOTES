@@ -33,7 +33,7 @@ Version 1.9(?)
     Detailed instructions can be found here: 
     https://svn.library.emory.edu/svn/fedora/fedora-extensions/branches/fedora3.4/README
  
-* Run the inline to managed migration script
+* Run the inline to managed migration script - This could take 10 or so minutes to run
     From within the project:
     cd src/scripts
     php ./consol.php
