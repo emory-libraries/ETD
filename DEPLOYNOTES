@@ -27,6 +27,32 @@ Site webroot should be pointed at src/public
 UPGRADE NOTES
 =================
 
+Version 1.9(?)
+-----------
+* Install ESDFilter on tomcat
+    Detailed instructions can be found here: 
+    https://svn.library.emory.edu/svn/fedora/fedora-extensions/branches/fedora3.4/README
+ 
+* Run the inline to managed migration script
+    From within the project:
+    cd src/scripts
+    php ./consol.php
+
+    Run these commands:
+    $ri = $fedora->risearch;
+    file_put_contents("/tmp/ETD.txt", implode("\n",  $ri->findByCModel("emory-control:ETD-1.0")));
+    file_put_contents("/tmp/ETDFile.txt", implode("\n",  $ri->findByCModel("emory-control:EtdFile-1.0")));
+    file_put_contents("/tmp/ETDAuthorInfo.txt", implode("\n",  $ri->findByCModel("emory-control:AuthorInformation-1.0")));
+
+    Exit the consol.php program and go to the tmp directory
+
+    cd /tmp
+    cat ETD.txt  ETDFile.txt ETDAuthorInfo.txt  > ETDPids.txt
+    . /home/fedora34/set-env-for-this-fedora.sh
+
+    /home/fedora34/server/bin/fedora-modify-control-group.sh migratedatastreamcontrolgroup https fedoraAdmin <password> file:////tmp/ETDPids.txt RELS-EXT,MODS,MADS,DC,XHTML,POLICY,PREMIS M > managedConversion.log      - you many have to use http for the 2nd param
+
+
 Version 1.8.5
 -------------
 * Using the new reindex.php script that can be used to update the GSearch index
