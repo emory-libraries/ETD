@@ -28,6 +28,7 @@
        -->
 
   <xsl:param name="REPOSITORYNAME" select="FedoraRepository"/>
+  <xsl:param name="REPOSITORYURL">http://localhost:8080/fedora/</xsl:param>
   <xsl:param name="FEDORASOAP" select="fedora"/>
   <xsl:param name="FEDORAUSER" select="fedoraAdmin"/>
   <xsl:param name="FEDORAPASS" select="fedoraAdmin"/>
@@ -36,17 +37,35 @@
   <xsl:variable name="PID" select="/foxml:digitalObject/@PID"/>
   <xsl:variable name="docBoost" select="1.4*2.5"/> <!-- or any other calculation, default boost is 1.0 -->
   
+<!-- pids for all current content models (comma-separated list) -->
+  <xsl:variable name="contentModel">
+             <xsl:variable name='url' select='concat($REPOSITORYURL, "objects/", $PID,
+                            "/datastreams/RELS-EXT/content")'/>
+             <xsl:variable name='object' select='document($url)'/>
+             <xsl:for-each select="$object/rdf:RDF/rdf:Description/fedora-model:hasModel">
+                 <xsl:value-of select="concat(@rdf:resource, ', ')"/>
+             </xsl:for-each>
+  </xsl:variable>
+  
+<!-- descend into managed xml datastreams -->
+  <xsl:template match='foxml:datastream[@CONTROL_GROUP="M"][foxml:datastreamVersion[last()]/@MIMETYPE = "text/xml"
+    or foxml:datastreamVersion[last()]/@MIMETYPE = "application/rdf+xml"]'>
+        <xsl:variable name='dsurl' select='concat($REPOSITORYURL, "objects/", $PID,
+                    "/datastreams/", @ID, "/content")'/>
+    <xsl:apply-templates select='document($dsurl)/*'/>
+  </xsl:template>
+
+
+  <!-- used for inline datastreams -->
+  <xsl:template match='foxml:datastream[@CONTROL_GROUP="X"]'>
+          <xsl:apply-templates select='foxml:datastreamVersion[last()]/foxml:xmlContent/*'/>
+  </xsl:template>
+
   <xsl:template match="/">
     
     <xsl:variable name="state" select="/foxml:digitalObject/foxml:objectProperties/foxml:property[@NAME='info:fedora/fedora-system:def/model#state']/@VALUE"/>
-    <!-- pids for all current content models (comma-separated list) -->
-    <xsl:variable name="contentModel">
-        <xsl:for-each select="foxml:digitalObject/foxml:datastream[@ID='RELS-EXT']/foxml:datastreamVersion[last()]/foxml:xmlContent/rdf:RDF/rdf:Description/fedora-model:hasModel">
-            <xsl:value-of select="concat(@rdf:resource, ', ')"/>
-        </xsl:for-each>
-    </xsl:variable>
-    
-    <xsl:comment>content model is <xsl:value-of select="$contentModel"/></xsl:comment>    
+
+    <xsl:comment>content model is <xsl:value-of select="$contentModel"/></xsl:comment>
     <xsl:if test="($state = 'Active' or $state = 'Inactive')
                     and contains($contentModel, 'emory-control:ETD-1.0')">
       <!-- FIXME: need to include etdFile objects at some point -->
@@ -55,8 +74,8 @@
         <field name="PID"><xsl:value-of select="$PID"/></field>
         
         <xsl:apply-templates select="foxml:digitalObject/foxml:objectProperties/foxml:property"/>
-        <xsl:apply-templates select="foxml:digitalObject/foxml:datastream[@ID='MODS']/foxml:datastreamVersion[last()]/foxml:xmlContent/mods:mods"/>
-        <xsl:apply-templates select="foxml:digitalObject/foxml:datastream[@ID='RELS-EXT']/foxml:datastreamVersion[last()]/foxml:xmlContent/rdf:RDF"/>
+        < <xsl:apply-templates select="foxml:digitalObject/foxml:datastream[@ID='MODS']"/>
+         <xsl:apply-templates select="foxml:digitalObject/foxml:datastream[@ID='RELS-EXT']"/>
         
         
         </doc>
@@ -304,7 +323,7 @@
 
 
   <!-- RELS-EXT -->
-  <xsl:template match="rdf:RDF[ancestor::foxml:datastream/@ID='RELS-EXT']">
+  <xsl:template match="rdf:RDF">
     <xsl:apply-templates select="rdf:Description/rel:etdStatus"/>
     <xsl:apply-templates select="rdf:Description/rel:hasPDF"/>
 
