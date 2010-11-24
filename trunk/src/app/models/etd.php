@@ -86,6 +86,11 @@ class etd extends foxml implements etdInterface {
       $config = Zend_Registry::get("config");
     }
 
+
+    // FIXME/TODO: for efficiency/response-time, of possible, we should avoid loading
+    // rels-ext here, do away with the content-model check entirely, and
+    // postpone determining school config until/if we actually need it
+
     if ($this->init_mode == "pid") {
       // make sure user has access to this object by accessing RELS datastream
       // - if not, this will throw error on initialization, when it is easier to catch
@@ -288,16 +293,21 @@ class etd extends foxml implements etdInterface {
 
     // get datastream history (info about each revision)
     $rels_history = $this->fedora->getDatastreamHistory($this->pid, $dsid);
-
-    $dom = new DOMDocument();
-    // fedora returns datastream history with most recent versions first
-    // get datastream by date and compare status until one is found that is different from current status
-    foreach ($rels_history->datastream as $ds_version) {
-      $xml = $this->fedora->getDatastream($this->pid, $dsid, $ds_version->createDate);
-      $dom->loadXML($xml);
-      $rels = new etd_rels($dom);
-      if ($rels->status != $this->rels_ext->status)
-  return $rels->status;
+    //print "DEBUG: datastream history <pre>" .print_r($rels_history, true) . "</pre>\n";
+    // due to PHP SOAP oddities, datastream is only an array if there is more than one returned
+    if (count($rels_history->datastream) > 1) {
+        $dom = new DOMDocument();
+        // fedora returns datastream history with most recent versions first
+        // get datastream by date and compare status until one is found that is different from current status
+        foreach ($rels_history->datastream as $ds_version) {
+          //print "DEBUG: datastream version<pre>" .print_r($ds_version, true) . "</pre>\n";
+          $xml = $this->fedora->getDatastream($this->pid, $dsid,
+                                              $ds_version->createDate);
+          $dom->loadXML($xml);
+          $rels = new etd_rels($dom);
+          if ($rels->status != $this->rels_ext->status)
+            return $rels->status;
+        }
     }
 
     // if no status was found different than the current status, there was no previous status
@@ -564,92 +574,111 @@ class etd extends foxml implements etdInterface {
     if (! empty($rights)) $this->dc->rights = $rights;
     $this->dc->setTypes(array($this->mods->genre, "text"));
   }
-  
-  // handle special values
-  public function __set($name, $value) {
-    switch ($name) {
-    case "pid":
+
+  /*** handle special values - "magic" properties that set multiple values ***/
+
+  /**
+   * set pid as premis identifier, then cascade to parent owner logic
+   * @param string $value
+   */
+  protected function _set_pid($val) {
       if (isset($this->premis)) {
-      // store pid in premis object; used for basis of event identifiers
-      $this->premis->object->identifier->value = $value;
-      }      
-      // base foxml class also stores pid value in multiple places
-      parent::__set($name, $value);
-      break;
-    case "owner":
+          // store pid in premis object; used for basis of event identifiers
+          $this->premis->object->identifier->value = $val;
+      }
+      parent::_set_pid($val);
+  }
+  /**
+   * add author/owner to policy and set as rels-ext author,
+   * then cascade to parent owner logic
+   * @param string $value
+   */
+  protected function _set_owner($value) {
       // add author's username to the appropriate rules
       if (isset($this->policy) && isset($this->policy->draft))
         $this->policy->draft->condition->user = $value;
 
       // store author's username in rels-ext as author
       if (isset($this->rels_ext)) {
-  if (isset($this->rels_ext->author)) $this->rels_ext->author = $value;
-  else $this->rels_ext->addRelation("rel:author", $value);
+        if (isset($this->rels_ext->author)) $this->rels_ext->author = $value;
+        else $this->rels_ext->addRelation("rel:author", $value);
       }
-      // set ownerId property
-      parent::__set($name, $value);
-      break;
-      
-    case "cmodel":  
+      parent::_set_owner($value);
+  }
+  /**
+   * set content model in premis object category
+   * @param string $value
+   */
+  protected function _set_cmodel($value) {
       if (isset($this->premis)) {
-  // use content model name for premis object category
-  $this->premis->object->category = $value;
+        // use content model name for premis object category
+        $this->premis->object->category = $value;
       }
-      parent::__set($name, $value);
-      break;
-      
-      // store formatted version in html, plain-text version in mods
-    case "title":
-      // remove tags that are not wanted even in html 
+      parent::__set('cmodel', $value);
+  }
+  /**
+   * store formatted title in html, plain-text version in mods/dc
+   * @param string $value 
+   */
+  protected function _set_title($value) {
+      // remove tags that are not wanted even in html
       $this->html->title = $value;
 
       // clean entities & remove all tags before saving to mods/dc
       $value = etd_html::removeTags($value); // necessary?
       // set title in multiple places (record label, dublin core, mods)
       $this->label = $value;
+      // FIXME: check if set?
       $this->dc->title = $value;
       $this->mods->title = $value;
-      break;
-    case "abstract":
+  }
+  /**
+   * store formatted abstract in html, plain-text version in mods/dc if not embargoed
+   * @param string $value
+   */
+  protected function _set_abstract($value) {
       // remove unwanted tags
       $this->html->abstract = $value;
       // if abstract is restricted & embargo not yet expired, blank it out in mods/dc
       if ($this->isEmbargoed() &&
-    $this->mods->isEmbargoRequested(etd_mods::EMBARGO_ABSTRACT)) {
-  $this->mods->abstract = "";
-  $this->dc->description = "";
+                $this->mods->isEmbargoRequested(etd_mods::EMBARGO_ABSTRACT)) {
+        $this->mods->abstract = "";
+        $this->dc->description = "";
       } else {    // otherwise, set plain-text version in mods/dc
-  // clean & remove all tags
-  $value = etd_html::removeTags($value);
-  $this->mods->abstract = $value;
-  $this->dc->description = $value;
-      } 
-      break;
-    case "contents":
-      $this->html->contents = $value;
-      // if ToC is restricted & embargo has not expired, blank out any content 
-      if ($this->isEmbargoed() && $this->mods->isEmbargoRequested(etd_mods::EMBARGO_TOC)) {
-  $this->mods->tableOfContents = "";
-      } else {    // otherwise, set plain-text version in mods
-  // using the html contents value, since it is already slightly cleaned up
-  $this->mods->tableOfContents = etd_html::formattedTOCtoText($this->html->contents);
+        // clean & remove all tags
+        $value = etd_html::removeTags($value);
+        $this->mods->abstract = $value;
+        $this->dc->description = $value;
       }
-      break;
-
-    case "department":
+  }
+  /**
+   * store formatted table of contents in html, plain-text version in mods/dc
+   * if not embargoed
+   * @param string $value
+   */
+  protected function _set_contents($value) {
+      $this->html->contents = $value;
+      // if ToC is restricted & embargo has not expired, blank out any content
+      if ($this->isEmbargoed() && $this->mods->isEmbargoRequested(etd_mods::EMBARGO_TOC)) {
+        $this->mods->tableOfContents = "";
+      } else {    // otherwise, set plain-text version in mods
+        // using the html contents value, since it is already slightly cleaned up
+        $this->mods->tableOfContents = etd_html::formattedTOCtoText($this->html->contents);
+      }
+  }
+  /**
+   * store department in mods and in appropriate policies
+   * @param string $value
+   */
+  protected function _set_department($value) {
       // set author's department in mods & in view policy
       $this->mods->department = $value;
-
       // set department on xacml policy for etd and any associated etdFiles
       $objects = array_merge(array($this), $this->pdfs, $this->supplements);
       foreach ($objects as $obj) {
-  if (isset($obj->policy->view))
-    $obj->policy->view->condition->department = $value;
+        if (isset($obj->policy->view))
+            $obj->policy->view->condition->department = $value;
       }
-      break;
-    default:
-      parent::__set($name, $value);
-    }
   }
 
   /*
