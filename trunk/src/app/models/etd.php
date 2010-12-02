@@ -67,6 +67,13 @@ class etd extends foxml implements etdInterface {
   private $school_config;
 
   /**
+   * service definition pid for formatted metadata parts
+   * (stored and accessed directly to reduce number of API call required)
+   * @var string
+   */
+  protected $METADATA_PARTS_SERVICE = 'emory-control:ETDmetadataParts';
+
+  /**
    * initialize etd
    * @param string|DOMDocument|Zend_Config $arg optional
    * - if string, retrieve object from Fedora by specified pid
@@ -1127,7 +1134,9 @@ class etd extends foxml implements etdInterface {
   public function title() {
     // call fedora service - returns html title if user is allowed to see it
     try {
-      return $this->__call("title", array());
+      $result = $this->fedora->getDisseminationSOAP($this->pid,
+                                    $this->METADATA_PARTS_SERVICE, 'title');
+      if ($result) return $result->stream;
     } catch (FoxmlException $e) {
       // swallow exception, display as a notice
       trigger_error("FoxmlException accessing title -- " . $e->getMessage(), E_USER_NOTICE);
@@ -1200,8 +1209,9 @@ class etd extends foxml implements etdInterface {
   public function _abstract() {
     // call fedora service - returns html abstract if user is allowed to see it
     try {
-      return $this->__call("abstract", array());
-
+      $result = $this->fedora->getDisseminationSOAP($this->pid,
+                                    $this->METADATA_PARTS_SERVICE, 'abstract');
+      if ($result) return $result->stream;
     // swallow exceptions, display as notice
     } catch (FoxmlException $e) {
       trigger_error("FoxmlException accessing abstract -- " . $e->getMessage(), E_USER_NOTICE);
@@ -1215,7 +1225,9 @@ class etd extends foxml implements etdInterface {
   public function tableOfContents() {
     // call fedora service - returns html ToC if user is allowed to see it
     try {
-      return $this->__call("tableofcontents", array());
+        $result = $this->fedora->getDisseminationSOAP($this->pid,
+                                    $this->METADATA_PARTS_SERVICE, 'tableofcontents');
+        if ($result) return $result->stream;
     // swallow exceptions, display as notice
     } catch (FoxmlException $e) {
       trigger_error("FoxmlException accessing abstract -- " . $e->getMessage(), E_USER_NOTICE);
