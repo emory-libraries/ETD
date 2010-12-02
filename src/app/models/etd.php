@@ -39,6 +39,8 @@ require_once("etd_notifier.php");
  * @property array of etd_file $originals array of related etd_file Original objects
  * @property array of etd_file $supplements array of related supplemental etd_file objects
  * @property user $authorInfo authorInfo object for etd author
+ * @property Zend_Config $school_config configuration for the author's school
+ * @property string $admin_agent generic name for admin/agency responsible for this type of etd
  * @method string getMarcxml() get metadata in marcxml format
  * @method string getEtdms() get metadata in ETD-MS format
  * @method string getMods() get cleaned up MODS (without ETD-specific fields)
@@ -51,20 +53,24 @@ class etd extends foxml implements etdInterface {
   public $relevance;
 
   /**
-   * @var string $acl_id basic ACL resource id (has subresource variants that inherit)
+   * basic ACL resource id (has subresource variants that inherit)
+   * @var string $acl_id 
    */
-  protected $acl_id;
-
-
-  /**
-   * @var string generic name for admin/agency responsible for this type of etd
-   */
-  public $admin_agent;
+  protected $acl_id = 'etd';   // base ACL resource id is etd
 
   /**
-   * @var Zend_Config configuration for the school that author is getting degree from
+   * generic name for admin/agency responsible for this type of etd
+   * should be accessed via magic property admin_agent
+   * @var string 
    */
-  private $school_config;
+  private $_admin_agent = null;
+
+  /**
+   * configuration for the school that author is getting degree from
+   * should be accessed via magic property school_config
+   * @var Zend_Config 
+   */
+  private $_school_config = null;
 
   /**
    * service definition pid for formatted metadata parts
@@ -85,7 +91,7 @@ class etd extends foxml implements etdInterface {
     // if parameter is an instance of zend_config, then store it
     // locally but do NOT pass on to parent constructor
     if ($arg instanceof Zend_Config) {
-      $this->school_config = $arg;
+      $this->_school_config = $arg;
       $arg = null;
     }
     parent::__construct($arg);
@@ -111,60 +117,33 @@ class etd extends foxml implements etdInterface {
           }
       }
 
-      // member of collections, attempt to find collection that matches a per-school config
-      if (isset($this->rels_ext->isMemberOfCollections) &&
-    count($this->rels_ext->isMemberOfCollections)) {
-  $schools_cfg = Zend_Registry::get("schools-config");
-  for ($i = 0; $i < count($this->rels_ext->isMemberOfCollections); $i++) {
-    $coll = $this->rels_ext->isMemberOfCollections[$i];
-    if ($school_id = $schools_cfg->getIdByFedoraCollection($this->fedora->risearch->risearchpid_to_pid($coll))) {
-      $this->school_config = $schools_cfg->$school_id;
-    }
-  }
-      }
-      // warn if could not determine school config
-      if (! isset($this->school_config))
-  trigger_error("Could not determine per-school configuration for " . $this->pid . 
-          " based on collection membership", E_USER_WARNING);
-      
+     
     } elseif ($this->init_mode == "dom") {    
       // anything here?
     } elseif ($this->init_mode == "template") {
         // new etd objects - add relation to contentModel object
       if (isset($config)) {
-  $config = Zend_Registry::get("config");
-  $this->rels_ext->addContentModel($config->contentModels->etd);
+        $config = Zend_Registry::get("config");
+        $this->rels_ext->addContentModel($config->contentModels->etd);
       } else {
-  trigger_error("Config is not in registry, cannot retrieve contentModel for etd");
+        trigger_error("Config is not in registry, cannot retrieve contentModel for etd");
       }
      
       // all new etds should start out as drafts
       $this->rels_ext->addRelation("rel:etdStatus", "draft");
 
       // add relation to school-specific collection
-      if (isset($this->school_config)) {
-  $this->rels_ext->addRelationToResource("rel:isMemberOfCollection",
-                 $this->school_config->fedora_collection);
+      if ($this->_school_config != null) {
+        $this->rels_ext->addRelationToResource("rel:isMemberOfCollection",
+                 $this->_school_config->fedora_collection);
       }
 
       // NOTE: if PQ research field is optional, the field must be removed because if
       // it is present and left blank, the MODS is invalid
       if (!$this->isRequired("researchfields") && count($this->mods->researchfields)) {
-  $this->mods->remove("researchfields");
+        $this->mods->remove("researchfields");
       }
       
-    }
-
-
-    // base ACL resource id is etd
-    $this->acl_id = "etd";
-
-    // set admin agent based on school config
-    if (isset($this->school_config)) {
-      $this->admin_agent = $this->school_config->label;
-    } else {
-      // generic default etds admin agent as fall-back
-      $this->admin_agent = "ETD Administrator";
     }
   }
 
@@ -206,10 +185,49 @@ class etd extends foxml implements etdInterface {
    * @param Zend_Config $school
    */
   public function setSchoolConfig(Zend_Config $school) {
-    $this->school_config = $school;
+    $this->_school_config = $school;
   }
-  
 
+  protected function _get_school_config() {
+      if ($this->_school_config == null) {
+         // member of collections, attempt to find collection that matches a per-school config
+        if (isset($this->rels_ext->isMemberOfCollections) &&
+                count($this->rels_ext->isMemberOfCollections)) {
+            $schools_cfg = Zend_Registry::get("schools-config");
+            for ($i = 0; $i < count($this->rels_ext->isMemberOfCollections); $i++) {
+                $coll = $this->rels_ext->isMemberOfCollections[$i];
+                $school_id = $schools_cfg->getIdByFedoraCollection($this->fedora->risearch->risearchpid_to_pid($coll));
+                if ($school_id) {
+                    $this->_school_config = $schools_cfg->$school_id;
+                }
+            }
+        }
+        // warn if could not determine school config
+        if ($this->_school_config == null) {
+            throw new Exception("Could not determine per-school configuration for " . $this->pid .
+                          " based on collection membership", E_USER_WARNING);
+            trigger_error("Could not determine per-school configuration for " . $this->pid .
+                          " based on collection membership", E_USER_WARNING);
+             
+            // set to non-null so we don't attempt to initialize again
+            $this->_school_config = '';
+        }
+      }
+      return $this->_school_config;
+  }
+
+  protected function _get_admin_agent() {
+    // get admin agent based on school config
+    if ($this->_admin_agent == null) {
+        if ($this->school_config) {
+          $this->_admin_agent = $this->school_config->label;
+        } else {
+          // generic default etds admin agent as fall-back
+          $this->_admin_agent = "ETD Administrator";
+        }
+    }
+    return $this->_admin_agent;
+  }
 
   /**
    *  determine a user's role in relation to this ETD (for access controls)
@@ -748,7 +766,7 @@ class etd extends foxml implements etdInterface {
    * @return boolean
    */
   public function isRequired($field) {
-    if ($this->school_config && is_object($this->school_config->submission_fields->required)) {
+    if ($this->_school_config && is_object($this->school_config->submission_fields->required)) {
       return in_array($field, $this->school_config->submission_fields->required->toArray());
     }
   }
