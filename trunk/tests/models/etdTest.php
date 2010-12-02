@@ -432,8 +432,6 @@ class TestEtd extends UnitTestCase {
 
   }
 
-  
-
   function testInitbyTemplate() {
     $etd = new etd();
     $this->assertIsA($etd, "etd");
@@ -451,7 +449,7 @@ class TestEtd extends UnitTestCase {
     // all etds should be member of either the graduate_school, emory_college or candler and not a member of the ETD master collection. 
     $this->assertFalse($etd->rels_ext->isMemberOfCollections->includes($etd->rels_ext->pidToResource($this->school_cfg->all_schools->fedora_collection)),
         "template etd dos not have a  isMemberOfCollection relation to etd collection");
-       
+
     $honors_etd = new etd($this->school_cfg->emory_college);
     // researchfields should not be present in mods if optional
     $this->assertFalse($honors_etd->isRequired("researchfields"));
@@ -459,7 +457,6 @@ class TestEtd extends UnitTestCase {
            "no researchfields present in honors etd");
     $this->assertNoPattern('|<mods:subject ID="" authority="proquestresearchfield">|',
          $honors_etd->mods->saveXML(), "researchfields not present in MODS");
-
   }
 
 
@@ -519,28 +516,8 @@ class TestEtd extends UnitTestCase {
     $this->assertEqual("program", $required[2]);
   }
 
-  function testInitByPid_badcmodel() {
-    $obj = new foxml();
-    $obj->pid = $this->fedora->getNextPid($this->fedora_cfg->pidspace);
-    $obj->label = "test object - non-etd";
-    $pid = $obj->ingest("test init etd - object with wrong cmodel");
-    $this->assertNotNull($pid);
-
-    // initialize from fedora - should cause an exception
-    try {
-      $etd = new etd($pid);
-    } catch (FoxmlBadContentModel $e) {
-      $exception = $e;
-    }
-    $this->assertIsA($exception, "FoxmlBadContentModel",
-         "attempting to initialize non-etd object as an etd causes a 'FoxmlBadContentModel' exception");
-    if (isset($exception)) {
-      $this->assertPattern("/does not have etd content model/", $exception->getMessage());
-    }
-    
-    $this->fedora->purge($pid, "removing test object");
-  }
-
+  // NOTE: bad cmodel test removed because contend model check was removed
+  // from constructor for efficiency/response time reasons
   
   function testAddCommittee() { // committee chairs and members
     $errlevel = error_reporting(E_ALL ^ E_NOTICE);
