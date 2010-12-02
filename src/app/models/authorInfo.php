@@ -185,20 +185,26 @@ class authorInfo extends foxml {
 
   
   
-  /**  override default foxml ingest function to use arks for object pids
+  /**
+   * override default foxml ingest function to use arks for object pids
+   * @param string $message
+   * @return string timestamp if successful, empty if not
    */
   public function ingest($message ) {
-    $persis = new Emory_Service_Persis(Zend_Registry::get('persis-config'));
+    // mint a new pid if the pid is not already set
+    if ($this->pid == "") {
+        $persis = new Emory_Service_Persis(Zend_Registry::get('persis-config'));
 
-    // FIXME: use view/controller to build this url?
-    $ark = $persis->generateArk("http://etd.library.emory.edu/author-info/view/pid/emory:{%PID%}", $this->label);
-    $pid = $persis->pidfromArk($ark);
+        // FIXME: use view/controller to build this url?
+        $ark = $persis->generateArk("http://etd.library.emory.edu/author-info/view/pid/emory:{%PID%}", $this->label);
+        $pid = $persis->pidfromArk($ark);
 
-    $this->pid = $pid;
-    // store the full ark as an additional identifier
-    $this->dc->identifier->append($ark);
-    
-    return $this->fedora->ingest($this->saveXML(), $message);
+        $this->pid = $pid;
+        // store the full ark as an additional identifier
+        $this->dc->identifier->append($ark);
+    }
+    // use parent ingest logic to construct new foxml & datastreams appropriately
+    return parent::ingest($message);
   }
 
 
