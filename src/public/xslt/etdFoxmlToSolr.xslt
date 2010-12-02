@@ -74,7 +74,7 @@
         <field name="PID"><xsl:value-of select="$PID"/></field>
         
         <xsl:apply-templates select="foxml:digitalObject/foxml:objectProperties/foxml:property"/>
-        < <xsl:apply-templates select="foxml:digitalObject/foxml:datastream[@ID='MODS']"/>
+        <xsl:apply-templates select="foxml:digitalObject/foxml:datastream[@ID='MODS']"/>
          <xsl:apply-templates select="foxml:digitalObject/foxml:datastream[@ID='RELS-EXT']"/>
         
         
