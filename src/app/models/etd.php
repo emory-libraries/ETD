@@ -95,40 +95,19 @@ class etd extends foxml implements etdInterface {
       $arg = null;
     }
     parent::__construct($arg);
-    if (Zend_Registry::isRegistered("config")) {
-      $config = Zend_Registry::get("config");
-    }
+    
+    // NOTE: no longer checking content-model when initializing by pid
+    //  for efficiency reasons (fewer fedora API calls, better response-time)
 
-
-    // FIXME/TODO: for efficiency/response-time, of possible, we should avoid loading
-    // rels-ext here, do away with the content-model check entirely, and
-    // postpone determining school config until/if we actually need it
-
-    if ($this->init_mode == "pid") {
-      // make sure user has access to this object by accessing RELS datastream
-      // - if not, this will throw error on initialization, when it is easier to catch
-      $this->rels_ext;
-
-      // check that etd content model is present; otherwise, wrong type of object
-      if ($this->rels_ext) {
-          if (isset($config) && (!isset($this->rels_ext->hasModel) ||
-               !$this->rels_ext->hasModels->includes($this->fedora->risearch->pid_to_risearchpid($config->contentModels->etd)))) {
-            throw new FoxmlBadContentModel("$arg does not have etd content model " . $config->contentModels->etd);
-          }
-      }
-
-     
-    } elseif ($this->init_mode == "dom") {    
-      // anything here?
-    } elseif ($this->init_mode == "template") {
-        // new etd objects - add relation to contentModel object
-      if (isset($config)) {
+    if ($this->init_mode == "template") {
+      // new etd objects - add relation to contentModel object
+      if (Zend_Registry::isRegistered("config")) {
         $config = Zend_Registry::get("config");
         $this->rels_ext->addContentModel($config->contentModels->etd);
       } else {
         trigger_error("Config is not in registry, cannot retrieve contentModel for etd");
       }
-     
+      
       // all new etds should start out as drafts
       $this->rels_ext->addRelation("rel:etdStatus", "draft");
 
@@ -142,8 +121,7 @@ class etd extends foxml implements etdInterface {
       // it is present and left blank, the MODS is invalid
       if (!$this->isRequired("researchfields") && count($this->mods->researchfields)) {
         $this->mods->remove("researchfields");
-      }
-      
+      }      
     }
   }
 
