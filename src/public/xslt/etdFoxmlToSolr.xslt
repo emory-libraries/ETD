@@ -3,7 +3,6 @@
 <xsl:stylesheet version="1.0"
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform"   
   xmlns:exts="xalan://dk.defxws.fedoragsearch.server.GenericOperationsImpl"
-  xmlns:zs="http://www.loc.gov/zing/srw/"
   xmlns:foxml="info:fedora/fedora-system:def/foxml#"
   xmlns:dc="http://purl.org/dc/elements/1.1/"
   xmlns:mods="http://www.loc.gov/mods/v3"
@@ -13,7 +12,7 @@
   xmlns:fedora-model="info:fedora/fedora-system:def/model#"
   xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
   xmlns:etd="http://www.ndltd.org/standards/metadata/etdms/1.0/"
-  exclude-result-prefixes="exts xsl zs foxml dc mods rdf rdfs rel fedora-model oai_dc etd"
+  exclude-result-prefixes="exts xsl foxml dc mods rdf rdfs rel fedora-model oai_dc etd"
   >
   <xsl:output method="xml" indent="yes" encoding="UTF-8"/>
 
@@ -28,31 +27,25 @@
        -->
 
   <xsl:param name="REPOSITORYNAME" select="FedoraRepository"/>
-  <xsl:param name="REPOSITORYURL">http://localhost:8080/fedora/</xsl:param>
+  <xsl:param name="FEDORAUSER" select="'fedoraAdmin'"/>
+  <xsl:param name="FEDORAPASS" select="'fedoraAdmin'"/>
+  <xsl:param name="REPOSITORYURL" select = "'http://localhost:8080/fedora/'" />
   <xsl:param name="FEDORASOAP" select="fedora"/>
-  <xsl:param name="FEDORAUSER" select="fedoraAdmin"/>
-  <xsl:param name="FEDORAPASS" select="fedoraAdmin"/>
   <xsl:param name="TRUSTSTOREPATH" select="FedoraRepository"/>
   <xsl:param name="TRUSTSTOREPASS" select="FedoraRepository"/>
   <xsl:variable name="PID" select="/foxml:digitalObject/@PID"/>
   <xsl:variable name="docBoost" select="1.4*2.5"/> <!-- or any other calculation, default boost is 1.0 -->
   
-<!-- pids for all current content models (comma-separated list) -->
-  <xsl:variable name="contentModel">
-             <xsl:variable name='url' select='concat($REPOSITORYURL, "objects/", $PID,
-                            "/datastreams/RELS-EXT/content")'/>
-             <xsl:variable name='object' select='document($url)'/>
-             <xsl:for-each select="$object/rdf:RDF/rdf:Description/fedora-model:hasModel">
-                 <xsl:value-of select="concat(@rdf:resource, ', ')"/>
-             </xsl:for-each>
-  </xsl:variable>
-  
 <!-- descend into managed xml datastreams -->
+<!-- Using API-A-LITE format because REST-API format does not work with our policies -->
+<!-- This is a possible bug see: https://jira.duraspace.org/browse/FCREPO-703 -->
   <xsl:template match='foxml:datastream[@CONTROL_GROUP="M"][foxml:datastreamVersion[last()]/@MIMETYPE = "text/xml"
     or foxml:datastreamVersion[last()]/@MIMETYPE = "application/rdf+xml"]'>
-        <xsl:variable name='dsurl' select='concat($REPOSITORYURL, "objects/", $PID,
-                    "/datastreams/", @ID, "/content")'/>
+    <xsl:if test="$PID !=''">
+        <xsl:variable name='dsurl' select='concat($REPOSITORYURL, "get/", $PID,
+                    "/", @ID)'/>
     <xsl:apply-templates select='document($dsurl)/*'/>
+   </xsl:if>
   </xsl:template>
 
 
@@ -62,10 +55,24 @@
   </xsl:template>
 
   <xsl:template match="/">
+  <xsl:comment><xsl:value-of select="$REPOSITORYURL" /> </xsl:comment>
+  <xsl:comment>PID is:<xsl:value-of select="$PID"/></xsl:comment>
+  <!-- pids for all current content models (comma-separated list) -->
+  <!-- Using API-A-LITE format because REST-API format does not work with our policies -->
+  <!-- This is a possible bug see: https://jira.duraspace.org/browse/FCREPO-703 -->
+  <xsl:variable name="contentModel">
+   <xsl:if test="$PID !=''">
+             <xsl:variable name='url' select='concat($REPOSITORYURL, "get/", $PID, "/RELS-EXT")'/>
+             <xsl:variable name='object' select='document($url)'/> 
+             <xsl:for-each select="$object/rdf:RDF/rdf:Description/fedora-model:hasModel">
+                 <xsl:value-of select="concat(@rdf:resource, ', ')"/>
+             </xsl:for-each>
+   </xsl:if>
+ </xsl:variable>
+    <xsl:comment>CONTENT MODEL is: <xsl:value-of select="$contentModel"/></xsl:comment>
     
     <xsl:variable name="state" select="/foxml:digitalObject/foxml:objectProperties/foxml:property[@NAME='info:fedora/fedora-system:def/model#state']/@VALUE"/>
 
-    <xsl:comment>content model is <xsl:value-of select="$contentModel"/></xsl:comment>
     <xsl:if test="($state = 'Active' or $state = 'Inactive')
                     and contains($contentModel, 'emory-control:ETD-1.0')">
       <!-- FIXME: need to include etdFile objects at some point -->
@@ -361,7 +368,7 @@
   <!-- index pdf datastream for related object -->
   <xsl:template match="rel:hasPDF">
     <!-- pid of the etdFile object for the PDF  -->
-    <xsl:variable name="etdfile"><xsl:value-of select="substring-after(@rdf:resource, 'info:fedora/')"/></xsl:variable>
+    <!--<xsl:variable name="etdfile"><xsl:value-of select="substring-after(@rdf:resource, 'info:fedora/')"/></xsl:variable> -->
 
     <!-- adding text of the PDF to default text index for etd -->
 <!-- may eventually just put in default search field... 
@@ -370,7 +377,7 @@
 <!-- FIXME: for some documents we get null characters here;
     Solr chokes on it, and it can't be cleaned up in xslt -->
 <!--    <field name="pdf">
-      <xsl:value-of select="translate(normalize-space(exts:getDatastreamText($etdfile, $REPOSITORYNAME, 'FILE', $FEDORASOAP, $FEDORAUSER, $FEDORAPASS, $TRUSTSTOREPATH, $TRUSTSTOREPASS)), '&#x0000;', '')"/>
+      <xsl:value-of select="normalize-space(exts:getDatastreamText($etdfile, $REPOSITORYNAME, 'FILE', $FEDORASOAP, $FEDORAUSER, $FEDORAPASS, $TRUSTSTOREPATH, $TRUSTSTOREPASS))"/>
     </field> -->
   </xsl:template>
 
