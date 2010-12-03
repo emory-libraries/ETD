@@ -396,11 +396,6 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
    * @return string date modified
    */
   public function delete($message) {
-    $rel = "rel:has" . ucfirst($this->type);  
-    if ($this->type == "pdf")
-      $rel = "rel:hasPDF";
-    // maybe add removePdf, removeSupplement, etc. functions for etd_rels ?
-
     if ($this->etd) {
       $this->etd->removeFile($this);
       $this->etd->save("removed relation to etdFile " . $this->pid . "; $message");
