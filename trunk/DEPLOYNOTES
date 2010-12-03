@@ -44,19 +44,29 @@ Version 1.9(?)
     file_put_contents("/tmp/ETDFile.txt", implode("\n",  $ri->findByCModel("emory-control:EtdFile-1.0")));
     file_put_contents("/tmp/ETDAuthorInfo.txt", implode("\n",  $ri->findByCModel("emory-control:AuthorInformation-1.0")));
 
-    Exit the consol.php program and go to the tmp directory
+    Exit the console.php program and go to the tmp directory
 
     cd /tmp
     cat ETD.txt  ETDFile.txt ETDAuthorInfo.txt  > ETDPids.txt
     . /home/fedora34/set-env-for-this-fedora.sh
 
-    /home/fedora34/server/bin/fedora-modify-control-group.sh migratedatastreamcontrolgroup https fedoraAdmin <password> file:////tmp/ETDPids.txt RELS-EXT,MODS,MADS,DC,XHTML,POLICY,PREMIS M > managedConversion.log      - you many have to use http for the 2nd param
+    /home/fedora34/server/bin/fedora-modify-control-group.sh 
+    migratedatastreamcontrolgroup https fedoraAdmin <password>
+    file:////tmp/ETDPids.txt RELS-EXT,MODS,MADS,DC,XHTML,POLICY,PREMIS M >
+    managedConversion.log      - you many have to use http for the 2nd param
 
 * Update the ETD content model service for particular fedora instance.
     https://dev11.library.emory.edu:8943/fedora/objects/emory-control:ETD-metadataTransform/datastreams/WSDL/content
     <wsdl:port binding="this:FedoraSaxon_http" name="FedoraSaxon_port">
     <http:address location="http://dev11.library.emory.edu:8580/saxon/"/>
     </wsdl:port>
+
+*  Update the  etdFoxmlToSolr.xslt file to handle managed datastreams
+   - Copy src/public/xslt/etdFoxmlToSolr.xslt to the current instance of
+     fedora in the directory:
+     tomcat/webapps/fedoragsearch/WEB-INF/classes/config/index/ETDsolr/
+   - If the host and port for fedora is not localhost:8080 make the
+     corrections in the xslt file.
 
 
 Version 1.8.5
