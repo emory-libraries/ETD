@@ -68,6 +68,7 @@ class TestEtdFile extends UnitTestCase {
     
     $etd = new etd($this->etdpid);
     $etdfile = new etd_file($this->filepid, $etd);
+    $etdfile->owner = 'mmouse';
     $etdfile->policy->addRule("view");	// needed by addSupplement
     // add relation between objects
     $etdfile->rels_ext->addRelationToResource("rel:isSupplementOf", $etd->pid);
@@ -90,7 +91,7 @@ class TestEtdFile extends UnitTestCase {
     
     // check that etdfile has status Deleted 
     $this->assertPattern('|foxml:property NAME="info:fedora/fedora-system:def/model#state" VALUE="Deleted"|', $filexml);
-    // check that owner was preserved 
+    // check that owner was preserved
     $this->assertPattern('|foxml:property NAME="info:fedora/fedora-system:def/model#ownerId" VALUE="mmouse"|', $filexml);	// (picked up from ETD object)
 
     // remove test objects from fedora
