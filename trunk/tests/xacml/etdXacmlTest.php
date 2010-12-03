@@ -245,7 +245,9 @@ class TestEtdXacml extends UnitTestCase {
       $this->assertPattern("/getDissemination abstract/", $exception->getMessage());
   }
 
-
+  /** NOTE: due to new xacml policy (as of Dec. 2010) to allow localhost access
+   * to metadata for indexing managed datastreams, this behavior has changed
+   * and metadata for unpublished datastreams will be allowed.
   function testGuest_getMetadata_unpublished() {
     // use guest account to access fedora
     setFedoraAccount("guest");
@@ -253,10 +255,10 @@ class TestEtdXacml extends UnitTestCase {
 
     // permission denied on accessing MODS to create dissemination
     $this->expectError();
-    $result = $fedora->getDisseminationSOAP($this->pid, "emory-control:metadataTransform",
-					    "getMarcxml");
-    $this->assertFalse($result);
-  }
+    $etd = new etd($this->pid);
+    $xml = $etd->getMarcxml();
+    $this->assertFalse($xml);
+  }*/
 
   function testGuest_getMetadata_pub() {
     // set etd as published using admin account
@@ -267,7 +269,6 @@ class TestEtdXacml extends UnitTestCase {
 
     // use guest account to access fedora
     setFedoraAccount("guest");
-
 
     $etd = new etd($this->pid);
     $xml = $etd->getMarcxml();
