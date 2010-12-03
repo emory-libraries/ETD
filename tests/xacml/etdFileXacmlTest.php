@@ -62,9 +62,13 @@ class TestEtdFileXacml extends UnitTestCase {
     setFedoraAccount("guest");
 
     // test draft etd - guest shouldn't be able to see anything
-    $this->expectException(new FoxmlException("Access Denied to {$this->pid}"));
-    new etd_file($this->pid);
-
+    $etd = new etd_file($this->pid);
+    try {
+        // exception shouldn't actually trigger until we try to access something
+        $etd->dc;
+    } catch (Exception $e) {
+    }
+    $this->assertIsA($e, 'FedoraAccessDenied');
   }
 
   function testGuestPermissionsOnPublishedEtdFile() {
@@ -108,8 +112,12 @@ class TestEtdFileXacml extends UnitTestCase {
     $etdfile->policy->removeRule("view");    // POLICY
     $this->assertNotNull($etdfile->save("test author permissions - modify POLICY on draft etdfile"));
 
-    $this->expectException(new FedoraAccessDenied("purge " . $this->pid));
-    $this->assertNull($etdfile->purge("testing author permissions - purge draft etdfile"));
+    try {
+        $purged = $etdfile->purge("testing author permissions - purge draft etdfile");
+    } catch (Exception $e) {
+    }
+    $this->assertIsA($e, 'FedoraAccessDenied', 'author should not have access to purge draft etdfile');
+    $this->assertFalse(isset($purged), 'author should not be able to purge draft etdfile');
   }
 
   function testAuthorDeleteDraft() {
@@ -149,9 +157,12 @@ class TestEtdFileXacml extends UnitTestCase {
     $this->expectError("Access Denied to modify datastream POLICY"); 
     $this->assertNull($etdfile->save("test author permissions - modify POLICY on non-draft etdfile"));
 
-    $this->expectException(new FedoraAccessDenied("purge " . $this->pid));
-    $this->assertNull($etdfile->purge("testing author permissions - purge non-draft etdfile"));
-
+    try {
+        $purged = $etdfile->purge("testing author permissions - purge non-draft etdfile");
+    } catch (Exception $e) {}
+    $this->assertIsA($e, 'FedoraAccessDenied',
+        'author should get access denied when attempting to purge non-draft etdfile');
+    $this->assertFalse(isset($purged), 'etdfile purge should not return success for author on non-draft');
   }
 
   function testAuthorDeleteNonDraft() {
@@ -161,11 +172,10 @@ class TestEtdFileXacml extends UnitTestCase {
     $etdfile = new etd_file($this->pid);
     $etdfile->policy->removeRule("draft");  
     $etdfile->save("remove draft policy for testing");
-    
-    $this->expectException(new FedoraAccessDenied("modifyObject for " . $this->pid));
+
+    $this->expectError('Access Denied to modify object properties');
     $this->assertNull($etdfile->delete("testing delete xacml"));
   }
-
 
   
   function testCommitteePermissions() {
@@ -197,7 +207,7 @@ class TestEtdFileXacml extends UnitTestCase {
   }
 
     
-  function  testEtdAdminViewPermissions() {
+  function testEtdAdminViewPermissions() {
     // set user account to etd admin
     setFedoraAccount("etdadmin");
 
@@ -253,8 +263,12 @@ class TestEtdFileXacml extends UnitTestCase {
 
     // guest shouldn't be able to see anything
     setFedoraAccount("guest");
-    $this->expectException(new FoxmlException("Access Denied to {$this->pid}"));
-    new etd_file($this->pid);
+    try {
+        $etdfile = new etd_file($this->pid);
+        $etdfile->dc;
+    } catch (Exception $e) {}
+    $this->assertIsA($e, 'FedoraAccessDenied',
+        'guest should be denied access to etdfile with unexpired embargo');
 
     // author should still be able to see
     setFedoraAccount("author");
@@ -302,9 +316,13 @@ class TestEtdFileXacml extends UnitTestCase {
 
     // guest should not be able to see
     setFedoraAccount("guest");
-    $this->expectException(new FoxmlException("Access Denied to {$this->pid}"));
-    new etd_file($this->pid);
-
+    try {
+        $etdfile = new etd_file($this->pid);
+        $etdfile->dc;
+    } catch (Exception $e_guest) {}
+    $this->assertIsA($e_guest, 'FedoraAccessDenied',
+        'guest should be denied access to archival copy of etd file');
+      
     // author should still be able to see
     setFedoraAccount("author");
     $etdfile = new etd_file($this->pid);
@@ -312,8 +330,12 @@ class TestEtdFileXacml extends UnitTestCase {
 
     // committee should not be able to see
     setFedoraAccount("committee");
-    $this->expectException(new FoxmlException("Access Denied to {$this->pid}"));
-    $etdfile = new etd_file($this->pid);
+    try {
+        $etdfile = new etd_file($this->pid);
+        $etdfile->dc;
+    } catch (Exception $e_comm) {}
+    $this->assertIsA($e_comm, 'FedoraAccessDenied',
+        'committee member should not be able to access archival etd file');
 
     // etdadmin should still be able to see
     setFedoraAccount("etdadmin");
