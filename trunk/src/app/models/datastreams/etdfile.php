@@ -377,7 +377,7 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
       $rel = "rel:hasPDF";
     // maybe add removePdf, removeSupplement, etc. functions for etd_rels ?
 
-    if (isset($this->etd)) {
+    if ($this->etd) {
       // remove relation stored in parent etd record, save parent etd
       $this->etd->rels_ext->removeRelation($rel, $this->pid);
       $this->etd->save("removed relation $rel to " . $this->pid);
@@ -401,7 +401,7 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
       $rel = "rel:hasPDF";
     // maybe add removePdf, removeSupplement, etc. functions for etd_rels ?
 
-    if (isset($this->etd)) {
+    if ($this->etd) {
       $this->etd->removeFile($this);
       $this->etd->save("removed relation to etdFile " . $this->pid . "; $message");
     }
