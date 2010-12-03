@@ -36,7 +36,7 @@ Version 1.9(?)
 * Run the inline to managed migration script - This could take 10 or so minutes to run
     From within the project:
     cd src/scripts
-    php ./consol.php
+    php ./console.php
 
     Run these commands:
     $ri = $fedora->risearch;
@@ -51,6 +51,12 @@ Version 1.9(?)
     . /home/fedora34/set-env-for-this-fedora.sh
 
     /home/fedora34/server/bin/fedora-modify-control-group.sh migratedatastreamcontrolgroup https fedoraAdmin <password> file:////tmp/ETDPids.txt RELS-EXT,MODS,MADS,DC,XHTML,POLICY,PREMIS M > managedConversion.log      - you many have to use http for the 2nd param
+
+* Update the ETD content model service for particular fedora instance.
+    https://dev11.library.emory.edu:8943/fedora/objects/emory-control:ETD-metadataTransform/datastreams/WSDL/content
+    <wsdl:port binding="this:FedoraSaxon_http" name="FedoraSaxon_port">
+    <http:address location="http://dev11.library.emory.edu:8580/saxon/"/>
+    </wsdl:port>
 
 
 Version 1.8.5
