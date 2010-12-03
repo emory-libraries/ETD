@@ -19,18 +19,16 @@ require_once("Etd/Controller/Action/Helper/PdfPageTotal.php");
 
 class etd_file extends foxml implements Zend_Acl_Resource_Interface {
 
-  public $type;
+  protected $_type = null;
+  protected $reltype;
+
+  protected $_etd = null;
+  protected $etd_pid = null;
   
   public function __construct($pid = null, etd $parent = null) {
     parent::__construct($pid);
 
-    if ($this->init_mode == "pid") {
-      // anything here?
-      $this->getRelType();
-    } elseif ($this->init_mode == "dom") {
-      // anything here?
-      $this->getRelType();
-    } else {
+    if ($this->init_mode == 'template') {
         // add relation to contentModel new object
         if (Zend_Registry::isRegistered("config")) {
             $config = Zend_Registry::get("config");
@@ -45,17 +43,17 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
 
     // if initialized by etd, that object is passed in - store for convenience
     if (!is_null($parent)) {
-      $this->related_objects["etd"] = $parent;
+      $this->_etd = $parent;
     }
 
     // configure relations to other objects - parent etd
     // NOTE: because the relation depends on the file type, this has to be configured here and not earlier
-    if ($relation = $this->getRelType()) {
+    /*if ($relation = $this->getRelType()) {
       $this->relconfig["etd"] = array("relation" => $relation, "class_name" => "etd");
     } elseif ($this->init_mode == "pid") {
       // not an error if it is a new document
       trigger_error("Could not determine relation to etd for " . $this->pid, E_USER_WARNING);
-    }
+    }*/
 
   }
 
@@ -83,58 +81,71 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
 
 
   // set the type of this object (if not already set), and return the relation to the parent etd
-  private function getRelType() {
-    if ($this->init_mode != "pid" && $this->init_mode != "dom") {
-      return false;   // not applicable if not in one of these modes
+  protected function _get_type() {
+    if ($this->_type == null) {
+        if ($this->init_mode != "pid" && $this->init_mode != "dom") {
+          $this->_type = false;   // not applicable if not in one of these modes
+        } else {
+          try {                  
+              if ($this->rels_ext) {
+                  // determine what type of etd file this is based on what is in the rels-ext
+                  if (isset($this->rels_ext->pdfOf)) {
+                    $this->_type = "pdf";
+                    $this->etd_pid = $this->rels_ext->pdfOf;
+                  } elseif (isset($this->rels_ext->originalOf)) {
+                    $this->_type = "original";
+                    $this->etd_pid = $this->rels_ext->originalOf;
+                  } elseif (isset($this->rels_ext->supplementOf)) {
+                    $this->_type = "supplement";
+                    $this->etd_pid = $this->rels_ext->supplementOf;
+                  } else {
+                    trigger_error("etdFile object " . $this->pid . " is not related to an etd object", E_USER_WARNING);
+                  }
+              }
+           } catch  (FedoraAccessDenied $e) {
+              // if the current user doesn't have access to RELS-EXT, they don't have full access to this object
+              throw new FoxmlException("Access Denied to " . $this->pid);
+              //  trigger_error("Access Denied to rels-ext for " . $this->pid, E_USER_WARNING);
+           }
+
+
+        if ($this->_type == "pdf") $this->reltype = "isPDFOf";
+        else $this->reltype = "is" . ucfirst($this->_type) . "Of";
+        }
     }
-
-    if (!isset($this->type)) {    // if not set, configure
-      try {
-  $this->rels_ext != null;
-      } catch  (FedoraAccessDenied $e) {
-  // if the current user doesn't have access to RELS-EXT, they don't have full access to this object
-  throw new FoxmlException("Access Denied to " . $this->pid);
-  //  trigger_error("Access Denied to rels-ext for " . $this->pid, E_USER_WARNING);
-      }
-      
-      if ($this->rels_ext) {
-  // determine what type of etd file this is based on what is in the rels-ext
-  if (isset($this->rels_ext->pdfOf)) {
-    $this->type = "pdf";
-  } elseif (isset($this->rels_ext->originalOf)) {
-    $this->type = "original";
-  } elseif (isset($this->rels_ext->supplementOf)) {
-    $this->type = "supplement";
-  } else {
-    trigger_error("etdFile object " . $this->pid . " is not related to an etd object", E_USER_WARNING);
+    return $this->_type;
   }
-      }
+  protected function _set_type($val) {
+    $this->_type = $val;
+  }
+  protected function _get_etd() {
+    if ($this->_etd == null) {
+        $this->type;
+        if ($this->etd_pid != null) {
+            $this->_etd = new etd($this->etd_pid);
+        } else {
+            $this->_etd = '';
+        }
+
     }
-
-    if ($this->type == "pdf") $reltype = "isPDFOf";
-    else $reltype = "is" . ucfirst($this->type) . "Of";
-    
-    return $reltype;
+    return $this->_etd;
   }
 
-  // handle special values
-  public function __set($name, $value) {
-    switch ($name) {
+  /*** handle special values - "magic" properties that set multiple values ***/
 
-    case "owner":
+  /**
+   * add author/owner to policy and set as rels-ext author,
+   * then cascade to parent owner logic
+   * @param string $value
+   */
+  protected function _set_owner($value) {
       // add author's username to the appropriate rules
       if (isset($this->policy) && isset($this->policy->draft))
-  $this->policy->draft->condition->user = $value;
-
-      // set ownerId property
-      parent::__set($name, $value);
-      break;
-    default:
-      parent::__set($name, $value);
-    }
+        $this->policy->draft->condition->user = $value;
+      parent::_set_owner($value);
   }
-      
 
+      
   /**
    * initialize an etdfile object from a file and user
    * @param string $filename full path to file
@@ -393,25 +404,9 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
     if (isset($this->etd)) {
       $this->etd->removeFile($this);
       $this->etd->save("removed relation to etdFile " . $this->pid . "; $message");
-      
-      // fall-back way to get owner id since Fedora doesn't supply it properly
-      $owner = $this->etd->rels_ext->author;
-    } elseif (isset($this->policy) && isset($this->policy->draft)) {
-      // secondary fall-back to get owner id if possible
-      $owner = $this->policy->draft->condition->user;
-    } else {
-      // no way to determine owner-- record will lose ownerId (this bad)
-      $owner = "";
-      
-      if (Zend_Registry::isRegistered('logger')) {
-  $logger = Zend_Registry::get('logger');
-  $logger->warn("Could not determine owner for etdFile " . $this->pid . "; owner will be lost in marking object as deleted");
-      }
     }
-
-    return $this->fedora->modifyObject($this->pid, $this->label, $message,
-               "D", // set status to Deleted
-               $owner);
+    $this->setObjectState(FedoraConnection::STATE_DELETED);
+    return $this->save($message);
   }
 
 
