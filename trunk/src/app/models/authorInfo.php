@@ -25,9 +25,7 @@ class authorInfo extends foxml {
   public function __construct($arg = null, etd $parent = null) {
     parent::__construct($arg);
 
-    if ($this->init_mode == "pid") {
-      // no special actions required
-    } elseif ($this->init_mode == "template") {
+    if ($this->init_mode == "template") {
         // add relation to contentModel object
         if (Zend_Registry::isRegistered("config")) {
             $config = Zend_Registry::get("config");
