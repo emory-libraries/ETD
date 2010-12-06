@@ -74,10 +74,17 @@ class etd extends foxml implements etdInterface {
 
   /**
    * service definition pid for formatted metadata parts
-   * (stored and accessed directly to reduce number of API call required)
+   * (stored and accessed directly to reduce number of API calls required)
    * @var string
    */
   protected $METADATA_PARTS_SERVICE = 'emory-control:ETDmetadataParts';
+
+  /**
+   * service definition pid for metadata conversion
+   * (stored and accessed directly to reduce number of API calls required)
+   * @var string
+   */
+  protected $METADATA_TRANSFORM_SERVICE = 'emory-control:metadataTransform';
 
   /**
    * initialize etd
@@ -111,14 +118,21 @@ class etd extends foxml implements etdInterface {
       // all new etds should start out as drafts
       $this->rels_ext->addRelation("rel:etdStatus", "draft");
 
+      // when initializing from scratch and school config is not passed in,
+      // set to non-null, since attempting to calculate school config based on rels-ext will fail
+      if ($this->_school_config == null) {          
+          $this->_school_config = '';
+      }
+
       // add relation to school-specific collection
-      if ($this->_school_config != null) {
+      if ($this->_school_config) {
         $this->rels_ext->addRelationToResource("rel:isMemberOfCollection",
-                 $this->_school_config->fedora_collection);
+                 $this->school_config->fedora_collection);
       }
 
       // NOTE: if PQ research field is optional, the field must be removed because if
       // it is present and left blank, the MODS is invalid
+      // FIXME: should researchfields be removed from the mods starting template instead?
       if (!$this->isRequired("researchfields") && count($this->mods->researchfields)) {
         $this->mods->remove("researchfields");
       }      
@@ -167,7 +181,7 @@ class etd extends foxml implements etdInterface {
   }
 
   protected function _get_school_config() {
-      if ($this->_school_config == null) {
+      if ($this->_school_config === null) {
          // member of collections, attempt to find collection that matches a per-school config
         if (isset($this->rels_ext->isMemberOfCollections) &&
                 count($this->rels_ext->isMemberOfCollections)) {
@@ -183,7 +197,7 @@ class etd extends foxml implements etdInterface {
         // warn if could not determine school config
         if ($this->_school_config == null) {
             throw new Exception("Could not determine per-school configuration for " . $this->pid .
-                          " based on collection membership", E_USER_WARNING);
+                          " based on collection membership");
             trigger_error("Could not determine per-school configuration for " . $this->pid .
                           " based on collection membership", E_USER_WARNING);
              
@@ -744,7 +758,7 @@ class etd extends foxml implements etdInterface {
    * @return boolean
    */
   public function isRequired($field) {
-    if ($this->_school_config && is_object($this->school_config->submission_fields->required)) {
+    if ($this->school_config && is_object($this->school_config->submission_fields->required)) {
       return in_array($field, $this->school_config->submission_fields->required->toArray());
     }
   }
@@ -854,7 +868,7 @@ class etd extends foxml implements etdInterface {
    * @return array
    */
   public function requiredFields() {
-    if (!isset($this->school_config))
+    if (! $this->school_config)
       trigger_error("School config is not set - could not determine required fields", E_USER_WARNING);
       
     if (isset($this->school_config->submission_fields->required)) {
@@ -872,7 +886,7 @@ class etd extends foxml implements etdInterface {
    * @return array
    */
   public function optionalFields() {
-    if (!isset($this->school_config))
+    if (! $this->school_config)
       trigger_error("School config is not set - could not determine optional fields", E_USER_WARNING);
 
     if (isset($this->school_config->submission_fields->optional)) {
@@ -909,8 +923,8 @@ class etd extends foxml implements etdInterface {
    * @todo handle error better than throwing warning?
    */
   public function isHonors() {
-    if (! isset($this->school_config))
-  trigger_error("School config is not set, cannot determine if is honors", E_USER_WARNING);
+    if (! $this->school_config)
+        trigger_error("School config is not set, cannot determine if is honors", E_USER_WARNING);
     return ($this->school_config->acl_id == "honors");
   }
 
@@ -920,7 +934,7 @@ class etd extends foxml implements etdInterface {
    * @return string
    */
   public function schoolId() {
-    if (! isset($this->school_config))
+    if (! $this->school_config)
   trigger_error("School config is not set, cannot retrieve school id", E_USER_WARNING);
     return $this->school_config->acl_id;;
     
@@ -1253,7 +1267,18 @@ class etd extends foxml implements etdInterface {
   public function ark() {
     return $this->mods->identifier;     // want the resolvable version of the ark
   }
+  
+  // direct access to metadata disseminations for efficiency
+   protected function getMetadataTransform($method) {
+        $result = $this->fedora->getDisseminationSOAP($this->pid,
+                                    $this->METADATA_TRANSFORM_SERVICE, $method);
+        if ($result) return $result->stream;
+   }
+   public function getMarcxml() { return $this->getMetadataTransform('getMarcxml');  }
+   public function getMods() { return $this->getMetadataTransform('getMods');  }
+   public function getEtdms() { return $this->getMetadataTransform('getEtdms');  }
 
+  
   /**
    * for Zend ACL Resource
    * NOTE: does not include per-school info (e.g., honors, grad)

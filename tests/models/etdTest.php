@@ -448,7 +448,7 @@ class TestEtd extends UnitTestCase {
 
     // all etds should be member of either the graduate_school, emory_college or candler and not a member of the ETD master collection. 
     $this->assertFalse($etd->rels_ext->isMemberOfCollections->includes($etd->rels_ext->pidToResource($this->school_cfg->all_schools->fedora_collection)),
-        "template etd dos not have a  isMemberOfCollection relation to etd collection");
+        "template etd dos not have an isMemberOfCollection relation to etd collection");
 
     $honors_etd = new etd($this->school_cfg->emory_college);
     // researchfields should not be present in mods if optional
