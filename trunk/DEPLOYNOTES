@@ -55,11 +55,13 @@ Version 1.9(?)
     file:////tmp/ETDPids.txt RELS-EXT,MODS,MADS,DC,XHTML,POLICY,PREMIS M >
     managedConversion.log      - you many have to use http for the 2nd param
 
-* Update the ETD content model service for particular fedora instance.
-    https://dev11.library.emory.edu:8943/fedora/objects/emory-control:ETD-metadataTransform/datastreams/WSDL/content
+* Update the ETD content model services for particular fedora instance.
+    (1) https://dev11.library.emory.edu:8943/fedora/objects/emory-control:ETD-metadataTransform/datastreams/WSDL/content
+    (2) https://dev11.library.emory.edu:8943/fedora/objects/emory-control::ETDformattedMetadataParts/datastreams/WSDL/content
     <wsdl:port binding="this:FedoraSaxon_http" name="FedoraSaxon_port">
     <http:address location="http://dev11.library.emory.edu:8580/saxon/"/>
     </wsdl:port>
+    
 
 *  Update the  etdFoxmlToSolr.xslt file to handle managed datastreams
    - Copy src/public/xslt/etdFoxmlToSolr.xslt to the current instance of
