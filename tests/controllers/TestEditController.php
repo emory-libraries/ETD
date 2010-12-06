@@ -188,6 +188,8 @@ class EditControllerTest extends ControllerTestCase {
   
   /** 
    * rights
+   * @todo test controller method validateRights directly - to simplify finding problems when something goes wrong
+   * with rights save action
    */
 
   function testSaveRightsAction() {
