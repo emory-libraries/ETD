@@ -3,34 +3,46 @@ require_once("../bootstrap.php");
 
 class TestSolrIndexXslt extends UnitTestCase {
     private $xsl;
+    private $tmpDir='/tmp/fedora/get/test:etd1';
 
-    function TestCleanModsXslt() {
+    function setUp() {
+        //Load the xslt file
         $xslpath = "../../src/public/xslt/etdFoxmlToSolr.xslt";
 	$this->xsl = new XSLTProcessor();
 	$xsldom = new DOMDocument();
 	$xsldom->load($xslpath);
 	$this->xsl->importStylesheet($xsldom);
+        //change the REPOSITORY URL param so it does not depend on fedora
+        //Instead, read from the local file system
+	$this->xsl->setParameter('', 'REPOSITORYURL', '/tmp/fedora/');
+        //Make the mock RELS-EXT and MODS files
+        mkdir($this->tmpDir, 0777, true); 
+        copy('../fixtures/etd1.managed.RELS-EXT.xml', "{$this->tmpDir}/RELS-EXT");
+        copy('../fixtures/etd1.managed.MODS.xml', "{$this->tmpDir}/MODS");
+
     }
 
-    function setUp() {}
 
-    function tearDown() {}
+    function tearDown() {
+        //Remove temp files
+        $this->delDir("/tmp/fedora/"); // trailing slash is required
+    }
 
     function test_etdToFoxml() {
         $xml = new DOMDocument();
-        $xml->load("../fixtures/etd1.xml");
+        $xml->load("../fixtures/etd1.managed.xml");
 	$etd = new etd($xml);
-	$etd->mods->date = "2008-05-30";	// set a pub date
-	$etd->mods->addKeyword("keyword1");	// keyword to be indexed
-	$etd->mods->addKeyword("");		// empty keyword - should not be indexed
 	 // ignore php errors - "indirect modification of overloaded property
 	$errlevel = error_reporting(E_ALL ^ E_NOTICE);
-	$etd->mods->chair[0]->full = "Duck, Donald";
-	$etd->mods->committee[0]->full = "Dog, Pluto";
-	$etd->mods->addCommittee("", "");	// blank committe name - should not be indexed
+	//$etd->mods->chair[0]->full = "Duck, Donald";
+	//$etd->mods->committee[0]->full = "Dog, Pluto";
+	//$etd->mods->addCommittee("", "");	// blank committe name - should not be indexed
 	error_reporting($errlevel);     // restore prior error reporting
 
         $result = $this->transformDom($etd->dom);
+        //print "<pre>";
+        //print htmlentities($result);
+        //print "</pre>";
         $this->assertTrue($result, "xsl transform returns data");
 	$this->assertPattern("|<add>.+</add>|s", $result, "xsl result is a solr add document");
 	$this->assertPattern('|<field name="PID">test:etd1</field>|', $result,
@@ -87,7 +99,7 @@ class TestSolrIndexXslt extends UnitTestCase {
     // test new inactive behavior
     function test_etdToFoxml_inactiveEtd() {
         $xml = new DOMDocument();
-        $xml->load("../fixtures/etd1.xml");
+        $xml->load("../fixtures/etd1.managed.xml");
 	$foxml = new foxml($xml);
 	$foxml->state = "Inactive";
 
@@ -109,6 +121,34 @@ class TestSolrIndexXslt extends UnitTestCase {
     function transformDom($dom) {
       return $this->xsl->transformToXml($dom);
     }
+
+    function delDir($dir){
+	if ($handle = opendir($dir))
+	{
+	$array = array();
+ 
+    	while (false !== ($file = readdir($handle))) {
+        if ($file != "." && $file != "..") {
+ 
+            if(is_dir($dir.$file))
+            {
+                if(!@rmdir($dir.$file)) // Empty directory? Remove it
+                {
+                $this->delDir($dir.$file.'/'); // Not empty? Delete the files inside it
+                }
+            }
+            else
+            {
+               @unlink($dir.$file);
+            }
+        }
+    }
+    closedir($handle);
+ 
+    @rmdir($dir);
+}
+ 
+}
 
 }
 

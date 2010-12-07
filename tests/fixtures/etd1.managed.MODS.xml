@@ -1,0 +1,64 @@
+
+	<mods:mods xmlns:mods="http://www.loc.gov/mods/v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema">
+	  <mods:titleInfo>
+	    <mods:title>Why I Like Cheese</mods:title>
+	  </mods:titleInfo>
+	  <mods:name type="personal">
+	    <mods:namePart type="given">Minnie</mods:namePart>
+	    <mods:namePart type="family">Mouse</mods:namePart>
+	    <mods:displayForm>Mouse, Minnie</mods:displayForm>
+	    <mods:affiliation>Disney</mods:affiliation>
+	    <mods:role>
+	      <mods:roleTerm authority="marcrelator" type="text">author</mods:roleTerm>
+	    </mods:role>
+	  </mods:name>
+            <mods:name ID="dduck" type="personal">
+            <mods:namePart type="given">Donald</mods:namePart>
+            <mods:namePart type="family">Duck</mods:namePart>
+            <mods:displayForm>Duck, Donald</mods:displayForm>
+            <mods:role>
+               <mods:roleTerm authority="marcrelator" type="text">Thesis Advisor</mods:roleTerm>
+           </mods:role>
+          </mods:name>
+          <mods:name ID="pdog" type="personal">
+             <mods:namePart type="given">Pluto</mods:namePart>
+             <mods:namePart type="family">Dog</mods:namePart>
+             <mods:displayForm>Dog, Pluto</mods:displayForm>
+             <mods:role>
+             <mods:roleTerm type="text">Committee Member</mods:roleTerm>
+              </mods:role>
+             <mods:description>Emory Committee Member</mods:description>
+	  </mods:name>
+          <mods:name type="personal">
+             <mods:namePart type="given"></mods:namePart>
+             <mods:namePart type="family"></mods:namePart>
+             <mods:displayForm></mods:displayForm>
+             <mods:role>
+             <mods:roleTerm type="text">Committee Member</mods:roleTerm>
+              </mods:role>
+             <mods:description>Emory Committee Member</mods:description>
+	  </mods:name>
+	  <mods:abstract>Gouda or Cheddar?</mods:abstract>
+          <mods:tableOfContents/>
+	  <mods:language>
+	    <mods:languageTerm authority="iso639-2b" type="text">English</mods:languageTerm>
+	  </mods:language>
+	  <mods:originInfo>
+	   <mods:dateIssued keyDate="yes">2008-05-30</mods:dateIssued> 
+	    <mods:dateOther type="embargoedUntil"/> 
+	  </mods:originInfo>
+  	  <mods:subject ID="0123" authority="proquestresearchfield">
+	    <mods:topic>Area studies</mods:topic>
+	  </mods:subject>
+          <mods:subject authority="keyword">
+              <mods:topic>keyword1</mods:topic>
+          </mods:subject>
+          <mods:subject authority="keyword">
+              <mods:topic></mods:topic>
+          </mods:subject>
+	  <mods:genre authority="aat">Dissertation</mods:genre>
+	  <mods:identifier type="ark">http://purl.bogus.com/ark:/123/td2</mods:identifier>
+	  <mods:accessCondition type="restrictionOnAccess">Embargoed for </mods:accessCondition>
+	  <mods:note type="admin" ID="embargo">embargo requested? no</mods:note>
+	</mods:mods>
+
