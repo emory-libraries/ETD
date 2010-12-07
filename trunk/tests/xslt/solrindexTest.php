@@ -3,7 +3,7 @@ require_once("../bootstrap.php");
 
 class TestSolrIndexXslt extends UnitTestCase {
     private $xsl;
-    private $tmpDir='/tmp/fedora/get/test:etd1';
+    private $tmpDir='/tmp/fedora/get';
 
     function setUp() {
         //Load the xslt file
@@ -15,10 +15,16 @@ class TestSolrIndexXslt extends UnitTestCase {
         //change the REPOSITORY URL param so it does not depend on fedora
         //Instead, read from the local file system
 	$this->xsl->setParameter('', 'REPOSITORYURL', '/tmp/fedora/');
-        //Make the mock RELS-EXT and MODS files
-        mkdir($this->tmpDir, 0777, true); 
-        copy('../fixtures/etd1.managed.RELS-EXT.xml', "{$this->tmpDir}/RELS-EXT");
-        copy('../fixtures/etd1.managed.MODS.xml', "{$this->tmpDir}/MODS");
+
+        //Make the mock RELS-EXT and MODS files for test:etd1
+        mkdir("{$this->tmpDir}/test:etd1", 0777, true); 
+        copy('../fixtures/etd1.managed.RELS-EXT.xml', "{$this->tmpDir}/test:etd1/RELS-EXT");
+        copy('../fixtures/etd1.managed.MODS.xml', "{$this->tmpDir}/test:etd1/MODS");
+
+        //Make the mock RELS-EXT files for test:etdfile1
+        mkdir("{$this->tmpDir}/test:etdfile1", 0777, true); 
+        copy('../fixtures/etdfile.managed.RELS-EXT.xml', "{$this->tmpDir}/test:etdfile1/RELS-EXT");
+
 
     }
 
@@ -34,9 +40,6 @@ class TestSolrIndexXslt extends UnitTestCase {
 	$etd = new etd($xml);
 	 // ignore php errors - "indirect modification of overloaded property
 	$errlevel = error_reporting(E_ALL ^ E_NOTICE);
-	//$etd->mods->chair[0]->full = "Duck, Donald";
-	//$etd->mods->committee[0]->full = "Dog, Pluto";
-	//$etd->mods->addCommittee("", "");	// blank committe name - should not be indexed
 	error_reporting($errlevel);     // restore prior error reporting
 
         $result = $this->transformDom($etd->dom);
@@ -111,7 +114,7 @@ class TestSolrIndexXslt extends UnitTestCase {
     // test non-etd - should not be indexed
     function test_etdToFoxml_nonEtd() {
         $xml = new DOMDocument();
-        $xml->load("../fixtures/etdfile.xml");
+        $xml->load("../fixtures/etdfile.managed.xml");
 
         $result = $this->transformDom($xml);
 	$this->assertNoPattern("|<add>.+</add>|s", $result,
