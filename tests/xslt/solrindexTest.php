@@ -3,12 +3,14 @@ require_once("../bootstrap.php");
 
 class TestSolrIndexXslt extends UnitTestCase {
     private $xsl;
-    private $tmpDir='/tmp/fedora/get';
+    private $tmpDir;
 
     function setUp() {
         //Load the xslt file
         //Using non standard testetd1 and testetdfile pid because hudson is having trouble accessing directories with ":"
        //FIXME: make loading and deleting the temp dir more dynamic
+        $this->tmpDir="/tmp/fedora" . strftime("%G%m%d%H%M%S") . "/"; //make unique tmp dir based on time, trailing slash is required
+
         $xslpath = "../../src/public/xslt/etdFoxmlToSolr.xslt";
 	$this->xsl = new XSLTProcessor();
 	$xsldom = new DOMDocument();
@@ -16,16 +18,21 @@ class TestSolrIndexXslt extends UnitTestCase {
 	$this->xsl->importStylesheet($xsldom);
         //change the REPOSITORY URL param so it does not depend on fedora
         //Instead, read from the local file system
-	$this->xsl->setParameter('', 'REPOSITORYURL', '/tmp/fedora/');
+	$this->xsl->setParameter('', 'REPOSITORYURL', $this->tmpDir);
 
         //Make the mock RELS-EXT and MODS files for testetd1
-        mkdir("{$this->tmpDir}/testetd1", 0777, true); 
-        copy('../fixtures/etd1.managed.RELS-EXT.xml', "{$this->tmpDir}/testetd1/RELS-EXT");
-        copy('../fixtures/etd1.managed.MODS.xml', "{$this->tmpDir}/testetd1/MODS");
+        $pid="testetd1";
+        mkdir("{$this->tmpDir}get/$pid", 0777, true); 
+        copy('../fixtures/etd1.managed.RELS-EXT.xml', "{$this->tmpDir}get/$pid/RELS-EXT");
+        copy('../fixtures/etd1.managed.MODS.xml', "{$this->tmpDir}get/$pid/MODS");
 
         //Make the mock RELS-EXT files for testetdfile1
-        mkdir("{$this->tmpDir}/testetdfile1", 0777, true); 
-        copy('../fixtures/etdfile.managed.RELS-EXT.xml', "{$this->tmpDir}/testetdfile1/RELS-EXT");
+        $pid="testetdfile1";
+        mkdir("{$this->tmpDir}get//$pid", 0777, true); 
+        copy('../fixtures/etdfile.managed.RELS-EXT.xml', "{$this->tmpDir}get/$pid/RELS-EXT");
+
+        //change all files and directories to 777
+       $this->chmodR($this->tmpDir, 0777);
 
 
     }
@@ -33,7 +40,7 @@ class TestSolrIndexXslt extends UnitTestCase {
 
     function tearDown() {
         //Remove temp files
-        $this->delDir("/tmp/fedora/"); // trailing slash is required
+        $this->delDir($this->tmpDir); // trailing slash is required
     }
 
     function test_etdToFoxml() {
@@ -127,6 +134,7 @@ class TestSolrIndexXslt extends UnitTestCase {
       return $this->xsl->transformToXml($dom);
     }
 
+    //function to recursivly delete a directory
     function delDir($dir){
 	if ($handle = opendir($dir))
 	{
@@ -154,6 +162,39 @@ class TestSolrIndexXslt extends UnitTestCase {
 }
  
 }
+
+    //function to recursively change permissons on a directory
+   function chmodR($path, $filemode) {
+ if ( !is_dir($path) ) {
+  return chmod($path, $filemode);
+ }
+ $dh = opendir($path);
+ while ( $file = readdir($dh) ) {
+  if ( $file != '.' && $file != '..' ) {
+   $fullpath = $path.'/'.$file;
+   if( !is_dir($fullpath) ) {
+    if ( !chmod($fullpath, $filemode) ){
+     return false;
+    }
+   } else {
+    if ( !$this->chmodR($fullpath, $filemode) ) {
+     return false;
+    }
+   }
+  }
+ }
+ 
+ closedir($dh);
+ 
+ if ( chmod($path, $filemode) ) {
+  return true;
+ } else {
+  return false;
+ }
+}
+
+
+
 
 }
 
