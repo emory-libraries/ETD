@@ -1,4 +1,4 @@
-<foxml:digitalObject xmlns:foxml="info:fedora/fedora-system:def/foxml#" PID="test:etd1" VERSION="1.1">
+<foxml:digitalObject xmlns:foxml="info:fedora/fedora-system:def/foxml#" PID="testetd1" VERSION="1.1">
   <foxml:objectProperties>    
     <foxml:property NAME="info:fedora/fedora-system:def/model#state" VALUE="Active"/>
     <foxml:property NAME="info:fedora/fedora-system:def/model#label" VALUE="Why I Like Cheese"/>    
@@ -42,7 +42,7 @@
 		xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/">
 	      <dc:title>Why I Like Cheese</dc:title>
 	      <dc:description>Gouda or Cheddar?</dc:description>
-	      <dc:identifier>info:fedora/test:etd1</dc:identifier>
+	      <dc:identifier>info:fedora/testetd1</dc:identifier>
 	</oai_dc:dc>
       </foxml:xmlContent>
     </foxml:datastreamVersion>
@@ -56,14 +56,14 @@
  <premis:object type="bitstream">
    <premis:objectIdentifier>
     <premis:objectIdentifierType>ark</premis:objectIdentifierType>
-    <premis:objectIdentifierValue>test:etd1</premis:objectIdentifierValue>
+    <premis:objectIdentifierValue>testetd1</premis:objectIdentifierValue>
    </premis:objectIdentifier>
    <premis:objectCategory>etd</premis:objectCategory>
  </premis:object>
 <premis:event>
   <premis:eventIdentifier>
     <premis:eventIdentifierType>etdrepo</premis:eventIdentifierType>
-    <premis:eventIdentifierValue>test:etd.1</premis:eventIdentifierValue>
+    <premis:eventIdentifierValue>testetd.1</premis:eventIdentifierValue>
   </premis:eventIdentifier>
   <premis:eventType>creation</premis:eventType>
   <premis:eventDateTime>2008-01-01</premis:eventDateTime>
@@ -96,7 +96,7 @@
     <Resources>
       <Resource>
         <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
-          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">test:etd1</AttributeValue>
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">testetd1</AttributeValue>
           <ResourceAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:resource:object:pid" DataType="http://www.w3.org/2001/XMLSchema#string"/>
         </ResourceMatch>
       </Resource>

@@ -7,6 +7,8 @@ class TestSolrIndexXslt extends UnitTestCase {
 
     function setUp() {
         //Load the xslt file
+        //Using non standard testetd1 and testetdfile pid because hudson is having trouble accessing directories with ":"
+       //FIXME: make loading and deleting the temp dir more dynamic
         $xslpath = "../../src/public/xslt/etdFoxmlToSolr.xslt";
 	$this->xsl = new XSLTProcessor();
 	$xsldom = new DOMDocument();
@@ -16,14 +18,14 @@ class TestSolrIndexXslt extends UnitTestCase {
         //Instead, read from the local file system
 	$this->xsl->setParameter('', 'REPOSITORYURL', '/tmp/fedora/');
 
-        //Make the mock RELS-EXT and MODS files for test:etd1
-        mkdir("{$this->tmpDir}/test:etd1", 0777, true); 
-        copy('../fixtures/etd1.managed.RELS-EXT.xml', "{$this->tmpDir}/test:etd1/RELS-EXT");
-        copy('../fixtures/etd1.managed.MODS.xml', "{$this->tmpDir}/test:etd1/MODS");
+        //Make the mock RELS-EXT and MODS files for testetd1
+        mkdir("{$this->tmpDir}/testetd1", 0777, true); 
+        copy('../fixtures/etd1.managed.RELS-EXT.xml', "{$this->tmpDir}/testetd1/RELS-EXT");
+        copy('../fixtures/etd1.managed.MODS.xml', "{$this->tmpDir}/testetd1/MODS");
 
-        //Make the mock RELS-EXT files for test:etdfile1
-        mkdir("{$this->tmpDir}/test:etdfile1", 0777, true); 
-        copy('../fixtures/etdfile.managed.RELS-EXT.xml', "{$this->tmpDir}/test:etdfile1/RELS-EXT");
+        //Make the mock RELS-EXT files for testetdfile1
+        mkdir("{$this->tmpDir}/testetdfile1", 0777, true); 
+        copy('../fixtures/etdfile.managed.RELS-EXT.xml', "{$this->tmpDir}/testetdfile1/RELS-EXT");
 
 
     }
@@ -48,7 +50,7 @@ class TestSolrIndexXslt extends UnitTestCase {
         //print "</pre>";
         $this->assertTrue($result, "xsl transform returns data");
 	$this->assertPattern("|<add>.+</add>|s", $result, "xsl result is a solr add document");
-	$this->assertPattern('|<field name="PID">test:etd1</field>|', $result,
+	$this->assertPattern('|<field name="PID">testetd1</field>|', $result,
 			     "pid indexed in field PID");
 	$this->assertPattern('|<field name="label">Why I Like Cheese</field>|', $result,
 			     "object label indexed");
