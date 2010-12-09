@@ -1,10 +1,12 @@
 CHANGE LOG 
 =================
 
-1.9 - Fedora 3.4 migration, December 2010
+1.9 - Fedora 3.4 migration, January 2011
 -----------------------------------------
-* MODS and RELS-EXT datastreams have been migrated from inline to managed using
-  fedora-modify-control-group utility
+* RELS-EXT, MODS, MADS, DC,XHTML ,POLICY, and PREMIS datastreams have been
+      migrated from inline to managed using fedora-modify-control-group utility
+* ESD graduate-coordinator servlet filter upgraded to work with Fedora 3.4
+*  etdFoxmlToSolr.xslt has been updated to handle indexing inline and managed datastreams.
 * New script for checking datastream checksums in fedora: update_checksums.php
 
 Version 1.8.5 - November 2010 (minor update - utility script)
