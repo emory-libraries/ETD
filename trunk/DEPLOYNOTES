@@ -97,6 +97,7 @@ Version 1.9
    cd src/scripts
    ./update_checksum.php -v info
    Run the checksum script to perform any checksum updates to FILE datastreams.
+   (this will take some time and should be run overnight)
    cd src/scripts
    ./update_checksum.php -v info -u       
 
