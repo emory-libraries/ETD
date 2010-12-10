@@ -29,7 +29,7 @@ UPGRADE NOTES
 
 Version 1.9
 -----------
-* Make the appropriate host and port changes to point to the fedora 3.4 instance
+* Make the appropriate host, port and user / pass changes to point to the fedora 3.4 instance
     - fedora.xml
     - solr.xml
 
