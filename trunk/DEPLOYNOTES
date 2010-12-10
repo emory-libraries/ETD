@@ -95,7 +95,10 @@ Version 1.9
      
 *  Run the checksum script to determine the current checksum status.
    cd src/scripts
-   ./update_checksum.php -v info      
+   ./update_checksum.php -v info
+   Run the checksum script to perform any checksum updates to FILE datastreams.
+   cd src/scripts
+   ./update_checksum.php -v info -u       
 
 
 Version 1.8.5
