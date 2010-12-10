@@ -29,11 +29,23 @@ UPGRADE NOTES
 
 Version 1.9
 -----------
-* Make the appropriate host and port changes to point to the fedora 3.4 instance
+* Make the appropriate host, port and user / pass changes to point to the fedora 3.4 instance
     - fedora.xml
     - solr.xml
 
-* switch the fedora-policies to the branch branches/release_1.1
+* switch the fedora-policies to the branch https://svn.library.emory.edu/svn/fedora/repository-policies/branches/release_1.1
+
+* Load control objects from https://svn.library.emory.edu/svn/fedora/control-objects/
+    - AuthorInformation.xml
+    - Collection.xml
+    - ETD.xml
+    - ETDformattedMetadataParts_XHTML_sdep.xml
+    - ETDmetadataParts_sdef.xml
+    - EtdFile.xml
+    - Hierarchy.xml
+    - MetadataTransform_ETD_sdep.xml
+    - MetadataTransform_sdef.xml
+    - OAI-Identify.xml
 
 
 * Copy files from fedora 3.2 to fedora 3.4 and convert datastreams to managed
@@ -52,7 +64,8 @@ Version 1.9
    - Copy pids listed in ETDPids.txt to fedora3.4
 
    - Run the inline to managed conversion script on pids listed in ETDPids.tex in fedora 3.4
-   . /home/fedora34/set-env-for-this-fedora.sh
+   Make sure the environment variables are set if avaliable this script will 
+   set them to the correct value ". /home/fedora34/set-env-for-this-fedora.sh"
 
     /home/fedora34/server/bin/fedora-modify-control-group.sh
     migratedatastreamcontrolgroup https fedoraAdmin <password>
@@ -66,11 +79,12 @@ Version 1.9
 
 
 * Update the ETD content model services for particular fedora instance.
-    (1) https://dev11.library.emory.edu:8943/fedora/objects/emory-control:ETD-metadataTransform/datastreams/WSDL/content
-    (2) https://dev11.library.emory.edu:8943/fedora/objects/emory-control::ETDformattedMetadataParts/datastreams/WSDL/content
+    (1) emory-control:ETD-metadataTransform/datastreams/WSDL/content
+    (2) emory-control::ETDformattedMetadataParts/datastreams/WSDL/content
     <wsdl:port binding="this:FedoraSaxon_http" name="FedoraSaxon_port">
-    <http:address location="http://dev11.library.emory.edu:8580/saxon/"/>
+    <http:address location="localhost:8080/saxon/"/>
     </wsdl:port>
+    If the location parameter is not the default location adjust accordingly.
     
 
 * Update GSearch with latest version of src/public/xslt/etdFoxmlToSolr.xslt
@@ -81,7 +95,11 @@ Version 1.9
      
 *  Run the checksum script to determine the current checksum status.
    cd src/scripts
-   ./update_checksum.php -v info      
+   ./update_checksum.php -v info
+   Run the checksum script to perform any checksum updates to FILE datastreams.
+   (this will take some time and should be run overnight)
+   cd src/scripts
+   ./update_checksum.php -v info -u       
 
 
 Version 1.8.5
