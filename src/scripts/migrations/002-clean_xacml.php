@@ -45,7 +45,7 @@ $logger = setup_logging($opts->verbose);
 
 // if pid is specified, run single record mode
 if ($opts->pid) {
-  $etds = new etd($opts->pid);
+  $etd = new etd($opts->pid);
   clean_xacml($etd);
   return;
 }
