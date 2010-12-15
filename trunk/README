@@ -93,6 +93,11 @@ services (including fedora connection) and can be used as an
 interactive environment (REPL).  In tests/suites there is an
 equivalent console.php that loads the test environment.
 
+Gsearch: Currently Gsearch is indexing RELS-EXT and MODS datastreams.  Due to
+most objects having managed datastreams, the etdFoxmlToSolr.xslt must make
+API-A-LITE calls to fedora to retrieve datastreams. The policies allow this action
+from localhost only.  If in the future GSearch does not have access to localhost
+the policies would have to be modified to allow access from the host making requests.
 
 
 PDF File Parsing

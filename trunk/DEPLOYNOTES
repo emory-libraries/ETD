@@ -72,6 +72,8 @@ Version 1.9
     file:////tmp/ETDPids.txt RELS-EXT,MODS,MADS,DC,XHTML,POLICY,PREMIS M >
     managedConversion.log      - you many have to use http for the 2nd param
 
+   - Make sure to copy over the Programs Pid (emory:17r1x) as well but do
+     not run the managed migration on this pid.
 
 * Install ESDFilter on tomcat
     See Documentation/README-ESDFilter
@@ -91,7 +93,8 @@ Version 1.9
   and reindex all content.  Note that the xslt now requires a parameter
   containing the Fedora base url to be set in REPOSITORYURL.  You must edit
   this parameter if Fedora should be accessed somewhere other than this default:
-        http://localhost:8080/fedora/
+        http://localhost:8080/fedora/ .  It looks like at least for the staging
+        environment, the hostname will not work. You must use localhost.
      
 *  Run the checksum script to determine the current checksum status.
    cd src/scripts
