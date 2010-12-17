@@ -72,8 +72,14 @@ Version 1.9
     file:////tmp/ETDPids.txt RELS-EXT,MODS,MADS,DC,XHTML,POLICY,PREMIS M >
     managedConversion.log      - you many have to use http for the 2nd param
 
-   - Make sure to copy over the Programs Pid (emory:17r1x) as well but do
-     not run the managed migration on this pid.
+   - Make sure to copy over These addition pids as well but do
+     not run the managed migration on them:
+     emory-control:ETD-collection
+     emory-control:ETD-GradSchool-collection
+    emory-control:ETD-College-collection
+    emory-control:ETD-Candler-collection
+    emory-control:ETD-Rollins-collection
+    emory:17r1x
 
 * Install ESDFilter on tomcat
     See Documentation/README-ESDFilter
