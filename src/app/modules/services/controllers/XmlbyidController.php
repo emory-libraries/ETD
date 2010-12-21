@@ -31,7 +31,9 @@ class Services_XmlbyidController extends Zend_Controller_Action {
     try {
       
       // parse the datastream url into component pieces - expects REST API datastream url
-      if (preg_match("|(https?)://([a-z0-9.]+):([0-9]+)/[^/]+/objects/([-a-zA-z:0-9]+)/datastreams/([a-zA-Z0-9]+)/?(.*)?|", $url, $matches)) {
+      //splitting into two regx expressions to make logic simpler
+      if (preg_match("|(https?)://([a-z0-9.]+):([0-9]+)/[^/]+/objects/([-a-zA-z:0-9]+)/datastreams/([a-zA-Z0-9]+)/?(.*)?|", $url, $matches) /* SOAP-API */
+          || preg_match("|(https?)://([a-z0-9.]+):([0-9]+)/[^/]+/get/([-a-zA-z:0-9]+)/([a-zA-Z0-9]+)/?(.*)?|", $url, $matches)) /* API-A-LITE */ {
         list($full_match, $protocol, $hostname, $port, $pid, $datastream, $datetime) = $matches;
 
 
