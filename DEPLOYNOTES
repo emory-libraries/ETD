@@ -46,6 +46,7 @@ Version 1.9
     - MetadataTransform_ETD_sdep.xml
     - MetadataTransform_sdef.xml
     - OAI-Identify.xml
+      oai-marcxml_sdef.xml
 
 
 * Copy files from fedora 3.2 to fedora 3.4 and convert datastreams to managed
