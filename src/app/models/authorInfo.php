@@ -199,7 +199,7 @@ class authorInfo extends foxml {
 
         $this->pid = $pid;
         // store the full ark as an additional identifier
-        // if no dc:format elements are present, append will fail, so just set first format element        
+        // if no dc->identifier elements are present, append will fail, so just set first format element        
         if (!count($this->dc->identifier)) {        
           $this->dc->identifier = $ark;
         }
