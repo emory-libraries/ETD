@@ -199,6 +199,7 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
           
         }
       }
+      $this->dc->description = "supplemental file for $doctype";
     }
     // now actually upload the file and set ingest url to upload id
     $this->setFile($filename);   

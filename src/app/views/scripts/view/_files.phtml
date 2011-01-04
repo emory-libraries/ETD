@@ -39,7 +39,7 @@
 	     <? endif ?>
 	  <? if (isset($file->dc->pages)): ?><?= $file->dc->pages ?> pages<? endif ?>
 	  <? if (isset($file->dc->filesize)): ?>(<?= $this->readableSize($file->dc->filesize) ?>) <?endif ?>
-	   <? if ($file->dc->description): ?>
+	   <? if (isset($file->dc->description)): ?>
 	    <span class="description">[<?= $file->dc->description ?>]</span>
           <?endif ?>
 	      
