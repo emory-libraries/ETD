@@ -102,8 +102,6 @@ class FileController extends Etd_Controller_Action {
 	 $this->logger->info("Created new etd file record with pid $filepid");
 	 $this->view->file_pid = $filepid;
 	 
-	 // delete temporary file now that we are done with it
-	 unlink($filename);
 	 
 	 // add relation to etd object as well
 	 switch($file_rel) {
@@ -123,7 +121,10 @@ class FileController extends Etd_Controller_Action {
 	   $this->logger->err("Error updating etd " . $etd->pid . " (adding relation to pdf)");
 	 }
 
-       
+
+     // delete temporary file now that we are done with it
+	 unlink($filename);
+
 	 // direct user to edit file info
 	 $this->_helper->redirector->gotoRoute(array("controller" => "file", "action" => "edit",
 						     "pid" => $etdfile->pid, 'etd' => $etd->pid), '', true);
