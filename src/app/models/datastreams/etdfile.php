@@ -185,7 +185,7 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
       $this->dc->description = "Archival copy of " . $doctype;
     } else {  // supplemental files
       // make a "best guess" at the type of content based on mimetype  (other than text)
-      list($major, $minor) = split('/', $this->dc->mimetype);
+      list($major, $minor) = split('/', $this->file->mimetype);
       switch ($major) { 
       case "image": $this->dc->type = "StillImage"; break;
       case "audio": $this->dc->type = "Sound"; break;
@@ -246,7 +246,6 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
       }
     }
     
-    $this->dc->setMimetype($filetype);  // mimetype
     if (isset($this->file)) // new record, not yet ingested into Fedora
       $this->file->mimetype = $filetype;
 
@@ -326,7 +325,7 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
     if (count($this->etd->{$this->type . "s"}) > 1) $filename .= $this->rels_ext->sequence;
 
     // determine file extension based on mimetype for common/expected files
-    switch ($this->dc->mimetype) {
+    switch ($this->file->mimetype) {
     case "application/pdf":  $ext = "pdf"; break;
     case "application/msword":  $ext = "doc"; break;
     default:
@@ -415,7 +414,7 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
   public function updateFile($filename, $message) {
     $this->setFileInfo($filename);   // update mimetype, filesize, and pages if appropriate       
     $upload_id = $this->fedora->upload($filename);
-    return $this->fedora->modifyBinaryDatastream($this->pid, "FILE", "Binary File", $this->dc->mimetype,
+    return $this->fedora->modifyBinaryDatastream($this->pid, "FILE", "Binary File", $this->file->mimetype,
              $upload_id, $message);
   }
 
