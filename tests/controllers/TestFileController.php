@@ -74,7 +74,7 @@ class FileControllerTest extends ControllerTestCase {
   public function testViewAction() {
     $FileController = new FileControllerForTest($this->request,$this->response);
 
-    $this->mock_etdfile->dc->mimetype = "application/pdf";
+    $this->mock_etdfile->file->mimetype = "application/pdf";
     $this->mock_etdfile->setReturnValue('prettyFilename', "author_dissertation.pdf");
 
     $FileController->viewAction();
