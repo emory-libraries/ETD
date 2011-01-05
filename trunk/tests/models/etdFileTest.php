@@ -69,7 +69,7 @@ class TestEtdFile extends UnitTestCase {
     $etd = new etd($this->etdpid);
     $etdfile = new etd_file($this->filepid, $etd);
     $etdfile->owner = 'mmouse';
-    $etdfile->policy->addRule("view");	// needed by addSupplement
+    $etdfile->policy->addRule("view");  // needed by addSupplement
     // add relation between objects
     $etdfile->rels_ext->addRelationToResource("rel:isSupplementOf", $etd->pid);
     // fixture has a blank dummy relation; remove
@@ -81,9 +81,9 @@ class TestEtdFile extends UnitTestCase {
     // use new etdfile->delete function - should return date modified
     $this->assertNotNull($etdfile->delete("testing new delete function"));
     // 3. check that etd object no longer has relation to etdfile
-    $etd = new etd($this->etdpid);	// re-init from Fedora
+    $etd = new etd($this->etdpid);  // re-init from Fedora
     $this->assertFalse($etd->rels_ext->supplement->includes($etdfile->pid));
-    //		 Note: using DOMElementArray equivalent function for in_array
+    //     Note: using DOMElementArray equivalent function for in_array
 
     // There is no good way to test only the desired properties using
     // Fedora API calls; getting entire object XML and testing that.
@@ -92,7 +92,7 @@ class TestEtdFile extends UnitTestCase {
     // check that etdfile has status Deleted 
     $this->assertPattern('|foxml:property NAME="info:fedora/fedora-system:def/model#state" VALUE="Deleted"|', $filexml);
     // check that owner was preserved
-    $this->assertPattern('|foxml:property NAME="info:fedora/fedora-system:def/model#ownerId" VALUE="mmouse"|', $filexml);	// (picked up from ETD object)
+    $this->assertPattern('|foxml:property NAME="info:fedora/fedora-system:def/model#ownerId" VALUE="mmouse"|', $filexml); // (picked up from ETD object)
 
     // remove test objects from fedora
     $fedora->purge($this->etdpid, "completed test");
@@ -115,17 +115,17 @@ class TestEtdFile extends UnitTestCase {
     $this->assertNotEqual("", $etdfile->dc->title, "dc:title must not be blank");
     $this->assertEqual("Dissertation/Thesis", $etdfile->dc->title, "dc:title should have generic value 'Dissertation/Thesis' when doctype is not known, was '" . $etdfile->dc->title . "'");
     $this->assertEqual("Joe Smith", $etdfile->dc->creator,
-		       "dc:creator should be set to author name 'Joe Smith', was '"
-		       . $etdfile->dc->creator . "'");
+           "dc:creator should be set to author name 'Joe Smith', was '"
+           . $etdfile->dc->creator . "'");
     $this->assertEqual("Text", $etdfile->dc->type, "dc:type for pdf should be text, got '" .
-		       $etdfile->dc->type . "'");
+           $etdfile->dc->type . "'");
 
     // file info pulled automatically from the file itself
     $this->assertEqual(filesize("../fixtures/tinker_sample.pdf"), $etdfile->dc->filesize,
-		       "filesize in dc:format should match '" .
-		       filesize("../fixtures/tinker_sample.pdf") . "', got '" .
-		       $etdfile->dc->filesize . "' instead");
-    $this->assertEqual("application/pdf", $etdfile->dc->mimetype);
+           "filesize in dc:format should match '" .
+           filesize("../fixtures/tinker_sample.pdf") . "', got '" .
+           $etdfile->dc->filesize . "' instead");
+    $this->assertEqual("application/pdf", $etdfile->file->mimetype);
     $this->assertEqual("8", $etdfile->dc->pages);
     $this->assertEqual("filename:tinker_sample.pdf", $etdfile->dc->source);
 
@@ -139,8 +139,8 @@ class TestEtdFile extends UnitTestCase {
     $etdfile = new etd_file(null, $honors_etd);
     $etdfile->initializeFromFile("../fixtures/tinker_sample.pdf", "pdf", $author);
     $this->assertEqual("Honors Thesis", $etdfile->dc->title,
-		       "dc:title should be set to 'Honors Thesis' for honors etd, got '" .
-		       $etdfile->dc->title . "' instead");
+           "dc:title should be set to 'Honors Thesis' for honors etd, got '" .
+           $etdfile->dc->title . "' instead");
 
 
     // FIXME: would be more thorough to add tests for
