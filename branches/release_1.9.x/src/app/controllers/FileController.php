@@ -22,12 +22,12 @@ class FileController extends Etd_Controller_Action {
      $this->_helper->viewRenderer->setNoRender(true);
 
      // fix headers for IE bug (otherwise file download doesn't work over https)
-     $this->getResponse()->setHeader('Cache-Control', "public", true);	// replace any other cache-control values
+     $this->getResponse()->setHeader('Cache-Control', "public", true);  // replace any other cache-control values
      $this->getResponse()->setHeader('Pragma', "public", true);         // replace any other pragma values
      // set content type, filename, and set datastream content as the body of the response
-     $this->getResponse()->setHeader('Content-Type', $etdfile->dc->mimetype);
+     $this->getResponse()->setHeader('Content-Type', $etdfile->file->mimetype);
      $this->getResponse()->setHeader('Content-Disposition',
-				     'attachment; filename="' . $etdfile->prettyFilename() . '"');
+             'attachment; filename="' . $etdfile->prettyFilename() . '"');
      $this->getResponse()->setBody($etdfile->getFile());
    }
 
@@ -80,15 +80,15 @@ class FileController extends Etd_Controller_Action {
        // compare MD5 for new file to existings files attached to this ETD, to avoid duplicate files
        $newfile_checksum = md5_file($filename);
        foreach (array_merge($etd->pdfs, $etd->originals, $etd->supplements) as $file) {
-	 if ($file->getFileChecksum() == $newfile_checksum) {
-	   $this->_helper->flashMessenger->addMessage("Error: You have already uploaded this file (" .
-						      $fileinfo['name'] . ") before.");
-	   $this->_helper->redirector->gotoRoute(array("controller" => "file", "action" => "add",
-						       "etd" => $etd->pid), '', true);
-	   return;
-	 }
+   if ($file->getFileChecksum() == $newfile_checksum) {
+     $this->_helper->flashMessenger->addMessage("Error: You have already uploaded this file (" .
+                  $fileinfo['name'] . ") before.");
+     $this->_helper->redirector->gotoRoute(array("controller" => "file", "action" => "add",
+                   "etd" => $etd->pid), '', true);
+     return;
+   }
        }
-       $etdfile = new etd_file(null, $etd);	// initialize from template, but associate with parent etd
+       $etdfile = new etd_file(null, $etd); // initialize from template, but associate with parent etd
        $etdfile->initializeFromFile($filename, $file_rel, $this->current_user, $fileinfo['name']);
 
        // add relation to etd
@@ -96,37 +96,38 @@ class FileController extends Etd_Controller_Action {
        $etdfile->rels_ext->addRelationToResource("rel:is{$relation}Of", $etd->pid);
 
        $filepid = $this->_helper->ingestOrError($etdfile,
-						"adding new file",
-						"file record", $errtype);
+            "adding new file",
+            "file record", $errtype);
        if ($filepid) {
-	 $this->logger->info("Created new etd file record with pid $filepid");
-	 $this->view->file_pid = $filepid;
-	 
-	 // delete temporary file now that we are done with it
-	 unlink($filename);
-	 
-	 // add relation to etd object as well
-	 switch($file_rel) {
-	 case "pdf": 	  $etd->addPdf($etdfile); break;
-	 case "original":   $etd->addOriginal($etdfile); break;
-	 case "supplement": $etd->addSupplement($etdfile); break;
-	 default:	
-	   trigger_warning("relation '$relation' not recognized - not adding to etd", E_USER_WARNING);
-	 }
-	 
-	 // note: saving etd will also save any changed related objects (etdfile rels & xacml)
-	 $result = $etd->save("added relation to uploaded $file_rel");
-	 if ($result) {
-	   $this->logger->info("Updated etd " . $etd->pid . " at $result (adding relation to pdf)");
-	 } else {
-	   $this->_helper->flashMessenger->addMessage("Error: problem  associating new $relation file with your ETD record");
-	   $this->logger->err("Error updating etd " . $etd->pid . " (adding relation to pdf)");
-	 }
+   $this->logger->info("Created new etd file record with pid $filepid");
+   $this->view->file_pid = $filepid;
+   
+   
+   // add relation to etd object as well
+   switch($file_rel) {
+   case "pdf":    $etd->addPdf($etdfile); break;
+   case "original":   $etd->addOriginal($etdfile); break;
+   case "supplement": $etd->addSupplement($etdfile); break;
+   default: 
+     trigger_warning("relation '$relation' not recognized - not adding to etd", E_USER_WARNING);
+   }
+   
+   // note: saving etd will also save any changed related objects (etdfile rels & xacml)
+   $result = $etd->save("added relation to uploaded $file_rel");
+   if ($result) {
+     $this->logger->info("Updated etd " . $etd->pid . " at $result (adding relation to pdf)");
+   } else {
+     $this->_helper->flashMessenger->addMessage("Error: problem  associating new $relation file with your ETD record");
+     $this->logger->err("Error updating etd " . $etd->pid . " (adding relation to pdf)");
+   }
 
-       
-	 // direct user to edit file info
-	 $this->_helper->redirector->gotoRoute(array("controller" => "file", "action" => "edit",
-						     "pid" => $etdfile->pid, 'etd' => $etd->pid), '', true);
+
+     // delete temporary file now that we are done with it
+   unlink($filename);
+
+   // direct user to edit file info
+   $this->_helper->redirector->gotoRoute(array("controller" => "file", "action" => "edit",
+                 "pid" => $etdfile->pid, 'etd' => $etd->pid), '', true);
        }  // end successfully ingested file
        
        
@@ -161,38 +162,38 @@ class FileController extends Etd_Controller_Action {
      }
      
      if ($uploaded) {
-       $old_pagecount = $etdfile->dc->pages;	// save current page count
+       $old_pagecount = $etdfile->dc->pages;  // save current page count
        
-       $fileresult = $etdfile->updateFile($filename, "new version of file");	// update file info, upload new file
+       $fileresult = $etdfile->updateFile($filename, "new version of file");  // update file info, upload new file
        $xmlresult = $etdfile->save("modified metadata for new version of file");
-       if ($fileresult === false || $xmlresult === false) {	// how to determine which failed?
-	 $this->_helper->flashMessenger->addMessage("Error: there was a problem updating the file.");
-	 if ($fileresult === false) {
-	   $this->logger->err("Problem updating etdfile " . $etdfile->pid . " with new version of file");
-	 }
-	 if ($xmlresult === false) {
-	   $this->logger->err("Problem saving modified metadata for etdfile " . $etdfile->pid);
-	 }
+       if ($fileresult === false || $xmlresult === false) { // how to determine which failed?
+   $this->_helper->flashMessenger->addMessage("Error: there was a problem updating the file.");
+   if ($fileresult === false) {
+     $this->logger->err("Problem updating etdfile " . $etdfile->pid . " with new version of file");
+   }
+   if ($xmlresult === false) {
+     $this->logger->err("Problem saving modified metadata for etdfile " . $etdfile->pid);
+   }
        } else {
-	 $this->_helper->flashMessenger->addMessage("Successfully updated file");
-	 $this->logger->info("Updated etdfile " . $etdfile->pid . " with new file at $fileresult");
-	 $this->logger->info("Updated etdfile " . $etdfile->pid . " metadata at $xmlresult");
-	 $this->view->save_result = $fileresult;
+   $this->_helper->flashMessenger->addMessage("Successfully updated file");
+   $this->logger->info("Updated etdfile " . $etdfile->pid . " with new file at $fileresult");
+   $this->logger->info("Updated etdfile " . $etdfile->pid . " metadata at $xmlresult");
+   $this->view->save_result = $fileresult;
        }
 
        // if file being updated is a PDF, need to update main record page count (can't be caught elsewhere)
        if ($etdfile->type == "pdf") {
-	 // subtract pages from the old version of file
-	 $etdfile->etd->mods->pages = (int)$etdfile->etd->mods->pages - (int)$old_pagecount;
-	// add new page count
-	$etdfile->etd->mods->pages = (int)$etdfile->etd->mods->pages + (int)$etdfile->dc->pages;
-	$result = $etdfile->etd->save("updated page count for new version of pdf");
-	if ($result) {
-	  $this->logger->info("Updated etd page count for new version of pdf " . $etdfile->etd->pid);
-	} else {
-	  $this->logger->err("Problem updating etd page count for new version of pdf" .
-			     $etdfile->etd->pid);
-	}
+   // subtract pages from the old version of file
+   $etdfile->etd->mods->pages = (int)$etdfile->etd->mods->pages - (int)$old_pagecount;
+  // add new page count
+  $etdfile->etd->mods->pages = (int)$etdfile->etd->mods->pages + (int)$etdfile->dc->pages;
+  $result = $etdfile->etd->save("updated page count for new version of pdf");
+  if ($result) {
+    $this->logger->info("Updated etd page count for new version of pdf " . $etdfile->etd->pid);
+  } else {
+    $this->logger->err("Problem updating etd page count for new version of pdf" .
+           $etdfile->etd->pid);
+  }
        }
 
        // delete temporary file now that we are done with it
@@ -205,7 +206,7 @@ class FileController extends Etd_Controller_Action {
      // when updating binary file, redirect to main ETD record page
      // if update was successful or failed, flash messages will be displayed
      $this->_helper->redirector->gotoRoute(array("controller" => "view", "action" => "record",
-						 "pid" => $etdfile->etd->pid), '', true);
+             "pid" => $etdfile->etd->pid), '', true);
    }
 
    
@@ -222,15 +223,15 @@ class FileController extends Etd_Controller_Action {
      // xforms setting - so layout can include needed code in the header
      $this->view->xforms = true;
      $this->view->namespaces = array("dc" => "http://purl.org/dc/elements/1.1/",
-				     "dcterms" => "http://purl.org/dc/terms/");
+             "dcterms" => "http://purl.org/dc/terms/");
 
      $this->view->xforms_bind_script = "file/_dc_bind.phtml";
      
      //    $this->view->xforms_model_xml = $etd->mods->saveXML();
      // link to xml rather than embedding directly in the page
      $this->view->xforms_model_uri = $this->view->url(array("controller" => "view",
-							    "action" => "dc", "pid" => $etdfile->pid,
-							    "type" => "etdfile"));
+                  "action" => "dc", "pid" => $etdfile->pid,
+                  "type" => "etdfile"));
    }
 
 
@@ -251,32 +252,32 @@ class FileController extends Etd_Controller_Action {
        $etdfile->dc->updateXML($xml);
 
        if ($etdfile->dc->hasChanged()) {
-	 // fixme: needs better error checking (like in EditController)
-	 $save_result = $etdfile->save("edited file information");
-	 $this->view->save_result = $save_result;
-	 if ($save_result) {
-	   $this->_helper->flashMessenger->addMessage("Saved changes to file information");
-	   $this->logger->info("Saved changes to file metadata for " . $etdfile->pid . " at $save_result");
-	 } else {
-	   $this->_helper->flashMessenger->addMessage("Error: could not save changes to file information");
-	   $this->logger->err("Could not save changes to file metadata for " .  $etdfile->pid);
-	 }
+   // fixme: needs better error checking (like in EditController)
+   $save_result = $etdfile->save("edited file information");
+   $this->view->save_result = $save_result;
+   if ($save_result) {
+     $this->_helper->flashMessenger->addMessage("Saved changes to file information");
+     $this->logger->info("Saved changes to file metadata for " . $etdfile->pid . " at $save_result");
+   } else {
+     $this->_helper->flashMessenger->addMessage("Error: could not save changes to file information");
+     $this->logger->err("Could not save changes to file metadata for " .  $etdfile->pid);
+   }
        } else {
-       	 $this->_helper->flashMessenger->addMessage("No changes made to file information");
+         $this->_helper->flashMessenger->addMessage("No changes made to file information");
        }
 
     }
 
 
      $this->view->etd_pid = $etdfile->etd->pid;
-     //$this->view->pid = $pid;	  // FIXME: what is this supposed to be? (is not defined) unused (?)
+     //$this->view->pid = $pid;   // FIXME: what is this supposed to be? (is not defined) unused (?)
     //    $this->view->xml = $xml;
     $this->view->xml = $etdfile->dc->saveXML();
     $this->view->title = "save file information";
 
     // redirect to etd record
     $this->_helper->redirector->gotoRoute(array("controller" => "view", "action" => "record",
-						"pid" => $etdfile->etd->pid), '', true);
+            "pid" => $etdfile->etd->pid), '', true);
    }
 
 
@@ -287,7 +288,7 @@ class FileController extends Etd_Controller_Action {
      $etd_pid = $etdfile->etd->pid;
      // delete - removes from etd it belongs to and marks as deleted, but does not purge     
      $result = $etdfile->delete("removed by user");
-     if ($result) {	// fixme: filename?
+     if ($result) { // fixme: filename?
        $this->logger->info("Marked etdFile " . $etdfile->pid . " as deleted at $result");
        $this->_helper->flashMessenger->addMessage("Successfully removed file <b>" . $etdfile->label . "</b>");
      } else {
@@ -297,6 +298,6 @@ class FileController extends Etd_Controller_Action {
 
      // redirect to etd record
      $this->_helper->redirector->gotoRoute(array("controller" => "view", "action" => "record",
-						 "pid" => $etd_pid), '', true);
+             "pid" => $etd_pid), '', true);
    }
 }
