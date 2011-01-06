@@ -23,7 +23,7 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
   protected $reltype;
 
   protected $_etd = null;
-  protected $etd_pid = null;
+  protected $etd_pid = null; 
   
   public function __construct($pid = null, etd $parent = null) {
     parent::__construct($pid);
@@ -153,10 +153,11 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
    * @param esdPerson $author user this file belongs to (sets creator & owner)
    * @param string $label optional, label for fedora object; defaults to basename of the file
    */
-  public function initializeFromFile($filename, $reltype, esdPerson $author, $label = null) {
+  public function initializeFromFile($filename, $reltype, esdPerson $author, $label = null) {   
     $this->type = $reltype;
     if (!is_null($label)) $this->label = $label;
     else $this->label = basename($filename);
+        
     $this->owner = $author->netid;
 
     // set reasonable defaults for author, description
@@ -210,8 +211,7 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
    * @param string $tmpfile location of the temporary file
    * @param string $userfilename (optional) user's file name (instead of php temporary name)
    */
-  public function setFileInfo($tmpfile, $userfilename = null) {
-    
+  public function setFileInfo($tmpfile, $userfilename = null) {  
     // note: using fileinfo because mimetype reported by the browser is unreliable
     $finfo = finfo_open(FILEINFO_MIME); 
     $filetype = finfo_file($finfo, $tmpfile);
@@ -249,8 +249,6 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
     if (isset($this->file)) // new record, not yet ingested into Fedora
       $this->file->mimetype = $filetype;
 
-    $this->dc->setFilename(basename($filename));  // temporary file, so directory doesn't matter
-
     /* if this is a PDF, we can get the number of pages
        - this is especially important for pdf of dissertation,
        but doesn't hurt for any pdf supplements
@@ -270,6 +268,7 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
    * @param string $filename full path to file 
    */
   public function setFile($filename) {
+    $this->file->dslabel = $this->label;  // set the label for the ds to the filename.   
     $this->file->filename = $filename;
     // calculate and store datastream mimetype here
     $finfo = finfo_open(FILEINFO_MIME); 
@@ -308,7 +307,7 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
    * generate a nice, human-readable filename based on file type and etd information
    * @return string
    */
-  public function prettyFilename() {
+  public function prettyFilename() {    
     // build a nice, user-friendly filename
     $filename = strtolower($this->etd->mods->author->last) . "_";
     $nonfilechars = array("'", ",");  // what other characters are likely to occur in names?
@@ -329,12 +328,12 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
     case "application/pdf":  $ext = "pdf"; break;
     case "application/msword":  $ext = "doc"; break;
     default:
-      if (isset($this->dc->filename)) {   // stored original filename
-  $parts = explode(".", $this->dc->filename);
-  $ext = $parts[count($parts)-1]; // trust user's extension from original file
+      if (isset($this->file->filename)) {   // stored original filename
+        $parts = explode(".", basename($this->file->filename));
+        $ext = $parts[count($parts)-1]; // trust user's extension from original file
       }
     }
-    if (isset($ext)) $filename .= "." . $ext;
+    if (isset($ext)) $filename .= "." . $ext;    
     return $filename;
   }
 

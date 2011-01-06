@@ -15,7 +15,6 @@ require_once("fedora/models/dublin_core.php");
  * @property string $fedora_pid dc:identifier that contains info:fedora
  * @property string $filesize dc:format that does not contain '/' or 'p.'
  * @property string $pages dc:format that contains 'p.'
- * @property string $filename dc:source that contains 'filename:'
  */
 class etd_dc extends dublin_core {
   protected $additional_fields;
@@ -35,7 +34,6 @@ class etd_dc extends dublin_core {
     // FIXME: better xpath for filesize?
     $this->xmlconfig["filesize"] = array("xpath" => "dc:format[not(contains(., '/')) and not(contains(., 'p.'))]");
     $this->xmlconfig["pages"] = array("xpath" => "dc:format[contains(., ' p.')]");
-    $this->xmlconfig["filename"] = array("xpath" => "dc:source[contains(., 'filename:')]");
 
     $this->additional_fields = array_merge($this->additional_fields,
              array("ark", "filesize", "pages", "filename"));
@@ -74,28 +72,11 @@ class etd_dc extends dublin_core {
     $this->update();
   }
 
-  /**
-   * set filename (adds to xml if not already present)
-   * @param string $name
-   */
-  public function setFilename($name) {
-    $this->update();
-    if (isset($this->filename)) {
-      $this->filename = $name;
-    } else {
-      $this->source = "filename:$name";   // not currently using source for anything else 
-      $this->update();
-    }
-  }
-
   public function __get($name) {
     $value = parent::__get($name);
     switch ($name) {
     case "pages":
       $value = str_replace(" p.", "", $value);  // return just the number
-      break;
-    case "filename":
-      $value = str_replace("filename:", "", $value);  // return just the name
       break;
     }
     return $value;

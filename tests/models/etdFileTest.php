@@ -127,7 +127,8 @@ class TestEtdFile extends UnitTestCase {
            $etdfile->dc->filesize . "' instead");
     $this->assertEqual("application/pdf", $etdfile->file->mimetype);
     $this->assertEqual("8", $etdfile->dc->pages);
-    $this->assertEqual("filename:tinker_sample.pdf", $etdfile->dc->source);
+    $this->assertEqual("tinker_sample.pdf", basename($etdfile->file->filename));
+    $this->assertEqual("tinker_sample.pdf", $etdfile->file->dslabel);    
 
     // if genre/doctype is set in etd record, that should be used for title
     $grad_etd->mods->genre = "Masters Thesis";
