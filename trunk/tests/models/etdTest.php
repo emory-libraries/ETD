@@ -829,7 +829,8 @@ class TestEtd extends UnitTestCase {
 
       $etdms = $etd->getEtdms();
       $this->assertNotNull($etdms, "getEtdms() return response should not be empty");
-      $this->assertPattern("|<thesis|", $etdms, "getEtdms() result looks like ETD-MS");
+      // updated test to check for element name, rather than how it is formatted.
+      $this->assertPattern("|thesis.degree.level|", $etdms, "getEtdms() result looks like ETD-MS");
 
       $mods = $etd->getMods();
       $this->assertNotNull($mods, "getMods() return response should not be empty");
