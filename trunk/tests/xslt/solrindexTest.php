@@ -3,58 +3,50 @@ require_once("../bootstrap.php");
 
 class TestSolrIndexXslt extends UnitTestCase {
     private $xsl;
-    private $tmpDir;
+    private $tmpdir;
 
-    function setUp() {
-        //Load the xslt file
-        //Using non standard testetd1 and testetdfile pid because hudson is having trouble accessing directories with ":"
-       //FIXME: make loading and deleting the temp dir more dynamic
-        $this->tmpDir="/tmp/fedora" . strftime("%G%m%d%H%M%S") . "/"; //make unique tmp dir based on time, trailing slash is required
+    function __construct() {
+      $this->config = Zend_Registry::get("config");
+      $this->saxonb = $this->config->saxonb_xslt;
 
-        $xslpath = "../../src/public/xslt/etdFoxmlToSolr.xslt";
-	$this->xsl = new XSLTProcessor();
-	$xsldom = new DOMDocument();
-	$xsldom->load($xslpath);
-	$this->xsl->importStylesheet($xsldom);
-        //change the REPOSITORY URL param so it does not depend on fedora
-        //Instead, read from the local file system
-	$this->xsl->setParameter('', 'REPOSITORYURL', $this->tmpDir);
+      // one-time setup (not modified by tests)
+      
+      // make unique tmp dir based on time, trailing slash is required
+      $this->tmpdir = "/tmp/fedora" . strftime("%G%m%d%H%M%S") . "/"; 
 
-        //Make the mock RELS-EXT and MODS files for testetd1
-        $pid="testetd1";
-        mkdir("{$this->tmpDir}get/$pid", 0777, true); 
-        copy('../fixtures/etd1.managed.RELS-EXT.xml', "{$this->tmpDir}get/$pid/RELS-EXT");
-        copy('../fixtures/etd1.managed.MODS.xml', "{$this->tmpDir}get/$pid/MODS");
+      // NOTE: using custom fixtures that allow mocking managed datastreams
+      // that must be retrieved via xsl:document()
+      // - fixture PIDs must not contain : because pid is used for directory name
+      // Copy RELS-EXT and MODS files for testetd1 into mock repo url/directory structure
+      $pid = "testetd1";
+      mkdir("{$this->tmpdir}get/$pid", 0777, true); 
+      copy('../fixtures/etd1.managed.RELS-EXT.xml', "{$this->tmpdir}get/$pid/RELS-EXT");
+      copy('../fixtures/etd1.managed.MODS.xml', "{$this->tmpdir}get/$pid/MODS");
+      
+      // Copy RELS-EXT for testetdfile1 into mock repo url/directory structure
+      $pid = "testetdfile1";
+      mkdir("{$this->tmpdir}get//$pid", 0777, true); 
+      copy('../fixtures/etdfile.managed.RELS-EXT.xml', "{$this->tmpdir}get/$pid/RELS-EXT");
 
-        //Make the mock RELS-EXT files for testetdfile1
-        $pid="testetdfile1";
-        mkdir("{$this->tmpDir}get//$pid", 0777, true); 
-        copy('../fixtures/etdfile.managed.RELS-EXT.xml', "{$this->tmpDir}get/$pid/RELS-EXT");
+      // test directory must be passed to xslt processor as repo url parameter
+      $this->xsl_param = "REPOSITORYURL='" . $this->tmpdir . "' ";
+      
+      //change all files and directories to 777
+      $this->chmodR($this->tmpdir, 0777);
 
-        //change all files and directories to 777
-       $this->chmodR($this->tmpDir, 0777);
-
-
+      // path to xslt
+      $this->xsl = "../../src/public/xslt/etdFoxmlToSolr.xslt";
     }
 
-
-    function tearDown() {
-        //Remove temp files
-        $this->delDir($this->tmpDir); // trailing slash is required
+    function __destruct() {
+      // Remove temp files
+      $this->delDir($this->tmpdir);
     }
+    
 
     function test_etdToFoxml() {
-        $xml = new DOMDocument();
-        $xml->load("../fixtures/etd1.managed.xml");
-	$etd = new etd($xml);
-	 // ignore php errors - "indirect modification of overloaded property
-	$errlevel = error_reporting(E_ALL ^ E_NOTICE);
-	error_reporting($errlevel);     // restore prior error reporting
+      $result = $this->transform("../fixtures/etd1.managed.xml");
 
-        $result = $this->transformDom($etd->dom);
-        //print "<pre>";
-        //print htmlentities($result);
-        //print "</pre>";
         $this->assertTrue($result, "xsl transform returns data");
 	$this->assertPattern("|<add>.+</add>|s", $result, "xsl result is a solr add document");
 	$this->assertPattern('|<field name="PID">testetd1</field>|', $result,
@@ -122,17 +114,25 @@ class TestSolrIndexXslt extends UnitTestCase {
     
     // test non-etd - should not be indexed
     function test_etdToFoxml_nonEtd() {
-        $xml = new DOMDocument();
-        $xml->load("../fixtures/etdfile.managed.xml");
-
-        $result = $this->transformDom($xml);
-	$this->assertNoPattern("|<add>.+</add>|s", $result,
+       $result = $this->transform("../fixtures/etdfile.managed.xml");
+       $this->assertNoPattern("|<add>.+</add>|s", $result,
 			       "xsl result for non-etd is NOT a solr add document");
     }
     
     function transformDom($dom) {
-      return $this->xsl->transformToXml($dom);
+        $tmpfile = tempnam($this->config->tmpdir, "solrXsl-");
+        file_put_contents($tmpfile, $dom->saveXML());
+        $output = $this->transform($tmpfile);
+        unlink($tmpfile);
+        return $output;
     }
+
+    function transform($xmlfile) {
+      $cmd = $this->saxonb . " -xsl:" . $this->xsl . " -s:" . $xmlfile . " -warnings:silent "
+	.  $this->xsl_param ;
+      return shell_exec($cmd);
+    }
+    
 
     //function to recursivly delete a directory
     function delDir($dir){
