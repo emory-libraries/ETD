@@ -635,7 +635,7 @@ class TestEtd extends UnitTestCase {
     // add non-emory committee member to test
     $etd->mods->addCommittee("Manhunter", "Martian", "nonemory_committee", "Mars Polytechnic");
     // simulate embargo ending in one year
-    $etd->mods->embargo_end =  date("Y-m-d", strtotime("+1 year", time()));;
+    $etd->mods->embargo_end =  date("Y-m-d", strtotime("+1 year", time()));
     
     // test that blank subject does not result in empty dc:subject
     $etd->mods->addKeyword("");
@@ -943,7 +943,7 @@ class TestEtd extends UnitTestCase {
     // embargo condition date in xacml policies updated
   function testUpdateEmbargo_inactive() {
     // inactive record (e.g., previously published)
-    $this->etd->mods->embargo_end =  date("Y-m-d", strtotime("+1 year", time()));;
+    $this->etd->mods->embargo_end =  date("Y-m-d", strtotime("+1 year", time()));
     $this->etd->setStatus("inactive");
 
     $new_embargodate = date("Y-m-d", strtotime("+2 year", time()));
@@ -967,11 +967,11 @@ class TestEtd extends UnitTestCase {
            . $this->etd->supplements[0]->policy->published->condition->embargo_end . "'");
 
 
-    // leading zeroes are NOT invalid dates
-    $this->etd->updateEmbargo("2011-01-11", "testing update embargo");
+    // leading zeroes are NOT invalid dates, also add one year to make sure it is in the future
+    $this->etd->updateEmbargo(date("Y-01-11", strtotime("+1year", time())), "testing update embargo");
 
-    // leading zeroes are NOT invalid dates
-    $this->etd->updateEmbargo("2011-11-01", "testing update embargo");
+    // leading zeroes are NOT invalid dates, also add one year to make sure it is in the future
+    $this->etd->updateEmbargo(date("Y-11-01", strtotime("+1year", time())), "testing update embargo");
     
   }
 
