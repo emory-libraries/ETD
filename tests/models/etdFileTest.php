@@ -30,6 +30,12 @@ class TestEtdFile extends UnitTestCase {
   }
   
   function tearDown() {
+    try{
+        $fedora = Zend_Registry::get("fedora");
+        $fedora->purge($this->etdpid, "completed test");
+        $fedora->purge($this->filepid, "completed test");
+    }catch(Exception $e){} //Ignore exception if can not purge object
+
   }
   
   function NOtestBasicProperties() {
@@ -95,8 +101,38 @@ class TestEtdFile extends UnitTestCase {
     $this->assertPattern('|foxml:property NAME="info:fedora/fedora-system:def/model#ownerId" VALUE="mmouse"|', $filexml); // (picked up from ETD object)
 
     // remove test objects from fedora
-    $fedora->purge($this->etdpid, "completed test");
+
+    
+  }
+
+  function testDownload() {
+    $fedora = Zend_Registry::get("fedora");
+
+    //Normal size file
+    $etdfile = new etd_file();
+    $etdfile->pid = $this->filepid;
+    $file = "../fixtures/tinker_sample.pdf";
+    $original_md5 = md5_file($file);
+    $etdfile->file->filename = $file;
+    $etdfile->ingest('ingest test etd file');
+    // get the content from fedora and check that it is the content we ingested
+    $content = $etdfile->getFile();
+    $this->assertEqual($original_md5, md5($content));
     $fedora->purge($this->filepid, "completed test");
+
+    //Large file
+    $etdfile = new etd_file();
+    $etdfile->pid = $this->filepid;
+    $file = "../fixtures/large.pdf";
+    $original_md5 = md5_file($file);
+    $etdfile->file->filename = $file;
+    $etdfile->ingest('ingest test etd file');
+    // get the content from fedora and check that it is the content we ingested
+    $content = $etdfile->getFile();
+    $this->assertEqual($original_md5, md5($content));
+    $fedora->purge($this->filepid, "completed test");
+
+    
   }
 
 
@@ -148,25 +184,8 @@ class TestEtdFile extends UnitTestCase {
     // original/supplemental file types, files with other mimetypes, etc.
   }
 
-  public function testDownload() {
-    $etdfile = new etd_file();
-    $etdfile->pid = $this->filepid;
-    $file = "../fixtures/tinker_sample.pdf";
-    $original_md5 = md5_file($file);
-    $etdfile->file->filename = $file;
-    $etdfile->ingest('ingest test etd file');
+  /* FIXME: lots of unit tests missing...
 
-    // get the content from fedora and check that it is the content we ingested
-    $content = $etdfile->getFile();
-    $this->assertEqual($original_md5, md5($content));
-
-    // FIXME: purge should happen in tear down in case test fails
-    $fedora = Zend_Registry::get("fedora");
-    $fedora->purge($this->filepid, "completed test");
-  }
-
-  /* FIXME: lots of unit tests missing, including...
-     - getFileChecksum
    */
   
 }
