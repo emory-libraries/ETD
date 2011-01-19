@@ -1,0 +1,56 @@
+<foxml:digitalObject xmlns:foxml="info:fedora/fedora-system:def/foxml#" PID="testetdfile1" VERSION="1.1">
+  <foxml:objectProperties>    
+    <foxml:property NAME="info:fedora/fedora-system:def/model#state" VALUE="Active"/>
+    <foxml:property NAME="info:fedora/fedora-system:def/model#label" VALUE="Why I Like Cheese"/>    
+    <foxml:property NAME="info:fedora/fedora-system:def/model#ownerId" VALUE="mmouse"/>
+  </foxml:objectProperties>
+  <foxml:datastream ID="RELS-EXT" STATE="A" CONTROL_GROUP="M" VERSIONABLE="true">
+  <foxml:datastreamVersion ID="RELS-EXT.0" LABEL="Relationships to other objects" CREATED="2009-04-22T01:09:45.823Z" MIMETYPE="application/rdf+xml" FORMAT_URI="info:fedora/fedora-system:FedoraRELSExt-1.0" SIZE="357">
+  <foxml:contentDigest TYPE="MD5" DIGEST="292b95f44649bec9cdcc7cc6109d565f"/>
+  <foxml:contentLocation TYPE="INTERNAL_ID" REF="emory:1b6g8+RELS-EXT+RELS-EXT.0"/>
+  </foxml:datastreamVersion>
+  </foxml:datastream>
+  <foxml:datastream CONTROL_GROUP='X' ID='DC' STATE='A'	VERSIONABLE='true'>
+    <foxml:datastreamVersion ID='DC.0' LABEL='Dublin Core' MIMETYPE='text/xml'>
+      <foxml:xmlContent>
+	<oai_dc:dc 		
+		xmlns:dc="http://purl.org/dc/elements/1.1/"
+		xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/">
+	      <dc:title>Original/PDF</dc:title>
+	      <dc:description>dissertation document</dc:description>
+	      <dc:identifier>info:fedora/testetdfile1</dc:identifier>
+	</oai_dc:dc>
+      </foxml:xmlContent>
+    </foxml:datastreamVersion>
+   </foxml:datastream>
+
+<foxml:datastream CONTROL_GROUP="X" ID="POLICY" STATE="A" VERSIONABLE="false">
+    <foxml:datastreamVersion ID="POLICY.0" LABEL="Policy" MIMETYPE="text/xml">
+      <foxml:xmlContent>
+	<Policy xmlns="urn:oasis:names:tc:xacml:1.0:policy" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" PolicyId="test-etdfile1" RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:first-applicable">
+
+  <Description>object-specific policy for etd records</Description>
+  <Target>
+    <Subjects>
+      <AnySubject/>
+    </Subjects>
+
+    <Resources>
+      <Resource>
+        <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">testetdfile1</AttributeValue>
+          <ResourceAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:resource:object:pid" DataType="http://www.w3.org/2001/XMLSchema#string"/>
+        </ResourceMatch>
+      </Resource>
+    </Resources>
+
+    <Actions>
+      <AnyAction/>
+    </Actions>
+  </Target>
+
+</Policy>
+      </foxml:xmlContent>
+    </foxml:datastreamVersion>
+   </foxml:datastream>
+</foxml:digitalObject>

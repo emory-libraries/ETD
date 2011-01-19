@@ -1,0 +1,124 @@
+About
+=====
+
+ETD is an Electronic Theses & Dissertation site built on top of the
+Fedora Commons repository.
+
+
+Software Dependencies
+=====================
+
+php5, with the following components/configurations
+ - browscap.ini
+ - tidy
+ - fileinfo
+ - geoip
+ - sqlite
+ - ldap
+ - oci8 (Oracle)
+ - PHP_Shell
+ - php memory limit 256MB or greater
+pdfinfo & pdftohtml (version from Poppler is recommended)
+
+For Ubuntu setup instructions, see
+https://techknowhow.library.emory.edu/etd-documentation/development-environment
+
+ - javascript xforms FormFaces implementation (included with source)
+ - javascript wysiwyg editor FCKeditor (included with source)
+
+ svn externals
+ =============
+ ETD depends on the following externals, which are included in src/lib:
+  - Zend Framework (local copy, slightly customized - minor bugfixes
+       not yet in released version)
+  - Emory extensions to Zend Framework (services & extensions meant to
+       be used with ZF)
+  - xml-utilities (customizable xml object)
+  - fedora-php (php wrapper for Fedora APIs, foxml & datastream objects
+       based on xml-utilities xml object)
+  - simpletest (for unit testing, external under test)
+  - OFC (for admin reports), under lib/OFC (php) and public/js/ofc (javascript)
+
+
+Services & Databases 
+====================
+ETD makes use of or interacts with the following:
+ - Fedora repository, with Gsearch
+ - Solr (index based on Fedora data, populated by Fedora Generic
+  Search Service)
+ - LDAP authentication
+ - Emory Shared Data (Oracle db)
+- ETD Util DB (MySQL db)
+ - Persistent Id Server (locally developed - persis/pidman)
+ - sqlite3 database for ETD usage statistics
+ - CSV graduation feed from Registrar (triggers publication)
+ - ProQuest ftp server (electronic submissions)
+ - Google Analytics
+
+ cron jobs
+ =========
+ The following scripts (in src/scripts) should be run as cron jobs:
+  - statistics.php : etd-specific view/download usage, based on apache
+  log, stored in sqlite db; should be run daily.
+  - publish.php : publication & submission to ProQuest; depends on Registrar feed;
+  should be run at least weekly.
+  - embargo_expiration.php : checks for expiring embargoes and sends
+      various notices 60 days, 7 days, and 0 days before an embargo expires.
+  Should be run daily.
+
+
+Code organization
+=================
+ETD is a Zend Framework application with roughly MVC structure.
+The site is bootstrapped & loaded through src/public/index.php, which
+hands off control & routing to the Zend Front Controller.
+
+The bulk of the code (controllers, models, and views) can be found
+under src/app.  For more details, see Zend Controller quick start documentation:
+http://framework.zend.com/manual/en/zend.controller.html#zend.controller.quickstart.go
+
+An Etd Controller base class along with a few custom controller
+helpers can be found under src/lib/Etd.
+
+Command-line scripts are found in src/scripts, and use a common
+bootstrap.php to load config files and initialize services.  Data
+migration scripts are in src/scripts/migrations.
+
+Unit tests are under test/ and organized roughly comparable to src. As
+much as possible, these tests can be run individually or in groups,
+and can be run on the command line or via the web.
+
+Console: src/scripts contains a console.php that loads etd models &
+services (including fedora connection) and can be used as an
+interactive environment (REPL).  In tests/suites there is an
+equivalent console.php that loads the test environment.
+
+Gsearch: Currently Gsearch is indexing RELS-EXT and MODS datastreams.  Due to
+most objects having managed datastreams, the etdFoxmlToSolr.xslt must make
+API-A-LITE calls to fedora to retrieve datastreams. The policies allow this action
+from localhost only.  If in the future GSearch does not have access to localhost
+the policies would have to be modified to allow access from the host making requests.
+
+
+PDF File Parsing
+================
+This section describes the order (and some criteria) that pages must be in for the PDF file to be parsed correctly on submission.
+
+* Distribution Agreement - first page
+* Signature Page (This is where we pull the Title and Advisor / Committee info) - Comes after Distribution Agreement
+* Abstract Cover (No Data read from this page) - Comes after Signature Page.
+* Abstract Page 1 - Comes after Abstract Cover
+* Abstract Page 2 (Optional - Abstract Page 2 is assumed if the next page is not the Title Page) - Comes after Abstract page 1
+* Title Page - (No data read from this page) - Comes after Abstract section
+* Table of Contents Page 1 (Looks for text "Table of Contents") - Comes after Title Page
+* Table of Contents Additional pages (Optional - Assumes page is a TOC if it finds "Chapter" or "...<number>" EXAMPLE: "Chapter 2" "...15") - Comes after Table of Contents Page 1
+
+
+
+See also
+========
+Additional documentation is found in the  Documentation directory.
+
+Documentation/README-Roles - summary of the roles used in ETD, and how they work
+Documentation/README-Services - explanation of the Fedora services used
+Documentation/README-MultiSchoolConfiguration - explanation of the per-school configuration and fields supported
