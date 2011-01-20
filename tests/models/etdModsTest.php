@@ -215,7 +215,7 @@ class TestEtdMods extends UnitTestCase {
   }
 
   function testFieldLabels() {
-    $this->assertEqual("committee chair", $this->mods->fieldLabel("chair"));
+    $this->assertEqual("committee chair/thesis adviser", $this->mods->fieldLabel("chair"));
     $this->assertEqual("ProQuest research fields", $this->mods->fieldLabel("researchfields"));
   }
 

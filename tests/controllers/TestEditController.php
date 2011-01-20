@@ -476,7 +476,7 @@ class EditControllerTest extends ControllerTestCase {
     $EditController->savefacultyAction();
     $viewVars = $EditController->view->getVars();
     $messages = $EditController->getHelper('FlashMessenger')->getMessages();
-    $this->assertEqual("Saved changes to committee chairs & members", $messages[0]);
+    $this->assertEqual("Saved changes to committee/adviser", $messages[0]);
     $this->assertTrue($EditController->redirectRan);	// redirects back to record
     
     $etd = new etd($this->etdpid);
@@ -505,7 +505,7 @@ class EditControllerTest extends ControllerTestCase {
     $EditController->savefacultyAction();
     $viewVars = $EditController->view->getVars();
     $messages = $EditController->getHelper('FlashMessenger')->getMessages();
-    $this->assertEqual("Saved changes to committee chairs & members", $messages[0]);
+    $this->assertEqual("Saved changes to committee/adviser", $messages[0]);
     $this->assertTrue($EditController->redirectRan);	// redirects back to record
     
     $etd = new etd($this->etdpid);
