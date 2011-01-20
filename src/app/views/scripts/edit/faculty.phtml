@@ -57,7 +57,7 @@ function addNonemory() {
 </script>
 
 
-<h1>Edit Committee Chair(s) &amp; Members</h1>
+<h1>Edit Committee/Adviser</h1>
 <p><b><?= $this->etd->title() ?></b></p>
 
 
@@ -89,7 +89,7 @@ non-Emory committee members.</p>
 <? $committeeMembers = $this->etd->mods->committee; ?>
 
 <form method="post" id="fields_form"  action="<?= $this->url(array("action" => "savefaculty"))?>">
-  <h2>Committee Chair(s)</h2>
+  <h2>Committee Chair(s) / Thesis Adviser</h2>
   <ul id="chair_list">
     <? foreach ($chairs as $chair): ?>
      <? if ($chair->id) : ?>

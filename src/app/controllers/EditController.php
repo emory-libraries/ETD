@@ -329,7 +329,7 @@ class EditController extends Etd_Controller_Action {
   public function facultyAction() {
     $etd = $this->_helper->getFromFedora("pid", "etd");
     if (!$this->_helper->access->allowedOnEtd("edit metadata", $etd)) return;
-    $this->view->title = "Edit Committee Chair(s) & Members";
+    $this->view->title = "Edit Committee/Adviser";
     $this->view->etd = $etd;
   }
 
@@ -347,7 +347,7 @@ class EditController extends Etd_Controller_Action {
     // don't allow the same id to be added to both chair and member lists (results in duplicate ids ->  invalid xml)
     foreach ($committee as $id) {
       if (in_array($id, $chair_ids)) {	// don't add to committee list, display a message to the user
-	$this->_helper->flashMessenger->addMessage("Warning: cannot add '$id' as both Committee Chair and Member; adding as Chair only");
+	$this->_helper->flashMessenger->addMessage("Warning: cannot add '$id' as both Committee Chair / Thesis Adviser and Member; adding as Chair only");
       } else {		// add to the list of committee ids that will be processed
 	$committee_ids[] = $id;
       }
@@ -387,14 +387,14 @@ class EditController extends Etd_Controller_Action {
       $save_result = $etd->save("updated committe chair(s) & members");
       $this->view->save_result = $save_result;
       if ($save_result) {
-	$this->_helper->flashMessenger->addMessage("Saved changes to committee chairs & members");
+	$this->_helper->flashMessenger->addMessage("Saved changes to committee/adviser");
 	$this->logger->info("Updated etd " . $etd->pid . " committee chairs & members at $save_result");
       } else {
-	$this->_helper->flashMessenger->addMessage("Could not save changes to committee chair(s) & members (permission denied?)");
+	$this->_helper->flashMessenger->addMessage("Could not save changes to committee/adviser (permission denied?)");
 	$this->logger->err("Could not save changes to committee chairs & members on  etd " . $etd->pid);
       }
     } else {
-      $this->_helper->flashMessenger->addMessage("No changes made to committee chair(s) & members");
+      $this->_helper->flashMessenger->addMessage("No changes made to committee/adviser");
     }
 
     $this->_helper->redirector->gotoRoute(array("controller" => "view", "action" => "record",

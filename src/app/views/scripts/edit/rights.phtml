@@ -22,7 +22,7 @@ function pqDetails() {  /* show/hide PQ copyright question based on PQ submit ch
 
 <form id="rightsForm" action="<?= $this->url(array("action" => "save-rights"))?>" method="post">
    
-<p>Indicate below whether you and your Committee Chair are requesting that
+<p>Indicate below whether you and your Committee Chair / Thesis Adviser are requesting that
 access to the full text of your thesis or dissertation be restricted
 for a period of time.  (An administrator will enter the term of the
 access restriction after it is approved.)</p>
@@ -93,7 +93,7 @@ paper ETD Submission Agreement Form which you will present to
 <div>  
   <p>Check the box below to indicate that you agree to the terms of
   Emory's general submission agreement.  (Note that this merely
-  supplements the paper form signed by you and your Committee Chair.)</p>
+  supplements the paper form signed by you and your Committee Chair / Thesis Adviser.)</p>
 
   <p class="label">Submission Agreement
     <? if ($this->etd->isRequired("submission agreement")): ?>*<? endif ?></p>
