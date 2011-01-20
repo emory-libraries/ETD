@@ -794,7 +794,7 @@ class etd_mods extends mods {
   public function fieldLabel($field) {
     switch ($field) {
     case "chair":
-      return "committee chair";
+      return "committee chair/thesis adviser";
     case "researchfields":
       return "ProQuest research fields";
 
