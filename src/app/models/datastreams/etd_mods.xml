@@ -71,9 +71,6 @@
   </mods:physicalDescription>
   <mods:abstract/>
   <mods:tableOfContents/>
-  <mods:subject ID="" authority="proquestresearchfield">
-    <mods:topic/>
-  </mods:subject>
   <mods:subject authority="keyword">
     <mods:topic/>
   </mods:subject>
