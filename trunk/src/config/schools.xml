@@ -72,7 +72,7 @@
       <required>name</required>
       <required>email</required>
       <required>permanent email</required>
-      <optional>researchfields</optional>
+      <required>researchfields</required>
     </submission_fields>
   </emory_college>
   
