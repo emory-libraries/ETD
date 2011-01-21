@@ -9,6 +9,11 @@ CHANGE LOG
 *  etdFoxmlToSolr.xslt has been updated to handle indexing inline and managed datastreams.
 * New script for checking datastream checksums in fedora: update_checksums.php
 
+
+Version 1.8.6 - January 2011 (minor update)
+-------------------------------------------------------------
+* Changes to Calendar entries
+
 Version 1.8.5 - November 2010 (minor update - utility script)
 -------------------------------------------------------------
 * New script that can be used to index just ETD content in GSearch: reindex.php
