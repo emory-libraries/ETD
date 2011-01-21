@@ -1,0 +1,15 @@
+<? if (!isset($this->original)) $this->original = $this->program; ?>
+<? if (isset($this->program->parent)): ?>
+     <? $current_coll = $this->program; // store reference to current collection ?>
+     <? $this->program = $this->program->parent; // set context for template ?>
+     <?=  $this->render('report/_program_hierarchy.phtml'); ?>				     
+     <? $this->program = $current_coll; ?> >
+<? endif ?>
+
+<? if ($this->program == $this->original):?>
+  <b><?= $this->program->label; ?></b>
+<? else: ?>
+  <? $link_id = str_replace("#", '', $this->program->id); ?>
+  <? $link_id = ($link_id == "programs" ? null : $link_id); /* special case: default, cleaner url */ ?>
+  <a href="<?= $this->url(array('program' => $link_id))?>"><?= $this->program->label; ?></a>
+<? endif ?>
