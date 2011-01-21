@@ -42,7 +42,7 @@ class XmlbyidControllerTest extends ControllerTestCase {
     $dom->loadXML(file_get_contents('../fixtures/etd1.xml'));
     $foxml = new foxml($dom);
     $foxml->pid = $this->testpid;
-    $pid = $foxml->ingest("loading test etd");
+    $this->fedora->ingest($foxml->saveXML(), "loading test etd");
   }
   
   function tearDown() {
@@ -116,7 +116,7 @@ class XmlbyidControllerTest extends ControllerTestCase {
   }
 
   function testWrongFedoraInstance() {
-    $this->setUpGet(array('url' => "http://some.other.fedora:8080/fedora/objects/demo:1/datastreams/DC/content",
+    $this->setUpGet(array('url' => "http://some.other.fedora:8080/fedora/get/demo:1/DC",
 			  'id' => 'title'));
     $XmlbyidController = new XmlbyidControllerForTest($this->request,$this->response);
     $XmlbyidController->viewAction();
@@ -198,6 +198,7 @@ class XmlbyidControllerTest extends ControllerTestCase {
   function testAlternateFedoraHostname() {
     $config_opts = $this->fedora_cfg->toArray();
     $config_opts ['alternate_hosts'] = array('server' => 'dev11.library.emory.edu');
+    $config_opts['port'] = '8643';
     //$config_opts = array('alternate_hosts' => array('server' => array('etd.library.emory.edu', 'dev11.library.emory.edu')), 'alternate_ports' => array('port' => array('8643')));
     $test_fedora_cfg = new Zend_Config($config_opts);
     // temporarily override fedora config in with test configuration

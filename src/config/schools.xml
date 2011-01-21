@@ -72,7 +72,7 @@
       <required>name</required>
       <required>email</required>
       <required>permanent email</required>
-      <required>researchfields</required>
+      <optional>researchfields</optional>
     </submission_fields>
   </emory_college>
   
@@ -125,7 +125,7 @@
       <required>author</required>
       <required>program</required>
       <required>chair</required>
-      <optional>committee members</optional>
+      <required>committee members</required>
       <required>researchfields</required>
       <required>keywords</required>
       <required>degree</required>

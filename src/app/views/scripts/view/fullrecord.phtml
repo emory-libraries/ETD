@@ -20,7 +20,7 @@
    <h1><?= $this->etd->title() ?></h1>
  	<? if ($this->acl->isAllowed($this->role, $this->etd, "edit metadata")): ?>
    <a class="action" href="<?= $this->url(array("controller" => "edit", "action" => "record")) ?>">edit thesis information</a>
-   <a class="action" href="<?= $this->url(array("controller" => "edit", "action" => "faculty")) ?>">edit committee/adviser</a>
+   <a class="action" href="<?= $this->url(array("controller" => "edit", "action" => "faculty")) ?>">edit committee chair &amp; members</a>
 
    <a class="action" href="<?= $this->url(array("controller" => "edit", "action" => "rights")) ?>">edit rights/restrictions</a>
 

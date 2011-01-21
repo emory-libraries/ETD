@@ -45,7 +45,7 @@ class FileControllerTest extends ControllerTestCase {
     $dom->loadXML(file_get_contents('../fixtures/etd2.xml'));
     $foxml = new foxml($dom);
     $foxml->pid = $this->etdpid;
-    $foxml->ingest("loading test etd object");
+    $this->fedora->ingest($foxml->saveXML(), "loading test etd object");
 
     // use mock etd object to simplify permissions/roles/etc
     $this->mock_etdfile = &new MockEtdFile();
@@ -74,7 +74,7 @@ class FileControllerTest extends ControllerTestCase {
   public function testViewAction() {
     $FileController = new FileControllerForTest($this->request,$this->response);
 
-    $this->mock_etdfile->file->mimetype = "application/pdf";
+    $this->mock_etdfile->dc->mimetype = "application/pdf";
     $this->mock_etdfile->setReturnValue('prettyFilename', "author_dissertation.pdf");
 
     $FileController->viewAction();

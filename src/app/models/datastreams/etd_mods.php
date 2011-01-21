@@ -53,20 +53,20 @@ class etd_mods extends mods {
   // add etd-specific mods mappings
   protected function configure() {
     $this->available_fields = array("title",
-            "author",
-            "program",
-            "chair",
-            "committee members",
-            "researchfields",
-            "keywords",
-            "degree",
-            "language",
-            "abstract",
-            "table of contents",
-            "embargo request",
-            "submission agreement",
-            "send to ProQuest",
-            "copyright");
+				    "author",
+				    "program",
+				    "chair",
+				    "committee members",
+				    "researchfields",
+				    "keywords",
+				    "degree",
+				    "language",
+				    "abstract",
+				    "table of contents",
+				    "embargo request",
+				    "submission agreement",
+				    "send to ProQuest",
+				    "copyright");
 
     $this->embargo_name_map = array(etd_mods::EMBARGO_FILES => "files",
                                     etd_mods::EMBARGO_TOC => "toc",
@@ -77,27 +77,27 @@ class etd_mods extends mods {
     $this->addNamespace("etd", etd_mods::ETDMS_NS);
     
     $this->xmlconfig["author"] = array("xpath" => "mods:name[mods:role/mods:roleTerm = 'author']",
-               "class_name" => "mods_name");
+				       "class_name" => "mods_name");
     $this->xmlconfig["department"] = array("xpath" => "mods:name[mods:role/mods:roleTerm = 'author']/mods:affiliation");
     $this->xmlconfig["subfield"] = array("xpath" => "mods:extension/etd:degree/etd:discipline");
 
     // committee chair - may be more than one
     $this->xmlconfig["chair"] = array("xpath" => "mods:name[mods:role/mods:roleTerm = 'Thesis Advisor']",
-              "class_name" => "mods_name", "is_series" => true);
+				      "class_name" => "mods_name", "is_series" => true);
     $this->xmlconfig["committee"] = array("xpath" => "mods:name[mods:description = 'Emory Committee Member']",
-            "class_name" => "mods_name", "is_series" => "true");
+					  "class_name" => "mods_name", "is_series" => "true");
     $this->xmlconfig["nonemory_committee"] = array("xpath" =>
-               "mods:name[mods:description = 'Non-Emory Committee Member']",
-               "class_name" => "mods_name", "is_series" => "true");
+						   "mods:name[mods:description = 'Non-Emory Committee Member']",
+						   "class_name" => "mods_name", "is_series" => "true");
     $this->xmlconfig["degree_grantor"] = array("xpath" =>
-                 "mods:name[@type='corporate'][mods:role/mods:roleTerm='Degree grantor']",
-                 "class_name" => "mods_name");  
+					       "mods:name[@type='corporate'][mods:role/mods:roleTerm='Degree grantor']",
+					       "class_name" => "mods_name");	
     
     $this->xmlconfig["researchfields"] = array("xpath" =>
-                 "mods:subject[@authority='proquestresearchfield']",
-                 "is_series" => true, "class_name" => "etdmods_subject");
+					       "mods:subject[@authority='proquestresearchfield']",
+					       "is_series" => true, "class_name" => "etdmods_subject");
     $this->xmlconfig["keywords"] = array("xpath" => "mods:subject[@authority='keyword']",
-           "is_series" => true, "class_name" => "etdmods_subject");
+					 "is_series" => true, "class_name" => "etdmods_subject");
     $this->xmlconfig["pages"] = array("xpath" => "mods:physicalDescription/mods:extent");
 
     $this->xmlconfig["degree"] = array("xpath" => "mods:extension/etd:degree", "class_name" => "etd_degree");
@@ -129,7 +129,7 @@ class etd_mods extends mods {
   public function __set($name, $value) {
     switch ($name) {
     case "pages":
-      $value .= " p."; break; // value should be passed in as a number (check incoming value?)
+      $value .= " p."; break;	// value should be passed in as a number (check incoming value?)
     case "embargo":
       $value = "Embargoed for " . $value;
     } 
@@ -140,7 +140,7 @@ class etd_mods extends mods {
     $value = parent::__get($name);
     switch ($name) {
     case "pages":
-      $value = str_replace(" p.", "", $value);  // return just the number
+      $value = str_replace(" p.", "", $value);	// return just the number
       break;
     case "copyright":
       $value = str_replace("registering copyright? ", "", $value);
@@ -189,12 +189,12 @@ class etd_mods extends mods {
       $subject->setAttribute("authority", $authority);
       // proquest fields need an ID attribute, even if it is not set when the field is created
       if ($authority == "proquestresearchfield") {
-  $subject->setAttribute("ID", "id$id");    // id can't start with a number to be valid xml
+	$subject->setAttribute("ID", "id$id");	  // id can't start with a number to be valid xml
       }
     }
 
     $topic = $this->dom->createElementNS($this->namespaceList["mods"],
-           "mods:topic", $text);
+					 "mods:topic", $text);
     $topic = $subject->appendChild($topic);
     
     // find first node following current type of subjects and append before
@@ -203,8 +203,8 @@ class etd_mods extends mods {
     // if a context node was found, insert the new node before it
     if ($nodeList->length) {
       $contextnode = $nodeList->item(0);
-      //  print "attempting to insert before:\n";
-      //  print $this->dom->saveXML($nodeList->item(0)) . "\n";
+      //	print "attempting to insert before:\n";
+      //	print $this->dom->saveXML($nodeList->item(0)) . "\n";
       
       $contextnode->parentNode->insertBefore($subject, $contextnode);
     } else {
@@ -243,7 +243,7 @@ class etd_mods extends mods {
     if (isset($name->affiliation) && !is_null($affiliation)) {
       $name->affiliation = $affiliation;
     }
-    
+	  
     // find first node following current type of subjects and append before
     if (isset($name->description)) {
       $xpath = "//mods:name[mods:description='" . $name->description ."'][last()]/following-sibling::*";
@@ -255,15 +255,15 @@ class etd_mods extends mods {
     // if a context node was found, insert the new node before it
     if ($nodeList->length) {
       $contextnode = $nodeList->item(0);
-    } elseif ($type == "committee") {   // currently no emory committee members in xml - insert after advisor
+    } elseif ($type == "committee") {		// currently no emory committee members in xml - insert after advisor
       $contextnode = $this->map["chair"][count($this->chair) - 1]->domnode;
     } elseif ($type == "nonemory_committee") {
       // if adding a non-emory committee member and there are none in the xml,
       // then add after last emory committee member
       if (isset($this->map['committee']) && count($this->committee))
-  $contextnode = $this->map['committee'][count($this->committee) - 1]->domnode;
+	$contextnode = $this->map['committee'][count($this->committee) - 1]->domnode;
       else
-  $contextnode = $this->map["chair"][count($this->chair) - 1]->domnode;
+	$contextnode = $this->map["chair"][count($this->chair) - 1]->domnode;
     } else {
       // this shouldn't happen unless there is something wrong with the xml.... 
       trigger_error("Couldn't find context node to insert new committee member", E_USER_NOTICE);
@@ -271,7 +271,7 @@ class etd_mods extends mods {
 
     if (isset($contextnode))
       $newnode = $contextnode->parentNode->insertBefore($newnode, $contextnode);
-    else  // if no context is found, just add at the end of xml
+    else	// if no context is found, just add at the end of xml
       $newnode = $this->domnode->appendChild($newnode);
     
 
@@ -296,7 +296,7 @@ class etd_mods extends mods {
   private function setNameFromPerson(mods_name $name, esdPerson $person, $preserve_aff = false) {
     $name->id    = trim($person->netid);
     $name->last  = trim($person->lastname);
-    $name->first = trim($person->name); // directory name OR first+middle
+    $name->first = trim($person->name);	// directory name OR first+middle
     $name->full  = trim($person->lastnamefirst);
 
     // remove any prior affiliation so people and affiliations don't get mixed up
@@ -313,15 +313,15 @@ class etd_mods extends mods {
    */
   public function setCommitteeFromPersons(array $people, $type = "committee") {
     $needUpdate = false;
-    $i = 0; // index for looping over committee array
+    $i = 0;	// index for looping over committee array
     foreach ($people as $person) {
       if (isset($this->map[$type][$i])) {
-  $this->setNameFromPerson($this->map[$type][$i], $person);
+	$this->setNameFromPerson($this->map[$type][$i], $person);
       } else {
-  $this->addCommittee($person->lastname, $person->name);
-  // FIXME: need a better way store netid... - should be part of addCommittee function ?
-  $this->{$type}[$i]->id = $person->netid;
-  $needUpdate = true; // DOM has changed - new nodes
+	$this->addCommittee($person->lastname, $person->name);
+	// FIXME: need a better way store netid... - should be part of addCommittee function ?
+	$this->{$type}[$i]->id = $person->netid;
+	$needUpdate = true;	// DOM has changed - new nodes
       }
       $i++;
     }
@@ -329,7 +329,7 @@ class etd_mods extends mods {
     // remove any committee members beyond this set of new ones
     while (isset($this->{$type}[$i]) ) {
       $this->removeCommittee($this->{$type}[$i]->id);
-      $needUpdate = true; // DOM has changed - removed nodes
+      $needUpdate = true;	// DOM has changed - removed nodes
     }
 
     if ($needUpdate) $this->update();
@@ -342,26 +342,26 @@ class etd_mods extends mods {
    */
   public function setCommittee(array $netids, $type = "committee") {
     $esd = new esdPersonObject();
-    $i = 0; // index for looping over committee array
+    $i = 0;	// index for looping over committee array
     
     foreach ($netids as $id) {  // if id is unchanged, don't lookup/reset
       if (isset($this->map[$type][$i]) && $this->committee[$i]->id == $id) {
-  $i++;
-  continue;
+	$i++;
+	continue;
       }
 
       $person = $esd->findByUsername($id);
       if ($person) {
-  if (isset($this->map[$type][$i])) {
-    $this->setNameFromPerson($this->{$type}[$i], $person);
-  } else {
-    $this->addCommittee($person->lastname, $person->name, $type);
-    // FIXME: need a better way store netid... - should be part of addCommittee function ?
-    $this->{$type}[$i]->id = $id;
-  }
+	if (isset($this->map[$type][$i])) {
+	  $this->setNameFromPerson($this->{$type}[$i], $person);
+	} else {
+	  $this->addCommittee($person->lastname, $person->name, $type);
+	  // FIXME: need a better way store netid... - should be part of addCommittee function ?
+	  $this->{$type}[$i]->id = $id;
+	}
       } else {
-  // shouldn't come here, since ids should be selected by drop-down populated from ESD...
-  trigger_error("Could not find person information for '$id' in Emory Shared Data", E_USER_WARNING);
+	// shouldn't come here, since ids should be selected by drop-down populated from ESD...
+	trigger_error("Could not find person information for '$id' in Emory Shared Data", E_USER_WARNING);
       }
       $i++;
     }
@@ -380,12 +380,12 @@ class etd_mods extends mods {
   public function removeCommittee($id) {
     if ($id == "") {
       throw new XmlObjectException("Can't remove committee member/chair with non-existent id");
-      return; // don't remove empty nodes (should be part of template)
+      return;	// don't remove empty nodes (should be part of template)
     }
     
     // remove the node from the xml dom
     $nodelist = $this->xpath->query("//mods:name[@ID = '$id'][mods:role/mods:roleTerm = 'Committee Member'
-  or mods:role/mods:roleTerm = 'Thesis Advisor']");
+	or mods:role/mods:roleTerm = 'Thesis Advisor']");
     for ($i = 0; $i < $nodelist->length; $i++) {
       $node = $nodelist->item($i);      
       $node->parentNode->removeChild($node);
@@ -415,31 +415,40 @@ class etd_mods extends mods {
   public function setCommitteeAffiliation($id, $affiliation, $type = "committee") {
     foreach ($this->{$type} as $member) {
       if ($member->id == $id) {
-  if (isset($member->affiliation)) {
-    $member->affiliation = $affiliation;
-  } else {
-    $newnode = $this->dom->createElementNS($this->namespace, "mods:affiliation",
-             $affiliation);
-    $member->domnode->appendChild($newnode);
-  }
+	if (isset($member->affiliation)) {
+	  $member->affiliation = $affiliation;
+	} else {
+	  $newnode = $this->dom->createElementNS($this->namespace, "mods:affiliation",
+						 $affiliation);
+	  $member->domnode->appendChild($newnode);
+	}
       }
     }
     $this->update();
   }
 
+  
   /**
-   * clear out the old research fields, and write in the new.
+   * set all research fields from an array, overwriting any currently set fields
+   * and adding new fields as necessary
    * @param array $values associative array of research field id => name
    */
   public function setResearchFields(array $values) {
-    foreach ($this->researchfields as $field) {
-      $this->removeResearchField($field->id);
-    }     
-    foreach ($values as $id => $text) {     
-      $this->addResearchField($text, $id);
+    $i = 0;	// research field array index
+    foreach ($values as $id => $text) {
+      if (array_key_exists($i, $this->researchfields)) {
+	$this->researchfields[$i]->id = $id;
+	$this->researchfields[$i]->topic = $text;
+      } else {
+	$this->addResearchField($text, $id);
+      }
+      $i++;
     }
-  }  
-
+    // remove any research fields beyond the set of new ones
+    while (isset($this->researchfields[$i]) ) {
+      $this->removeResearchField($this->researchfields[$i]->id);
+    }
+  }
   /**
    * remove a research field by id
    * @param string|int $id
@@ -465,7 +474,7 @@ class etd_mods extends mods {
     for ($i = 0; count($this->researchfields); $i++) {
       $field = $this->researchfields[$i];
       if ($field->id == $id)
-  return $i;
+	return $i;
     }
   }
   /**
@@ -476,7 +485,7 @@ class etd_mods extends mods {
   public function hasResearchField($id) {
     foreach ($this->researchfields as $field) {
       if ($field->id == $id)
-  return true;
+	return true;
     }
     return false;
   }
@@ -499,9 +508,6 @@ class etd_mods extends mods {
    * @return int|null null if not set
    */
   public function embargoRequestLevel() {
-    
-    if (!isset($this->embargo_request)) return NULL;
-    
     $embargo = $this->embargo_request;
 
     if (strpos($embargo, "no") === 0)
@@ -645,12 +651,12 @@ class etd_mods extends mods {
       $node->parentNode->removeChild($node);*/
 
     if ($this->map[$mapname] instanceof DOMElementArray ||
-        isset($this->xmlconfig[$mapname]["is_series"]) && $this->xmlconfig[$mapname]["is_series"]) {
+      	isset($this->xmlconfig[$mapname]["is_series"]) && $this->xmlconfig[$mapname]["is_series"]) {
       foreach ($this->map[$mapname] as $el) {
-  if ($el instanceof XmlObject) 
-    $el->domnode->parentNode->removeChild($el->domnode);
-  else
-    $el->parentNode->removeChild($el->domnode);
+	if ($el instanceof XmlObject) 
+	  $el->domnode->parentNode->removeChild($el->domnode);
+	else
+	  $el->parentNode->removeChild($el->domnode);
       }
     } else if ($this->map[$mapname] instanceof XmlObject) {
       $this->map[$mapname]->domnode->parentNode->removeChild($this->map[$mapname]->domnode);
@@ -679,22 +685,22 @@ class etd_mods extends mods {
     libxml_clear_errors();
 
     // validate against MODS schema
-    if (! $this->isValid()) {     // xml should be valid MODS
+    if (! $this->isValid()) {	    // xml should be valid MODS
 
       // if logger object is registered, log any validation errors
       if (Zend_Registry::isRegistered('logger')) {
-  $logger = Zend_Registry::get('logger');
-  // Note: no access to foxml record id at this level, cannot include in log file
-  $logger->err("MODS XML is not valid according to MODS schema");
-  $errors = libxml_get_errors();
-  foreach ($errors as $error) {
-    $message = $error->message . "(Line " . $error->line . ", column " . $error->column . ")";
-    switch ($error->level) {
-    case LIBXML_ERR_WARNING: $logger->warn($message); break;
-    case LIBXML_ERR_ERROR:   $logger->err($message); break;
-    case LIBXML_ERR_FATAL:   $logger->crit($message); break;
-    }
-  }
+	$logger = Zend_Registry::get('logger');
+	// Note: no access to foxml record id at this level, cannot include in log file
+	$logger->err("MODS XML is not valid according to MODS schema");
+	$errors = libxml_get_errors();
+	foreach ($errors as $error) {
+	  $message = $error->message . "(Line " . $error->line . ", column " . $error->column . ")";
+	  switch ($error->level) {
+	  case LIBXML_ERR_WARNING: $logger->warn($message); break;
+	  case LIBXML_ERR_ERROR:   $logger->err($message); break;
+	  case LIBXML_ERR_FATAL:   $logger->crit($message); break;
+	  }
+	}
       }
       return false;
     }      
@@ -739,7 +745,7 @@ class etd_mods extends mods {
     switch($field) {
     case "author":
       return ($this->author->id != "" &&
-        trim($this->author->first) != "" && trim($this->author->last) != "");
+	      trim($this->author->first) != "" && trim($this->author->last) != "");
     case "program":
       return ($this->author->affiliation != "");
     case "chair":
@@ -751,7 +757,7 @@ class etd_mods extends mods {
     case "researchfields":
       // complete if there is at least one non-blank research field
       return ((count($this->researchfields) != 0) &&
-        ($this->researchfields[0]->id != "" || $this->researchfields[0]->topic != ""));
+	      ($this->researchfields[0]->id != "" || $this->researchfields[0]->topic != ""));
     case "keywords":
       // complete if there is at least one non-blank keyword
       return ((count($this->keywords) != 0) && (trim($this->keywords[0]->topic) != ""));
@@ -768,21 +774,21 @@ class etd_mods extends mods {
     case "copyright":
       // if record will be sent to PQ, copyright request is required
       if ($this->submitToProquest()) return $this->hasCopyright();
-      else return true;   // not required = not incomplete (?)
+      else return true;		// not required = not incomplete (?)
 
       // simple cases where field name matches class variable name
     case "title":
     case "abstract":
     case "degree":
-      return (trim($this->$field) != "");   // complete if not empty (not just whitespace)
+      return (trim($this->$field) != "");  	// complete if not empty (not just whitespace)
       
     default:
       // if requested field matches a mapped variable, do a simple check
       if (isset($this->$field))
-  return (trim($this->$field) != ""); 
+	return (trim($this->$field) != ""); 
       else
-  // otherwise, complain
-  trigger_error("Cannot determine if '$field' is complete", E_USER_NOTICE);
+	// otherwise, complain
+	trigger_error("Cannot determine if '$field' is complete", E_USER_NOTICE);
     }
   }
 
@@ -794,7 +800,7 @@ class etd_mods extends mods {
   public function fieldLabel($field) {
     switch ($field) {
     case "chair":
-      return "committee chair/thesis adviser";
+      return "committee chair";
     case "researchfields":
       return "ProQuest research fields";
 
@@ -894,18 +900,17 @@ class etd_mods extends mods {
   public function isEmbargoed() {
     if ($this->embargo_end)
       return (strtotime($this->embargo_end, 0) > time());
-    else  // no embargo date defined - not (yet) embargoed
+    else	// no embargo date defined - not (yet) embargoed
       return false;
   }
 
   /**
-   * overrides function from base class to allow the correct xml file to be loaded
+   * overrides function from base class to allwo the correct xml file to be loaded
    */
-  protected function construct_from_template() {
-    $dom = new DOMDocument();
-    $dom->loadXML(file_get_contents("etd_mods.xml", FILE_USE_INCLUDE_PATH));
-    return $dom;
-  }  
+  public static function getFedoraTemplate(){
+    return foxml::xmlDatastreamTemplate("MODS", mods::dslabel,
+					file_get_contents("etd_mods.xml", FILE_USE_INCLUDE_PATH));
+  }
 
 
 }
@@ -949,10 +954,10 @@ class etd_degree extends modsXmlObject {
   protected $namespace = etd_mods::ETDMS_NS;
   public function __construct($xml, $xpath) {
     $config = $this->config(array(
-  "name" => array("xpath" => "etd:name"),
-  "level" => array("xpath" => "etd:level"),
-  "discipline" => array("xpath" => "etd:discipline"),
-   ));
+	"name" => array("xpath" => "etd:name"),
+	"level" => array("xpath" => "etd:level"),
+	"discipline" => array("xpath" => "etd:discipline"),
+	 ));
     parent::__construct($xml, $config, $xpath);
   }
 

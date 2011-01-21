@@ -79,11 +79,6 @@ class TestFilePolicy extends UnitTestCase {
     $this->assertTrue(isset($policy->view));
   }
   
-  function testCreatePolicyFromScratch() {
-    $this->scratch_policy = new EtdFileXacmlPolicy(); 
-    $this->assertIsA($this->scratch_policy, "EtdFileXacmlPolicy");    
-  }   
-  
 }
 
 

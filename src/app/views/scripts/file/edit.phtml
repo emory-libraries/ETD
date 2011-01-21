@@ -18,14 +18,14 @@
 
 <? /* these are set on upload and should not be editable by the user */ ?>
 <?= $this->xformOutput("file type", "dc:format[contains(., '/')]"); ?>
-  <?= $this->FiletypeIcon($this->etdfile->file->mimetype) ?>
-    <br/>
+	<?= $this->FiletypeIcon($this->etdfile->dc->mimetype) ?>
+   	<br/>
 <?= $this->xformOutput("pages", "dc:format[contains(., 'p.')]"); ?> <br/>
 <?= $this->xformOutput("file size (in bytes)", "dc:format[not(contains(., '/')) and not(contains(., 'p.'))]"); ?>
-  (<?= $this->readableSize($this->etdfile->dc->filesize) ?>)
-  <br/>
+	(<?= $this->readableSize($this->etdfile->dc->filesize) ?>)
+	<br/>
 
-  
+	
 
  <xf:submit submission="submission">
 <xf:label>Save</xf:label>

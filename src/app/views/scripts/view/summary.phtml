@@ -25,7 +25,7 @@
    <br/>
 						      
  <? $chairs = $this->etd->chair(); // use simple array to determine last   ?>
- <b>Committee Chair / Thesis Adviser<? if (count($chairs) > 1): ?>s<? endif ?>:</b>
+ <b>Committee Chair<? if (count($chairs) > 1): ?>s<? endif ?>:</b>
  <? $chairs_w_aff = $this->etd->chair_with_affiliation(); ?>
  <? foreach ($chairs_w_aff as $chair => $affiliation): ?>
    <? if ($chair == "") continue; ?>

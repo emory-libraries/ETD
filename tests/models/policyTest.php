@@ -22,8 +22,7 @@ class TestPolicy extends UnitTestCase {
     $this->assertIsA($this->policy->rules[0], "PolicyRule", "first rule object type");
 
     $this->assertEqual("emory-123", $this->policy->policyid, "policy id value");
-    $this->assertEqual("emory:123", $this->policy->pid, 
-        "policy pid value should be 'emory:123', got '" . $this->policy->pid . '"');
+    $this->assertEqual("emory:123", $this->policy->pid, "policy pid value");
     $this->assertEqual("object-specific policy", $this->policy->description, "policy description value");
     $this->assertEqual("fedoraAdmin", $this->policy->rules[0]->id, "rule id value");
 

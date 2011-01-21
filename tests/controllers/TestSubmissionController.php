@@ -52,13 +52,13 @@ class SubmissionControllerTest extends ControllerTestCase {
     $foxml = new etd($dom);
     $foxml->pid = $this->etdpid;
     $foxml->rels_ext->hasAuthorInfo = $this->userpid;
-    $foxml->ingest("loading test etd object");
+    $this->fedora->ingest($foxml->saveXML(), "loading test etd object");
 
     // load author info
     $dom->loadXML(file_get_contents('../fixtures/authorInfo.xml'));
     $foxml = new foxml($dom);
     $foxml->pid = $this->userpid;
-    $foxml->ingest("loading test etd authorInfo object");
+    $this->fedora->ingest($foxml->saveXML(), "loading test etd authorInfo object");
     
 
     // use mock etd object for some tests

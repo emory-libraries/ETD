@@ -20,7 +20,7 @@ class Mock_Etd_Service_Solr extends Basic_Mock_Etd_Service_Solr {
   public $response;
   public $queries;
   public function __construct() {
-    $this->Basic_Mock_Etd_Service_Solr(); // initialize
+    $this->Basic_Mock_Etd_Service_Solr();	// initialize
     $this->response = &new Mock_Emory_Service_Solr_Response();
     $this->queries = array();
 
@@ -53,7 +53,7 @@ Mock::generate('authorInfo',  'BasicMock_authorInfo');
 
 class MockEtd extends BasicMock_Etd {
   public $pid;
-  public $PID;    // not ideal... using for solr results
+  public $PID;		// not ideal... using for solr results
   public $label;
   public $dc;
   public $mods;
@@ -104,6 +104,7 @@ class MockEtd extends BasicMock_Etd {
 
 
 class MockEtd_dc extends BasicMock_etd_dc {
+  public $mimetype;
   public $title;
 }
 class Mocketd_mods extends BasicMock_etd_mods {
@@ -121,7 +122,6 @@ class MockEtdFile extends BasicMock_EtdFile {
   public $pid;
   public $etd;
   public $type;
-  public $file;
   public function __construct() {
     $this->BasicMock_EtdFile();
     $this->dc = &new Mocketd_dc();
@@ -135,7 +135,7 @@ class MockAuthorInfo extends BasicMock_AuthorInfo {
 
 require_once('fedora/api/FedoraConnection.php');
 require_once('fedora/api/risearch.php');
-require_once('Emory/Service/Persis.php'); // for persis exceptions
+require_once('Emory/Service/Persis.php');	// for persis exceptions
 Mock::generate('FedoraConnection', 'BasicMockFedoraConnection');
 Mock::generate('risearch', 'MockRisearch');
 

@@ -43,12 +43,12 @@ class ProgramController extends Etd_Controller_Action {
       $save_result = $programObj->save("updating programs - section $section");
       $this->view->save_result = $save_result;
       if ($save_result) {
-        $this->_helper->flashMessenger->addMessage("Saved changes to programs hierarchy ($section)");
-        $this->logger->info("Saved programs hierarchy (" . $programObj->pid . ") changes to $section at $save_result");
+	$this->_helper->flashMessenger->addMessage("Saved changes to programs hierarchy ($section)");
+	$this->logger->info("Saved programs hierarchy (" . $programObj->pid . ") changes to $section at $save_result");
       } else {	// record changed but save failed for some reason
-        $message = "Could not save changes to programs hierarchy $section";
-        $this->_helper->flashMessenger->addMessage($message);
-        $this->logger->err($message);
+	$message = "Could not save changes to programs hierarchy $section";
+	$this->_helper->flashMessenger->addMessage($message);
+	$this->logger->err($message);
       }
     } else {
       $this->_helper->flashMessenger->addMessage("No changes made to programs hierarchy $section");

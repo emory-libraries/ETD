@@ -39,7 +39,8 @@ class TestUserXacml extends UnitTestCase {
       
     /* user does not have object-specific policy rules -
        all relevant rules are set in repo-wide policy   */
-    $authorInfo->ingest("loading test object");
+
+    $this->fedoraAdmin->ingest($authorInfo->saveXML(), "loading test object");
   }
 
   function tearDown() {
@@ -76,11 +77,16 @@ class TestUserXacml extends UnitTestCase {
 
     // should be able to modify these datastreams
     $authorInfo->dc->title = "new title";    	//   DC
-    $this->assertNotNull($authorInfo->save("test author permissions - modify DC"),
-        'authorInfo object owner should be able to modify DC datastream');
+    $this->assertNotNull($fedora->modifyXMLDatastream($authorInfo->pid, "DC",
+                                $authorInfo->dc->datastream_label(),
+                                $authorInfo->dc->saveXML(), "test etdadmin permissions - modify DC"),
+                   "test owner permissions - modify DC");
+    
     $authorInfo->mads->netid = "username";   // MADS
-    $this->assertNotNull($authorInfo->save("test author permissions - modify MADS"),
-        'authorInfo object owner should be able to modify MADS datastream');
+    $this->assertNotNull($fedora->modifyXMLDatastream($authorInfo->pid, "MADS",
+                                $authorInfo->mads->datastream_label(),
+                                $authorInfo->mads->saveXML(), "test etdadmin permissions - modify MADS"),
+                    "owner can modify MADS");
   }
 
   function testEtdAdminPermissions() {

@@ -34,7 +34,7 @@ $logger = setup_logging($opts->verbose);
 $pids = $opts->getRemainingArgs();
 // otherwise, check all ETDs
 if (!count($pids)) {
-    $fedora = Zend_Registry::get('fedora');
+    $fedora = Zend_Registry::get('fedora-config');
     $config = Zend_Registry::get('config');
     // find all ETDs by content model
     // NOTE: currently only ETDs are indexed in gsearch - no EtdFile or AuthorInfo objects

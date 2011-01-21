@@ -30,15 +30,9 @@ class TestEtdFile extends UnitTestCase {
   }
   
   function tearDown() {
-    try{
-        $fedora = Zend_Registry::get("fedora");
-        $fedora->purge($this->etdpid, "completed test");
-        $fedora->purge($this->filepid, "completed test");
-    }catch(Exception $e){} //Ignore exception if can not purge object
-
   }
   
-  function NOtestBasicProperties() {
+  function testBasicProperties() {
     // test that foxml properties are accessible
     $this->assertIsA($this->etdfile, "etd_file");
     $this->assertIsA($this->etdfile->dc, "dublin_core");
@@ -49,14 +43,14 @@ class TestEtdFile extends UnitTestCase {
     $this->assertEqual("EtdFile", $this->etdfile->contentModelName());
   }
 
-  function NOtestPolicies() {
+  function testPolicies() {
     $this->etdfile->policy->addRule("view");
     $this->etdfile->policy->addRule("draft");
     $this->assertIsA($this->etdfile->policy->draft, "PolicyRule");
     $this->assertIsA($this->etdfile->policy->view, "PolicyRule");
   }
 
-  function NOtestDelete() {
+  function testDelete() {
     // Need an etd related to an etdfile both loaded to fedora
     $fedora = Zend_Registry::get("fedora");
     
@@ -74,8 +68,7 @@ class TestEtdFile extends UnitTestCase {
     
     $etd = new etd($this->etdpid);
     $etdfile = new etd_file($this->filepid, $etd);
-    $etdfile->owner = 'mmouse';
-    $etdfile->policy->addRule("view");  // needed by addSupplement
+    $etdfile->policy->addRule("view");	// needed by addSupplement
     // add relation between objects
     $etdfile->rels_ext->addRelationToResource("rel:isSupplementOf", $etd->pid);
     // fixture has a blank dummy relation; remove
@@ -87,9 +80,9 @@ class TestEtdFile extends UnitTestCase {
     // use new etdfile->delete function - should return date modified
     $this->assertNotNull($etdfile->delete("testing new delete function"));
     // 3. check that etd object no longer has relation to etdfile
-    $etd = new etd($this->etdpid);  // re-init from Fedora
+    $etd = new etd($this->etdpid);	// re-init from Fedora
     $this->assertFalse($etd->rels_ext->supplement->includes($etdfile->pid));
-    //     Note: using DOMElementArray equivalent function for in_array
+    //		 Note: using DOMElementArray equivalent function for in_array
 
     // There is no good way to test only the desired properties using
     // Fedora API calls; getting entire object XML and testing that.
@@ -97,46 +90,16 @@ class TestEtdFile extends UnitTestCase {
     
     // check that etdfile has status Deleted 
     $this->assertPattern('|foxml:property NAME="info:fedora/fedora-system:def/model#state" VALUE="Deleted"|', $filexml);
-    // check that owner was preserved
-    $this->assertPattern('|foxml:property NAME="info:fedora/fedora-system:def/model#ownerId" VALUE="mmouse"|', $filexml); // (picked up from ETD object)
+    // check that owner was preserved 
+    $this->assertPattern('|foxml:property NAME="info:fedora/fedora-system:def/model#ownerId" VALUE="mmouse"|', $filexml);	// (picked up from ETD object)
 
     // remove test objects from fedora
-
-    
-  }
-
-  function testDownload() {
-    $fedora = Zend_Registry::get("fedora");
-
-    //Normal size file
-    $etdfile = new etd_file();
-    $etdfile->pid = $this->filepid;
-    $file = "../fixtures/tinker_sample.pdf";
-    $original_md5 = md5_file($file);
-    $etdfile->file->filename = $file;
-    $etdfile->ingest('ingest test etd file');
-    // get the content from fedora and check that it is the content we ingested
-    $content = $etdfile->getFile();
-    $this->assertEqual($original_md5, md5($content));
+    $fedora->purge($this->etdpid, "completed test");
     $fedora->purge($this->filepid, "completed test");
-
-    //Large file
-    $etdfile = new etd_file();
-    $etdfile->pid = $this->filepid;
-    $file = "../fixtures/large.pdf";
-    $original_md5 = md5_file($file);
-    $etdfile->file->filename = $file;
-    $etdfile->ingest('ingest test etd file');
-    // get the content from fedora and check that it is the content we ingested
-    $content = $etdfile->getFile();
-    $this->assertEqual($original_md5, md5($content));
-    $fedora->purge($this->filepid, "completed test");
-
-    
   }
 
 
-  public function NOtestInitFromFile() {
+  public function testInitFromFile() {
     $schools_cfg = Zend_Registry::get("schools-config");
 
     $grad_etd = new etd($schools_cfg->graduate_school);
@@ -151,20 +114,20 @@ class TestEtdFile extends UnitTestCase {
     $this->assertNotEqual("", $etdfile->dc->title, "dc:title must not be blank");
     $this->assertEqual("Dissertation/Thesis", $etdfile->dc->title, "dc:title should have generic value 'Dissertation/Thesis' when doctype is not known, was '" . $etdfile->dc->title . "'");
     $this->assertEqual("Joe Smith", $etdfile->dc->creator,
-           "dc:creator should be set to author name 'Joe Smith', was '"
-           . $etdfile->dc->creator . "'");
+		       "dc:creator should be set to author name 'Joe Smith', was '"
+		       . $etdfile->dc->creator . "'");
     $this->assertEqual("Text", $etdfile->dc->type, "dc:type for pdf should be text, got '" .
-           $etdfile->dc->type . "'");
+		       $etdfile->dc->type . "'");
 
     // file info pulled automatically from the file itself
-    $this->assertEqual(filesize("../fixtures/tinker_sample.pdf"), $etdfile->dc->filesize,
-           "filesize in dc:format should match '" .
-           filesize("../fixtures/tinker_sample.pdf") . "', got '" .
-           $etdfile->dc->filesize . "' instead");
-    $this->assertEqual("application/pdf", $etdfile->file->mimetype);
-    $this->assertEqual("8", $etdfile->dc->pages);
-    $this->assertEqual("tinker_sample.pdf", basename($etdfile->file->filename));
-    $this->assertEqual("tinker_sample.pdf", $etdfile->file->dslabel);    
+    // NOTE: assuming a certain order in format fields, may not be reliable
+    $this->assertEqual(filesize("../fixtures/tinker_sample.pdf"), $etdfile->dc->formats[0],
+		       "filesize in dc:format should match '" .
+		       filesize("../fixtures/tinker_sample.pdf") . "', got '" .
+		       $etdfile->dc->formats[0] . "' instead");
+    $this->assertEqual("application/pdf", $etdfile->dc->formats[1]);
+    $this->assertEqual("8 p.", $etdfile->dc->formats[2]);
+    $this->assertEqual("filename:tinker_sample.pdf", $etdfile->dc->source);
 
     // if genre/doctype is set in etd record, that should be used for title
     $grad_etd->mods->genre = "Masters Thesis";
@@ -176,16 +139,16 @@ class TestEtdFile extends UnitTestCase {
     $etdfile = new etd_file(null, $honors_etd);
     $etdfile->initializeFromFile("../fixtures/tinker_sample.pdf", "pdf", $author);
     $this->assertEqual("Honors Thesis", $etdfile->dc->title,
-           "dc:title should be set to 'Honors Thesis' for honors etd, got '" .
-           $etdfile->dc->title . "' instead");
+		       "dc:title should be set to 'Honors Thesis' for honors etd, got '" .
+		       $etdfile->dc->title . "' instead");
 
 
     // FIXME: would be more thorough to add tests for
     // original/supplemental file types, files with other mimetypes, etc.
   }
 
-  /* FIXME: lots of unit tests missing...
-
+  /* FIXME: lots of unit tests missing, including...
+     - getFileChecksum
    */
   
 }

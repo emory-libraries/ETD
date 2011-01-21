@@ -25,7 +25,9 @@ class authorInfo extends foxml {
   public function __construct($arg = null, etd $parent = null) {
     parent::__construct($arg);
 
-    if ($this->init_mode == "template") {
+    if ($this->init_mode == "pid") {
+      // no special actions required
+    } elseif ($this->init_mode == "template") {
         // add relation to contentModel object
         if (Zend_Registry::isRegistered("config")) {
             $config = Zend_Registry::get("config");
@@ -42,7 +44,7 @@ class authorInfo extends foxml {
 
 
     $this->available_fields = array("name", "email", "permanent email", "permanent address");
-               
+				       
   }
 
   // configure additional datastreams here 
@@ -53,7 +55,7 @@ class authorInfo extends foxml {
     
     // add mappings for xmlobject
     $this->xmlconfig["mads"] = array("xpath" => "//foxml:datastream[@ID='MADS']/foxml:datastreamVersion/foxml:xmlContent/mads:mads",
-             "class_name" => "mads", "dsID" => "MADS");
+				     "class_name" => "mads", "dsID" => "MADS");
 
     // Note: no per-object xacml policy is needed here; restrictions handled by a repo-wide policy
 
@@ -79,8 +81,8 @@ class authorInfo extends foxml {
       // since owner attribute cannot be retrieved from Fedora via APIs, 
       // store author's username in rels-ext as author
       if (isset($this->rels_ext)) {
-  if (isset($this->rels_ext->author)) $this->rels_ext->author = $value;
-  else $this->rels_ext->addRelation("rel:author", $value);
+	if (isset($this->rels_ext->author)) $this->rels_ext->author = $value;
+	else $this->rels_ext->addRelation("rel:author", $value);
       }
       // set ownerId property
       parent::__set($name, $value);
@@ -94,7 +96,7 @@ class authorInfo extends foxml {
     // normalize date format
     foreach (array("current", "permanent") as $address) {
       if (isset($this->mads->{$address}->date) && $this->mads->{$address}->date)
-  $this->mads->{$address}->date = date("Y-m-d", strtotime($this->mads->{$address}->date, 0));
+	$this->mads->{$address}->date = date("Y-m-d", strtotime($this->mads->{$address}->date, 0));
     }
   }
 
@@ -108,7 +110,7 @@ class authorInfo extends foxml {
     if (count($this->checkFields($required))) return false;
 
     // don't attempt to validate until all required fields are filled
-    if (! $this->mads->isValid()) {     // xml should be valid MODS
+    if (! $this->mads->isValid()) {	    // xml should be valid MODS
       // error message?
       return false;
     }      
@@ -163,10 +165,10 @@ class authorInfo extends foxml {
     case "permanent address":
       // for permanent address to be filled in, all these fields must be complete
       return (trim($this->mads->permanent->address->street[0]) != "" &&
-        trim($this->mads->permanent->address->city) != "" &&
-        trim($this->mads->permanent->address->country) != "" &&
-        trim($this->mads->permanent->address->postcode) != "" &&
-        trim($this->mads->permanent->date) != "");
+	      trim($this->mads->permanent->address->city) != "" &&
+	      trim($this->mads->permanent->address->country) != "" &&
+	      trim($this->mads->permanent->address->postcode) != "" &&
+	      trim($this->mads->permanent->date) != "");
 
     default:
       trigger_error("Cannot determine if '$field' is complete", E_USER_NOTICE);
@@ -177,45 +179,33 @@ class authorInfo extends foxml {
   public function getUserRole(esdPerson $user = null) {
     if (is_null($user)) return "guest";
     if (isset($this->rels_ext) && isset($this->rels_ext->author)
-  && ($user->netid == $this->rels_ext->author)) return "author";
+	&& ($user->netid == $this->rels_ext->author)) return "author";
     else return $user->role;
   }
 
   
   
-  /**
-   * override default foxml ingest function to use arks for object pids
-   * @param string $message
-   * @return string timestamp if successful, empty if not
+  /**  override default foxml ingest function to use arks for object pids
    */
   public function ingest($message ) {
-    // mint a new pid if the pid is not already set
-    if ($this->pid == "") {
-        $persis = new Emory_Service_Persis(Zend_Registry::get('persis-config'));
+    $persis = new Emory_Service_Persis(Zend_Registry::get('persis-config'));
 
-        // FIXME: use view/controller to build this url?
-        $ark = $persis->generateArk("http://etd.library.emory.edu/author-info/view/pid/emory:{%PID%}", $this->label);
-        $pid = $persis->pidfromArk($ark);
+    // FIXME: use view/controller to build this url?
+    $ark = $persis->generateArk("http://etd.library.emory.edu/author-info/view/pid/emory:{%PID%}", $this->label);
+    $pid = $persis->pidfromArk($ark);
 
-        $this->pid = $pid;
-        // store the full ark as an additional identifier
-        // if no dc->identifier elements are present, append will fail, so just set first format element        
-        if (!count($this->dc->identifier)) {        
-          $this->dc->identifier = $ark;
-        }
-        else {
-          $this->dc->identifier->append($ark);          
-        }
-    }
-    // use parent ingest logic to construct new foxml & datastreams appropriately
-    return parent::ingest($message);
+    $this->pid = $pid;
+    // store the full ark as an additional identifier
+    $this->dc->identifier->append($ark);
+    
+    return $this->fedora->ingest($this->saveXML(), $message);
   }
 
 
 
   public static function find_by_username($netid) {
     $query = 'select $user  from <#ri>
-  where  $user <fedora-model:contentModel> \'user\'
+	where  $user <fedora-model:contentModel> \'user\'
         and $user <dc:title> \'' . $netid . '\'';
 
     // FIXME: what value whould we actually key on? fedora-model:owner is not used (arg)
@@ -233,7 +223,7 @@ class authorInfo extends foxml {
       return new authorInfo($pid);
     } else {
       // no matches found
-      return null;  // what should the proper response be?
+      return null;	// what should the proper response be?
     }
   }
   

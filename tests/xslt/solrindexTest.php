@@ -3,53 +3,37 @@ require_once("../bootstrap.php");
 
 class TestSolrIndexXslt extends UnitTestCase {
     private $xsl;
-    private $tmpdir;
 
-    function __construct() {
-      $this->config = Zend_Registry::get("config");
-      $this->saxonb = $this->config->saxonb_xslt;
-
-      // one-time setup (not modified by tests)
-      
-      // make unique tmp dir based on time, trailing slash is required
-      $this->tmpdir = "/tmp/fedora" . strftime("%G%m%d%H%M%S") . "/"; 
-
-      // NOTE: using custom fixtures that allow mocking managed datastreams
-      // that must be retrieved via xsl:document()
-      // - fixture PIDs must not contain : because pid is used for directory name
-      // Copy RELS-EXT and MODS files for testetd1 into mock repo url/directory structure
-      $pid = "testetd1";
-      mkdir("{$this->tmpdir}get/$pid", 0777, true); 
-      copy('../fixtures/etd1.managed.RELS-EXT.xml', "{$this->tmpdir}get/$pid/RELS-EXT");
-      copy('../fixtures/etd1.managed.MODS.xml', "{$this->tmpdir}get/$pid/MODS");
-      
-      // Copy RELS-EXT for testetdfile1 into mock repo url/directory structure
-      $pid = "testetdfile1";
-      mkdir("{$this->tmpdir}get//$pid", 0777, true); 
-      copy('../fixtures/etdfile.managed.RELS-EXT.xml', "{$this->tmpdir}get/$pid/RELS-EXT");
-
-      // test directory must be passed to xslt processor as repo url parameter
-      $this->xsl_param = "REPOSITORYURL='" . $this->tmpdir . "' ";
-      
-      //change all files and directories to 777
-      $this->chmodR($this->tmpdir, 0777);
-
-      // path to xslt
-      $this->xsl = "../../src/public/xslt/etdFoxmlToSolr.xslt";
+    function TestCleanModsXslt() {
+        $xslpath = "../../src/public/xslt/etdFoxmlToSolr.xslt";
+	$this->xsl = new XSLTProcessor();
+	$xsldom = new DOMDocument();
+	$xsldom->load($xslpath);
+	$this->xsl->importStylesheet($xsldom);
     }
 
-    function __destruct() {
-      // Remove temp files
-      $this->delDir($this->tmpdir);
-    }
-    
+    function setUp() {}
+
+    function tearDown() {}
 
     function test_etdToFoxml() {
-      $result = $this->transform("../fixtures/etd1.managed.xml");
+        $xml = new DOMDocument();
+        $xml->load("../fixtures/etd1.xml");
+	$etd = new etd($xml);
+	$etd->mods->date = "2008-05-30";	// set a pub date
+	$etd->mods->addKeyword("keyword1");	// keyword to be indexed
+	$etd->mods->addKeyword("");		// empty keyword - should not be indexed
+	 // ignore php errors - "indirect modification of overloaded property
+	$errlevel = error_reporting(E_ALL ^ E_NOTICE);
+	$etd->mods->chair[0]->full = "Duck, Donald";
+	$etd->mods->committee[0]->full = "Dog, Pluto";
+	$etd->mods->addCommittee("", "");	// blank committe name - should not be indexed
+	error_reporting($errlevel);     // restore prior error reporting
 
+        $result = $this->transformDom($etd->dom);
         $this->assertTrue($result, "xsl transform returns data");
 	$this->assertPattern("|<add>.+</add>|s", $result, "xsl result is a solr add document");
-	$this->assertPattern('|<field name="PID">testetd1</field>|', $result,
+	$this->assertPattern('|<field name="PID">test:etd1</field>|', $result,
 			     "pid indexed in field PID");
 	$this->assertPattern('|<field name="label">Why I Like Cheese</field>|', $result,
 			     "object label indexed");
@@ -103,7 +87,7 @@ class TestSolrIndexXslt extends UnitTestCase {
     // test new inactive behavior
     function test_etdToFoxml_inactiveEtd() {
         $xml = new DOMDocument();
-        $xml->load("../fixtures/etd1.managed.xml");
+        $xml->load("../fixtures/etd1.xml");
 	$foxml = new foxml($xml);
 	$foxml->state = "Inactive";
 
@@ -114,87 +98,17 @@ class TestSolrIndexXslt extends UnitTestCase {
     
     // test non-etd - should not be indexed
     function test_etdToFoxml_nonEtd() {
-       $result = $this->transform("../fixtures/etdfile.managed.xml");
-       $this->assertNoPattern("|<add>.+</add>|s", $result,
+        $xml = new DOMDocument();
+        $xml->load("../fixtures/etdfile.xml");
+
+        $result = $this->transformDom($xml);
+	$this->assertNoPattern("|<add>.+</add>|s", $result,
 			       "xsl result for non-etd is NOT a solr add document");
     }
     
     function transformDom($dom) {
-        $tmpfile = tempnam($this->config->tmpdir, "solrXsl-");
-        file_put_contents($tmpfile, $dom->saveXML());
-        $output = $this->transform($tmpfile);
-        unlink($tmpfile);
-        return $output;
+      return $this->xsl->transformToXml($dom);
     }
-
-    function transform($xmlfile) {
-      $cmd = $this->saxonb . " -xsl:" . $this->xsl . " -s:" . $xmlfile . " -warnings:silent "
-	.  $this->xsl_param ;
-      return shell_exec($cmd);
-    }
-    
-
-    //function to recursivly delete a directory
-    function delDir($dir){
-	if ($handle = opendir($dir))
-	{
-	$array = array();
- 
-    	while (false !== ($file = readdir($handle))) {
-        if ($file != "." && $file != "..") {
- 
-            if(is_dir($dir.$file))
-            {
-                if(!@rmdir($dir.$file)) // Empty directory? Remove it
-                {
-                $this->delDir($dir.$file.'/'); // Not empty? Delete the files inside it
-                }
-            }
-            else
-            {
-               @unlink($dir.$file);
-            }
-        }
-    }
-    closedir($handle);
- 
-    @rmdir($dir);
-}
- 
-}
-
-    //function to recursively change permissons on a directory
-   function chmodR($path, $filemode) {
- if ( !is_dir($path) ) {
-  return chmod($path, $filemode);
- }
- $dh = opendir($path);
- while ( $file = readdir($dh) ) {
-  if ( $file != '.' && $file != '..' ) {
-   $fullpath = $path.'/'.$file;
-   if( !is_dir($fullpath) ) {
-    if ( !chmod($fullpath, $filemode) ){
-     return false;
-    }
-   } else {
-    if ( !$this->chmodR($fullpath, $filemode) ) {
-     return false;
-    }
-   }
-  }
- }
- 
- closedir($dh);
- 
- if ( chmod($path, $filemode) ) {
-  return true;
- } else {
-  return false;
- }
-}
-
-
-
 
 }
 

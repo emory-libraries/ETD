@@ -20,13 +20,13 @@ class TestEtd extends UnitTestCase {
     
     function __construct() {
       $this->fedora = Zend_Registry::get("fedora");
-      $this->fedora_cfg = Zend_Registry::get('fedora-config');
+      $fedora_cfg = Zend_Registry::get('fedora-config');
 
       $this->school_cfg = Zend_Registry::get("schools-config");
       
       // get test pids for fedora objects
       list($this->etdpid, $this->gradpid,
-     $this->non_etdpid) = $this->fedora->getNextPid($this->fedora_cfg->pidspace, 3);
+     $this->non_etdpid) = $this->fedora->getNextPid($fedora_cfg->pidspace, 3);
     }
 
     
@@ -432,6 +432,8 @@ class TestEtd extends UnitTestCase {
 
   }
 
+  
+
   function testInitbyTemplate() {
     $etd = new etd();
     $this->assertIsA($etd, "etd");
@@ -446,15 +448,18 @@ class TestEtd extends UnitTestCase {
     // check for error found in ticket:150
     $this->assertEqual("draft", $etd->status());
 
-    // all etds should be member of either the graduate_school, emory_college, candler, or rollins and not a member of the ETD master collection.
+    // all etds should be member of either the graduate_school, emory_college or candler and not a member of the ETD master collection. 
     $this->assertFalse($etd->rels_ext->isMemberOfCollections->includes($etd->rels_ext->pidToResource($this->school_cfg->all_schools->fedora_collection)),
-        "template etd dos not have an isMemberOfCollection relation to etd collection");
-
+        "template etd dos not have a  isMemberOfCollection relation to etd collection");
+       
     $honors_etd = new etd($this->school_cfg->emory_college);
+    // researchfields should not be present in mods if optional
+    $this->assertFalse($honors_etd->isRequired("researchfields"));
     $this->assertEqual(0, count($honors_etd->mods->researchfields),
            "no researchfields present in honors etd");
     $this->assertNoPattern('|<mods:subject ID="" authority="proquestresearchfield">|',
          $honors_etd->mods->saveXML(), "researchfields not present in MODS");
+
   }
 
 
@@ -486,7 +491,7 @@ class TestEtd extends UnitTestCase {
     $e->pid = $this->gradpid;
     $e->title = "test grad etd";
     $e->mods->ark = "ark:/123/bcd";
-    $e->ingest("test init with school config");
+    $this->fedora->ingest($e->saveXML(), "test init with school config");
 
     // initialize from fedora
     $etd = new etd($this->gradpid);
@@ -514,8 +519,27 @@ class TestEtd extends UnitTestCase {
     $this->assertEqual("program", $required[2]);
   }
 
-  // NOTE: bad cmodel test removed because contend model check was removed
-  // from constructor for efficiency/response time reasons
+  function testInitByPid_badcmodel() {
+    $obj = new foxml();
+    $obj->pid = $this->non_etdpid;
+    $obj->label = "test object - non-etd";
+    $this->fedora->ingest($obj->saveXML(), "test init etd - object with wrong cmodel");
+
+    // initialize from fedora - should cause an exception
+    try {
+      $etd = new etd($this->non_etdpid);
+    } catch (FoxmlBadContentModel $e) {
+      $exception = $e;
+    }
+    $this->assertIsA($exception, "FoxmlBadContentModel",
+         "attempting to initialize non-etd object as an etd causes a 'FoxmlBadContentModel' exception");
+    if (isset($exception)) {
+      $this->assertPattern("/does not have etd content model/", $exception->getMessage());
+    }
+    
+    $this->fedora->purge($this->non_etdpid, "removing test object");
+  }
+
   
   function testAddCommittee() { // committee chairs and members
     $errlevel = error_reporting(E_ALL ^ E_NOTICE);
@@ -633,7 +657,7 @@ class TestEtd extends UnitTestCase {
     // add non-emory committee member to test
     $etd->mods->addCommittee("Manhunter", "Martian", "nonemory_committee", "Mars Polytechnic");
     // simulate embargo ending in one year
-    $etd->mods->embargo_end =  date("Y-m-d", strtotime("+1 year", time()));
+    $etd->mods->embargo_end =  date("Y-m-d", strtotime("+1 year", time()));;
     
     // test that blank subject does not result in empty dc:subject
     $etd->mods->addKeyword("");
@@ -754,8 +778,8 @@ class TestEtd extends UnitTestCase {
            "permanent address is required");
 
     
-    $this->assertTrue($this->honors_etd->isRequired("researchfields"),
-           "research fields are required for honrs");
+    $this->assertFalse($this->honors_etd->isRequired("researchfields"),
+           "research fields are not required for honrs");
     $this->assertFalse($this->honors_etd->isRequired("send to ProQuest"),
            "send to PQ info not required for honors");
     $this->assertFalse($this->honors_etd->isRequired("copyright"),
@@ -763,8 +787,8 @@ class TestEtd extends UnitTestCase {
     $this->assertFalse($this->honors_etd->isRequired("permanent address"),
            "permanent address not required for honors");
 
-    $this->assertFalse(in_array("researchfields", $this->honors_etd->optionalFields()),
-          "researchfields is not optional for honors");
+    $this->assertTrue(in_array("researchfields", $this->honors_etd->optionalFields()),
+          "researchfields is optional for honors");
   }
 
   function testGetResourceId() {
@@ -818,7 +842,7 @@ class TestEtd extends UnitTestCase {
       $etd->title = "test etd";
       $etd->mods->ark = "ark:/123/bcd";
       $etd->setStatus("published");            
-      $etd->ingest("test etd magic methods");
+      $this->fedora->ingest($etd->saveXML(), "test etd magic methods");
 
       $etd = new etd($this->etdpid);
       $marcxml = $etd->getMarcxml();
@@ -827,8 +851,7 @@ class TestEtd extends UnitTestCase {
 
       $etdms = $etd->getEtdms();
       $this->assertNotNull($etdms, "getEtdms() return response should not be empty");
-      // updated test to check for element name, rather than how it is formatted.
-      $this->assertPattern("|thesis.degree.level|", $etdms, "getEtdms() result looks like ETD-MS");
+      $this->assertPattern("|<thesis|", $etdms, "getEtdms() result looks like ETD-MS");
 
       $mods = $etd->getMods();
       $this->assertNotNull($mods, "getMods() return response should not be empty");
@@ -859,13 +882,12 @@ class TestEtd extends UnitTestCase {
   function testGetPreviousStatus() {
     // ingest a minimal, published record to test fedora methods as object methods
     $etd = new etd($this->school_cfg->emory_college);
-    $etd->pid = $this->fedora->getNextPid($this->fedora_cfg->pidspace);
+    $etd->pid = $this->etdpid;
     $etd->title = "test etd";
     $etd->mods->ark = "ark:/123/bcd";
     $etd->rels_ext->addRelation("rel:author", "me");  
     $etd->setStatus("draft");            
-    $pid = $etd->ingest("test previousStatus");
-    $this->assertNotNull($pid);
+    $this->fedora->ingest($etd->saveXML(), "test previousStatus");
     $this->assertEqual(null, $etd->previousStatus(),
            "previousStatus should return null when there is no previous status, got '"
            . $etd->previousStatus() . "'");
@@ -873,7 +895,7 @@ class TestEtd extends UnitTestCase {
 
     
     // setting status to reviewed; previous status is draft
-    $etd = new etd($pid);
+    $etd = new etd($this->etdpid);
     $etd->setStatus("reviewed");
     $etd->save("setting status to reviewed");
 
@@ -883,7 +905,7 @@ class TestEtd extends UnitTestCase {
 
 
     // setting status to published; previous status is reviewed
-    $etd = new etd($pid);
+    $etd = new etd($this->etdpid);
     $etd->setStatus("published");
     $etd->save("setting status to published");
     // make a non-status-related change to rels-ext; previous status is 2 versions ago, still reviewed
@@ -894,7 +916,7 @@ class TestEtd extends UnitTestCase {
            "previousStatus should return reviewed, got '"
            . $etd->previousStatus() . "'");
 
-    $this->fedora->purge($pid, "removing test etd");
+    $this->fedora->purge($this->etdpid, "removing test etd");
   }
 
   function testUpdateEmbargo() {
@@ -941,7 +963,7 @@ class TestEtd extends UnitTestCase {
     // embargo condition date in xacml policies updated
   function testUpdateEmbargo_inactive() {
     // inactive record (e.g., previously published)
-    $this->etd->mods->embargo_end =  date("Y-m-d", strtotime("+1 year", time()));
+    $this->etd->mods->embargo_end =  date("Y-m-d", strtotime("+1 year", time()));;
     $this->etd->setStatus("inactive");
 
     $new_embargodate = date("Y-m-d", strtotime("+2 year", time()));
@@ -965,11 +987,11 @@ class TestEtd extends UnitTestCase {
            . $this->etd->supplements[0]->policy->published->condition->embargo_end . "'");
 
 
-    // leading zeroes are NOT invalid dates, also add one year to make sure it is in the future
-    $this->etd->updateEmbargo(date("Y-01-11", strtotime("+1year", time())), "testing update embargo");
+    // leading zeroes are NOT invalid dates
+    $this->etd->updateEmbargo("2011-01-11", "testing update embargo");
 
-    // leading zeroes are NOT invalid dates, also add one year to make sure it is in the future
-    $this->etd->updateEmbargo(date("Y-11-01", strtotime("+1year", time())), "testing update embargo");
+    // leading zeroes are NOT invalid dates
+    $this->etd->updateEmbargo("2011-11-01", "testing update embargo");
     
   }
 
