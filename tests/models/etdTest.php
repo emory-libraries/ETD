@@ -446,13 +446,11 @@ class TestEtd extends UnitTestCase {
     // check for error found in ticket:150
     $this->assertEqual("draft", $etd->status());
 
-    // all etds should be member of either the graduate_school, emory_college or candler and not a member of the ETD master collection. 
+    // all etds should be member of either the graduate_school, emory_college, candler, or rollins and not a member of the ETD master collection.
     $this->assertFalse($etd->rels_ext->isMemberOfCollections->includes($etd->rels_ext->pidToResource($this->school_cfg->all_schools->fedora_collection)),
         "template etd dos not have an isMemberOfCollection relation to etd collection");
 
     $honors_etd = new etd($this->school_cfg->emory_college);
-    // researchfields should not be present in mods if optional
-    $this->assertFalse($honors_etd->isRequired("researchfields"));
     $this->assertEqual(0, count($honors_etd->mods->researchfields),
            "no researchfields present in honors etd");
     $this->assertNoPattern('|<mods:subject ID="" authority="proquestresearchfield">|',
@@ -756,8 +754,8 @@ class TestEtd extends UnitTestCase {
            "permanent address is required");
 
     
-    $this->assertFalse($this->honors_etd->isRequired("researchfields"),
-           "research fields are not required for honrs");
+    $this->assertTrue($this->honors_etd->isRequired("researchfields"),
+           "research fields are required for honrs");
     $this->assertFalse($this->honors_etd->isRequired("send to ProQuest"),
            "send to PQ info not required for honors");
     $this->assertFalse($this->honors_etd->isRequired("copyright"),
@@ -765,8 +763,8 @@ class TestEtd extends UnitTestCase {
     $this->assertFalse($this->honors_etd->isRequired("permanent address"),
            "permanent address not required for honors");
 
-    $this->assertTrue(in_array("researchfields", $this->honors_etd->optionalFields()),
-          "researchfields is optional for honors");
+    $this->assertFalse(in_array("researchfields", $this->honors_etd->optionalFields()),
+          "researchfields is not optional for honors");
   }
 
   function testGetResourceId() {
