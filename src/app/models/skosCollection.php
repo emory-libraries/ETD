@@ -36,13 +36,13 @@ class collectionHierarchy extends foxmlDatastreamAbstract {
   // reference to parent collection (if not at top level)
   public $parent;
   
-  public function __construct($dom=null, $id) {
+  public function __construct($dom=null, $id=null) {
     
-    if (is_null($dom)) {
+    if (is_null($dom)) {          
       $dom = $this->construct_from_template();
-    }    
+    }  
     
-    $this->id = $id;
+    $this->id = $id;    
     $this->addNamespace("dc", $this->dc_namespace);    
     $this->addNamespace("rdf", $this->rdf_namespace);
     $this->addNamespace("rdfs", $this->rdfs_namespace);
@@ -53,19 +53,20 @@ class collectionHierarchy extends foxmlDatastreamAbstract {
                               "class_name" => $this->collection_class),
        "parent_id" => array("xpath" => "skos:Collection[skos:member/@rdf:resource = '" . $id . "']/@rdf:about"),
     ));
-    parent::__construct($dom, $config, null); // no xpath
-
+        
+    parent::__construct($dom, $config, null); // no xpath 
+    
     if (! isset($this->collection)) {
       // collection not found - bad initialization
       throw new XmlObjectException("Error in constructor: collection id '" . $id . "' not found");
     }
-    
+       
     // if this collection has a parent initialize parent as another collection object
     if (isset($this->parent_id)) {
       $this->parent = new collectionHierarchy($this->dom, (string)$this->parent_id);
     } else {
       $this->parent = null;
-    }
+    }     
   }
 
   // shortcuts to fields that are really attributes of the collection 
@@ -249,9 +250,9 @@ class collectionHierarchy extends foxmlDatastreamAbstract {
           xmlns:dc="http://purl.org/dc/elements/1.1/"
           xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
           xmlns:skos="http://www.w3.org/2004/02/skos/core#"
-          xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"/>';
-    $dom = new DOMDocument();
-    $dom->loadXML($base);
+          xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"/>';;          
+    $dom = new DOMDocument();     
+    $dom->loadXML($base);     
     return $dom;
   }
 
