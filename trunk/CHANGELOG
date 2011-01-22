@@ -1,6 +1,12 @@
 CHANGE LOG 
 =================
 
+Version 1.9.1 
+-------------
+ * Create and populate the vocabularies fedora collection.
+ * Add the ability to select partenering agencies for a rollins student.
+ * Allow research fields to save 3 items.
+
 1.9 - Fedora 3.4 migration, January 2011
 -----------------------------------------
 * RELS-EXT, MODS, MADS, DC,XHTML ,POLICY, and PREMIS datastreams have been

@@ -27,6 +27,19 @@ Site webroot should be pointed at src/public
 UPGRADE NOTES
 =================
 
+Version 1.9.1
+-------------
+ * Edit the config.xml
+    - remove the previous :
+      <!-- Top Level Program Collection -->
+      <programs_pid></programs_pid>
+      <vocabularies_pid>
+    - replace with new configuration found in config.xml.example
+        <!-- Foxml Collections -->  section
+
+ * Run the migration scripts to reload the rollins school data: 
+    - 017-add_vocabularies.php
+
 Version 1.9
 -----------
 * Make the appropriate host, port and user / pass changes to point to the fedora 3.4 instance
