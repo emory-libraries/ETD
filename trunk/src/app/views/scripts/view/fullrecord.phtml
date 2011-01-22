@@ -6,43 +6,44 @@
 <? if ($this->acl->isAllowed($this->role, "authorInfo", "edit")): ?>
  <? if (isset($this->etd->authorInfo)): ?>
    <a class="action" href="<?= $this->url(array("controller" => "authorInfo", "action" => "edit",
-				 "pid" => $this->etd->authorInfo->pid), '', true, false); ?>">edit contact information</a>
+         "pid" => $this->etd->authorInfo->pid), '', true, false); ?>">edit contact information</a>
  <? else: ?>
    <a class="action" href="<?= $this->url(array('controller' => 'authorInfo', 'action' => 'new',
-			'etd' => $this->etd->pid), '', true, false) ?> ">enter contact information</a>
+      'etd' => $this->etd->pid), '', true, false) ?> ">enter contact information</a>
  <? endif ?>
 <? endif ?>      
 
-	
+  
 <? if ($this->acl->isAllowed($this->role, $this->etd, "edit metadata")): ?>
   <a class="action" href="<?= $this->url(array("controller" => "edit", "action" => "title")) ?>">edit title</a>
- <? endif ?>
-   <h1><?= $this->etd->title() ?></h1>
- 	<? if ($this->acl->isAllowed($this->role, $this->etd, "edit metadata")): ?>
-   <a class="action" href="<?= $this->url(array("controller" => "edit", "action" => "record")) ?>">edit thesis information</a>
-   <a class="action" href="<?= $this->url(array("controller" => "edit", "action" => "faculty")) ?>">edit committee/adviser</a>
-
-   <a class="action" href="<?= $this->url(array("controller" => "edit", "action" => "rights")) ?>">edit rights/restrictions</a>
-
-   <a class="action" href="<?= $this->url(array("controller" => "edit", "action" => "researchfield")) ?>">edit research fields</a>
-   <a class="action" href="<?= $this->url(array("controller" => "edit", "action" => "program")) ?>">edit program</a>
-   <? endif ?>
-   <? if ($this->acl->isAllowed($this->role, $this->etd, "edit school")): ?>
-      <a class="action" href="<?= $this->url(array("controller" => "edit", "action" => "school")) ?>">edit school</a>
-   <? endif ?>
-  <?=  $this->render('view/summary.phtml'); ?>
-  <? if ($this->etd->status() == "published"): ?>
-	<?= $this->etdCoins($this->etd); ?>
-  <? endif?>	
+<? endif ?>
+<h1><?= $this->etd->title() ?></h1>
+<? if ($this->acl->isAllowed($this->role, $this->etd, "edit metadata")): ?>
+  <a class="action" href="<?= $this->url(array("controller" => "edit", "action" => "record")) ?>">edit thesis information</a>
+  <a class="action" href="<?= $this->url(array("controller" => "edit", "action" => "faculty")) ?>">edit committee/adviser</a>
+  <a class="action" href="<?= $this->url(array("controller" => "edit", "action" => "rights")) ?>">edit rights/restrictions</a>
+  <a class="action" href="<?= $this->url(array("controller" => "edit", "action" => "researchfield")) ?>">edit research fields</a>
+  <a class="action" href="<?= $this->url(array("controller" => "edit", "action" => "program")) ?>">edit program</a>
+  <? if ($this->etd->schoolId() == "rollins"): ?>
+    <a class="action" href="<?= $this->url(array("controller" => "edit", "action" => "partneringagency")) ?>">edit partnering agency</a>   
+  <? endif ?> 
+<? endif ?>
+<? if ($this->acl->isAllowed($this->role, $this->etd, "edit school")): ?>
+  <a class="action" href="<?= $this->url(array("controller" => "edit", "action" => "school")) ?>">edit school</a>
+<? endif ?>
+<?=  $this->render('view/summary.phtml'); ?>
+<? if ($this->etd->status() == "published"): ?>
+  <?= $this->etdCoins($this->etd); ?>
+<? endif?>  
 
 
   <h2>Abstract</h2>
    <? if ($this->acl->isAllowed($this->role, $this->etd, "edit metadata")): ?>
      <? $pq = Zend_Registry::get("proquest-config"); ?>
      <? if ($this->etd->abstract_word_count() > $pq->abstract_max_words): ?>
-	<p class="warning">Warning:
-	   <? if (! $this->etd->isHonors()): ?>ProQuest<? endif ?> maximum length for abstracts is <?= $pq->abstract_max_words ?> words.
-	   (current word count: <?= $this->etd->abstract_word_count() ?>)</p>
+  <p class="warning">Warning:
+     <? if (! $this->etd->isHonors()): ?>ProQuest<? endif ?> maximum length for abstracts is <?= $pq->abstract_max_words ?> words.
+     (current word count: <?= $this->etd->abstract_word_count() ?>)</p>
      <? endif ?>
      <a class="action" href="<?= $this->url(array("controller" => "edit", "action" => "abstract")) ?>">edit</a>
 
@@ -55,7 +56,7 @@
   </div>
 
   <h2>Table of Contents</h2>
-   	<? if ($this->acl->isAllowed($this->role, $this->etd, "edit metadata")): ?>
+    <? if ($this->acl->isAllowed($this->role, $this->etd, "edit metadata")): ?>
   <a class="action" href="<?= $this->url(array("controller" => "edit", "action" => "contents")) ?>">edit</a>
      <? endif ?>
   <div id="toc">

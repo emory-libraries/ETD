@@ -4,12 +4,12 @@
   xmlns="http://www.ndltd.org/standards/metadata/etdms/1.0/"
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
-  exclude-result-prefixes="mods etd xsl xs">	
+  exclude-result-prefixes="mods etd xsl xs">  
 
 
-<xsl:output method="xml" indent="yes"/>	
+<xsl:output method="xml" indent="yes"/> 
 
-<xsl:strip-space elements="*"/>	
+<xsl:strip-space elements="*"/> 
 
 <xsl:template match="/">
   <xsl:apply-templates/>
@@ -54,7 +54,7 @@
     <xsl:apply-templates select="mods:extension/etd:degree"/>
     
   </thesis>
-</xsl:template>	
+</xsl:template> 
 
 
 <xsl:template match="mods:titleInfo">
@@ -96,11 +96,11 @@
 </xsl:template>
 
 <xsl:template match="mods:name[mods:role/mods:roleTerm[@type='text']='Thesis Advisor' or mods:role/mods:roleTerm[@type='text']='Committee Member']">
-  <contributor role="thesis advisor">		    
+  <contributor role="thesis advisor">       
   <xsl:attribute name="role">
     <xsl:value-of select="mods:role/mods:roleTerm[@type='text']"/>
   </xsl:attribute>
-  <xsl:value-of select="mods:displayForm"/>				
+  <xsl:value-of select="mods:displayForm"/>       
 </contributor>
 </xsl:template>
 
@@ -124,7 +124,7 @@
       <xsl:if test="position()!=last()">--</xsl:if>
       
     </xsl:for-each>
-  </subject>	
+  </subject>  
   
   <xsl:if test="*[1][local-name()='topic'] and *[local-name()!='topic']">
     <subject>
@@ -149,7 +149,7 @@
   <description>
     <xsl:value-of select="."/>
   </description>
-</xsl:template>	
+</xsl:template> 
 
 <xsl:template match="mods:name[@type='corporate'][mods:role/mods:roleTerm[@type='text'] = 'Degree grantor']">
   <publisher>
@@ -313,14 +313,14 @@
 <xsl:template match="mods:identifier | mods:recordIdentifier | mods:location">
   <xsl:if test="@type='uri'">
     <identifier>
-      <xsl:value-of select="."/>			
+      <xsl:value-of select="."/>      
     </identifier>
   </xsl:if>
 </xsl:template>
 
 
 
-<xsl:template match="mods:extension/etd:degree">		
+<xsl:template match="mods:extension/etd:degree">    
 <degree>
   <xsl:apply-templates select="etd:name"/>
   <xsl:apply-templates select="etd:level"/> 
@@ -361,9 +361,7 @@
   </discipline>
 </xsl:template>
 
-
+<!-- suppress all notes -->
 <xsl:template match="mods:note"/>
-
-
 
 </xsl:stylesheet>

@@ -15,6 +15,7 @@ require_once("models/esdPerson.php");
  * @property array $committee array of mods_name with description 'Emory Committe Member'
  * @property array $nonemory_committee array of mods_name with description 'Non-Emory Committe Member'
  * @property array $researchfields array of etdmods_subject with authority 'proquestresearchfield'
+ * @property array $partnering agencies array of etdmods_subject with authority 'partneringagency'
  * @property array $keywords array of etdmods_subject with authority 'keyword'
  * @property string $pages physicalDescription/extent
  * @property etd_degree $degree mods:extension with etd-ms degree information
@@ -66,7 +67,8 @@ class etd_mods extends mods {
             "embargo request",
             "submission agreement",
             "send to ProQuest",
-            "copyright");
+            "copyright",
+            "partneringagencies");
 
     $this->embargo_name_map = array(etd_mods::EMBARGO_FILES => "files",
                                     etd_mods::EMBARGO_TOC => "toc",
@@ -85,10 +87,10 @@ class etd_mods extends mods {
     $this->xmlconfig["chair"] = array("xpath" => "mods:name[mods:role/mods:roleTerm = 'Thesis Advisor']",
               "class_name" => "mods_name", "is_series" => true);
     $this->xmlconfig["committee"] = array("xpath" => "mods:name[mods:description = 'Emory Committee Member']",
-            "class_name" => "mods_name", "is_series" => "true");
+            "class_name" => "mods_name", "is_series" => true);
     $this->xmlconfig["nonemory_committee"] = array("xpath" =>
                "mods:name[mods:description = 'Non-Emory Committee Member']",
-               "class_name" => "mods_name", "is_series" => "true");
+               "class_name" => "mods_name", "is_series" => true);
     $this->xmlconfig["degree_grantor"] = array("xpath" =>
                  "mods:name[@type='corporate'][mods:role/mods:roleTerm='Degree grantor']",
                  "class_name" => "mods_name");  
@@ -123,6 +125,11 @@ class etd_mods extends mods {
     $this->xmlconfig["genre"] = array("xpath" => "mods:genre[@authority='aat']");
     $this->xmlconfig["marc_genre"] = array("xpath" => "mods:genre[@authority='marc']");
     
+    // partnering agencies- one to three entries for rollins
+    $this->xmlconfig["partneringagencies"] = array("xpath" =>
+            "mods:note[@type='partneragencytype']", "is_series" => true, 
+            "class_name" => "mods_note");     
+
   }
   
 
@@ -167,6 +174,15 @@ class etd_mods extends mods {
     $this->addSubject($text, "researchfields", "proquestresearchfield", $id);
   }
 
+  /**
+   * add new research field by text + id
+   * @param string $text
+   * @param string $id optional
+   */
+  public function addPartneringAgency($text, $id = "") { 
+      $this->addNote($text, "partneragencytype", $id, "Type of partner agency"); 
+  }  
+  
   /**
    * add a new keyword
    * @param string $text keyword
@@ -428,7 +444,7 @@ class etd_mods extends mods {
   }
 
   /**
-   * clear out the old research fields, and write in the new.
+   * clear out the old research fields, and write in the new. 
    * @param array $values associative array of research field id => name
    */
   public function setResearchFields(array $values) {
@@ -438,7 +454,7 @@ class etd_mods extends mods {
     foreach ($values as $id => $text) {     
       $this->addResearchField($text, $id);
     }
-  }  
+  } 
 
   /**
    * remove a research field by id
@@ -465,7 +481,7 @@ class etd_mods extends mods {
     for ($i = 0; count($this->researchfields); $i++) {
       $field = $this->researchfields[$i];
       if ($field->id == $id)
-  return $i;
+        return $i;
     }
   }
   /**
@@ -476,7 +492,60 @@ class etd_mods extends mods {
   public function hasResearchField($id) {
     foreach ($this->researchfields as $field) {
       if ($field->id == $id)
-  return true;
+        return true;
+    }
+    return false;
+  }
+  
+  /**
+   * clear out the old partnering agencies, and write in the new.
+   * @param array $values associative array of partnering agency id => name
+   */
+  public function setPartneringAgencies(array $values) {
+    foreach ($this->partneringagencies as $field) {
+      $this->removePartneringAgency($field->id);
+    }     
+    foreach ($values as $id => $text) {     
+      $this->addPartneringAgency($text, $id);
+    }
+  }
+  
+  /**
+   * remove a partnering agency by id
+   * @param string|int $id
+   */
+  public function removePartneringAgency($id) {
+    $nodelist = $this->xpath->query("//mods:note[@ID = '$id']");
+    for ($i = 0; $i < $nodelist->length; $i++) {
+      $node = $nodelist->item($i);      
+      $node->parentNode->removeChild($node);
+    }
+
+    // update in-memory array so it will reflect the change
+    $this->update();
+  }
+
+  /**
+   * find the index for a partnering agency by id
+   * @param string|int $id
+   */
+  public function partneringAgencyIndex($id) {
+    for ($i = 0; count($this->partneringagencies); $i++) {
+      $field = $this->partneringagencies[$i];
+      if ($field->id == $id)
+        return $i;
+    }
+  }
+  
+  /**
+   * check by id if partneringagency is present
+   * @param string|int $id
+   * @return bool
+   */
+  public function hasPartneringAgency($id) {
+    foreach ($this->partneringagencies as $agency) {
+      if ($agency->id == $id)
+        return true;
     }
     return false;
   }
@@ -487,10 +556,12 @@ class etd_mods extends mods {
    * @param string $type note type (set in mods note type attribute)
    * @param string $id note id (set in mods note id attribute)
    */
-  public function addNote($text, $type, $id) {
+  public function addNote($text, $type, $id, $displaylabel=null) {
     $note = $this->domnode->appendChild($this->dom->createElementNS($this->namespaceList["mods"], "mods:note", $text));
     $note->setAttribute("type", $type);
     $note->setAttribute("ID", $id);
+    // This is an attribute for partnering agencies only
+    if (isset($displaylabel)) $note->setAttribute("displayLabel", $displaylabel);
     $this->update();
   }
 
@@ -752,6 +823,10 @@ class etd_mods extends mods {
       // complete if there is at least one non-blank research field
       return ((count($this->researchfields) != 0) &&
         ($this->researchfields[0]->id != "" || $this->researchfields[0]->topic != ""));
+    case "partneringagencies":
+      // complete if there is at least one non-blank partnering agency field
+      return ((count($this->partneringagencies) != 0) &&
+        ($this->partneringagencies[0]->id != "" || $this->partneringagencies[0]->topic != ""));        
     case "keywords":
       // complete if there is at least one non-blank keyword
       return ((count($this->keywords) != 0) && (trim($this->keywords[0]->topic) != ""));
@@ -797,6 +872,8 @@ class etd_mods extends mods {
       return "committee chair/thesis adviser";
     case "researchfields":
       return "ProQuest research fields";
+    case "partneringagencies":
+      return "Partnering Agencies";       
 
       // in most cases, field = label
     case "author":

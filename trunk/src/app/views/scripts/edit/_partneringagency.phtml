@@ -1,0 +1,38 @@
+<?/*
+* This view renders the list of partnering agencies pulled 
+* from the vocabularies collection object.
+*/?>
+ 
+<?
+$id = $this->collection->id;
+$label = $this->collection->label;
+$hasMembers = (count($this->collection->members) != 0);
+$etdmods = isset($this->etdmods) ? $this->etdmods : array();
+?>
+
+<li>
+<? if (! $hasMembers): ?>
+  <a id="<?= $id ?>" href="#"
+   <? $paid = str_replace('#', '', $id); ?>
+   <? if ($this->etdmods->hasPartneringAgency($paid)): ?>class="selected" <? endif ?>
+   onclick="javascript:toggle_selection('<?= $id ?>', '<?= addslashes($label) ?>');return false;"><?= $label ?></a>
+<? else: ?>
+  <? if (isset($this->parent_id)): /* no toggle at top-level */ ?>
+    <a class="toggle" onClick="Element.toggle('<?= $id ?>_list')">(Z3)&gt;</a>
+  <? endif ?>
+  <span id="<?= $id ?>_label"><?= $label ?> Partnering Agencies</span>
+<? endif ?> 
+       
+<? if ($hasMembers): ?>
+  <ul id="<?= $id ?>_list">
+  <? foreach ($this->collection->members as $subcollection): ?>
+  <?=  $this->partial('edit/_partneringagency.phtml', array("collection" => $subcollection,
+                  "level" => $this->level + 1,
+                  "parent_id" => $id,
+                  "etdmods" => $etdmods)); ?>
+     <? endforeach ?>
+     </ul>
+<? endif ?>   
+</li>
+
+

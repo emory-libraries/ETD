@@ -4,7 +4,7 @@
 include("projax/projax.php");
 $projax = new Projax(); ?>
 
-<? $blank = (!isset($this->etd->mods->researchfields) ||
+<? $blank = (!isset($this->etd->mods->researchfields) &&
          $this->etd->mods->researchfields[0]->id == ""); ?>     
 <script type="text/javascript">
 var field_count = <?= $blank ? 0 : count($this->etd->mods->researchfields); ?>;

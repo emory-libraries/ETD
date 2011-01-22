@@ -1263,6 +1263,14 @@ class etd extends foxml implements etdInterface {
       array_push($subjects, $this->mods->researchfields[$i]->topic);
     return $subjects;
   }
+  
+  public function partneringagencies() {
+    $pa_notes = array();
+    for ($i = 0; $i < count($this->mods->partneringagencies); $i++) {
+      array_push($pa_notes, $this->mods->partneringagencies[$i]->topic);
+    }
+    return $pa_notes;
+  }  
 
   public function ark() {
     return $this->mods->identifier;     // want the resolvable version of the ark
