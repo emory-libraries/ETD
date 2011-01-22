@@ -103,7 +103,7 @@ class TestEtdMods extends UnitTestCase {
     // set by array by deleting the primary - research fields should contain remainder
     // set all fields from an array 
     $newfields = array("8593" => "Disney Studies", "8493" => "Cheese and Mice");
-    $this->mods->setResearchFields($newfields);
+    $this->mods->setResearchFields($newfields);  
     $this->assertEqual(2, count($this->mods->researchfields));
 
     // set by array with a shorter list - research fields should only contain new values
@@ -161,7 +161,6 @@ class TestEtdMods extends UnitTestCase {
     $this->mods->rights = "rights statement";
     $this->assertTrue($this->mods->readyToSubmit($this->mods->available_fields));
 
-
     // check that all required fields are detected correctly when missing
     // by setting to empty fields that are present in the fixture mods
     //  - title
@@ -209,7 +208,11 @@ class TestEtdMods extends UnitTestCase {
     $this->mods->abstract = "";
     $missing = $this->mods->checkAllFields();
     $this->assertTrue(in_array("abstract", $missing), "incomplete abstract detected");
-    
+    //  - partnering agencies
+    $this->mods->partneringagencies[0]->id = $this->mods->partneringagencies[0]->topic = "";
+    $missing = $this->mods->checkAllFields();
+    $this->assertTrue(in_array("partneringagencies", $missing),
+          "incomplete partnering agencies detected");        
     
     error_reporting($errlevel);     // restore prior error reporting
   }
@@ -499,6 +502,65 @@ class TestEtdMods extends UnitTestCase {
     $this->assertIsA($this->scratch_etd_mods, "etd_mods");    
   } 
 
+  function testPartneringAgencies() {
+    $this->assertIsa($this->mods->partneringagencies, "Array");
+    $this->assertEqual(2, count($this->mods->partneringagencies));
+    $this->assertIsa($this->mods->partneringagencies[0], "mods_note");
+    $this->assertEqual("2", count($this->mods->partneringagencies));
+
+    // test if a field is currently set
+    $this->assertTrue($this->mods->hasPartneringAgency("pa-blue"));
+    $this->assertTrue($this->mods->hasPartneringAgency("pa-yellow"));
+    $this->assertFalse($this->mods->hasPartneringAgency("pa-purple"));    
+  }
+  
+  function testAddPartneringAgency() {
+    // add a single field
+    $this->mods->addPartneringAgency("Purple Rain", "pa-purple");
+    $this->assertEqual(3, count($this->mods->partneringagencies));
+    $this->assertIsa($this->mods->partneringagencies[2], "mods_note");
+    $this->assertEqual("Purple Rain", $this->mods->partneringagencies[2]->topic);
+    $this->assertEqual("pa-purple", $this->mods->partneringagencies[2]->id);
+    // note: pattern is dependent on attribute order; this is how they are created currently
+    $this->assertPattern('|ID="pa-purple"|', $this->mods->saveXML());
+  }
+  
+    function testSetPartneringAgencies() {
+    // NOTE: php is now outputting a notice when using __set on arrays
+    // (actual logic seems to work properly)
+    $errlevel = error_reporting(E_ALL ^ E_NOTICE);
+    
+    // set all fields from an array 
+    $newfields = array("pa-green" => "Green Grass", "pa-brown" => "Brown Earth",
+           "pa-white" => "White Clouds");
+    $this->mods->setPartneringAgencies($newfields);
+
+    $this->assertEqual(3, count($this->mods->partneringagencies));
+    $this->assertIsa($this->mods->partneringagencies[2], "mods_note");
+
+    $this->assertEqual("pa-green", $this->mods->partneringagencies[0]->id);
+    $this->assertEqual("Green Grass", $this->mods->partneringagencies[0]->topic);
+    $this->assertEqual("pa-brown", $this->mods->partneringagencies[1]->id);
+    $this->assertEqual("Brown Earth", $this->mods->partneringagencies[1]->topic);
+    $this->assertEqual("pa-white", $this->mods->partneringagencies[2]->id);
+    $this->assertEqual("White Clouds", $this->mods->partneringagencies[2]->topic);
+    
+    $this->assertPattern('|ID="pa-white"|', $this->mods->saveXML());
+
+    // check hasPartneringAgency when there are multiple fields
+    $this->assertTrue($this->mods->hasPartneringAgency("pa-green"));
+    $this->assertTrue($this->mods->hasPartneringAgency("pa-brown"));
+    $this->assertTrue($this->mods->hasPartneringAgency("pa-white"));    
+    $this->assertFalse($this->mods->hasPartneringAgency("pa-orange"));
+
+    // set by array with a shorter list - partnering agencies should only contain new values
+    $newfields = array("pa-orange" => "Orange Sky");
+    $this->mods->setPartneringAgencies($newfields);
+    $this->assertEqual(1, count($this->mods->partneringagencies));
+
+    error_reporting($errlevel);     // restore prior error reporting
+  }
+  
 }
 
 runtest(new TestEtdMods());

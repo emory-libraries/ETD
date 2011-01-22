@@ -29,7 +29,7 @@ class TestCleanModsXslt extends UnitTestCase {
         // set missing name ids so output validity check will work
         $mods->chair[0]->id = "wdisney";
         $mods->committee[0]->id = "dduck";
-        error_reporting($errlevel);	    // restore prior error reporting
+        error_reporting($errlevel);     // restore prior error reporting
 
         $result = $this->transformDom($mods);
         $this->assertTrue($result, "xsl transform returns data");
@@ -41,9 +41,12 @@ class TestCleanModsXslt extends UnitTestCase {
             $this->assertNoPattern('|<mods:name type="personal">.*<mods:namePart type="given"/>|',
                         "empty names removed from output");
 
-	    $this->assertNoPattern('|<mods:name type="personal" ID=".*"|', $result,
-				   "personal name IDS are not present in cleaned output");
-			
+      $this->assertNoPattern('|<mods:name type="personal" ID=".*"|', $result,
+           "personal name IDS are not present in cleaned output");
+
+      $this->assertNoPattern('|<mods:note type="partneragencytype"|', $result,
+                        "partneragencytype notes are not present in cleaned MODS output");                            
+      
 
             $dom = new DOMDocument();
             $dom->loadXML($result);
@@ -120,8 +123,8 @@ class TestCleanModsXslt extends UnitTestCase {
      $this->assertTrue($result, "xsl transform returns data when embargo date is old format");
      
      $this->assertPattern('|<mods:accessCondition type="restrictionOnAccess">\s*Access to PDF is restricted until '
-			  . $ymd_embargo_end . '</mods:accessCondition>|', $result,
-			  "old embargo date comes through correctly in access condition");
+        . $ymd_embargo_end . '</mods:accessCondition>|', $result,
+        "old embargo date comes through correctly in access condition");
      
    }
 
