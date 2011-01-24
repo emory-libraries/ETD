@@ -68,7 +68,7 @@ class etd_mods extends mods {
             "submission agreement",
             "send to ProQuest",
             "copyright",
-            "partneringagencies");
+            "partnering agencies");
 
     $this->embargo_name_map = array(etd_mods::EMBARGO_FILES => "files",
                                     etd_mods::EMBARGO_TOC => "toc",
@@ -823,7 +823,7 @@ class etd_mods extends mods {
       // complete if there is at least one non-blank research field
       return ((count($this->researchfields) != 0) &&
         ($this->researchfields[0]->id != "" || $this->researchfields[0]->topic != ""));
-    case "partneringagencies":
+    case "partnering agencies":
       // complete if there is at least one non-blank partnering agency field
       return ((count($this->partneringagencies) != 0) &&
         ($this->partneringagencies[0]->id != "" || $this->partneringagencies[0]->topic != ""));        
@@ -872,9 +872,7 @@ class etd_mods extends mods {
       return "committee chair/thesis adviser";
     case "researchfields":
       return "ProQuest research fields";
-    case "partneringagencies":
-      return "Partnering Agencies";       
-
+   
       // in most cases, field = label
     case "author":
     case "program":
@@ -889,6 +887,7 @@ class etd_mods extends mods {
     case "title":
     case "abstract":
     case "degree":
+    case "partnering agencies":     
       return $field;
     }
   }
