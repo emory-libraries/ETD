@@ -14,33 +14,6 @@
       <mods:roleTerm authority="marcrelator" type="text">author</mods:roleTerm>
     </mods:role>
   </mods:name>
-  <mods:name ID="" type="personal">
-    <mods:namePart type="given"/>
-    <mods:namePart type="family"/>
-    <mods:displayForm/>
-    <mods:role>
-      <mods:roleTerm authority="marcrelator" type="text">Thesis Advisor</mods:roleTerm>
-    </mods:role>
-  </mods:name>
-  <mods:name ID="" type="personal">
-    <mods:namePart type="given"/>
-    <mods:namePart type="family"/>
-    <mods:displayForm/> 
-    <mods:role>
-      <mods:roleTerm type="text">Committee Member</mods:roleTerm>
-    </mods:role>
-    <mods:description>Emory Committee Member</mods:description>
-   </mods:name>
-  <mods:name type="personal">
-    <mods:namePart type="given"/>
-    <mods:namePart type="family"/>
-    <mods:displayForm/>
-    <mods:affiliation/>
-    <mods:role>
-      <mods:roleTerm type="text">Committee Member</mods:roleTerm>
-    </mods:role>
-    <mods:description>Non-Emory Committee Member</mods:description>
-  </mods:name>
   <mods:name type="corporate">
     <mods:namePart>Emory University</mods:namePart>
     <mods:role>

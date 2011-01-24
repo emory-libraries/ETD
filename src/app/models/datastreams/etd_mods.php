@@ -247,19 +247,72 @@ class etd_mods extends mods {
 
     $set_description = false;
 
-    $template = new etd_mods(DOMDocument::loadXML(file_get_contents("etd_mods.xml", FILE_USE_INCLUDE_PATH)));
+    //Set role and descripton text based on type
+    switch($type){
+        case "chair":
+                $roleType="Thesis Advisor";
+                $description="";
+                break;
+        case "committee":
+                $roleType="Committee Member";
+                $description="Emory Committee Member";
+                break;
+        case "nonemory_committee":
+                $roleType="Committee Member";
+                $description="Non-Emory Committee Member";
+                break;
+    }
     
-    $newnode = $this->dom->importNode($template->map[$type][0]->domnode, true);
+    //New mods:name node
+    $nameNode = $this->dom->createElementNS($this->namespaceList["mods"], "mods:name");
+    if ($type != "nonemory_committee") $nameNode->setAttribute("ID", "");
+    $nameNode->setAttribute("type", "personal");
+
+    //Add given name part
+    $namePartGiven = $this->dom->createElementNS($this->namespaceList["mods"], "mods:namePart");
+    $namePartGiven->setAttribute("type", "given");
+    $nameNode->appendChild($namePartGiven);
+
+    //Add family name part
+    $namePartFamily = $this->dom->createElementNS($this->namespaceList["mods"], "mods:namePart");
+    $namePartFamily->setAttribute("type", "family");
+    $nameNode->appendChild($namePartFamily);
+
+    //Add dispaly
+    $dispay = $this->dom->createElementNS($this->namespaceList["mods"], "mods:displayForm");
+    $nameNode->appendChild($dispay);
+
+    //Add affiliation
+    if($type == "nonemory_committee"){
+        $affiliation = $this->dom->createElementNS($this->namespaceList["mods"], "mods:affiliation");
+        $nameNode->appendChild($affiliation);
+    }
+
+
+    //Add role
+    $role = $this->dom->createElementNS($this->namespaceList["mods"], "mods:role");
+    $roleTerm = $this->dom->createElementNS($this->namespaceList["mods"], "mods:roleTerm", $roleType);
+    if($type == "chair") $roleTerm->setAttribute("authority", "marcrelator");
+    $roleTerm->setAttribute("type", "text");
+    $role->appendChild($roleTerm);
+    $nameNode->appendChild($role);
+
+    //Add description
+    if($type != "chair"){
+        $description = $this->dom->createElementNS($this->namespaceList["mods"], "mods:description", $description);
+        $nameNode->appendChild($description);
+    }
+
 
     // map new domnode to xml object
-    $name = new mods_name($newnode, $this->xpath);
+    $name = new mods_name($nameNode, $this->xpath);
     $name->first = $firstname;
     $name->last = $lastname;
     $name->full = "$lastname, $firstname";
     if (isset($name->affiliation) && !is_null($affiliation)) {
       $name->affiliation = $affiliation;
     }
-    
+        
     // find first node following current type of subjects and append before
     if (isset($name->description)) {
       $xpath = "//mods:name[mods:description='" . $name->description ."'][last()]/following-sibling::*";
@@ -286,9 +339,9 @@ class etd_mods extends mods {
     } 
 
     if (isset($contextnode))
-      $newnode = $contextnode->parentNode->insertBefore($newnode, $contextnode);
+      $nameNode = $contextnode->parentNode->insertBefore($nameNode, $contextnode);
     else  // if no context is found, just add at the end of xml
-      $newnode = $this->domnode->appendChild($newnode);
+      $nameNode = $this->domnode->appendChild($nameNode);
     
 
     $this->update();
@@ -787,7 +840,6 @@ class etd_mods extends mods {
       if (! $this->isComplete($field)) $missing[] = $field;
     }
     // NOTE: key is  missing field, value is edit action
-
     return $missing;
   }
 
