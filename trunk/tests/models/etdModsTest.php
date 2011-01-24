@@ -211,7 +211,7 @@ class TestEtdMods extends UnitTestCase {
     //  - partnering agencies
     $this->mods->partneringagencies[0]->id = $this->mods->partneringagencies[0]->topic = "";
     $missing = $this->mods->checkAllFields();
-    $this->assertTrue(in_array("partneringagencies", $missing),
+    $this->assertTrue(in_array("partnering agencies", $missing),
           "incomplete partnering agencies detected");        
     
     error_reporting($errlevel);     // restore prior error reporting
