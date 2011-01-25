@@ -14,6 +14,11 @@ class AuthorInfoControllerTest extends ControllerTestCase {
           "cur-email" => "email@email.com",
           "perm-email" => "email@email.com",
           "perm-dae" => "2011-01-25",
+          "perm-street" => "540 Asbury Circle",
+          "perm-city" => "Atlanta",
+          "perm-state" => "GA",
+          "perm-country" => "UNITED STATES",
+          "perm-postcode" => "30322",          
         );
     
   function setUp() {
@@ -134,7 +139,21 @@ class AuthorInfoControllerTest extends ControllerTestCase {
     $values["last"] = "  ";  // test spaces
     $results = $authorInfoController->validateContactInfo($values);
     $this->assertEqual(count($results), 1);
-    $this->assertEqual($results[0], "Error: last name is a required field.");    
+    $this->assertEqual($results[0], "Error: last name is a required field.");
+    
+    //Error on permanent address fields
+    $values = $this->valid_req;     
+    $values["perm-street"] = null;   // test null field
+    $values["perm-city"] = null;     // test null field
+    $values["perm-state"] = null;    // test null field        
+    $values["perm-country"] = null;  // test null field        
+    $values["perm-postcode"] = null; // test null field    
+    $results = $authorInfoController->validateContactInfo($values);
+    $this->assertTrue(in_array("Error: permanent street is a required field.", $results));
+    $this->assertTrue(in_array("Error: permanent city is a required field.", $results));
+    $this->assertTrue(in_array("Error: permanent state is a required field.", $results));          
+    $this->assertTrue(in_array("Error: permanent country is a required field.", $results));          
+    $this->assertTrue(in_array("Error: permanent postcode is a required field.", $results));    
   }
 
   function testNewAction() {

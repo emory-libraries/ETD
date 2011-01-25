@@ -124,6 +124,11 @@ class AuthorInfoController extends Etd_Controller_Action {
     $values["cur-email"] = $cur_email;
     $values["perm-email"] = $perm_email;
     $values["perm-dae"] = $perm_dae; 
+    $values["perm-street"] = $perm_street;
+    $values["perm-city"] = $perm_city;
+    $values["perm-state"] = $perm_state;
+    $values["perm-country"] = $perm_country;
+    $values["perm-postcode"] = $perm_postcode;    
 
     $errors = $this->validateContactInfo($values);
 
@@ -270,6 +275,26 @@ class AuthorInfoController extends Etd_Controller_Action {
     // last name is required   
     if(!isset($values["last"]) || !trim($values["last"])) 
       $errors[] = "Error: last name is a required field.";
+      
+    // permanent street is required   
+    if(!isset($values["perm-street"]) || !trim($values["perm-street"])) 
+      $errors[] = "Error: permanent street is a required field.";      
+      
+    // permanent city is required   
+    if(!isset($values["perm-city"]) || !trim($values["perm-city"])) 
+      $errors[] = "Error: permanent city is a required field."; 
+      
+    // permanent state is required   
+    if(!isset($values["perm-state"]) || !trim($values["perm-state"])) 
+      $errors[] = "Error: permanent state is a required field."; 
+      
+    // permanent country is required   
+    if(!isset($values["perm-country"]) || !trim($values["perm-country"])) 
+      $errors[] = "Error: permanent country is a required field."; 
+      
+    // permanent postcode is required   
+    if(!isset($values["perm-postcode"]) || !trim($values["perm-postcode"])) 
+      $errors[] = "Error: permanent postcode is a required field.";           
         
     return $errors;
   }
