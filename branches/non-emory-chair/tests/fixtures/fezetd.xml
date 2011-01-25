@@ -1,0 +1,71 @@
+<foxml:digitalObject xmlns:foxml="info:fedora/fedora-system:def/foxml#" PID="test:fezetd1">
+  <foxml:objectProperties>
+    <foxml:property NAME="http://www.w3.org/1999/02/22-rdf-syntax-ns#type" VALUE="FedoraObject"/>
+    <foxml:property NAME="info:fedora/fedora-system:def/model#state" VALUE="Active"/>
+    <foxml:property NAME="info:fedora/fedora-system:def/model#label" VALUE="Fez is Lame"/>
+  </foxml:objectProperties>
+
+  <foxml:datastream CONTROL_GROUP='X' ID='MODS' STATE='A' VERSIONABLE='true'>
+    <foxml:datastreamVersion ID='MODS.0' LABEL='MODS' MIMETYPE='text/xml'>
+      <foxml:xmlContent>
+	<mods:mods xmlns:mods="http://www.loc.gov/mods/v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema">
+	  <mods:titleInfo>
+	    <mods:title>Fez is Lame</mods:title>
+	  </mods:titleInfo>
+	  <mods:name type="personal">
+	    <mods:namePart type="given">Fezzy</mods:namePart>
+	    <mods:namePart type="family">Bear</mods:namePart>
+	    <mods:displayForm>Bear, Fezzy</mods:displayForm>
+	    <mods:affiliation>Auckland</mods:affiliation>
+	    <mods:role>
+	      <mods:roleTerm authority="marcrelator" type="text">author</mods:roleTerm>
+	    </mods:role>
+	  </mods:name>
+	  <mods:abstract>Beret or Sombrero?</mods:abstract>
+          <mods:tableOfContents/>
+	</mods:mods>
+      </foxml:xmlContent>
+    </foxml:datastreamVersion>
+  </foxml:datastream>
+
+  <foxml:datastream CONTROL_GROUP='X' ID='FezMD' STATE='A' VERSIONABLE='true'>
+    <foxml:datastreamVersion ID='XHTMl.0' LABEL='Fez extension metadata' MIMETYPE='text/xml'>
+      <foxml:xmlContent>
+	<FezMD xmlns:xsi="http://www.w3.org/2001/XMLSchema">
+	  <depositor>211</depositor>
+	  <updated_date>2007-04-14T17:33:45Z</updated_date>
+	  <created_date>2007-03-15T20:49:34Z</created_date>
+	  <copyright>on</copyright>
+	  <ret_id>3</ret_id>
+	  <sta_id>2</sta_id>
+	  <xdis_id>277</xdis_id>
+	</FezMD>
+      </foxml:xmlContent>
+    </foxml:datastreamVersion>
+  </foxml:datastream>
+
+  <foxml:datastream CONTROL_GROUP='X' ID='RELS-EXT' STATE='A' VERSIONABLE='true'>
+    <foxml:datastreamVersion ID='RELS-EXT.0' LABEL='relations' MIMETYPE='text/xml'>
+      <foxml:xmlContent>
+  	<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rel="info:fedora/fedora-system:def/relations-external#">
+	  <rdf:description rdf:about="info:fedora/test:fezetd1"/>
+	</rdf:RDF>
+      </foxml:xmlContent>
+    </foxml:datastreamVersion>
+  </foxml:datastream>
+
+  <foxml:datastream CONTROL_GROUP='X' ID='DC' STATE='A'	VERSIONABLE='true'>
+    <foxml:datastreamVersion ID='DC.0' LABEL='Dublin Core' MIMETYPE='text/xml'>
+      <foxml:xmlContent>
+	<oai_dc:dc 		
+		xmlns:dc="http://purl.org/dc/elements/1.1/"
+		xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/">
+	      <dc:title>Fez is Lame</dc:title>
+	      <dc:description>beret or sombrero?</dc:description>
+	      <dc:identifier>info:fedora/test:fezetd1</dc:identifier>
+	</oai_dc:dc>
+      </foxml:xmlContent>
+    </foxml:datastreamVersion>
+   </foxml:datastream>
+
+</foxml:digitalObject>

@@ -1,0 +1,69 @@
+<foxml:digitalObject xmlns:foxml="info:fedora/fedora-system:def/foxml#" PID="test:etdfile1" VERSION="1.1">
+  <foxml:objectProperties>    
+    <foxml:property NAME="info:fedora/fedora-system:def/model#state" VALUE="Active"/>
+    <foxml:property NAME="info:fedora/fedora-system:def/model#label" VALUE="Why I Like Cheese"/>    
+    <foxml:property NAME="info:fedora/fedora-system:def/model#ownerId" VALUE="mmouse"/>
+  </foxml:objectProperties>
+
+  <foxml:datastream CONTROL_GROUP='X' ID='RELS-EXT' STATE='A' VERSIONABLE='true'>
+    <foxml:datastreamVersion ID='RELS-EXT.0' LABEL='relations' MIMETYPE='text/xml'>
+      <foxml:xmlContent>
+  	<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
+        xmlns:rel="info:fedora/fedora-system:def/relations-external#"
+        xmlns:fedora-model="info:fedora/fedora-system:def/model#">
+	  <rdf:Description rdf:about="info:fedora/test:etdfile1">
+         <fedora-model:hasModel rdf:resource="info:fedora/emory-control:EtdFile-1.0"/>
+		<!-- NOTE: just adding a dummy relation here to avoid
+		     errors about not belonging to  an etd  -->
+	      <rel:isSupplementOf rdf:resource=""/>
+	     <rel:sequenceNumber>1</rel:sequenceNumber>
+	  </rdf:Description>
+	</rdf:RDF>
+      </foxml:xmlContent>
+    </foxml:datastreamVersion>
+  </foxml:datastream>
+
+  <foxml:datastream CONTROL_GROUP='X' ID='DC' STATE='A'	VERSIONABLE='true'>
+    <foxml:datastreamVersion ID='DC.0' LABEL='Dublin Core' MIMETYPE='text/xml'>
+      <foxml:xmlContent>
+	<oai_dc:dc 		
+		xmlns:dc="http://purl.org/dc/elements/1.1/"
+		xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/">
+	      <dc:title>Original/PDF</dc:title>
+	      <dc:description>dissertation document</dc:description>
+	      <dc:identifier>info:fedora/test:etdfile1</dc:identifier>
+	</oai_dc:dc>
+      </foxml:xmlContent>
+    </foxml:datastreamVersion>
+   </foxml:datastream>
+
+<foxml:datastream CONTROL_GROUP="X" ID="POLICY" STATE="A" VERSIONABLE="false">
+    <foxml:datastreamVersion ID="POLICY.0" LABEL="Policy" MIMETYPE="text/xml">
+      <foxml:xmlContent>
+	<Policy xmlns="urn:oasis:names:tc:xacml:1.0:policy" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" PolicyId="test-etdfile1" RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:first-applicable">
+
+  <Description>object-specific policy for etd records</Description>
+  <Target>
+    <Subjects>
+      <AnySubject/>
+    </Subjects>
+
+    <Resources>
+      <Resource>
+        <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">test:etdfile1</AttributeValue>
+          <ResourceAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:resource:object:pid" DataType="http://www.w3.org/2001/XMLSchema#string"/>
+        </ResourceMatch>
+      </Resource>
+    </Resources>
+
+    <Actions>
+      <AnyAction/>
+    </Actions>
+  </Target>
+
+</Policy>
+      </foxml:xmlContent>
+    </foxml:datastreamVersion>
+   </foxml:datastream>
+</foxml:digitalObject>
