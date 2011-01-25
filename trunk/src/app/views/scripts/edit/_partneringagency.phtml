@@ -20,7 +20,6 @@ $etdmods = isset($this->etdmods) ? $this->etdmods : array();
   <? if (isset($this->parent_id)): /* no toggle at top-level */ ?>
     <a class="toggle" onClick="Element.toggle('<?= $id ?>_list')">(Z3)&gt;</a>
   <? endif ?>
-  <span id="<?= $id ?>_label"><?= $label ?> Partnering Agencies</span>
 <? endif ?> 
        
 <? if ($hasMembers): ?>
