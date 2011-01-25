@@ -78,7 +78,6 @@
     </etd:degree>
   </mods:extension>
 
-  <mods:note type="partneragencytype" ID="" displayLabel="Type of partner agency"></mods:note>
   <mods:note type="admin" ID="copyright">registering copyright? </mods:note>
   <mods:note type="admin" ID="embargo">embargo requested? </mods:note>
   <mods:note type="admin" ID="pq_submit"></mods:note>
