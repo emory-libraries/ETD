@@ -284,8 +284,8 @@ class etd_mods extends mods {
 
     //Add affiliation
     if($type == "nonemory_committee"){
-        $affiliation = $this->dom->createElementNS($this->namespaceList["mods"], "mods:affiliation");
-        $nameNode->appendChild($affiliation);
+        $affiliationNode = $this->dom->createElementNS($this->namespaceList["mods"], "mods:affiliation");
+        $nameNode->appendChild($affiliationNode);
     }
 
 
