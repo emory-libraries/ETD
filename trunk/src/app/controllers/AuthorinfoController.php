@@ -96,8 +96,9 @@ class AuthorInfoController extends Etd_Controller_Action {
   public function saveAction() {
     //Get all params form post
     $pid = $this->_getParam("pid", null);
-    $etd_pid = $this->_getParam("etd", null); // should only be set for new records
-
+    $etd_pid = $this->_getParam("etd", null); // should only be set for new records  
+    $school = $this->_getParam("school", null); // this will identify req'd fields
+    
     $last = $this->_getParam("last", null);
     $first = $this->_getParam("first-middle", null);
     
@@ -119,17 +120,37 @@ class AuthorInfoController extends Etd_Controller_Action {
     $perm_dae = $this->_getParam("perm-date", null);
 
     //values to validate for required fields
-    $values["first"] = $first;
-    $values["last"] = $last;        
-    $values["cur-email"] = $cur_email;
-    $values["perm-email"] = $perm_email;
-    $values["perm-dae"] = $perm_dae; 
-    $values["perm-street"] = $perm_street;
-    $values["perm-city"] = $perm_city;
-    $values["perm-state"] = $perm_state;
-    $values["perm-country"] = $perm_country;
-    $values["perm-postcode"] = $perm_postcode;    
+    // Since required fields are not a direct mapping to the input fields, 
+    // any add'l required fields will need to be added to the validation.
+    $logger = Zend_Registry::get('logger'); 
+    $school_cfg = Zend_Registry::get("schools-config");
 
+    if (!isset($school) || is_null($school)) {  // default req'd fields
+      $values["first"] = $first;
+      $values["last"] = $last;        
+      $values["cur-email"] = $cur_email;            
+      $values["perm-email"] = $perm_email;                  
+    }
+    if (in_array('name', $school_cfg->{$school}->submission_fields->required->toArray())) {
+      $values["first"] = $first;
+      $values["last"] = $last;        
+    }
+    if (in_array('email', $school_cfg->{$school}->submission_fields->required->toArray())) { 
+      $values["cur-email"] = $cur_email;      
+    }    
+    if (in_array('permanent email', $school_cfg->{$school}->submission_fields->required->toArray())) {      
+      $values["perm-email"] = $perm_email;       
+    }
+    // Permanent address is not a one to one mapping.
+    if (in_array('permanent address', $school_cfg->{$school}->submission_fields->required->toArray())) {    
+      $values["perm-dae"] = $perm_dae; 
+      $values["perm-street"] = $perm_street;
+      $values["perm-city"] = $perm_city;
+      $values["perm-state"] = $perm_state;
+      $values["perm-country"] = $perm_country;
+      $values["perm-postcode"] = $perm_postcode;       
+    }            
+    // perform the validation on the required fields.
     $errors = $this->validateContactInfo($values);
 
     if(count($errors) > 0){
