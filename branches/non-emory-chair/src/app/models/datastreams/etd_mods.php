@@ -12,6 +12,7 @@ require_once("models/esdPerson.php");
  * @property string $author
  * @property string $department author affiliation
  * @property array $chair array of mods_name with role 'Thesis Advisor'
+ * * @property array $nonemory_chair array of mods_name with role 'Thesis Advisor and description 'Non-Emory Thesis Advisor'
  * @property array $committee array of mods_name with description 'Emory Committe Member'
  * @property array $nonemory_committee array of mods_name with description 'Non-Emory Committe Member'
  * @property array $researchfields array of etdmods_subject with authority 'proquestresearchfield'
@@ -84,7 +85,9 @@ class etd_mods extends mods {
     $this->xmlconfig["subfield"] = array("xpath" => "mods:extension/etd:degree/etd:discipline");
 
     // committee chair - may be more than one
-    $this->xmlconfig["chair"] = array("xpath" => "mods:name[mods:role/mods:roleTerm = 'Thesis Advisor']",
+    $this->xmlconfig["chair"] = array("xpath" => "mods:name[mods:role/mods:roleTerm = 'Thesis Advisor' and string-length(mods:description) = 0]",
+              "class_name" => "mods_name", "is_series" => true);
+    $this->xmlconfig["nonemory_chair"] = array("xpath" => "mods:name[mods:role/mods:roleTerm = 'Thesis Advisor' and mods:description = 'Non-Emory Thesis Advisor']",
               "class_name" => "mods_name", "is_series" => true);
     $this->xmlconfig["committee"] = array("xpath" => "mods:name[mods:description = 'Emory Committee Member']",
             "class_name" => "mods_name", "is_series" => true);
@@ -252,6 +255,10 @@ class etd_mods extends mods {
         case "chair":
                 $roleType="Thesis Advisor";
                 $description="";
+                break;
+        case "nonemory_chair":
+                $roleType="Thesis Advisor";
+                $description="Non-Emory Thesis Advisor";
                 break;
         case "committee":
                 $roleType="Committee Member";

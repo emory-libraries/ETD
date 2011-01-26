@@ -33,6 +33,15 @@ class TestEtdMods extends UnitTestCase {
     $this->assertEqual("Emory University", $this->mods->degree_grantor->namePart);
   }
   
+  function testNonEmoryChair(){
+      // sanity checks - reading values in the xml
+    $this->assertIsa($this->mods->nonemory_chair, "Array");
+    $this->assertEqual(1, count($this->mods->nonemory_chair));
+    $this->assertIsa($this->mods->nonemory_chair[0], "mods_name");
+    $this->assertEqual("1", count($this->mods->nonemory_chair));
+  }
+
+
   function testKeywords() {
     // sanity checks - reading values in the xml
     $this->assertIsa($this->mods->keywords, "Array");
@@ -160,6 +169,13 @@ class TestEtdMods extends UnitTestCase {
     $this->mods->addNote("no", "admin", "pq_submit");
     $this->mods->rights = "rights statement";
     $this->assertTrue($this->mods->readyToSubmit($this->mods->available_fields));
+
+
+    print "<pre>";
+    print "COUNT: " . count($this->mods->chair) . "<br />";
+    print "{$this->mods->chair[0]->full}  {$this->mods->chair[0]->id} <br />";
+//    print "{$this->mods->chair[1]->full}  {$this->mods->chair[1]->id} <br />";
+    print "</pre>";
 
     // check that all required fields are detected correctly when missing
     // by setting to empty fields that are present in the fixture mods
