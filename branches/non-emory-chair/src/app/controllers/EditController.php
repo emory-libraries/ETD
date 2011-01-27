@@ -373,8 +373,10 @@ class EditController extends Etd_Controller_Action {
       }
     }
 
-    // handle non-emory committee members as well
+    //Delete all nonemory chairs and committee members - re-add later
     $etd->mods->clearNonEmoryCommittee();
+
+    // handle non-emory committee members
     $nonemory_first = $this->_getParam("nonemory_firstname");
     $nonemory_last = $this->_getParam("nonemory_lastname");
     $nonemory_affiliation = $this->_getParam("nonemory_affiliation");
@@ -383,6 +385,18 @@ class EditController extends Etd_Controller_Action {
   $etd->mods->addCommittee($nonemory_last[$i], $nonemory_first[$i], "nonemory_committee",
          $nonemory_affiliation[$i]);
     }
+
+    // handle non-emory chairs
+    $nonemory_chair_first = $this->_getParam("nonemory_chair_firstname");
+    $nonemory_chair_last = $this->_getParam("nonemory_chair_lastname");
+    $nonemory_chair_affiliation = $this->_getParam("nonemory_chair_affiliation");
+    for ($i = 0; $i < count($nonemory_chair_first); $i++) {
+      if ($nonemory_chair_last[$i] != '')
+
+  $etd->mods->addCommittee($nonemory_chair_last[$i], $nonemory_chair_first[$i], "nonemory_chair",
+         $nonemory_chair_affiliation[$i]);
+    }
+
     
     if ($etd->mods->hasChanged()) {
       $save_result = $etd->save("updated committe chair(s) & members");

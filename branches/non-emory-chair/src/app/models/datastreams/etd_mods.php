@@ -290,7 +290,7 @@ class etd_mods extends mods {
     $nameNode->appendChild($dispay);
 
     //Add affiliation
-    if($type == "nonemory_committee"){
+    if(in_array($type, array("nonemory_committee", "nonemory_chair"))){
         $affiliationNode = $this->dom->createElementNS($this->namespaceList["mods"], "mods:affiliation");
         $nameNode->appendChild($affiliationNode);
     }
@@ -479,7 +479,8 @@ class etd_mods extends mods {
    * remove all non-Emory committee members  (use before re-adding them)
    */
   public function clearNonEmoryCommittee() {
-    $nodelist = $this->xpath->query("//mods:name[mods:description='Non-Emory Committee Member']");
+    $nodelist = $this->xpath->query("//mods:name[mods:description='Non-Emory Committee Member' or
+                                                 mods:description='Non-Emory Thesis Advisor']");
     for ($i = 0; $i < $nodelist->length; $i++) {
       $node = $nodelist->item($i);
       $node->parentNode->removeChild($node);

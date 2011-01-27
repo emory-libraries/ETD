@@ -287,6 +287,7 @@ class TestEtdMods extends UnitTestCase {
     $this->assertEqual("Duck", $this->mods->nonemory_committee[$count]->last);
     $this->assertEqual("Daisy", $this->mods->nonemory_committee[$count]->first);
     $this->assertEqual("Duck, Daisy", $this->mods->nonemory_committee[$count]->full);
+    $this->assertEqual("Disney World", $this->mods->nonemory_committee[$count]->affiliation);
 
     // add when there are none already in the xml
     $xml = new DOMDocument();
@@ -308,6 +309,7 @@ class TestEtdMods extends UnitTestCase {
     $this->assertEqual("Duke", $this->mods->nonemory_chair[$count]->last);
     $this->assertEqual("Daisy", $this->mods->nonemory_chair[$count]->first);
     $this->assertEqual("Duke, Daisy", $this->mods->nonemory_chair[$count]->full);
+    $this->assertEqual("Hazzard County", $this->mods->nonemory_chair[$count]->affiliation);
 
     // add when there are none already in the xml
     $xml = new DOMDocument();

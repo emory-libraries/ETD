@@ -470,9 +470,17 @@ class EditControllerTest extends ControllerTestCase {
   function testSaveFacultyAction() {
     $EditController = new EditControllerForTest($this->request,$this->response);
 
-    $this->setUpPost(array('pid' => $this->etdpid, 'chair' => array('mthink'), 'committee' => array('engrbs'),
-			   'nonemory_firstname' => array('Marvin'), 'nonemory_lastname' => array('the Martian'),
-			   'nonemory_affiliation' => array('Mars Polytechnic')));	   
+    $this->setUpPost(array('pid' => $this->etdpid, 
+                           'chair' => array('mthink'),
+                           'committee' => array('engrbs'),
+			               'nonemory_firstname' => array('Marvin'),
+                           'nonemory_lastname' => array('the Martian'),
+			               'nonemory_affiliation' => array('Mars Polytechnic'),
+                           'nonemory_chair_firstname' => array('Boss'),
+                           'nonemory_chair_lastname' => array('Hogg'),
+			               'nonemory_chair_affiliation' => array('Hazzard County Police')
+                     ));
+
     $EditController->savefacultyAction();
     $viewVars = $EditController->view->getVars();
     $messages = $EditController->getHelper('FlashMessenger')->getMessages();
@@ -484,6 +492,12 @@ class EditControllerTest extends ControllerTestCase {
     $this->assertEqual("Scholar", $etd->mods->committee[0]->last);
     $this->assertEqual(1, count($etd->mods->committee));
     $this->assertEqual("Mars Polytechnic", $etd->mods->nonemory_committee[0]->affiliation);
+
+    //Non-Emory Chair
+    $this->assertEqual("Hogg", $etd->mods->nonemory_chair[0]->last);
+    $this->assertEqual("Boss", $etd->mods->nonemory_chair[0]->first);
+    $this->assertEqual("Hazzard County Police", $etd->mods->nonemory_chair[0]->affiliation);
+
 
     // test setting affiliation for former faculty
     $this->setUpPost(array('pid' => $this->etdpid, 'chair' => array('mthink'),
