@@ -244,7 +244,7 @@ class etd_mods extends mods {
    */
   public function addCommittee($lastname, $firstname, $type = "committee", $affiliation = null) {
     // fixme: need a way to set netid -- set from netid if emory ?
-    if (! in_array($type, array("committee", "chair", "nonemory_committee"))) {
+    if (! in_array($type, array("committee", "chair", "nonemory_committee", "nonemory_chair"))) {
       trigger_error("$type is not allowed type for addCommittee", E_USER_ERROR);
     }
 
@@ -272,7 +272,7 @@ class etd_mods extends mods {
     
     //New mods:name node
     $nameNode = $this->dom->createElementNS($this->namespaceList["mods"], "mods:name");
-    if ($type != "nonemory_committee") $nameNode->setAttribute("ID", "");
+    if (in_array($type, array("chair", "committee"))) $nameNode->setAttribute("ID", "");
     $nameNode->setAttribute("type", "personal");
 
     //Add given name part
@@ -340,7 +340,12 @@ class etd_mods extends mods {
   $contextnode = $this->map['committee'][count($this->committee) - 1]->domnode;
       else
   $contextnode = $this->map["chair"][count($this->chair) - 1]->domnode;
-    } else {
+    } elseif ($type == "nonemory_chair") {
+      // if adding a non-emory chair and there are none in the xml,
+      // then add after last emory chair
+      if (isset($this->map['chair']) && count($this->chair))
+  $contextnode = $this->map['chair'][count($this->chair) - 1]->domnode;
+  } else {
       // this shouldn't happen unless there is something wrong with the xml.... 
       trigger_error("Couldn't find context node to insert new committee member", E_USER_NOTICE);
     } 
