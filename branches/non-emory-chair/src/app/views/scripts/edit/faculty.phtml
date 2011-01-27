@@ -56,13 +56,12 @@ function addNonemory() {
 }
 
 function addNonemoryChair() {
-  nonemorychair_count++;	// unique id for remove link
-  new Insertion.Bottom('nonemorychair_list', "<tr id='nonemorychair_" + nonemorychair_count + "'>\n" +
-    "\t<td><input type='text' name='nonemorychair_firstname[]'></td>\n" +
-    "\t<td><input type='text' name='nonemorychair_lastname[]' ></td>\n" +
-    "\t<td><input type='text' name='nonemorychair_affiliation[]' ></td>\n" +
-    "\t<td><input type='text' name='nonemorychair_email[]' ></td>\n" +
-    "\t<td><a href='#' onClick=\"Element.remove('nonemorychair_" + nonemorychair_count + "')\">remove</a>\n" +
+  nonemory_chair_count++;	// unique id for remove link
+  new Insertion.Bottom('nonemory_chair_list', "<tr id='nonemory_chair_" + nonemory_chair_count + "'>\n" +
+    "\t<td><input type='text' name='nonemory_chair_firstname[]'></td>\n" +
+    "\t<td><input type='text' name='nonemory_chair_lastname[]' ></td>\n" +
+    "\t<td><input type='text' name='nonemory_chair_affiliation[]' ></td>\n" +
+    "\t<td><a href='#' onClick=\"Element.remove('nonemory_chair_" + nonemory_chair_count + "')\">remove</a>\n" +
     "</tr>");
 }
 
@@ -141,38 +140,48 @@ non-Emory committee members.</p>
 		search for former Emory faculty</p>		    
     </div>
     <hr/>
-    <? if (! $has_nonemorychair): ?>
+     <? if (count($this->etd->mods->nonemory_chair) > 1 ||
+	(isset($this->etd->mods->nonemory_chair[0]) &&
+	 $this->etd->mods->nonemory_chair[0]->first != "")) {
+	  $has_nonemory_chair = true;
+	} else {
+	  $has_nonemory_chair = false;
+	}
+?>
+
+    <? if (! $has_nonemory_chair): ?>
   <p>Do you have a Non-Emory Committee Chair /Thesis Adviser? (Please search former Emory faculty before answering Yes)
-     <a class="button" onClick="Element.show('nonemorychair')">yes</a>
+     <a class="button" onClick="Element.show('nonemory_chair')">yes</a>
      </p>
 <? endif ?>
 
- <div id="nonemorychair" <? if (! $has_nonemory): ?> style="display:none" <? endif ?> >
+ <div id="nonemory_chair" <? if (! $has_nonemory_chair): ?> style="display:none" <? endif ?> >
  <h2>Non-Emory Committee Chair /Thesis Adviser</h2>
 <table>
-<tbody id="nonemorychair_list">
+<tbody id="nonemory_chair_list">
      <? $nec_count = 0; ?>
-     <tr><th>Last name</th> <th>First name</th> <th>Affiliation</th> <th>Email</th></tr>
+     <!-- Build list of currently assigned non-emory chairs -->
+     <tr><th>Last name</th> <th>First name</th> <th>Affiliation</th> </tr>
      <? foreach ($this->etd->mods->nonemory_chair as $nec) : ?>
-       <tr id="nonemorychair_<?= ++$nec_count; ?>">
-     <td><?= $this->formText("nonemorychair_lastname[]", $nec->last); ?></td>
-     <td><?= $this->formText("nonemorychair_firstname[]", $nec->first); ?></td>
-     <td><?= $this->formText("nonemorychair_affiliation[]", $nec->affiliation); ?></td>
-     <td><?= $this->formText("nonemorychair_email[]", $nec->email); ?></td>
-     <td><a href="#" onClick="Element.remove('nonemorychair_<?= $nec_count ?>')">remove</a>
+       <tr id="nonemory_chair_<?= ++$nec_count; ?>">
+     <td><?= $this->formText("nonemory_chair_lastname[]", $nec->last); ?></td>
+     <td><?= $this->formText("nonemory_chair_firstname[]", $nec->first); ?></td>
+     <td><?= $this->formText("nonemory_chair_affiliation[]", $nec->affiliation); ?></td>
+     <td><a href="#" onClick="Element.remove('nonemory_chair_<?= $nec_count ?>')">remove</a>
        </tr>
      <? endforeach ?>
-   <tr id="nonemorychair_<?= ++$nec_count; ?>">
-     <td><?= $this->formText("nonemorychair_lastname[]"); ?></td>
-     <td><?= $this->formText("nonemorychair_firstname[]"); ?></td>
-     <td><?= $this->formText("nonemorychair_affiliation[]"); ?></td>
-     <td><?= $this->formText("nonemorychair_email[]"); ?></td>
-     <td><a href="#" onClick="Element.remove('nonemorychair_<?= $nec_count ?>')">remove</a>
+
+   <!-- add empty row for new entry -->
+   <tr id="nonemory_chair_<?= ++$nec_count; ?>">
+     <td><?= $this->formText("nonemory_chair_lastname[]"); ?></td>
+     <td><?= $this->formText("nonemory_chair_firstname[]"); ?></td>
+     <td><?= $this->formText("nonemory_chair_affiliation[]"); ?></td>
+     <td><a href="#" onClick="Element.remove('nonemory_chair_<?= $nec_count ?>')">remove</a>
    </tr>
  <tbody>
 </table>
 <? /* pass the count to the javascript so inserted nodes can have unique ids for removal */ ?>
-<script type="text/javascript">var nonemory_count = <?= $nec_count ?>; </script>
+<script type="text/javascript">var nonemory_chair_count = <?= $nec_count ?>; </script>
 <a href="#" onClick="javascript:addNonemoryChair()">add another</a>
 </div>
 <hr />
