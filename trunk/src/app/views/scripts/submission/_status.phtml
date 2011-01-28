@@ -13,22 +13,26 @@
 <h2>submission status</h2>
 <? if (isset($etd->authorInfo)): ?>
    <? $authorInfo_url = $this->url(array("controller" => "authorInfo", "action" => "view",
-					 "pid" => $etd->authorInfo->pid), '', true, false); ?>
+           "pid" => $etd->authorInfo->pid), '', true, false); ?>
    <? if ($etd->readyToSubmit("authorInfo")): ?>
       <?= $ok ?> <a href="<?= $authorInfo_url ?>">contact information</a><br/>
    <? else: ?>
+    <?
+     $missing_fields = $etd->authorInfo->checkFields(array_intersect(
+          array_merge($required_fields, $optional_fields),
+          $etd->authorInfo->available_fields));
+    ?>
       <?= $incomplete ?> <a href="<?= $authorInfo_url ?>">contact information</a><br/>
         <ul id="user_missing" class="missing">
-	    <? /* list any missing fields (required or optional) provided by author info */ ?>
-	    <? foreach (array_intersect(array_merge($required_fields, $optional_fields),
-					$etd->authorInfo->available_fields) as $missing): ?>
+      <? /* list any missing fields (required or optional) provided by author info */ ?>
+      <? foreach ($missing_fields as $missing): ?>
              <li><?= $missing ?></li>
           <? endforeach ?>
         </ul>
    <? endif ?>
- <? else: /* no author info - link to create new record */ ?>
+ <? else: /* no author info - link to create new record */ ?> 
     <?= $incomplete ?> <a href="<?= $this->url(array('controller' => 'authorInfo', 'action' => 'new',
-			'etd' => $etd->pid), '', true, false) ?> ">contact information</a><br/>
+      'etd' => $etd->pid), '', true, false) ?> ">contact information</a><br/>
  <? endif ?>
 
 <? // thesis metadata is displayed in two sections
@@ -45,7 +49,7 @@
     <? /* special case - should NOT happen unless something is wrong */ ?>
     <? if (!$readyToSubmit):  /* not ready to submit but no missing fields = xml is invalid */ ?>
       <ul id="mods_missing" class="missing">
-	<li>XML invalid; please contact ETD Administrator</li>
+  <li>XML invalid; please contact ETD Administrator</li>
       </ul>
     <? endif ?>
   <? else: ?> 
@@ -54,17 +58,17 @@
      <ul id="mods_missing" class="missing">
          <? foreach ($missing_thesis_fields as $missing): ?>
            <li><a href="<?= $this->editFieldLink($missing) ?>">
-	       <?= $etd->mods->fieldLabel($missing) ?></a>
+         <?= $etd->mods->fieldLabel($missing) ?></a>
            </li>
          <? endforeach ?>
      </ul>
   <? endif /* end mods ready to submit */ ?>
   <? if (count($optional_thesis_fields)): ?>
      <ul id="mods_optional" class="missing">
-	<? foreach ($optional_thesis_fields as $field): ?>
-	<li><a href="<?= $this->editFieldLink($field) ?>">
-	  <?= $etd->mods->fieldLabel($field) ?></a></li>
-	<? endforeach ?>
+  <? foreach ($optional_thesis_fields as $field): ?>
+  <li><a href="<?= $this->editFieldLink($field) ?>">
+    <?= $etd->mods->fieldLabel($field) ?></a></li>
+  <? endforeach ?>
      </ul>
   <? endif ?>
 
@@ -73,16 +77,16 @@
    <?= $ok ?> original file
   <? else : ?>
     <?= $incomplete ?> <a href="<?= $this->url(array('controller' => 'file', 'action' => 'add',
-			'etd' => $etd->pid), '', true, false)?>">original file</a>
+      'etd' => $etd->pid), '', true, false)?>">original file</a>
   <? endif ?> <br/>
 
   <?/*** rights details - display choices selected ***/ ?>
   <? if ($etd->isRequired("send to ProQuest") && 
-	 ($etd->mods->degree->name != "PhD" && $etd->mods->degree->name != "")): ?>
+   ($etd->mods->degree->name != "PhD" && $etd->mods->degree->name != "")): ?>
       <? /* (PQ submission is not optional for PhDs-- field is required but auto-set to true) */ ?>
       <? $pq_submit = $etd->mods->hasSubmitToProquest() ?>
       <?= $pq_submit ? $ok : $incomplete; ?> <a href="<?= $this->editFieldLink('send to ProQuest') ?>">send to ProQuest</a>
-      <?= $pq_submit ? ": <b>" . $etd->mods->pq_submit . "</b>" : "";	/* display choice if set */ ?>
+      <?= $pq_submit ? ": <b>" . $etd->mods->pq_submit . "</b>" : ""; /* display choice if set */ ?>
       <br/>
   <? endif ?>
 
@@ -90,7 +94,7 @@
   <? $copyright = $etd->mods->hasCopyright(); ?>
   <? if ($etd->mods->submitToProquest() && $copyright): ?>
     <?= $copyright ? $ok : $incomplete; ?> <a href="<?= $this->editFieldLink('copyright') ?>">copyright</a>
-    <?= $copyright ? ": <b>" . $etd->mods->copyright . "</b>" : "";	/* display choice if set */ ?>
+    <?= $copyright ? ": <b>" . $etd->mods->copyright . "</b>" : ""; /* display choice if set */ ?>
     <br/>
   <?endif ?>
   
@@ -100,11 +104,11 @@
    <br/>
   <?= $etd->mods->hasSubmissionAgreement() ? $ok : $incomplete; ?>
      <a href="<?= $this->editFieldLink('submission agreement') ?>">submission agreement</a><br/>
-	
+  
    <? if ($this->acl->isAllowed($this->role, $this->etd, "submit")
-	  && $etd->readyToSubmit()): ?>
-	   <p><a class="button" href="<?= $this->url(array('controller' => 'submission',
-				'action' => 'review')) ?>">review &amp; submit &gt;</a></p>
-  <? endif ?>								     
+    && $etd->readyToSubmit()): ?>
+     <p><a class="button" href="<?= $this->url(array('controller' => 'submission',
+        'action' => 'review')) ?>">review &amp; submit &gt;</a></p>
+  <? endif ?>                    
 
 </p>
