@@ -34,11 +34,15 @@ class TestEtdMods extends UnitTestCase {
   }
   
   function testNonEmoryChair(){
+    $xml = new DOMDocument();
+    $xml->load("../fixtures/mods2.xml");
+    $mods = new etd_mods($xml);
+
       // sanity checks - reading values in the xml
-    $this->assertIsa($this->mods->nonemory_chair, "Array");
-    $this->assertEqual(1, count($this->mods->nonemory_chair));
-    $this->assertIsa($this->mods->nonemory_chair[0], "mods_name");
-    $this->assertEqual("1", count($this->mods->nonemory_chair));
+    $this->assertIsa($mods->nonemory_chair, "Array");
+    $this->assertEqual(1, count($mods->nonemory_chair));
+    $this->assertIsa($mods->nonemory_chair[0], "mods_name");
+    $this->assertEqual("1", count($mods->nonemory_chair));
   }
 
 
@@ -303,26 +307,24 @@ class TestEtdMods extends UnitTestCase {
   }
 
   function testAddNonemoryChair() {
-    $count = count($this->mods->nonemory_chair);
-    $this->mods->addCommittee("Duke", "Daisy", "nonemory_chair", "Hazzard County");
-    $this->assertEqual($count + 1, count($this->mods->nonemory_chair));
-    $this->assertEqual("Duke", $this->mods->nonemory_chair[$count]->last);
-    $this->assertEqual("Daisy", $this->mods->nonemory_chair[$count]->first);
-    $this->assertEqual("Duke, Daisy", $this->mods->nonemory_chair[$count]->full);
-    $this->assertEqual("Hazzard County", $this->mods->nonemory_chair[$count]->affiliation);
-
-    // add when there are none already in the xml
     $xml = new DOMDocument();
     $xml->load("../fixtures/mods2.xml");
     $mods = new etd_mods($xml);
 
+    $count = count($mods->nonemory_chair);
     $mods->addCommittee("Duke", "Daisy", "nonemory_chair", "Hazzard County");
-    $this->assertEqual(1, count($mods->nonemory_chair));
-    $this->assertEqual("Duke", $mods->nonemory_chair[0]->last);
-    $this->assertEqual("Daisy", $mods->nonemory_chair[0]->first);
-    $this->assertEqual("Duke, Daisy", $mods->nonemory_chair[0]->full);
+    $this->assertEqual($count + 1, count($mods->nonemory_chair));
+    $this->assertEqual("Duke", $mods->nonemory_chair[$count]->last);
+    $this->assertEqual("Daisy", $mods->nonemory_chair[$count]->first);
+    $this->assertEqual("Duke, Daisy", $mods->nonemory_chair[$count]->full);
+    $this->assertEqual("Hazzard County", $mods->nonemory_chair[$count]->affiliation);
 
-    //FIXME: test invalid type
+    $this->mods->addCommittee("Duke", "Daisy", "nonemory_chair", "Hazzard County");
+    $this->assertEqual(1, count($this->mods->nonemory_chair));
+    $this->assertEqual("Duke", $this->mods->nonemory_chair[0]->last);
+    $this->assertEqual("Daisy", $this->mods->nonemory_chair[0]->first);
+    $this->assertEqual("Duke, Daisy", $this->mods->nonemory_chair[0]->full);
+
   }
 
   function testSetCommitteeById() {

@@ -879,11 +879,27 @@ class etd_mods extends mods {
     case "program":
       return ($this->author->affiliation != "");
     case "chair":
-      // complete if there is at least one valid chair (all should have an emory id)
-      return (isset($this->chair[0]) && $this->chair[0]->id != "");
+      // complete if there is at least one valid chair (now they can be non-emory)
+      return (isset($this->chair[0]) && $this->chair[0]->id != "" //Emory Chair
+              //Non-Emory chair
+              || (isset($this->nonemory_chair[0]) &&
+                  $this->nonemory_chair[0]->first != "" &&
+                  $this->nonemory_chair[0]->last != "" &&
+                  $this->nonemory_chair[0]->affiliation != ""
+
+                 )
+             );
     case "committee members":
-      // complete if there is at least one committee member (valid faculty, same as chair test)
-      return (isset($this->committee[0]) && $this->committee[0]->id != "");
+      // complete if there is at least one committee member (valid faculty, now can have non-emory members same as chair test)
+      return (isset($this->committee[0]) && $this->committee[0]->id != "" //Emory committee
+              //Non-Emory committee
+              || (isset($this->nonemory_committee[0]) &&
+                  $this->nonemory_committee[0]->first != "" &&
+                  $this->nonemory_committee[0]->last != "" &&
+                  $this->nonemory_committee[0]->affiliation != ""
+
+                 )
+             );
     case "researchfields":
       // complete if there is at least one non-blank research field
       return ((count($this->researchfields) != 0) &&
