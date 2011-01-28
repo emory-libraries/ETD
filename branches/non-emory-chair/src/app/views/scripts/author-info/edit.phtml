@@ -36,6 +36,8 @@ without your consent.</p>
 
 <?= $this->formHidden("pid", $this->pid, null); ?>
 <?= $this->formHidden("etd", $this->etd_pid, null); ?>
+<? //set school as a hidden field, so that req'd fields can be retrieved. ?> 
+<?= $this->formHidden("school", $this->etd->schoolId(), null); ?> 
 
 <? //NAME ?>
 <?if ($this->etd->isRequired("name"))
