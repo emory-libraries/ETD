@@ -118,7 +118,7 @@ class AuthorInfoController extends Etd_Controller_Action {
     $perm_phone = $this->_getParam("perm-phone", null);
     $perm_email = $this->_getParam("perm-email", null);
     $perm_dae = $this->_getParam("perm-date", null);
-
+    
     //values to validate for required fields
     // Since required fields are not a direct mapping to the input fields, 
     // any add'l required fields will need to be added to the validation.
@@ -129,27 +129,39 @@ class AuthorInfoController extends Etd_Controller_Action {
       $values["first"] = $first;
       $values["last"] = $last;        
       $values["cur-email"] = $cur_email;            
-      $values["perm-email"] = $perm_email;                  
+      $values["perm-email"] = $perm_email;
+      $values["perm-dae"] = $perm_dae;                    
     }
-    if (in_array('name', $school_cfg->{$school}->submission_fields->required->toArray())) {
-      $values["first"] = $first;
-      $values["last"] = $last;        
-    }
-    if (in_array('email', $school_cfg->{$school}->submission_fields->required->toArray())) { 
-      $values["cur-email"] = $cur_email;      
-    }    
-    if (in_array('permanent email', $school_cfg->{$school}->submission_fields->required->toArray())) {      
-      $values["perm-email"] = $perm_email;       
-    }
-    // Permanent address is not a one to one mapping.
-    if (in_array('permanent address', $school_cfg->{$school}->submission_fields->required->toArray())) {    
-      $values["perm-dae"] = $perm_dae; 
-      $values["perm-street"] = $perm_street;
-      $values["perm-city"] = $perm_city;
-      $values["perm-state"] = $perm_state;
-      $values["perm-country"] = $perm_country;
-      $values["perm-postcode"] = $perm_postcode;       
-    }            
+    else {
+      // always make the permanent date required.
+      $values["perm-dae"] = $perm_dae;      
+      
+      switch ($school) {
+        case "grad": $school_name = "graduate_school"; break;
+        case "honors": $school_name = "emory_college"; break;
+        default: $school_name = $school; break;
+      }                     
+      
+      if (in_array('name', $school_cfg->{$school_name}->submission_fields->required->toArray())) {
+        $values["first"] = $first;
+        $values["last"] = $last;        
+      }
+      if (in_array('email', $school_cfg->{$school_name}->submission_fields->required->toArray())) { 
+        $values["cur-email"] = $cur_email;      
+      }    
+      if (in_array('permanent email', $school_cfg->{$school_name}->submission_fields->required->toArray())) {      
+        $values["perm-email"] = $perm_email;       
+      }
+      // Permanent address is not a one to one mapping.
+      if (in_array('permanent address', $school_cfg->{$school_name}->submission_fields->required->toArray())) {    
+        $values["perm-dae"] = $perm_dae; 
+        $values["perm-street"] = $perm_street[0]; // we only need the first line street
+        $values["perm-city"] = $perm_city;
+        $values["perm-state"] = $perm_state;
+        $values["perm-country"] = $perm_country;
+        $values["perm-postcode"] = $perm_postcode;       
+      }
+    }          
     // perform the validation on the required fields.
     $errors = $this->validateContactInfo($values);
 
@@ -288,33 +300,33 @@ class AuthorInfoController extends Etd_Controller_Action {
     if(!$validator->isValid($values["perm-dae"])){
         $errors[] = "Error: date " . $values["perm-dae"] .  " is invalid.  Please use format yyyy-mm-dd";
     }
-    
+  
     // first name is required
-    if(!isset($values["first"]) || !trim($values["first"]))
+    if(isset($values["first"]) && strlen(trim($values["first"]))==0) 
       $errors[] = "Error: first name is a required field."; 
     
-    // last name is required   
-    if(!isset($values["last"]) || !trim($values["last"])) 
+    // last name is required 
+    if(isset($values["last"]) && strlen(trim($values["last"]))==0)       
       $errors[] = "Error: last name is a required field.";
       
-    // permanent street is required   
-    if(!isset($values["perm-street"]) || !trim($values["perm-street"])) 
+    // permanent street is required  
+    if(isset($values["perm-street"]) && strlen(trim($values["perm-street"]))==0) 
       $errors[] = "Error: permanent street is a required field.";      
       
     // permanent city is required   
-    if(!isset($values["perm-city"]) || !trim($values["perm-city"])) 
+    if(isset($values["perm-city"]) && !trim($values["perm-city"])) 
       $errors[] = "Error: permanent city is a required field."; 
       
     // permanent state is required   
-    if(!isset($values["perm-state"]) || !trim($values["perm-state"])) 
+    if(isset($values["perm-state"]) && !trim($values["perm-state"])) 
       $errors[] = "Error: permanent state is a required field."; 
       
     // permanent country is required   
-    if(!isset($values["perm-country"]) || !trim($values["perm-country"])) 
+    if(isset($values["perm-country"]) && !trim($values["perm-country"])) 
       $errors[] = "Error: permanent country is a required field."; 
       
     // permanent postcode is required   
-    if(!isset($values["perm-postcode"]) || !trim($values["perm-postcode"])) 
+    if(isset($values["perm-postcode"]) && !trim($values["perm-postcode"])) 
       $errors[] = "Error: permanent postcode is a required field.";           
         
     return $errors;
