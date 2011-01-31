@@ -226,8 +226,30 @@ class TestEtdMods extends UnitTestCase {
     $this->mods->partneringagencies[0]->id = $this->mods->partneringagencies[0]->topic = "";
     $missing = $this->mods->checkAllFields();
     $this->assertTrue(in_array("partnering agencies", $missing),
-          "incomplete partnering agencies detected");        
-    
+          "incomplete partnering agencies detected");
+
+
+   //Remove Emory committee and replace with non-emory committee
+   foreach($this->mods->chair as $c){
+        $this->mods->removeCommittee($c->id);
+    }
+
+    foreach($this->mods->committee as $c){
+        $this->mods->removeCommittee($c->id);
+    }
+
+   $this->mods->clearNonEmoryCommittee();
+
+   $this->mods->addCommittee("last chair", "first chair", "nonemory_chair", "notEmory"); 
+   $this->mods->addCommittee("last committe", "first committee", "nonemory_committee", "alsoNotEmory"); 
+   $missing = $this->mods->checkAllFields();
+   
+   $this->assertFalse(in_array("chair", $missing), "chair is not missing");
+   $this->assertFalse(in_array("committee", $missing), "committee is not missing");
+
+
+
+
     error_reporting($errlevel);     // restore prior error reporting
   }
 
