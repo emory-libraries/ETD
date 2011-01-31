@@ -38,7 +38,21 @@
   'value' => urlencode($chair)), '', true)?>"><?= $chair ?></a><?= $affiliation ?><? if (!$last):?>; <? endif ?>
     <? else: ?>   <?= $chair ?><?= $affiliation ?><? if (!$last):?>; <? endif ?> <? endif ?>
  <? endforeach ?> 
-<br/>
+
+  
+  <? //  nonemory chairs ?>
+  <? if (isset($this->etd->mods->nonemory_chair) &&
+     isset($this->etd->mods->nonemory_chair[0]) &&
+     $this->etd->mods->nonemory_chair[0]->full): ?>
+      <? foreach ($this->etd->mods->nonemory_chair as $nec): ?>
+     <? if ($nec->first == "" && $nec->last == "") continue; /* skip blank names */ ?>
+        <? if ($published): ?>
+         <a href="<?= $this->url(array('controller' => 'browse', 'action' => 'committee',
+    'value' => urlencode($nec->full)),'', true)?>"><?= $nec->full ?></a> (<?= $nec->affiliation ?>);
+   <? else: ?><?= $nec->full ?> (<?= $nec->affiliation ?>);<? endif ?>
+      <? endforeach ?>
+    <? endif ?>
+    <? // linebreak only after both sets of committee members ?> <br/>
      
 <b>Committee Members:</b> <? $committee = $this->etd->committee(); ?>
     <? $committee_w_aff = $this->etd->committee_with_affiliation(); ?>

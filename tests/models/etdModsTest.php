@@ -33,6 +33,19 @@ class TestEtdMods extends UnitTestCase {
     $this->assertEqual("Emory University", $this->mods->degree_grantor->namePart);
   }
   
+  function testNonEmoryChair(){
+    $xml = new DOMDocument();
+    $xml->load("../fixtures/mods2.xml");
+    $mods = new etd_mods($xml);
+
+      // sanity checks - reading values in the xml
+    $this->assertIsa($mods->nonemory_chair, "Array");
+    $this->assertEqual(1, count($mods->nonemory_chair));
+    $this->assertIsa($mods->nonemory_chair[0], "mods_name");
+    $this->assertEqual("1", count($mods->nonemory_chair));
+  }
+
+
   function testKeywords() {
     // sanity checks - reading values in the xml
     $this->assertIsa($this->mods->keywords, "Array");
@@ -161,6 +174,7 @@ class TestEtdMods extends UnitTestCase {
     $this->mods->rights = "rights statement";
     $this->assertTrue($this->mods->readyToSubmit($this->mods->available_fields));
 
+
     // check that all required fields are detected correctly when missing
     // by setting to empty fields that are present in the fixture mods
     //  - title
@@ -212,8 +226,30 @@ class TestEtdMods extends UnitTestCase {
     $this->mods->partneringagencies[0]->id = $this->mods->partneringagencies[0]->topic = "";
     $missing = $this->mods->checkAllFields();
     $this->assertTrue(in_array("partnering agencies", $missing),
-          "incomplete partnering agencies detected");        
-    
+          "incomplete partnering agencies detected");
+
+
+   //Remove Emory committee and replace with non-emory committee
+   foreach($this->mods->chair as $c){
+        $this->mods->removeCommittee($c->id);
+    }
+
+    foreach($this->mods->committee as $c){
+        $this->mods->removeCommittee($c->id);
+    }
+
+   $this->mods->clearNonEmoryCommittee();
+
+   $this->mods->addCommittee("last chair", "first chair", "nonemory_chair", "notEmory"); 
+   $this->mods->addCommittee("last committe", "first committee", "nonemory_committee", "alsoNotEmory"); 
+   $missing = $this->mods->checkAllFields();
+   
+   $this->assertFalse(in_array("chair", $missing), "chair is not missing");
+   $this->assertFalse(in_array("committee", $missing), "committee is not missing");
+
+
+
+
     error_reporting($errlevel);     // restore prior error reporting
   }
 
@@ -277,6 +313,7 @@ class TestEtdMods extends UnitTestCase {
     $this->assertEqual("Duck", $this->mods->nonemory_committee[$count]->last);
     $this->assertEqual("Daisy", $this->mods->nonemory_committee[$count]->first);
     $this->assertEqual("Duck, Daisy", $this->mods->nonemory_committee[$count]->full);
+    $this->assertEqual("Disney World", $this->mods->nonemory_committee[$count]->affiliation);
 
     // add when there are none already in the xml
     $xml = new DOMDocument();
@@ -289,7 +326,26 @@ class TestEtdMods extends UnitTestCase {
     $this->assertEqual("Daisy", $mods->nonemory_committee[0]->first);
     $this->assertEqual("Duck, Daisy", $mods->nonemory_committee[0]->full);
 
-    // FIXME: test passing invalid type
+  }
+
+  function testAddNonemoryChair() {
+    $xml = new DOMDocument();
+    $xml->load("../fixtures/mods2.xml");
+    $mods = new etd_mods($xml);
+
+    $count = count($mods->nonemory_chair);
+    $mods->addCommittee("Duke", "Daisy", "nonemory_chair", "Hazzard County");
+    $this->assertEqual($count + 1, count($mods->nonemory_chair));
+    $this->assertEqual("Duke", $mods->nonemory_chair[$count]->last);
+    $this->assertEqual("Daisy", $mods->nonemory_chair[$count]->first);
+    $this->assertEqual("Duke, Daisy", $mods->nonemory_chair[$count]->full);
+    $this->assertEqual("Hazzard County", $mods->nonemory_chair[$count]->affiliation);
+
+    $this->mods->addCommittee("Duke", "Daisy", "nonemory_chair", "Hazzard County");
+    $this->assertEqual(1, count($this->mods->nonemory_chair));
+    $this->assertEqual("Duke", $this->mods->nonemory_chair[0]->last);
+    $this->assertEqual("Daisy", $this->mods->nonemory_chair[0]->first);
+    $this->assertEqual("Duke, Daisy", $this->mods->nonemory_chair[0]->full);
 
   }
 

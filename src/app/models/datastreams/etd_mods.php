@@ -12,6 +12,7 @@ require_once("models/esdPerson.php");
  * @property string $author
  * @property string $department author affiliation
  * @property array $chair array of mods_name with role 'Thesis Advisor'
+ * * @property array $nonemory_chair array of mods_name with role 'Thesis Advisor and description 'Non-Emory Thesis Advisor'
  * @property array $committee array of mods_name with description 'Emory Committe Member'
  * @property array $nonemory_committee array of mods_name with description 'Non-Emory Committe Member'
  * @property array $researchfields array of etdmods_subject with authority 'proquestresearchfield'
@@ -84,7 +85,9 @@ class etd_mods extends mods {
     $this->xmlconfig["subfield"] = array("xpath" => "mods:extension/etd:degree/etd:discipline");
 
     // committee chair - may be more than one
-    $this->xmlconfig["chair"] = array("xpath" => "mods:name[mods:role/mods:roleTerm = 'Thesis Advisor']",
+    $this->xmlconfig["chair"] = array("xpath" => "mods:name[mods:role/mods:roleTerm = 'Thesis Advisor' and string-length(mods:description) = 0]",
+              "class_name" => "mods_name", "is_series" => true);
+    $this->xmlconfig["nonemory_chair"] = array("xpath" => "mods:name[mods:role/mods:roleTerm = 'Thesis Advisor' and mods:description = 'Non-Emory Thesis Advisor']",
               "class_name" => "mods_name", "is_series" => true);
     $this->xmlconfig["committee"] = array("xpath" => "mods:name[mods:description = 'Emory Committee Member']",
             "class_name" => "mods_name", "is_series" => true);
@@ -241,7 +244,7 @@ class etd_mods extends mods {
    */
   public function addCommittee($lastname, $firstname, $type = "committee", $affiliation = null) {
     // fixme: need a way to set netid -- set from netid if emory ?
-    if (! in_array($type, array("committee", "chair", "nonemory_committee"))) {
+    if (! in_array($type, array("committee", "chair", "nonemory_committee", "nonemory_chair"))) {
       trigger_error("$type is not allowed type for addCommittee", E_USER_ERROR);
     }
 
@@ -252,6 +255,10 @@ class etd_mods extends mods {
         case "chair":
                 $roleType="Thesis Advisor";
                 $description="";
+                break;
+        case "nonemory_chair":
+                $roleType="Thesis Advisor";
+                $description="Non-Emory Thesis Advisor";
                 break;
         case "committee":
                 $roleType="Committee Member";
@@ -265,7 +272,7 @@ class etd_mods extends mods {
     
     //New mods:name node
     $nameNode = $this->dom->createElementNS($this->namespaceList["mods"], "mods:name");
-    if ($type != "nonemory_committee") $nameNode->setAttribute("ID", "");
+    if (in_array($type, array("chair", "committee"))) $nameNode->setAttribute("ID", "");
     $nameNode->setAttribute("type", "personal");
 
     //Add given name part
@@ -283,7 +290,7 @@ class etd_mods extends mods {
     $nameNode->appendChild($dispay);
 
     //Add affiliation
-    if($type == "nonemory_committee"){
+    if(in_array($type, array("nonemory_committee", "nonemory_chair"))){
         $affiliationNode = $this->dom->createElementNS($this->namespaceList["mods"], "mods:affiliation");
         $nameNode->appendChild($affiliationNode);
     }
@@ -333,7 +340,12 @@ class etd_mods extends mods {
   $contextnode = $this->map['committee'][count($this->committee) - 1]->domnode;
       else
   $contextnode = $this->map["chair"][count($this->chair) - 1]->domnode;
-    } else {
+    } elseif ($type == "nonemory_chair") {
+      // if adding a non-emory chair and there are none in the xml,
+      // then add after last emory chair
+      if (isset($this->map['chair']) && count($this->chair))
+  $contextnode = $this->map['chair'][count($this->chair) - 1]->domnode;
+  } else {
       // this shouldn't happen unless there is something wrong with the xml.... 
       trigger_error("Couldn't find context node to insert new committee member", E_USER_NOTICE);
     } 
@@ -467,7 +479,8 @@ class etd_mods extends mods {
    * remove all non-Emory committee members  (use before re-adding them)
    */
   public function clearNonEmoryCommittee() {
-    $nodelist = $this->xpath->query("//mods:name[mods:description='Non-Emory Committee Member']");
+    $nodelist = $this->xpath->query("//mods:name[mods:description='Non-Emory Committee Member' or
+                                                 mods:description='Non-Emory Thesis Advisor']");
     for ($i = 0; $i < $nodelist->length; $i++) {
       $node = $nodelist->item($i);
       $node->parentNode->removeChild($node);
@@ -866,11 +879,27 @@ class etd_mods extends mods {
     case "program":
       return ($this->author->affiliation != "");
     case "chair":
-      // complete if there is at least one valid chair (all should have an emory id)
-      return (isset($this->chair[0]) && $this->chair[0]->id != "");
+      // complete if there is at least one valid chair (now they can be non-emory)
+      return (isset($this->chair[0]) && $this->chair[0]->id != "" //Emory Chair
+              //Non-Emory chair
+              || (isset($this->nonemory_chair[0]) &&
+                  $this->nonemory_chair[0]->first != "" &&
+                  $this->nonemory_chair[0]->last != "" &&
+                  $this->nonemory_chair[0]->affiliation != ""
+
+                 )
+             );
     case "committee members":
-      // complete if there is at least one committee member (valid faculty, same as chair test)
-      return (isset($this->committee[0]) && $this->committee[0]->id != "");
+      // complete if there is at least one committee member (valid faculty, now can have non-emory members same as chair test)
+      return (isset($this->committee[0]) && $this->committee[0]->id != "" //Emory committee
+              //Non-Emory committee
+              || (isset($this->nonemory_committee[0]) &&
+                  $this->nonemory_committee[0]->first != "" &&
+                  $this->nonemory_committee[0]->last != "" &&
+                  $this->nonemory_committee[0]->affiliation != ""
+
+                 )
+             );
     case "researchfields":
       // complete if there is at least one non-blank research field
       return ((count($this->researchfields) != 0) &&
