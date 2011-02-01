@@ -60,5 +60,6 @@
 	  <mods:identifier type="ark">http://purl.bogus.com/ark:/123/td2</mods:identifier>
 	  <mods:accessCondition type="restrictionOnAccess">Embargoed for </mods:accessCondition>
 	  <mods:note type="admin" ID="embargo">embargo requested? no</mods:note>
+      <mods:note type="partneragencytype" ID="pa-gahealth" displayLabel="Type of partner agency">Georgia state or local health department</mods:note>
 	</mods:mods>
 
