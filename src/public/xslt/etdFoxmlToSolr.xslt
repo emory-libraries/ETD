@@ -289,6 +289,12 @@
     </xsl:if>
   </xsl:template>
 
+  <xsl:template match="mods:note[@type='partneragencytype']">
+    <xsl:if test=". != ''">
+      <field name="partneringagencies"><xsl:value-of select="."/></field>
+    </xsl:if>
+  </xsl:template>
+
   <!-- embargo duration -->
   <xsl:template match="mods:accessCondition[@type='restrictionOnAccess']">
     <xsl:if test=". != ''">
