@@ -1,14 +1,15 @@
 <?= $this->javascript("contact.js"); ?>
 
 <? //Div used to display validation errors ?>
-<div class = "invalid">
-    <? if(isset($this->errors)): ?>
+<? if(isset($this->errors)): ?>
+    <p class="warning">
+    
         <? foreach ($this->errors as $error):  ?>
-        <?= $error ?>
-        <br/>
+            <?= $error ?>
+            <br/>
         <? endforeach  ?>
-    <? endif ?>
-</div>
+    </p>
+<? endif ?>
 <br/>
 
 <h1>Edit Contact Information</h1>
