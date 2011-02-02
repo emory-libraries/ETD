@@ -398,9 +398,9 @@ class etd extends foxml implements etdInterface {
    * @param string $name
    */
   public function removePolicyRule($name) {
-    $objects = array_merge(array($this), $this->pdfs, $this->supplements, $this->originals);
+    $objects = array_merge(array($this), $this->pdfs, $this->supplements, $this->originals);    
     foreach ($objects as $obj) {
-      if ($obj->has_datastream('POLICY') && isset($obj->policy->{$name})) 
+      if (isset($obj->policy) && isset($obj->policy->{$name})) 
         $obj->policy->removeRule($name);
     }
   }
