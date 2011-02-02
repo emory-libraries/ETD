@@ -245,6 +245,27 @@ class ManageController extends Etd_Controller_Action {
      
      $this->view->etd = $etd;
      $this->view->title = "Manage : Approve ETD";
+
+     if($this->_hasParam("error")){
+      $error = $this->_getParam("error");
+      $this->view->error = $error;
+     }
+   }
+
+   public function validateDoApprove($embargo_request, $embargo){
+       $msg="";
+
+       if($embargo_request=="no" && $embargo!= "0 days"){
+         $msg = "The author has indicated this thesis or dissertation " .
+                 "should not be embargoed.  Please indicate \"none\" for length of the embargo.";
+        }
+
+     else if($embargo_request!="no" && $embargo== "0 days"){
+         $msg = "The author has indicated this thesis or dissertation " .
+                 "should be embargoed.  Please indicate the requested length of the embargo.";
+     }
+     return $msg;
+
    }
 
    public function doapproveAction() {
@@ -252,6 +273,18 @@ class ManageController extends Etd_Controller_Action {
      if (!$this->_helper->access->allowedOnEtd("approve", $etd)) return false;
      
      $embargo = $this->_getParam("embargo");  // duration
+     $embargo_request = $etd->mods->embargo_request;
+
+     //perform the validation on the required fields
+     $error = $this->validateDoApprove($embargo_request, $embargo);
+
+
+     if($error != ""){
+         $this->_setParam("error", $error);
+         $this->_forward("approve");
+         return;
+     }
+
      
      // set status to approved
      $newstatus = "approved";

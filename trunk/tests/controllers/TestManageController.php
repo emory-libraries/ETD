@@ -72,6 +72,7 @@ class ManageControllerTest extends ControllerTestCase {
     $foxml->setSchoolConfig($school_cfg->graduate_school);
     $foxml->pid = $this->reviewed_etdpid;
     $foxml->rels_ext->hasAuthorInfo = $this->userpid;
+    $foxml->mods->embargo_request = "yes:files";
     $foxml->ingest("loading test etd object");
 
     // load author info
@@ -337,6 +338,29 @@ class ManageControllerTest extends ControllerTestCase {
     $this->assertFalse(isset($ManageController->view->etd));
 
   }
+
+  public function testValidateDoApproveAction() {
+    $ManageController = new ManageControllerForTest($this->request,$this->response);
+
+    $result = $ManageController->validateDoApprove("no", "0 days");
+    $this->assertEqual($result, "","no embargo requested");
+
+    $result = $ManageController->validateDoApprove("yes:files", "1 year");
+    $this->assertEqual($result, "","embargo requested and confirmed by admin");
+
+    $result = $ManageController->validateDoApprove("no", "1 year");
+    $this->assertTrue($result, "The author has indicated this thesis or dissertation should not be embargoed.  " .
+                               "Please indicate \"none\" for length of the embargo.", "embargo not requested but admin adds embargo");
+
+    $result = $ManageController->validateDoApprove("yes:files", "0 days");
+    $this->assertTrue($result, "The author has indicated this thesis or dissertation should be embargoed.  " .
+                               "Please indicate the requested length of the embargo.", "embargo  requested but admin does not add embargo");
+
+
+
+
+  }
+
 
   public function testDoApproveAction() {
     $ManageController = new ManageControllerForTest($this->request,$this->response);
