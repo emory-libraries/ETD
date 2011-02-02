@@ -279,6 +279,7 @@ class AuthorInfoController extends Etd_Controller_Action {
    }
 
    function validateContactInfo($values){
+    
     $errors = array();
 
     //email validator
@@ -294,41 +295,42 @@ class AuthorInfoController extends Etd_Controller_Action {
     elseif(substr($values["perm-email"], -10) == "@emory.edu"){
         $errors[] = "Error: non-emory email must be an non-emory or alumni address";
     }
-    
+   
     //date validator
     $validator = new Zend_Validate_Date();    
     if(!$validator->isValid($values["perm-dae"])){
         $errors[] = "Error: date " . $values["perm-dae"] .  " is invalid.  Please use format yyyy-mm-dd";
     }
-  
-    // first name is required
-    if(isset($values["first"]) && strlen(trim($values["first"]))==0) 
+;  
+    // first name is required 
+    if(in_array("first", array_keys($values)) && strlen(trim($values["first"]))==0) {
       $errors[] = "Error: first name is a required field."; 
-    
+    }
+        
     // last name is required 
-    if(isset($values["last"]) && strlen(trim($values["last"]))==0)       
+    if(in_array("last", array_keys($values)) && strlen(trim($values["last"]))==0)       
       $errors[] = "Error: last name is a required field.";
       
     // permanent street is required  
-    if(isset($values["perm-street"]) && strlen(trim($values["perm-street"]))==0) 
+    if(in_array("perm-street", array_keys($values)) && strlen(trim($values["perm-street"]))==0) 
       $errors[] = "Error: permanent street is a required field.";      
       
     // permanent city is required   
-    if(isset($values["perm-city"]) && !trim($values["perm-city"])) 
+    if(in_array("perm-city", array_keys($values)) && !trim($values["perm-city"])) 
       $errors[] = "Error: permanent city is a required field."; 
       
     // permanent state is required   
-    if(isset($values["perm-state"]) && !trim($values["perm-state"])) 
+    if(in_array("perm-state", array_keys($values)) && !trim($values["perm-state"])) 
       $errors[] = "Error: permanent state is a required field."; 
       
     // permanent country is required   
-    if(isset($values["perm-country"]) && !trim($values["perm-country"])) 
+    if(in_array("perm-country", array_keys($values)) && !trim($values["perm-country"])) 
       $errors[] = "Error: permanent country is a required field."; 
       
     // permanent postcode is required   
-    if(isset($values["perm-postcode"]) && !trim($values["perm-postcode"])) 
+    if(in_array("perm-postcode", array_keys($values)) && !trim($values["perm-postcode"])) 
       $errors[] = "Error: permanent postcode is a required field.";           
-        
+      
     return $errors;
   }
 }
