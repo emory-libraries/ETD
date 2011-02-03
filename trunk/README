@@ -122,4 +122,5 @@ Additional documentation is found in the  Documentation directory.
 Documentation/README-Roles - summary of the roles used in ETD, and how they work
 Documentation/README-Services - explanation of the Fedora services used
 Documentation/README-MultiSchoolConfiguration - explanation of the per-school configuration and fields supported
-Documentation/README-emailNotifier - more information about the email notifier
+Documentation/README-EmailNotifier - more information about the email notifier
+Documentation/README-Solr - more information about solr
