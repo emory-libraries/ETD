@@ -254,6 +254,7 @@ public function testExportEmails() {
     $response = $ReportController->getResponse();
     $headers = $response->getHeaders();
 
+    //Check responce headers
     $this->assertEqual("Cache-Control", $headers[0]["name"]);
     $this->assertEqual("public", $headers[0]["value"]);
     $this->assertEqual("Pragma", $headers[1]["name"]);
@@ -264,6 +265,12 @@ public function testExportEmails() {
     $this->assertEqual("text/csv", $headers[3]["value"]);
     $this->assertEqual("Content-Disposition", $headers[4]["name"]);
     $this->assertPattern("|filename=.*csv|", $headers[4]["value"]);
+
+    //Check filter criteria
+    $this->assertTrue(isset($ReportController->view->filter["AND"]["status"]), "status criteria exists");
+    $this->assertEqual(isset($ReportController->view->filter["AND"]["status"]), "approved", "search for only approved records");
+    $this->assertTrue(isset($ReportController->view->filter["AND"]["collection"]), "collection criteria exists");
+    $this->assertEqual(isset($ReportController->view->filter["AND"]["collection"]), "\"emory-control:ETD-GradSchool-collection\"", "only search for grad school records");
   }
 
 
