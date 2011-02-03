@@ -417,7 +417,12 @@ class ReportController extends Etd_Controller_Action {
       if(!$this->_helper->access->allowed("report", "view")) {return false;}
       $etdSet = new EtdSet();
       // FIXME: how do we make sure to get *all* the records ?
-      $etdSet->find(array("AND" => array("status" => "approved"), "start" => 0, "max" => 200));
+      
+      //Have to use quotes because value has a colon and have to escape the quotes
+      $options = array("AND" => array("status" => "approved", "collection" => "\"emory-control:ETD-GradSchool-collection\""), 
+                       "start" => 0, "max" => 200);
+      
+      $etdSet->find($options);
 
       // date/time this output was generated to be included inside the file
       $date = date("Y-m-d H:i:s");
@@ -426,13 +431,14 @@ class ReportController extends Etd_Controller_Action {
       "Program", "Output Generated " . $date);
 
       foreach ($etdSet->etds as $etd){
-        $data[] = array($etd->authorInfo->mads->name->__toString(),
+        $data[] = array($etd->authorInfo->mads->name,
         $etd->authorInfo->mads->current->email,
         $etd->authorInfo->mads->permanent->email,
         $etd->program());
       }
 
       $this->view->data = $data;
+      $this->view->filter = $options;  //used for debugging and testing
 
       $this->_helper->layout->disableLayout();
       // add date to the suggested output filename
