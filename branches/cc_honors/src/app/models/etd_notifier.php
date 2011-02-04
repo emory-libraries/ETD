@@ -181,7 +181,7 @@ if ($environment->mode != "production") {
     $this->mail->setSubject("Your ETD Has Been Successfully Submitted");
     $this->setBodyHtml($this->view->render("email/submission.phtml"));
     $this->send();
-    return $this->to;
+    return array_merge($this->to, $this->cc);
   }
 
   /**
@@ -194,7 +194,7 @@ if ($environment->mode != "production") {
     $this->mail->setSubject("Your ETD Has Been Approved");
     $this->setBodyHtml($this->view->render("email/approval.phtml"));
     $this->send();
-    return $this->to;
+    return array_merge($this->to, $this->cc);
   }
 
   /**
@@ -207,7 +207,7 @@ if ($environment->mode != "production") {
     $this->mail->setSubject("Your ETD Has Been Published in the Emory Repository");
     $this->setBodyHtml($this->view->render("email/publication.phtml"));
     $this->send();
-    return $this->to;
+    return array_merge($this->to, $this->cc);
   }
 
   /**
@@ -219,7 +219,7 @@ if ($environment->mode != "production") {
     $this->mail->setSubject("Your ETD Access Restriction will Expire in 60 Days");
     $this->setBodyHtml($this->view->render("email/embargo_expiration.phtml"));
     $this->send();
-    return $this->to;
+    return array_merge($this->to, $this->cc);
   }
 
   /**
@@ -231,7 +231,7 @@ if ($environment->mode != "production") {
     $this->mail->setSubject("Please Disregard Automated Message from ETD system sent out today");
     $this->setBodyHtml($this->view->render("email/embargo_expiration_error.phtml"));
     $this->send();
-    return $this->to;
+    return array_merge($this->to, $this->cc);
   }
 
   /**
@@ -243,7 +243,7 @@ if ($environment->mode != "production") {
     $this->mail->setSubject("Your ETD Access Restriction Expires Today");
     $this->setBodyHtml($this->view->render("email/embargo_end.phtml"));
     $this->send();
-    return $this->to;
+    return array_merge($this->to, $this->cc);
   }
 
   /**
@@ -261,7 +261,7 @@ if ($environment->mode != "production") {
     $this->view->text = $text;
     $this->setBodyHtml($this->view->render("email/request_changes.phtml"));
     $this->send();
-    return $this->to;
+    return array_merge($this->to, $this->cc);
   }
 
 
@@ -279,7 +279,7 @@ if ($environment->mode != "production") {
     $this->mail->setSubject("ETD author has patent concerns");
     $this->setBodyHtml($this->view->render("email/patent_concerns.phtml"));
     $this->send();
-    return $this->to;
+    return array_merge($this->to, $this->cc);
   }
 }
 
@@ -333,8 +333,7 @@ class etdSet_notifier extends notifier {
     $this->mail->setSubject("ETD embargoes expiring in 7 days");
     $this->setBodyHtml($this->view->render("email/embargoes_expiring_oneweek.phtml"));
     $this->send();
-    return $this->to;
-  }
+    return array_merge($this->to, $this->cc);  }
   
 }
 
