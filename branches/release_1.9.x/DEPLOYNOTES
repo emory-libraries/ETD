@@ -66,8 +66,8 @@ Version 1.9
     - Copy /tmp/ETD.txt  /tmp/ETDFile.txt /tmp/ETDAuthorInfo.txt to fedora3.4    
 
     - Run the fedora-rebuild.sh script for these options:
+      2) Rebuild SQL database.    
       1) Rebuild the Resource Index.
-      2) Rebuild SQL database.
       Make sure then the new objects show up in the rebuilt count.
       If the objects are not indexed, then they will not be found for the next step.
     
@@ -102,8 +102,6 @@ Version 1.9
 * Install ESDFilter on tomcat
     See Documentation/README-ESDFilter
  
-
-
 * Update the ETD content model services for particular fedora instance.
     (1) emory-control:ETD-metadataTransform/datastreams/WSDL/content
     (2) emory-control::ETDformattedMetadataParts/datastreams/WSDL/content
