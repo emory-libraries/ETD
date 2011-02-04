@@ -1,0 +1,20 @@
+<etd-db>
+  <development>
+     <adapter>MySQLi</adapter>
+	<params>
+	  <username></username>
+	  <password></password>
+	  <host></host>
+	  <port></port>
+	  <dbname></dbname>
+	</params>
+  </development>
+  <test extends="development">
+     <params>
+	  <username></username>
+	  <password></password> 
+      <dbname></dbname>   
+	 </params>
+  </test> 
+  <production extends="development"/>
+</etd-db>

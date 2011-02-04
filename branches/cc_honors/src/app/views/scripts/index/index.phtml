@@ -1,0 +1,57 @@
+
+<?=  $this->render('index/_submission.phtml'); ?>
+
+<h1>Electronic Theses and Dissertations</h1>
+
+<p>The Emory Electronic Theses and Dissertations (ETD) Repository is a
+joint initiative launched by the Emory University Libraries,
+the Emory Graduate School, and Emory
+College.</p>
+
+
+<h2>Search Emory University Repository</h2>
+
+ <form name="search" method="get" action="<?= $this->url(array("controller" => "search",
+			"action" => "results"))?>">
+   <?= $this->formText("query", "", array("size" => 40)); ?>
+   <?= $this->formSubmit("search", "Go >", array("class" => "submitlink")); ?>
+</form>
+ <a href="<?= $this->url(array("controller" => "search"))?>">Advanced Search</a>
+
+
+
+<h2 class="top-space">Browse</h2>
+
+<? $this->browse_class = 'horizontal'; ?>
+<?=  $this->render('browse/_categories.phtml'); ?>
+
+<? /* find a way to share proquest code for sidenav & index in partial ? */ ?>
+<div class="proquest">
+<form action="http://proquest.umi.com.proxy.library.emory.edu/pqdweb"
+    method="get">
+<h2 class="top-space">Emory dissertations in ProQuest</h2>
+
+<ul class="horizontal">
+<li class="first">Search: 
+<input type="hidden" name="RQT" value="305"/>
+<input type="hidden" name="querySyntax" value="PQ"/>
+<input type="hidden" name="clientId" value="1917"/>
+<input type="hidden" name="DBId" value="21729"/>
+<input type="text" name="SQ" size="40"/>
+<input class="submitlink" type="submit" value="Go &gt;"/>
+</li>
+<li><a
+href="http://proquest.umi.com.proxy.library.emory.edu/pqdweb?RQT=305&amp;SQ=LSCHNAME%28%7BEMORY+UNIVERSITY%7D%29&amp;clientId=1917">Browse</a>
+</li>
+</ul>
+
+</form>
+
+</div>
+<hr/>
+
+<?=  $this->render("index/calendar.phtml"); ?>
+<? if ($this->news): ?>
+ <?=  $this->render("index/news.phtml"); ?>
+<? endif ?>
+

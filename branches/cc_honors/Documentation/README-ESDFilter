@@ -1,0 +1,79 @@
+Installation Notes
+==================
+
+1. Copy DbConnectionUtility.class to tomcat/classes/org/fcrepo/server/utilities/
+
+2. Copy FilterDbAuthorization.class tomcat/classes/org/fcrepo/server/security/servletfilters/dbauth/
+
+3. In tomcat/webapps/fedora/WEB-INF/web.xml add the following filter section:
+
+<!-- filter for emory shared data -->
+<!--NB: these classes provided by eul-fedora-extensions.jar, which can be obtained at: http://waterhouse.library.emory.edu:8080/hudson/job/fedora-java-extensions/lastSuccessfulBuild/artifact/repo/dist/eul-fedora-extensions.jar -->
+<!-- You man also have to get some lib jar files from this location https://svn.library.emory.edu/svn/fedora/fedora-extensions/branches/fedora3.4/
+
+<filter>
+<filter-name>DeptDataFilter</filter-name>
+      <filter-class>org.fcrepo.server.security.servletfilters.dbauth.FilterDbAuthorization</filter-class>
+        <init-param>
+          <param-name>associated-filters</param-name>
+          <!-- <param-value>LdapFilterForAttributes,XmlUserfileFilter,DeptDataFilter</param-value>  -->
+          <param-value>AuthFilterJAAS<!--,DeptDataFilter--></param-value>
+        </init-param>
+        <init-param>
+          <param-name>dbdriver</param-name>
+          <param-value>oracle.jdbc.OracleDriver</param-value>
+        </init-param>
+        <init-param>
+          <param-name>db-connection-str</param-name>
+          <param-value>jdbc:oracle:thin:@eudb01.cc.emory.edu:1521:PRDMDP</param-value>
+        </init-param>
+        <init-param>
+          <param-name>dbuserid</param-name>
+          <param-value>etdapo</param-value>
+        </init-param>
+        <init-param>
+          <param-name>dbpassword</param-name>
+          <param-value></param-value>
+        </init-param>
+        <init-param>
+          <param-name>user-search-filter</param-name>
+          <param-value>(uid={0})</param-value>
+        </init-param>
+        <init-param>
+          <param-name>user-id-attribute</param-name>
+          <param-value>uid</param-value>
+        </init-param>
+        <init-param>
+          <param-name>user-attributes</param-name>
+          <param-value>loginId,loginName,deptCoordinator</param-value>
+        </init-param>
+        <init-param>
+          <param-name>authenticate</param-name>
+          <param-value>true</param-value>
+        </init-param>
+    </filter>
+<!-- end esd filter -->
+
+
+4. Insert database password into dbpassword param
+
+5. In tomcat/webapps/fedora/WEB-INF/web.xml add the following to the filter-mapping section
+
+<filter-mapping>
+      <filter-name>DeptDataFilter</filter-name>
+      <url-pattern>/*</url-pattern>
+</filter-mapping>  section:
+
+
+6. make sure the followng files are in tomcat/webapps/fedora/WEB-INF/lib:
+classes12.zip (may have to change this file to .jar)
+jcl-over-slf4j-1.5.10.jar
+fcrepo-server-3.4.1.jar
+slf4j-api-1.5.10.jar
+logback-classic-0.9.18.jar
+logback-core-0.9.18.jar
+
+AND
+
+tomcat/lib:
+servlet-api.jar
