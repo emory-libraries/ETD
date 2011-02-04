@@ -59,6 +59,8 @@ class etd_notifier extends notifier {
       $this->send_to = array("author", "author_permanent"); break;
     case "author-permanent": // only send to author's permanent address
       $this->send_to = array("author_permanent"); break;
+    case "author-school": // both author email addresses and the school admin(s)
+      $this->send_to = array("author", "author_permanent", "school"); break;
     case "permanent":	// author's permanent address and committee
       $this->send_to = array("author_permanent", "committee"); break;
     case "patent_info":
@@ -140,6 +142,25 @@ if ($environment->mode != "production") {
 	$this->to[$config->email->ott->address] = $config->email->ott->name;
       }
     }
+
+
+    // school recipient email info must be pulled from schools file
+    if (in_array("school", $this->send_to)){
+      $esd = new esdPersonObject();
+      $schools_cfg = Zend_Registry::get('schools-config');
+      $schoolId = $etd->schoolId();
+      $school = $schools_cfg->getSchoolByAclId($schoolId);
+
+      if(isset($school->admin) && isset($school->admin->netid)){
+          $ids = (is_object($school->admin->netid) ? $school->admin->netid->toArray() : array($school->admin->netid));
+          foreach($ids as $id){
+              $person = $esd->findByUsername($id);
+              $this->cc[$person->email] = $person->fullname;
+          }
+      }
+
+    }
+
     
     
     // store in the view for debugging output when in development mode
@@ -230,11 +251,12 @@ if ($environment->mode != "production") {
    * template includes text input by administrator from a website form.
    * @param string $subject subject for the email
    * @param string $text email content to include in the output
+   * * @param string $to code for group to send to
    * @return array of addresses email was sent to
    */
-  public function request_changes($subject, $text) {
+  public function request_changes($subject, $text, $to="author") {
     // don't send to committee
-    $this->setRecipients("author");
+    $this->setRecipients($to);
     $this->mail->setSubject($subject);
     $this->view->text = $text;
     $this->setBodyHtml($this->view->render("email/request_changes.phtml"));

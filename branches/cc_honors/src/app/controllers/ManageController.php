@@ -226,7 +226,9 @@ class ManageController extends Etd_Controller_Action {
      $content = $this->_getParam("content");
 
      $notify = new etd_notifier($etd);
-     $to = $notify->request_changes($subject, $content);
+     //author-school currently only used with honors
+     $sendTo = ($etd->schoolId() == "honors" ? "author-school" : "author");
+     $to = $notify->request_changes($subject, $content, $sendTo);
 
      $this->_helper->flashMessenger->addMessage("Email sent to <b>" . implode(', ', array_keys($to)) . "</b>");
 
