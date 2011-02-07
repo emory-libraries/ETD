@@ -13,13 +13,13 @@ require_once("etdInterface.php");
 require_once("datastreams/etd_mods.php");
 require_once("datastreams/etd_html.php");
 require_once("datastreams/etd_rels.php");
+require_once("datastreams/etd_dc.php");
 require_once("datastreams/premis.php");
 require_once("datastreams/policy.php");
 
 // related objects
 require_once("datastreams/etdfile.php");
 require_once("authorInfo.php");
-require_once("datastreams/etd_dc_unversioned.php");
 
 require_once("solrEtd.php");
 
@@ -164,7 +164,7 @@ class etd extends foxml implements etdInterface {
                "class_name" => "XacmlPolicy", "dsID" => "POLICY");
                
     // use customized versions of a few of the default datastreams
-    $this->xmlconfig["dc"]["class_name"] = "etd_dc_unversioned";               
+    $this->xmlconfig["dc"]["class_name"] = "etd_dc";               
 
     // relations to other objects
     $this->relconfig["pdfs"] = array("relation" => "hasPDF", "is_series" => true, "class_name" => "etd_file",
