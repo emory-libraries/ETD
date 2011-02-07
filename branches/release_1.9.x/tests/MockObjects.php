@@ -44,14 +44,14 @@ require_once('models/etd.php');
 require_once('models/datastreams/etdfile.php');
 require_once('models/datastreams/etd_dc.php');
 require_once('models/datastreams/etd_dc_versioned.php');
-Mock::generate('etd', 'BasicMock_Etd');
+Mock::generate('etd', "BasicMock_Etd");
 Mock::generate('etd_file', "BasicMock_EtdFile");
 Mock::generate('etd_dc', "BasicMock_etd_dc");
-Mock::generate('etd_dc', "BasicMock_etd_dc_versioned");
+Mock::generate('etd_dc_versioned', "BasicMock_etd_dc_versioned");
 Mock::generate('etd_html', "Mock_etd_html");
 Mock::generate('etd_mods', "BasicMock_etd_mods");
 Mock::generate('premis', "Mock_premis");
-Mock::generate('authorInfo',  'BasicMock_authorInfo');
+Mock::generate('authorInfo',  "BasicMock_authorInfo");
 
 class MockEtd extends BasicMock_Etd {
   public $pid;
@@ -100,19 +100,15 @@ class MockEtd extends BasicMock_Etd {
   public function getMods() {
       return "<mods:clean_mods/>";
   }
-   
-
 }
-
 
 class MockEtd_dc extends BasicMock_etd_dc {
   public $title;
 }
 
 class MockEtd_dc_versioned extends BasicMock_etd_dc_versioned {
-  public $title;
+  public $versionable = true;
 }
-
 
 class Mocketd_mods extends BasicMock_etd_mods {
   public $chair;
@@ -122,7 +118,6 @@ class Mocketd_mods extends BasicMock_etd_mods {
     $this->committee = array();
   }
 }
-
 
 class MockEtdFile extends BasicMock_EtdFile {
   public $dc;
