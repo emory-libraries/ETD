@@ -8,8 +8,6 @@ require_once("datastreams/etd_dc.php");
  * @package Etd_Models
  * @subpackage Etd
  *
- * @property array $identifier
- * @property array $subject
  * @property array $format
  * @property string $ark dc:identifier that contains ark
  * @property string $fedora_pid dc:identifier that contains info:fedora
@@ -27,11 +25,6 @@ class etdfile_dc extends etd_dc {
 
   protected function configure() {
     parent::configure();
-
-    // adjustments a few stock dc fields
-    // TODO: update etd code to use base class mappings of identifiers and subjects
-    $this->xmlconfig['identifier']['is_series'] = true;
-    $this->xmlconfig['subject']['is_series'] = true;   
 
     // a few special cases 
     $this->xmlconfig["ark"] = array("xpath" => "dc:identifier[contains(., 'ark')]");
