@@ -13,14 +13,14 @@
 </foxml:datastream>
  
 
-  <foxml:datastream CONTROL_GROUP='X' ID='XHTML' STATE='A'	VERSIONABLE='true'>
+  <foxml:datastream CONTROL_GROUP='M' ID='XHTML' STATE='A'  VERSIONABLE='true'>
     <foxml:datastreamVersion ID='XHTMl.0' LABEL='formatted text' MIMETYPE='text/xml'>
       <foxml:xmlContent>
-	<html>
-	    <div id="title">Why <i>I</i> like cheese</div>
-	    <div id="abstract"><b>gouda</b> or <i>cheddar</i>?</div>
+  <html>
+      <div id="title">Why <i>I</i> like cheese</div>
+      <div id="abstract"><b>gouda</b> or <i>cheddar</i>?</div>
             <div id="contents">Chapter 1: Gouda<br/> Chapter 2: Brie</div>
-	</html>
+  </html>
       </foxml:xmlContent>
     </foxml:datastreamVersion>
   </foxml:datastream>
@@ -34,22 +34,22 @@
 </foxml:datastream>
   
 
-  <foxml:datastream CONTROL_GROUP='X' ID='DC' STATE='A'	VERSIONABLE='true'>
+  <foxml:datastream CONTROL_GROUP='X' ID='DC' STATE='A' VERSIONABLE='false'>
     <foxml:datastreamVersion ID='DC.0' LABEL='Dublin Core' MIMETYPE='text/xml'>
       <foxml:xmlContent>
-	<oai_dc:dc 		
-		xmlns:dc="http://purl.org/dc/elements/1.1/"
-		xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/">
-	      <dc:title>Why I Like Cheese</dc:title>
-	      <dc:description>Gouda or Cheddar?</dc:description>
-	      <dc:identifier>info:fedora/testetd1</dc:identifier>
-	</oai_dc:dc>
+  <oai_dc:dc    
+    xmlns:dc="http://purl.org/dc/elements/1.1/"
+    xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/">
+        <dc:title>Why I Like Cheese</dc:title>
+        <dc:description>Gouda or Cheddar?</dc:description>
+        <dc:identifier>info:fedora/testetd1</dc:identifier>
+  </oai_dc:dc>
       </foxml:xmlContent>
     </foxml:datastreamVersion>
    </foxml:datastream>
 
 
-<foxml:datastream CONTROL_GROUP="X" ID="PREMIS" STATE="A" VERSIONABLE="false">
+<foxml:datastream CONTROL_GROUP="M" ID="PREMIS" STATE="A" VERSIONABLE="false">
     <foxml:datastreamVersion ID="PREMIS.0" LABEL="Record History" MIMETYPE="text/xml">
       <foxml:xmlContent>
 <premis:premis xmlns:premis="http://www.loc.gov/standards/premis/v1">
@@ -82,10 +82,10 @@
    </foxml:datastream>
 
 
-<foxml:datastream CONTROL_GROUP="X" ID="POLICY" STATE="A" VERSIONABLE="false">
+<foxml:datastream CONTROL_GROUP="M" ID="POLICY" STATE="A" VERSIONABLE="false">
     <foxml:datastreamVersion ID="POLICY.0" LABEL="Policy" MIMETYPE="text/xml">
       <foxml:xmlContent>
-	<Policy xmlns="urn:oasis:names:tc:xacml:1.0:policy" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" PolicyId="test-etd1" RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:first-applicable">
+  <Policy xmlns="urn:oasis:names:tc:xacml:1.0:policy" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" PolicyId="test-etd1" RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:first-applicable">
 
   <Description>object-specific policy for etd records</Description>
   <Target>

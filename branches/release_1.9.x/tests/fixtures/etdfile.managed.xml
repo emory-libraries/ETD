@@ -10,24 +10,24 @@
   <foxml:contentLocation TYPE="INTERNAL_ID" REF="emory:1b6g8+RELS-EXT+RELS-EXT.0"/>
   </foxml:datastreamVersion>
   </foxml:datastream>
-  <foxml:datastream CONTROL_GROUP='X' ID='DC' STATE='A'	VERSIONABLE='true'>
+  <foxml:datastream CONTROL_GROUP='X' ID='DC' STATE='A' VERSIONABLE='true'>
     <foxml:datastreamVersion ID='DC.0' LABEL='Dublin Core' MIMETYPE='text/xml'>
       <foxml:xmlContent>
-	<oai_dc:dc 		
-		xmlns:dc="http://purl.org/dc/elements/1.1/"
-		xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/">
-	      <dc:title>Original/PDF</dc:title>
-	      <dc:description>dissertation document</dc:description>
-	      <dc:identifier>info:fedora/testetdfile1</dc:identifier>
-	</oai_dc:dc>
+  <oai_dc:dc    
+    xmlns:dc="http://purl.org/dc/elements/1.1/"
+    xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/">
+        <dc:title>Original/PDF</dc:title>
+        <dc:description>dissertation document</dc:description>
+        <dc:identifier>info:fedora/testetdfile1</dc:identifier>
+  </oai_dc:dc>
       </foxml:xmlContent>
     </foxml:datastreamVersion>
    </foxml:datastream>
 
-<foxml:datastream CONTROL_GROUP="X" ID="POLICY" STATE="A" VERSIONABLE="false">
+<foxml:datastream CONTROL_GROUP="M" ID="POLICY" STATE="A" VERSIONABLE="false">
     <foxml:datastreamVersion ID="POLICY.0" LABEL="Policy" MIMETYPE="text/xml">
       <foxml:xmlContent>
-	<Policy xmlns="urn:oasis:names:tc:xacml:1.0:policy" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" PolicyId="test-etdfile1" RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:first-applicable">
+  <Policy xmlns="urn:oasis:names:tc:xacml:1.0:policy" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" PolicyId="test-etdfile1" RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:first-applicable">
 
   <Description>object-specific policy for etd records</Description>
   <Target>

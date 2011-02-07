@@ -11,6 +11,7 @@ require_once("fedora/models/fileDatastream.php");
 
 require_once("etd.php");
 require_once("etd_rels.php");
+require_once("datastreams/etd_dc_versioned.php");
 require_once("datastreams/etd_dc.php");
 require_once("file_policy.php");
 
@@ -76,7 +77,7 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
     // use custom rels-ext class
     $this->xmlconfig["rels_ext"]["class_name"] = "etd_rels";
     // use custom DC class
-    $this->xmlconfig["dc"]["class_name"] = "etd_dc";
+    $this->xmlconfig["dc"]["class_name"] = "etd_dc_versioned";    
   }
 
 
