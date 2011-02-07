@@ -8,8 +8,6 @@ require_once("datastreams/etd_dc.php");
  * @package Etd_Models
  * @subpackage Etd
  *
- * @property array $identifier
- * @property array $subject
  * @property array $format
  * @property string $ark dc:identifier that contains ark
  * @property string $fedora_pid dc:identifier that contains info:fedora
