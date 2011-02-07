@@ -13,6 +13,7 @@ require_once("etdInterface.php");
 require_once("datastreams/etd_mods.php");
 require_once("datastreams/etd_html.php");
 require_once("datastreams/etd_rels.php");
+require_once("datastreams/etd_dc.php");
 require_once("datastreams/premis.php");
 require_once("datastreams/policy.php");
 
@@ -161,6 +162,9 @@ class etd extends foxml implements etdInterface {
     $this->addNamespace("x", "urn:oasis:names:tc:xacml:1.0:policy");
     $this->xmlconfig["policy"] = array("xpath" => "//foxml:xmlContent/x:Policy",
                "class_name" => "XacmlPolicy", "dsID" => "POLICY");
+               
+    // use customized versions of a few of the default datastreams
+    $this->xmlconfig["dc"]["class_name"] = "etd_dc";                 
 
     // relations to other objects
     $this->relconfig["pdfs"] = array("relation" => "hasPDF", "is_series" => true, "class_name" => "etd_file",
