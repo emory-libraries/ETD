@@ -59,6 +59,8 @@ class etd_notifier extends notifier {
       $this->send_to = array("author", "author_permanent"); break;
     case "author-permanent": // only send to author's permanent address
       $this->send_to = array("author_permanent"); break;
+    case "author-school": // both author email addresses and the school admin(s)
+      $this->send_to = array("author", "author_permanent", "school"); break;
     case "permanent":	// author's permanent address and committee
       $this->send_to = array("author_permanent", "committee"); break;
     case "patent_info":
@@ -140,6 +142,26 @@ if ($environment->mode != "production") {
 	$this->to[$config->email->ott->address] = $config->email->ott->name;
       }
     }
+
+
+    // school recipient email info must be pulled from schools file
+    //FIXME: make it work with rollins admins
+    if (in_array("school", $this->send_to)){
+      $esd = new esdPersonObject();
+      $schools_cfg = Zend_Registry::get('schools-config');
+      $schoolId = $etd->schoolId();
+      $school = $schools_cfg->getSchoolByAclId($schoolId);
+
+      if(isset($school->admin) && isset($school->admin->netid)){
+          $ids = (is_object($school->admin->netid) ? $school->admin->netid->toArray() : array($school->admin->netid));
+          foreach($ids as $id){
+              $person = $esd->findByUsername($id);
+              $this->cc[$person->email] = $person->fullname;
+          }
+      }
+
+    }
+
     
     
     // store in the view for debugging output when in development mode
@@ -160,7 +182,7 @@ if ($environment->mode != "production") {
     $this->mail->setSubject("Your ETD Has Been Successfully Submitted");
     $this->setBodyHtml($this->view->render("email/submission.phtml"));
     $this->send();
-    return $this->to;
+    return array_merge($this->to, $this->cc);
   }
 
   /**
@@ -173,7 +195,7 @@ if ($environment->mode != "production") {
     $this->mail->setSubject("Your ETD Has Been Approved");
     $this->setBodyHtml($this->view->render("email/approval.phtml"));
     $this->send();
-    return $this->to;
+    return array_merge($this->to, $this->cc);
   }
 
   /**
@@ -186,7 +208,7 @@ if ($environment->mode != "production") {
     $this->mail->setSubject("Your ETD Has Been Published in the Emory Repository");
     $this->setBodyHtml($this->view->render("email/publication.phtml"));
     $this->send();
-    return $this->to;
+    return array_merge($this->to, $this->cc);
   }
 
   /**
@@ -198,7 +220,7 @@ if ($environment->mode != "production") {
     $this->mail->setSubject("Your ETD Access Restriction will Expire in 60 Days");
     $this->setBodyHtml($this->view->render("email/embargo_expiration.phtml"));
     $this->send();
-    return $this->to;
+    return array_merge($this->to, $this->cc);
   }
 
   /**
@@ -210,7 +232,7 @@ if ($environment->mode != "production") {
     $this->mail->setSubject("Please Disregard Automated Message from ETD system sent out today");
     $this->setBodyHtml($this->view->render("email/embargo_expiration_error.phtml"));
     $this->send();
-    return $this->to;
+    return array_merge($this->to, $this->cc);
   }
 
   /**
@@ -222,7 +244,7 @@ if ($environment->mode != "production") {
     $this->mail->setSubject("Your ETD Access Restriction Expires Today");
     $this->setBodyHtml($this->view->render("email/embargo_end.phtml"));
     $this->send();
-    return $this->to;
+    return array_merge($this->to, $this->cc);
   }
 
   /**
@@ -230,16 +252,17 @@ if ($environment->mode != "production") {
    * template includes text input by administrator from a website form.
    * @param string $subject subject for the email
    * @param string $text email content to include in the output
+   * * @param string $to code for group to send to
    * @return array of addresses email was sent to
    */
-  public function request_changes($subject, $text) {
+  public function request_changes($subject, $text, $to="author") {
     // don't send to committee
-    $this->setRecipients("author");
+    $this->setRecipients($to);
     $this->mail->setSubject($subject);
     $this->view->text = $text;
     $this->setBodyHtml($this->view->render("email/request_changes.phtml"));
     $this->send();
-    return $this->to;
+    return array_merge($this->to, $this->cc);
   }
 
 
@@ -257,7 +280,7 @@ if ($environment->mode != "production") {
     $this->mail->setSubject("ETD author has patent concerns");
     $this->setBodyHtml($this->view->render("email/patent_concerns.phtml"));
     $this->send();
-    return $this->to;
+    return array_merge($this->to, $this->cc);
   }
 }
 
@@ -311,8 +334,7 @@ class etdSet_notifier extends notifier {
     $this->mail->setSubject("ETD embargoes expiring in 7 days");
     $this->setBodyHtml($this->view->render("email/embargoes_expiring_oneweek.phtml"));
     $this->send();
-    return $this->to;
-  }
+    return array_merge($this->to, $this->cc);  }
   
 }
 
