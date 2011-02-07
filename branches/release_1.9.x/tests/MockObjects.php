@@ -103,11 +103,10 @@ class MockEtd extends BasicMock_Etd {
 }
 
 class MockEtd_dc extends BasicMock_etd_dc {
-  public $versionable = false;  
   public $title;
 }
 
-class MockEtdFile_dc extends BasicMock_etdfile_dc {
+class MockEtd_dc_versioned extends BasicMock_etdfile_dc {
   public $versionable = true;
 }
 
@@ -128,7 +127,7 @@ class MockEtdFile extends BasicMock_EtdFile {
   public $file;
   public function __construct() {
     $this->BasicMock_EtdFile();
-    $this->dc = &new MockEtdFile_dc();
+    $this->dc = &new Mocketdfile_dc();
     //    $this->etd = &new MockEtd();
   }
 }
