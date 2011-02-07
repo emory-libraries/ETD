@@ -106,7 +106,7 @@ class MockEtd_dc extends BasicMock_etd_dc {
   public $title;
 }
 
-class MockEtd_dc_versioned extends BasicMock_etdfile_dc {
+class Mocketdfile_dc extends BasicMock_etdfile_dc {
   public $versionable = true;
 }
 
