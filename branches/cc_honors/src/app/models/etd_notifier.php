@@ -145,6 +145,7 @@ if ($environment->mode != "production") {
 
 
     // school recipient email info must be pulled from schools file
+    //FIXME: make it work with rollins admins
     if (in_array("school", $this->send_to)){
       $esd = new esdPersonObject();
       $schools_cfg = Zend_Registry::get('schools-config');
