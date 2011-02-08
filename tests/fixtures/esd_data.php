@@ -17,6 +17,8 @@ class esd_test_data {
     $this->persons = array(
 			   // staff person
 			   array(' ',1,'PSTAFF','E','Staff','Person',' ','A. Person','Employee','1000','University Libraries',null,null,null,null,null,null,null,null,'person.staff@emory.edu'),
+               array(' ',1,'NOBODY','E','Person','Advisor',' ','Advisor','B','1000','University Libraries',null,null,null,null,null,null,null,null,'nbody@emory.edu'),
+               array(' ',1,'NOBODY2','E','Person','Committee',' ','Committee','Person','1000','University Libraries',null,null,null,null,null,null,null,null,'nbody2@emory.edu'),
 			   // two faculty persons with similar names
 			   array('Y',2,'ENGRBS','F','Scholar','Roger','B','R Bradley','Professor','1001','English',null,null,null,null,null,null,null,null,'r.scholar@emory.edu'),
 			   array('Y',3,'BSCHOLA','F','Scholar','Brad','A','Brad A','Assoc Professor','1002','SOM: Neurology',null,null,null,null,null,null,null,null,'b.scholar@emory.edu'),
