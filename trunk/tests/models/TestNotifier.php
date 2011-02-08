@@ -45,9 +45,16 @@ function setUp() {
     $authorInfo->mads->permanent->email = "bsperm@somewhere.com";
     $this->etd->related_objects['authorInfo'] = $authorInfo;
 
+    //remove nobody and nobodytoo (and addng other admins) because using them in esd data messes up other tests
+    $this->etd->mods->setCommittee(array("pstaff"), "chair");
+    $this->etd->mods->setCommittee(array("engrbs"), "committee");
+    $this->etd->mods->removeCommittee("nobody");
+    $this->etd->mods->removeCommittee("nobodytoo");
+
+
     //Get committee membes tht are in this fixture and admins that are in the schools config
-    $this->advisor = $this->esd->findByUsername("nobody");
-    $this->member = $this->esd->findByUsername("nobody2");
+    $this->advisor = $this->esd->findByUsername("pstaff");
+    $this->member = $this->esd->findByUsername("engrbs");
     $this->admin = $this->esd->findByUsername("gadmin");
 
     //save original config
