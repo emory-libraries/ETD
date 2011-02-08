@@ -15,17 +15,17 @@ class etd_notifier extends notifier {
    * @var array $to addresses email will be sent to
    * @access private
    */
-  private $to;
+  protected $to;
   /**
    * @var array $cc addresses to be copied on the email
    * @access private
    */
-  private $cc;
+  protected $cc;
   /**
    * @var array $send_to who should be included in constructing to and cc
    * @access private
    */
-  private $send_to;
+  protected $send_to;
 
   /**
    * create an etd notification object in order to send out an
@@ -51,7 +51,7 @@ class etd_notifier extends notifier {
    *   - permanent : send to author's permanent address and to committee
    *   - all : (default) send to both author's email addresses and to committee
    */
-  private function setRecipients($who = "all") {
+  protected function setRecipients($who = "all") {
 
     // configure who should receive this email
     switch ($who) {
