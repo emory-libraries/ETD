@@ -29,7 +29,7 @@
         <mods:roleTerm authority="marcrelator" type="text">Thesis Advisor</mods:roleTerm>
       </mods:role>
     </mods:name>
-    <mods:name ID="nobody2" type="personal">
+    <mods:name ID="nobodytoo" type="personal">
       <mods:namePart type="given">Committee</mods:namePart>
       <mods:namePart type="family">Person</mods:namePart>
       <mods:displayForm>Person, Committee</mods:displayForm>
