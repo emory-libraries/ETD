@@ -82,15 +82,15 @@ Version 1.9
       
       /home/fedora34/server/bin/fedora-modify-control-group.sh
       migratedatastreamcontrolgroup https fedoraAdmin <password>
-      file:////tmp/ETDFile.txt RELS-EXT,FILE,POLICY M >
+      file:////tmp/ETDFile.txt RELS-EXT,FILE,POLICY M >>
       managedConversion.log      - you many have to use http for the 2nd param
 
       /home/fedora34/server/bin/fedora-modify-control-group.sh
       migratedatastreamcontrolgroup https fedoraAdmin <password>
-      file:////tmp/ETDAuthorInfo.txt RELS-EXT,MADS M >
+      file:////tmp/ETDAuthorInfo.txt RELS-EXT,MADS M >>
       managedConversion.log      - you many have to use http for the 2nd param            
 
-   - Make sure to copy over These addition pids as well but do
+   - Make sure to copy over these addition pids as well but do
      not run the managed migration on them:
       emory-control:ETD-collection
       emory-control:ETD-GradSchool-collection
@@ -111,12 +111,16 @@ Version 1.9
     If the location parameter is not the default location adjust accordingly.
     
 
-* Update GSearch with latest version of src/public/xslt/etdFoxmlToSolr.xslt
-  and reindex all content.  Note that the xslt now requires a parameter
-  containing the Fedora base url to be set in REPOSITORYURL.  You must edit
-  this parameter if Fedora should be accessed somewhere other than this default:
+* Update GSearch with latest version of src/public/xslt/etdFoxmlToSolr.xslt.
+  Note that the xslt now requires a parameter containing the Fedora base url 
+  to be set in REPOSITORYURL.  You must edit this parameter if Fedora should 
+  be accessed somewhere other than this default:
         http://localhost:8080/fedora/ .  It looks like at least for the staging
         environment, the hostname will not work. You must use localhost.
+        
+*  Reindex gSearch by running the ETD reindex script:
+    - cd src/scripts
+    - php ./re-index.php
      
 *  Run the checksum script to determine the current checksum status.
    cd src/scripts
