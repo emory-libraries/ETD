@@ -20,9 +20,9 @@ chdir("..");
 require_once("bootstrap.php");
 
 $getopts = array_merge(
-		       array('pid|p=s'	    => 'Clean xacml on one etd record only'),
-		       $common_getopts	// use default verbose and noact opts from bootstrap
-		       );
+           array('pid|p=s'      => 'Clean xacml on one etd record only'),
+           $common_getopts  // use default verbose and noact opts from bootstrap
+           );
 
 $opts = new Zend_Console_Getopt($getopts);
 
@@ -42,31 +42,66 @@ try {
 
 // output logging - common setup function in bootstrap
 $logger = setup_logging($opts->verbose);
+$count = 0;
+$updated_count = 0;
+$skip_count = 0;
+$failed_count = 0;
 
 // if pid is specified, run single record mode
+// ./002-clean_xacml.php -p 'emory:8kjtd' -v debug -n 
 if ($opts->pid) {
+  print "PID = [" . $opts->pid . "]\n";
   $etd = new etd($opts->pid);
-  clean_xacml($etd);
+  try {
+    clean_xacml($etd);
+  } catch (Exception $err) {
+    $logger->err("002-clean_xacml failed to update pid [" . $opts->pid . "] POLICY datastream.");   
+    $failed_count++;
+    print "\n\n";    
+  }
   return;
 }
 
-
 // find *all* records, no matter their status, etc.
-$options = array("start" => 0, "max" => 100);
-$etdSet = new EtdSet();
-$etdSet->find($options);
+$options = array("start" => 0, "max" => 6500);
+$etdSet = new EtdSet($options, null, 'find');
+$logger->info("EtdSet found = [" . $etdSet->count() . "] etd records.");
 
-for ($count = 0; $etdSet->hasResults(); $etdSet->next()) {
-  $logger->info("Processing records " . $etdSet->currentRange() . " of " . $etdSet->numFound);
+
+// Wrap the result set around the paginator to get (page) sets of data to process.
+$paginator = new Zend_Paginator($etdSet);
+$paginator->setItemCountPerPage(6500);
+
+for ($page = 0; $page<sizeof($paginator); $page++) {
   
-  foreach ($etdSet->etds as $etd) {
-    if (clean_xacml($etd)) $count++;
-  }
+  $plural = ($etdSet->numFound == "1") ? "" : "s";  
+  foreach ($paginator as $etd) { 
+    $count++;
+    $logger->info("Begin Processing [" . ($count-1) ."] ETD pid = [" . $etd->pid . "]");     
+    try {  
+      if (clean_xacml($etd)) {
+        $updated_count++;
+        $logger->info("Done Cleaned [" . ($count-1) ."] ETD pid = [" . $etd->pid . "]"); 
+      }
+      else {
+        $skip_count++;
+        $logger->info("Done Skipped [" . ($count-1) ."] ETD pid = [" . $etd->pid . "]");    
+      }
+    } catch (Exception $err) {
+      $logger->err("Done Failed [" . ($count-1) ."] pid [" . $etd->pid . "] POLICY datastream.");
+      $failed_count++;      
+    } 
+    print "\n\n";
+  } 
 }
 
 $logger->info($count . " records changed");
-
-
+print "\n-----------------\nResults:\n";
+print "Updated count: $updated_count\n";
+print "Skipped count: $skipped_count\n";
+print "Failed count: $failed_count\n";
+print "Total count: $count\n";
+print "\n-----------------\n";
 
 
 /**
@@ -77,68 +112,67 @@ $logger->info($count . " records changed");
 function clean_xacml(etd $etd) {
   global $logger, $opts;
 
-  $logger->debug("Processing " . $etd->pid);
+  $logger->debug("clean_xacml PID=[" . $etd->pid . "]");
+
   // update view rules
   //  - advisor & committee members should be listed on view rules for etd & all etdfiles but original
   //  - departmental staff (filtered by department name) is allowed to view
   
   // remove old view role and add new one to get new grad coordinator xacml
   $etd->removePolicyRule("view");
-  $etd->addPolicyRule("view");		// should not get added to original files
-  
+  $etd->addPolicyRule("view");    // should not get added to original files
   // add committee chairs & members to policies
   foreach (array_merge($etd->mods->chair, $etd->mods->committee) as $committee) {
     if ($committee->id != "") {
       $logger->debug("Adding committee id " . $committee->id . " to policy view rule");
-      foreach (array_merge(array($etd), $etd->pdfs, $etd->supplements) as $obj) {
-	$obj->policy->view->condition->addUser($committee->id);	  
+      foreach (array_merge(array($etd), $etd->pdfs, $etd->supplements) as $obj) {      
+        $obj->policy->view->condition->addUser($committee->id);   
       }
     }
   }
+ 
   // set department for departmental staff view
-  if ($etd->mods->department != "") {
+  if ($etd->mods->department != "") {  
     $logger->debug("Setting department to " . $etd->mods->department . " on policy view rule");
-    foreach (array_merge(array($etd), $etd->pdfs, $etd->supplements) as $obj) {
+    foreach (array_merge(array($etd), $etd->pdfs, $etd->supplements) as $obj) {      
       $obj->policy->view->condition->department = $etd->mods->department;
     }
   }
-
-  if ($etd->status() == "draft") {
+ 
+  if ($etd->status() == "draft") {    
     // remove the old draft policy and add the latest version (in case it has changed)
-    $etd->removePolicyRule("draft");
-    $etd->addPolicyRule("draft");
-  }  else {
+    $etd->removePolicyRule("draft");    
+    $etd->addPolicyRule("draft");;     
+  }  else {     
     // if etd is no longer in draft status, make sure draft rule is removed from etd files
     // draft rule could be present in one of the etdfiles (hard to detect); just force removal
-    $logger->debug("Record is not in draft status; removing any draft policy rules.");
-    $etd->removePolicyRule("draft");		// remove draft policy on etd & all files
+    $logger->debug("Record is not in draft status; removing any draft policy rules.");    
+    $etd->removePolicyRule("draft");    // remove draft policy on etd & all files     
   }
-
 
   // if pubished, remove the old published policy and add the latest version
-  if ($etd->status() == "published") {
-    $etd->removePolicyRule("published");
-    $etd->addPolicyRule("published");
+  if ($etd->status() == "published") {    
+    $etd->removePolicyRule("published");    
+    $etd->addPolicyRule("published");    
   }
-  
+    
   // check if anything has been changed (for reporting purposes)
   $hasChanged = false;
   foreach (array_merge(array($etd), $etd->pdfs, $etd->supplements) as $obj) {
     if ($obj->policy->hasChanged()) $hasChanged = true;
   }
-  
-  if (!$hasChanged) {
+
+  if (!$hasChanged) {    
     $logger->info("No changes to policies on " . $etd->pid . " or associated files");
-  } elseif (!$opts->noact) {
-    $result = $etd->save("cleaned xacml policy - advisor, committee, department on view rule; draft rule");
+  } elseif (!$opts->noact) {   
+      $result = $etd->save("cleaned xacml policy - advisor, committee, department on view rule; draft rule");
     if ($result)
       $logger->info("Saved changes to " . $etd->pid . " and associated files");
-    else	// save failed
+    else  // save failed
       $logger->err("Error saving changes to " . $etd->pid . " and associated files");
   }
+
   // NOTE: if etdfiles changed but etd did not, might look like an error here when it is not
-
-
   
   // return whether or not the record was changed
   return $hasChanged;
