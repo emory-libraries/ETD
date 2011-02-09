@@ -80,31 +80,46 @@ Version 1.9
     - cd /tmp
     - cat ETD.txt  ETDFile.txt ETDAuthorInfo.txt  > ETDPids.txt
 
-   - Copy pids listed in ETDPids.txt to fedora3.4
+    - Copy pids listed in ETDPids.txt to fedora3.4
+    - Copy /tmp/ETD.txt  /tmp/ETDFile.txt /tmp/ETDAuthorInfo.txt to fedora3.4   
 
-   - Run the inline to managed conversion script on pids listed in ETDPids.tex in fedora 3.4
-   Make sure the environment variables are set if avaliable this script will 
-   set them to the correct value ". /home/fedora34/set-env-for-this-fedora.sh"
+    - Run the fedora-rebuild.sh script for these options:
+      2) Rebuild SQL database.    
+      1) Rebuild the Resource Index.
+      Make sure then the new objects show up in the rebuilt count.
+      If the objects are not indexed, then they will not be found for the next step.
+    
+    - Run the inline to managed conversion script on pids listed in ETDPids.txt in fedora 3.4
+      Make sure the environment variables are set if avaliable this script will 
+      set them to the correct value ". /home/fedora34/set-env-for-this-fedora.sh"
 
-    /home/fedora34/server/bin/fedora-modify-control-group.sh
-    migratedatastreamcontrolgroup https fedoraAdmin <password>
-    file:////tmp/ETDPids.txt RELS-EXT,MODS,MADS,DC,XHTML,POLICY,PREMIS M >
-    managedConversion.log      - you many have to use http for the 2nd param
+      /home/fedora34/server/bin/fedora-modify-control-group.sh
+      migratedatastreamcontrolgroup https fedoraAdmin <password>
+      file:////tmp/ETD.txt RELS-EXT,MODS,XHTML,POLICY,PREMIS M >
+      managedConversion.log      - you many have to use http for the 2nd param
 
-   - Make sure to copy over These addition pids as well but do
+      /home/fedora34/server/bin/fedora-modify-control-group.sh
+      migratedatastreamcontrolgroup https fedoraAdmin <password>
+      file:////tmp/ETDFile.txt RELS-EXT,FILE,POLICY M >>
+      managedConversion.log      - you many have to use http for the 2nd param
+
+      /home/fedora34/server/bin/fedora-modify-control-group.sh
+      migratedatastreamcontrolgroup https fedoraAdmin <password>
+      file:////tmp/ETDAuthorInfo.txt RELS-EXT,MADS M >>
+      managedConversion.log      - you many have to use http for the 2nd param            
+
+   - Make sure to copy over these addition pids as well but do
      not run the managed migration on them:
-     emory-control:ETD-collection
-     emory-control:ETD-GradSchool-collection
-    emory-control:ETD-College-collection
-    emory-control:ETD-Candler-collection
-    emory-control:ETD-Rollins-collection
-    emory:17r1x
+      emory-control:ETD-collection
+      emory-control:ETD-GradSchool-collection
+      emory-control:ETD-College-collection
+      emory-control:ETD-Candler-collection
+      emory-control:ETD-Rollins-collection
+      emory:17r1x
 
 * Install ESDFilter on tomcat
     See Documentation/README-ESDFilter
  
-
-
 * Update the ETD content model services for particular fedora instance.
     (1) emory-control:ETD-metadataTransform/datastreams/WSDL/content
     (2) emory-control::ETDformattedMetadataParts/datastreams/WSDL/content
@@ -112,14 +127,16 @@ Version 1.9
     <http:address location="localhost:8080/saxon/"/>
     </wsdl:port>
     If the location parameter is not the default location adjust accordingly.
-    
 
-* Update GSearch with latest version of src/public/xslt/etdFoxmlToSolr.xslt
-  and reindex all content.  Note that the xslt now requires a parameter
-  containing the Fedora base url to be set in REPOSITORYURL.  You must edit
-  this parameter if Fedora should be accessed somewhere other than this default:
+* Update GSearch with latest version of src/public/xslt/etdFoxmlToSolr.xslt.
+  Note that the xslt now requires a parameter containing the Fedora base url 
+  to be set in REPOSITORYURL.  You must edit this parameter if Fedora should 
+  be accessed somewhere other than this default:
         http://localhost:8080/fedora/ .  It looks like at least for the staging
         environment, the hostname will not work. You must use localhost.
+*  Reindex gSearch by running the ETD reindex script:
+    - cd src/scripts
+    - php ./re-index.php
      
 *  Run the checksum script to determine the current checksum status.
    cd src/scripts
