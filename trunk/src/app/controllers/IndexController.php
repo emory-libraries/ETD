@@ -123,11 +123,11 @@ class IndexController extends Etd_Controller_Action {
         preg_match( "/Event Description:(.*)/", $content, $matches);
         $description= $matches[1];
 
-        $entries[$title] = array("start" => $start, "end" => $end, "where" => $where, "description" => $description);
+        $entries[$title] = array("start" => trim($start), "end" => trim($end), "where" => trim($where), "description" => trim($description));
         
     }
 
-    return $calendar;
+    return $entries;
   }
 
 
