@@ -37,6 +37,7 @@ Version 1.10
       <vocabularies_pid>
     - replace with new configuration found in config.xml.example
         <!-- Foxml Collections -->  section
+    - Add config for calendar feed found in config.xml.example
 
  * Run the migration scripts to reload the rollins school data: 
     - 017-add_vocabularies.php

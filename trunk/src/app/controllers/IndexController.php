@@ -22,6 +22,17 @@ class IndexController extends Etd_Controller_Action {
       trigger_error($message, E_USER_WARNING);
       $this->logger->err($message);
     }
+
+    //Calendar Section
+    try {
+      $this->view->calendar = $this->getCalendar($config);
+    } catch (Exception $e) {
+      $message = "Error retrieving calendar: " . $e->getMessage();
+      trigger_error($message, E_USER_WARNING);
+      $this->logger->err($message);
+    }
+
+
     
     //This section is displayed in the sidebar
     $feed = $this->_getParam("feed", "recent");	// by default, show recently published
@@ -56,7 +67,6 @@ class IndexController extends Etd_Controller_Action {
       //Set Feed_Reeder to use cache
       $cache = $this->createCache($config->news_feed->lifetime);
       Zend_Feed_Reader::setCache($cache);
-      //Zend_Feed_Reader::useHttpConditionalGet(); //may use later for conditional get
 
       //Read the feed
       $news = Zend_Feed_Reader::import($news_feed);
@@ -66,6 +76,60 @@ class IndexController extends Etd_Controller_Action {
 
     return $news;
   }
+
+  /**
+   * Get calendar feed for display on home page
+   * Parses each entry and returns array of data
+   * Also groups entries with same title
+   * @param Zend_Config $config - used for calendar_feed setting; error if not set
+   * @return Array
+   */
+  public function getCalendar(Zend_Config $config) {
+    // ETD calendar - rss feed from goodle calendar
+    if (! isset($config->calendar_feed->url)) {
+      throw new Exception("News feed is not configured");
+    }
+
+    try {
+      $calendar_feed = $config->calendar_feed->url;
+
+      //Read the feed
+      $calendar = Zend_Feed_Reader::import($calendar_feed);
+    } catch (Exception $e) {
+      throw new Exception("Could not parse ETD news feed '$calendar_feed' - " . $e->getMessage());
+    }
+
+    $entries = array(); //array of reformated calendar entries
+
+    foreach ($calendar as $entry){
+        $content = $entry->getContent();
+        $title = $entry->getTitle();
+
+        //Get start and end time 
+        preg_match( "/When:(.*)/", $content, $matches);
+             
+        //Set start and end time.  If no end, start will have the whole date
+        $start = $matches[1];
+        $end = "";
+        if (strpos($matches[1], "to")){
+            list($start, $end) = split("to", $matches[1]);
+        }
+
+        //Get  Location
+        preg_match( "/Where:(.*)/", $content, $matches);
+        $where = $matches[1];
+
+        //Get  Description
+        preg_match( "/Event Description:(.*)/", $content, $matches);
+        $description= $matches[1];
+
+        $entries[$title] = array("start" => $start, "end" => $end, "where" => $where, "description" => $description);
+        
+    }
+
+    return $calendar;
+  }
+
 
   /**
    * creates cache for RSS feeds
