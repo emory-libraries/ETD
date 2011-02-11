@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Policy xmlns="urn:oasis:names:tc:xacml:1.0:policy"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        PolicyId="permit-etds-if-etdadmin"
+        RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:first-applicable">
+  <Description>allow etd-admin users (specified here by netid) to
+access and modify (with some limitations) etd objects (etd, etdfile, user)</Description>
+  <Target>
+    <Subjects>
+      <AnySubject/>
+    </Subjects>
+    <Resources>
+
+<!-- restrict to etds, etd files, and etd user objects -->
+
+      <Resource>
+        <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+            <AttributeValue 
+		DataType="http://www.w3.org/2001/XMLSchema#string">info:fedora/emory-control:ETD-1.0</AttributeValue>
+		<!-- DataType="http://www.w3.org/2001/XMLSchema#string">etd</AttributeValue> -->
+            <ResourceAttributeDesignator 
+		AttributeId="info:fedora/fedora-system:def/model#hasModel" 
+                DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="false"/>
+        </ResourceMatch>
+      </Resource>
+
+      <Resource>
+        <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+            <AttributeValue 
+		DataType="http://www.w3.org/2001/XMLSchema#string">info:fedora/emory-control:EtdFile-1.0</AttributeValue>
+            <ResourceAttributeDesignator 
+		AttributeId="info:fedora/fedora-system:def/model#hasModel" 
+                DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="false"/>
+        </ResourceMatch>
+      </Resource>
+
+      <Resource>
+        <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+            <AttributeValue 
+		DataType="http://www.w3.org/2001/XMLSchema#string">info:fedora/emory-control:AuthorInformation-1.0</AttributeValue> 
+            <ResourceAttributeDesignator 
+		AttributeId="info:fedora/fedora-system:def/model#hasModel" 
+                DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="false"/>
+        </ResourceMatch>
+      </Resource>
+
+      <!-- This is a catch-all rule that allows collections and program hierarchies to be edited -->
+      <Resource>
+        <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+            <AttributeValue
+		DataType="http://www.w3.org/2001/XMLSchema#string">etdadmin</AttributeValue>
+            <ResourceAttributeDesignator
+		AttributeId="urn:fedora:names:fedora:2.1:resource:object:owner"
+                DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="false"/>
+        </ResourceMatch>
+      </Resource>
+
+      
+    </Resources>    
+    <Actions>
+      <AnyAction/>
+    </Actions>    
+  </Target>
+
+  <Rule RuleId="etdGuest" Effect="Permit">
+    <Target>
+      <Subjects>
+        <AnySubject/>
+      </Subjects>
+      <Resources>
+        <AnyResource/>
+      </Resources>
+      <Actions>
+	<AnyAction/>
+      </Actions>
+    </Target>
+
+    <Condition FunctionId="urn:oasis:names:tc:xacml:1.0:function:and">
+
+     <!-- allow view actions or modify actions on certain datastreams -->
+	<!-- view object or datastreams -->
+      <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-at-least-one-member-of">
+        <ActionAttributeDesignator DataType="http://www.w3.org/2001/XMLSchema#string" AttributeId="urn:fedora:names:fedora:2.1:action:id" MustBePresent="false"/>
+        <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-bag">
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">urn:fedora:names:fedora:2.1:action:id-getDatastreamDissemination</AttributeValue>
+<!-- change label, status -->
+        </Apply>	<!-- end string-bag -->
+      </Apply>  	<!-- end at least one member -->
+
+
+
+
+      <!-- usernames for etd admins(NOT Rollins) - THESE NEED TO BE IN SCHOOLS CONFIG TOO -->
+      <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-at-least-one-member-of">
+        <SubjectAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:subject:loginId" DataType="http://www.w3.org/2001/XMLSchema#string"/>
+        <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-bag">
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">guest</AttributeValue>
+        </Apply>
+      </Apply>
+
+   </Condition>
+  </Rule>
+</Policy>
