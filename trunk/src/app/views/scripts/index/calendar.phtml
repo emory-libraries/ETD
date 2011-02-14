@@ -3,19 +3,24 @@
 
 <? foreach ($this->calendar as $title => $details): ?>
   <p>
-    <u><b><?= $title ?>:</b></u>
+    <u><b><?= $title ?></b></u>
     <? if (isset($details["description"])): ?>
         <br /><?= $details["description"] ?>
     <? endif ?>
-    <? if (isset($details["start"]) && $details["start"]!=''): ?>
-        <?= $details["start"] ?>
-    <? endif ?>
-    <? if (isset($details["end"]) && $details["end"]!=''): ?>
-        - <?= $details["end"] ?> 
-    <? endif ?>
-    <? if (isset($details["where"]) && $details["where"] != ''): ?>
-        <?= $details["where"] ?>
-    <? endif ?>
+
+    <?// Get the start, end and location for each entry,  can have mutiple per title?>
+    <? foreach ($details["whenWhere"] as $ww): ?>
+        <? if (isset($ww["start"]) && $ww["start"]!=''): ?>
+            <li><?= $ww["start"] ?>
+        <? endif ?>
+        <? if (isset($ww["end"]) && $ww["end"]!=''): ?>
+            - <?= $ww["end"] ?>
+        <? endif ?>
+        <? if (isset($ww["where"]) && $ww["where"] != ''): ?>
+            <?= $ww["where"] ?>
+        <? endif ?>
+        </li>
+    <? endforeach ?>
   </p>
 <? endforeach ?>
 
