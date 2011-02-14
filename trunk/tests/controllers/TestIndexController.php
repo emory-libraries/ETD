@@ -101,6 +101,25 @@ class IndexControllerTest extends ControllerTestCase {
 
   }
 
+  function testSortByStartDate(){
+      $index = new IndexControllerForTest($this->request,$this->response);
+
+      //arrays containing the minimum amout of data for the function to work
+      $a = array("start" => "Sun Jan 2, 2011 9am");
+      $b = array("start" => "Wed Jan 5, 2011 10pm");
+
+      $result = $index->sortByStartDate($a, $b);
+      $this->assertEqual(-1, $result, "param 1 is earlier than parmam 2");
+
+      $result = $index->sortByStartDate($b, $a);
+      $this->assertEqual(1, $result, "param 1 is later than parmam 2");
+
+      $result = $index->sortByStartDate($a, $a);
+      $this->assertEqual(0, $result, "param 1 and parmam 2 are equal");
+
+
+  }
+
 }
         
 class IndexControllerForTest extends IndexController {
