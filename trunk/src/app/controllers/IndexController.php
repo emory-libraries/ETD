@@ -24,8 +24,22 @@ class IndexController extends Etd_Controller_Action {
     }
 
     //Calendar Section
+    // ETD calendar - rss feed from goodle calendar
+    if (! isset($config->calendar_feed->url)) {
+      throw new Exception("Calendar feed is not configured");
+    }
+
     try {
-      $this->view->calendar = $this->getCalendar($config);
+      $calendar_feed = $config->calendar_feed->url;
+
+      //Read the feed
+      $calendar = Zend_Feed_Reader::import($calendar_feed);
+    } catch (Exception $e) {
+      throw new Exception("Could not parse ETD news feed '$calendar_feed' - " . $e->getMessage());
+    }
+
+    try {
+      $this->view->calendar = $this->getCalendar($calendar);
     } catch (Exception $e) {
       $message = "Error retrieving calendar: " . $e->getMessage();
       trigger_error($message, E_USER_WARNING);
@@ -84,21 +98,7 @@ class IndexController extends Etd_Controller_Action {
    * @param Zend_Config $config - used for calendar_feed setting; error if not set
    * @return Array
    */
-  public function getCalendar(Zend_Config $config) {
-    // ETD calendar - rss feed from goodle calendar
-    if (! isset($config->calendar_feed->url)) {
-      throw new Exception("News feed is not configured");
-    }
-
-    try {
-      $calendar_feed = $config->calendar_feed->url;
-
-      //Read the feed
-      $calendar = Zend_Feed_Reader::import($calendar_feed);
-    } catch (Exception $e) {
-      throw new Exception("Could not parse ETD news feed '$calendar_feed' - " . $e->getMessage());
-    }
-
+  public function getCalendar($calendar) {
     $entries = array(); //array of reformated calendar entries
 
     foreach ($calendar as $entry){
@@ -109,7 +109,7 @@ class IndexController extends Etd_Controller_Action {
         preg_match( "/When:(.*)/", $content, $matches);
              
         //Set start and end time.  If no end, start will have the whole date
-        $start = $matches[1];
+        $start = (isset($matches[1]) ? $matches[1] : "");
         $end = "";
         if (strpos($matches[1], "to")){
             list($start, $end) = split("to", $matches[1]);
@@ -117,12 +117,14 @@ class IndexController extends Etd_Controller_Action {
 
         //Get  Location
         preg_match( "/Where:(.*)/", $content, $matches);
-        $where = $matches[1];
+        $where = (isset($matches[1]) ? $matches[1] : "");
 
         //Get  Description
         preg_match( "/Event Description:(.*)/", $content, $matches);
-        $description= $matches[1];
+        $description = (isset($matches[1]) ? $matches[1] : "");
 
+        //Events with the same title will be grouped together
+        //Each title can have mutiple dates and locations
         $entries[$title]["description"] = trim($description);
         $entries[$title]["whenWhere"][] = array("start" => trim($start), "end" => trim($end), "where" => trim($where));
     }

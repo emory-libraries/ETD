@@ -33,8 +33,8 @@ class IndexControllerTest extends ControllerTestCase {
     $IndexController = new IndexControllerForTest($this->request,$this->response);
 
     // NOTE: currently loading feed from another url
-    $this->expectError();	// news feed
-    $this->expectError();	// recent etds
+    $this->expectException(new Exception("Calendar feed is not configured"));
+    $this->expectError("Error retrieving news: News feed is not configured");
     $IndexController->indexAction();
     
     $this->assertTrue(isset($IndexController->view->title));
@@ -44,7 +44,7 @@ class IndexControllerTest extends ControllerTestCase {
   }
 
 
-  function test_getNews() {
+  function testGetNews() {
     $index = new IndexControllerForTest($this->request,$this->response);
     // news feed not configured
     try {
@@ -69,6 +69,25 @@ class IndexControllerTest extends ControllerTestCase {
     // FIXME: how to test success feed?  how to create mock feed ?
 	
   }
+
+  function testGetCalendar() {
+      //Create a feed
+      $calendarFeed = Zend_Feed_Reader::importFile("../fixtures/calendar.xml");
+
+    $index = new IndexControllerForTest($this->request,$this->response);
+    $result = $index->getCalendar($calendarFeed);
+
+    $this->assertIsA($result, "array");
+    $this->assertEqual("Come learn about ETD", $result["Workshop"]["description"]);
+
+    //order is important because these entries are sorted
+    $this->assertEqual("Mon Feb 7, 2011 10:30am", $result["Workshop"]["whenWhere"][0]["start"]);
+    $this->assertEqual("Rollins School", $result["Workshop"]["whenWhere"][0]["where"]);
+    $this->assertEqual("Mon Feb 7, 2011 2pm", $result["Workshop"]["whenWhere"][1]["start"]);
+    $this->assertEqual("Grad School Parking Lot", $result["Workshop"]["whenWhere"][1]["where"]);
+
+  }
+
 
     function test_createCache() {
     $index = new IndexControllerForTest($this->request,$this->response);
