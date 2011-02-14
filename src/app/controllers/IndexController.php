@@ -123,9 +123,17 @@ class IndexController extends Etd_Controller_Action {
         preg_match( "/Event Description:(.*)/", $content, $matches);
         $description= $matches[1];
 
-        $entries[$title] = array("start" => trim($start), "end" => trim($end), "where" => trim($where), "description" => trim($description));
-        
+        $entries[$title]["description"] = trim($description);
+        $entries[$title]["whenWhere"][] = array("start" => trim($start), "end" => trim($end), "where" => trim($where));
     }
+
+    //Sort each whenWhere entry by start date
+    //Using custom sort function "sortByStartDate"
+    // using & to change values in place in the array
+    foreach ($entries as &$entry){
+        usort($entry["whenWhere"], array(get_class(), "sortByStartDate"));
+    }
+    unset($entry); //remove reference afer sorting is done
 
     return $entries;
   }
@@ -147,6 +155,18 @@ class IndexController extends Etd_Controller_Action {
         return $cache;
   }
 
+    //function used to sort calendar entries based on start date
+  function sortByStartDate($a, $b) {
+    //convert dates to time
+    $a = strtotime($a["start"]);
+    $b = strtotime($b["start"]);
+
+
+    if ($a == $b) {
+        return 0;
+    }
+    return ($a < $b ? -1 : 1);
+}
 
 }
 ?>
