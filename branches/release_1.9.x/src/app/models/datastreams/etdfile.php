@@ -419,7 +419,6 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
              $upload_id, $message);
   }
 
-
   /**
    * return information for last modification of file datastream in fedora
    * (wrapper for foxml lastModified function - abstract datastream name)
@@ -428,7 +427,6 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
   public function fileLastModified() {
     return $this->lastModified("FILE");
   }
-
 
 
   /**
@@ -441,8 +439,13 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
     if ($this->etd->status() == "draft")
       return "draft file";
 
-    if ($this->type == "original")
-      return "original file";
+    try {
+      if ($this->type == "original")
+        return "original file";
+    }
+    catch (Exception $e) {  // Attempting to access a file without authorization.
+      return "file";   
+    }
     
     if ($this->etd->isEmbargoed()) 
       return "embargoed file";
@@ -450,6 +453,7 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
     // these are the only statuses that are relevant
     if ($this->etd->status() == "published")
       return "published file";
+      
     return "file";
   }
 
