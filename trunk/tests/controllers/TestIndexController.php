@@ -76,16 +76,33 @@ class IndexControllerTest extends ControllerTestCase {
 
     $index = new IndexControllerForTest($this->request,$this->response);
     $result = $index->getCalendar($calendarFeed);
-
     $this->assertIsA($result, "array");
-    $this->assertEqual("Come learn about ETD", $result["Workshop"]["description"]);
+        
+    //Test event with mutiple dates and times
+    //The order of whenWhere arrays are important because the dates are sorted by start time
+    $this->assertEqual("Come and submit your etd", $result["ETD Test Event"]["description"]);
+    //First date and location
+    $this->assertEqual("Mon Feb 14 2011 5:15pm", $result["ETD Test Event"]["whenWhere"][0]["start"]);
+    $this->assertEqual("6:15pm", $result["ETD Test Event"]["whenWhere"][0]["end"]);
+    $this->assertEqual("Grad School Building", $result["ETD Test Event"]["whenWhere"][0]["where"]);
+    //Second date and location
+    $this->assertEqual("Sun Feb 20 2011 6:00pm", $result["ETD Test Event"]["whenWhere"][1]["start"]);
+    $this->assertEqual("7:00pm", $result["ETD Test Event"]["whenWhere"][1]["end"]);
+    $this->assertEqual("Candler Building", $result["ETD Test Event"]["whenWhere"][1]["where"]);
+    //Third date and location
+    $this->assertEqual("Sun Feb 27 2011 7:00pm", $result["ETD Test Event"]["whenWhere"][2]["start"]);
+    $this->assertEqual("8:00pm", $result["ETD Test Event"]["whenWhere"][2]["end"]);
+    $this->assertEqual("Rollins Building", $result["ETD Test Event"]["whenWhere"][2]["where"]);
 
-    //order is important because these entries are sorted
-    $this->assertEqual("Mon Feb 7, 2011 10:30am", $result["Workshop"]["whenWhere"][0]["start"]);
-    $this->assertEqual("Rollins School", $result["Workshop"]["whenWhere"][0]["where"]);
-    $this->assertEqual("Mon Feb 7, 2011 2pm", $result["Workshop"]["whenWhere"][1]["start"]);
-    $this->assertEqual("Grad School Parking Lot", $result["Workshop"]["whenWhere"][1]["where"]);
 
+    //Only has start date (all day event in google) - deadlines etc.
+    $this->assertEqual("Last change to submit!", $result["Submission Deadline"]["description"]);
+    //First date and location
+    $this->assertEqual("Sun Mar 13 2011", $result["Submission Deadline"]["whenWhere"][0]["start"]);
+    $this->assertEqual("", $result["Submission Deadline"]["whenWhere"][0]["end"]);
+    $this->assertEqual("", $result["Submission Deadline"]["whenWhere"][0]["where"]);
+
+    
   }
 
 
