@@ -103,6 +103,9 @@ class IndexController extends Etd_Controller_Action {
 
     foreach ($calendar as $entry){
         $content = $entry->getContent();
+        //Don't know what the characters 194 and 160 are but they are annoying
+        //They need to be removed
+        $content = str_replace(array(chr(194), chr(160), "<br />"), "", $content);
         $title = $entry->getTitle();
 
         //Get start and end time 
@@ -114,6 +117,21 @@ class IndexController extends Etd_Controller_Action {
         if (strpos($matches[1], "to")){
             list($start, $end) = split("to", $matches[1]);
         }
+
+        //Format start and end times
+        //Events with a start and end time will be formated:
+        // Jan 15 2011 3:15pm - 4:00pm
+        //Events with only a start time (All day event in google) most likely used for a submition deadline
+        // are formatted: Jan 15 2011
+        //End time is alway formatted: 10:15pm or blank
+        if($end != ""){
+            $start = date("D M j Y g:ia", strtotime($start));
+            $end = date("g:ia", strtotime($end));
+        }
+        else{
+            $start = date("D M j Y", strtotime($start));
+        }
+        
 
         //Get  Location
         preg_match( "/Where:(.*)/", $content, $matches);
