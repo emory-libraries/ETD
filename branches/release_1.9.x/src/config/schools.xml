@@ -17,7 +17,8 @@
     </degrees>
     <admin>
       <department>GRS: Student Development</department>
-      <netid>gradqew</netid>
+      <netid>gradqew</netid>  <!-- graduate school - Queen Watson -->
+      <netid>unilsso</netid>  <!-- graduate school - Ulf Nilsson -->
     </admin>
     <submission_fields>
       <required>title</required>
@@ -54,7 +55,8 @@
     </degrees>
     <admin>
     <department>ECAS: Ofc Undergrad Education</department>
-      <netid>efricke</netid>
+      <netid>efricke</netid> <!-- honors - Elizabeth Fricker -->
+      <netid>jreiff</netid>  <!-- honors - Joseph Reiff -->   
     </admin>
     <submission_fields>
       <required>title</required>
@@ -106,8 +108,9 @@
     </submission_fields>
     <admin>
       <department>Candler School Of Theology</department>
-      <netid>skraftc</netid>
-      <netid>mmcca04</netid>
+      <netid>skraftc</netid>  <!-- candler school - Steven Kraftchick -->
+      <netid>shart</netid>    <!-- candler school - Hart -->
+      <netid>mmcca04</netid>  <!-- candler school - Missy Page -->
     </admin>
   </candler>
   
