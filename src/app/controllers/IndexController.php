@@ -32,6 +32,11 @@ class IndexController extends Etd_Controller_Action {
     try {
       $calendar_feed = $config->calendar_feed->url;
 
+      //Create cache for calendar
+      $cache = $this->createCache($config->calendar_feed->lifetime, "ETD_calendar_cache");
+      Zend_Feed_Reader::setCache($cache);
+
+
       //Read the feed
       $calendar = Zend_Feed_Reader::import($calendar_feed);
     } catch (Exception $e) {
@@ -79,7 +84,7 @@ class IndexController extends Etd_Controller_Action {
       $news_feed = $config->news_feed->url;
 
       //Set Feed_Reeder to use cache
-      $cache = $this->createCache($config->news_feed->lifetime);
+      $cache = $this->createCache($config->news_feed->lifetime, "ETD_news_cache");
       Zend_Feed_Reader::setCache($cache);
 
       //Read the feed
@@ -163,14 +168,14 @@ class IndexController extends Etd_Controller_Action {
    * creates cache for RSS feeds
    * @return Zend_Cache
    */
-  public function createCache($lifetime){
+  public function createCache($lifetime, $prefix){
 
         //refresh time of cache
         //make sure value is null if value is not set or empty - null value means forever
         $lifetime =  (empty($lifetime) ? null : $lifetime);
 
         $frontendOptions = array('lifetime' => $lifetime, 'automatic_serialization' => true);
-        $backendOptions = array('cache_dir' => '/tmp/', "file_name_prefix" => "ETD_news_cache");
+        $backendOptions = array('cache_dir' => '/tmp/', "file_name_prefix" => $prefix);
         $cache = Zend_Cache::factory('Output', 'File', $frontendOptions, $backendOptions);
         return $cache;
   }

@@ -110,7 +110,7 @@ class IndexControllerTest extends ControllerTestCase {
     $index = new IndexControllerForTest($this->request,$this->response);
 
     //Check that it is a cache object
-    $cache = $index->createCache(60);
+    $cache = $index->createCache(60, "ETD_test_prefix");
     $this->assertIsA($cache, "Zend_Cache_Frontend_Output");
 
     //Check that lifetime is set correctly
