@@ -375,12 +375,17 @@ class etd extends foxml implements etdInterface {
 
       // special case - customize publish rule according to access restrictions
       if ($name == "published") {
-  // if embargo end is set, put that date in published policy 
-  if (isset($this->mods->embargo_end) && $this->mods->embargo_end != ''
-      && isset($obj->policy->published->condition) &&
-      isset($obj->policy->published->condition->embargo_end))
-    $obj->policy->published->condition->embargo_end = $this->mods->embargo_end;
-      }
+        // if embargo end is set, put that date in published policy 
+        if (isset($this->mods->embargo_end) && $this->mods->embargo_end != ''
+            && isset($obj->policy->published->condition) &&
+            isset($obj->policy->published->condition->embargo_end))
+            
+            // If the time is appended, then strip off time from embargoed end date
+            if (preg_match("/^(\d{4}-\d{2}-\d{2})T/", $this->mods->embargo_end, $matches)){
+              $obj->policy->published->condition->embargo_end = $matches[1];
+            }
+            else $obj->policy->published->condition->embargo_end = $this->mods->embargo_end;    
+        }
   
     }
 
