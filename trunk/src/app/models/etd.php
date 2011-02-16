@@ -250,7 +250,7 @@ class etd extends foxml implements etdInterface {
       // if a user is a school-specific admin, determine if they are admin for *this* etd
       $admin_type = substr($user->role, 0, $pos);
       if ($admin_type == $this->school_config->acl_id)
-  return "admin";
+        return "admin";
     }
     
     return $user->role;
@@ -285,13 +285,13 @@ class etd extends foxml implements etdInterface {
       // if Abstract or ToC is restricted and embargo has not expired,
       // ensure no restricted content is present in mods/dc
       if($this->isEmbargoed() &&
-   $this->mods->isEmbargoRequested(etd_mods::EMBARGO_ABSTRACT)) {
-  $this->mods->abstract = "";
-  $this->dc->description = "";
+          $this->mods->isEmbargoRequested(etd_mods::EMBARGO_ABSTRACT)) {
+        $this->mods->abstract = "";
+        $this->dc->description = "";
       }
       if ($this->isEmbargoed() &&
-    $this->mods->isEmbargoRequested(etd_mods::EMBARGO_TOC)) {
-  $this->mods->tableOfContents = "";
+          $this->mods->isEmbargoRequested(etd_mods::EMBARGO_TOC)) {
+        $this->mods->tableOfContents = "";
       }
       break;
     case "inactive":
@@ -357,31 +357,35 @@ class etd extends foxml implements etdInterface {
     foreach ($objects as $obj) {
       if (!isset($obj->policy)) continue; // should only be the case for test objects; give notice/warn ?
       if (!isset($obj->policy->{$name}))  // should not be the case, but doesn't hurt to check
-  $obj->policy->addRule($name);
+        $obj->policy->addRule($name);
 
       // special case - owner needs to be specified for draft rule
       if ($name == "draft") {
-  if (isset($this->owner) &&  $this->owner != "") {
-    // NOTE: owner is *not* retrieved from Fedora when initializing by pid
-    $owner = $this->owner;
-  } else {
-    // fall-back / alternate way to get author's netid
-    $owner = $this->rels_ext->author;
-  }
+        if (isset($this->owner) &&  $this->owner != "") {
+          // NOTE: owner is *not* retrieved from Fedora when initializing by pid
+          $owner = $this->owner;
+        } else {
+          // fall-back / alternate way to get author's netid
+          $owner = $this->rels_ext->author;
+        }
 
-  $obj->policy->draft->condition->user = $owner;
+        $obj->policy->draft->condition->user = $owner;
       }
-
 
       // special case - customize publish rule according to access restrictions
       if ($name == "published") {
-  // if embargo end is set, put that date in published policy 
-  if (isset($this->mods->embargo_end) && $this->mods->embargo_end != ''
-      && isset($obj->policy->published->condition) &&
-      isset($obj->policy->published->condition->embargo_end))
-    $obj->policy->published->condition->embargo_end = $this->mods->embargo_end;
+        // if embargo end is set, put that date in published policy 
+        if (isset($this->mods->embargo_end) && $this->mods->embargo_end != ''
+            && isset($obj->policy->published->condition) &&
+            isset($obj->policy->published->condition->embargo_end)) {
+
+          // If the time is appended, then strip off time from embargoed end date
+          if (preg_match("/^(\d{4}-\d{2}-\d{2})T/", $this->mods->embargo_end, $matches)){
+            $obj->policy->published->condition->embargo_end = $matches[1];
+          }
+          else $obj->policy->published->condition->embargo_end = $this->mods->embargo_end;
+        }
       }
-  
     }
 
     // special case - customize published rule only for ETD object, not files
@@ -389,9 +393,9 @@ class etd extends foxml implements etdInterface {
       // restrict abstract/toc if requested
       $restrict_html = array();
       if ($this->mods->isEmbargoRequested(etd_mods::EMBARGO_TOC))
-  $restrict_html[] = "tableofcontents";
+        $restrict_html[] = "tableofcontents";
       if ($this->mods->isEmbargoRequested(etd_mods::EMBARGO_ABSTRACT))
-  $restrict_html[] = "abstract";
+        $restrict_html[] = "abstract";
       
       $this->policy->published->condition->restrictMethods($restrict_html);
     }
@@ -563,9 +567,9 @@ class etd extends foxml implements etdInterface {
     // non-emory committe
     foreach ($this->mods->nonemory_committee as $committee_mem) {
       if ($committee_mem->full != "") {
-  $name = $committee_mem->full;
-  if ($committee_mem->affiliation != "") $name .= " (" . $committee_mem->affiliation . ")";
-  $contributors[] = $name;
+        $name = $committee_mem->full;
+        if ($committee_mem->affiliation != "") $name .= " (" . $committee_mem->affiliation . ")";
+        $contributors[] = $name;
       }
     }
     $this->dc->setContributors($contributors);
@@ -591,7 +595,7 @@ class etd extends foxml implements etdInterface {
 
     $rights = isset($this->mods->rights) ? $this->mods->rights : ""; 
     if ($this->isEmbargoed()) {
-  $rights = $rights . " Access has been restricted until " . $this->mods->embargo_end; 
+      $rights = $rights . " Access has been restricted until " . $this->mods->embargo_end; 
     }
     if (! empty($rights)) $this->dc->rights = $rights;
     $this->dc->setTypes(array($this->mods->genre, "text"));
@@ -714,10 +718,10 @@ class etd extends foxml implements etdInterface {
     // clear any old committee members from policy 
     foreach ($this->mods->{$type} as $committee) {
       if ($committee->id)
-  // remove from etd policy and from associated etd files
-  foreach (array_merge(array($this), $this->pdfs, $this->supplements) as $obj) {
-    $obj->policy->view->condition->removeUser($committee->id);
-  }
+        // remove from etd policy and from associated etd files
+        foreach (array_merge(array($this), $this->pdfs, $this->supplements) as $obj) {
+          $obj->policy->view->condition->removeUser($committee->id);
+        }
     }
 
     // store new committee in mods, rels-ext
@@ -846,16 +850,16 @@ class etd extends foxml implements etdInterface {
 
       if (! $this->mods->readyToSubmit(array_intersect($required_fields,
              $this->mods->available_fields)))
-  return false;
+        return false;
       // checking mods only
       if ($mode == "mods") return true;
     }
 
     if ($mode == null || $mode = "authorInfo") {
       if (!isset($this->authorInfo) ||
-    !$this->authorInfo->readyToSubmit(array_intersect($required_fields,
-                $this->authorInfo->available_fields)))
-  return false;
+        !$this->authorInfo->readyToSubmit(array_intersect($required_fields,
+                    $this->authorInfo->available_fields)))
+        return false;
       // checking author info only
       if ($mode == "authorInfo") return true;
     } 
@@ -878,9 +882,9 @@ class etd extends foxml implements etdInterface {
       
     if (isset($this->school_config->submission_fields->required)) {
       if (is_object($this->school_config->submission_fields->required)) 
-  return  $this->school_config->submission_fields->required->toArray();
+        return  $this->school_config->submission_fields->required->toArray();
       else  // single item - force into an array
-  return  array($this->school_config->submission_fields->required);
+        return  array($this->school_config->submission_fields->required);
     } else {
       return array();
     }
@@ -896,9 +900,9 @@ class etd extends foxml implements etdInterface {
 
     if (isset($this->school_config->submission_fields->optional)) {
       if (is_object($this->school_config->submission_fields->optional))
-  return  $this->school_config->submission_fields->optional->toArray();
+        return  $this->school_config->submission_fields->optional->toArray();
       else  // single item - force into an array
-  return  array($this->school_config->submission_fields->optional);
+        return  array($this->school_config->submission_fields->optional);
     } else {
       return array();
     }
@@ -940,7 +944,7 @@ class etd extends foxml implements etdInterface {
    */
   public function schoolId() {
     if (! $this->school_config)
-  trigger_error("School config is not set, cannot retrieve school id", E_USER_WARNING);
+      trigger_error("School config is not set, cannot retrieve school id", E_USER_WARNING);
     return $this->school_config->acl_id;;
     
   }
@@ -958,20 +962,20 @@ class etd extends foxml implements etdInterface {
 
     // mint a new pid if the pid is not already set
     if ($this->pid == "") {
-        // could generate service unavailable exception - should be caught in the controller
-        $persis = new Emory_Service_Persis(Zend_Registry::get('persis-config'));
+      // could generate service unavailable exception - should be caught in the controller
+      $persis = new Emory_Service_Persis(Zend_Registry::get('persis-config'));
 
-        // FIXME: use view/controller to build this url?
-        $ark = $persis->generateArk("http://etd.library.emory.edu/view/record/pid/emory:{%PID%}", $this->label);
-        $pid = $persis->pidfromArk($ark);
-        list($nma, $naan, $noid) = $persis->parseArk($ark);
+      // FIXME: use view/controller to build this url?
+      $ark = $persis->generateArk("http://etd.library.emory.edu/view/record/pid/emory:{%PID%}", $this->label);
+      $pid = $persis->pidfromArk($ark);
+      list($nma, $naan, $noid) = $persis->parseArk($ark);
 
-        $this->pid = $pid;
-        // resolvable uri ark is identifier and primary display
-        $this->mods->identifier = $ark;
-        $this->mods->location->primary = $ark;
-        // also store short-form ark
-        $this->mods->ark = "ark:/" . $naan . "/" . $noid;
+      $this->pid = $pid;
+      // resolvable uri ark is identifier and primary display
+      $this->mods->identifier = $ark;
+      $this->mods->location->primary = $ark;
+      // also store short-form ark
+      $this->mods->ark = "ark:/" . $naan . "/" . $noid;
     }
     // use parent ingest logic to construct new foxml & datastreams appropriately
     return parent::ingest($message);
@@ -1077,7 +1081,7 @@ class etd extends foxml implements etdInterface {
     // remove from erroneous 60-day notification event from premis event history
     foreach ($this->premis->event as $event) {
       if ($event->type == "notice" && strpos($event->detail, "60-Day Notification sent")) {
-  $this->premis->removeEvent($event->identifier->value);
+        $this->premis->removeEvent($event->identifier->value);
       }
     }
   }
@@ -1117,8 +1121,8 @@ class etd extends foxml implements etdInterface {
     // FIXME: duplicate logic from addPolicyRule - pull out somewhere common? 
     foreach (array_merge(array($this), $this->pdfs, $this->supplements) as $obj) {
       if (isset($obj->policy->published) && isset($this->policy->published->condition)
-    && isset($obj->policy->published->condition->embargo_end)) {
-  $obj->policy->published->condition->embargo_end = $this->mods->embargo_end;
+        && isset($obj->policy->published->condition->embargo_end)) {
+        $obj->policy->published->condition->embargo_end = $this->mods->embargo_end;
       }
     }
 
@@ -1310,12 +1314,7 @@ class etd extends foxml implements etdInterface {
     return $acl_id;
   }
 
-  
 }
-
-
-
-
 
 /**
  * simple function to sort etdfiles based on sequence number  (used when foxml class initializes them)
