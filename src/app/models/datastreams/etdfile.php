@@ -441,8 +441,13 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
     if ($this->etd->status() == "draft")
       return "draft file";
 
-    if ($this->type == "original")
-      return "original file";
+    try {
+      if ($this->type == "original")
+        return "original file";
+    }
+    catch (Exception $e) {  // Attempting to access a file without authorization.
+      return "file";   
+    }
     
     if ($this->etd->isEmbargoed()) 
       return "embargoed file";
