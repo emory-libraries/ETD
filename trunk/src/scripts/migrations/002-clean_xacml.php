@@ -19,8 +19,13 @@ chdir("..");
 // set up connection objects for fedora, solr, ESD, and stats db
 require_once("bootstrap.php");
 
+// The selection option allows a selection of pids to be processed.
+// Otherwise, the php out of memory error occurs when processing entire amount.
+// Setting selection to 1, will process all "emory:1*" pids.
+// Syntax of a typical call would be ./002-clean_xacml.php -s 1 -v debug
 $getopts = array_merge(
            array('pid|p=s'      => 'Clean xacml on one etd record only'),
+           array('selection|s=i'  => 'Selection of pids to process (0-9)'),           
            $common_getopts  // use default verbose and noact opts from bootstrap
            );
 
@@ -44,7 +49,7 @@ try {
 $logger = setup_logging($opts->verbose);
 $count = 0;
 $updated_count = 0;
-$skip_count = 0;
+$skipped_count = 0;
 $failed_count = 0;
 
 // if pid is specified, run single record mode
@@ -77,21 +82,25 @@ for ($page = 0; $page<sizeof($paginator); $page++) {
   $plural = ($etdSet->numFound == "1") ? "" : "s";  
   foreach ($paginator as $etd) { 
     $count++;
-    $logger->info("Begin Processing [" . ($count-1) ."] ETD pid = [" . $etd->pid . "]");     
-    try {  
-      if (clean_xacml($etd)) {
-        $updated_count++;
-        $logger->info("Done Cleaned [" . ($count-1) ."] ETD pid = [" . $etd->pid . "]"); 
-      }
-      else {
-        $skip_count++;
-        $logger->info("Done Skipped [" . ($count-1) ."] ETD pid = [" . $etd->pid . "]");    
-      }
-    } catch (Exception $err) {
-      $logger->err("Done Failed [" . ($count-1) ."] pid [" . $etd->pid . "] POLICY datastream.");
-      $failed_count++;      
-    } 
-    print "\n\n";
+    $logger->info("Begin Processing [" . ($count-1) ."] ETD pid = [" . $etd->pid . "]"); 
+   
+    if (!$opts->selection ||
+        $opts->selection && intval($etd->pid[6]) == $opts->selection) {
+      try {  
+        if (clean_xacml($etd)) {
+          $updated_count++;
+          $logger->info("Done Cleaned [" . ($count-1) ."] ETD pid = [" . $etd->pid . "]"); 
+        }
+        else {
+          $skipped_count++;
+          $logger->info("Done Skipped [" . ($count-1) ."] ETD pid = [" . $etd->pid . "]");    
+        }
+      } catch (Exception $err) {
+        $logger->err("Done Failed [" . ($count-1) ."] pid [" . $etd->pid . "] POLICY datastream with [" . $err->getMessage() . "]");
+        $failed_count++;      
+      } 
+      print "\n\n";
+    }
   } 
 }
 
@@ -159,7 +168,10 @@ function clean_xacml(etd $etd) {
   // check if anything has been changed (for reporting purposes)
   $hasChanged = false;
   foreach (array_merge(array($etd), $etd->pdfs, $etd->supplements) as $obj) {
-    if ($obj->policy->hasChanged()) $hasChanged = true;
+    if ($obj->policy->hasChanged()) {
+      $hasChanged = true;
+      print "[" . $obj->pid . "] has changed.\n";
+    }
   }
 
   if (!$hasChanged) {    
