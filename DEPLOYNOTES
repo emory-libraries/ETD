@@ -138,6 +138,22 @@ Version 1.9
 *  Reindex gSearch by running the ETD reindex script:
     - cd src/scripts
     - php ./re-index.php
+    
+*  Reload the XACML policies by running the script 002-clean_xacml.php.
+   Note: this script will produce a php memory error, so use the -s option
+   with 1-9, to run by selected grouping.
+   
+    - cd src/scripts/migrations
+    - php ./002-clean_xacml.php -s 1 -v debug > /tmp/etd_xacml_policy_update.log
+    - php ./002-clean_xacml.php -s 1 -v debug >> /tmp/etd_xacml_policy_update.log 
+    - . . . etc
+    - php ./002-clean_xacml.php -s 9 -v debug >> /tmp/etd_xacml_policy_update.log 
+    
+    When the scripts are finished, search output log for the error terms "ERR", 
+    and  "Could not connect to host", noting the pids.
+    Run the script with the pids that got an error: 
+    - Format: php ./002-clean_xacml.php -p '{pid}' -v debug >> /tmp/etd_xacml_policy_update.log   
+    - Example: php ./002-clean_xacml.php -p 'emory:12345' -v debug >> /tmp/etd_xacml_policy_update.log        
      
 *  Run the checksum script to determine the current checksum status.
    cd src/scripts
