@@ -68,24 +68,29 @@ if ($opts->pid) {
 }
 
 // find *all* records, no matter their status, etc.
-$options = array("start" => 0, "max" => 6500);
-$etdSet = new EtdSet($options, null, 'find');
+$etdSet = new EtdSet(array(), null, 'find');
 $logger->info("EtdSet found = [" . $etdSet->count() . "] etd records.");
-
 
 // Wrap the result set around the paginator to get (page) sets of data to process.
 $paginator = new Zend_Paginator($etdSet);
-$paginator->setItemCountPerPage(6500);
 
+// Paginator default is 10 etds per page, otherwise adjust here 
+// $paginator->setItemCountPerPage(20);
+    
 for ($page = 0; $page<sizeof($paginator); $page++) {
+  $logger->info("-----------------------------------------------------");   
+  $current_page = $page+1;
+  $paginator->setCurrentPageNumber($current_page);
+  $logger->info("Processing Page (" . $current_page . " of " . sizeof($paginator) . ")");     
   
   $plural = ($etdSet->numFound == "1") ? "" : "s";  
   foreach ($paginator as $etd) { 
     $count++;
-    $logger->info("Begin Processing [" . ($count-1) ."] ETD pid = [" . $etd->pid . "]"); 
+    $logger->info("[" . ($count-1) ."] ETD pid = [" . $etd->pid . "]"); 
    
     if (!$opts->selection ||
         $opts->selection && intval($etd->pid[6]) == $opts->selection) {
+
       try {  
         if (clean_xacml($etd)) {
           $updated_count++;
@@ -151,7 +156,7 @@ function clean_xacml(etd $etd) {
   if ($etd->status() == "draft") {    
     // remove the old draft policy and add the latest version (in case it has changed)
     $etd->removePolicyRule("draft");    
-    $etd->addPolicyRule("draft");;     
+    $etd->addPolicyRule("draft");
   }  else {     
     // if etd is no longer in draft status, make sure draft rule is removed from etd files
     // draft rule could be present in one of the etdfiles (hard to detect); just force removal
