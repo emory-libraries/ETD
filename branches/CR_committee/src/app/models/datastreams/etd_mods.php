@@ -479,8 +479,7 @@ class etd_mods extends mods {
    * remove all non-Emory committee members  (use before re-adding them)
    */
   public function clearNonEmoryCommittee() {
-    $nodelist = $this->xpath->query("//mods:name[mods:description='Non-Emory Committee Member' or
-                                                 mods:description='Non-Emory Thesis Advisor']");
+    $nodelist = $this->xpath->query("//mods:name[mods:description='Non-Emory Committee Member' or mods:description='Non-Emory Thesis Advisor']");
     for ($i = 0; $i < $nodelist->length; $i++) {
       $node = $nodelist->item($i);
       $node->parentNode->removeChild($node);

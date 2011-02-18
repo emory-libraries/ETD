@@ -475,10 +475,7 @@ class EditControllerTest extends ControllerTestCase {
                            'committee' => array('engrbs'),
 			               'nonemory_firstname' => array('Marvin'),
                            'nonemory_lastname' => array('the Martian'),
-			               'nonemory_affiliation' => array('Mars Polytechnic'),
-                           'nonemory_chair_firstname' => array('Boss'),
-                           'nonemory_chair_lastname' => array('Hogg'),
-			               'nonemory_chair_affiliation' => array('Hazzard County Police')
+			               'nonemory_affiliation' => array('Mars Polytechnic')
                      ));
 
     $EditController->savefacultyAction();
@@ -492,12 +489,6 @@ class EditControllerTest extends ControllerTestCase {
     $this->assertEqual("Scholar", $etd->mods->committee[0]->last);
     $this->assertEqual(1, count($etd->mods->committee));
     $this->assertEqual("Mars Polytechnic", $etd->mods->nonemory_committee[0]->affiliation);
-
-    //Non-Emory Chair
-    $this->assertEqual("Hogg", $etd->mods->nonemory_chair[0]->last);
-    $this->assertEqual("Boss", $etd->mods->nonemory_chair[0]->first);
-    $this->assertEqual("Hazzard County Police", $etd->mods->nonemory_chair[0]->affiliation);
-
 
     // test setting affiliation for former faculty
     $this->setUpPost(array('pid' => $this->etdpid, 'chair' => array('mthink'),
@@ -531,7 +522,70 @@ class EditControllerTest extends ControllerTestCase {
 
   }
 
-  function testRightsAction() {
+    function testSaveFacultyNonEmoryChairAction() {
+        $EditController = new EditControllerForTest($this->request,$this->response);
+
+        //One  Nonemory one Emory chair
+        $this->setUpPost(array('pid' => $this->etdpid,
+                               'chair' => array('mthink'),
+                               'nonemory_chair_firstname' => array('Uncle'),
+                               'nonemory_chair_lastname' => array('Jessee'),
+			       'nonemory_chair_affiliation' => array('The Farm')
+                         ));
+
+
+        $EditController->savefacultyAction();
+        $viewVars = $EditController->view->getVars();
+        $messages = $EditController->getHelper('FlashMessenger')->getMessages();
+        $this->assertEqual("Saved changes to committee/adviser", $messages[0]);
+        $this->assertTrue($EditController->redirectRan);	// redirects back to record
+        $etd = new etd($this->etdpid);
+        $this->assertEqual(1, count($etd->mods->nonemory_chair));
+        $this->assertEqual(1, count($etd->mods->chair));
+        $this->assertEqual("Jessee", $etd->mods->nonemory_chair[0]->last);
+        $this->assertEqual("Uncle", $etd->mods->nonemory_chair[0]->first);
+        $this->assertEqual("The Farm", $etd->mods->nonemory_chair[0]->affiliation);
+        $this->assertEqual("Thinker", $etd->mods->chair[0]->last);
+        $this->assertEqual("Michele D", $etd->mods->chair[0]->first);
+
+        //One Non-Emory Chair
+        $this->setUpPost(array('pid' => $this->etdpid,
+                               'nonemory_chair_firstname' => array('Boss'),
+                               'nonemory_chair_lastname' => array('Hogg'),
+			       'nonemory_chair_affiliation' => array('Hazzard County Police')
+                         ));
+
+        $EditController->savefacultyAction();
+        $etd = new etd($this->etdpid);
+        $this->assertEqual(1, count($etd->mods->nonemory_chair));
+        $this->assertEqual(0, count($etd->mods->chair));
+        $this->assertEqual("Hogg", $etd->mods->nonemory_chair[0]->last);
+        $this->assertEqual("Boss", $etd->mods->nonemory_chair[0]->first);
+        $this->assertEqual("Hazzard County Police", $etd->mods->nonemory_chair[0]->affiliation);
+        
+        //Two Non-Emory Chair
+        $this->setUpPost(array('pid' => $this->etdpid,
+                               'nonemory_chair_firstname' => array('Boss', 'Uncle'),
+                               'nonemory_chair_lastname' => array('Hogg', 'Jessee'),
+			                   'nonemory_chair_affiliation' => array('Hazzard County Police', 'The Farm')
+                         ));
+
+        $EditController->savefacultyAction();
+        $etd = new etd($this->etdpid);
+        $this->assertEqual(2, count($etd->mods->nonemory_chair));
+        $this->assertEqual(0, count($etd->mods->chair));
+        $this->assertEqual("Hogg", $etd->mods->nonemory_chair[0]->last);
+        $this->assertEqual("Boss", $etd->mods->nonemory_chair[0]->first);
+        $this->assertEqual("Hazzard County Police", $etd->mods->nonemory_chair[0]->affiliation);
+        $this->assertEqual("Jessee", $etd->mods->nonemory_chair[1]->last);
+        $this->assertEqual("Uncle", $etd->mods->nonemory_chair[1]->first);
+        $this->assertEqual("The Farm", $etd->mods->nonemory_chair[1]->affiliation);
+        
+   }
+
+
+
+  function RightsAction() {
     $EditController = new EditControllerForTest($this->request,$this->response);
 
     $this->setUpGet(array('pid' => $this->etdpid));	   

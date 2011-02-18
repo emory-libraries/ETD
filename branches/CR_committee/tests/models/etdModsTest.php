@@ -39,18 +39,18 @@ class TestEtdMods extends UnitTestCase {
     $mods = new etd_mods($xml);
 
       // sanity checks - reading values in the xml
-    $this->assertIsa($mods->nonemory_chair, "Array");
+    $this->assertIsA($mods->nonemory_chair, "Array");
     $this->assertEqual(1, count($mods->nonemory_chair));
-    $this->assertIsa($mods->nonemory_chair[0], "mods_name");
+    $this->assertIsA($mods->nonemory_chair[0], "mods_name");
     $this->assertEqual("1", count($mods->nonemory_chair));
   }
 
 
   function testKeywords() {
     // sanity checks - reading values in the xml
-    $this->assertIsa($this->mods->keywords, "Array");
+    $this->assertIsA($this->mods->keywords, "Array");
     $this->assertEqual(1, count($this->mods->keywords));
-    $this->assertIsa($this->mods->keywords[0], "mods_subject");
+    $this->assertIsA($this->mods->keywords[0], "mods_subject");
     $this->assertEqual("1", count($this->mods->keywords));
   }
   
@@ -63,9 +63,9 @@ class TestEtdMods extends UnitTestCase {
   }
 
   function testResearchFields() {
-    $this->assertIsa($this->mods->researchfields, "Array");
+    $this->assertIsA($this->mods->researchfields, "Array");
     $this->assertEqual(1, count($this->mods->researchfields));
-    $this->assertIsa($this->mods->researchfields[0], "mods_subject");
+    $this->assertIsA($this->mods->researchfields[0], "mods_subject");
     $this->assertEqual("1", count($this->mods->researchfields));
 
     // test if a field is currently set
@@ -78,7 +78,7 @@ class TestEtdMods extends UnitTestCase {
     // add a single field
     $this->mods->addResearchField("Mouse Studies", "7025");
     $this->assertEqual(2, count($this->mods->researchfields));
-    $this->assertIsa($this->mods->researchfields[1], "mods_subject");
+    $this->assertIsA($this->mods->researchfields[1], "mods_subject");
     $this->assertEqual("Mouse Studies", $this->mods->researchfields[1]->topic);
     $this->assertEqual("7025", $this->mods->researchfields[1]->id);
     // note: pattern is dependent on attribute order; this is how they are created currently
@@ -97,7 +97,7 @@ class TestEtdMods extends UnitTestCase {
     $this->mods->setResearchFields($newfields);
 
     $this->assertEqual(3, count($this->mods->researchfields));
-    $this->assertIsa($this->mods->researchfields[2], "mods_subject");
+    $this->assertIsA($this->mods->researchfields[2], "mods_subject");
 
     $this->assertEqual("7334", $this->mods->researchfields[0]->id);
     $this->assertEqual("Animated Arts", $this->mods->researchfields[0]->topic);
@@ -244,7 +244,7 @@ class TestEtdMods extends UnitTestCase {
    $this->mods->addCommittee("last committe", "first committee", "nonemory_committee", "alsoNotEmory"); 
    $missing = $this->mods->checkAllFields();
    
-   $this->assertFalse(in_array("chair", $missing), "chair is not missing");
+   $this->assertFalse(in_array("chair", $missing), "chair should not be considered missing when non-emory committee chair has been added to record");
    $this->assertFalse(in_array("committee", $missing), "committee is not missing");
 
 
@@ -559,9 +559,9 @@ class TestEtdMods extends UnitTestCase {
   } 
 
   function testPartneringAgencies() {
-    $this->assertIsa($this->mods->partneringagencies, "Array");
+    $this->assertIsA($this->mods->partneringagencies, "Array");
     $this->assertEqual(2, count($this->mods->partneringagencies));
-    $this->assertIsa($this->mods->partneringagencies[0], "mods_note");
+    $this->assertIsA($this->mods->partneringagencies[0], "mods_note");
     $this->assertEqual("2", count($this->mods->partneringagencies));
 
     // test if a field is currently set
@@ -574,7 +574,7 @@ class TestEtdMods extends UnitTestCase {
     // add a single field
     $this->mods->addPartneringAgency("Purple Rain", "pa-purple");
     $this->assertEqual(3, count($this->mods->partneringagencies));
-    $this->assertIsa($this->mods->partneringagencies[2], "mods_note");
+    $this->assertIsA($this->mods->partneringagencies[2], "mods_note");
     $this->assertEqual("Purple Rain", $this->mods->partneringagencies[2]->topic);
     $this->assertEqual("pa-purple", $this->mods->partneringagencies[2]->id);
     // note: pattern is dependent on attribute order; this is how they are created currently
@@ -592,7 +592,7 @@ class TestEtdMods extends UnitTestCase {
     $this->mods->setPartneringAgencies($newfields);
 
     $this->assertEqual(3, count($this->mods->partneringagencies));
-    $this->assertIsa($this->mods->partneringagencies[2], "mods_note");
+    $this->assertIsA($this->mods->partneringagencies[2], "mods_note");
 
     $this->assertEqual("pa-green", $this->mods->partneringagencies[0]->id);
     $this->assertEqual("Green Grass", $this->mods->partneringagencies[0]->topic);
