@@ -531,6 +531,11 @@ class etd extends foxml implements etdInterface {
       $result = $file->save($message);  // FIXME: add a note that it was saved with/by etd?
       // FIXME2: how to capture/return error messages here?
     }
+    
+    // If person modifying the etd is not the owner, then set the owner id to the author
+    if (!isset($this->owner) || empty($this->owner)) {
+      $this->owner = $this->rels_ext->author;   
+    }    
 
     // update Dublin Core before saving in case MODS has changed
     $this->updateDC();
