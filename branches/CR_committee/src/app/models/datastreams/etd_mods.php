@@ -455,6 +455,43 @@ class etd_mods extends mods {
   }
 
   /**
+   * sets nonemory chair(s) and committee members
+   * @param array $nonemory_chair_first
+   * @param array $nonemory_chair_last
+   * @param array $nonemory_chair_affiliation
+   * @param array $nonemory_first
+   * @param array $nonemory_last
+                                     $nonemory_affiliation
+   */
+  public function setNonemoryCommittee($nonemory_chair_first,
+                                     $nonemory_chair_last,
+                                     $nonemory_chair_affiliation,
+                                     $nonemory_first, $nonemory_last,
+                                     $nonemory_affiliation){
+    //Delete all nonemory chairs and committee members - re-add later
+    $this->clearNonEmoryCommittee();
+
+    // handle non-emory committee members
+    for ($i = 0; $i < count($nonemory_first); $i++) {
+      if ($nonemory_last[$i] != '')
+  $this->addCommittee($nonemory_last[$i], $nonemory_first[$i], "nonemory_committee",
+         $nonemory_affiliation[$i]);
+    }
+
+    // handle non-emory chairs
+    for ($i = 0; $i < count($nonemory_chair_first); $i++) {
+      if ($nonemory_chair_last[$i] != '')
+
+  $this->addCommittee($nonemory_chair_last[$i], $nonemory_chair_first[$i], "nonemory_chair",
+         $nonemory_chair_affiliation[$i]);
+    }
+
+
+  }
+
+
+
+  /**
    * remove a committee member or chair person by id
    * @param string $id netid
    */

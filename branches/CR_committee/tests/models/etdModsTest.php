@@ -349,7 +349,85 @@ class TestEtdMods extends UnitTestCase {
 
   }
 
-  function testSetCommitteeById() {
+  function testSetNonemoryCommittee() {
+      //One chair
+      $this->mods->setNonemoryCommittee(array("nonEmoryChairFirst"),
+                                        array("nonEmoryChairLast"),
+                                        array("nonEmoryChairAff"),
+                                        array(),
+                                        array(),
+                                        array());
+
+
+      $this->assertEqual(1, count($this->mods->nonemory_chair), "1 nonemory_chair exists");
+      $this->assertEqual(0, count($this->mods->nonemory_committee), "0 nonemory_committee exists");
+      $this->assertEqual($this->mods->nonemory_chair[0]->first, "nonEmoryChairFirst");
+      $this->assertEqual($this->mods->nonemory_chair[0]->last, "nonEmoryChairLast");
+      $this->assertEqual($this->mods->nonemory_chair[0]->affiliation, "nonEmoryChairAff");
+
+//One committee
+      $this->mods->setNonemoryCommittee(array(),
+                                        array(),
+                                        array(),
+                                        array("nonEmoryMemberFirst"),
+                                        array("nonEmoryMemberLast"),
+                                        array("nonEmoryMemberAff"));
+
+
+      $this->assertEqual(0, count($this->mods->nonemory_chair), "0 nonemory_chair exists");
+      $this->assertEqual(1, count($this->mods->nonemory_committee), "1 nonemory_committee exists");
+      $this->assertEqual($this->mods->nonemory_committee[0]->first, "nonEmoryMemberFirst");
+      $this->assertEqual($this->mods->nonemory_committee[0]->last, "nonEmoryMemberLast");
+      $this->assertEqual($this->mods->nonemory_committee[0]->affiliation, "nonEmoryMemberAff");
+      
+      
+      
+      //One chair and one committee
+      $this->mods->setNonemoryCommittee(array("nonEmoryChairFirst"),
+                                        array("nonEmoryChairLast"),
+                                        array("nonEmoryChairAff"),
+                                        array("nonEmoryMemberFirst"),
+                                        array("nonEmoryMemberLast"),
+                                        array("nonEmoryMemberAff"));
+
+
+      $this->assertEqual(1, count($this->mods->nonemory_chair), "1 nonemory_chair exists");
+      $this->assertEqual(1, count($this->mods->nonemory_committee), "1 nonemory_committee exists");
+      $this->assertEqual($this->mods->nonemory_chair[0]->first, "nonEmoryChairFirst");
+      $this->assertEqual($this->mods->nonemory_chair[0]->last, "nonEmoryChairLast");
+      $this->assertEqual($this->mods->nonemory_chair[0]->affiliation, "nonEmoryChairAff");
+      $this->assertEqual($this->mods->nonemory_committee[0]->first, "nonEmoryMemberFirst");
+      $this->assertEqual($this->mods->nonemory_committee[0]->last, "nonEmoryMemberLast");
+      $this->assertEqual($this->mods->nonemory_committee[0]->affiliation, "nonEmoryMemberAff");
+
+      //Two chair and two committee
+      $this->mods->setNonemoryCommittee(array("nonEmoryChairFirst1", "nonEmoryChairFirst2"),
+                                        array("nonEmoryChairLast1", "nonEmoryChairLast2"),
+                                        array("nonEmoryChairAff1", "nonEmoryChairAff2"),
+                                        array("nonEmoryMemberFirst1", "nonEmoryMemberFirst2"),
+                                        array("nonEmoryMemberLast1", "nonEmoryMemberLast2"),
+                                        array("nonEmoryMemberAff1", "nonEmoryMemberAff2"));
+
+
+      $this->assertEqual(2, count($this->mods->nonemory_chair), "2 nonemory_chair exists");
+      $this->assertEqual(2, count($this->mods->nonemory_committee), "2 nonemory_committee exists");
+      $this->assertEqual($this->mods->nonemory_chair[0]->first, "nonEmoryChairFirst1");
+      $this->assertEqual($this->mods->nonemory_chair[0]->last, "nonEmoryChairLast1");
+      $this->assertEqual($this->mods->nonemory_chair[0]->affiliation, "nonEmoryChairAff1");
+      $this->assertEqual($this->mods->nonemory_committee[0]->first, "nonEmoryMemberFirst1");
+      $this->assertEqual($this->mods->nonemory_committee[0]->last, "nonEmoryMemberLast1");
+      $this->assertEqual($this->mods->nonemory_committee[0]->affiliation, "nonEmoryMemberAff1");
+      $this->assertEqual($this->mods->nonemory_chair[1]->first, "nonEmoryChairFirst2");
+      $this->assertEqual($this->mods->nonemory_chair[1]->last, "nonEmoryChairLast2");
+      $this->assertEqual($this->mods->nonemory_chair[1]->affiliation, "nonEmoryChairAff2");
+      $this->assertEqual($this->mods->nonemory_committee[1]->first, "nonEmoryMemberFirst2");
+      $this->assertEqual($this->mods->nonemory_committee[1]->last, "nonEmoryMemberLast2");
+      $this->assertEqual($this->mods->nonemory_committee[1]->affiliation, "nonEmoryMemberAff2");
+    
+  }
+
+
+function testSetCommitteeById() {
     $errlevel = error_reporting(E_ALL ^ E_NOTICE);
     
     $this->mods->setCommittee(array("mthink"), "chair");
