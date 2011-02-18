@@ -85,6 +85,10 @@ class etd_mods extends mods {
     $this->xmlconfig["subfield"] = array("xpath" => "mods:extension/etd:degree/etd:discipline");
 
     // committee chair - may be more than one
+    //chair and nonemory_chair and committee and noneemory_committee are differnt
+    //fields distinguished by the description field. These have to be
+    //seperate because most opperations with an emory person is done by
+    //looking up the netid in ESD nonemory people do not have a netid
     $this->xmlconfig["chair"] = array("xpath" => "mods:name[mods:role/mods:roleTerm = 'Thesis Advisor' and string-length(mods:description) = 0]",
               "class_name" => "mods_name", "is_series" => true);
     $this->xmlconfig["nonemory_chair"] = array("xpath" => "mods:name[mods:role/mods:roleTerm = 'Thesis Advisor' and mods:description = 'Non-Emory Thesis Advisor']",
