@@ -93,8 +93,6 @@ class TestSolrIndexXslt extends UnitTestCase {
 			     "dateIssued indexed in solr date-range format");
 	$this->assertPattern('|<field name="year">2008</field>|', $result,
 			     "year from dateIssued indexed as year");
-    $this->assertPattern('|<field name="partneringagencies">Georgia state or local health department</field>|', $result,
-			     "partneringagencies ndexed");
 
 	$this->assertNoPattern('|<field name="issuance">|', $result,
 			     "originInfo/issuance is not indexed");

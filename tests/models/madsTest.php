@@ -25,8 +25,8 @@ class TestMads extends UnitTestCase {
     //types
     $this->assertIsA($this->mads, "mads");
     $this->assertIsA($this->mads->name, "mads_name");
-    $this->assertIsA($this->mads->permanent, "mads_affiliation");
-    $this->assertIsA($this->mads->permanent->address, "mads_address");
+    $this->assertIsa($this->mads->permanent, "mads_affiliation");
+    $this->assertIsa($this->mads->permanent->address, "mads_address");
     //values
     $this->assertEqual("Mickey", $this->mads->name->first);
     $this->assertEqual("Mouse", $this->mads->name->last);

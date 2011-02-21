@@ -27,32 +27,13 @@ Site webroot should be pointed at src/public
 UPGRADE NOTES
 =================
 
-Version 1.10
--------------
-(Clean up and add more detail to deploy notes)
- * Edit the config.xml
-    - remove the previous :
-      <!-- Top Level Program Collection -->
-      <programs_pid></programs_pid>
-      <vocabularies_pid>
-    - replace with new configuration found in config.xml.example
-        <!-- Foxml Collections -->  section
-    - Add config for calendar feed found in config.xml.example
-
- * Run the migration scripts to reload the rollins school data: 
-    - 017-add_vocabularies.php
-
-* etFoxmlToSolr.xslt needs to be deployed to tomcat
-* solr-schema.xml need to be deployed to gsearch
-* Re-index gsearch
-
 Version 1.9
 -----------
 * Make the appropriate host, port and user / pass changes to point to the fedora 3.4 instance
     - fedora.xml
     - solr.xml
 
-* switch the fedora-policies to the branch https://svn.library.emory.edu/svn/fedora/repository-policies/branches/release_1.1
+* switch the fedora-policies to the branch https://svn.library.emory.edu/svn/fedora/repository-policies/tag/release_1.3.0
 
 * Load control objects from https://svn.library.emory.edu/svn/fedora/control-objects/
     - AuthorInformation.xml
@@ -65,24 +46,24 @@ Version 1.9
     - MetadataTransform_ETD_sdep.xml
     - MetadataTransform_sdef.xml
     - OAI-Identify.xml
-      oai-marcxml_sdef.xml
-
+    - oai-marcxml_sdef.xml
 
 * Copy files from fedora 3.2 to fedora 3.4 and convert datastreams to managed
     - cd src/scripts
     - php ./console.php
 
     - Run these commands to create a list of pids to copy and convert:
-    $ri = $fedora->risearch;
-    file_put_contents("/tmp/ETD.txt", implode("\n",  $ri->findByCModel("emory-control:ETD-1.0")));
-    file_put_contents("/tmp/ETDFile.txt", implode("\n",  $ri->findByCModel("emory-control:EtdFile-1.0")));
-    file_put_contents("/tmp/ETDAuthorInfo.txt", implode("\n",  $ri->findByCModel("emory-control:AuthorInformation-1.0")));
+      $ri = $fedora->risearch;
+      file_put_contents("/tmp/ETD.txt", implode("\n",  $ri->findByCModel("emory-control:ETD-1.0")));
+      file_put_contents("/tmp/ETDFile.txt", implode("\n",  $ri->findByCModel("emory-control:EtdFile-1.0")));
+      file_put_contents("/tmp/ETDAuthorInfo.txt", implode("\n",  $ri->findByCModel("emory-control:AuthorInformation-1.0")));
 
+    - Make sure there is a carriage return on the last line of each file.
     - cd /tmp
     - cat ETD.txt  ETDFile.txt ETDAuthorInfo.txt  > ETDPids.txt
 
     - Copy pids listed in ETDPids.txt to fedora3.4
-    - Copy /tmp/ETD.txt  /tmp/ETDFile.txt /tmp/ETDAuthorInfo.txt to fedora3.4   
+    - Copy /tmp/ETD.txt  /tmp/ETDFile.txt /tmp/ETDAuthorInfo.txt to fedora3.4    
 
     - Run the fedora-rebuild.sh script for these options:
       2) Rebuild SQL database.    
@@ -90,15 +71,15 @@ Version 1.9
       Make sure then the new objects show up in the rebuilt count.
       If the objects are not indexed, then they will not be found for the next step.
     
-    - Run the inline to managed conversion script on pids listed in ETDPids.txt in fedora 3.4
-      Make sure the environment variables are set if avaliable this script will 
+    - Run the inline to managed conversion script on the three etd pid files in fedora 3.4
+      Make sure the environment variables are set if available this script will 
       set them to the correct value ". /home/fedora34/set-env-for-this-fedora.sh"
-
+    
       /home/fedora34/server/bin/fedora-modify-control-group.sh
       migratedatastreamcontrolgroup https fedoraAdmin <password>
       file:////tmp/ETD.txt RELS-EXT,MODS,XHTML,POLICY,PREMIS M >
       managedConversion.log      - you many have to use http for the 2nd param
-
+      
       /home/fedora34/server/bin/fedora-modify-control-group.sh
       migratedatastreamcontrolgroup https fedoraAdmin <password>
       file:////tmp/ETDFile.txt RELS-EXT,FILE,POLICY M >>
@@ -135,6 +116,7 @@ Version 1.9
   be accessed somewhere other than this default:
         http://localhost:8080/fedora/ .  It looks like at least for the staging
         environment, the hostname will not work. You must use localhost.
+        
 *  Reindex gSearch by running the ETD reindex script:
     - cd src/scripts
     - php ./re-index.php
@@ -145,7 +127,7 @@ Version 1.9
    
     - cd src/scripts/migrations
     - php ./002-clean_xacml.php -s 1 -v debug > /tmp/etd_xacml_policy_update.log
-    - php ./002-clean_xacml.php -s 1 -v debug >> /tmp/etd_xacml_policy_update.log 
+    - php ./002-clean_xacml.php -s 2 -v debug >> /tmp/etd_xacml_policy_update.log 
     - . . . etc
     - php ./002-clean_xacml.php -s 9 -v debug >> /tmp/etd_xacml_policy_update.log 
     
@@ -153,12 +135,10 @@ Version 1.9
     and  "Could not connect to host", noting the pids.
     Run the script with the pids that got an error: 
     - Format: php ./002-clean_xacml.php -p '{pid}' -v debug >> /tmp/etd_xacml_policy_update.log   
-    - Example: php ./002-clean_xacml.php -p 'emory:12345' -v debug >> /tmp/etd_xacml_policy_update.log        
-     
-*  Run the checksum script to determine the current checksum status.
-   cd src/scripts
-   ./update_checksum.php -v info
-   Run the checksum script to perform any checksum updates to FILE datastreams.
+    - Example: php ./002-clean_xacml.php -p 'emory:12345' -v debug >> /tmp/etd_xacml_policy_update.log  
+    - STOP HERE and make sure all errors have been resolved.   
+
+*  Run the checksum script to perform any checksum updates to FILE datastreams.
    (this will take some time and should be run overnight)
    cd src/scripts
    ./update_checksum.php -v info -u       

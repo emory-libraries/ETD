@@ -33,8 +33,8 @@ class IndexControllerTest extends ControllerTestCase {
     $IndexController = new IndexControllerForTest($this->request,$this->response);
 
     // NOTE: currently loading feed from another url
-    $this->expectException(new Exception("Calendar feed is not configured"));
-    $this->expectError("Error retrieving news: News feed is not configured");
+    $this->expectError();	// news feed
+    $this->expectError();	// recent etds
     $IndexController->indexAction();
     
     $this->assertTrue(isset($IndexController->view->title));
@@ -44,7 +44,7 @@ class IndexControllerTest extends ControllerTestCase {
   }
 
 
-  function testGetNews() {
+  function test_getNews() {
     $index = new IndexControllerForTest($this->request,$this->response);
     // news feed not configured
     try {
@@ -70,70 +70,15 @@ class IndexControllerTest extends ControllerTestCase {
 	
   }
 
-  function testGetCalendar() {
-      //Create a feed
-      $calendarFeed = Zend_Feed_Reader::importFile("../fixtures/calendar.xml");
-
-    $index = new IndexControllerForTest($this->request,$this->response);
-    $result = $index->getCalendar($calendarFeed);
-    $this->assertIsA($result, "array");
-        
-    //Test event with mutiple dates and times
-    //The order of whenWhere arrays are important because the dates are sorted by start time
-    $this->assertEqual("Come and submit your etd", $result["ETD Test Event"]["description"]);
-    //First date and location
-    $this->assertEqual("Mon Feb 14 2011 5:15pm", $result["ETD Test Event"]["whenWhere"][0]["start"]);
-    $this->assertEqual("6:15pm", $result["ETD Test Event"]["whenWhere"][0]["end"]);
-    $this->assertEqual("Grad School Building", $result["ETD Test Event"]["whenWhere"][0]["where"]);
-    //Second date and location
-    $this->assertEqual("Sun Feb 20 2011 6:00pm", $result["ETD Test Event"]["whenWhere"][1]["start"]);
-    $this->assertEqual("7:00pm", $result["ETD Test Event"]["whenWhere"][1]["end"]);
-    $this->assertEqual("Candler Building", $result["ETD Test Event"]["whenWhere"][1]["where"]);
-    //Third date and location
-    $this->assertEqual("Sun Feb 27 2011 7:00pm", $result["ETD Test Event"]["whenWhere"][2]["start"]);
-    $this->assertEqual("8:00pm", $result["ETD Test Event"]["whenWhere"][2]["end"]);
-    $this->assertEqual("Rollins Building", $result["ETD Test Event"]["whenWhere"][2]["where"]);
-
-
-    //Only has start date (all day event in google) - deadlines etc.
-    $this->assertEqual("Last change to submit!", $result["Submission Deadline"]["description"]);
-    //First date and location
-    $this->assertEqual("Sun Mar 13 2011", $result["Submission Deadline"]["whenWhere"][0]["start"]);
-    $this->assertEqual("", $result["Submission Deadline"]["whenWhere"][0]["end"]);
-    $this->assertEqual("", $result["Submission Deadline"]["whenWhere"][0]["where"]);
-
-    
-  }
-
-
     function test_createCache() {
     $index = new IndexControllerForTest($this->request,$this->response);
 
     //Check that it is a cache object
-    $cache = $index->createCache(60, "ETD_test_prefix");
+    $cache = $index->createCache(60);
     $this->assertIsA($cache, "Zend_Cache_Frontend_Output");
 
     //Check that lifetime is set correctly
     $this->assertEqual($cache->getOption('lifetime'), 60);
-
-  }
-
-  function testSortByStartDate(){
-      $index = new IndexControllerForTest($this->request,$this->response);
-
-      //arrays containing the minimum amout of data for the function to work
-      $a = array("start" => "Sun Jan 2, 2011 9am");
-      $b = array("start" => "Wed Jan 5, 2011 10pm");
-
-      $result = $index->sortByStartDate($a, $b);
-      $this->assertEqual(-1, $result, "param 1 is earlier than parmam 2");
-
-      $result = $index->sortByStartDate($b, $a);
-      $this->assertEqual(1, $result, "param 1 is later than parmam 2");
-
-      $result = $index->sortByStartDate($a, $a);
-      $this->assertEqual(0, $result, "param 1 and parmam 2 are equal");
-
 
   }
 

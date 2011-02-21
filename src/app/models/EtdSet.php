@@ -246,7 +246,7 @@ class EtdSet implements Zend_Paginator_Adapter_Interface {
       if (isset($options['facets']['limit'])) $solr->setFacetLimit($options['facets']['limit']);
     }
 
-        //print "QUERY: " . $query . "<br>";
+    //    print $query . "<br>";
     //    if (!isset($options["return_type"])) $options["return_type"] = "etd";
 
     $this->solrResponse = $solr->query($query, $start, $max, $sort);

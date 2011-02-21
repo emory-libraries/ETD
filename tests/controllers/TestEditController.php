@@ -441,23 +441,24 @@ class EditControllerTest extends ControllerTestCase {
    */
   function testSaveSchool() {
 
-    //Test with regular user - should return false
-    $EditController = new EditControllerForTest($this->request,$this->response);
-    $this->assertFalse($EditController->saveSchoolAction(), "Should return false because user is not superuser");
+      //Test with regular user - should return false
+      $EditController = new EditControllerForTest($this->request,$this->response);
+      $this->assertFalse($EditController->saveSchoolAction(), "Should return false because user is not superuser");
 
-    //Test with superuser - this is the only one who should be able to access the view
+
+      ///Test with superuser - this is the only one who should be able to access the view
     $this->test_user->role = "superuser";
     Zend_Registry::set('current_user', $this->test_user);
 
-    $school_cfg = $school_cfg = Zend_Registry::get("schools-config");
+      $school_cfg = $school_cfg = Zend_Registry::get("schools-config");
 
-    //Set and save some info to show it is cleared later
-    $etd = new etd($this->etdpid);
-    $etd->rels_ext->program = "ahist";
-    $etd->rels_ext->subfield = "sub 1";
-    $etd->mods->subfield = "sub 2";
-    $etd->save("Test INFO");
-    $etd = new etd($this->etdpid);
+      //Set and save some info to show it is cleared later
+      $etd = new etd($this->etdpid);
+      $etd->rels_ext->program = "ahist";
+      $etd->rels_ext->subfield = "sub 1";
+      $etd->mods->subfield = "sub 2";
+      $etd->save("Test INFO");
+      $etd = new etd($this->etdpid);
 
     //Test value before save function is called
     $this->assertEqual($etd->rels_ext->isMemberOfCollection, $school_cfg->graduate_school->fedora_collection);
@@ -496,18 +497,13 @@ class EditControllerTest extends ControllerTestCase {
   function testSaveFacultyAction() {
     $EditController = new EditControllerForTest($this->request,$this->response);
 
-    $this->setUpPost(array('pid' => $this->etdpid, 
-                           'chair' => array('mthink'),
-                           'committee' => array('engrbs'),
-                           'nonemory_firstname' => array('Marvin'),
-                           'nonemory_lastname' => array('the Martian'),
-                           'nonemory_affiliation' => array('Mars Polytechnic'),
-                     ));
-
+    $this->setUpPost(array('pid' => $this->etdpid, 'chair' => array('mthink'), 'committee' => array('engrbs'),
+         'nonemory_firstname' => array('Marvin'), 'nonemory_lastname' => array('the Martian'),
+         'nonemory_affiliation' => array('Mars Polytechnic')));    
     $EditController->savefacultyAction();
     $viewVars = $EditController->view->getVars();
     $messages = $EditController->getHelper('FlashMessenger')->getMessages();
-    $this->assertEqual("Saved changes to committee/adviser", $messages[0]);
+    $this->assertEqual("Saved changes to committee chairs & members", $messages[0]);
     $this->assertTrue($EditController->redirectRan);  // redirects back to record
     
     $etd = new etd($this->etdpid);
@@ -536,7 +532,7 @@ class EditControllerTest extends ControllerTestCase {
     $EditController->savefacultyAction();
     $viewVars = $EditController->view->getVars();
     $messages = $EditController->getHelper('FlashMessenger')->getMessages();
-    $this->assertEqual("Saved changes to committee/adviser", $messages[0]);
+    $this->assertEqual("Saved changes to committee chairs & members", $messages[0]);
     $this->assertTrue($EditController->redirectRan);  // redirects back to record
     
     $etd = new etd($this->etdpid);
@@ -548,70 +544,7 @@ class EditControllerTest extends ControllerTestCase {
 
   }
 
-    function testSaveFacultyNonEmoryChairAction() {
-        $EditController = new EditControllerForTest($this->request,$this->response);
-
-        //One  Nonemory one Emory chair
-        $this->setUpPost(array('pid' => $this->etdpid,
-                               'chair' => array('mthink'),
-                               'nonemory_chair_firstname' => array('Uncle'),
-                               'nonemory_chair_lastname' => array('Jessee'),
-			       'nonemory_chair_affiliation' => array('The Farm')
-                         ));
-
-
-        $EditController->savefacultyAction();
-        $viewVars = $EditController->view->getVars();
-        $messages = $EditController->getHelper('FlashMessenger')->getMessages();
-        $this->assertEqual("Saved changes to committee/adviser", $messages[0]);
-        $this->assertTrue($EditController->redirectRan);	// redirects back to record
-        $etd = new etd($this->etdpid);
-        $this->assertEqual(1, count($etd->mods->nonemory_chair));
-        $this->assertEqual(1, count($etd->mods->chair));
-        $this->assertEqual("Jessee", $etd->mods->nonemory_chair[0]->last);
-        $this->assertEqual("Uncle", $etd->mods->nonemory_chair[0]->first);
-        $this->assertEqual("The Farm", $etd->mods->nonemory_chair[0]->affiliation);
-        $this->assertEqual("Thinker", $etd->mods->chair[0]->last);
-        $this->assertEqual("Michele D", $etd->mods->chair[0]->first);
-
-        //One Non-Emory Chair
-        $this->setUpPost(array('pid' => $this->etdpid,
-                               'nonemory_chair_firstname' => array('Boss'),
-                               'nonemory_chair_lastname' => array('Hogg'),
-			       'nonemory_chair_affiliation' => array('Hazzard County Police')
-                         ));
-
-        $EditController->savefacultyAction();
-        $etd = new etd($this->etdpid);
-        $this->assertEqual(1, count($etd->mods->nonemory_chair));
-        $this->assertEqual(0, count($etd->mods->chair));
-        $this->assertEqual("Hogg", $etd->mods->nonemory_chair[0]->last);
-        $this->assertEqual("Boss", $etd->mods->nonemory_chair[0]->first);
-        $this->assertEqual("Hazzard County Police", $etd->mods->nonemory_chair[0]->affiliation);
-        
-        //Two Non-Emory Chair
-        $this->setUpPost(array('pid' => $this->etdpid,
-                               'nonemory_chair_firstname' => array('Boss', 'Uncle'),
-                               'nonemory_chair_lastname' => array('Hogg', 'Jessee'),
-			                   'nonemory_chair_affiliation' => array('Hazzard County Police', 'The Farm')
-                         ));
-
-        $EditController->savefacultyAction();
-        $etd = new etd($this->etdpid);
-        $this->assertEqual(2, count($etd->mods->nonemory_chair));
-        $this->assertEqual(0, count($etd->mods->chair));
-        $this->assertEqual("Hogg", $etd->mods->nonemory_chair[0]->last);
-        $this->assertEqual("Boss", $etd->mods->nonemory_chair[0]->first);
-        $this->assertEqual("Hazzard County Police", $etd->mods->nonemory_chair[0]->affiliation);
-        $this->assertEqual("Jessee", $etd->mods->nonemory_chair[1]->last);
-        $this->assertEqual("Uncle", $etd->mods->nonemory_chair[1]->first);
-        $this->assertEqual("The Farm", $etd->mods->nonemory_chair[1]->affiliation);
-        
-   }
-
-
-
-  function RightsAction() {
+  function testRightsAction() {
     $EditController = new EditControllerForTest($this->request,$this->response);
 
     $this->setUpGet(array('pid' => $this->etdpid));    

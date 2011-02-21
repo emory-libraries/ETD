@@ -33,24 +33,11 @@ class TestEtdMods extends UnitTestCase {
     $this->assertEqual("Emory University", $this->mods->degree_grantor->namePart);
   }
   
-  function testNonEmoryChair(){
-    $xml = new DOMDocument();
-    $xml->load("../fixtures/mods2.xml");
-    $mods = new etd_mods($xml);
-
-      // sanity checks - reading values in the xml
-    $this->assertIsA($mods->nonemory_chair, "Array");
-    $this->assertEqual(1, count($mods->nonemory_chair));
-    $this->assertIsA($mods->nonemory_chair[0], "mods_name");
-    $this->assertEqual("1", count($mods->nonemory_chair));
-  }
-
-
   function testKeywords() {
     // sanity checks - reading values in the xml
-    $this->assertIsA($this->mods->keywords, "Array");
+    $this->assertIsa($this->mods->keywords, "Array");
     $this->assertEqual(1, count($this->mods->keywords));
-    $this->assertIsA($this->mods->keywords[0], "mods_subject");
+    $this->assertIsa($this->mods->keywords[0], "mods_subject");
     $this->assertEqual("1", count($this->mods->keywords));
   }
   
@@ -63,9 +50,9 @@ class TestEtdMods extends UnitTestCase {
   }
 
   function testResearchFields() {
-    $this->assertIsA($this->mods->researchfields, "Array");
+    $this->assertIsa($this->mods->researchfields, "Array");
     $this->assertEqual(1, count($this->mods->researchfields));
-    $this->assertIsA($this->mods->researchfields[0], "mods_subject");
+    $this->assertIsa($this->mods->researchfields[0], "mods_subject");
     $this->assertEqual("1", count($this->mods->researchfields));
 
     // test if a field is currently set
@@ -78,7 +65,7 @@ class TestEtdMods extends UnitTestCase {
     // add a single field
     $this->mods->addResearchField("Mouse Studies", "7025");
     $this->assertEqual(2, count($this->mods->researchfields));
-    $this->assertIsA($this->mods->researchfields[1], "mods_subject");
+    $this->assertIsa($this->mods->researchfields[1], "mods_subject");
     $this->assertEqual("Mouse Studies", $this->mods->researchfields[1]->topic);
     $this->assertEqual("7025", $this->mods->researchfields[1]->id);
     // note: pattern is dependent on attribute order; this is how they are created currently
@@ -97,7 +84,7 @@ class TestEtdMods extends UnitTestCase {
     $this->mods->setResearchFields($newfields);
 
     $this->assertEqual(3, count($this->mods->researchfields));
-    $this->assertIsA($this->mods->researchfields[2], "mods_subject");
+    $this->assertIsa($this->mods->researchfields[2], "mods_subject");
 
     $this->assertEqual("7334", $this->mods->researchfields[0]->id);
     $this->assertEqual("Animated Arts", $this->mods->researchfields[0]->topic);
@@ -116,7 +103,7 @@ class TestEtdMods extends UnitTestCase {
     // set by array by deleting the primary - research fields should contain remainder
     // set all fields from an array 
     $newfields = array("8593" => "Disney Studies", "8493" => "Cheese and Mice");
-    $this->mods->setResearchFields($newfields);  
+    $this->mods->setResearchFields($newfields);
     $this->assertEqual(2, count($this->mods->researchfields));
 
     // set by array with a shorter list - research fields should only contain new values
@@ -222,39 +209,13 @@ class TestEtdMods extends UnitTestCase {
     $this->mods->abstract = "";
     $missing = $this->mods->checkAllFields();
     $this->assertTrue(in_array("abstract", $missing), "incomplete abstract detected");
-    //  - partnering agencies
-    $this->mods->partneringagencies[0]->id = $this->mods->partneringagencies[0]->topic = "";
-    $missing = $this->mods->checkAllFields();
-    $this->assertTrue(in_array("partnering agencies", $missing),
-          "incomplete partnering agencies detected");
-
-
-   //Remove Emory committee and replace with non-emory committee
-   foreach($this->mods->chair as $c){
-        $this->mods->removeCommittee($c->id);
-    }
-
-    foreach($this->mods->committee as $c){
-        $this->mods->removeCommittee($c->id);
-    }
-
-   $this->mods->clearNonEmoryCommittee();
-
-   $this->mods->addCommittee("last chair", "first chair", "nonemory_chair", "notEmory"); 
-   $this->mods->addCommittee("last committe", "first committee", "nonemory_committee", "alsoNotEmory"); 
-   $missing = $this->mods->checkAllFields();
-   
-   $this->assertFalse(in_array("chair", $missing), "chair should not be considered missing when non-emory committee chair has been added to record");
-   $this->assertFalse(in_array("committee", $missing), "committee is not missing");
-
-
-
-
+    
+    
     error_reporting($errlevel);     // restore prior error reporting
   }
 
   function testFieldLabels() {
-    $this->assertEqual("committee chair/thesis adviser", $this->mods->fieldLabel("chair"));
+    $this->assertEqual("committee chair", $this->mods->fieldLabel("chair"));
     $this->assertEqual("ProQuest research fields", $this->mods->fieldLabel("researchfields"));
   }
 
@@ -313,7 +274,6 @@ class TestEtdMods extends UnitTestCase {
     $this->assertEqual("Duck", $this->mods->nonemory_committee[$count]->last);
     $this->assertEqual("Daisy", $this->mods->nonemory_committee[$count]->first);
     $this->assertEqual("Duck, Daisy", $this->mods->nonemory_committee[$count]->full);
-    $this->assertEqual("Disney World", $this->mods->nonemory_committee[$count]->affiliation);
 
     // add when there are none already in the xml
     $xml = new DOMDocument();
@@ -326,108 +286,11 @@ class TestEtdMods extends UnitTestCase {
     $this->assertEqual("Daisy", $mods->nonemory_committee[0]->first);
     $this->assertEqual("Duck, Daisy", $mods->nonemory_committee[0]->full);
 
-  }
-
-  function testAddNonemoryChair() {
-    $xml = new DOMDocument();
-    $xml->load("../fixtures/mods2.xml");
-    $mods = new etd_mods($xml);
-
-    $count = count($mods->nonemory_chair);
-    $mods->addCommittee("Duke", "Daisy", "nonemory_chair", "Hazzard County");
-    $this->assertEqual($count + 1, count($mods->nonemory_chair));
-    $this->assertEqual("Duke", $mods->nonemory_chair[$count]->last);
-    $this->assertEqual("Daisy", $mods->nonemory_chair[$count]->first);
-    $this->assertEqual("Duke, Daisy", $mods->nonemory_chair[$count]->full);
-    $this->assertEqual("Hazzard County", $mods->nonemory_chair[$count]->affiliation);
-
-    $this->mods->addCommittee("Duke", "Daisy", "nonemory_chair", "Hazzard County");
-    $this->assertEqual(1, count($this->mods->nonemory_chair));
-    $this->assertEqual("Duke", $this->mods->nonemory_chair[0]->last);
-    $this->assertEqual("Daisy", $this->mods->nonemory_chair[0]->first);
-    $this->assertEqual("Duke, Daisy", $this->mods->nonemory_chair[0]->full);
+    // FIXME: test passing invalid type
 
   }
 
-  function testSetNonemoryCommittee() {
-      //One chair
-      $this->mods->setNonemoryCommittee(array("nonEmoryChairFirst"),
-                                        array("nonEmoryChairLast"),
-                                        array("nonEmoryChairAff"),
-                                        array(),
-                                        array(),
-                                        array());
-
-
-      $this->assertEqual(1, count($this->mods->nonemory_chair), "1 nonemory_chair exists");
-      $this->assertEqual(0, count($this->mods->nonemory_committee), "0 nonemory_committee exists");
-      $this->assertEqual($this->mods->nonemory_chair[0]->first, "nonEmoryChairFirst");
-      $this->assertEqual($this->mods->nonemory_chair[0]->last, "nonEmoryChairLast");
-      $this->assertEqual($this->mods->nonemory_chair[0]->affiliation, "nonEmoryChairAff");
-
-//One committee
-      $this->mods->setNonemoryCommittee(array(),
-                                        array(),
-                                        array(),
-                                        array("nonEmoryMemberFirst"),
-                                        array("nonEmoryMemberLast"),
-                                        array("nonEmoryMemberAff"));
-
-
-      $this->assertEqual(0, count($this->mods->nonemory_chair), "0 nonemory_chair exists");
-      $this->assertEqual(1, count($this->mods->nonemory_committee), "1 nonemory_committee exists");
-      $this->assertEqual($this->mods->nonemory_committee[0]->first, "nonEmoryMemberFirst");
-      $this->assertEqual($this->mods->nonemory_committee[0]->last, "nonEmoryMemberLast");
-      $this->assertEqual($this->mods->nonemory_committee[0]->affiliation, "nonEmoryMemberAff");
-      
-      
-      
-      //One chair and one committee
-      $this->mods->setNonemoryCommittee(array("nonEmoryChairFirst"),
-                                        array("nonEmoryChairLast"),
-                                        array("nonEmoryChairAff"),
-                                        array("nonEmoryMemberFirst"),
-                                        array("nonEmoryMemberLast"),
-                                        array("nonEmoryMemberAff"));
-
-
-      $this->assertEqual(1, count($this->mods->nonemory_chair), "1 nonemory_chair exists");
-      $this->assertEqual(1, count($this->mods->nonemory_committee), "1 nonemory_committee exists");
-      $this->assertEqual($this->mods->nonemory_chair[0]->first, "nonEmoryChairFirst");
-      $this->assertEqual($this->mods->nonemory_chair[0]->last, "nonEmoryChairLast");
-      $this->assertEqual($this->mods->nonemory_chair[0]->affiliation, "nonEmoryChairAff");
-      $this->assertEqual($this->mods->nonemory_committee[0]->first, "nonEmoryMemberFirst");
-      $this->assertEqual($this->mods->nonemory_committee[0]->last, "nonEmoryMemberLast");
-      $this->assertEqual($this->mods->nonemory_committee[0]->affiliation, "nonEmoryMemberAff");
-
-      //Two chair and two committee
-      $this->mods->setNonemoryCommittee(array("nonEmoryChairFirst1", "nonEmoryChairFirst2"),
-                                        array("nonEmoryChairLast1", "nonEmoryChairLast2"),
-                                        array("nonEmoryChairAff1", "nonEmoryChairAff2"),
-                                        array("nonEmoryMemberFirst1", "nonEmoryMemberFirst2"),
-                                        array("nonEmoryMemberLast1", "nonEmoryMemberLast2"),
-                                        array("nonEmoryMemberAff1", "nonEmoryMemberAff2"));
-
-
-      $this->assertEqual(2, count($this->mods->nonemory_chair), "2 nonemory_chair exists");
-      $this->assertEqual(2, count($this->mods->nonemory_committee), "2 nonemory_committee exists");
-      $this->assertEqual($this->mods->nonemory_chair[0]->first, "nonEmoryChairFirst1");
-      $this->assertEqual($this->mods->nonemory_chair[0]->last, "nonEmoryChairLast1");
-      $this->assertEqual($this->mods->nonemory_chair[0]->affiliation, "nonEmoryChairAff1");
-      $this->assertEqual($this->mods->nonemory_committee[0]->first, "nonEmoryMemberFirst1");
-      $this->assertEqual($this->mods->nonemory_committee[0]->last, "nonEmoryMemberLast1");
-      $this->assertEqual($this->mods->nonemory_committee[0]->affiliation, "nonEmoryMemberAff1");
-      $this->assertEqual($this->mods->nonemory_chair[1]->first, "nonEmoryChairFirst2");
-      $this->assertEqual($this->mods->nonemory_chair[1]->last, "nonEmoryChairLast2");
-      $this->assertEqual($this->mods->nonemory_chair[1]->affiliation, "nonEmoryChairAff2");
-      $this->assertEqual($this->mods->nonemory_committee[1]->first, "nonEmoryMemberFirst2");
-      $this->assertEqual($this->mods->nonemory_committee[1]->last, "nonEmoryMemberLast2");
-      $this->assertEqual($this->mods->nonemory_committee[1]->affiliation, "nonEmoryMemberAff2");
-    
-  }
-
-
-function testSetCommitteeById() {
+  function testSetCommitteeById() {
     $errlevel = error_reporting(E_ALL ^ E_NOTICE);
     
     $this->mods->setCommittee(array("mthink"), "chair");
@@ -636,65 +499,6 @@ function testSetCommitteeById() {
     $this->assertIsA($this->scratch_etd_mods, "etd_mods");    
   } 
 
-  function testPartneringAgencies() {
-    $this->assertIsA($this->mods->partneringagencies, "Array");
-    $this->assertEqual(2, count($this->mods->partneringagencies));
-    $this->assertIsA($this->mods->partneringagencies[0], "mods_note");
-    $this->assertEqual("2", count($this->mods->partneringagencies));
-
-    // test if a field is currently set
-    $this->assertTrue($this->mods->hasPartneringAgency("pa-blue"));
-    $this->assertTrue($this->mods->hasPartneringAgency("pa-yellow"));
-    $this->assertFalse($this->mods->hasPartneringAgency("pa-purple"));    
-  }
-  
-  function testAddPartneringAgency() {
-    // add a single field
-    $this->mods->addPartneringAgency("Purple Rain", "pa-purple");
-    $this->assertEqual(3, count($this->mods->partneringagencies));
-    $this->assertIsA($this->mods->partneringagencies[2], "mods_note");
-    $this->assertEqual("Purple Rain", $this->mods->partneringagencies[2]->topic);
-    $this->assertEqual("pa-purple", $this->mods->partneringagencies[2]->id);
-    // note: pattern is dependent on attribute order; this is how they are created currently
-    $this->assertPattern('|ID="pa-purple"|', $this->mods->saveXML());
-  }
-  
-    function testSetPartneringAgencies() {
-    // NOTE: php is now outputting a notice when using __set on arrays
-    // (actual logic seems to work properly)
-    $errlevel = error_reporting(E_ALL ^ E_NOTICE);
-    
-    // set all fields from an array 
-    $newfields = array("pa-green" => "Green Grass", "pa-brown" => "Brown Earth",
-           "pa-white" => "White Clouds");
-    $this->mods->setPartneringAgencies($newfields);
-
-    $this->assertEqual(3, count($this->mods->partneringagencies));
-    $this->assertIsA($this->mods->partneringagencies[2], "mods_note");
-
-    $this->assertEqual("pa-green", $this->mods->partneringagencies[0]->id);
-    $this->assertEqual("Green Grass", $this->mods->partneringagencies[0]->topic);
-    $this->assertEqual("pa-brown", $this->mods->partneringagencies[1]->id);
-    $this->assertEqual("Brown Earth", $this->mods->partneringagencies[1]->topic);
-    $this->assertEqual("pa-white", $this->mods->partneringagencies[2]->id);
-    $this->assertEqual("White Clouds", $this->mods->partneringagencies[2]->topic);
-    
-    $this->assertPattern('|ID="pa-white"|', $this->mods->saveXML());
-
-    // check hasPartneringAgency when there are multiple fields
-    $this->assertTrue($this->mods->hasPartneringAgency("pa-green"));
-    $this->assertTrue($this->mods->hasPartneringAgency("pa-brown"));
-    $this->assertTrue($this->mods->hasPartneringAgency("pa-white"));    
-    $this->assertFalse($this->mods->hasPartneringAgency("pa-orange"));
-
-    // set by array with a shorter list - partnering agencies should only contain new values
-    $newfields = array("pa-orange" => "Orange Sky");
-    $this->mods->setPartneringAgencies($newfields);
-    $this->assertEqual(1, count($this->mods->partneringagencies));
-
-    error_reporting($errlevel);     // restore prior error reporting
-  }
-  
 }
 
 runtest(new TestEtdMods());

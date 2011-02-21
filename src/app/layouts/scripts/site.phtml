@@ -5,10 +5,10 @@
   xmlns:ev="http://www.w3.org/2001/xml-events"
    <? if (isset($this->namespaces)): ?>
     <? foreach ($this->namespaces as $prefix => $uri): ?>
-	 xmlns:<?= $prefix ?>="<?= $uri ?>"
+   xmlns:<?= $prefix ?>="<?= $uri ?>"
     <? endforeach ?>
     <? endif ?>
- <? endif ?>    	 
+ <? endif ?>       
   xml:lang="en">
 <head>
 
@@ -33,8 +33,8 @@
 
 <div id="header">
   <div id="emory">
-	<a href="http://www.emory.edu"><img
-	  src="<?= $this->linkTo("images/emory.gif") ?>" alt="EMORY" title="EMORY"/></a>
+  <a href="http://www.emory.edu"><img
+    src="<?= $this->linkTo("images/emory.gif") ?>" alt="EMORY" title="EMORY"/></a>
       </div>
 <div id="etd_title"><a href="<?= $this->url(array(), '', true) ?>">Electronic Theses and Dissertations</a></div>
 <? if ($this->env == "development"): ?>
@@ -42,9 +42,9 @@
 <? endif ?>
 
   <div id="photo">
-	<img src="<?= $this->linkto("images/woodruff-path.jpg") ?>" alt="path to the library"/>
+  <img src="<?= $this->linkto("images/woodruff-path.jpg") ?>" alt="path to the library"/>
 <p>Welcome to Emory University's Electronic Thesis and Dissertation
-	  repository.</p>
+    repository.</p>
       </div>
 </div>
 
@@ -64,25 +64,25 @@
    <ul class="horizontal">
       <li class="first">
          <a title="logout"
-		href="<?= $this->url(array("controller" => "auth", "action" => "logout"), "", true)?>"><b>Logout &gt;</b></a>
+    href="<?= $this->url(array("controller" => "auth", "action" => "logout"), "", true)?>"><b>Logout &gt;</b></a>
 
-	    </li>
+      </li>
 
           <? if ($this->acl->isAllowed($this->current_user, "etd", "manage")): ?>
             <li><a href="<?= $this->url(array("controller" => "manage"), "", true)?>">Manage</a></li>
-	  <? elseif ($this->acl->isAllowed($this->current_user, "report", "view")): ?>
+    <? elseif ($this->acl->isAllowed($this->current_user, "report", "view")): ?>
             <li><a href="<?= $this->url(array("controller" => "report"), "", true)?>">Reports</a></li>
-   	  <? endif ?>
+      <? endif ?>
 
             <li><a href="<?= $this->url(array("controller" => "browse", "action" => "my"), "", true)  ?>">My ETDs</a></li>
 
-<!--      	    <li><a title="user information" href="<?= $this->url(array("controller" => "authorInfo", "action" => "view"), null, true) ?>">Profile</a></li> -->
+<!--            <li><a title="user information" href="<?= $this->url(array("controller" => "authorInfo", "action" => "view"), null, true) ?>">Profile</a></li> -->
 
             <li><a href="<?= $this->url(array("controller" => "docs", "action" => "faq"), '', true); ?>#help">Help</a></li>
 
-	    <? if ($this->env == "development" && !($this->xforms && $this->browserInfo->browser == "IE")): ?>
-	       <?= $this->render("_setrole.phtml"); ?>
-	    <? endif ?>
+      <? if ($this->env == "development" && !($this->xforms && $this->browserInfo->browser == "IE")): ?>
+         <?= $this->render("_setrole.phtml"); ?>
+      <? endif ?>
          </ul>
 
  <? else: ?>
@@ -128,7 +128,7 @@
  <a
     href="http://www.emory.edu/copyright.cfm">&copy; 2008 Emory
     University.</a> 
-   Version 1.9 updated 01/2011.
+   Version 1.9 updated 02/2011.
  <a href="<?= $this->url(array("controller" => "docs", "action" => "ip"), '', true); ?>">Rights and Privileges</a>
  | <a href="<?= $this->url(array("controller" => "statistics", "action" => "index"), '', true); ?>">Access Statistics</a>
 </div>
