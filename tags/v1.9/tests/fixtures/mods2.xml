@@ -1,0 +1,35 @@
+<mods:mods xmlns:mods="http://www.loc.gov/mods/v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema">
+<!-- same as mods but without the non-emory committee member -->
+  <mods:titleInfo>
+    <mods:title>Why I Like Cheese</mods:title>
+  </mods:titleInfo>
+  <mods:name type="personal">
+    <mods:namePart type="given">Minnie</mods:namePart>
+    <mods:namePart type="family">Mouse</mods:namePart>
+    <mods:displayForm>Mouse, Minnie</mods:displayForm>
+    <mods:affiliation>Disney</mods:affiliation>
+    <mods:role>
+      <mods:roleTerm authority="marcrelator" type="text">author</mods:roleTerm>
+    </mods:role>
+  </mods:name>
+  <mods:name type="personal">
+    <mods:namePart type="given"/>
+    <mods:namePart type="family"/>
+    <mods:displayForm/> 
+    <mods:role>
+      <mods:roleTerm type="text">Committee Member</mods:roleTerm>
+    </mods:role>
+    <mods:description>Emory Committee Member</mods:description>
+   </mods:name>
+  <mods:abstract>Gouda or Cheddar?</mods:abstract>
+  <mods:tableOfContents/>
+  <mods:subject ID="id7024" authority="proquestresearchfield">
+    <mods:topic>Cheese Studies</mods:topic>
+  </mods:subject>
+  <mods:subject authority="keyword">
+    <mods:topic>cheese</mods:topic>
+  </mods:subject>
+  <mods:physicalDescription>
+    <mods:extent/>
+  </mods:physicalDescription>
+</mods:mods>

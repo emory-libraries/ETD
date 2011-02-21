@@ -1,0 +1,11 @@
+<h1>Edit School Membership</h1>
+<p><b><?= $this->etd->title() ?></b></p>
+
+<p>Select the school to which the ETD should be moved</p>
+<p>NOTE: The program field will have to be assigned after changing schools</p>
+
+<form action="<?= $this->url(array("action" => "save-school")) ?>" method="post">
+<?= $this->formSelect("schoolId", $this->schoolId, null, $this->options); ?>
+<?= $this->formHidden("schoolIdOld", $this->schoolId); ?>
+<p><input class="button" type="submit" value="save"/></p>
+</form>

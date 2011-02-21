@@ -1,0 +1,394 @@
+<rdf:RDF
+  xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+  xmlns:skos="http://www.w3.org/2004/02/skos/core#"
+  xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
+  
+  <skos:Collection rdf:about="#programs">
+    <rdfs:label>Programs</rdfs:label>
+    <skos:member rdf:resource="#grad"/>
+    <skos:member rdf:resource="#undergrad"/>
+  </skos:Collection>
+
+  <skos:Collection rdf:about="#grad">
+   <rdfs:label>Graduate</rdfs:label>
+    <skos:member rdf:resource="#humanities"/>
+    <skos:member rdf:resource="#natlhealthsci"/>
+    <skos:member rdf:resource="#socsci"/>
+  </skos:Collection>
+
+  <skos:Collection rdf:about="#undergrad">
+   <rdfs:label>Undergraduate</rdfs:label>
+    <skos:member rdf:resource="#uafr"/>
+    <skos:member rdf:resource="#uamerican"/>
+    <skos:member rdf:resource="#uanc"/>
+    <skos:member rdf:resource="#uanthro"/>
+    <skos:member rdf:resource="#uarthist"/>
+    <skos:member rdf:resource="#uarthistvis"/>
+    <skos:member rdf:resource="#uasian"/>
+    <skos:member rdf:resource="#ubio"/>
+    <skos:member rdf:resource="#uchem"/>
+    <skos:member rdf:resource="#uchinese"/>
+    <skos:member rdf:resource="#uclassics"/>
+    <skos:member rdf:resource="#uclassichist"/>
+    <skos:member rdf:resource="#uclassicphil"/>
+    <skos:member rdf:resource="#ucomplit"/>
+    <skos:member rdf:resource="#ucompsci"/>
+    <skos:member rdf:resource="#udance"/>
+    <skos:member rdf:resource="#uecon"/>
+    <skos:member rdf:resource="#ueconhist"/>
+    <skos:member rdf:resource="#ueconmath"/>
+    <skos:member rdf:resource="#ued"/>
+    <skos:member rdf:resource="#ueng"/>
+    <skos:member rdf:resource="#uengwri"/>
+    <skos:member rdf:resource="#uenghist"/>
+    <skos:member rdf:resource="#uenv"/>
+    <skos:member rdf:resource="#ufilm"/>
+    <skos:member rdf:resource="#ufrench"/>
+    <skos:member rdf:resource="#ugerman"/>
+    <skos:member rdf:resource="#uhist"/>
+    <skos:member rdf:resource="#uhistart"/>
+    <skos:member rdf:resource="#uids"/>
+    <skos:member rdf:resource="#uintl"/>
+    <skos:member rdf:resource="#uitalian"/>
+    <skos:member rdf:resource="#ujapan"/>
+    <skos:member rdf:resource="#ujewish"/>
+    <skos:member rdf:resource="#ujournalism"/>
+    <skos:member rdf:resource="#ulatinam"/>
+    <skos:member rdf:resource="#uling"/>
+    <skos:member rdf:resource="#umath"/>
+    <skos:member rdf:resource="#umathcs"/>
+    <skos:member rdf:resource="#umathpolisci"/>
+    <skos:member rdf:resource="#umideast"/>
+    <skos:member rdf:resource="#umusic"/>
+    <skos:member rdf:resource="#uneuro"/>
+    <skos:member rdf:resource="#uphil"/>
+    <skos:member rdf:resource="#uphilrel"/>
+    <skos:member rdf:resource="#uphysics"/>
+    <skos:member rdf:resource="#uphysastronomy"/>
+    <skos:member rdf:resource="#upolisci"/>
+    <skos:member rdf:resource="#upsych"/>
+    <skos:member rdf:resource="#upsychling"/>
+    <skos:member rdf:resource="#urel"/>
+    <skos:member rdf:resource="#urelanthro"/>
+    <skos:member rdf:resource="#urelciv"/>
+    <skos:member rdf:resource="#urelhist"/>
+    <skos:member rdf:resource="#urelsoc"/>
+    <skos:member rdf:resource="#urussian"/>
+    <skos:member rdf:resource="#usociology"/>
+    <skos:member rdf:resource="#uspanish"/>
+    <skos:member rdf:resource="#utheater"/>
+    <skos:member rdf:resource="#uwomens"/>
+<!-- no members yet -->
+  </skos:Collection>
+
+
+  <skos:Collection rdf:about="#humanities">
+    <rdfs:label>Humanities</rdfs:label>
+    <skos:member rdf:resource="#arthistory"/>
+    <skos:member rdf:resource="#complit"/>
+    <skos:member rdf:resource="#english"/>
+    <skos:member rdf:resource="#filmstudies"/>
+    <skos:member rdf:resource="#french"/>
+    <skos:member rdf:resource="#ILA"/>
+    <skos:member rdf:resource="#history"/>
+    <skos:member rdf:resource="#jewishstudies"/>
+    <skos:member rdf:resource="#music"/>
+    <skos:member rdf:resource="#philosophy"/>
+    <skos:member rdf:resource="#religion"/>
+    <skos:member rdf:resource="#spanish"/>
+  </skos:Collection>
+
+  <skos:Collection rdf:about="#arthistory">
+    <rdfs:label>Art History</rdfs:label>
+  </skos:Collection>
+  <skos:Collection rdf:about="#complit">
+    <rdfs:label>Comparative Literature</rdfs:label>
+  </skos:Collection>
+  <skos:Collection rdf:about="#english">
+    <rdfs:label>English</rdfs:label>
+  </skos:Collection>
+  <skos:Collection rdf:about="#filmstudies">
+    <rdfs:label>Film Studies</rdfs:label>
+  </skos:Collection>
+  <skos:Collection rdf:about="#french">
+    <rdfs:label>French</rdfs:label>
+  </skos:Collection>
+  <skos:Collection rdf:about="#ILA">
+    <rdfs:label>Graduate Institute of the Liberal Arts</rdfs:label>
+  </skos:Collection>
+  <skos:Collection rdf:about="#history">
+    <rdfs:label>History</rdfs:label>
+  </skos:Collection>
+  <skos:Collection rdf:about="#jewishstudies">
+    <rdfs:label>Jewish Studies</rdfs:label>
+  </skos:Collection>
+  <skos:Collection rdf:about="#music">
+    <rdfs:label>Music</rdfs:label>
+  </skos:Collection>
+  <skos:Collection rdf:about="#philosophy">
+    <rdfs:label>Philosophy</rdfs:label>
+  </skos:Collection>
+  <skos:Collection rdf:about="#spanish">
+    <rdfs:label>Spanish</rdfs:label>
+  </skos:Collection>
+
+
+  <skos:Collection rdf:about="#religion">
+    <rdfs:label>Religion</rdfs:label>
+    <skos:member rdf:resource="#american"/>
+    <skos:member rdf:resource="#comparative"/>
+    <skos:member rdf:resource="#ethics"/>
+    <skos:member rdf:resource="#hebrew"/>
+    <skos:member rdf:resource="#historical"/>
+    <skos:member rdf:resource="#newtestament"/>
+    <skos:member rdf:resource="#religiouspractices"/>
+    <skos:member rdf:resource="#theological"/>
+    <skos:member rdf:resource="#asian"/>
+  </skos:Collection>
+
+  <skos:Collection rdf:about="#american">
+    <rdfs:label>American Religious Cultures</rdfs:label>
+  </skos:Collection>
+  <skos:Collection rdf:about="#comparative">
+    <rdfs:label>Comparative Literature and Religion</rdfs:label>
+  </skos:Collection>
+  <skos:Collection rdf:about="#ethics">
+    <rdfs:label>Ethics and Society</rdfs:label>
+  </skos:Collection>
+  <skos:Collection rdf:about="#hebrew">
+    <rdfs:label>Hebrew Bible</rdfs:label>
+  </skos:Collection>
+  <skos:Collection rdf:about="#historical">
+    <rdfs:label>Historical Studies in Theology and Religion</rdfs:label>
+  </skos:Collection>
+  <skos:Collection rdf:about="#newtestament">
+    <rdfs:label>New Testament</rdfs:label>
+  </skos:Collection>
+  <skos:Collection rdf:about="#religiouspractices">
+    <rdfs:label>Person, Community and Religious Practices</rdfs:label>
+  </skos:Collection>
+  <skos:Collection rdf:about="#theological">
+    <rdfs:label>Theological Studies</rdfs:label>
+  </skos:Collection>
+  <skos:Collection rdf:about="#asian">
+    <rdfs:label>West and South Asian Religions</rdfs:label>
+  </skos:Collection>
+
+
+
+  <skos:Collection rdf:about="#natlhealthsci">
+    <rdfs:label>Natural/Health Sciences</rdfs:label>
+    <skos:member rdf:resource="#behavsci"/>
+    <skos:member rdf:resource="#biosci"/>
+    <skos:member rdf:resource="#biomedeng"/>
+    <skos:member rdf:resource="#biostat"/>
+    <skos:member rdf:resource="#chemistry"/>
+    <skos:member rdf:resource="#clinicalresearch"/>
+    <skos:member rdf:resource="#epi"/>
+    <skos:member rdf:resource="#healthpolicy"/>
+    <skos:member rdf:resource="#mathcompsci"/>
+    <skos:member rdf:resource="#nursing"/>
+    <skos:member rdf:resource="#physics"/>
+  </skos:Collection>
+
+  <skos:Collection rdf:about="#behavsci">
+    <rdfs:label>Behavioral Sciences and Health Education</rdfs:label>
+  </skos:Collection>
+
+  <skos:Collection rdf:about="#biosci">
+    <rdfs:label>Biological and Biomedical Sciences</rdfs:label>
+    <skos:member rdf:resource="#biochem"/>
+    <skos:member rdf:resource="#genetics"/>
+    <skos:member rdf:resource="#immunology"/>
+    <skos:member rdf:resource="#microbiology"/>
+    <skos:member rdf:resource="#pharmacology"/>
+    <skos:member rdf:resource="#neuroscience"/>
+    <skos:member rdf:resource="#nutrition"/>
+    <skos:member rdf:resource="#population"/>
+  </skos:Collection>
+
+  <skos:Collection rdf:about="#biochem">
+   <rdfs:label>Biochemistry, Cell &amp; Developmental Biology</rdfs:label>
+  </skos:Collection>
+  <skos:Collection rdf:about="#genetics">
+    <rdfs:label>Genetics and Molecular Biology</rdfs:label>
+  </skos:Collection>
+  <skos:Collection rdf:about="#immunology">
+    <rdfs:label>Immunology</rdfs:label>
+  </skos:Collection>
+  <skos:Collection rdf:about="#microbiology">
+    <rdfs:label>Microbiology &amp; Molecular Genetics</rdfs:label>
+  </skos:Collection>
+  <skos:Collection rdf:about="#pharmacology">
+   <rdfs:label>Molecular &amp; Systems Pharmacology</rdfs:label>
+  </skos:Collection>
+  <skos:Collection rdf:about="#neuroscience">
+   <rdfs:label>Neuroscience</rdfs:label>
+  </skos:Collection>
+  <skos:Collection rdf:about="#nutrition">
+   <rdfs:label>Nutrition and Health Sciences</rdfs:label>
+  </skos:Collection>
+  <skos:Collection rdf:about="#population">
+   <rdfs:label>Population Biology, Ecology &amp; Evolution</rdfs:label>
+  </skos:Collection>
+
+
+  <skos:Collection rdf:about="#biomedeng">
+    <rdfs:label>Biomedical Engineering</rdfs:label>
+  </skos:Collection>
+  <skos:Collection rdf:about="#biostat">
+    <rdfs:label>Biostatistics</rdfs:label>
+  </skos:Collection>
+  <skos:Collection rdf:about="#chemistry">
+    <rdfs:label>Chemistry</rdfs:label>
+  </skos:Collection>
+  <skos:Collection rdf:about="#clinicalresearch">
+    <rdfs:label>Clinical Research Curriculum Program</rdfs:label>
+  </skos:Collection>
+  <skos:Collection rdf:about="#epi">
+    <rdfs:label>Epidemiology</rdfs:label>
+  </skos:Collection>
+  <skos:Collection rdf:about="#healthpolicy">
+    <rdfs:label>Health Services and Research Health Policy</rdfs:label>
+  </skos:Collection>
+  <skos:Collection rdf:about="#mathcompsci">
+    <rdfs:label>Math and Computer Science</rdfs:label>
+  </skos:Collection>
+  <skos:Collection rdf:about="#nursing">
+    <rdfs:label>Nursing</rdfs:label>
+  </skos:Collection>
+  <skos:Collection rdf:about="#physics">
+    <rdfs:label>Physics</rdfs:label>
+  </skos:Collection>
+
+
+  <skos:Collection rdf:about="#socsci">
+    <rdfs:label>Social Sciences</rdfs:label>
+    <skos:member rdf:resource="#anthro"/>
+    <skos:member rdf:resource="#business"/>
+    <skos:member rdf:resource="#econ"/>
+    <skos:member rdf:resource="#education"/>
+    <skos:member rdf:resource="#polisci"/>
+    <skos:member rdf:resource="#psychology"/>
+    <skos:member rdf:resource="#sociology"/>
+    <skos:member rdf:resource="#womensstudies"/>
+  </skos:Collection>
+
+  <skos:Collection rdf:about="#anthro">
+    <rdfs:label>Anthropology</rdfs:label>
+  </skos:Collection>
+  <skos:Collection rdf:about="#business">
+    <rdfs:label>Business</rdfs:label>
+  </skos:Collection>
+  <skos:Collection rdf:about="#econ">
+    <rdfs:label>Economics</rdfs:label>
+  </skos:Collection>
+  <skos:Collection rdf:about="#education">
+    <rdfs:label>Educational Studies</rdfs:label>
+  </skos:Collection>
+  <skos:Collection rdf:about="#polisci">
+    <rdfs:label>Political Science</rdfs:label>
+  </skos:Collection>
+
+  <skos:Collection rdf:about="#psychology">
+    <rdfs:label>Psychology</rdfs:label>
+    <skos:member rdf:resource="#clinicalpsych"/>
+    <skos:member rdf:resource="#cognitivepsych"/>
+    <skos:member rdf:resource="#animalbehavior"/>
+  </skos:Collection>
+
+  <skos:Collection rdf:about="#clinicalpsych">
+    <rdfs:label>Clinical Psychology</rdfs:label>
+  </skos:Collection>
+  <skos:Collection rdf:about="#cognitivepsych">
+    <rdfs:label>Cognitive and Developmental Psychology</rdfs:label>
+  </skos:Collection>
+  <skos:Collection rdf:about="#animalbehavior">
+    <rdfs:label>Neuroscience and Animal Behavior</rdfs:label>
+  </skos:Collection>
+
+
+  <skos:Collection rdf:about="#sociology">
+    <rdfs:label>Sociology</rdfs:label>
+  </skos:Collection>
+  <skos:Collection rdf:about="#womensstudies">
+    <rdfs:label>Women's Studies</rdfs:label>
+  </skos:Collection>
+
+  <skos:Collection rdf:about="#none">
+    <rdfs:label>--</rdfs:label>
+  </skos:Collection>  
+
+
+  <!-- undergrad honors programs -->
+ <skos:Collection rdf:about="#uafr">
+    <rdfs:label>African Studies</rdfs:label>
+  </skos:Collection>
+  <skos:Collection rdf:about="#uamerican">
+    <rdfs:label>American Studies</rdfs:label>
+  </skos:Collection>
+  <skos:Collection rdf:about="#uanc">
+    <rdfs:label>Ancient Mediterranean Studies</rdfs:label>
+  </skos:Collection>
+  <skos:Collection rdf:about="#uanthro">
+    <rdfs:label>Anthropology</rdfs:label>
+  </skos:Collection>
+  <skos:Collection rdf:about="#uarthist"><rdfs:label>Art History</rdfs:label></skos:Collection>
+
+<skos:Collection rdf:about="#uarthistvis"><rdfs:label>Art History and Visual Arts</rdfs:label></skos:Collection>
+<skos:Collection rdf:about="#uasian"><rdfs:label>Asian and Asian American Studies</rdfs:label></skos:Collection>
+<skos:Collection rdf:about="#ubio"><rdfs:label>Biology</rdfs:label></skos:Collection>
+<skos:Collection rdf:about="#uchem"><rdfs:label>Chemistry</rdfs:label></skos:Collection>
+<skos:Collection rdf:about="#uchinese"><rdfs:label>Chinese Language and Literature</rdfs:label></skos:Collection>
+<skos:Collection rdf:about="#uclassics"><rdfs:label>Classics</rdfs:label></skos:Collection>
+<skos:Collection rdf:about="#uclassichist"><rdfs:label>Classics and History</rdfs:label></skos:Collection>
+<skos:Collection rdf:about="#uclassicphil"><rdfs:label>Classics and Philosophy</rdfs:label></skos:Collection>
+<skos:Collection rdf:about="#ucomplit"><rdfs:label>Comparative Literature</rdfs:label></skos:Collection>
+<skos:Collection rdf:about="#ucompsci"><rdfs:label>Computer Science</rdfs:label></skos:Collection>
+<skos:Collection rdf:about="#udance"><rdfs:label>Dance and Movement Studies</rdfs:label></skos:Collection>
+<skos:Collection rdf:about="#uecon"><rdfs:label>Economics</rdfs:label></skos:Collection>
+<skos:Collection rdf:about="#ueconhist"><rdfs:label>Economics and History</rdfs:label></skos:Collection>
+<skos:Collection rdf:about="#ueconmath"><rdfs:label>Economics and Mathematics</rdfs:label></skos:Collection>
+<skos:Collection rdf:about="#ued"><rdfs:label>Educational Studies</rdfs:label></skos:Collection>
+<skos:Collection rdf:about="#ueng"><rdfs:label>English</rdfs:label></skos:Collection>
+<skos:Collection rdf:about="#uengwri"><rdfs:label>English and Creative Writing</rdfs:label></skos:Collection>
+<skos:Collection rdf:about="#uenghist"><rdfs:label>English and History</rdfs:label></skos:Collection>
+<skos:Collection rdf:about="#uenv"><rdfs:label>Environmental Studies</rdfs:label></skos:Collection>
+<skos:Collection rdf:about="#ufilm"><rdfs:label>Film Studies</rdfs:label></skos:Collection>
+<skos:Collection rdf:about="#ufrench"><rdfs:label>French Studies</rdfs:label></skos:Collection>
+<skos:Collection rdf:about="#ugerman"><rdfs:label>German</rdfs:label></skos:Collection>
+<skos:Collection rdf:about="#uhist"><rdfs:label>History</rdfs:label></skos:Collection>
+<skos:Collection rdf:about="#uhistart"><rdfs:label>History and Art History</rdfs:label></skos:Collection>
+<skos:Collection rdf:about="#uids"><rdfs:label>Interdisciplinary Studies in Society and Culture</rdfs:label></skos:Collection>
+<skos:Collection rdf:about="#uintl"><rdfs:label>International Studies</rdfs:label></skos:Collection>
+<skos:Collection rdf:about="#uitalian"><rdfs:label>Italian Studies</rdfs:label></skos:Collection>
+<skos:Collection rdf:about="#ujapan"><rdfs:label>Japanese</rdfs:label></skos:Collection>
+<skos:Collection rdf:about="#ujewish"><rdfs:label>Jewish Studies</rdfs:label></skos:Collection>
+<skos:Collection rdf:about="#ujournalism"><rdfs:label>Journalism</rdfs:label></skos:Collection>
+<skos:Collection rdf:about="#ulatinam"><rdfs:label>Latin American and Caribbean Studies</rdfs:label></skos:Collection>
+<skos:Collection rdf:about="#uling"><rdfs:label>Linguistics</rdfs:label></skos:Collection>
+<skos:Collection rdf:about="#umath"><rdfs:label>Mathematics</rdfs:label></skos:Collection>
+<skos:Collection rdf:about="#umathcs"><rdfs:label>Mathematics and Computer Science</rdfs:label></skos:Collection>
+<skos:Collection rdf:about="#umathpolisci"><rdfs:label>Mathematics and Political Science</rdfs:label></skos:Collection>
+<skos:Collection rdf:about="#umideast"><rdfs:label>Middle Eastern Studies</rdfs:label></skos:Collection>
+<skos:Collection rdf:about="#umusic"><rdfs:label>Music</rdfs:label></skos:Collection>
+<skos:Collection rdf:about="#uneuro"><rdfs:label>Neuroscience and Behavioral Biology</rdfs:label></skos:Collection>
+<skos:Collection rdf:about="#uphil"><rdfs:label>Philosophy</rdfs:label></skos:Collection>
+<skos:Collection rdf:about="#uphilrel"><rdfs:label>Philosophy and Religion</rdfs:label></skos:Collection>
+<skos:Collection rdf:about="#uphysics"><rdfs:label>Physics</rdfs:label></skos:Collection>
+<skos:Collection rdf:about="#uphysastronomy"><rdfs:label>Physics and Astronomy</rdfs:label></skos:Collection>
+<skos:Collection rdf:about="#upolisci"><rdfs:label>Political Science</rdfs:label></skos:Collection>
+<skos:Collection rdf:about="#upsych"><rdfs:label>Psychology</rdfs:label></skos:Collection>
+<skos:Collection rdf:about="#upsychling"><rdfs:label>Psychology and Linguistics</rdfs:label></skos:Collection>
+<skos:Collection rdf:about="#urel"><rdfs:label>Religion</rdfs:label></skos:Collection>
+<skos:Collection rdf:about="#urelanthro"><rdfs:label>Religion and Anthropology</rdfs:label></skos:Collection>
+<skos:Collection rdf:about="#urelciv"><rdfs:label>Religion and Classical Civilization</rdfs:label></skos:Collection>
+<skos:Collection rdf:about="#urelhist"><rdfs:label>Religion and History</rdfs:label></skos:Collection>
+<skos:Collection rdf:about="#urelsoc"><rdfs:label>Religion and Sociology</rdfs:label></skos:Collection>
+<skos:Collection rdf:about="#urussian"><rdfs:label>Russian</rdfs:label></skos:Collection>
+<skos:Collection rdf:about="#usociology"><rdfs:label>Sociology</rdfs:label></skos:Collection>
+<skos:Collection rdf:about="#uspanish"><rdfs:label>Spanish</rdfs:label></skos:Collection>
+<skos:Collection rdf:about="#utheater"><rdfs:label>Theater Studies</rdfs:label></skos:Collection>
+<skos:Collection rdf:about="#uwomens"><rdfs:label>Women's Studies</rdfs:label></skos:Collection>
+
+</rdf:RDF>
