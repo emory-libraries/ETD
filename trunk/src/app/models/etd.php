@@ -730,7 +730,7 @@ class etd extends foxml implements etdInterface {
     }
 
     // store new committee in mods, rels-ext
-    if ($ids[0] instanceof esdPerson)   // already esdPerson objects - no lookup required
+    if (isset($ids[0]) && $ids[0] instanceof esdPerson)   // already esdPerson objects - no lookup required
       $this->mods->setCommitteeFromPersons($ids, $type);
     else         // set in mods by netid
       $this->mods->setCommittee($ids, $type);
@@ -738,7 +738,7 @@ class etd extends foxml implements etdInterface {
 
     // generate an array of netid strings
     $netids = array();
-    if ($ids[0] instanceof esdPerson) {
+    if (isset($ids[0])&& $ids[0] instanceof esdPerson) {
       foreach ($ids as $person) $netids[] = $person->netid;
     } else {
       $netids = $ids;

@@ -85,6 +85,10 @@ class etd_mods extends mods {
     $this->xmlconfig["subfield"] = array("xpath" => "mods:extension/etd:degree/etd:discipline");
 
     // committee chair - may be more than one
+    //chair and nonemory_chair and committee and noneemory_committee are differnt
+    //fields distinguished by the description field. These have to be
+    //seperate because most opperations with an emory person is done by
+    //looking up the netid in ESD nonemory people do not have a netid
     $this->xmlconfig["chair"] = array("xpath" => "mods:name[mods:role/mods:roleTerm = 'Thesis Advisor' and string-length(mods:description) = 0]",
               "class_name" => "mods_name", "is_series" => true);
     $this->xmlconfig["nonemory_chair"] = array("xpath" => "mods:name[mods:role/mods:roleTerm = 'Thesis Advisor' and mods:description = 'Non-Emory Thesis Advisor']",
@@ -251,28 +255,37 @@ class etd_mods extends mods {
     $set_description = false;
 
     //Set role and descripton text based on type
+    //FIXME: The $emory flag shold be a param and bubble up and out all the way up the chain
     switch($type){
         case "chair":
                 $roleType="Thesis Advisor";
                 $description="";
+                $emory = true;
                 break;
         case "nonemory_chair":
                 $roleType="Thesis Advisor";
                 $description="Non-Emory Thesis Advisor";
+                $emory = false;
+                $type = "chair";
                 break;
         case "committee":
                 $roleType="Committee Member";
                 $description="Emory Committee Member";
+                $emory = true;
                 break;
         case "nonemory_committee":
                 $roleType="Committee Member";
                 $description="Non-Emory Committee Member";
+                $emory = false;
+                $type = "committee";
                 break;
     }
     
     //New mods:name node
     $nameNode = $this->dom->createElementNS($this->namespaceList["mods"], "mods:name");
-    if (in_array($type, array("chair", "committee"))) $nameNode->setAttribute("ID", "");
+    //The empty ID is required by the mods object so that it can be filled
+    //in later.  Empty ID is not valid.
+    if ($emory) $nameNode->setAttribute("ID", "");  
     $nameNode->setAttribute("type", "personal");
 
     //Add given name part
@@ -290,7 +303,7 @@ class etd_mods extends mods {
     $nameNode->appendChild($dispay);
 
     //Add affiliation
-    if(in_array($type, array("nonemory_committee", "nonemory_chair"))){
+    if(!$emory){
         $affiliationNode = $this->dom->createElementNS($this->namespaceList["mods"], "mods:affiliation");
         $nameNode->appendChild($affiliationNode);
     }
@@ -299,13 +312,14 @@ class etd_mods extends mods {
     //Add role
     $role = $this->dom->createElementNS($this->namespaceList["mods"], "mods:role");
     $roleTerm = $this->dom->createElementNS($this->namespaceList["mods"], "mods:roleTerm", $roleType);
-    if($type == "chair") $roleTerm->setAttribute("authority", "marcrelator");
+    if($type == "chair" && $emory) $roleTerm->setAttribute("authority", "marcrelator");
     $roleTerm->setAttribute("type", "text");
     $role->appendChild($roleTerm);
     $nameNode->appendChild($role);
 
     //Add description
-    if($type != "chair"){
+    //Emory chair does not have a description
+    if($type == "committee" || !$emory){
         $description = $this->dom->createElementNS($this->namespaceList["mods"], "mods:description", $description);
         $nameNode->appendChild($description);
     }
@@ -331,16 +345,16 @@ class etd_mods extends mods {
     // if a context node was found, insert the new node before it
     if ($nodeList->length) {
       $contextnode = $nodeList->item(0);
-    } elseif ($type == "committee") {   // currently no emory committee members in xml - insert after advisor
+    } elseif ($type == "committee" && $emory) {   // currently no emory committee members in xml - insert after advisor
       $contextnode = $this->map["chair"][count($this->chair) - 1]->domnode;
-    } elseif ($type == "nonemory_committee") {
+    } elseif ($type == "committee" && !$emory) {
       // if adding a non-emory committee member and there are none in the xml,
       // then add after last emory committee member
       if (isset($this->map['committee']) && count($this->committee))
   $contextnode = $this->map['committee'][count($this->committee) - 1]->domnode;
       else
   $contextnode = $this->map["chair"][count($this->chair) - 1]->domnode;
-    } elseif ($type == "nonemory_chair") {
+    } elseif ($type == "chair" && !$emory) {
       // if adding a non-emory chair and there are none in the xml,
       // then add after last emory chair
       if (isset($this->map['chair']) && count($this->chair))
@@ -455,6 +469,43 @@ class etd_mods extends mods {
   }
 
   /**
+   * sets nonemory chair(s) and committee members
+   * @param array $nonemory_chair_first
+   * @param array $nonemory_chair_last
+   * @param array $nonemory_chair_affiliation
+   * @param array $nonemory_first
+   * @param array $nonemory_last
+                                     $nonemory_affiliation
+   */
+  public function setNonemoryCommittee($nonemory_chair_first,
+                                     $nonemory_chair_last,
+                                     $nonemory_chair_affiliation,
+                                     $nonemory_first, $nonemory_last,
+                                     $nonemory_affiliation){
+    //Delete all nonemory chairs and committee members - re-add later
+    $this->clearNonEmoryCommittee();
+
+    // handle non-emory committee members
+    for ($i = 0; $i < count($nonemory_first); $i++) {
+      if ($nonemory_last[$i] != '')
+  $this->addCommittee($nonemory_last[$i], $nonemory_first[$i], "nonemory_committee",
+         $nonemory_affiliation[$i]);
+    }
+
+    // handle non-emory chairs
+    for ($i = 0; $i < count($nonemory_chair_first); $i++) {
+      if ($nonemory_chair_last[$i] != '')
+
+  $this->addCommittee($nonemory_chair_last[$i], $nonemory_chair_first[$i], "nonemory_chair",
+         $nonemory_chair_affiliation[$i]);
+    }
+
+
+  }
+
+
+
+  /**
    * remove a committee member or chair person by id
    * @param string $id netid
    */
@@ -479,8 +530,7 @@ class etd_mods extends mods {
    * remove all non-Emory committee members  (use before re-adding them)
    */
   public function clearNonEmoryCommittee() {
-    $nodelist = $this->xpath->query("//mods:name[mods:description='Non-Emory Committee Member' or
-                                                 mods:description='Non-Emory Thesis Advisor']");
+    $nodelist = $this->xpath->query("//mods:name[mods:description='Non-Emory Committee Member' or mods:description='Non-Emory Thesis Advisor']");
     for ($i = 0; $i < $nodelist->length; $i++) {
       $node = $nodelist->item($i);
       $node->parentNode->removeChild($node);
@@ -878,6 +928,7 @@ class etd_mods extends mods {
         trim($this->author->first) != "" && trim($this->author->last) != "");
     case "program":
       return ($this->author->affiliation != "");
+    //FIXME: might want to consolidate logic to for committee members
     case "chair":
       // complete if there is at least one valid chair (now they can be non-emory)
       return (isset($this->chair[0]) && $this->chair[0]->id != "" //Emory Chair
