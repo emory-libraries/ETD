@@ -1322,6 +1322,12 @@ class etd extends foxml implements etdInterface {
  * simple function to sort etdfiles based on sequence number  (used when foxml class initializes them)
  */
 function sort_etdfiles(etd_file $a, etd_file $b) {
+  // If a guest is trying get the sequence, it will not have authorization.
+  try {
     if ($a->rels_ext->sequence == $b->rels_ext->sequence) return 0;
     return ($a->rels_ext->sequence < $b->rels_ext->sequence) ? -1 : 1;
+  } catch (Exception $err) {
+    return 0;
+  }
+  
 }
