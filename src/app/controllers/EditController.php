@@ -335,6 +335,16 @@ class EditController extends Etd_Controller_Action {
   }
 
   
+  //Saves changes to Committee chair and members
+  //Possible post values are:
+  //ids for emory chair (Array) - info looked up in ESD
+  //ids for emory committee members (Array) - info looked up in ESD
+  //nonemory_first (Array)
+  //nonemory_last (Array)
+  //nonemory_affiliation (Array)
+  //nonemory_chair_first (Array)
+  //nonemory_chair_last (Array)
+  //nonemory_chair_affiliation (Array)
   public function savefacultyAction() {
     $etd = $this->_helper->getFromFedora("pid", "etd");
     if (!$this->_helper->access->allowedOnEtd("edit metadata", $etd)) return;
@@ -373,31 +383,22 @@ class EditController extends Etd_Controller_Action {
       }
     }
 
-    //Delete all nonemory chairs and committee members - re-add later
-    $etd->mods->clearNonEmoryCommittee();
-
-    // handle non-emory committee members
-    $nonemory_first = $this->_getParam("nonemory_firstname");
-    $nonemory_last = $this->_getParam("nonemory_lastname");
-    $nonemory_affiliation = $this->_getParam("nonemory_affiliation");
-    for ($i = 0; $i < count($nonemory_first); $i++) {
-      if ($nonemory_last[$i] != '')
-  $etd->mods->addCommittee($nonemory_last[$i], $nonemory_first[$i], "nonemory_committee",
-         $nonemory_affiliation[$i]);
-    }
-
-    // handle non-emory chairs
+    //non-emory chairs and non-emory committee members
     $nonemory_chair_first = $this->_getParam("nonemory_chair_firstname");
     $nonemory_chair_last = $this->_getParam("nonemory_chair_lastname");
     $nonemory_chair_affiliation = $this->_getParam("nonemory_chair_affiliation");
-    for ($i = 0; $i < count($nonemory_chair_first); $i++) {
-      if ($nonemory_chair_last[$i] != '')
-
-  $etd->mods->addCommittee($nonemory_chair_last[$i], $nonemory_chair_first[$i], "nonemory_chair",
-         $nonemory_chair_affiliation[$i]);
-    }
-
+    $nonemory_first = $this->_getParam("nonemory_firstname");
+    $nonemory_last = $this->_getParam("nonemory_lastname");
+    $nonemory_affiliation = $this->_getParam("nonemory_affiliation");
     
+    
+    $etd->mods->setNonemoryCommittee($nonemory_chair_first,
+                                     $nonemory_chair_last,
+                                     $nonemory_chair_affiliation,
+                                     $nonemory_first, $nonemory_last,
+                                     $nonemory_affiliation);
+
+    //Save mods if any info changed
     if ($etd->mods->hasChanged()) {
       $save_result = $etd->save("updated committe chair(s) & members");
       $this->view->save_result = $save_result;
@@ -411,6 +412,7 @@ class EditController extends Etd_Controller_Action {
     } else {
       $this->_helper->flashMessenger->addMessage("No changes made to committee/adviser");
     }
+
 
     $this->_helper->redirector->gotoRoute(array("controller" => "view", "action" => "record",
                 "pid" => $etd->pid), '', true);

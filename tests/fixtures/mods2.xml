@@ -1,5 +1,5 @@
 <mods:mods xmlns:mods="http://www.loc.gov/mods/v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema">
-<!-- same as mods but without the non-emory committee member -->
+<!-- same as mods but without the non-emory committee member. Does include a non-emory committee chair -->
   <mods:titleInfo>
     <mods:title>Why I Like Cheese</mods:title>
   </mods:titleInfo>
