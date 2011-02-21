@@ -33,7 +33,7 @@ Version 1.9
     - fedora.xml
     - solr.xml
 
-* switch the fedora-policies to the branch https://svn.library.emory.edu/svn/fedora/repository-policies/tag/release_1.3.0
+* switch the fedora-policies to the branch https://svn.library.emory.edu/svn/fedora/repository-policies/tags/release_1.3
 
 * Load control objects from https://svn.library.emory.edu/svn/fedora/control-objects/
     - AuthorInformation.xml
