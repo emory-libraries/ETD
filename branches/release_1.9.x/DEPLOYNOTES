@@ -33,7 +33,7 @@ Version 1.9
     - fedora.xml
     - solr.xml
 
-* switch the fedora-policies to the branch https://svn.library.emory.edu/svn/fedora/repository-policies/branches/release_1.1
+* switch the fedora-policies to the branch https://svn.library.emory.edu/svn/fedora/repository-policies/tag/release_1.3.0
 
 * Load control objects from https://svn.library.emory.edu/svn/fedora/control-objects/
     - AuthorInformation.xml
@@ -46,8 +46,7 @@ Version 1.9
     - MetadataTransform_ETD_sdep.xml
     - MetadataTransform_sdef.xml
     - OAI-Identify.xml
-      oai-marcxml_sdef.xml
-
+    - oai-marcxml_sdef.xml
 
 * Copy files from fedora 3.2 to fedora 3.4 and convert datastreams to managed
     - cd src/scripts
@@ -59,6 +58,7 @@ Version 1.9
       file_put_contents("/tmp/ETDFile.txt", implode("\n",  $ri->findByCModel("emory-control:EtdFile-1.0")));
       file_put_contents("/tmp/ETDAuthorInfo.txt", implode("\n",  $ri->findByCModel("emory-control:AuthorInformation-1.0")));
 
+    - Make sure there is a carriage return on the last line of each file.
     - cd /tmp
     - cat ETD.txt  ETDFile.txt ETDAuthorInfo.txt  > ETDPids.txt
 
@@ -71,8 +71,8 @@ Version 1.9
       Make sure then the new objects show up in the rebuilt count.
       If the objects are not indexed, then they will not be found for the next step.
     
-    - Run the inline to managed conversion script on pids listed in ETDPids.txt in fedora 3.4
-      Make sure the environment variables are set if avaliable this script will 
+    - Run the inline to managed conversion script on the three etd pid files in fedora 3.4
+      Make sure the environment variables are set if available this script will 
       set them to the correct value ". /home/fedora34/set-env-for-this-fedora.sh"
     
       /home/fedora34/server/bin/fedora-modify-control-group.sh
@@ -109,7 +109,6 @@ Version 1.9
     <http:address location="localhost:8080/saxon/"/>
     </wsdl:port>
     If the location parameter is not the default location adjust accordingly.
-    
 
 * Update GSearch with latest version of src/public/xslt/etdFoxmlToSolr.xslt.
   Note that the xslt now requires a parameter containing the Fedora base url 
@@ -128,7 +127,7 @@ Version 1.9
    
     - cd src/scripts/migrations
     - php ./002-clean_xacml.php -s 1 -v debug > /tmp/etd_xacml_policy_update.log
-    - php ./002-clean_xacml.php -s 1 -v debug >> /tmp/etd_xacml_policy_update.log 
+    - php ./002-clean_xacml.php -s 2 -v debug >> /tmp/etd_xacml_policy_update.log 
     - . . . etc
     - php ./002-clean_xacml.php -s 9 -v debug >> /tmp/etd_xacml_policy_update.log 
     
@@ -136,13 +135,10 @@ Version 1.9
     and  "Could not connect to host", noting the pids.
     Run the script with the pids that got an error: 
     - Format: php ./002-clean_xacml.php -p '{pid}' -v debug >> /tmp/etd_xacml_policy_update.log   
-    - Example: php ./002-clean_xacml.php -p 'emory:12345' -v debug >> /tmp/etd_xacml_policy_update.log     
-       
-     
-*  Run the checksum script to determine the current checksum status.
-   cd src/scripts
-   ./update_checksum.php -v info
-   Run the checksum script to perform any checksum updates to FILE datastreams.
+    - Example: php ./002-clean_xacml.php -p 'emory:12345' -v debug >> /tmp/etd_xacml_policy_update.log  
+    - STOP HERE and make sure all errors have been resolved.   
+
+*  Run the checksum script to perform any checksum updates to FILE datastreams.
    (this will take some time and should be run overnight)
    cd src/scripts
    ./update_checksum.php -v info -u       
