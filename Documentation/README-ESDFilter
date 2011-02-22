@@ -66,6 +66,7 @@ Installation Notes
 
 
 6. make sure the followng files are in tomcat/webapps/fedora/WEB-INF/lib:
+If a newer version of a jar already exists, use the newer version.
 classes12.zip (may have to change this file to .jar)
 jcl-over-slf4j-1.5.10.jar
 fcrepo-server-3.4.1.jar
