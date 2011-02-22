@@ -1,0 +1,77 @@
+<?/*
+* This renders the view to select 1-3 partnering agencies.
+*/?>
+<?= $this->javascript("projax/js/prototype.js"); ?>
+<?= $this->javascript("projax/js/scriptaculous.js"); ?>
+<? //php ajax/scriptaculous
+include("projax/projax.php");
+$projax = new Projax(); ?>
+
+<? $blank = (! isset($this->etd->mods->partneringagencies) &&
+         $this->etd->mods->partneringagencies[0]->id == ""); ?>     
+<script type="text/javascript">
+var field_count = <?= $blank ? 0 : count($this->etd->mods->partneringagencies); ?>;
+var field_max = 3;
+     function toggle_selection(id, text) {
+      if (Element.hasClassName(id, 'selected')) {
+        // unselect & remove from list
+        field_count--;
+        Element.removeClassName(id, 'selected');
+        Element.remove(id + '_list');
+      } else if (field_count < field_max) {
+        field_count++;
+        // select & add to list
+        var label = "";
+        new Insertion.Bottom('user_fields', '<li id="' + id + '_list">' + text + label +
+                 '<input id="' + id + '_input" type="hidden" name="fields[]" value="'
+                 + id + ' ' + text + '"/>' + '</li>');
+        Element.addClassName(id, 'selected');
+      } else {
+        // alert user, don't select
+        alert("You may choose a maximum of " + field_max + " fields. Save your choices or reselect.");
+      }
+      Sortable.create("user_fields");     
+}
+</script> 
+
+<h1>Edit Partnering Agencies</h1>
+<p><b><?= $this->etd->title() ?></b></p>
+<? if ($this->etd->isRequired("partneringagencies")): ?>
+The submission process requests that you supply at least one and
+<? else: /* language if optional */ ?>Please supply <? endif ?>up to a maximum
+of three partnering agencies which describe the agencies that you used as a resource for your work.
+Choose each partnering agency below by clicking on it. </p>
+
+<?
+$id = $this->collection->id;
+$label = $this->collection->label;
+$hasMembers = (count($this->collection->members) != 0);
+?>
+
+<form method="post" id="agency_form"  action="<?= $this->url(array("action" => "savePartneringagency"))?>">
+<br/>
+  <ul id="user_fields">
+  <? if (isset($this->etd->mods->partneringagencies[0]) &&
+   $this->etd->mods->partneringagencies[0]->id != ""): ?>
+   <? foreach ($this->etd->mods->partneringagencies as $field): ?>
+     <li id="#<?= $field->id ?>_list"><?= $field->topic ?>
+       <input type="hidden" name="fields[]"
+       value="#<?= $field->id ?> <?= $field->topic ?>"/>
+     </li>
+    <? endforeach ?>
+  <? endif ?> 
+  </ul>
+  <input class="button" id="save_button" type="submit" value="save"/>  
+</form>
+<br/> 
+
+<div id="select_researchfields">
+  <? if (isset($this->vocabulary_section)): /* display only relevant section of program list */?>
+    <?=  $this->partial('edit/_partneringagency.phtml' , array("collection" => $this->vocabulary_section,
+                 "etdmods" => $this->etd->mods, "level" => 1)); ?>
+  <? endif ?>                 
+</div>
+
+</form>
+<br/>
+
