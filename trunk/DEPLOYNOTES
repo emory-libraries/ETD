@@ -55,7 +55,7 @@ Version 1.10
 
 *  Reindex gSearch by running the ETD reindex script:
     - cd src/scripts
-    - php ./re-index.php
+    - php ./reindex.php
 
 * Reindex Solr by restarting Solr
 
