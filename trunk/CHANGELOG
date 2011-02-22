@@ -3,9 +3,22 @@ CHANGE LOG
 
 Version 1.10
 -------------
- * Create and populate the vocabularies fedora collection.
- * Add the ability to select partenering agencies for a rollins student.
- * Allow research fields to save 3 items.
+* RSPH authors may select partnering agencies from a controlled vocabulary
+* A developer can automatically create a fedora collection for an object that requires a SKOS collection
+* When entering committee members, the auto populate feature filters the text appropriately
+* Improved error message, on contact info page
+* An author can add a non-emory thesis adviser using the committee form
+* An author can select 3 research fields or partnering agency fields on a newly submitted etd
+* A Rollins “super admin” I can see all submissions to Rollins
+* An admin's embargo duration is now validated aginst the author's request
+* A grad admin can access "Export email addresses for approved records" report and receives data for Laney Graduate School only
+* Corrected bug with submisison validation when committee members are optional
+* It is now indicated Committee Chair and Thesis Advisor are the same thing
+* Honors admins receive copies of messages sent to students regarding changes they need to make
+* An ETD admin can edit and revise ETD events in a google calendar and have upcoming events dynamically appear on the ETD site homepage
+* Some email text has been revised
+* A user can download large files using the fedora 3.4 REST API
+* Research field is now required for Undergrad
 
 1.9 - Fedora 3.4 migration, February 2011
 -----------------------------------------
