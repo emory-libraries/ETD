@@ -58,12 +58,12 @@ class IndexControllerTest extends ControllerTestCase {
 
     // bogus url for news feed
     try {
-      $index->getNews(new Zend_Config(array("news_feed" => array("url"  => "http://localhost/"))));
+      $index->getNews(new Zend_Config(array("news_feed" => array("url"  => "http://xxx/"))));
     } catch (Exception $e) {
       $ex = $e;		// store for testing outside the try/catch
     }
     $this->assertIsA($ex, "Exception");
-    //$this->assertPattern("/Could not parse ETD news feed/", $ex->getMessage());
+    $this->assertPattern("/Could not parse ETD news feed/", $ex->getMessage());
     unset($ex);
 
     // FIXME: how to test success feed?  how to create mock feed ?
