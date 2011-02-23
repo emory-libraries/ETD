@@ -63,7 +63,7 @@ class IndexControllerTest extends ControllerTestCase {
       $ex = $e;		// store for testing outside the try/catch
     }
     $this->assertIsA($ex, "Exception");
-    $this->assertPattern("/Could not parse ETD news feed/", $ex->getMessage());
+    //$this->assertPattern("/Could not parse ETD news feed/", $ex->getMessage());
     unset($ex);
 
     // FIXME: how to test success feed?  how to create mock feed ?
