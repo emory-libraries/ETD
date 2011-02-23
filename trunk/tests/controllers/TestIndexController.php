@@ -58,7 +58,7 @@ class IndexControllerTest extends ControllerTestCase {
 
     // bogus url for news feed
     try {
-      $index->getNews(new Zend_Config(array("news_feed" => array("url"  => "http://localhost/"))));
+      $index->getNews(new Zend_Config(array("news_feed" => array("url"  => "http://xxx/"))));
     } catch (Exception $e) {
       $ex = $e;		// store for testing outside the try/catch
     }

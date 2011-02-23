@@ -41,6 +41,7 @@ class ModelGroupTest extends GroupTest {
     $this->addTestFile('models/chartsTest.php');
     $this->addTestFile('models/TestFedoraCollection.php');
     $this->addTestFile('models/TestNotifier.php');
+    $this->addTestFile('models/researchfieldsTest.php');
   }
 }
 

@@ -1,4 +1,7 @@
 <?php
+//This suite is for manually running unit tests. xacml tests are not included
+//here because they are very slow and should be run manually or by the
+//continuous integration server
 define('RUNNER', true);
 
 require_once("../bootstrap.php");
