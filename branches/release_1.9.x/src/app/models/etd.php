@@ -527,11 +527,15 @@ class etd extends foxml implements etdInterface {
     // since changes on etd can cause changes on etdfiles (e.g., xacml)
     // should not be a big performance hit, because only changed datastreams are actually saved
     $etdfiles = array_merge($this->pdfs, $this->originals, $this->supplements);
+    $file_set_result = false;
     foreach ($etdfiles as $file) {
-      $result = $file->save($message);  // FIXME: add a note that it was saved with/by etd?
+      // If any of the files objects saved successfully, 
+      // then set the success to the overall file save result value.
+      $file_result = $file->save($message);  // FIXME: add a note that it was saved with/by etd?
+      if ($file_result) $file_set_result = $file_result;
       // FIXME2: how to capture/return error messages here?
     }
-    
+
     // If person modifying the etd is not the owner, then set the owner id to the author
     if (!isset($this->owner) || empty($this->owner)) {
       $this->owner = $this->rels_ext->author;   
@@ -539,7 +543,16 @@ class etd extends foxml implements etdInterface {
 
     // update Dublin Core before saving in case MODS has changed
     $this->updateDC();
-    return parent::save($message);
+    
+    // Try to save the parent ETD object.
+    // Note: it is possible no changes were made here.
+    $parent_result = parent::save($message);
+
+    // If the parent etd did not have any changes that were saved, 
+    // check to see if any of the file objects were updated successfully.
+    // Return true date value, if either parent or any file saved successfully.
+    return ($parent_result) ? $parent_result : $file_set_result;
+  
   }
   
   /**
