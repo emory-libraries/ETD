@@ -527,7 +527,7 @@ class etd extends foxml implements etdInterface {
     // since changes on etd can cause changes on etdfiles (e.g., xacml)
     // should not be a big performance hit, because only changed datastreams are actually saved
     $etdfiles = array_merge($this->pdfs, $this->originals, $this->supplements);
-    $file_set_result = false;
+    $file_set_result = null;
     foreach ($etdfiles as $file) {
       // If any of the files objects saved successfully, 
       // then set the success to the overall file save result value.
