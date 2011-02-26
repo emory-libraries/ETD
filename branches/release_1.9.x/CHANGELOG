@@ -1,7 +1,12 @@
 CHANGE LOG 
 =================
 
-1.9 - Fedora 3.4 migration, January 2011
+1.9.1 - Xacml Policy Update , February 2011
+-------------------------------------------
+* Update policy for published etd files.
+      
+      
+1.9 - Fedora 3.4 migration, February 2011
 -----------------------------------------
 * RELS-EXT, MODS, MADS, DC,XHTML ,POLICY, and PREMIS datastreams have been
       migrated from inline to managed using fedora-modify-control-group utility

@@ -27,6 +27,25 @@ Site webroot should be pointed at src/public
 UPGRADE NOTES
 =================
 
+Version 1.9.1
+-------------
+*  Reload the XACML policies by running the script 002-clean_xacml.php.
+   Note: this script will produce a php memory error, so use the -s option
+   with 1-9, to run by selected grouping.
+   
+    - cd src/scripts/migrations
+    - php ./002-clean_xacml.php -s 1 -v debug > /home/fedora/etd_xacml_policy_update_1.9.1.log
+    - php ./002-clean_xacml.php -s 2 -v debug >> /home/fedora/etd_xacml_policy_update_1.9.1.log 
+    - . . . etc
+    - php ./002-clean_xacml.php -s 9 -v debug >> /home/fedora/etd_xacml_policy_update_1.9.1.log 
+    
+    When the scripts are finished, search output log for the error terms "ERR", 
+    and  "Could not connect to host", noting the pids.
+    Run the script with the pids that got an error: 
+    - Format: php ./002-clean_xacml.php -p '{pid}' -v debug >> /tmp/etd_xacml_policy_update.log   
+    - Example: php ./002-clean_xacml.php -p 'emory:12345' -v debug >> /tmp/etd_xacml_policy_update.log  
+    - STOP HERE and make sure all errors have been resolved.  
+    
 Version 1.9
 -----------
 * Make the appropriate host, port and user / pass changes to point to the fedora 3.4 instance
