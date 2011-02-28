@@ -5,11 +5,9 @@ require_once('models/programs.php');
 class TestPrograms extends UnitTestCase {
   private $programs;
   private $programObj;
-  private $fedora;
 
   function setUp() {
-    $this->fedora = Zend_Registry::get('fedora');
-    $this->programObj = new foxmlPrograms("#programs");
+    $this->programObj = new foxmlPrograms();
     $this->programs = $this->programObj->skos;
   }
 
@@ -67,58 +65,12 @@ class TestPrograms extends UnitTestCase {
     $this->assertTrue(in_array("psychology", $fields), "program with subfields");
     $this->assertTrue(in_array("immunology", $fields), "subfield of a program");
   }
-  
-  function testCreateFedoraObject() {
-        
-    // store real config to restore later
-    $prev_config = Zend_Registry::get('config');
-
-    // stub config with test pid for programs_pid just for this test.
-    $tmp_config = new Zend_Config(array(
-          "etdOwner" => 'etdadmin',
-          "programs_collection" => array(
-             "id" => '#programs',          
-             "pid" => 'emory-control:ETD-programs-TEST',
-             "label" => 'ETD Programs Hierarchy Test',
-             "skos_label" => 'Programs',
-             "model_object" => 'emory-control:Hierarchy-1.0-Test'),
-          ));
-    
-    // temporarily override config in with test configuration
-    Zend_Registry::set('config', $tmp_config);     
-
-    try { // Remove the test pid from fedora, if it exists.
-      $this->fedora->purge($tmp_config->programs_collection->pid, "removing test pid if it exists"); 
-    } catch (FedoraObjectNotFound $e) {}
-    
-    $new_collection  = new foxmlPrograms();  
-    $new_collection->skos->dslabel = $tmp_config->programs_collection->skos_label;      
-    
-    $new_collection->ingest("creating TEST SKOS collection object");
-    
-    $new_pgms_coll_skos = $new_collection->skos;    
-    $this->assertIsA($new_pgms_coll_skos, "programs");
-    $this->assertIsA($new_pgms_coll_skos, "collectionHierarchy");
-    $this->assertEqual($tmp_config->programs_collection->skos_label, $new_pgms_coll_skos->label);
-    $this->assertEqual($tmp_config->programs_collection->id, $new_pgms_coll_skos->id);
-    
-    // content model
-    $this->assertNotNull($new_collection->rels_ext->hasModel);
-    $this->assertEqual($tmp_config->programs_collection->model_object, $new_collection->rels_ext->hasModel);    
-    
-    try {  //Remove the test pid from fedora, if it exists.
-      $this->fedora->purge($tmp_config->programs_collection->pid, "removing test pid if it exists"); 
-    } catch (FedoraObjectNotFound $e) {}
-    
-    // Restore the previous configuration
-    Zend_Registry::set('config', $prev_config); 
-  }  
 
   function testInitWithBadConfig() {
     Zend_Registry::set("config", new Zend_Config());
     // test with an empty config that has no program pid
     $this->expectException(new FoxmlException("Configuration does not contain program pid, cannot initialize"));
-    $programObj = new foxmlPrograms("#programs");
+    $programObj = new foxmlPrograms();
   }
 
   function testInitWithoutConfig() {
@@ -127,7 +79,7 @@ class TestPrograms extends UnitTestCase {
     $reg = Zend_Registry::getInstance();
     unset($reg["config"]);
     $this->expectException(new FoxmlException("Configuration not registered, cannot retrieve pid"));
-    $programObj = new foxmlPrograms("#programs");
+    $programObj = new foxmlPrograms();
   }
 
 

@@ -1,5 +1,4 @@
 <?php
-//This suite is for running unit tests via the continuous integration server
 
 define('RUNNER', true);
 

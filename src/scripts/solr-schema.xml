@@ -266,7 +266,6 @@
    <field name="registering_copyright" type="text" indexed="true" stored="false" required="false" /> 
    <field name="degree_level" type="string" indexed="true" stored="false"/>
    <field name="degree_name" type="string" indexed="true" stored="false"/>
-   <field name="partneringagencies" type="string" indexed="true" stored="true" multiValued="true"/>
 
 
    <field name="contentModel" type="string" indexed="true" stored="true" multiValued="true"/>

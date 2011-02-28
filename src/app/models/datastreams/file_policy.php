@@ -166,7 +166,7 @@ const published = '<Rule xmlns="urn:oasis:names:tc:xacml:1.0:policy"  RuleId="pu
         <AnySubject/>
       </Subjects>
       <Resources>
-
+      
     <!-- restrict to etd file objects ONLY -->
     <Resource>
       <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
@@ -177,7 +177,7 @@ const published = '<Rule xmlns="urn:oasis:names:tc:xacml:1.0:policy"  RuleId="pu
           DataType="http://www.w3.org/2001/XMLSchema#string"
           MustBePresent="false"/>
       </ResourceMatch>
-    </Resource>
+    </Resource>      
 
     <Resource>
         <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">

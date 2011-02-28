@@ -26,8 +26,7 @@ class Zend_View_Helper_EditFieldLink {
     case "committee members":
       $action = "faculty"; break;
       
-    case "researchfields":   $action = "researchfield"; break;
-    case "partnering agencies":  $action = "partneringagency"; break;    
+    case "researchfields":	 $action = "researchfield"; break;
     case "table of contents":   $action = "contents"; break;
       
     case "send to ProQuest":

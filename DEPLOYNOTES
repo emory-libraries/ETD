@@ -27,38 +27,25 @@ Site webroot should be pointed at src/public
 UPGRADE NOTES
 =================
 
-Version 1.10
+Version 1.9.1
 -------------
-* Edit the config.xml
-    1. remove the previous :
-      <!-- Top Level Program Collection -->
-      <programs_pid></programs_pid>
-      <vocabularies_pid>
-    - replace with new configuration found in config.xml.example
-        <!-- Foxml Collections -->  section
-    2. Add config for calendar feed found in config.xml.example
-
- * Run the migration scripts to reload the rollins school data: 
-    - 017-add_vocabularies.php
-
-* Update GSearch with latest version of src/public/xslt/etdFoxmlToSolr.xslt.
-  Note that the xslt now requires a parameter containing the Fedora base url
-  to be set in REPOSITORYURL.  You must edit this parameter if Fedora should
-  be accessed somewhere other than this default:
-        http://localhost:8080/fedora/ .  It looks like at least for the staging
-        environment, the hostname will not work. You must use localhost.
-
-* Restart Fedora
-
-* Update the Solr Schema with latest version of src/scripts/solr-schema.xml.
-  Note: The file name that should be copied to is schema.xml
-
-*  Reindex gSearch by running the ETD reindex script:
-    - cd src/scripts
-    - php ./reindex.php
-
-* Reindex Solr by restarting Solr
-
+*  Reload the XACML policies by running the script 002-clean_xacml.php.
+   Note: this script will produce a php memory error, so use the -s option
+   with 1-9, to run by selected grouping.
+   
+    - cd src/scripts/migrations
+    - php ./002-clean_xacml.php -s 1 -v debug > /home/fedora/etd_xacml_policy_update_1.9.1.log
+    - php ./002-clean_xacml.php -s 2 -v debug >> /home/fedora/etd_xacml_policy_update_1.9.1.log 
+    - . . . etc
+    - php ./002-clean_xacml.php -s 9 -v debug >> /home/fedora/etd_xacml_policy_update_1.9.1.log 
+    
+    When the scripts are finished, search output log for the error terms "ERR", 
+    and  "Could not connect to host", noting the pids.
+    Run the script with the pids that got an error: 
+    - Format: php ./002-clean_xacml.php -p '{pid}' -v debug >> /tmp/etd_xacml_policy_update.log   
+    - Example: php ./002-clean_xacml.php -p 'emory:12345' -v debug >> /tmp/etd_xacml_policy_update.log  
+    - STOP HERE and make sure all errors have been resolved.  
+    
 Version 1.9
 -----------
 * Make the appropriate host, port and user / pass changes to point to the fedora 3.4 instance
@@ -95,23 +82,23 @@ Version 1.9
     - cat ETD.txt  ETDFile.txt ETDAuthorInfo.txt  > ETDPids.txt
 
     - Copy pids listed in ETDPids.txt to fedora3.4
-    - Copy /tmp/ETD.txt  /tmp/ETDFile.txt /tmp/ETDAuthorInfo.txt to fedora3.4
+    - Copy /tmp/ETD.txt  /tmp/ETDFile.txt /tmp/ETDAuthorInfo.txt to fedora3.4    
 
     - Run the fedora-rebuild.sh script for these options:
-      2) Rebuild SQL database.
+      2) Rebuild SQL database.    
       1) Rebuild the Resource Index.
       Make sure then the new objects show up in the rebuilt count.
       If the objects are not indexed, then they will not be found for the next step.
-
+    
     - Run the inline to managed conversion script on the three etd pid files in fedora 3.4
-      Make sure the environment variables are set if available this script will
+      Make sure the environment variables are set if available this script will 
       set them to the correct value ". /home/fedora34/set-env-for-this-fedora.sh"
-
+    
       /home/fedora34/server/bin/fedora-modify-control-group.sh
       migratedatastreamcontrolgroup https fedoraAdmin <password>
       file:////tmp/ETD.txt RELS-EXT,MODS,XHTML,POLICY,PREMIS M >
       managedConversion.log      - you many have to use http for the 2nd param
-
+      
       /home/fedora34/server/bin/fedora-modify-control-group.sh
       migratedatastreamcontrolgroup https fedoraAdmin <password>
       file:////tmp/ETDFile.txt RELS-EXT,FILE,POLICY M >>
@@ -120,7 +107,7 @@ Version 1.9
       /home/fedora34/server/bin/fedora-modify-control-group.sh
       migratedatastreamcontrolgroup https fedoraAdmin <password>
       file:////tmp/ETDAuthorInfo.txt RELS-EXT,MADS M >>
-      managedConversion.log      - you many have to use http for the 2nd param
+      managedConversion.log      - you many have to use http for the 2nd param            
 
    - Make sure to copy over these addition pids as well but do
      not run the managed migration on them:
@@ -133,7 +120,7 @@ Version 1.9
 
 * Install ESDFilter on tomcat
     See Documentation/README-ESDFilter
-
+ 
 * Update the ETD content model services for particular fedora instance.
     (1) emory-control:ETD-metadataTransform/datastreams/WSDL/content
     (2) emory-control::ETDformattedMetadataParts/datastreams/WSDL/content
@@ -143,37 +130,37 @@ Version 1.9
     If the location parameter is not the default location adjust accordingly.
 
 * Update GSearch with latest version of src/public/xslt/etdFoxmlToSolr.xslt.
-  Note that the xslt now requires a parameter containing the Fedora base url
-  to be set in REPOSITORYURL.  You must edit this parameter if Fedora should
+  Note that the xslt now requires a parameter containing the Fedora base url 
+  to be set in REPOSITORYURL.  You must edit this parameter if Fedora should 
   be accessed somewhere other than this default:
         http://localhost:8080/fedora/ .  It looks like at least for the staging
         environment, the hostname will not work. You must use localhost.
-
+        
 *  Reindex gSearch by running the ETD reindex script:
     - cd src/scripts
     - php ./re-index.php
-
+    
 *  Reload the XACML policies by running the script 002-clean_xacml.php.
    Note: this script will produce a php memory error, so use the -s option
    with 1-9, to run by selected grouping.
-
+   
     - cd src/scripts/migrations
     - php ./002-clean_xacml.php -s 1 -v debug > /tmp/etd_xacml_policy_update.log
-    - php ./002-clean_xacml.php -s 2 -v debug >> /tmp/etd_xacml_policy_update.log
+    - php ./002-clean_xacml.php -s 2 -v debug >> /tmp/etd_xacml_policy_update.log 
     - . . . etc
-    - php ./002-clean_xacml.php -s 9 -v debug >> /tmp/etd_xacml_policy_update.log
-
-    When the scripts are finished, search output log for the error terms "ERR",
+    - php ./002-clean_xacml.php -s 9 -v debug >> /tmp/etd_xacml_policy_update.log 
+    
+    When the scripts are finished, search output log for the error terms "ERR", 
     and  "Could not connect to host", noting the pids.
-    Run the script with the pids that got an error:
-    - Format: php ./002-clean_xacml.php -p '{pid}' -v debug >> /tmp/etd_xacml_policy_update.log
-    - Example: php ./002-clean_xacml.php -p 'emory:12345' -v debug >> /tmp/etd_xacml_policy_update.log
-    - STOP HERE and make sure all errors have been resolved.
+    Run the script with the pids that got an error: 
+    - Format: php ./002-clean_xacml.php -p '{pid}' -v debug >> /tmp/etd_xacml_policy_update.log   
+    - Example: php ./002-clean_xacml.php -p 'emory:12345' -v debug >> /tmp/etd_xacml_policy_update.log  
+    - STOP HERE and make sure all errors have been resolved.   
 
 *  Run the checksum script to perform any checksum updates to FILE datastreams.
    (this will take some time and should be run overnight)
    cd src/scripts
-   ./update_checksum.php -v info -u
+   ./update_checksum.php -v info -u       
 
 
 Version 1.8.5

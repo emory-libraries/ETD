@@ -33,7 +33,7 @@ class TestEtdFileXacml extends UnitTestCase {
 
     $etdfile = new etd_file($dom);
     $etdfile->pid = $this->pid;
-    $etdfile->owner =  "author";	// set 'author' test account as owner
+    $etdfile->owner =  "author";  // set 'author' test account as owner
       
     // initialize the xacml policy the way it should be set up normally
     //  - these mimic the settings for a PDF or supplement
@@ -76,7 +76,7 @@ class TestEtdFileXacml extends UnitTestCase {
     setFedoraAccount("fedoraAdmin");
     $etdfile = new etd_file($this->pid);
     $etdfile->policy->addRule("published");
-    $yesterday = time() - (24 * 60 * 60);	// now - 1 day (24 hours; 60 mins; 60 secs)
+    $yesterday = time() - (24 * 60 * 60); // now - 1 day (24 hours; 60 mins; 60 secs)
     $etdfile->policy->published->condition->embargo_end = date("Y-m-d", $yesterday);
     $result = $etdfile->save("added published rule to test guest permissions");
     $this->assertNotNull($result);
@@ -86,6 +86,7 @@ class TestEtdFileXacml extends UnitTestCase {
     // these datastreams should be accessible
     $this->assertIsA($etdfile->dc, "dublin_core");
     $this->assertIsA($etdfile->rels_ext, "rels_ext");
+
     // Test on Non-Embargoed File should download on guest permission
     $result = $this->fedoraAdmin->getDatastreamREST($this->pid, "FILE");
     $this->assertNotNull($result);
@@ -105,7 +106,7 @@ class TestEtdFileXacml extends UnitTestCase {
     $this->assertIsA($etdfile->policy, "XacmlPolicy");
 
     // should be able to modify these datastreams
-    $etdfile->dc->title = "new file title";    	//   DC
+    $etdfile->dc->title = "new file title";     //   DC
     $this->assertNotNull($etdfile->save("test author permissions - modify DC on draft etdfile"));
 
     $etdfile->policy->removeRule("view");    // POLICY
@@ -142,10 +143,10 @@ class TestEtdFileXacml extends UnitTestCase {
     $this->assertNotNull($etdfile->save("test author permissions - modify POLICY on draft etdfile"));
 
     // ETD no longer has draft policy - now test that author *cannot* modify
-    $etdfile->dc->title = "new title";	  //   DC
+    $etdfile->dc->title = "new title";    //   DC
     $this->expectError("Access Denied to modify datastream DC");
     $this->assertNull($etdfile->save("test author permissions - modify DC on non-draft etdfile"));
-    $etdfile->dc->calculateChecksum();	// mark as unmodified
+    $etdfile->dc->calculateChecksum();  // mark as unmodified
     
     $etdfile->rels_ext->supplementOf = "test:etd1";    // RELS-EXT
     $this->expectError("Access Denied to modify datastream RELS-EXT");
@@ -190,7 +191,7 @@ class TestEtdFileXacml extends UnitTestCase {
     $this->assertIsA($etdfile->policy, "XacmlPolicy");
 
     /* committee should not have access to change any datastreams */
-    $etdfile->dc->title = "new title";	  //   DC
+    $etdfile->dc->title = "new title";    //   DC
     $this->expectError("Access Denied to modify datastream DC");
     $this->assertNull($etdfile->save("test committee permissions - modify DC"));
     $etdfile->dc->calculateChecksum();  // set as not modified so it won't attempt to save again
@@ -231,12 +232,12 @@ class TestEtdFileXacml extends UnitTestCase {
     $etdfile->rels_ext->addRelation("rel:status", "draft");    // RELS-EXT  (set status)
     $saveresult = $etdfile->save("test etdadmin permissions - modify RELS-EXT on draft etdfile");
     $this->assertNotNull($saveresult,
-			 "etdadmin can set status");
+       "etdadmin can set status");
     $etdfile->policy->removeRule("draft");    // POLICY
     $this->assertNotNull($etdfile->save("test etdadmin permissions - modify POLICY on draft etdfile"),
-			 "etdadmin can modify policy");
+       "etdadmin can modify policy");
 
-    $etdfile->dc->title = "new title";	  //   DC    
+    $etdfile->dc->title = "new title";    //   DC    
     $this->assertNotNull($etdfile->save("test etdadmin permissions - modify DC"), "etdadmin can modify DC");
 
   }
@@ -256,7 +257,7 @@ class TestEtdFileXacml extends UnitTestCase {
     setFedoraAccount("fedoraAdmin");
     $etdfile = new etd_file($this->pid);
     $etdfile->policy->addRule("published");
-    $tomorrow = time() + (24 * 60 * 60);	// now + 1 day (24 hours; 60 mins; 60 secs)
+    $tomorrow = time() + (24 * 60 * 60);  // now + 1 day (24 hours; 60 mins; 60 secs)
     $etdfile->policy->published->condition->embargo_end = date("Y-m-d", $tomorrow);
     $result = $etdfile->save("added embargo rule to test permissions");
 
@@ -293,7 +294,7 @@ class TestEtdFileXacml extends UnitTestCase {
     $etdfile->policy->addRule("published");
     // by default, embargo is set to today when published rule is added
     // FIXME: greater than or equal - should allow access on the day it is published, right?
-    $yesterday = time() - (24 * 60 * 60);	// now - 1 day (24 hours; 60 mins; 60 secs)
+    $yesterday = time() - (24 * 60 * 60); // now - 1 day (24 hours; 60 mins; 60 secs)
     $etdfile->policy->published->condition->embargo_end = date("Y-m-d", $yesterday);
     $result = $etdfile->save("added embargo rule to test permissions");
 

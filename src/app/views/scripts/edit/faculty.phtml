@@ -54,21 +54,10 @@ function addNonemory() {
     "\t<td><a href='#' onClick=\"Element.remove('nonemory_" + nonemory_count + "')\">remove</a>\n" + 
     "</tr>");
 }
-
-function addNonemoryChair() {
-  nonemory_chair_count++;	// unique id for remove link
-  new Insertion.Bottom('nonemory_chair_list', "<tr id='nonemory_chair_" + nonemory_chair_count + "'>\n" +
-    "\t<td><input type='text' name='nonemory_chair_firstname[]'></td>\n" +
-    "\t<td><input type='text' name='nonemory_chair_lastname[]' ></td>\n" +
-    "\t<td><input type='text' name='nonemory_chair_affiliation[]' ></td>\n" +
-    "\t<td><a href='#' onClick=\"Element.remove('nonemory_chair_" + nonemory_chair_count + "')\">remove</a>\n" +
-    "</tr>");
-}
-
 </script>
 
 
-<h1>Edit Committee/Adviser</h1>
+<h1>Edit Committee Chair(s) &amp; Members</h1>
 <p><b><?= $this->etd->title() ?></b></p>
 
 
@@ -100,7 +89,7 @@ non-Emory committee members.</p>
 <? $committeeMembers = $this->etd->mods->committee; ?>
 
 <form method="post" id="fields_form"  action="<?= $this->url(array("action" => "savefaculty"))?>">
-  <h2>Committee Chair(s) / Thesis Adviser</h2>
+  <h2>Committee Chair(s)</h2>
   <ul id="chair_list">
     <? foreach ($chairs as $chair): ?>
      <? if ($chair->id) : ?>
@@ -140,53 +129,6 @@ non-Emory committee members.</p>
 		search for former Emory faculty</p>		    
     </div>
     <hr/>
-     <? if (count($this->etd->mods->nonemory_chair) > 1 ||
-	(isset($this->etd->mods->nonemory_chair[0]) &&
-	 $this->etd->mods->nonemory_chair[0]->first != "")) {
-	  $has_nonemory_chair = true;
-	} else {
-	  $has_nonemory_chair = false;
-	}
-?>
-
-    <? if (! $has_nonemory_chair): ?>
-  <p>Is your Committee Chair / Thesis Advisor unaffiliated with Emory (does not include former Emory staff)?
-     <a class="button" onClick="Element.show('nonemory_chair')">yes</a>
-     </p>
-<? endif ?>
-
- <? // FIXME: In the future rearrange form to be divided by emory and non-emory, 
-     //use a chek-box to designate committee or chair ?  ?>
- <div id="nonemory_chair" <? if (! $has_nonemory_chair): ?> style="display:none" <? endif ?> >
- <h2>Non-Emory Committee Chair /Thesis Adviser</h2>
-<table>
-<tbody id="nonemory_chair_list">
-     <? $nec_count = 0; ?>
-     <!-- Build list of currently assigned non-emory chairs -->
-     <tr><th>Last name</th> <th>First name</th> <th>Affiliation</th> </tr>
-     <? foreach ($this->etd->mods->nonemory_chair as $nec) : ?>
-         <tr id="nonemory_chair_<?= ++$nec_count; ?>">
-             <td><?= $this->formText("nonemory_chair_lastname[]", $nec->last); ?></td>
-             <td><?= $this->formText("nonemory_chair_firstname[]", $nec->first); ?></td>
-             <td><?= $this->formText("nonemory_chair_affiliation[]", $nec->affiliation); ?></td>
-             <td><a href="#" onClick="Element.remove('nonemory_chair_<?= $nec_count ?>')">remove</a>
-         </tr>
-     <? endforeach ?>
-
-   <!-- add empty row for new entry -->
-   <tr id="nonemory_chair_<?= ++$nec_count; ?>">
-     <td><?= $this->formText("nonemory_chair_lastname[]"); ?></td>
-     <td><?= $this->formText("nonemory_chair_firstname[]"); ?></td>
-     <td><?= $this->formText("nonemory_chair_affiliation[]"); ?></td>
-     <td><a href="#" onClick="Element.remove('nonemory_chair_<?= $nec_count ?>')">remove</a>
-   </tr>
- <tbody>
-</table>
-<? /* pass the count to the javascript so inserted nodes can have unique ids for removal */ ?>
-<script type="text/javascript">var nonemory_chair_count = <?= $nec_count ?>; </script>
-<a href="#" onClick="javascript:addNonemoryChair()">add another</a>
-</div>
-<hr />
    <h2>Committee Members</h2>
    <ul id="faculty_list">
      <? foreach ($committeeMembers as $committee): ?>

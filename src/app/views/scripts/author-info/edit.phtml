@@ -1,15 +1,14 @@
 <?= $this->javascript("contact.js"); ?>
 
 <? //Div used to display validation errors ?>
-<? if(isset($this->errors)): ?>
-    <p class="warning">
-    
+<div class = "invalid">
+    <? if(isset($this->errors)): ?>
         <? foreach ($this->errors as $error):  ?>
-            <?= $error ?>
-            <br/>
+        <?= $error ?>
+        <br/>
         <? endforeach  ?>
-    </p>
-<? endif ?>
+    <? endif ?>
+</div>
 <br/>
 
 <h1>Edit Contact Information</h1>
@@ -37,8 +36,6 @@ without your consent.</p>
 
 <?= $this->formHidden("pid", $this->pid, null); ?>
 <?= $this->formHidden("etd", $this->etd_pid, null); ?>
-<? //set school as a hidden field, so that req'd fields can be retrieved. ?> 
-<?= $this->formHidden("school", $this->etd->schoolId(), null); ?> 
 
 <? //NAME ?>
 <?if ($this->etd->isRequired("name"))

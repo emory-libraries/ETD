@@ -58,7 +58,7 @@ class XmlbyidControllerTest extends ControllerTestCase {
 
   function testTitle() {
     $this->setUpGet(array('url' => $this->fedora->datastreamUrl($this->testpid, "XHTML"),
-			  'id' => 'title'));
+        'id' => 'title'));
     $XmlbyidController = new XmlbyidControllerForTest($this->request,$this->response);
     $XmlbyidController->viewAction();
 
@@ -70,8 +70,8 @@ class XmlbyidControllerTest extends ControllerTestCase {
       $index[$headers[$i]["name"]] = $i;
     }
     $this->assertEqual("text/xml", $headers[$index["Content-Type"]]["value"],
-		       "content-type should be text/xml, got '" .
-		       $headers[$index["Content-Type"]]["value"] . "'");
+           "content-type should be text/xml, got '" .
+           $headers[$index["Content-Type"]]["value"] . "'");
 
     $xml = $response->getBody();
     $this->assertEqual('<div id="title">Why <i>I</i> like cheese</div>', $xml);    
@@ -79,7 +79,7 @@ class XmlbyidControllerTest extends ControllerTestCase {
 
   function testAbstract() {
     $this->setUpGet(array('url' => $this->fedora->datastreamUrl($this->testpid, "XHTML"),
-			  'id' => 'abstract'));
+        'id' => 'abstract'));
     $XmlbyidController = new XmlbyidControllerForTest($this->request,$this->response);
     $XmlbyidController->viewAction();
 
@@ -90,82 +90,82 @@ class XmlbyidControllerTest extends ControllerTestCase {
 
   function testBadId() {
     $this->setUpGet(array('url' => $this->fedora->datastreamUrl($this->testpid, "XHTML"),
-			  'id' => 'bogus'));
+        'id' => 'bogus'));
     $XmlbyidController = new XmlbyidControllerForTest($this->request,$this->response);
     $XmlbyidController->viewAction();
 
     $response = $XmlbyidController->getResponse();
     $this->assertEqual(400, $response->getHttpResponseCode(),
-		       "bad xml id results in HTTP error code 403");
+           "bad xml id results in HTTP error code 403");
     $this->assertPattern("/id 'bogus' not found/", $response->getBody(),
-			 "bogus id should not be found");
+       "bogus id should not be found");
   }
 
 
   function testBadUrl() {
     $this->setUpGet(array('url' => "http://www.google.com/",
-			  'id' => 'abstract'));
+        'id' => 'abstract'));
     $XmlbyidController = new XmlbyidControllerForTest($this->request,$this->response);
     $XmlbyidController->viewAction();
 
     $response = $XmlbyidController->getResponse();
     $this->assertEqual(400, $response->getHttpResponseCode(),
-		       "non-datastream url returns HTTP error code 400");
+           "non-datastream url returns HTTP error code 400");
     $this->assertPattern("/Could not parse datastream url/", $response->getBody(),
-			 "non-datastream url results in error");
+       "non-datastream url results in error");
   }
 
   function testWrongFedoraInstance() {
     $this->setUpGet(array('url' => "http://some.other.fedora:8080/fedora/objects/demo:1/datastreams/DC/content",
-			  'id' => 'title'));
+        'id' => 'title'));
     $XmlbyidController = new XmlbyidControllerForTest($this->request,$this->response);
     $XmlbyidController->viewAction();
 
     $response = $XmlbyidController->getResponse();
     $this->assertEqual(403, $response->getHttpResponseCode(),
-		       "datastream url for wrong fedora instance returns HTTP error code 403");
+           "datastream url for wrong fedora instance returns HTTP error code 403");
     $this->assertPattern("/Not configured to access/", $response->getBody(),
-			 "not configured to access wrong fedora instance");
+       "not configured to access wrong fedora instance");
   }
 
 
   function testNoData() {
     $this->setUpGet(array('url' => $this->fedora->datastreamUrl($this->testpid, "BOGUS"),
-			  'id' => 'title'));
+        'id' => 'title'));
     $XmlbyidController = new XmlbyidControllerForTest($this->request,$this->response);
     $XmlbyidController->viewAction();
 
     $response = $XmlbyidController->getResponse();
     $this->assertEqual(400, $response->getHttpResponseCode(),
-		       "bad datastream url results in HTTP error code 400");
+           "bad datastream url results in HTTP error code 400");
     $this->assertPattern("/no datastream/", $response->getBody(),
-			 "bad datastream url - no content retrieved from fedora");
+       "bad datastream url - no content retrieved from fedora");
   }
 
   function testNonXml() {
     // add non-xml datastream just for testing
     $upload_id = $this->fedora->upload("../fixtures/tinker_sample.pdf");
     $this->fedora->addDatastream($this->testpid, "PDF", "pdf", true, "application/pdf",
-				 null, $upload_id,
-				 FedoraConnection::MANAGED_DATASTREAM,
-				 FedoraConnection::STATE_ACTIVE,
-				 "DISABLED", "none", "adding binary datastream for testing");
+         null, $upload_id,
+         FedoraConnection::MANAGED_DATASTREAM,
+         FedoraConnection::STATE_ACTIVE,
+         "DISABLED", "none", "adding binary datastream for testing");
 
 
     $this->setUpGet(array('url' => $this->fedora->datastreamUrl($this->testpid, "PDF"),
-			  'id' => 'title'));
+        'id' => 'title'));
     $XmlbyidController = new XmlbyidControllerForTest($this->request,$this->response);
 
     // suppress warning from DOM attempting to load non-xml (should not fail if warnings are turned off)
     $errlevel = error_reporting(E_ALL ^ E_NOTICE ^ E_WARNING);
     $XmlbyidController->viewAction();
-    error_reporting($errlevel);	    // restore prior error reporting
+    error_reporting($errlevel);     // restore prior error reporting
 
     $response = $XmlbyidController->getResponse();
     $this->assertEqual(400, $response->getHttpResponseCode(),
-		       "non-xml datastream results in HTTP error code 400");
+           "non-xml datastream results in HTTP error code 400");
     $this->assertPattern("/Could not load content as xml/", $response->getBody(),
-			 "non-xml datastream url - can not be loaded");
+       "non-xml datastream url - can not be loaded");
     
 
   }
@@ -183,15 +183,15 @@ class XmlbyidControllerTest extends ControllerTestCase {
 
 
     $this->setUpGet(array('url' => $this->fedora->datastreamUrl($this->testpid, "XHTML"),
-			  'id' => 'title'));
+        'id' => 'title'));
     $XmlbyidController = new XmlbyidControllerForTest($this->request,$this->response);
     $XmlbyidController->viewAction();
 
     $response = $XmlbyidController->getResponse();
     $this->assertEqual(403, $response->getHttpResponseCode(),
-		       "request from client other than Fedora server results in HTTP error code 403");
+           "request from client other than Fedora server results in HTTP error code 403");
           $this->assertPattern("/Not configured to access/", $response->getBody(),
-			 "exception returned when request comes from non-Fedora server");
+       "exception returned when request comes from non-Fedora server");
 
   }
 
@@ -206,15 +206,15 @@ class XmlbyidControllerTest extends ControllerTestCase {
     $_SERVER["REMOTE_ADDR"] = gethostbyname("etd.library.emory.edu");
     
     $this->setUpGet(array('url' => $this->fedora->datastreamUrl($this->testpid, "XHTML"),
-			  'id' => 'title'));
+        'id' => 'title'));
     $XmlbyidController = new XmlbyidControllerForTest($this->request,$this->response);
     $XmlbyidController->viewAction();
 
     $response = $XmlbyidController->getResponse();
     $this->assertNotEqual(403, $response->getHttpResponseCode(),
-		       "request from configured alternate Fedora hostname should NOT result in HTTP error code 403");
+           "request from configured alternate Fedora hostname should NOT result in HTTP error code 403");
     $this->assertEqual('<div id="title">Why <i>I</i> like cheese</div>', $response->getBody(),
-		       "no data returned when request comes from non-Fedora server");
+           "no data returned when request comes from non-Fedora server");
 
     // restore real fedora config in registry
     Zend_Registry::set('fedora-config', $this->fedora_cfg);
@@ -224,16 +224,16 @@ class XmlbyidControllerTest extends ControllerTestCase {
   
   function testUrlEncoded() {
     $this->setUpGet(array('url' => urlencode($this->fedora->datastreamUrl($this->testpid, "XHTML")),
-			  'id' => 'abstract'));
+        'id' => 'abstract'));
     $XmlbyidController = new XmlbyidControllerForTest($this->request,$this->response);
     $XmlbyidController->viewAction();
 
     $response = $XmlbyidController->getResponse();
     $this->assertNoPattern("/^40[0-9]/", $response->getHttpResponseCode(),
-			  "url-encoded url should NOT result in HTTP error code 400/bad request (got " .
-			   $response->getHttpResponseCode() . ")");
+        "url-encoded url should NOT result in HTTP error code 400/bad request (got " .
+         $response->getHttpResponseCode() . ")");
     $this->assertEqual('<div id="abstract"><b>gouda</b> or <i>cheddar</i>?</div>', $response->getBody(),
-		       "response body should be abstract text, got " . $response->getBody());    
+           "response body should be abstract text, got " . $response->getBody());    
   }
 
   function testAuthorized(){
@@ -295,7 +295,7 @@ class XmlbyidControllerForTest extends Services_XmlbyidController {
   public function initView() {
     $this->view = new Zend_View();
     Zend_Controller_Action_HelperBroker::addPath('Emory/Controller/Action/Helper',
-						 'Emory_Controller_Action_Helper');
+             'Emory_Controller_Action_Helper');
     Zend_Controller_Action_HelperBroker::addPrefix('Test_Controller_Action_Helper');
   }
   
@@ -306,7 +306,7 @@ class XmlbyidControllerForTest extends Services_XmlbyidController {
   public function _redirect() {
     $this->redirectRan = true;
   }
-} 	
+}   
 
 runtest(new XmlbyidControllerTest());
 

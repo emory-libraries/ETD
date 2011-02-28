@@ -15,12 +15,12 @@ class TestPremis extends UnitTestCase {
 
   function testBasicProperties() {
     // types
-    $this->assertIsA($this->premis, "premis");
-    $this->assertIsA($this->premis->object, "premis_object");
-    $this->assertIsA($this->premis->object->identifier, "premis_identifier");
-    $this->assertIsA($this->premis->event, "array");
-    $this->assertIsA($this->premis->event[0], "premis_event");
-    $this->assertIsA($this->premis->event[0]->identifier, "premis_identifier");
+    $this->assertIsa($this->premis, "premis");
+    $this->assertIsa($this->premis->object, "premis_object");
+    $this->assertIsa($this->premis->object->identifier, "premis_identifier");
+    $this->assertIsa($this->premis->event, "array");
+    $this->assertIsa($this->premis->event[0], "premis_event");
+    $this->assertIsa($this->premis->event[0]->identifier, "premis_identifier");
 
     // values from xml
     $this->assertEqual("bitstream", $this->premis->object->type);
@@ -49,7 +49,7 @@ class TestPremis extends UnitTestCase {
           array("ldap","testuser"), $date);
 
     $this->assertEqual(2, count($this->premis->event));
-    $this->assertIsA($this->premis->event[1], "premis_event");
+    $this->assertIsa($this->premis->event[1], "premis_event");
     $this->assertEqual("modification", $this->premis->event[1]->type);
     $this->assertEqual("modified thesis record", $this->premis->event[1]->detail);
     $this->assertEqual("success", $this->premis->event[1]->outcome);

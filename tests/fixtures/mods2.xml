@@ -1,5 +1,5 @@
 <mods:mods xmlns:mods="http://www.loc.gov/mods/v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema">
-<!-- same as mods but without the non-emory committee member. Does include a non-emory committee chair -->
+<!-- same as mods but without the non-emory committee member -->
   <mods:titleInfo>
     <mods:title>Why I Like Cheese</mods:title>
   </mods:titleInfo>
@@ -11,16 +11,6 @@
     <mods:role>
       <mods:roleTerm authority="marcrelator" type="text">author</mods:roleTerm>
     </mods:role>
-  </mods:name>
-  <mods:name type="personal">
-    <mods:namePart type="given">Will</mods:namePart>
-    <mods:namePart type="family">Smith</mods:namePart>
-    <mods:displayForm>Smith, Will</mods:displayForm>
-    <mods:affiliation>Bel-Air</mods:affiliation>
-    <mods:role>
-      <mods:roleTerm authority="marcrelator" type="text">Thesis Advisor</mods:roleTerm>
-    </mods:role>
-    <mods:description>Non-Emory Thesis Advisor</mods:description>
   </mods:name>
   <mods:name type="personal">
     <mods:namePart type="given"/>
