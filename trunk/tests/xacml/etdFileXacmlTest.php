@@ -86,10 +86,9 @@ class TestEtdFileXacml extends UnitTestCase {
     // these datastreams should be accessible
     $this->assertIsA($etdfile->dc, "dublin_core");
     $this->assertIsA($etdfile->rels_ext, "rels_ext");
-    // FIXME: how to test access to file datastream ?
-
-    $this->expectException(new FedoraAccessDenied("getDatastream for {$this->pid}/POLICY"));
-    $this->assertNull($etdfile->policy);
+    // Test on Non-Embargoed File should download on guest permission
+    $result = $this->fedoraAdmin->getDatastreamREST($this->pid, "FILE");
+    $this->assertNotNull($result);
   }
 
 
