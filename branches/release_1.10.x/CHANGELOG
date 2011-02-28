@@ -20,6 +20,10 @@ Version 1.10 - Megagnat, March 2011
 * A user can download large files using the fedora 3.4 REST API
 * Research field is now required for Undergrad
 
+1.9.1 - Xacml Policy Update , February 2011
+-------------------------------------------
+* Update policy for published etd files so that guest can download pdf and supplemental files.
+
 1.9 - Fedora 3.4 migration, February 2011
 -----------------------------------------
 * RELS-EXT, MODS, MADS, XHTML ,POLICY, and PREMIS datastreams have been
