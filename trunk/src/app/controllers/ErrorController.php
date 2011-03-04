@@ -27,7 +27,7 @@ class ErrorController extends Etd_Controller_Action {
     $logger->info($message);
 
     $logger->debug("Exception on line " . $errorHandler->exception->getLine() .
-		   " in " . $errorHandler->exception->getFile());
+       " in " . $errorHandler->exception->getFile());
     $logger->debug("Backtrace:\n" . $errorHandler->exception->getTraceAsString());
 
 
@@ -38,7 +38,16 @@ class ErrorController extends Etd_Controller_Action {
       break;
     case "EXCEPTION_OTHER":
     default:
-      $this->view->error = "Unknown Error"; 
+      // extract FedoraAccessDenied error, before defaulting to Unknown Error.
+      if (get_class($errorHandler->exception) == 'FedoraAccessDenied') {        
+        $role = isset($this->current_user) ? $this->current_user->getRoleId() : "guest";
+        $this->_helper->access->notAllowed("view", $role, "Page");
+        return false;
+      }
+      else {
+        $this->_response->setHttpResponseCode(500);        
+        $this->view->error = "Unknown Error"; 
+      }
     }
   }
 
@@ -50,18 +59,20 @@ class ErrorController extends Etd_Controller_Action {
   // common logic for action/controller not found or redirect to notfoundAction
   private function notfound() {
     $this->view->error = "Document not Found";
-    $this->_response->setHttpResponseCode(404);	// 404 Not Found
+    $this->_response->setHttpResponseCode(404); // 404 Not Found
   }
 
 
   // when Fedora is not accessible, the Etd Controller forwards to this page
   public function fedoraunavailableAction() {
+    $this->_response->setHttpResponseCode(500); // 500 Internal Server Error   
     $this->view->service = "Repository";
     $this->_helper->viewRenderer->setScriptAction("unavailable");
     $this->view->title = "Repository Unavailable";
   }
 
   public function unavailableAction() {
+    $this->_response->setHttpResponseCode(500); // 500 Internal Server Error     
     $this->view->service = "Services";
     $this->view->title = "Services Unavailable";
   }
