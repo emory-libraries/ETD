@@ -71,7 +71,7 @@ page.</p>
   <?= $projax->sortable_element("user_fields",
               array("url" => null, "onChange" => "updatePrimary")); ?>     
 
-   <input class="button" id="save_button" type="submit" value="save"/>
+   <?= $this->formSubmit("save", "save", array("class" => "button", "onClick" => "this.disabled=true;", "id" => "save_button")); ?>
 </form>
 <br/>
 

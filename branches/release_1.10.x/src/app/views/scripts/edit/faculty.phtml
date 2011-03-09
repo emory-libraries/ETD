@@ -269,7 +269,7 @@ non-Emory committee members.</p>
 <a href="#" onClick="javascript:addNonemory()">add another</a>
 </div>
      
-<p><input class="button" type="submit" value="save"/></p>
+<p><?= $this->formSubmit("save", "save", array("class" => "button", "onClick" => "this.disabled=true;")); ?></p>
 </form>
 						       
 </div>
