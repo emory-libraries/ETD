@@ -20,7 +20,7 @@
    <?= $this->render("email/_rqstchange_head.phtml") ?>
    <?= $this->FckEditor("content", "", array("toolbar" => "Basic", "height" => "150")) ?>
    <?= $this->render("email/_rqstchange_foot.phtml") ?>
-   <p><?= $this->formSubmit("send", "Send >", array("class" => "button")) ?></p>
+   <p><?= $this->formSubmit("send", "Send >", array("class" => "button", "onClick" => "this.disabled=true;")) ?></p>
 </form>
 
 </div>

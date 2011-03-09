@@ -30,5 +30,5 @@ to your document.</p>
   <p><?= $this->formFile("file"); ?></p>
 
   
-  <?= $this->formSubmit("Upload", "Upload"); ?>
+  <?= $this->formSubmit("Upload", "Upload", array("onClick" => "this.disabled=true;")); ?>
 </form>
