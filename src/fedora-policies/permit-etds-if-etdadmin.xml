@@ -158,18 +158,18 @@ access and modify (with some limitations) etd objects (etd, etdfile, user)</Desc
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">etdadmin</AttributeValue>
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">etdmaint</AttributeValue>
       <!-- usernames for etd Rollins admins - THESE NEED TO BE IN ETD DATABASE TOO -->
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">rfreem2</AttributeValue> <!-- Robie Freeman-Michaux super rollins ADAP -->
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">arozo</AttributeValue>   <!-- Angela Rozo (IH) -->
-          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">ascarl</AttributeValue>  <!-- Ariadne Swichtenberg (EOH, EOHEPI, GEH) -->
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">ascarl</AttributeValue>  <!-- Ariadne Swichtenberg (EOH, EOHEPI, EOHIH) -->
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">cdettme</AttributeValue> <!-- Cammie Dettmer (BSHE) -->
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">ddunba2</AttributeValue> <!-- Deanne Dunbar (BSHE) -->          
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">dlmurra</AttributeValue> <!-- Deanna Murray (EPI, GLEPI) -->
-          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">ddunba2</AttributeValue> <!-- Deanne Dunbar (BSHE) -->
-          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">ftraven</AttributeValue> <!-- Flavia Traven (IH) -->      
-          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">jtenley</AttributeValue> <!-- Jena Black (EOH, EOHEPI, GEH, EPI, GLEPI) -->
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">ftraven</AttributeValue> <!-- Flavia Traven (IH) -->          
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">jtenley</AttributeValue> <!-- Jena Black (EOH, EOHEPI, EOHIH, EPI, GLEPI) -->
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">kwollen</AttributeValue> <!-- Kathy Wollenzien (HPM) -->
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">mkrance</AttributeValue> <!-- Melissa Krancer (APEPI, HCOM, MCHEPI, MS, PS)-->          
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">msherre</AttributeValue> <!-- Melissa Sherrer (BIOS, INFO) -->        
-          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">mkrance</AttributeValue> <!-- Melissa Krancer (APEPI, HCOM, MCHEPI, MS, PS)-->
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">tnash</AttributeValue>   <!-- Theresa Nash (IH) -->
-          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">twachho</AttributeValue> <!-- Tracy Wachholz -->     
     <!-- tech support users - THESE NEED TO BE IN APP CONFIG TOO! -->
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">aafonja</AttributeValue> <!-- Ade Afonja -->
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">athom09</AttributeValue> <!-- Alex Thomas -->
