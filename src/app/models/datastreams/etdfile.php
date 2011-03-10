@@ -274,7 +274,9 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
     // calculate and store datastream mimetype here
     $finfo = finfo_open(FILEINFO_MIME); 
     $filetype = finfo_file($finfo, $filename);
-    $this->file->mimetype = $filetype;
+    if (!isset($this->file->mimetype)) {   
+      $this->file->mimetype = $filetype;
+    }
     // calculate and set checksum
     $this->file->checksum = md5_file($filename);          
   } 
