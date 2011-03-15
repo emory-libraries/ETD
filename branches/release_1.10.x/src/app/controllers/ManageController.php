@@ -194,28 +194,9 @@ class ManageController extends Etd_Controller_Action {
      $changetype = $this->_getParam("type", "record");    // could also be document (record=metadata)
      if (!$this->_helper->access->allowedOnEtd("request $changetype changes", $etd)) return false;  
 
-     $newstatus = "draft";
-     $etd->setStatus($newstatus);
-
      $this->view->title = "Manage : Request changes to $changetype";
      $this->view->etd = $etd;
      $this->view->changetype = $changetype;
-     
-     // log event in record history 
-     $etd->premis->addEvent("status change",
-          "Changes to $changetype requested by " .
-          $this->current_user->getGenericAgent(),
-          "success",  array("netid", $this->current_user->netid));
-     
-     $result = $etd->save("set status to '$newstatus'");
-
-     if ($result) {
-       $this->_helper->flashMessenger->addMessage("Changes requested; record status changed to <b>$newstatus</b>");
-       $this->logger->info("Updated etd " . $etd->pid . " - changes requested, status set to $newstatus at $result");
-     } else {
-       $this->_helper->flashMessenger->addMessage("Error: could not update record status");
-       $this->logger->err("Could not save etd " . $etd->pid . " - changes requested, status change to $newstatus");
-     }
    }
 
    // send an email with more information about changes requested
@@ -224,17 +205,39 @@ class ManageController extends Etd_Controller_Action {
      $etd = $this->_helper->getFromFedora("pid", "etd");
      $subject = $this->_getParam("subject");
      $content = $this->_getParam("content");
+     $changetype = $this->_getParam("type", "record");
 
-     $notify = new etd_notifier($etd);
-     //author-school currently only used with honors
-     $sendTo = ($etd->schoolId() == "honors" ? "author-school" : "author");
-     $to = $notify->request_changes($subject, $content, $sendTo);
+     $newstatus = "draft";
+     $etd->setStatus($newstatus);
 
-     $this->_helper->flashMessenger->addMessage("Email sent to <b>" . implode(', ', array_keys($to)) . "</b>");
+     // log event in record history
+     $etd->premis->addEvent("status change",
+          "Changes to $changetype requested by " .
+          $this->current_user->getGenericAgent(),
+          "success",  array("netid", $this->current_user->netid));
 
-     // forward to main admin page 
+     $result = $etd->save("set status to '$newstatus'");
+
+     if ($result) {
+         //Send The email
+        $notify = new etd_notifier($etd);
+        //author-school currently only used with honors
+        $sendTo = ($etd->schoolId() == "honors" ? "author-school" : "author");
+        $to = $notify->request_changes($subject, $content, $sendTo);
+        $this->_helper->flashMessenger->addMessage("Email sent to <b>" . implode(', ', array_keys($to)) . "</b>");
+
+       $this->_helper->flashMessenger->addMessage("Changes requested; record status changed to <b>$newstatus</b>");
+       $this->logger->info("Updated etd " . $etd->pid . " - changes requested, status set to $newstatus at $result");
+     } else {
+       $this->_helper->flashMessenger->addMessage("Error: could not update record status");
+       $this->logger->err("Could not save etd " . $etd->pid . " - changes requested, status change to $newstatus");
+     }
+
+     // forward to main admin page
      $this->_helper->redirector->gotoRoute(array("controller" => "manage",
              "action" => "summary"), "", true);
+
+     
    }
 
    
