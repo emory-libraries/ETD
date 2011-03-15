@@ -115,7 +115,7 @@ function setUp() {
         //"all" perm addrss, current address and committee chair and members
         $notifier = new NotifierForTest($this->etd);
         $notifier->setRecipientsTest("all"); //author perm addrss, current address and committee chair and members
-        $to = array_merge($notifier->to, $notifier->cc);
+        $to = array_merge($notifier->to, $notifier->cc, $notifier->bcc);
         $this->assertEqual($this->etd->authorInfo->mads->name, $to[$this->etd->authorInfo->mads->current->email], "current email of author is included on email");
         $this->assertEqual($this->etd->authorInfo->mads->name, $to[$this->etd->authorInfo->mads->permanent->email], "permanent email of author is included on email");
         $this->assertEqual($this->advisor->fullname, $to[$this->advisor->email], "email of advisor is included on email");
@@ -124,7 +124,7 @@ function setUp() {
         //no param should work the same as  "all" perm addrss, current address and committee chair and members
         $notifier = new NotifierForTest($this->etd);
         $notifier->setRecipientsTest();
-        $to = array_merge($notifier->to, $notifier->cc);
+        $to = array_merge($notifier->to, $notifier->cc, $notifier->bcc);
         $this->assertEqual($this->etd->authorInfo->mads->name, $to[$this->etd->authorInfo->mads->current->email], "current email of author is included on email");
         $this->assertEqual($this->etd->authorInfo->mads->name, $to[$this->etd->authorInfo->mads->permanent->email], "permanent email of author is included on email");
         $this->assertEqual($this->advisor->fullname, $to[$this->advisor->email], "email of advisor is included on email");
@@ -133,20 +133,20 @@ function setUp() {
         //"author" =  perm addrss, current address
         $notifier = new NotifierForTest($this->etd);
         $notifier->setRecipientsTest("author");
-        $to = array_merge($notifier->to, $notifier->cc);
+        $to = array_merge($notifier->to, $notifier->cc, $notifier->bcc);
         $this->assertEqual($this->etd->authorInfo->mads->name, $to[$this->etd->authorInfo->mads->current->email], "current email of author is included on email");
         $this->assertEqual($this->etd->authorInfo->mads->name, $to[$this->etd->authorInfo->mads->permanent->email], "permanent email of author is included on email");
 
         //"author-permanent" =  perm addrss
         $notifier = new NotifierForTest($this->etd);
         $notifier->setRecipientsTest("author-permanent");
-        $to = array_merge($notifier->to, $notifier->cc);
+        $to = array_merge($notifier->to, $notifier->cc, $notifier->bcc);
         $this->assertEqual($this->etd->authorInfo->mads->name, $to[$this->etd->authorInfo->mads->permanent->email], "permanent email of author is included on email");
 
         //"permanent" =  perm addrss and committee chair and members
         $notifier = new NotifierForTest($this->etd);
         $notifier->setRecipientsTest("permanent");
-        $to = array_merge($notifier->to, $notifier->cc);
+        $to = array_merge($notifier->to, $notifier->cc, $notifier->bcc);
         $this->assertEqual($this->etd->authorInfo->mads->name, $to[$this->etd->authorInfo->mads->permanent->email], "permanent email of author is included on email");
         $this->assertEqual($this->advisor->fullname, $to[$this->advisor->email], "email of advisor is included on email");
         $this->assertEqual($this->member->fullname, $to[$this->member->email], "email of committee is included on email");
@@ -154,19 +154,32 @@ function setUp() {
         //"patent_info" =  OTT office and ETD ADMIN
         $notifier = new NotifierForTest($this->etd);
         $notifier->setRecipientsTest("patent_info");
-        $to = array_merge($notifier->to, $notifier->cc);
+        $to = array_merge($notifier->to, $notifier->cc, $notifier->bcc);
         $this->assertEqual($this->testConfig->email->etd->name, $to[$this->testConfig->email->etd->address], "etd-admin is included on email");
         $this->assertEqual($this->testConfig->email->ott->name, $to[$this->testConfig->email->ott->address], "ott office is included on email");
 
-        //"author-school" =  author perm and current email and school admins
-        $notifier = new NotifierForTest($this->etd);
-        $notifier->setRecipientsTest("author-school");
-        $to = array_merge($notifier->to, $notifier->cc);
-        $this->assertEqual($this->etd->authorInfo->mads->name, $to[$this->etd->authorInfo->mads->current->email], "current email of author is included on email");
-        $this->assertEqual($this->etd->authorInfo->mads->name, $to[$this->etd->authorInfo->mads->permanent->email], "permanent email of author is included on email");
-        $this->assertEqual($this->admin->fullname, $to[$this->admin->email], "school admin is included on email");
-        
 
+
+        //bcc_admin flag not specified
+        $notifier = new NotifierForTest($this->etd);
+        $notifier->setRecipientsTest("author-permanent");
+        $to = array_merge($notifier->to, $notifier->cc, $notifier->bcc);
+        $this->assertEqual($this->etd->authorInfo->mads->name, $to[$this->etd->authorInfo->mads->permanent->email], "permanent email of author is included on email");
+        $this->assertEqual($this->testConfig->email->etd->name, $to[$this->testConfig->email->etd->address], "ETD ADMIN is included");
+
+        //bcc_admin flag true
+        $notifier = new NotifierForTest($this->etd);
+        $notifier->setRecipientsTest("author-permanent", true);
+        $to = array_merge($notifier->to, $notifier->cc, $notifier->bcc);
+        $this->assertEqual($this->etd->authorInfo->mads->name, $to[$this->etd->authorInfo->mads->permanent->email], "permanent email of author is included on email");
+        $this->assertEqual($this->testConfig->email->etd->name, $to[$this->testConfig->email->etd->address], "ETD ADMIN is included");
+
+        //bcc_admin flag false
+        $notifier = new NotifierForTest($this->etd);
+        $notifier->setRecipientsTest("author-permanent", false);
+        $to = array_merge($notifier->to, $notifier->cc, $notifier->bcc);
+        $this->assertEqual($this->etd->authorInfo->mads->name, $to[$this->etd->authorInfo->mads->permanent->email], "permanent email of author is included on email");
+        $this->assertFalse(array_key_exists($this->testConfig->email->etd->address, $to), "ETD ADMIN is NOT included");
     }
 
 
@@ -175,14 +188,15 @@ function setUp() {
 class NotifierForTest extends etd_notifier {
 public $to = array();
 public $cc= array();
+public $bcc= array();
 public $send_to = array();
 
 public function getMail(){
     return $this->mail;
 }
 
-public function setRecipientsTest($who="all"){
-    $this->setRecipients($who);
+public function setRecipientsTest($who="all", $bcc_admin = true){
+    $this->setRecipients($who, $bcc_admin);
 }
 
 
