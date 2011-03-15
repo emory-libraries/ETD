@@ -158,7 +158,13 @@ function setUp() {
         $this->assertEqual($this->testConfig->email->etd->name, $to[$this->testConfig->email->etd->address], "etd-admin is included on email");
         $this->assertEqual($this->testConfig->email->ott->name, $to[$this->testConfig->email->ott->address], "ott office is included on email");
 
-
+        //"author-school" =  author perm and current email and school admins
+ 	    $notifier = new NotifierForTest($this->etd);
+	 	$notifier->setRecipientsTest("author-school");
+	 	$to = array_merge($notifier->to, $notifier->cc);
+	 	$this->assertEqual($this->etd->authorInfo->mads->name, $to[$this->etd->authorInfo->mads->current->email], "current email of author is included on email");
+	 	$this->assertEqual($this->etd->authorInfo->mads->name, $to[$this->etd->authorInfo->mads->permanent->email], "permanent email of author is included on email");
+	 	$this->assertEqual($this->admin->fullname, $to[$this->admin->email], "school admin is included on email");
 
         //bcc_admin flag not specified
         $notifier = new NotifierForTest($this->etd);
