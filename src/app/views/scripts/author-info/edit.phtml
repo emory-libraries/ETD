@@ -129,7 +129,7 @@ permanent address
 
 
 <p>
-        <span class = "<?= $class; ?>" > date valid</span>
+        <span class = "<?= $class; ?>" > date valid (yyyy-mm-dd)</span>
         <br/>
         <?= $this->formText("perm-date", (isset($this->allParams["perm-date"]) ? $this->allParams["perm-date"] : $this->authorInfo->mads->permanent->date)); ?>
 </p>
@@ -204,7 +204,7 @@ netid
 <br/>
 <?= $this->authorInfo->mads->netid; ?>
 <br/>
-<?= $this->formSubmit("Save", "Save", array("class" => "button")); ?>
+<?= $this->formSubmit("Save", "Save", array("class" => "button", "onClick" => "this.disabled=true;")); ?>
 <br/>
 </form>
 

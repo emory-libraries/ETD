@@ -86,7 +86,7 @@
 <? /* NOTE: for some reason formFile does not detect that doctype is xhtml;
     setting again here to force it to produce valid xhtml output (required for Xforms) */ ?>
   with <? $this->doctype('XHTML1_STRICT') ?><?= $this->formFile("file"); ?>
-   <?= $this->formSubmit("Replace", "Replace >", array("class" => "button", "style" => "margin-left:10px")); ?>
+   <?= $this->formSubmit("Replace", "Replace >", array("class" => "button", "style" => "margin-left:10px", "onClick" => "this.disabled=true;")); ?>
   </p>
 </form>
   <? endif ?>

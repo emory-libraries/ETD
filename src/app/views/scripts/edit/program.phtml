@@ -27,7 +27,7 @@
 	 <span id="subfield_label"><?= $this->etd->mods->subfield ?></span><br/>
  </div>
 
-<p><input class="button" type="submit" value="save"/></p>
+<p><?= $this->formSubmit("save", "save", array("class" => "button", "onClick" => "this.disabled=true;")); ?></p>
 </form>
 
 <script language="JavaScript">

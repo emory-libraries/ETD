@@ -61,7 +61,7 @@ $hasMembers = (count($this->collection->members) != 0);
     <? endforeach ?>
   <? endif ?> 
   </ul>
-  <input class="button" id="save_button" type="submit" value="save"/>  
+  <?= $this->formSubmit("save", "save", array("class" => "button", "onClick" => "this.disabled=true;", "id"=> "save_button")); ?>
 </form>
 <br/> 
 

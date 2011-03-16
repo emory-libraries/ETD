@@ -33,5 +33,5 @@ if ($this->current_user->role == "superuser" || $this->current_user->role == "te
 
 <?= $this->FckEditor("edit_content", (string)$this->edit_content, $editor_opts) ?>
 
-<?= $this->formSubmit("Save", "Save", array("class" => "button")); ?>
+<?= $this->formSubmit("Save", "Save", array("class" => "button", "onClick" => "this.disabled=true;")); ?>
 </form>

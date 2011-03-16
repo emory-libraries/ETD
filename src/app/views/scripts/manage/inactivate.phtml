@@ -10,5 +10,5 @@
 <p><?= $this->formLabel("reason", "Reason for marking inactive: "); ?>   
 <?= $this->formText("reason", "", array("size" => 50)); ?></p>
 
-  <?= $this->formSubmit("inactivate", "Mark Inactive"); ?>
+  <?= $this->formSubmit("inactivate", "Mark Inactive", array("onClick" => "this.disabled=true;")); ?>
 </form>
