@@ -1054,3 +1054,12 @@ div.grayed {
   line-height: 1.1;
 }
 
+/* formatting for calendar section */
+
+div#calendar ul{
+    margin:0;
+}
+
+div#calendar div{
+    margin-bottom:10px;
+}

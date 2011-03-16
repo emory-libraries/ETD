@@ -19,6 +19,8 @@ Version 1.10 - Megagnat, March 2011
 * Some email text has been revised
 * A user can download large files using the fedora 3.4 REST API
 * Research field is now required for Undergrad
+* Removed BCC of lis-serve for Approval, Publish and Embargo Warning emails
+* Fixed bug that caused etd to go back to draft when change request was clicked but before email was sent.
 
 1.9.1 - Xacml Policy Update , February 2011
 -------------------------------------------
