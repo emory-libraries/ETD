@@ -40,7 +40,7 @@ class IndexController extends Etd_Controller_Action {
       //Read the feed
       $calendar = Zend_Feed_Reader::import($calendar_feed);
     } catch (Exception $e) {
-      throw new Exception("Could not parse ETD news feed '$calendar_feed' - " . $e->getMessage());
+      trigger_error("Could not parse ETD calendar feed '$calendar_feed' - " . $e->getMessage(), E_USER_NOTICE);
     }
 
     try {
@@ -107,21 +107,15 @@ class IndexController extends Etd_Controller_Action {
     $entries = array(); //array of reformated calendar entries
 
     foreach ($calendar as $entry){
-        $content = $entry->getContent();
-        //Don't know what the characters 194 and 160 are but they are annoying
-        //They need to be removed
-        $content = str_replace(array(chr(194), chr(160), "<br />"), "", $content);
-        $title = $entry->getTitle();
+        $xml = simplexml_load_string($entry->saveXml()); // can only be used for elements without namespaces
+        $namespaces = $xml->getNameSpaces(true);
+        $xml_gd = $xml->children($namespaces['gd']); // elements that use the gd ns
 
-        //Get start and end time 
-        preg_match( "/When:(.*)/", $content, $matches);
-             
-        //Set start and end time.  If no end, start will have the whole date
-        $start = (isset($matches[1]) ? $matches[1] : "");
-        $end = "";
-        if (strpos($matches[1], "to")){
-            list($start, $end) = split("to", $matches[1]);
-        }
+        $title = (string)$xml->title;  //have to cast this a a string because it is used as an array key
+        $start =  $xml_gd->when->attributes()->startTime;
+        $end =  $xml_gd->when->attributes()->endTime;
+        $where = $xml_gd->where->attributes()->valueString;
+        $description = $xml->content;
 
         //Format start and end times
         //Events with a start and end time will be formated:
@@ -129,22 +123,14 @@ class IndexController extends Etd_Controller_Action {
         //Events with only a start time (All day event in google) most likely used for a submition deadline
         // are formatted: Jan 15 2011
         //End time is alway formatted: 10:15pm or blank
-        if($end != ""){
+        if(strlen($start) == 10){ //This means there is not tinme and thus an all-day event
+            $start = date("D M j Y", strtotime($start));
+            $end = "";
+        }
+        else{
             $start = date("D M j Y g:ia", strtotime($start));
             $end = date("g:ia", strtotime($end));
         }
-        else{
-            $start = date("D M j Y", strtotime($start));
-        }
-        
-
-        //Get  Location
-        preg_match( "/Where:(.*)/", $content, $matches);
-        $where = (isset($matches[1]) ? $matches[1] : "");
-
-        //Get  Description
-        preg_match( "/Event Description:(.*)/", $content, $matches);
-        $description = (isset($matches[1]) ? $matches[1] : "");
 
         //Events with the same title will be grouped together
         //Each title can have mutiple dates and locations

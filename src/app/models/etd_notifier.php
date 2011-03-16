@@ -22,6 +22,13 @@ class etd_notifier extends notifier {
    */
   protected $cc;
   /**
+   * @var array $bcc addresses to be blind copied on the email
+   * currently only etd admin
+   * @access private
+   */
+  protected $bcc;
+
+  /**
    * @var array $send_to who should be included in constructing to and cc
    * @access private
    */
@@ -37,6 +44,7 @@ class etd_notifier extends notifier {
     parent::__construct();
     $this->to = array();
     $this->cc = array();
+    $this->bcc = array();
     
     $this->view->etd = $etd;
 
@@ -50,8 +58,9 @@ class etd_notifier extends notifier {
    *   - author-permanent : send only to author's permanent address
    *   - permanent : send to author's permanent address and to committee
    *   - all : (default) send to both author's email addresses and to committee
+   * @param boolean $bcc_admin - bcc the etd admin that is configured in the project or not (default is true)
    */
-  protected function setRecipients($who = "all") {
+  protected function setRecipients($who = "all", $bcc_admin = true) {
 
     // configure who should receive this email
     switch ($who) {
@@ -81,6 +90,14 @@ class etd_notifier extends notifier {
 			 $config->email->etd->name);
     $this->mail->setReplyTo($config->contact->email,
 			 $config->contact->name);
+
+//bcc admin if flag is set to true
+    if($bcc_admin){
+        $this->mail->addBcc($config->email->etd->address, $config->email->etd->name);
+        //mostly to help with testing
+        $this->bcc[$config->email->etd->address] = $config->email->etd->name;
+    }
+
 if ($environment->mode != "production") {
       // use a configured debug email address when in development mode
       $this->mail->addTo($config->email->test);
@@ -92,7 +109,7 @@ if ($environment->mode != "production") {
       $this->getEmailAddresses($this->view->etd);
       foreach ($this->to as $email => $name) $this->mail->addTo($email, $name);
       foreach ($this->cc as $email => $name) $this->mail->addCc($email, $name);
-      $this->mail->addBcc($config->email->etd->address, $config->email->etd->name);
+
     }
 
   }
@@ -191,7 +208,7 @@ if ($environment->mode != "production") {
    */
   public function approval() {
     // default recipients ?
-    $this->setRecipients();
+    $this->setRecipients("all", false);
     $this->mail->setSubject("Your ETD Has Been Approved");
     $this->setBodyHtml($this->view->render("email/approval.phtml"));
     $this->send();
@@ -204,7 +221,7 @@ if ($environment->mode != "production") {
    */
   public function publication() {
     // NOT default recipients - send to author's permanent address
-    $this->setRecipients();
+    $this->setRecipients("all", false);
     $this->mail->setSubject("Your ETD Has Been Published in the Emory Repository");
     $this->setBodyHtml($this->view->render("email/publication.phtml"));
     $this->send();
@@ -216,7 +233,7 @@ if ($environment->mode != "production") {
    * @return array of addresses email was sent to
    */
   public function embargo_expiration() {
-    $this->setRecipients("permanent");	// send to author's permanent address + committee
+    $this->setRecipients("permanent", false);	// send to author's permanent address + committee
     $this->mail->setSubject("Your ETD Access Restriction will Expire in 60 Days");
     $this->setBodyHtml($this->view->render("email/embargo_expiration.phtml"));
     $this->send();
@@ -228,7 +245,7 @@ if ($environment->mode != "production") {
    * @return array of addresses email was sent to
    */
   public function embargo_expiration_error() {
-    $this->setRecipients();
+    $this->setRecipients("all", false);
     $this->mail->setSubject("Please Disregard Automated Message from ETD system sent out today");
     $this->setBodyHtml($this->view->render("email/embargo_expiration_error.phtml"));
     $this->send();
@@ -252,7 +269,7 @@ if ($environment->mode != "production") {
    * template includes text input by administrator from a website form.
    * @param string $subject subject for the email
    * @param string $text email content to include in the output
-   * * @param string $to code for group to send to
+   * @param string $to code for group to send to
    * @return array of addresses email was sent to
    */
   public function request_changes($subject, $text, $to="author") {
@@ -298,7 +315,7 @@ class etdSet_notifier extends notifier {
     $this->cc = array();
     
     $this->view->etdSet = $etdSet;
-    $this->setRecipients();
+    $this->setRecipients(); //for the embargoes_expiring_oneweek email only include etd admin
   }
 
   /**
@@ -332,6 +349,8 @@ class etdSet_notifier extends notifier {
    */
   public function embargoes_expiring_oneweek(){
     $this->mail->setSubject("ETD embargoes expiring in 7 days");
+    //This only goes to the etd-admin so no list of recipients needs to be created
+    //The admin is included in the To in the construct
     $this->setBodyHtml($this->view->render("email/embargoes_expiring_oneweek.phtml"));
     $this->send();
     return array_merge($this->to, $this->cc);  }

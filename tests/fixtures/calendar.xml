@@ -1,34 +1,174 @@
-<?xml version='1.0' encoding='UTF-8'?><feed xmlns='http://www.w3.org/2005/Atom' xmlns:openSearch='http://a9.com/-/spec/opensearchrss/1.0/' xmlns:gCal='http://schemas.google.com/gCal/2005'><id>http://www.google.com/calendar/feeds/emory.etd%40gmail.com/private-db91438a4cc3ab7485efa7a3f9a31e67/basic</id><updated>2011-02-15T17:51:31.000Z</updated><category scheme='http://schemas.google.com/g/2005#kind' term='http://schemas.google.com/g/2005#event'/><title type='text'>emory.etd@gmail.com</title><subtitle type='text'>emory.etd@gmail.com</subtitle><link rel='alternate' type='text/html' href='http://www.google.com/calendar/embed?src=emory.etd@gmail.com'/><link rel='http://schemas.google.com/g/2005#feed' type='application/atom+xml' href='http://www.google.com/calendar/feeds/emory.etd%40gmail.com/private-db91438a4cc3ab7485efa7a3f9a31e67/basic'/><link rel='http://schemas.google.com/g/2005#batch' type='application/atom+xml' href='http://www.google.com/calendar/feeds/emory.etd%40gmail.com/private-db91438a4cc3ab7485efa7a3f9a31e67/basic/batch'/><link rel='self' type='application/atom+xml' href='http://www.google.com/calendar/feeds/emory.etd%40gmail.com/private-db91438a4cc3ab7485efa7a3f9a31e67/basic?max-results=25'/><author><name>Stewart Varner</name><email>emory.etd@gmail.com</email></author><generator version='1.0' uri='http://www.google.com/calendar'>Google Calendar</generator><openSearch:totalResults>4</openSearch:totalResults><openSearch:startIndex>1</openSearch:startIndex><openSearch:itemsPerPage>25</openSearch:itemsPerPage><gCal:timezone value='America/New_York'/><gCal:timesCleaned value='0'/><entry><id>http://www.google.com/calendar/feeds/emory.etd%40gmail.com/private-db91438a4cc3ab7485efa7a3f9a31e67/basic/m53eu212atpucnhovsuhm5qat8</id><published>2011-02-15T15:03:20.000Z</published><updated>2011-02-15T17:51:31.000Z</updated><category scheme='http://schemas.google.com/g/2005#kind' term='http://schemas.google.com/g/2005#event'/><title type='html'>Submission Deadline</title><summary type='html'>When: Sun Mar 13, 2011&lt;br&gt;
-
-
-&lt;br&gt;Event Status: confirmed</summary><content type='html'>When: Sun Mar 13, 2011&lt;br /&gt;
-
-
-&lt;br /&gt;Event Status: confirmed
-&lt;br /&gt;Event Description: Last change to submit!</content><link rel='alternate' type='text/html' href='http://www.google.com/calendar/event?eid=bTUzZXUyMTJhdHB1Y25ob3ZzdWhtNXFhdDggZW1vcnkuZXRkQG0' title='alternate'/><link rel='self' type='application/atom+xml' href='http://www.google.com/calendar/feeds/emory.etd%40gmail.com/private-db91438a4cc3ab7485efa7a3f9a31e67/basic/m53eu212atpucnhovsuhm5qat8'/><author><name>Stewart Varner</name><email>emory.etd@gmail.com</email></author></entry><entry><id>http://www.google.com/calendar/feeds/emory.etd%40gmail.com/private-db91438a4cc3ab7485efa7a3f9a31e67/basic/dndmbip1ruit0m3bgo8pm2g3bo</id><published>2011-02-14T22:14:13.000Z</published><updated>2011-02-15T17:12:03.000Z</updated><category scheme='http://schemas.google.com/g/2005#kind' term='http://schemas.google.com/g/2005#event'/><title type='html'>ETD Test Event</title><summary type='html'>When: Sun Feb 27, 2011 7pm to 8pm&amp;nbsp;
-EST&lt;br&gt;
-
-&lt;br&gt;Where: Rollins Building
-&lt;br&gt;Event Status: confirmed</summary><content type='html'>When: Sun Feb 27, 2011 7pm to 8pm 
-EST&lt;br /&gt;
-
-&lt;br /&gt;Where: Rollins Building
-&lt;br /&gt;Event Status: confirmed
-&lt;br /&gt;Event Description: Come and submit your etd description 2</content><link rel='alternate' type='text/html' href='http://www.google.com/calendar/event?eid=ZG5kbWJpcDFydWl0MG0zYmdvOHBtMmczYm8gZW1vcnkuZXRkQG0' title='alternate'/><link rel='self' type='application/atom+xml' href='http://www.google.com/calendar/feeds/emory.etd%40gmail.com/private-db91438a4cc3ab7485efa7a3f9a31e67/basic/dndmbip1ruit0m3bgo8pm2g3bo'/><author><name>Stewart Varner</name><email>emory.etd@gmail.com</email></author></entry><entry><id>http://www.google.com/calendar/feeds/emory.etd%40gmail.com/private-db91438a4cc3ab7485efa7a3f9a31e67/basic/deflavvr8720fjjd716sdetpm8</id><published>2011-02-14T22:12:53.000Z</published><updated>2011-02-15T17:11:26.000Z</updated><category scheme='http://schemas.google.com/g/2005#kind' term='http://schemas.google.com/g/2005#event'/><title type='html'>ETD Test Event</title><summary type='html'>When: Sun Feb 20, 2011 6pm to Sun Feb 20, 2011 7pm&amp;nbsp;
-EST&lt;br&gt;
-
-&lt;br&gt;Where: Candler Building
-&lt;br&gt;Event Status: confirmed</summary><content type='html'>When: Sun Feb 20, 2011 6pm to Sun Feb 20, 2011 7pm 
-EST&lt;br /&gt;
-
-&lt;br /&gt;Where: Candler Building
-&lt;br /&gt;Event Status: confirmed</content><link rel='alternate' type='text/html' href='http://www.google.com/calendar/event?eid=ZGVmbGF2dnI4NzIwZmpqZDcxNnNkZXRwbTggZW1vcnkuZXRkQG0' title='alternate'/><link rel='self' type='application/atom+xml' href='http://www.google.com/calendar/feeds/emory.etd%40gmail.com/private-db91438a4cc3ab7485efa7a3f9a31e67/basic/deflavvr8720fjjd716sdetpm8'/><author><name>Stewart Varner</name><email>emory.etd@gmail.com</email></author></entry><entry><id>http://www.google.com/calendar/feeds/emory.etd%40gmail.com/private-db91438a4cc3ab7485efa7a3f9a31e67/basic/vcj4377paab95mp9ilvr0kr1vk</id><published>2011-02-14T22:10:02.000Z</published><updated>2011-02-15T14:52:38.000Z</updated><category scheme='http://schemas.google.com/g/2005#kind' term='http://schemas.google.com/g/2005#event'/><title type='html'>ETD Test Event</title><summary type='html'>When: Mon Feb 14, 2011 5:15pm to 6:15pm&amp;nbsp;
-EST&lt;br&gt;
-
-&lt;br&gt;Where: Grad School Building
-&lt;br&gt;Event Status: confirmed</summary><content type='html'>When: Mon Feb 14, 2011 5:15pm to 6:15pm 
-EST&lt;br /&gt;
-
-&lt;br /&gt;Where: Grad School Building
-&lt;br /&gt;Event Status: confirmed
-&lt;br /&gt;Event Description: Come and submit your etd</content><link rel='alternate' type='text/html' href='http://www.google.com/calendar/event?eid=dmNqNDM3N3BhYWI5NW1wOWlsdnIwa3IxdmsgZW1vcnkuZXRkQG0' title='alternate'/><link rel='self' type='application/atom+xml' href='http://www.google.com/calendar/feeds/emory.etd%40gmail.com/private-db91438a4cc3ab7485efa7a3f9a31e67/basic/vcj4377paab95mp9ilvr0kr1vk'/><author><name>Stewart Varner</name><email>emory.etd@gmail.com</email></author></entry></feed>
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xmlns:openSearch="http://a9.com/-/spec/opensearchrss/1.0/" xmlns:gCal="http://schemas.google.com/gCal/2005" xmlns:gd="http://schemas.google.com/g/2005">
+  <id>http://www.google.com/calendar/feeds/emory.etd%40gmail.com/private-db91438a4cc3ab7485efa7a3f9a31e67/full</id>
+  <updated>2011-03-16T19:34:58.000Z</updated>
+  <category scheme="http://schemas.google.com/g/2005#kind" term="http://schemas.google.com/g/2005#event" />
+  <title type="text">emory.etd@gmail.com</title>
+  <subtitle type="text">emory.etd@gmail.com</subtitle>
+  <link rel="alternate" type="text/html" href="http://www.google.com/calendar/embed?src=emory.etd@gmail.com" />
+  <link rel="http://schemas.google.com/g/2005#feed" type="application/atom+xml" href="http://www.google.com/calendar/feeds/emory.etd%40gmail.com/private-db91438a4cc3ab7485efa7a3f9a31e67/full" />
+  <link rel="http://schemas.google.com/g/2005#batch" type="application/atom+xml" href="http://www.google.com/calendar/feeds/emory.etd%40gmail.com/private-db91438a4cc3ab7485efa7a3f9a31e67/full/batch" />
+  <link rel="self" type="application/atom+xml" href="http://www.google.com/calendar/feeds/emory.etd%40gmail.com/private-db91438a4cc3ab7485efa7a3f9a31e67/full?max-results=25" />
+  <author>
+    <name>Stewart Varner</name>
+    <email>emory.etd@gmail.com</email>
+  </author>
+  <generator version="1.0" uri="http://www.google.com/calendar">Google Calendar</generator>
+  <openSearch:totalResults>5</openSearch:totalResults>
+  <openSearch:startIndex>1</openSearch:startIndex>
+  <openSearch:itemsPerPage>25</openSearch:itemsPerPage>
+  <gCal:timezone value="America/New_York" />
+  <gCal:timesCleaned value="0" />
+  <entry>
+    <id>http://www.google.com/calendar/feeds/emory.etd%40gmail.com/private-db91438a4cc3ab7485efa7a3f9a31e67/full/ip1gtdu6d7p7lcsmjtmntrohqo</id>
+    <published>2011-03-16T19:34:58.000Z</published>
+    <updated>2011-03-16T19:34:58.000Z</updated>
+    <category scheme="http://schemas.google.com/g/2005#kind" term="http://schemas.google.com/g/2005#event" />
+    <title type="text">Submission Workshops</title>
+    <content type="text">Desc 4</content>
+    <link rel="alternate" type="text/html" href="http://www.google.com/calendar/event?eid=aXAxZ3RkdTZkN3A3bGNzbWp0bW50cm9ocW8gZW1vcnkuZXRkQG0" title="alternate" />
+    <link rel="self" type="application/atom+xml" href="http://www.google.com/calendar/feeds/emory.etd%40gmail.com/private-db91438a4cc3ab7485efa7a3f9a31e67/full/ip1gtdu6d7p7lcsmjtmntrohqo" />
+    <author>
+      <name>Stewart Varner</name>
+      <email>emory.etd@gmail.com</email>
+    </author>
+    <gd:comments>
+      <gd:feedLink href="http://www.google.com/calendar/feeds/emory.etd%40gmail.com/private-db91438a4cc3ab7485efa7a3f9a31e67/full/ip1gtdu6d7p7lcsmjtmntrohqo/comments" />
+    </gd:comments>
+    <gd:eventStatus value="http://schemas.google.com/g/2005#event.confirmed" />
+    <gd:where valueString="Rollins Reading Room" />
+    <gd:who email="emory.etd@gmail.com" rel="http://schemas.google.com/g/2005#event.organizer" valueString="emory.etd@gmail.com" />
+    <gd:when endTime="2011-04-25T17:15:00.000-04:00" startTime="2011-04-25T16:15:00.000-04:00">
+      <gd:reminder method="email" minutes="10" />
+      <gd:reminder method="alert" minutes="10" />
+    </gd:when>
+    <gd:transparency value="http://schemas.google.com/g/2005#event.opaque" />
+    <gCal:anyoneCanAddSelf value="false" />
+    <gCal:guestsCanInviteOthers value="true" />
+    <gCal:guestsCanModify value="false" />
+    <gCal:guestsCanSeeGuests value="true" />
+    <gCal:sequence value="0" />
+    <gCal:uid value="ip1gtdu6d7p7lcsmjtmntrohqo@google.com" />
+  </entry>
+  <entry>
+    <id>http://www.google.com/calendar/feeds/emory.etd%40gmail.com/private-db91438a4cc3ab7485efa7a3f9a31e67/full/tcu1spjgor42ucl5l9i2195co8</id>
+    <published>2011-03-16T19:33:43.000Z</published>
+    <updated>2011-03-16T19:33:43.000Z</updated>
+    <category scheme="http://schemas.google.com/g/2005#kind" term="http://schemas.google.com/g/2005#event" />
+    <title type="text">Submission Workshops</title>
+    <content type="text">Des 3</content>
+    <link rel="alternate" type="text/html" href="http://www.google.com/calendar/event?eid=dGN1MXNwamdvcjQydWNsNWw5aTIxOTVjbzggZW1vcnkuZXRkQG0" title="alternate" />
+    <link rel="self" type="application/atom+xml" href="http://www.google.com/calendar/feeds/emory.etd%40gmail.com/private-db91438a4cc3ab7485efa7a3f9a31e67/full/tcu1spjgor42ucl5l9i2195co8" />
+    <author>
+      <name>Stewart Varner</name>
+      <email>emory.etd@gmail.com</email>
+    </author>
+    <gd:comments>
+      <gd:feedLink href="http://www.google.com/calendar/feeds/emory.etd%40gmail.com/private-db91438a4cc3ab7485efa7a3f9a31e67/full/tcu1spjgor42ucl5l9i2195co8/comments" />
+    </gd:comments>
+    <gd:eventStatus value="http://schemas.google.com/g/2005#event.confirmed" />
+    <gd:where valueString="Candler Church" />
+    <gd:who email="emory.etd@gmail.com" rel="http://schemas.google.com/g/2005#event.organizer" valueString="emory.etd@gmail.com" />
+    <gd:when endTime="2011-04-18T19:15:00.000-04:00" startTime="2011-04-18T17:30:00.000-04:00">
+      <gd:reminder method="email" minutes="10" />
+      <gd:reminder method="alert" minutes="10" />
+    </gd:when>
+    <gd:transparency value="http://schemas.google.com/g/2005#event.opaque" />
+    <gCal:anyoneCanAddSelf value="false" />
+    <gCal:guestsCanInviteOthers value="true" />
+    <gCal:guestsCanModify value="false" />
+    <gCal:guestsCanSeeGuests value="true" />
+    <gCal:sequence value="0" />
+    <gCal:uid value="tcu1spjgor42ucl5l9i2195co8@google.com" />
+  </entry>
+  <entry>
+    <id>http://www.google.com/calendar/feeds/emory.etd%40gmail.com/private-db91438a4cc3ab7485efa7a3f9a31e67/full/vebccpftdm2n53ot524cq92lls</id>
+    <published>2011-03-16T19:32:45.000Z</published>
+    <updated>2011-03-16T19:32:45.000Z</updated>
+    <category scheme="http://schemas.google.com/g/2005#kind" term="http://schemas.google.com/g/2005#event" />
+    <title type="text">Submission Workshops</title>
+    <content type="text">Des 2</content>
+    <link rel="alternate" type="text/html" href="http://www.google.com/calendar/event?eid=dmViY2NwZnRkbTJuNTNvdDUyNGNxOTJsbHMgZW1vcnkuZXRkQG0" title="alternate" />
+    <link rel="self" type="application/atom+xml" href="http://www.google.com/calendar/feeds/emory.etd%40gmail.com/private-db91438a4cc3ab7485efa7a3f9a31e67/full/vebccpftdm2n53ot524cq92lls" />
+    <author>
+      <name>Stewart Varner</name>
+      <email>emory.etd@gmail.com</email>
+    </author>
+    <gd:comments>
+      <gd:feedLink href="http://www.google.com/calendar/feeds/emory.etd%40gmail.com/private-db91438a4cc3ab7485efa7a3f9a31e67/full/vebccpftdm2n53ot524cq92lls/comments" />
+    </gd:comments>
+    <gd:eventStatus value="http://schemas.google.com/g/2005#event.confirmed" />
+    <gd:where valueString="Grad House" />
+    <gd:who email="emory.etd@gmail.com" rel="http://schemas.google.com/g/2005#event.organizer" valueString="emory.etd@gmail.com" />
+    <gd:when endTime="2011-04-11T15:00:00.000-04:00" startTime="2011-04-11T14:00:00.000-04:00">
+      <gd:reminder method="email" minutes="10" />
+      <gd:reminder method="alert" minutes="10" />
+    </gd:when>
+    <gd:transparency value="http://schemas.google.com/g/2005#event.opaque" />
+    <gCal:anyoneCanAddSelf value="false" />
+    <gCal:guestsCanInviteOthers value="true" />
+    <gCal:guestsCanModify value="false" />
+    <gCal:guestsCanSeeGuests value="true" />
+    <gCal:sequence value="0" />
+    <gCal:uid value="vebccpftdm2n53ot524cq92lls@google.com" />
+  </entry>
+  <entry>
+    <id>http://www.google.com/calendar/feeds/emory.etd%40gmail.com/private-db91438a4cc3ab7485efa7a3f9a31e67/full/2qfs3jut2skfj9cctg4pv9bado</id>
+    <published>2011-03-16T19:31:28.000Z</published>
+    <updated>2011-03-16T19:31:43.000Z</updated>
+    <category scheme="http://schemas.google.com/g/2005#kind" term="http://schemas.google.com/g/2005#event" />
+    <title type="text">Submission Workshops</title>
+    <content type="text">Submit IT</content>
+    <link rel="alternate" type="text/html" href="http://www.google.com/calendar/event?eid=MnFmczNqdXQyc2tmajljY3RnNHB2OWJhZG8gZW1vcnkuZXRkQG0" title="alternate" />
+    <link rel="self" type="application/atom+xml" href="http://www.google.com/calendar/feeds/emory.etd%40gmail.com/private-db91438a4cc3ab7485efa7a3f9a31e67/full/2qfs3jut2skfj9cctg4pv9bado" />
+    <author>
+      <name>Stewart Varner</name>
+      <email>emory.etd@gmail.com</email>
+    </author>
+    <gd:comments>
+      <gd:feedLink href="http://www.google.com/calendar/feeds/emory.etd%40gmail.com/private-db91438a4cc3ab7485efa7a3f9a31e67/full/2qfs3jut2skfj9cctg4pv9bado/comments" />
+    </gd:comments>
+    <gd:eventStatus value="http://schemas.google.com/g/2005#event.confirmed" />
+    <gd:where valueString="College Study Room" />
+    <gd:who email="emory.etd@gmail.com" rel="http://schemas.google.com/g/2005#event.organizer" valueString="emory.etd@gmail.com" />
+    <gd:when endTime="2011-04-04T13:15:00.000-04:00" startTime="2011-04-04T11:00:00.000-04:00">
+      <gd:reminder method="email" minutes="10" />
+      <gd:reminder method="alert" minutes="10" />
+    </gd:when>
+    <gd:transparency value="http://schemas.google.com/g/2005#event.opaque" />
+    <gCal:anyoneCanAddSelf value="false" />
+    <gCal:guestsCanInviteOthers value="true" />
+    <gCal:guestsCanModify value="false" />
+    <gCal:guestsCanSeeGuests value="true" />
+    <gCal:sequence value="2" />
+    <gCal:uid value="2qfs3jut2skfj9cctg4pv9bado@google.com" />
+  </entry>
+  <entry>
+    <id>http://www.google.com/calendar/feeds/emory.etd%40gmail.com/private-db91438a4cc3ab7485efa7a3f9a31e67/full/9bdujimvaucaiespm9uvl3s9m4</id>
+    <published>2011-03-16T14:23:18.000Z</published>
+    <updated>2011-03-16T15:25:04.000Z</updated>
+    <category scheme="http://schemas.google.com/g/2005#kind" term="http://schemas.google.com/g/2005#event" />
+    <title type="text">Saint Patrick's Day</title>
+    <content type="text">Saint Patrick's Day Party</content>
+    <link rel="alternate" type="text/html" href="http://www.google.com/calendar/event?eid=OWJkdWppbXZhdWNhaWVzcG05dXZsM3M5bTQgZW1vcnkuZXRkQG0" title="alternate" />
+    <link rel="self" type="application/atom+xml" href="http://www.google.com/calendar/feeds/emory.etd%40gmail.com/private-db91438a4cc3ab7485efa7a3f9a31e67/full/9bdujimvaucaiespm9uvl3s9m4" />
+    <author>
+      <name>Stewart Varner</name>
+      <email>emory.etd@gmail.com</email>
+    </author>
+    <gd:comments>
+      <gd:feedLink href="http://www.google.com/calendar/feeds/emory.etd%40gmail.com/private-db91438a4cc3ab7485efa7a3f9a31e67/full/9bdujimvaucaiespm9uvl3s9m4/comments" />
+    </gd:comments>
+    <gd:eventStatus value="http://schemas.google.com/g/2005#event.confirmed" />
+    <gd:where valueString="The Pub" />
+    <gd:who email="emory.etd@gmail.com" rel="http://schemas.google.com/g/2005#event.organizer" valueString="emory.etd@gmail.com" />
+    <gd:when endTime="2011-03-18" startTime="2011-03-17" />
+    <gd:transparency value="http://schemas.google.com/g/2005#event.transparent" />
+    <gCal:anyoneCanAddSelf value="false" />
+    <gCal:guestsCanInviteOthers value="false" />
+    <gCal:guestsCanModify value="false" />
+    <gCal:guestsCanSeeGuests value="false" />
+    <gCal:sequence value="1" />
+    <gCal:uid value="9bdujimvaucaiespm9uvl3s9m4@google.com" />
+  </entry>
+</feed>

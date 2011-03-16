@@ -80,27 +80,27 @@ class IndexControllerTest extends ControllerTestCase {
         
     //Test event with mutiple dates and times
     //The order of whenWhere arrays are important because the dates are sorted by start time
-    $this->assertEqual("Come and submit your etd", $result["ETD Test Event"]["description"]);
+    $this->assertEqual("Submit IT", $result["Submission Workshops"]["description"]);
     //First date and location
-    $this->assertEqual("Mon Feb 14 2011 5:15pm", $result["ETD Test Event"]["whenWhere"][0]["start"]);
-    $this->assertEqual("6:15pm", $result["ETD Test Event"]["whenWhere"][0]["end"]);
-    $this->assertEqual("Grad School Building", $result["ETD Test Event"]["whenWhere"][0]["where"]);
+    $this->assertEqual("Mon Apr 4 2011 11:00am", $result["Submission Workshops"]["whenWhere"][0]["start"]);
+    $this->assertEqual("1:15pm", $result["Submission Workshops"]["whenWhere"][0]["end"]);
+    $this->assertEqual("College Study Room", $result["Submission Workshops"]["whenWhere"][0]["where"]);
     //Second date and location
-    $this->assertEqual("Sun Feb 20 2011 6:00pm", $result["ETD Test Event"]["whenWhere"][1]["start"]);
-    $this->assertEqual("7:00pm", $result["ETD Test Event"]["whenWhere"][1]["end"]);
-    $this->assertEqual("Candler Building", $result["ETD Test Event"]["whenWhere"][1]["where"]);
+    $this->assertEqual("Mon Apr 11 2011 2:00pm", $result["Submission Workshops"]["whenWhere"][1]["start"]);
+    $this->assertEqual("3:00pm", $result["Submission Workshops"]["whenWhere"][1]["end"]);
+    $this->assertEqual("Grad House", $result["Submission Workshops"]["whenWhere"][1]["where"]);
     //Third date and location
-    $this->assertEqual("Sun Feb 27 2011 7:00pm", $result["ETD Test Event"]["whenWhere"][2]["start"]);
-    $this->assertEqual("8:00pm", $result["ETD Test Event"]["whenWhere"][2]["end"]);
-    $this->assertEqual("Rollins Building", $result["ETD Test Event"]["whenWhere"][2]["where"]);
+    $this->assertEqual("Mon Apr 18 2011 5:30pm", $result["Submission Workshops"]["whenWhere"][2]["start"]);
+    $this->assertEqual("7:15pm", $result["Submission Workshops"]["whenWhere"][2]["end"]);
+    $this->assertEqual("Candler Church", $result["Submission Workshops"]["whenWhere"][2]["where"]);
 
 
     //Only has start date (all day event in google) - deadlines etc.
-    $this->assertEqual("Last change to submit!", $result["Submission Deadline"]["description"]);
+    $this->assertEqual("Saint Patrick's Day Party", $result["Saint Patrick's Day"]["description"]);
     //First date and location
-    $this->assertEqual("Sun Mar 13 2011", $result["Submission Deadline"]["whenWhere"][0]["start"]);
-    $this->assertEqual("", $result["Submission Deadline"]["whenWhere"][0]["end"]);
-    $this->assertEqual("", $result["Submission Deadline"]["whenWhere"][0]["where"]);
+    $this->assertEqual("Thu Mar 17 2011", $result["Saint Patrick's Day"]["whenWhere"][0]["start"]);
+    $this->assertEqual("", $result["Saint Patrick's Day"]["whenWhere"][0]["end"]);
+    $this->assertEqual("The Pub", $result["Saint Patrick's Day"]["whenWhere"][0]["where"]);
 
     
   }
