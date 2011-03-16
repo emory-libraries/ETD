@@ -236,9 +236,9 @@ non-Emory committee members.</p>
 	}
 ?>
 
-<? if (! $has_nonemory): ?>     
+<? if (! $has_nonemory): ?>  <?/*Auto scroll to end of page when yes button clicked*/?>
   <p>Do you have any Non-Emory Committee Members?
-     <a class="button" onClick="Element.show('nonemory')">yes</a> 
+     <a class="button" onClick="Element.show('nonemory'); document.getElementById('save').scrollIntoView(true);">yes</a>
      </p>
 <? endif ?>
      
@@ -269,7 +269,7 @@ non-Emory committee members.</p>
 <a href="#" onClick="javascript:addNonemory()">add another</a>
 </div>
      
-<p><input class="button" type="submit" value="save"/></p>
+<p><?= $this->formSubmit("save", "save", array("class" => "button", "onClick" => "this.disabled=true;")); ?></p>
 </form>
 						       
 </div>

@@ -73,7 +73,7 @@ function hdlOff(id) {
 
 </script>
 
-<?= $this->formSubmit("submit", "save") ?>
+<?= $this->formSubmit("submit", "save", array("onClick" => "this.disabled=true;")) ?>
 </form>
 <? endif ?>
 

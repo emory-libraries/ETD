@@ -15,5 +15,5 @@ Reactivate record with status:
 <p><?= $this->formLabel("reason", "Reason for reactivation: "); ?>   
 <?= $this->formText("reason", "", array("size" => 50)); ?></p>
 
-  <?= $this->formSubmit("reactivate", "Reactivate"); ?>
+  <?= $this->formSubmit("reactivate", "Reactivate", array("onClick" => "this.disabled=true;")); ?>
 </form>
