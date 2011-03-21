@@ -38,8 +38,7 @@ Version 1.10
         <!-- Foxml Collections -->  section
     2. Add config for calendar feed found in config.xml.example
 
- * Run the migration scripts to reload the rollins school data: 
-    - 017-add_vocabularies.php
+* Switch the fedora-polices to tag https://svn.library.emory.edu/svn/fedora/repository-policies/tags/release_1.3.1
 
 * Update GSearch with latest version of src/public/xslt/etdFoxmlToSolr.xslt.
   Note that the xslt now requires a parameter containing the Fedora base url
@@ -48,10 +47,13 @@ Version 1.10
         http://localhost:8080/fedora/ .  It looks like at least for the staging
         environment, the hostname will not work. You must use localhost.
 
-* Restart Fedora
-
 * Update the Solr Schema with latest version of src/scripts/solr-schema.xml.
   Note: The file name that should be copied to is schema.xml
+
+* Restart Fedora
+
+ * Run the migration scripts to reload the rollins school data:
+    - 017-add_vocabularies.php
 
 *  Reindex gSearch by running the ETD reindex script:
     - cd src/scripts
