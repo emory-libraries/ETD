@@ -52,14 +52,15 @@ Version 1.10
 
 * Restart Fedora
 
- * Run the migration scripts to reload the rollins school data:
-    - 017-add_vocabularies.php
+* Reindex Solr by restarting Solr
 
 *  Reindex gSearch by running the ETD reindex script:
     - cd src/scripts
     - php ./reindex.php
 
-* Reindex Solr by restarting Solr
+* Run the migration scripts to reload the rollins school data:
+    - 017-add_vocabularies.php
+
 
 Version 1.9
 -----------
