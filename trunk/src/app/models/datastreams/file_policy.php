@@ -177,8 +177,8 @@ const published = '<Rule xmlns="urn:oasis:names:tc:xacml:1.0:policy"  RuleId="pu
           DataType="http://www.w3.org/2001/XMLSchema#string"
           MustBePresent="false"/>
       </ResourceMatch>
-    </Resource>
-
+    </Resource> 
+     
     <Resource>
         <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
             <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">DC</AttributeValue>

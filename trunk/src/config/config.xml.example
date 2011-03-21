@@ -65,13 +65,15 @@
     <!-- Foxml Collections -->
     <programs_collection>
       <id></id>
-      <pid></pid>         
+      <pid></pid>  
+      <skos_label>Programs</skos_label>
       <label>ETD Programs Hierarchy</label>
       <model_object>emory-control:Hierarchy-1.0</model_object>   
     </programs_collection>  
     <vocabularies_collection>
       <id></id>
       <pid></pid>
+      <skos_label>Vocabularies</skos_label>      
       <label>ETD Controlled Vocabularies Hierarchy</label>
       <model_object>emory-control:Hierarchy-1.0</model_object>   
     </vocabularies_collection>
