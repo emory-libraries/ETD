@@ -56,8 +56,8 @@ class TestSchoolsConfig extends UnitTestCase {
     $schools = $this->schools;
 
     // override admin configurations for testing
-    $schools->graduate_school->admin = array("netid" => array("gadmin"),
-                             "department" => "Grad. School");
+    $schools->graduate_school->admin = array("netid" => array("gadmin", "gadmin2"),
+                             "department" => array("Grad. School", "Grad. School dep 2"));
 
     $schools->emory_college->admin = array("netid" => array("llane", "mshonorable"),
                              "department" => "College");
@@ -71,18 +71,30 @@ class TestSchoolsConfig extends UnitTestCase {
     $user->netid="gadmin";
     $user->department = "Grad. School";
     $this->assertEqual("grad", $schools->isAdmin($user));
+    $user->netid="gadmin2";
+    $user->department = "Grad. School dep 2";
+    $this->assertEqual("grad", $schools->isAdmin($user));
+    //Not an admin bad netid
+    $user->netid="badAdmin";
+    $user->department = "Grad. School";
+    $this->assertEqual("", $schools->isAdmin($user));
+    //Not an admin bad dept
+    $user->netid="gadmin";
+    $user->department = "Wrong Dept";
+    $this->assertEqual("", $schools->isAdmin($user));
+
     // honors 
     $user->netid = "llane";
     $user->department = "College";
     $this->assertEqual("honors", $schools->isAdmin($user));
     $user->netid = "mshonorable";
     $this->assertEqual("honors", $schools->isAdmin($user));
-    // candler (by dept. only)
+
+    // candler
     $user->department = "Candler School of Theology";
     $user->netid = "mcando";
-    // blank out job title field for initial test
-    $schools->candler->admin->job_title = "";
     $this->assertEqual("candler", $schools->isAdmin($user));
+
     //rollins
     $user->netid="epusr";
     $this->assertEqual("rollins", $schools->isAdmin($user));
@@ -92,6 +104,28 @@ class TestSchoolsConfig extends UnitTestCase {
     $this->assertFalse($schools->isAdmin($student));
 
   }
+
+  function testCheckConfigValue() {
+    // override admin configurations for testing
+    $schools = $this->schools;
+    $schools->emory_college->admin = array("netid" => array("llane", "mshonorable"),
+                             "department" => "College");
+
+      //Single value in config
+      $this->assertTrue($schools->checkConfigValue("College", $schools->emory_college->admin->department));
+
+      //Array of values in config
+      $this->assertTrue($schools->checkConfigValue("llane", $schools->emory_college->admin->netid));
+      $this->assertTrue($schools->checkConfigValue("mshonorable", $schools->emory_college->admin->netid));
+
+      //Value not in config
+      $this->assertFalse($schools->checkConfigValue("fakeUser", $schools->emory_college->admin->netid));
+  
+      //Element not in config
+      $this->assertFalse($schools->checkConfigValue("bla bla bla", $schools->emory_college->admin->doesnotexist));
+  }
+
+
 
   function testGetSchoolByAclId() {
     $school = $this->schools->getSchoolByAclId("grad");

@@ -58,8 +58,9 @@ Version 1.10
     - cd src/scripts
     - php ./reindex.php
 
- * Run the migration scripts to reload the rollins school data:
+* Run the migration scripts to reload the rollins school data:
     - 017-add_vocabularies.php
+
 
 Version 1.9
 -----------
