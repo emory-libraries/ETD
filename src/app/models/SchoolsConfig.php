@@ -49,8 +49,8 @@ class SchoolsConfig extends Zend_Config_Xml {
       // check for user netids explicitly specified
       // -- handle single netid or multiple
       // -- have to add additional check for admin section because all_schools do not have admin section
-      if (isset($school->admin) && $this->checkConfigValue($user->netid, $school->admin->netid) &&
-                 $this->checkConfigValue($user->department, $school->admin->department)) {
+      if (isset($school->admin) && $this->valueInConfig($user->netid, $school->admin->netid) &&
+                 $this->valueInConfig($user->department, $school->admin->department)) {
 	      return $school->acl_id;
       }
       
@@ -69,12 +69,15 @@ class SchoolsConfig extends Zend_Config_Xml {
 
   /**
    * checks to see if a value is in the config object
-   * Will handel mutiple values and single entries
-   * @param $string $value - value you are looking for
-   * @param $entry - entry in the config file
+   * Will handle mutiple values and single entries
+   * @param string $value - value you are looking for
+   * @param $entry - entry in the config file, should be either a string or Zend_Config
+   * @return boolean
    */
-  function checkConfigValue($value, $entry){
-      if(empty($entry) || empty($value)) return false;
+  function valueInConfig($value, $entry){
+      //$value must be a non-empty string
+      //$entry must be a non-empty string or a Zend_Config object
+      if(empty($value) || !is_string($value) || empty($entry) || ( !($entry instanceof Zend_Config) && !is_string($entry))) return false;
 
       //has mutiple values
       if(is_object($entry)){
