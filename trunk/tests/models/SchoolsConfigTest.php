@@ -105,24 +105,24 @@ class TestSchoolsConfig extends UnitTestCase {
 
   }
 
-  function testCheckConfigValue() {
+  function testValueInConfig() {
     // override admin configurations for testing
     $schools = $this->schools;
     $schools->emory_college->admin = array("netid" => array("llane", "mshonorable"),
                              "department" => "College");
 
       //Single value in config
-      $this->assertTrue($schools->checkConfigValue("College", $schools->emory_college->admin->department));
+      $this->assertTrue($schools->valueInConfig("College", $schools->emory_college->admin->department));
 
       //Array of values in config
-      $this->assertTrue($schools->checkConfigValue("llane", $schools->emory_college->admin->netid));
-      $this->assertTrue($schools->checkConfigValue("mshonorable", $schools->emory_college->admin->netid));
+      $this->assertTrue($schools->valueInConfig("llane", $schools->emory_college->admin->netid));
+      $this->assertTrue($schools->valueInConfig("mshonorable", $schools->emory_college->admin->netid));
 
       //Value not in config
-      $this->assertFalse($schools->checkConfigValue("fakeUser", $schools->emory_college->admin->netid));
+      $this->assertFalse($schools->valueInConfig("fakeUser", $schools->emory_college->admin->netid));
   
       //Element not in config
-      $this->assertFalse($schools->checkConfigValue("bla bla bla", $schools->emory_college->admin->doesnotexist));
+      $this->assertFalse($schools->valueInConfig("bla bla bla", $schools->emory_college->admin->doesnotexist));
   }
 
 
