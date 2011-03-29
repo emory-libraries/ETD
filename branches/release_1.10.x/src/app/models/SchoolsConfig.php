@@ -50,8 +50,8 @@ class SchoolsConfig extends Zend_Config_Xml {
       // check for user netids explicitly specified
       // -- handle single netid or multiple
       // -- have to add additional check for admin section because all_schools do not have admin section
-      if (isset($school->admin) && valueInConfig($user->netid, $school->admin->netid) &&
-                 valueInConfig($user->department, $school->admin->department)) {
+      if (isset($school->admin) && isset($school->admin->netid) && valueInConfig($user->netid, $school->admin->netid) &&
+                 isset($school->admin->department) && valueInConfig($user->department, $school->admin->department)) {
 	      return $school->acl_id;
       }
       

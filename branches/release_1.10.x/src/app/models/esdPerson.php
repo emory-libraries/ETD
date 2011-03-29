@@ -118,7 +118,7 @@ class esdPerson extends Emory_Db_Table_Row implements Zend_Acl_Role_Interface {
         // etd superuser, techsupport, and honors admin
         if (Zend_Registry::isRegistered('config')) {
             $config = Zend_Registry::get('config');
-            if (valueInconfig($this->netid, $config->superusers->user)) {
+            if (isset($config->superusers->user) && valueInconfig($this->netid, $config->superusers->user)) {
                     $this->role = "superuser";
                     //Workaround to set  default school to solve issue when superuser submits a file
                     $this->academic_career="GSAS";
@@ -126,13 +126,13 @@ class esdPerson extends Emory_Db_Table_Row implements Zend_Acl_Role_Interface {
 
             elseif ($admin_type) $this->role = $admin_type . " admin";
             
-            elseif (valueInconfig($this->netid, $config->techsupport->user)) {
+            elseif (isset($config->techsupport->user) && valueInconfig($this->netid, $config->techsupport->user)) {
                     $this->role = "techsupport";
                 //Workaround to set  default school to solve issue when superuser submits a file
                 $this->academic_career="GSAS";
             }
             //detect report viewer role
-            elseif (valueInconfig($this->department, $config->reportviewer->department)){
+            elseif (isset($config->reportviewer->department) && valueInconfig($this->department, $config->reportviewer->department)){
                 $this->role = "report viewer";
             }
 
