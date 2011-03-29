@@ -9,7 +9,7 @@
 // set include path to include local libraries, ZendFramework, etc.
 $srcdir = dirname(__FILE__) . '/..';
 ini_set("include_path", "$srcdir/app/:$srcdir/config:$srcdir/app/models:" .
-    "$srcdir/app/modules/:$srcdir/lib:$srcdir/lib/fedora:$srcdir/lib/xml-utilities:" .
+    "$srcdir/app/modules/:$srcdir/lib:$srcdir/lib/fedora:$srcdir/lib/xml-utilities:$srcdir/lib/Etd/Util:" .
     "$srcdir/js/:" . ini_get("include_path"));
 
 require("Zend/Loader/Autoloader.php");
