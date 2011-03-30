@@ -5,6 +5,7 @@
  */
 
 require_once("esdPerson.php");
+require_once("Etd/Util/Util.php");
 
 /**
  * multi-school config object
@@ -49,8 +50,8 @@ class SchoolsConfig extends Zend_Config_Xml {
       // check for user netids explicitly specified
       // -- handle single netid or multiple
       // -- have to add additional check for admin section because all_schools do not have admin section
-      if (isset($school->admin) && $this->valueInConfig($user->netid, $school->admin->netid) &&
-                 $this->valueInConfig($user->department, $school->admin->department)) {
+      if (isset($school->admin) && isset($school->admin->netid) && valueInConfig($user->netid, $school->admin->netid) &&
+                 isset($school->admin->department) && valueInConfig($user->department, $school->admin->department)) {
 	      return $school->acl_id;
       }
       
@@ -64,32 +65,6 @@ class SchoolsConfig extends Zend_Config_Xml {
           if($result) return $school->acl_id;  // at least one result for user + school
       }
     }
-  }
-
-
-  /**
-   * checks to see if a value is in the config object
-   * Will handle mutiple values and single entries
-   * @param string $value - value you are looking for
-   * @param $entry - entry in the config file, should be either a string or Zend_Config
-   * @return boolean
-   */
-  function valueInConfig($value, $entry){
-      //$value must be a non-empty string
-      //$entry must be a non-empty string or a Zend_Config object
-      if(empty($value) || !is_string($value) || empty($entry) || ( !($entry instanceof Zend_Config) && !is_string($entry))) return false;
-
-      //has mutiple values
-      if(is_object($entry)){
-          if(in_array($value, $entry->toArray())) return true;
-      }
-      //single value
-      else{
-          if($value == $entry) return true;
-      }
-
-  //if you get here there is no match
-  return false;
   }
 
 

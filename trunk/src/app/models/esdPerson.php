@@ -7,6 +7,7 @@
 
 /* database modesl for user information from Emory Shared Data (ESD) view */
 require_once("etd.php");
+require_once("Etd/Util/Util.php");
 
 class esdPerson extends Emory_Db_Table_Row implements Zend_Acl_Role_Interface {
     /**
@@ -117,9 +118,7 @@ class esdPerson extends Emory_Db_Table_Row implements Zend_Acl_Role_Interface {
         // etd superuser, techsupport, and honors admin
         if (Zend_Registry::isRegistered('config')) {
             $config = Zend_Registry::get('config');
-            if (isset($config->superusers) && ((is_object($config->superusers->user) &&
-            in_array($this->netid, $config->superusers->user->toArray()))
-            || $config->superusers->user == $this->netid)) {
+            if (isset($config->superusers->user) && valueInconfig($this->netid, $config->superusers->user)) {
                     $this->role = "superuser";
                     //Workaround to set  default school to solve issue when superuser submits a file
                     $this->academic_career="GSAS";
@@ -127,17 +126,13 @@ class esdPerson extends Emory_Db_Table_Row implements Zend_Acl_Role_Interface {
 
             elseif ($admin_type) $this->role = $admin_type . " admin";
             
-            elseif (isset($config->techsupport) && ((is_object($config->techsupport->user) &&
-             in_array($this->netid, $config->techsupport->user->toArray()))
-            || $config->techsupport->user == $this->netid)) {
+            elseif (isset($config->techsupport->user) && valueInconfig($this->netid, $config->techsupport->user)) {
                     $this->role = "techsupport";
                 //Workaround to set  default school to solve issue when superuser submits a file
                 $this->academic_career="GSAS";
             }
             //detect report viewer role
-            elseif (isset($config->reportviewer) &&  ((is_object($config->reportviewer->department) &&
-             in_array($this->department, $config->reportviewer->department->toArray()))
-            || (!empty($config->reportviewer->department) && $config->reportviewer->department == $this->department))){
+            elseif (isset($config->reportviewer->department) && valueInconfig($this->department, $config->reportviewer->department)){
                 $this->role = "report viewer";
             }
 

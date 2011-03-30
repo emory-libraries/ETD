@@ -105,28 +105,6 @@ class TestSchoolsConfig extends UnitTestCase {
 
   }
 
-  function testValueInConfig() {
-    // override admin configurations for testing
-    $schools = $this->schools;
-    $schools->emory_college->admin = array("netid" => array("llane", "mshonorable"),
-                             "department" => "College");
-
-      //Single value in config
-      $this->assertTrue($schools->valueInConfig("College", $schools->emory_college->admin->department));
-
-      //Array of values in config
-      $this->assertTrue($schools->valueInConfig("llane", $schools->emory_college->admin->netid));
-      $this->assertTrue($schools->valueInConfig("mshonorable", $schools->emory_college->admin->netid));
-
-      //Value not in config
-      $this->assertFalse($schools->valueInConfig("fakeUser", $schools->emory_college->admin->netid));
-  
-      //Element not in config
-      $this->assertFalse($schools->valueInConfig("bla bla bla", $schools->emory_college->admin->doesnotexist));
-  }
-
-
-
   function testGetSchoolByAclId() {
     $school = $this->schools->getSchoolByAclId("grad");
     $this->assertIsA($school, "Zend_Config");
