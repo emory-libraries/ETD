@@ -1,7 +1,7 @@
 <?
 
 error_reporting(E_ALL);
-ini_set("include_path", "../../src/app/:../../src/app/modules/:../../src/lib:../../src/lib/ZendFramework:../../src/lib/fedora:../../src/lib/xml-utilities:..:../../src/config:../../src/app/models:" . ini_get("include_path"));
+ini_set("include_path", "../../src/app/:../../src/app/modules/:../../src/lib:../../src/lib/ZendFramework:../../src/lib/fedora:../../src/lib/xml-utilities:../../src/lib/Etd/Util:..:../../src/config:../../src/app/models:" . ini_get("include_path"));
 
 
 
