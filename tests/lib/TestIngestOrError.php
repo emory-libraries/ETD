@@ -31,11 +31,13 @@ class TestIngestOrError extends ControllerTestCase {
   }
 
 
+  /* No longer valid due to lazy api calls
   function testSimulated() {
     $etd = new MockEtd();
     $etd->fedora = $this->mock_fedora;
     
     // test various exceptions
+
     // - not valid
     $etd->fedora->setException("NotValid");
     $this->assertFalse($this->helper->direct($etd, "saving etd", "etd record", $err));
@@ -43,6 +45,7 @@ class TestIngestOrError extends ControllerTestCase {
     $messages = $this->controller->getHelper("flashMessenger")->getMessages();
     $this->assertPattern("/Error:.*etd record.*FedoraObjectNotValid/", $messages[0]);
     $this->assertFalse($this->controller->redirectRan);
+
 
     // - not found
     $etd->fedora->setException("NotFound");
@@ -91,6 +94,7 @@ class TestIngestOrError extends ControllerTestCase {
     $this->assertFalse($this->controller->redirectRan);
     
   }
+  */
   
 
 }

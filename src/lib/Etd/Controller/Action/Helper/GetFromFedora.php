@@ -39,6 +39,8 @@ class Etd_Controller_Action_Helper_GetFromFedora extends Zend_Controller_Action_
    * @return etd|etd_file|user
    */
   public function find_or_error($param, $type) {
+      //Due to the new "lazy" api calls these errors may not happen at this level
+      //TODO try to fixure out if errors have shifted to another place
     $request = $this->_actionController->getRequest();
     $id = $request->getParam($param, null);
     

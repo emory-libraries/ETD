@@ -83,19 +83,25 @@ class TestGetFromFedora extends ControllerTestCase {
 
   /* test various exceptions */
   
+
+  /* No longer valid due to lazy api calls
   function test_exceptions_notfound(){
     $this->setMockFedora();
     // simulate retriving an etd object from Fedora
     $this->setUpGet(array("id" => $this->etdpid));
 
-    // not found
+    
+       not found
     $this->mock_fedora->setException("NotFound");
     $result = $this->helper->direct("id", "etd");
     $this->assertNull($result);
     $messages = $this->controller->getHelper("flashMessenger")->getMessages();
     $this->assertPattern("/Record not found/", $messages[0]);
+    
   }
+  */
 
+  /* No longer valid due to lazy api calls
   function test_exceptions_accessdenied() {
     $this->setMockFedora();
     // - access denied
@@ -106,7 +112,9 @@ class TestGetFromFedora extends ControllerTestCase {
     $this->assertEqual("403", $response->getHttpResponseCode());
     $this->assertPattern('/Permission Denied/', $response->getBody());
   }
+  */
 
+  /* No longer valid due to lazy api calls
   function test_exceptions_notauthorized() {
     $this->setMockFedora();
     // - not authorized
@@ -117,7 +125,9 @@ class TestGetFromFedora extends ControllerTestCase {
     $this->assertEqual("403", $response->getHttpResponseCode());
     $this->assertPattern('/Permission Denied/', $response->getBody());
   }
+  */
   
+  /* No longer valid due to lazy api calls
   function test_exception() {
     $this->setMockFedora();
     // - generic foxml exception
@@ -128,6 +138,7 @@ class TestGetFromFedora extends ControllerTestCase {
     $this->assertEqual("403", $response->getHttpResponseCode());
     $this->assertPattern('/Permission Denied/', $response->getBody());
   }
+  */
 
   function testDirect_etd() {
     // retrieve an etd object from Fedora
