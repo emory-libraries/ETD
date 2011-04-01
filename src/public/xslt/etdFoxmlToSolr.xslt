@@ -58,15 +58,26 @@
   <xsl:comment><xsl:value-of select="$REPOSITORYURL" /> </xsl:comment>
   <xsl:comment>PID is:<xsl:value-of select="$PID"/></xsl:comment>
   <!-- pids for all current content models (comma-separated list) -->
-  <!-- Using API-A-LITE format because REST-API format does not work with our policies -->
-  <!-- This is a possible bug see: https://jira.duraspace.org/browse/FCREPO-703 -->
+
   <xsl:variable name="contentModel">
    <xsl:if test="$PID !=''">
-             <xsl:variable name='url' select='concat($REPOSITORYURL, "get/", $PID, "/RELS-EXT")'/>
-             <xsl:variable name='object' select='document($url)'/> 
-             <xsl:for-each select="$object/rdf:RDF/rdf:Description/fedora-model:hasModel">
-                 <xsl:value-of select="concat(@rdf:resource, ', ')"/>
-             </xsl:for-each>
+     <!-- query risearch to determine content model -->
+     <xsl:variable name="lt">%3C</xsl:variable>
+     <xsl:variable name="gt">%3E</xsl:variable>
+     <xsl:variable name="space">%20</xsl:variable>
+     <xsl:variable name="and">&#x26;</xsl:variable>   
+     <!-- actual query:  <info:fedora/PID> <fedora-model:hasModel> * -->
+     <xsl:variable name="query" select="concat($lt, 'info:fedora/', $PID, $gt, $space, $lt,
+                                        'fedora-model:hasModel', $gt, $space, '*')"/>
+     <!-- construct the full risearch query url -->
+     <xsl:variable name='url' select='concat($REPOSITORYURL, "risearch?type=triples", $and,
+         "flush=true", $and, "lang=spo", $and, "format=RDF/XML", $and, "query=", $query)'/>
+
+     <!-- pull content model pids from the result -->
+     <xsl:variable name='object' select='document($url)'/> 
+     <xsl:for-each select="$object//rdf:Description/fedora-model:hasModel">
+       <xsl:value-of select="concat(@rdf:resource, ', ')"/> 
+     </xsl:for-each> 
    </xsl:if>
  </xsl:variable>
     <xsl:comment>CONTENT MODEL is: <xsl:value-of select="$contentModel"/></xsl:comment>
@@ -88,7 +99,7 @@
         </doc>
         <commit/>
       </add>
-      
+
     </xsl:if>
     
   </xsl:template>
