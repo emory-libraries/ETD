@@ -67,8 +67,8 @@
      <xsl:variable name="space">%20</xsl:variable>
      <xsl:variable name="and">&#x26;</xsl:variable>   
      <!-- actual query:  <info:fedora/PID> <fedora-model:hasModel> * -->
-     <xsl:variable name="query" select="concat($lt, 'info:fedora/', $PID, $gt, $space, $lt,
-                                        'fedora-model:hasModel', $gt, $space, '*')"/>
+     <xsl:variable name='query' select='concat($lt, "info:fedora/", $PID, $gt, $space, $lt,
+                                        "fedora-model:hasModel", $gt, $space, "*")'/>
      <!-- construct the full risearch query url -->
      <xsl:variable name='url' select='concat($REPOSITORYURL, "risearch?type=triples", $and,
          "flush=true", $and, "lang=spo", $and, "format=RDF/XML", $and, "query=", $query)'/>
