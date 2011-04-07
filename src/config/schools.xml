@@ -55,7 +55,8 @@
       <degree>BBA</degree>
     </degrees>
     <admin>
-    <department>ECAS: Ofc Undergrad Education</department>
+      <department>ECAS: Ofc Undergrad Education</department>
+      <department>Mc Tyeire Trimble Halls</department>     
       <netid>efricke</netid> <!-- honors - Elizabeth Fricker -->
       <netid>jreiff</netid>  <!-- honors - Joseph Reiff -->   
     </admin>
