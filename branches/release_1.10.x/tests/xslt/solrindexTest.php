@@ -2,202 +2,211 @@
 require_once("../bootstrap.php");
 
 class TestSolrIndexXslt extends UnitTestCase {
-    private $xsl;
-    private $tmpdir;
-
-    function __construct() {
-      $this->config = Zend_Registry::get("config");
-      $this->saxonb = $this->config->saxonb_xslt;
-
-      // one-time setup (not modified by tests)
-      
-      // make unique tmp dir based on time, trailing slash is required
-      $this->tmpdir = "/tmp/fedora" . strftime("%G%m%d%H%M%S") . "/"; 
-
-      // NOTE: using custom fixtures that allow mocking managed datastreams
-      // that must be retrieved via xsl:document()
-      // - fixture PIDs must not contain : because pid is used for directory name
-      // Copy RELS-EXT and MODS files for testetd1 into mock repo url/directory structure
-      $pid = "testetd1";
-      mkdir("{$this->tmpdir}get/$pid", 0777, true); 
-      copy('../fixtures/etd1.managed.RELS-EXT.xml', "{$this->tmpdir}get/$pid/RELS-EXT");
-      copy('../fixtures/etd1.managed.MODS.xml', "{$this->tmpdir}get/$pid/MODS");
-      
-      // Copy RELS-EXT for testetdfile1 into mock repo url/directory structure
-      $pid = "testetdfile1";
-      mkdir("{$this->tmpdir}get//$pid", 0777, true); 
-      copy('../fixtures/etdfile.managed.RELS-EXT.xml', "{$this->tmpdir}get/$pid/RELS-EXT");
-
-      // test directory must be passed to xslt processor as repo url parameter
-      $this->xsl_param = "REPOSITORYURL='" . $this->tmpdir . "' ";
-      
-      //change all files and directories to 777
-      $this->chmodR($this->tmpdir, 0777);
-
-      // path to xslt
-      $this->xsl = "../../src/public/xslt/etdFoxmlToSolr.xslt";
-    }
-
-    function __destruct() {
-      // Remove temp files
-      $this->delDir($this->tmpdir);
-    }
+  
+  function __construct() {
     
-
-    function test_etdToFoxml() {
-      $result = $this->transform("../fixtures/etd1.managed.xml");
-
-        $this->assertTrue($result, "xsl transform returns data");
-	$this->assertPattern("|<add>.+</add>|s", $result, "xsl result is a solr add document");
-	$this->assertPattern('|<field name="PID">testetd1</field>|', $result,
-			     "pid indexed in field PID");
-	$this->assertPattern('|<field name="label">Why I Like Cheese</field>|', $result,
-			     "object label indexed");
-	$this->assertPattern('|<field name="ownerId">mmouse</field>|', $result,
-			     "owner id indexed");
-	$this->assertPattern('|<field name="title">Why I Like Cheese</field>|', $result,
-			     "title indexed");
-	$this->assertPattern('|<field name="document_type">Dissertation</field>|', $result,
-			     "genre indexed as document_type");
-	$this->assertPattern('|<field name="author">Mouse, Minnie</field>|', $result,
-			     "author full name indexed");
-	$this->assertPattern('|<field name="advisor"[^>]*>Duck, Donald</field>|', $result,
-			     "advisor full name indexed");
-	$this->assertPattern('|<field name="committee">Dog, Pluto</field>|', $result,
-			     "committee full name indexed");
-	$this->assertNoPattern('|<field name="committee"></field>|', $result,
-			     "blank committee not indexed");
-		
-	$this->assertPattern('|<field name="program">Disney</field>|', $result,
-			     "program name indexed");
-	$this->assertPattern('|<field name="language">English</field>|', $result,
-			     "language indexed");
-	$this->assertPattern('|<field name="subject">Area studies</field>|', $result,
-			     "subject indexed");
-	$this->assertPattern('|<field name="keyword">keyword1</field>|', $result,
-			     "keyword indexed");
-	$this->assertNoPattern('|<field name="keyword"></field>|', $result,
-			     "blank keyword is not indexed");
-	$this->assertPattern('|<field name="abstract">Gouda or Cheddar\?</field>|', $result,
-			     "abstract indexed");
-	$this->assertPattern('|<field name="embargo_requested">no</field>|', $result,
-			     "embargo request yes/no indexed");
-	$this->assertPattern('|<field name="status">published</field>|', $result,
-			     "etd status indexed");
-	$this->assertPattern('|<field name="contentModel">emory-control:ETD-1.0</field>|', $result,
-			     "content model indexed");
-	$this->assertPattern('|<field name="collection">emory-control:ETD-GradSchool-collection</field>|', $result,
-			     "collection pid indexed");
-
-	$this->assertPattern('|<field name="dateIssued">20080530</field>|', $result,
-			     "dateIssued indexed in solr date-range format");
-	$this->assertPattern('|<field name="year">2008</field>|', $result,
-			     "year from dateIssued indexed as year");
-    $this->assertPattern('|<field name="partneringagencies">Georgia state or local health department</field>|', $result,
-			     "partneringagencies ndexed");
-
-	$this->assertNoPattern('|<field name="issuance">|', $result,
-			     "originInfo/issuance is not indexed");
-	
-    }
-
-
-    // test new inactive behavior
-    function test_etdToFoxml_inactiveEtd() {
-        $xml = new DOMDocument();
-        $xml->load("../fixtures/etd1.managed.xml");
-	$foxml = new foxml($xml);
-	$foxml->state = "Inactive";
-
-        $result = $this->transformDom($foxml->dom);
-	$this->assertPattern("|<add>.+</add>|s", $result,
-			       "xsl result for inactive etd is a solr add document");
-    }
+    $this->config = Zend_Registry::get("config");
+    $this->saxonb = $this->config->saxonb_xslt;
+    $this->fedora = Zend_Registry::get("fedora");
+    $fedora_cfg = Zend_Registry::get('fedora-config'); 
+    $school_cfg = Zend_Registry::get('schools-config');         
     
-    // test non-etd - should not be indexed
-    function test_etdToFoxml_nonEtd() {
-       $result = $this->transform("../fixtures/etdfile.managed.xml");
-       $this->assertNoPattern("|<add>.+</add>|s", $result,
-			       "xsl result for non-etd is NOT a solr add document");
-    }
+    // Clean up any old fedora temp directories
+    //$this->deleteAllTmpFedoraDirs(); 
+        
+    // make unique tmp dir based on time, trailing slash is required
+    $this->tmpdir = "/tmp/fedora" . strftime("%G%m%d%H%M%S") . "/";
+    mkdir($this->tmpdir, 0777, true);
+    // Create the temporary fixture filename.
+    $this->etdbasefilename = "testetd-xsltetd";    
+    $this->tmpfile = $this->tmpdir . $this->etdbasefilename . "-tmp.xml";    
     
-    function transformDom($dom) {
-        $tmpfile = tempnam($this->config->tmpdir, "solrXsl-");
-        file_put_contents($tmpfile, $dom->saveXML());
-        $output = $this->transform($tmpfile);
-        unlink($tmpfile);
-        return $output;
-    }
-
-    function transform($xmlfile) {
-      $cmd = $this->saxonb . " -xsl:" . $this->xsl . " -s:" . $xmlfile . " -warnings:silent "
-	.  $this->xsl_param ;
-      return shell_exec($cmd);
-    }
+    // test directory must be passed to xslt processor as repo url parameter
+    $repository_url = "http://" . $fedora_cfg->server . ":" . $fedora_cfg->nonssl_port . "/fedora/"; 
+    $this->xsl_param = "REPOSITORYURL='" . $repository_url . "' "; 
     
+    // path to xslt
+    $this->xsl = "../../src/public/xslt/etdFoxmlToSolr.xslt";    
+    
+    $this->etdpid = $this->fedora->getNextPid($fedora_cfg->pidspace, 1);               
+    $this->create_tmp_fixture($this->etdpid, $this->etdbasefilename);      
 
-    //function to recursivly delete a directory
-    function delDir($dir){
-	if ($handle = opendir($dir))
-	{
-	$array = array();
- 
-    	while (false !== ($file = readdir($handle))) {
-        if ($file != "." && $file != "..") {
- 
-            if(is_dir($dir.$file))
-            {
-                if(!@rmdir($dir.$file)) // Empty directory? Remove it
-                {
-                $this->delDir($dir.$file.'/'); // Not empty? Delete the files inside it
-                }
-            }
-            else
-            {
-               @unlink($dir.$file);
-            }
-        }
-    }
-    closedir($handle);
- 
-    @rmdir($dir);
-}
- 
-}
-
-    //function to recursively change permissons on a directory
-   function chmodR($path, $filemode) {
- if ( !is_dir($path) ) {
-  return chmod($path, $filemode);
- }
- $dh = opendir($path);
- while ( $file = readdir($dh) ) {
-  if ( $file != '.' && $file != '..' ) {
-   $fullpath = $path.'/'.$file;
-   if( !is_dir($fullpath) ) {
-    if ( !chmod($fullpath, $filemode) ){
-     return false;
-    }
-   } else {
-    if ( !$this->chmodR($fullpath, $filemode) ) {
-     return false;
-    }
-   }
+    // Purge test pids if they already exist
+    try { $this->fedora->purge($this->etdpid, "removing test etd");  } catch (Exception $e) {}    
+    
+    // Create an ETD   
+    $this->etd = new etd($school_cfg->graduate_school);
+    $this->etd->pid = $this->etdpid;
+    $this->etd->title = "Xslt Test Title"; 
+    $this->etd->owner = "mmouse";    
+    $this->etd->updateEmbargo("2018-05-30", "embargo message");  
+    $this->etd->mods->embargo_end = "2016-05-30";
+    $this->etd->mods->genre = "Dissertation";   
+    $this->etd->mods->embargo = "6 months";
+    $this->etd->mods->addCommittee("Dog", "Pluto", "nonemory_chair", "notEmory");        
+    $this->etd->mods->setEmbargoRequestLevel(etd_mods::EMBARGO_NONE);
+    $this->etd->mods->addResearchField("Area Studies", "7025");   
+    $this->etd->mods->addKeyword("keyword1");
+    $this->etd->mods->abstract = "Gouda or Cheddar?";
+    $this->etd->mods->addPartneringAgency("Georgia state or local health department");  
+    $this->etd->rels_ext->program = "Disney";
+    $this->etd->ingest("test etd xslt");
+    // To manually test this pid
+    // /usr/local/bin/saxonb-xslt -xsl:../../src/public/xslt/etdFoxmlToSolr.xslt -s:../fixtures/testetd-42.xml REPOSITORYURL='http://dev11.library.emory.edu:8380/fedora/'
   }
- }
+  
+  function __destruct() {
+    // Delete the temporary fixture file
+    $this->delDir($this->tmpdir); 
+       
+    // Purge test pids       
+    try { $this->fedora->purge($this->etdpid, "removing test etd");  } catch (Exception $e) {}     
+  }
+  
+  function test_one() {
+    $this->assertIsA($this->etd, "etd");
+  } 
+     
+  function test_etdToFoxml() {
+    /* NOTE: In order for this test to work, the fedora test etd policy 
+     * permit-etd-mods-relsext-from-localhost.xml needs to be updated to 
+     * include the testing server IP address in the condition clause.  
+     */
+
+    $result = $this->transform($this->tmpfile);
+
+    $this->assertTrue($result, "xsl transform returns data");
+    $this->assertPattern("|<add>.+</add>|s", $result, "xsl result is a solr add document");
+    $this->assertPattern('|<field name="PID">' . $this->etdpid . '</field>|', $result,
+         "pid indexed in field PID");
+    $this->assertPattern('|<field name="label">Why I Like Cheese</field>|', $result,
+         "object label indexed");
+    $this->assertPattern('|<field name="ownerId">mmouse</field>|', $result,
+         "owner id indexed");
+    $this->assertPattern('|<field name="title">Xslt Test Title</field>|', $result,
+         "title indexed");
+    $this->assertPattern('|<field name="document_type">Dissertation</field>|', $result,
+         "genre indexed as document_type");
+    $this->assertPattern('|<field name="advisor"[^>]*>Dog, Pluto</field>|', $result,
+         "advisor full name indexed");
+    $this->assertNoPattern('|<field name="committee"></field>|', $result,
+         "blank committee not indexed");
+    $this->assertPattern('|<field name="program_id">Disney</field>|', $result,
+         "program name indexed");
+    $this->assertPattern('|<field name="language">English</field>|', $result,
+         "language indexed");
+    $this->assertPattern('|<field name="subject">Area Studies</field>|', $result,
+         "subject indexed");
+    $this->assertPattern('|<field name="keyword">keyword1</field>|', $result,
+         "keyword indexed");
+    $this->assertPattern('|<field name="abstract">Gouda or Cheddar\?</field>|', $result,
+         "abstract indexed");
+    $this->assertPattern('|<field name="embargo_duration">6 months</field>|', $result,
+         "embargo request yes/no indexed");
+    $this->assertPattern('|<field name="status">draft</field>|', $result,
+         "etd status indexed");
+    $this->assertPattern('|<field name="contentModel">emory-control:ETD-1.0</field>|', $result,
+         "content model indexed");
+    $this->assertPattern('|<field name="collection">emory-control:ETD-GradSchool-collection</field>|', $result,
+         "collection pid indexed");
+  $this->assertNoPattern('|<field name="dateIssued">20080530</field>|', $result,
+           "dateIssued indexed in solr date-range format");         
+    $this->assertPattern('|<field name="partneringagencies">Georgia state or local health department</field>|', $result,
+         "partneringagencies indexed");
+    $this->assertNoPattern('|<field name="issuance">|', $result,
+         "originInfo/issuance is not indexed");
+  }
+
+  // test new inactive behavior
+  function test_etdToFoxml_inactiveEtd() {
+    $xml = new DOMDocument();
+    $xml->load($this->tmpfile);
+    $foxml = new foxml($xml);
+    $foxml->state = "Inactive";
+
+    $result = $this->transformDom($foxml->dom);
+    $this->assertPattern("|<add>.+</add>|s", $result,
+           "xsl result for inactive etd is a solr add document");
+  }
+  
+  // test non-etd - should not be indexed
+  function test_etdToFoxml_nonEtd() {
+    $result = $this->transform("../fixtures/etdfile.managed.xml");
+    $this->assertNoPattern("|<add>.+</add>|s", $result,
+         "xsl result for non-etd is NOT a solr add document");
+  }
+  
+  function transformDom($dom) {
+    $tmpfile = tempnam($this->config->tmpdir, "solrXsl-");
+    file_put_contents($tmpfile, $dom->saveXML());
+    $output = $this->transform($tmpfile);
+    unlink($tmpfile);
+    return $output;
+  }
+
+  function transform($xmlfile) {
+    $cmd = $this->saxonb . " -xsl:" . $this->xsl . " -s:" . $xmlfile . " -warnings:silent " .  $this->xsl_param;
+    return shell_exec($cmd);
+  }
  
- closedir($dh);
- 
- if ( chmod($path, $filemode) ) {
-  return true;
- } else {
-  return false;
- }
-}
+   function create_tmp_fixture($pid_tmp, $filename) {
+    $fh_orig_name = "../fixtures/" . $filename . ".xml";    
+    $fh_orig = fopen($fh_orig_name, "r");
+    $fh_tmp = fopen($this->tmpfile, "w");
+        
+    $pid_orig = "testetd:TMP";    
 
-
-
-
+    if ($fh_orig) {
+      while (!feof($fh_orig)) // Loop til end of file.
+      {
+        $buffer = fgets($fh_orig, 4096); // Read a line.
+        $text = str_replace($pid_orig, $pid_tmp, $buffer);
+        fwrite($fh_tmp, $text);
+      }
+    }
+    fclose($fh_orig); // Close the file.
+    fclose($fh_tmp); // Close the file.     
+    chmod($this->tmpfile, 0777);
+  }
+  
+  function deleteAllTmpFedoraDirs () 
+  {
+    $handler = opendir("/tmp/");
+    // open directory and walk through the filenames    
+    while ($file = readdir($handler)) {
+      // if file isn't this directory or its parent, add it to the results
+      if ($file != "." && $file != "..") {
+        $pos = strpos($file, "fedora");        
+        if ($pos === false) {}
+        elseif ($pos == 0) {
+          $this->delDir("/tmp/" . $file . "/");       
+        }
+      }
+    }
+    closedir($handler);
+    return;
+  }
+  
+  //function to recursivly delete a directory
+  function delDir($dir){    
+    if ($handle = opendir($dir))
+    { 
+      while (false !== ($file = readdir($handle))) {        
+        if ($file != "." && $file != "..") {
+          if(is_dir($dir.$file))
+          {             
+            if(!@rmdir($dir.$file)) // Empty directory? Remove it
+            {
+              $this->delDir($dir.$file.'/'); // Not empty? Delete the files inside it
+            }
+          }
+          else @unlink($dir.$file);
+        }
+      }
+      closedir($handle);
+      @rmdir($dir);
+    }
+  }
 }
 
 runtest(new TestSolrIndexXslt());

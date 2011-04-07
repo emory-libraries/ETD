@@ -27,6 +27,17 @@ Site webroot should be pointed at src/public
 UPGRADE NOTES
 =================
 
+Version 1.10.2
+--------------
+* Update the svn repository:
+   - staging: https://svn.library.emory.edu/svn/etd/branches/release_1.10.x
+   - production: https://svn.library.emory.edu/svn/etd/tags/release_1.10.2
+* Copy src/public/xslt/etdFoxmlToSolr.xslt to:
+  $FEDORA_HOME/tomcat/webapps/fedoragsearch/WEB-INF/classes/config/index/ETDsolr/
+  Run the ETD reindex script:
+    - cd src/scripts
+    - php ./reindex.php  
+
 Version 1.10
 -------------
 * Edit the config.xml
