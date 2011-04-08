@@ -1,3 +1,4 @@
+<?= $this->javascript("util.js"); ?>
 <?= $this->javascript("projax/js/prototype.js"); ?>
 <?= $this->javascript("projax/js/scriptaculous.js"); ?>
 <? //php ajax/scriptaculous
@@ -53,7 +54,7 @@ field should be chosen first but you can rearrange the order of the
 fields by dragging and dropping your choices listed at the top of the
 page.</p>
 
-<form method="post" id="fields_form"  action="<?= $this->url(array("action" => "saveResearchfield"))?>">
+<form method="post" id="fields_form"  action="<?= $this->url(array("action" => "saveResearchfield"))?>" onsubmit="disableButton('save_button')">
   <ul id="user_fields">
   <? if (isset($this->etd->mods->researchfields[0]) &&
    $this->etd->mods->researchfields[0]->id != ""): ?>
@@ -71,7 +72,7 @@ page.</p>
   <?= $projax->sortable_element("user_fields",
               array("url" => null, "onChange" => "updatePrimary")); ?>     
 
-   <?= $this->formSubmit("save", "save", array("class" => "button", "onClick" => "this.disabled=true;", "id" => "save_button")); ?>
+   <?= $this->formSubmit("save", "save", array("class" => "button", "id" => "save_button")); ?>
 </form>
 <br/>
 

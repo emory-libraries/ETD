@@ -1,6 +1,7 @@
 <?= $this->javascript("projax/js/prototype.js"); ?>
 <?= $this->javascript("projax/js/scriptaculous.js"); ?>
 <?= $this->javascript("projax/js/controls.js"); ?>
+<?= $this->javascript("util.js"); ?>
 
 <? //php ajax/scriptaculous
 include("projax/projax.php");
@@ -99,7 +100,7 @@ non-Emory committee members.</p>
 <? $chairs = $this->etd->mods->chair; ?>
 <? $committeeMembers = $this->etd->mods->committee; ?>
 
-<form method="post" id="fields_form"  action="<?= $this->url(array("action" => "savefaculty"))?>">
+<form method="post" id="fields_form"  action="<?= $this->url(array("action" => "savefaculty"))?>" onsubmit="disableButton('save')">
   <h2>Committee Chair(s) / Thesis Adviser</h2>
   <ul id="chair_list">
     <? foreach ($chairs as $chair): ?>
@@ -269,7 +270,7 @@ non-Emory committee members.</p>
 <a href="#" onClick="javascript:addNonemory()">add another</a>
 </div>
      
-<p><?= $this->formSubmit("save", "save", array("class" => "button", "onClick" => "this.disabled=true;")); ?></p>
+<p><?= $this->formSubmit("save", "save", array("class" => "button")); ?></p>
 </form>
 						       
 </div>

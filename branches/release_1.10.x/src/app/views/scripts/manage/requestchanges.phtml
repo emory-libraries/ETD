@@ -1,3 +1,5 @@
+<?= $this->javascript("util.js"); ?>
+
 <h2>Submission marked for update</h2>
 
 <p>A review of this record indicates that the <?= $this->changetype ?> should be reviewed
@@ -11,7 +13,7 @@
    </p>
 
 
-<form method="POST" action="<?= $this->url(array('action' => 'changes-email')) ?>">
+<form method="POST" action="<?= $this->url(array('action' => 'changes-email')) ?>" onsubmit="disableButton('send')">
    <?= $this->formHidden("pid", $this->etd->pid()) ?>
    <?= $this->formHidden("type", $this->changetype) ?>
    <p><b><?= $this->formLabel("subject", "Subject:") ?></b>
@@ -21,7 +23,7 @@
    <?= $this->render("email/_rqstchange_head.phtml") ?>
    <?= $this->FckEditor("content", "", array("toolbar" => "Basic", "height" => "150")) ?>
    <?= $this->render("email/_rqstchange_foot.phtml") ?>
-   <p><?= $this->formSubmit("send", "Send >", array("class" => "button", "onClick" => "this.disabled=true;")) ?></p>
+   <p><?= $this->formSubmit("send", "Send >", array("class" => "button")) ?></p>
 </form>
 
 </div>

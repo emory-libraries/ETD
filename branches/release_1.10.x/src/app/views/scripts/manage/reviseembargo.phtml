@@ -1,4 +1,6 @@
-<form name="reviseembargo" method="post"
+<?= $this->javascript("util.js"); ?>
+
+<form name="reviseembargo" method="post" onsubmit="disableButton('reviseembargo')"
    action="<?= $this->url(array("action" => "updateembargo"))?>">
 <h1><?= $this->formLabel("message", "Updating the embargo"); ?>   </h1>
 
@@ -15,5 +17,5 @@
 <?= $this->formText("newdate", "", array("size" => 20)); ?>
 </b>
 </p>
-  <?= $this->formSubmit("reviseembargo", "Revise", array("onClick" => "this.disabled=true;")); ?>
+  <?= $this->formSubmit("reviseembargo", "Revise"); ?>
 </form>

@@ -1,3 +1,4 @@
+<?= $this->javascript("util.js"); ?>
 <div id="files">
     <h2>Files</h2>
 <? if ($this->etd->isEmbargoed() && $this->etd->mods->isEmbargoRequested(etd_mods::EMBARGO_FILES)): ?>
@@ -70,7 +71,7 @@
        $this->acl->isAllowed($this->role, $this->etd->supplements[0], "edit") ): ?>
      <h3>Replace a File</h3>
      <p>If you would like to replace one of your files, upload the new version here.</p>
-  <form name="updatefile" method="post" enctype="multipart/form-data"
+  <form name="updatefile" method="post" enctype="multipart/form-data" onsubmit="disableButton('Replace')"
   action="<?= $this->url(array("controller" => "file", "action" => "update",
   "etd" => $this->etd->pid), '', true, false)?>">
   <? $file_opts = array();  /* build an array of files and pids for select box */
@@ -86,7 +87,7 @@
 <? /* NOTE: for some reason formFile does not detect that doctype is xhtml;
     setting again here to force it to produce valid xhtml output (required for Xforms) */ ?>
   with <? $this->doctype('XHTML1_STRICT') ?><?= $this->formFile("file"); ?>
-   <?= $this->formSubmit("Replace", "Replace >", array("class" => "button", "style" => "margin-left:10px", "onClick" => "this.disabled=true;")); ?>
+   <?= $this->formSubmit("Replace", "Replace >", array("class" => "button", "style" => "margin-left:10px")); ?>
   </p>
 </form>
   <? endif ?>
