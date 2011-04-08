@@ -1,6 +1,6 @@
 <?= $this->javascript("util.js"); ?>
 <? if (! in_array($this->browserInfo->parent, $this->supported_browsers)
-       && ! preg_match("|Firefox/3\.|", $_SERVER["HTTP_USER_AGENT"])): ?>
+       && ! preg_match("`Firefox/2\.|Firefox/3\.|Firefox/4\.`", $_SERVER["HTTP_USER_AGENT"])): ?>
 <p class="warning">
    <span id="exclamation">!</span>
    Your browser
