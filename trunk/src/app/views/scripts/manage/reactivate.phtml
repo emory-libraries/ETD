@@ -1,3 +1,5 @@
+<?= $this->javascript("util.js"); ?>
+
 <h1>Reactivate inactive Record</h1>
 
 <p><b>Title:</b> <?= $this->etd->title() ?><br/>
@@ -5,7 +7,7 @@
 <b>Status before being marked inactive:</b> <?= $this->previous_status ?>
 </p>
 
-<form name="reactivate" method="post"
+<form name="reactivate" method="post" onsubmit="disableButton('reactivate')"
    action="<?= $this->url(array("action" => "do-reactivate"))?>">
 <?= $this->formHidden("pid", $this->etd->pid()) ?>
 
@@ -15,5 +17,5 @@ Reactivate record with status:
 <p><?= $this->formLabel("reason", "Reason for reactivation: "); ?>   
 <?= $this->formText("reason", "", array("size" => 50)); ?></p>
 
-  <?= $this->formSubmit("reactivate", "Reactivate", array("onClick" => "this.disabled=true;")); ?>
+  <?= $this->formSubmit("reactivate", "Reactivate"); ?>
 </form>

@@ -1,3 +1,4 @@
+<?= $this->javascript("util.js"); ?>
 <? include "js/FCKeditor/fckeditor.php"; ?>
 
 <h1>Edit <?= $this->mode_label ?></h1>
@@ -15,7 +16,7 @@ paste from Word tool <?= $this->img("images/fck_pasteword.gif") ?>.  If special
 characters are causing problems, please use the paste as plain text tool
 <?= $this->img("images/fck_pastetext.gif") ?>.
 
-<form name="edit" method="post"
+<form name="edit" method="post" onsubmit="disableButton('Save')"
     action="<?= $this->url(array("action" => "save" . ucfirst($this->mode), "mode" => $this->mode))?>">
 <? /* configuration options for FCK editor */ 
 $editor_opts = array("config" => (string)$this->linkTo("js/FCKconfig.js"),
@@ -33,5 +34,5 @@ if ($this->current_user->role == "superuser" || $this->current_user->role == "te
 
 <?= $this->FckEditor("edit_content", (string)$this->edit_content, $editor_opts) ?>
 
-<?= $this->formSubmit("Save", "Save", array("class" => "button", "onClick" => "this.disabled=true;")); ?>
+<?= $this->formSubmit("Save", "Save", array("class" => "button")); ?>
 </form>

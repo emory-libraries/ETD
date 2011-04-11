@@ -1,5 +1,6 @@
+<?= $this->javascript("util.js"); ?>
 <? if (! in_array($this->browserInfo->parent, $this->supported_browsers)
-       && ! preg_match("|Firefox/3\.|", $_SERVER["HTTP_USER_AGENT"])): ?>
+       && ! preg_match("`Firefox/2\.|Firefox/3\.|Firefox/4\.`", $_SERVER["HTTP_USER_AGENT"])): ?>
 <p class="warning">
    <span id="exclamation">!</span>
    Your browser
@@ -91,7 +92,7 @@ function validate() {
     <p>Please answer the follow questions before you submit your document.</p>
 
 <form name="submission" id="submission" method="post" enctype="multipart/form-data"
-    action="<?= $this->url(array("action" => "processpdf"))?>">
+    action="<?= $this->url(array("action" => "processpdf"))?>" onsubmit="disableButton('Begin')">
 
 <ol>
  <li><p>Have you included any copyrighted material in your thesis or dissertation?</p>
@@ -178,7 +179,7 @@ later in the process, if necessary.</p>
 <?//= $this->formHidden("MAX_FILE_SIZE", "3000000"); ?> 
   <p><b>Your PDF</b> <?= $this->formFile("pdf"); ?>
 <?= $this->formSubmit("Begin", "Begin >", array("class" => "button", "style" => "margin-left:10px",
-						"onClick" => "this.disabled=true; Element.show('processing')")); ?>
+						"onClick" => "Element.show('processing')")); ?>
 
 <span id="processing" style="display:none">Processing ... <span class="note">(this may take a moment)</span></span>
 </p>
@@ -202,13 +203,13 @@ by using the "edit" links.  Green check marks <?= $ok ?> will appear in the Subm
 
 <? if ($this->env == "development"): ?>
 
-<form name="submission" method="post" enctype="multipart/form-data"
-    action="<?= $this->url(array("action" => "debugpdf"))?>">
+<form name="submission" method="post" enctype="multipart/form-data" onsubmit="disableButton('Debug')"
+    action="<?= $this->url(array("action" => "debugpdf"))?> ">
 
    <p>Test information extracted from a PDF (development only)</p>
 
 <?//= $this->formHidden("MAX_FILE_SIZE", "3000000"); ?> 
-  <p><?= $this->formFile("pdf"); ?> <?= $this->formSubmit("Debug", "Debug >", array("onClick" => "this.disabled=true;", "class" => "submitlink", "style" => "padding-left:10px")); ?></p>
+  <p><?= $this->formFile("pdf"); ?> <?= $this->formSubmit("Debug", "Debug >", array("class" => "submitlink", "style" => "padding-left:10px")); ?></p>
 
 </form>
 <? endif ?>

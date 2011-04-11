@@ -1,3 +1,5 @@
+<?= $this->javascript("util.js"); ?>
+
 <h1>Add file to record</h1>
 
 <p><b><?= $this->etd->title() ?></b></p>
@@ -18,7 +20,7 @@ downloadable.</p>
 audio or video, computer animation or other materials as an appendage
 to your document.</p>
 
-<form name="addfile" method="post" enctype="multipart/form-data"
+<form name="addfile" method="post" enctype="multipart/form-data" onsubmit="disableButton('Upload')"
     action="<?= $this->url(array("action" => "new", "etd" => $this->pid))?>">
 
    <p><b>Type of file to add:</b></p>
@@ -30,5 +32,5 @@ to your document.</p>
   <p><?= $this->formFile("file"); ?></p>
 
   
-  <?= $this->formSubmit("Upload", "Upload", array("onClick" => "this.disabled=true;")); ?>
+  <?= $this->formSubmit("Upload", "Upload"); ?>
 </form>

@@ -1,6 +1,8 @@
 <? /* Process PDF page - if processing succeeded, user should be
     redirected to main record view to start editing.
     Landing on this page means some kind of error occurred.   */ ?>
+<?= $this->javascript("util.js"); ?>
+
 <h1>Processing PDF</h1>
     
 <p>There was an error processing your PDF.</p>
@@ -46,7 +48,7 @@ the suggestions above, and begin the process again; or </p>
 your PDF.  This will require that you enter any information not detected by the 
 ETD system manually. To proceed with the manual process, upload your file below.  </p>
 
-<form name="submission" method="post" enctype="multipart/form-data"
+<form name="submission" method="post" enctype="multipart/form-data" onsubmit="disableButton('Proceed')"
     action="<?= $this->url(array("action" => "processpdf"))?>">
 
   <? #Hidden form fields for screening questions ?>
@@ -59,7 +61,7 @@ ETD system manually. To proceed with the manual process, upload your file below.
   <?= $this->formHidden("force", "create"); ?>
   <p><b>Your PDF</b> <?= $this->formFile("pdf"); ?>
 <?= $this->formSubmit("Proceed", "Proceed >", array("class" => "button", "style" => "margin-left:10px",
-						"onClick" =>  "this.disabled=true; Element.show('processing')")); ?>
+						"onClick" =>  "Element.show('processing')")); ?>
 
 <span id="processing" style="display:none">Processing ... <span class="note">(this may take a moment)</span></span>
 </p>
