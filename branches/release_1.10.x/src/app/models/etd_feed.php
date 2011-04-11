@@ -35,31 +35,31 @@ class Etd_Feed_Builder implements Zend_Feed_Builder_Interface {
     $request = $front->getRequest();
     $baseurl = ($request->getServer("HTTPS") == "") ? "http://" : "https://";
     $baseurl .=  $request->getServer("SERVER_NAME") . $request->getBaseUrl() .
-      "/view/record/pid/";	// FIXME: use a helper somehow?
+      "/view/record/pid/";  // FIXME: use a helper somehow?
 
 
     $this->entries = array();
     foreach ($etds as $etd) { 
       $link = $baseurl . $etd->pid();
-      $entry = new Zend_Feed_Builder_Entry($etd->title(),			// plain-text title
-					   $link,			// link within site
-					   $etd->_abstract()	// brief non-html description
-					   );
-      $entry->guid = $etd->ark();		// globally unique identifier (ark)	no way to set isPermaLink="true" ?
+      $entry = new Zend_Feed_Builder_Entry($etd->title(),     // plain-text title
+             $link,     // link within site
+             $etd->_abstract()  // brief non-html description
+             );
+      $entry->guid = $etd->ark();   // globally unique identifier (ark) no way to set isPermaLink="true" ?
       $entry->setLastUpdate(strtotime($etd->pubdate()));
-      $entry->author = $etd->author();	// adds but doesn't output
+      $entry->author = $etd->author();  // adds but doesn't output
 
       // add program, research fields, and keywords as categories (appropriate/useful?)
       if ($etd->program())
-	$entry->addCategory(array("term" => htmlentities($etd->program()),
-				  "scheme" => "Program"));
+  $entry->addCategory(array("term" => $etd->program(),
+          "scheme" => "Program"));
       foreach ($etd->researchfields() as $subject) {
-	$entry->addCategory(array("term" => htmlentities($subject),
-				  "scheme" => "ProQuest Research Field"));
+  $entry->addCategory(array("term" => $subject,
+          "scheme" => "ProQuest Research Field"));
       }
       foreach ($etd->keywords() as $subject) {
-	$entry->addCategory(array("term" => htmlentities($subject),
-				  "scheme" => "keyword"));
+  $entry->addCategory(array("term" => $subject,
+          "scheme" => "keyword"));
       }
 
       // add pdf ark as an enclosure ? (if available) -- needs url, length in bytes, and mime type
