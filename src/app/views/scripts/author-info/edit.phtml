@@ -1,3 +1,4 @@
+<?= $this->javascript("util.js"); ?>
 <?= $this->javascript("contact.js"); ?>
 
 <? //Div used to display validation errors ?>
@@ -33,7 +34,8 @@ information will not be available publicly or shared with anyone
 without your consent.</p>
 
 
-<form name="contact-info" action="<?= $this->url(array("controller" => "authorInfo", "action" => "save"), '', true); ?>" method="post">
+<form name="contact-info" action="<?= $this->url(array("controller" => "authorInfo", "action" => "save"), '', true); ?>"
+onsubmit="disableButton('Save')" method="post">
 
 <?= $this->formHidden("pid", $this->pid, null); ?>
 <?= $this->formHidden("etd", $this->etd_pid, null); ?>
@@ -204,7 +206,7 @@ netid
 <br/>
 <?= $this->authorInfo->mads->netid; ?>
 <br/>
-<?= $this->formSubmit("Save", "Save", array("class" => "button", "onClick" => "this.disabled=true;")); ?>
+<?= $this->formSubmit("Save", "Save", array("class" => "button")); ?>
 <br/>
 </form>
 

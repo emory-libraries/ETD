@@ -1,3 +1,4 @@
+<?= $this->javascript("util.js"); ?>
 <h1>Programs Hierarchy
  <?= $this->section != "programs" ? ' (' . $this->section . ')' : '' ?></h1>
 
@@ -24,7 +25,8 @@ if ($this->acl->isAllowed($this->current_user, "programs", "edit")) {
   <?= $this->javascript("projax/js/scriptaculous.js"); ?>
   <?= $this->javascript("projax/js/prototypeUtils.js"); ?>
   
-  <form action="<?= $this->url(array("action" => "save")) ?>" method="post" name="programtree">
+  <form action="<?= $this->url(array("action" => "save")) ?>" method="post" name="programtree" 
+onsubmit="disableButton('submit')">
 <? endif ?>
   
 <ul class="tree">
@@ -73,7 +75,7 @@ function hdlOff(id) {
 
 </script>
 
-<?= $this->formSubmit("submit", "save", array("onClick" => "this.disabled=true;")) ?>
+<?= $this->formSubmit("submit", "save") ?>
 </form>
 <? endif ?>
 

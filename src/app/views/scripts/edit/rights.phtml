@@ -1,3 +1,4 @@
+<?= $this->javascript("util.js"); ?>
 <h1>Author Rights and Access Restrictions</h1>
 <p><b><?= $this->etd->title() ?></b></p>
 
@@ -20,7 +21,8 @@ function pqDetails() {  /* show/hide PQ copyright question based on PQ submit ch
 
 <? print_r($this->err) ?>
 
-<form id="rightsForm" action="<?= $this->url(array("action" => "save-rights"))?>" method="post">
+<form id="rightsForm" action="<?= $this->url(array("action" => "save-rights"))?>" method="post"
+onsubmit="disableButton('Save')">
    
 <p>Indicate below whether you and your Committee Chair / Thesis Adviser are requesting that
 access to the full text of your thesis or dissertation be restricted
@@ -115,7 +117,7 @@ paper ETD Submission Agreement Form which you will present to
 
 <hr/>
 
-<?= $this->formSubmit("Save", "Save >", array("class" => "button", "onClick" => "this.disabled=true;")); ?>
+<?= $this->formSubmit("Save", "Save >", array("class" => "button")); ?>
 
 </form>
 

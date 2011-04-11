@@ -3,6 +3,7 @@
 */?>
 <?= $this->javascript("projax/js/prototype.js"); ?>
 <?= $this->javascript("projax/js/scriptaculous.js"); ?>
+<?= $this->javascript("util.js"); ?>
 <? //php ajax/scriptaculous
 include("projax/projax.php");
 $projax = new Projax(); ?>
@@ -48,7 +49,8 @@ $label = $this->collection->label;
 $hasMembers = (count($this->collection->members) != 0);
 ?>
 
-<form method="post" id="agency_form"  action="<?= $this->url(array("action" => "savePartneringagency"))?>">
+<form method="post" id="agency_form"  action="<?= $this->url(array("action" => "savePartneringagency"))?>"
+onsubmit="disableButton('save')">
 <br/>
   <ul id="user_fields">
   <? if (isset($this->etd->mods->partneringagencies[0]) &&
@@ -61,7 +63,7 @@ $hasMembers = (count($this->collection->members) != 0);
     <? endforeach ?>
   <? endif ?> 
   </ul>
-  <?= $this->formSubmit("save", "save", array("class" => "button", "onClick" => "this.disabled=true;", "id"=> "save_button")); ?>
+  <?= $this->formSubmit("save", "save", array("class" => "button", "id"=> "save_button")); ?>
 </form>
 <br/> 
 

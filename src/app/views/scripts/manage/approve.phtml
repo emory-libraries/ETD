@@ -1,3 +1,5 @@
+<?= $this->javascript("util.js"); ?>
+
 <? //section used to display validation errors ?>
 <? if(isset($this->error)): ?>
     <p class="warning">
@@ -14,7 +16,7 @@
   <b>Access restrictions requested by student?</b> <?= $this->etd->mods->embargo_request ?>
 </p>
 
-<form name="approve" method="post"
+<form name="approve" method="post" onsubmit="disableButton('approve')"
    action="<?= $this->url(array("action" => "doApprove"))?>">
   <?= $this->formHidden("pid", $this->etd->pid()) ?>
   <p>The author has requested, and <?= $this->etd->admin_agent ?> has approved
@@ -26,5 +28,5 @@
 		     "6 years" => "6 years"); ?>
   <?= $this->formSelect("embargo", "", "", $durations); ?></p>
 
-  <?= $this->formSubmit("approve", "approve >", array("class" => "button", "onClick" => "this.disabled=true;")); ?>
+  <?= $this->formSubmit("approve", "approve >", array("class" => "button")); ?>
 </form>

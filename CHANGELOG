@@ -4,6 +4,8 @@ Version 1.10.2 - April 2011 (enhancement)
 -------------
 * Modified config file schools.xml to allow a new admin asst departmental access.
 * The gsearch index has changed to now use risearch to reduce the log output.
+* Fixed IE Javascript issues
+* Made browser detection recognize Firefox 4
 
 Version 1.10.1 - March 2011 (bugfix)
 -------------
