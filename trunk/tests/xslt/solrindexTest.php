@@ -5,41 +5,59 @@ class TestSolrIndexXslt extends UnitTestCase {
   
   function __construct() {
     
+  /* How this test works:
+   * The etdFoxmlToSolr.xslt stylesheet is tested using saxonb.
+   * The saxonb applies the etdFoxmlToSolr.xslt stylesheet to the file 
+   * of the exported xml object.  The ingested etd pid must exist because 
+   * the xslt will query RIsearch to determine content models and pull 
+   * managed MODS and RELS-EXT datastreams from Fedora.
+   */
+  /* NOTE: In order for this test to work, the fedora test etd policy 
+   * permit-etd-mods-relsext-from-localhost.xml needs to be updated to 
+   * include the testing server IP address in the condition clause.  
+   */  
+  
+  /* If you want to manually run saxonb, (fedora test settings in fedora.xml), 
+   * 1. Comment out the code in _destruct, save this file.
+   * 2. Run this test from the browser: 
+   *    http://{hostname}/tests/xslt/solrindexTest.php
+   * 3. When finished, open a command prompt:
+   *    cd /tests/xslt
+   *    /usr/local/bin/saxonb-xslt -xsl:../../src/public/xslt/etdFoxmlToSolr.xslt -s:/tmp/etd/fedora-etd-xslt-test.xml -warnings:silent REPOSITORYURL='http://dev11.library.emory.edu:8380/fedora/'
+   */
     $this->config = Zend_Registry::get("config");
     $this->saxonb = $this->config->saxonb_xslt;
     $this->fedora = Zend_Registry::get("fedora");
-    $fedora_cfg = Zend_Registry::get('fedora-config'); 
-    $school_cfg = Zend_Registry::get('schools-config');         
-    
-    // Clean up any old fedora temp directories
-    //$this->deleteAllTmpFedoraDirs(); 
-        
-    // make unique tmp dir based on time, trailing slash is required
-    $this->tmpdir = "/tmp/fedora" . strftime("%G%m%d%H%M%S") . "/";
-    mkdir($this->tmpdir, 0777, true);
-    // Create the temporary fixture filename.
-    $this->etdbasefilename = "testetd-xsltetd";    
-    $this->tmpfile = $this->tmpdir . $this->etdbasefilename . "-tmp.xml";    
+    $this->fedora_cfg = Zend_Registry::get('fedora-config'); 
+    $this->school_cfg = Zend_Registry::get('schools-config');         
     
     // test directory must be passed to xslt processor as repo url parameter
-    $repository_url = "http://" . $fedora_cfg->server . ":" . $fedora_cfg->nonssl_port . "/fedora/"; 
+    $repository_url = "http://" . $this->fedora_cfg->server . ":" . $this->fedora_cfg->nonssl_port . "/fedora/"; 
     $this->xsl_param = "REPOSITORYURL='" . $repository_url . "' "; 
     
     // path to xslt
     $this->xsl = "../../src/public/xslt/etdFoxmlToSolr.xslt";    
     
-    $this->etdpid = $this->fedora->getNextPid($fedora_cfg->pidspace, 1);               
-    $this->create_tmp_fixture($this->etdpid, $this->etdbasefilename);      
-
-    // Purge test pids if they already exist
-    try { $this->fedora->purge($this->etdpid, "removing test etd");  } catch (Exception $e) {}    
+    // Dynamically create a temporary pid.
+    $this->etdpid = $this->fedora->getNextPid($this->fedora_cfg->pidspace, 1); ;
+        
+    // Create the temporary fixture file name
+    $this->tmpfile = $this->config->tmpdir . "/fedora-etd-xslt-test.xml";  
+  }
+  
+  function setUp() { // delete tmp file prior to test if it exists.
+    if (file_exists($this->tmpfile)) unlink($this->tmpfile);
+        
+    // Purge test pid and/or temporary fixture if it already exists.
+    try { $this->fedora->purge($this->etdpid, "removing test etd");  } catch (Exception $e) {}      
     
     // Create an ETD   
-    $this->etd = new etd($school_cfg->graduate_school);
-    $this->etd->pid = $this->etdpid;
-    $this->etd->title = "Xslt Test Title"; 
+    $this->etd = new etd($this->school_cfg->graduate_school);
+    $this->etd->pid = $this->etdpid; 
+    $this->etd->title = "Why I Like Cheese"; 
     $this->etd->owner = "mmouse";    
-    $this->etd->updateEmbargo("2018-05-30", "embargo message");  
+    $this->etd->updateEmbargo("2018-05-30", "embargo message"); 
+    $this->etd->mods->title = "MODS Xslt Test Title"; 
     $this->etd->mods->embargo_end = "2016-05-30";
     $this->etd->mods->genre = "Dissertation";   
     $this->etd->mods->embargo = "6 months";
@@ -50,40 +68,40 @@ class TestSolrIndexXslt extends UnitTestCase {
     $this->etd->mods->abstract = "Gouda or Cheddar?";
     $this->etd->mods->addPartneringAgency("Georgia state or local health department");  
     $this->etd->rels_ext->program = "Disney";
-    $this->etd->ingest("test etd xslt");
-    // To manually test this pid
-    // /usr/local/bin/saxonb-xslt -xsl:../../src/public/xslt/etdFoxmlToSolr.xslt -s:../fixtures/testetd-42.xml REPOSITORYURL='http://dev11.library.emory.edu:8380/fedora/'
   }
   
-  function __destruct() {
-    // Delete the temporary fixture file
-    $this->delDir($this->tmpdir); 
-       
-    // Purge test pids       
+  function tearDown() { 
+    if (file_exists($this->tmpfile)) unlink($this->tmpfile);
     try { $this->fedora->purge($this->etdpid, "removing test etd");  } catch (Exception $e) {}     
   }
+  
   
   function test_one() {
     $this->assertIsA($this->etd, "etd");
   } 
      
-  function test_etdToFoxml() {
-    /* NOTE: In order for this test to work, the fedora test etd policy 
-     * permit-etd-mods-relsext-from-localhost.xml needs to be updated to 
-     * include the testing server IP address in the condition clause.  
-     */
-
+  function test_activeEtdToFoxml() {
+    
+    // Ingest the Active pid into fedora
+    $this->etd->state = "Active";    
+    $this->etd->ingest("test etd xslt");
+    
+    // Get the XML of this object, and save to a file.     
+    $this->create_tmp_fixture($this->tmpfile);
+    
     $result = $this->transform($this->tmpfile);
-
+    
     $this->assertTrue($result, "xsl transform returns data");
     $this->assertPattern("|<add>.+</add>|s", $result, "xsl result is a solr add document");
     $this->assertPattern('|<field name="PID">' . $this->etdpid . '</field>|', $result,
          "pid indexed in field PID");
+    $this->assertPattern('|<field name="state">Active</field>|', $result,
+         "state should be active");          
     $this->assertPattern('|<field name="label">Why I Like Cheese</field>|', $result,
          "object label indexed");
     $this->assertPattern('|<field name="ownerId">mmouse</field>|', $result,
          "owner id indexed");
-    $this->assertPattern('|<field name="title">Xslt Test Title</field>|', $result,
+    $this->assertPattern('|<field name="title">MODS Xslt Test Title</field>|', $result,
          "title indexed");
     $this->assertPattern('|<field name="document_type">Dissertation</field>|', $result,
          "genre indexed as document_type");
@@ -109,103 +127,54 @@ class TestSolrIndexXslt extends UnitTestCase {
          "content model indexed");
     $this->assertPattern('|<field name="collection">emory-control:ETD-GradSchool-collection</field>|', $result,
          "collection pid indexed");
-  $this->assertNoPattern('|<field name="dateIssued">20080530</field>|', $result,
+    $this->assertNoPattern('|<field name="dateIssued">20080530</field>|', $result,
            "dateIssued indexed in solr date-range format");         
     $this->assertPattern('|<field name="partneringagencies">Georgia state or local health department</field>|', $result,
          "partneringagencies indexed");
     $this->assertNoPattern('|<field name="issuance">|', $result,
          "originInfo/issuance is not indexed");
   }
-
-  // test new inactive behavior
-  function test_etdToFoxml_inactiveEtd() {
-    $xml = new DOMDocument();
-    $xml->load($this->tmpfile);
-    $foxml = new foxml($xml);
-    $foxml->state = "Inactive";
-
-    $result = $this->transformDom($foxml->dom);
-    $this->assertPattern("|<add>.+</add>|s", $result,
-           "xsl result for inactive etd is a solr add document");
-  }
   
-  // test non-etd - should not be indexed
-  function test_etdToFoxml_nonEtd() {
-    $result = $this->transform("../fixtures/etdfile.managed.xml");
-    $this->assertNoPattern("|<add>.+</add>|s", $result,
-         "xsl result for non-etd is NOT a solr add document");
-  }
-  
-  function transformDom($dom) {
-    $tmpfile = tempnam($this->config->tmpdir, "solrXsl-");
-    file_put_contents($tmpfile, $dom->saveXML());
-    $output = $this->transform($tmpfile);
-    unlink($tmpfile);
-    return $output;
-  }
+  function test_inactiveEtdToFoxml() {
+    
+    // Ingest the Active pid into fedora
+    $this->etd->state = "Inactive";    
+    $this->etd->ingest("test etd xslt");
+    
+    // Get the XML of this object, and save to a file.     
+    $this->create_tmp_fixture($this->tmpfile);
+    
+    $result = $this->transform($this->tmpfile);
+    
+    $this->assertTrue($result, "xsl transform returns data");
+    $this->assertPattern("|<add>.+</add>|s", $result, "xsl result is a solr add document");
+    $this->assertPattern('|<field name="PID">' . $this->etdpid . '</field>|', $result,
+         "pid indexed in field PID");
+    $this->assertPattern('|<field name="state">Inactive</field>|', $result,
+         "state should be active");          
+    $this->assertPattern('|<field name="label">Why I Like Cheese</field>|', $result,
+         "object label indexed");
+    $this->assertPattern('|<field name="ownerId">mmouse</field>|', $result,
+         "owner id indexed");
+    $this->assertPattern('|<field name="title">MODS Xslt Test Title</field>|', $result,
+         "title indexed");
+    $this->assertPattern('|<field name="document_type">Dissertation</field>|', $result,
+         "genre indexed as document_type");
+  }  
 
+  
   function transform($xmlfile) {
     $cmd = $this->saxonb . " -xsl:" . $this->xsl . " -s:" . $xmlfile . " -warnings:silent " .  $this->xsl_param;
     return shell_exec($cmd);
   }
  
-   function create_tmp_fixture($pid_tmp, $filename) {
-    $fh_orig_name = "../fixtures/" . $filename . ".xml";    
-    $fh_orig = fopen($fh_orig_name, "r");
-    $fh_tmp = fopen($this->tmpfile, "w");
-        
-    $pid_orig = "testetd:TMP";    
-
-    if ($fh_orig) {
-      while (!feof($fh_orig)) // Loop til end of file.
-      {
-        $buffer = fgets($fh_orig, 4096); // Read a line.
-        $text = str_replace($pid_orig, $pid_tmp, $buffer);
-        fwrite($fh_tmp, $text);
-      }
-    }
-    fclose($fh_orig); // Close the file.
-    fclose($fh_tmp); // Close the file.     
-    chmod($this->tmpfile, 0777);
-  }
-  
-  function deleteAllTmpFedoraDirs () 
-  {
-    $handler = opendir("/tmp/");
-    // open directory and walk through the filenames    
-    while ($file = readdir($handler)) {
-      // if file isn't this directory or its parent, add it to the results
-      if ($file != "." && $file != "..") {
-        $pos = strpos($file, "fedora");        
-        if ($pos === false) {}
-        elseif ($pos == 0) {
-          $this->delDir("/tmp/" . $file . "/");       
-        }
-      }
-    }
-    closedir($handler);
-    return;
-  }
-  
-  //function to recursivly delete a directory
-  function delDir($dir){    
-    if ($handle = opendir($dir))
-    { 
-      while (false !== ($file = readdir($handle))) {        
-        if ($file != "." && $file != "..") {
-          if(is_dir($dir.$file))
-          {             
-            if(!@rmdir($dir.$file)) // Empty directory? Remove it
-            {
-              $this->delDir($dir.$file.'/'); // Not empty? Delete the files inside it
-            }
-          }
-          else @unlink($dir.$file);
-        }
-      }
-      closedir($handle);
-      @rmdir($dir);
-    }
+  function create_tmp_fixture($filename) {
+    // Create a tmp file that contains the xml content of the etd 
+    // fedora object that was created in the construct.
+    $handle = fopen($filename, "w");
+    fwrite($handle, $this->fedora->getXml($this->etdpid));
+    fclose($handle); // Close the file.     
+    chmod($filename, 0744);
   }
 }
 
