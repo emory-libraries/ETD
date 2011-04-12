@@ -42,7 +42,8 @@ class TestSolrIndexXslt extends UnitTestCase {
     $this->etdpid = $this->fedora->getNextPid($this->fedora_cfg->pidspace, 1); ;
         
     // Create the temporary fixture file name
-    $this->tmpfile = $this->config->tmpdir . "/fedora-etd-xslt-test.xml";  
+    $this->tmpfile = $this->config->tmpdir . "/fedora-etd-xslt-test.xml";
+    if (!file_exists($this->config->tmpdir))  mkdir($this->config->tmpdir, 0777, true);
   }
   
   function setUp() { // delete tmp file prior to test if it exists.
@@ -75,10 +76,9 @@ class TestSolrIndexXslt extends UnitTestCase {
     try { $this->fedora->purge($this->etdpid, "removing test etd");  } catch (Exception $e) {}     
   }
   
-  
-  function test_one() {
-    $this->assertIsA($this->etd, "etd");
-  } 
+  function _destruct() { 
+    rmdir($this->config->tmpdir);   
+  }  
      
   function test_activeEtdToFoxml() {
     
