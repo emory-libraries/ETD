@@ -1,18 +1,22 @@
 CHANGE LOG 
 =================
+Version 1.10.3 - April 2011 (bugfix)
+-------------------------------------
+* Created a local copy of cs-xacml-schema-policy-01.xsd.
+
 Version 1.10.2 - April 2011 (enhancement)
--------------
+-----------------------------------------
 * Modified config file schools.xml to allow a new admin asst departmental access.
 * The gsearch index has changed to now use risearch to reduce the log output.
 * Fixed IE Javascript issues
 * Made browser detection recognize Firefox 4
 
 Version 1.10.1 - March 2011 (bugfix)
--------------
+------------------------------------
 * Modified admin checking to allow multiple department names
 
 Version 1.10 - Megagnat, March 2011
--------------
+-----------------------------------
 * RSPH authors may select partnering agencies from a controlled vocabulary
 * A developer can automatically create a fedora collection for an object that requires a SKOS collection
 * When entering committee members, the auto populate feature filters the text appropriately
