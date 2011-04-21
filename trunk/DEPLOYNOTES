@@ -27,6 +27,9 @@ Site webroot should be pointed at src/public
 UPGRADE NOTES
 =================
 
+Version 1.10.3
+--------------
+* Update the svn repository.
 Version 1.10.2
 --------------
 * Update the svn repository.
