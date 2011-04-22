@@ -32,12 +32,14 @@ class XacmlPolicy extends foxmlDatastreamAbstract {
 
   
   public function __construct($dom=null, $xpath = null) {
+    
     // the schema is now stored locally, as the public instance is not available.    
     $front  = Zend_Controller_Front::getInstance();
     $request = $front->getRequest();
     $baseurl = ($request->getServer("HTTPS") == "") ? "http://" : "https://";
     $baseurl .=  $request->getServer("SERVER_NAME") . $request->getBaseUrl(); 
     $this->schema = $baseurl . "/schemas/cs-xacml-schema-policy-01.xsd";     
+  
     if (is_null($dom)) {
       $dom = $this->construct_from_template();
     }
