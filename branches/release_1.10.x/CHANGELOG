@@ -5,9 +5,9 @@ Version 1.10.4 - April 2011 (add proxy)
 * Proxying HTTP requests for XML schemas used in validation is now
   supported in XmlObject.  If you define an appropriate HTTP_PROXY
   environment variable, it will be used for schema validation.  To set
-  this via PHP code, use something like this::
+  this via apache conf, use something like this::
 
-  putenv('HTTP_PROXY=tcp://my.proxy.server:3128/');
+  SetEnv HTTP_PROXY tcp://my.proxy.server:3128/
 
 Version 1.10.3 - April 2011 (bugfix)
 -------------------------------------
