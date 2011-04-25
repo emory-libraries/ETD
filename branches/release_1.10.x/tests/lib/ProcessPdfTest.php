@@ -2,7 +2,7 @@
 require_once("../bootstrap.php");
 
 class TestProcessPdf extends UnitTestCase {
-    private $processpdf;
+  private $processpdf;
 
   function setUp() {
     $this->processpdf = new Etd_Controller_Action_Helper_ProcessPDF();
@@ -22,7 +22,7 @@ class TestProcessPdf extends UnitTestCase {
     // find circulation agreement - by boilerplate content
     $dom = new DOMDocument();
     $dom->loadXML("<div>I agree ... that the library shall make it
- 	available for inspection and circulation ...</div>");
+      available for inspection and circulation ...</div>");
     $this->processpdf->initialize_fields();
     $this->processpdf->process_page($dom);
     $this->assertEqual("signature", $this->processpdf->next);
@@ -31,9 +31,9 @@ class TestProcessPdf extends UnitTestCase {
     $this->processpdf->next = "";
     $dom = new DOMDocument();
     $dom->loadXML("<div>Table of Contents
-1. chapter
-2. another chapter
-3. <i>conclusion</i></div>");
+      1. chapter
+      2. another chapter
+      3. <i>conclusion</i></div>");
     $this->processpdf->process_page($dom);
     $this->assertPattern("/2. another chapter/", $this->processpdf->fields['toc']);
     // formatting preserved
@@ -46,10 +46,10 @@ class TestProcessPdf extends UnitTestCase {
     // title is expected to be followed with "by" or "By"
     // advisor/committee names expected on line before label (one allowed pattern)
     $dom->loadXML("<div><br/>Dissertation Title<br/>by<br/>Graduate Student<br/>
-	Jane Doe<br/>Advisor<br/>
-	George Jetson<br/> Reader<br/>
-	John Smith, Ph.D.<br/> Committee Member<br/>
-	Fred Jones<br/>  Committee Member</div>");
+      Jane Doe<br/>Advisor<br/>
+      George Jetson<br/> Reader<br/>
+      John Smith, Ph.D.<br/> Committee Member<br/>
+      Fred Jones<br/>  Committee Member</div>");
     $this->processpdf->processSignaturePage($dom);
     $this->assertEqual("Dissertation Title", $this->processpdf->fields['title']);
     $this->assertEqual("Jane Doe", $this->processpdf->fields['advisor'][0]);
@@ -59,22 +59,41 @@ class TestProcessPdf extends UnitTestCase {
 
     $this->processpdf->initialize_fields();
     $dom->loadXML("<div>Yet Another Thesis (YAT)<br/>By<br/>A. Grad. Student<br/>
-	Jane Smith, Advisor<br/>
-	Marsha Brady, Reader<br/>
-	Joe Smitt, Ph.D., Committee Member<br/>
-	Freddie Prinze Jr., Committee Member<br/></div>");
+      Jane Smith, Advisor<br/>
+      Marsha Brady, Reader<br/>
+      Joe Smitt, Ph.D., Committee Member<br/>
+      Freddie Prinze Jr., Committee Member<br/></div>");
     $this->processpdf->processSignaturePage($dom);
     $this->assertEqual("Yet Another Thesis (YAT)", $this->processpdf->fields['title']);
     $this->assertEqual("Jane Smith", $this->processpdf->fields['advisor'][0]);
     $this->assertEqual("Marsha Brady", $this->processpdf->fields['committee'][0]);
     $this->assertEqual("Joe Smitt", $this->processpdf->fields['committee'][1]);
     $this->assertEqual("Freddie Prinze Jr.", $this->processpdf->fields['committee'][2]);
+    
+    // Test for Field/Faculty/Thesis Advisor
+    $this->processpdf->initialize_fields();
+    $dom->loadXML("<div>Da Da Dissertation<br/>By<br/>B. Grad. Student<br/>
+      Donald Duck<br/>
+      Advisor<br/>
+      Daffy Duck<br/>
+      Faculty Advisor<br/>
+      David Duck<br/>
+      Thesis Advisor<br/>
+      Mickey Mouse<br/>
+      Field Advisor<br/></div>");
+    $this->processpdf->processSignaturePage($dom);
+    $this->assertEqual("Da Da Dissertation", $this->processpdf->fields['title']);
+    $this->assertEqual(4, count($this->processpdf->fields['advisor']));
+    $this->assertEqual("Donald Duck", $this->processpdf->fields['advisor'][0]);
+    $this->assertEqual("Daffy Duck", $this->processpdf->fields['advisor'][1]);
+    $this->assertEqual("David Duck", $this->processpdf->fields['advisor'][2]);        
+    $this->assertEqual("Mickey Mouse", $this->processpdf->fields['advisor'][3]);
 
     // title on same line as "by"
     $this->processpdf->initialize_fields();
     $dom = new DOMDocument();
     $dom->loadXML("<div>Properties and Synthesis of Red-Ox Active Proline Mimics By <br/>
-John H. Shugart <br/></div>");
+      John H. Shugart <br/></div>");
     $this->processpdf->processSignaturePage($dom);
     $this->assertPattern("|Properties and Synthesis of Red-Ox Active Proline Mimics|", $this->processpdf->fields['title']);
 
@@ -84,13 +103,13 @@ John H. Shugart <br/></div>");
     $this->processpdf->initialize_fields();
     $dom = new DOMDocument();
     $dom->loadXML("<div><b>Social Networks and Adaptability to IT-Enabled Change: The Case of </b><br/>
-<b>Healthcare Information Technologies </b><br/>
-<b>                                                  </b><br/>
-<b>By</b><br/>
-<b> <br/> </b><br/>
-<b>Roopa Raman </b><br/>
-<b>Doctor of Philosophy </b><br/>
-</div>");
+      <b>Healthcare Information Technologies </b><br/>
+      <b>                                                  </b><br/>
+      <b>By</b><br/>
+      <b> <br/> </b><br/>
+      <b>Roopa Raman </b><br/>
+      <b>Doctor of Philosophy </b><br/>
+      </div>");
     $this->processpdf->processSignaturePage($dom);
     $this->assertPattern("|Social Networks and Adaptability to IT-Enabled Change: The Case of Healthcare Information Technologies|", $this->processpdf->fields['title']);
 
@@ -98,21 +117,19 @@ John H. Shugart <br/></div>");
     $this->processpdf->initialize_fields();
     $dom = new DOMDocument();
     $dom->loadXML("<div>
-<b> __________________________                              __________________________ <br/>
-     Benn R. Konsynski, Ph.D.                                     Anandhi Bharadwaj, Ph.D.  <br/>
-     Co-Adviser                                                   Co-Adviser <br/>
-<br/>_________________________                                  _________________________ <br/>
-     Ramnath K. Chellappa, PhD.                                    Monica C. Worline, Ph.D. <br/>
-     Committee Member                                              Committee Member <br/></b>
-</div>");
+      <b> __________________________                              __________________________ <br/>
+           Benn R. Konsynski, Ph.D.                                     Anandhi Bharadwaj, Ph.D.  <br/>
+           Co-Adviser                                                   Co-Adviser <br/>
+      <br/>_________________________                                  _________________________ <br/>
+           Ramnath K. Chellappa, PhD.                                    Monica C. Worline, Ph.D. <br/>
+           Committee Member                                              Committee Member <br/></b>
+      </div>");
     $this->processpdf->processSignaturePage($dom);
     // FIXME: advisor not yet multiple field here?
     $this->assertEqual("Benn R. Konsynski", $this->processpdf->fields['advisor'][0]);
     $this->assertEqual("Anandhi Bharadwaj", $this->processpdf->fields['advisor'][1]);
     $this->assertEqual("Ramnath K. Chellappa", $this->processpdf->fields['committee'][0]);
     $this->assertEqual("Monica C. Worline", $this->processpdf->fields['committee'][1]);
-
-    
   }
 
   function testDepartment() {
@@ -139,13 +156,13 @@ John H. Shugart <br/></div>");
     $this->assertPattern("/peptide in the presence of Zinc ions/", $fields['title'], "second line of title");
     $this->assertEqual("David G. Lynn", $fields['advisor'][0], "advisor");
     $this->assertEqual("Vincent P. Conticello", $fields['committee'][0],
-		       "first committee member");
+           "first committee member");
     $this->assertEqual("Stefan Lutz", $fields['committee'][1], "second committee member");
     $this->assertEqual("Chemistry", $fields['department']);
     $this->assertPattern("/Peptide\s+ribbons\s+have\s+been\s+proposed\s+to\s+be/", $fields['abstract'], "abstract");
     // from second page of abstract
     $this->assertPattern("/assembled\s+peptide\s+nanotubes,\s+with\s+such\s+ordered\s+and\s+dense\s+packed/",
-			 $fields['abstract'], "second page of abstract");
+       $fields['abstract'], "second page of abstract");
     $this->assertPattern("/ZINC EFFECT IN AMYLOID\s+FORMATION/m", $fields['toc'], "table of contents");
     $this->assertTrue($fields["distribution_agreement"]);
   }
@@ -162,10 +179,10 @@ John H. Shugart <br/></div>");
     $this->assertPattern("/Xanthine dehydrogenase \(XDH\) was engineered/", $fields['abstract']);
     // formatting in abstract
     $this->assertPattern("/mutant expressed from\s+<i>P. aeruginosa<\/i>/",
-			 $fields['abstract']);
+       $fields['abstract']);
     // from second page of abstract
     $this->assertPattern("/catalytic mechanism of xanthine hydroxylation/",
-			 $fields['abstract']);
+       $fields['abstract']);
     $this->assertPattern("/XOR cofactors/", $fields['toc']);
     $this->assertTrue($fields["distribution_agreement"]);
   }
@@ -175,13 +192,13 @@ John H. Shugart <br/></div>");
     $fields = $this->processpdf->fields;
     $this->assertPattern("/Feet in the Fire/", $fields['title']);
     $this->assertPattern("/Social Change and Continuity among the Diola of Guinea-Bissau/",
-			 $fields['title']);
+       $fields['title']);
     $this->assertEqual("Bruce M. Knauft", $fields['advisor'][0]);
     $this->assertEqual("Ivan Karp", $fields['committee'][0]);
     $this->assertEqual("Donald L. Donham", $fields['committee'][1]);
     $this->assertEqual("Anthropology", $fields['department']);
     $this->assertPattern("/long\s+been\s+recognized\s+for\s+their\s+capacity\s+to\s+grow/",
-			 $fields['abstract'], "abstract");
+       $fields['abstract'], "abstract");
     $this->assertPattern("/Introduction: Rice, Rain, and Response/", $fields['toc']);
     $this->assertTrue($fields["distribution_agreement"]);
     }
@@ -205,16 +222,16 @@ John H. Shugart <br/></div>");
     
     $this->assertEqual("Epidemiology", $fields['department']);
     $this->assertPattern("/temporal\s+relationships\s+between\s+ambient\s+air\s+pollution\s+levels/",
-			 $fields['abstract']);
+       $fields['abstract']);
     $this->assertPattern("/The\s+Importance\s+of\s+Nomenclature\s+for\s+Congenital\s+Heart\s+Disease/",
-			 $fields['toc']);
+       $fields['toc']);
     $this->assertTrue($fields["distribution_agreement"]);
   }
   function testGetInformation_tinker() {
     $this->processpdf->getInformation("../fixtures/tinker_sample.html");
     $fields = $this->processpdf->fields;
-    $this->assertPattern("/Drinking\s+Water\s+and\s+Gastrointestinal\s+Illness\s+in\s+Atlanta,\s+1993\s+.*\s+2004/",	
-			 $fields['title']);
+    $this->assertPattern("/Drinking\s+Water\s+and\s+Gastrointestinal\s+Illness\s+in\s+Atlanta,\s+1993\s+.*\s+2004/",  
+       $fields['title']);
     // NOTE: dash in the year is coming through as character entity
     
     $this->assertEqual("Paige E. Tolbert", $fields['advisor'][0]);
@@ -250,18 +267,18 @@ John H. Shugart <br/></div>");
     $dom = new DOMDocument();
     // fake sample with messed up formatting in the middle of the text
     $dom->loadXML("<div><p>I hereby grant to Emory University</p> <br/>
- 	<p>non-exclusive license <hr/> to do stuff with my etd.</p></div>");
+      <p>non-exclusive license <hr/> to do stuff with my etd.</p></div>");
     $this->processpdf->process_page($dom);
     $this->assertTrue($this->processpdf->fields["distribution_agreement"]);
 
     // newer version of the distribution agreement:
     
     $dom->loadXML("<div> <br/>In presenting this thesis or dissertation
- as a partial fulfillment of the requirements for an advanced <br/>
-degree from Emory University, I hereby grant to Emory University and its agents 
-the non-<br/>
-exclusive license to archive, make accessible, and display my thesis or disserta
-tion in whole or in <br/> ...</div>");
+       as a partial fulfillment of the requirements for an advanced <br/>
+      degree from Emory University, I hereby grant to Emory University and its agents 
+      the non-<br/>
+      exclusive license to archive, make accessible, and display my thesis or disserta
+      tion in whole or in <br/> ...</div>");
     $this->processpdf->process_page($dom);
     $this->assertTrue($this->processpdf->fields["distribution_agreement"]);
   }
