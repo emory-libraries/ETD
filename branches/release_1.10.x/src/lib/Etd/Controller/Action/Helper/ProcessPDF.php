@@ -220,9 +220,9 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
           $this->fields['toc']);
     $this->fields['toc'] = preg_replace("|<a name=\"\d+\"\/>|", "",  $this->fields['toc']);
 
-    $this->fields['abstract'] = preg_replace("|<hr/?>|", "",  $this->fields['abstract']);
-    $this->fields['abstract'] = preg_replace("|<a name=\"?\d+\"?\/>|", "",  $this->fields['abstract']);
-    $this->fields['abstract'] = preg_replace("|^\s*(<br/>)?\s*(<b>)?\s*abstract\s*(</b>)?\s*(<br/>)?\s*|i", "",  $this->fields['abstract']);
+    $this->fields['abstract'] = preg_replace("|<hr/?>|", "",  $this->fields['abstract']);   
+    $this->fields['abstract'] = preg_replace("|<a name=\"?\d+\"?\/>|", "",  $this->fields['abstract']);   
+    $this->fields['abstract'] = preg_replace("|^\s*(<br/>)?\s*(<b>)?\s*abstract\s*(</b>)?\s*(<br/>)?\s*|i", "",  $this->fields['abstract']);   
     // consolidate repeating line breaks into a single line break
     $this->fields['abstract'] = preg_replace("|(<br/>){2,}|", "<br/>",  $this->fields['abstract']);
 
@@ -472,7 +472,7 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
         // split on a large white-space gap between the two names
         $namelist = preg_split("/\s{4,}/", $names, 2);
         foreach ($namelist as $name) {
-          $this->fields['advisor'][] = $name;
+          $this->fields['advisor'][] = $this->clean_name($name);
         }
         
         //  look for Field/Faculty/Thesis Advisor on two lines: Name (line 1), Field Advisor (line 2)
@@ -496,11 +496,11 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
     } elseif (preg_match("/^\s*Committee/", $content) || preg_match("/^\s*Reader/", $content)) {
       // two committee labels on one line - look for names on the previous line
       if (preg_match("/(Committee|Reader).*(Committee|Reader)/", $content)) {
-        $names = $this->clean_name($this->previous_line);
+        $names = $this->clean_name($this->previous_line);      
         // split on a large white-space gap between the two names
         $namelist = preg_split("/\s{4,}/", $names, 2);
-        foreach ($namelist as $name) {
-          $this->fields['committee'][] = $name;
+        foreach ($namelist as $name) {          
+          $this->fields['committee'][] = $this->clean_name($name);
         }
       } else {
         $name = $this->clean_name($this->previous_line); // pick up the committee from the line before
@@ -566,18 +566,23 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
    * @param string $name name
    * @return string cleaned name
    */
-  private function clean_name ($name) {
-    $logger = Zend_Registry::get('logger');
-    $logger->err("clean_name 01 [$name]");    
+  private function clean_name ($name) {   
     $name = str_replace("Dr. ", "", $name);
     // match PhD or Ph.D.; also match MD/PhD, or M.S.
-    $name = preg_replace("|, (M.S.)?(MD/?)?(MPH)?(MSPH)?(Ph\.?D\.?)?|", "", $name);
-    // match for a second degress
-    $name = preg_replace("|, (M.S.)?(MD/?)?(MPH)?(MSPH)?(Ph\.?D\.?)?|", "", $name);    
+    $name = preg_replace("!, (M.S.|MD|MPH|MSPH|PhD|Ph.D)/?(M.S.|MD|MPH|MSPH|PhD|Ph\.D)?\.?!", "", $name); 
+    // match for a second degrees
+    $name = preg_replace("!, (M.S.|MD|MPH|MSPH|PhD|Ph.D)/?(M.S.|MD|MPH|MSPH|PhD|Ph\.D)?\.?!", "", $name); 
     $name = preg_replace("/\((.*)\)/", "$1", $name);  // remove parentheses around the name
+    $name = trim($name);   
+    
+    // Put last name first.
     $name = trim($name);
-
-    $logger->err("clean_name 02 [$name]");      
+    //if (preg_match("/^([^\s]+)\s([^\s]+)$/", $name, $matches)) {            
+    if (preg_match("/^([^\s,]+)(\s[A-Z]\.)?\s([^\s,]+),?$/", $name, $matches)) {       
+      if (count($matches) == 4) $name = $matches[3] . ", " . $matches[1] . $matches[2];
+      else $name = $matches[2] . ", " . $matches[1]; 
+    } 
+     
     return $name;
   }
 }
