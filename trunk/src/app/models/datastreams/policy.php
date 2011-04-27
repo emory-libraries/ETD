@@ -26,18 +26,15 @@ class XacmlPolicy extends foxmlDatastreamAbstract {
   public $versionable = true;
   public $mimetype = 'text/xml';  
   protected $namespace = "urn:oasis:names:tc:xacml:1.0:policy";
-  protected $schema = "http://www.oasis-open.org/committees/download.php/915/cs-xacml-schema-policy-01.xsd";
+  
+  //protected $schema = "http://www.oasis-open.org/committees/download.php/915/cs-xacml-schema-policy-01.xsd";
+  protected $schema = "https://etd.library.emory.edu/schemas/cs-xacml-schema-policy-01.xsd";  
   
   protected $xmlconfig;
 
   
   public function __construct($dom=null, $xpath = null) {
-    // the schema is now stored locally, as the public instance is not available.    
-    $front  = Zend_Controller_Front::getInstance();
-    $request = $front->getRequest();
-    $baseurl = ($request->getServer("HTTPS") == "") ? "http://" : "https://";
-    $baseurl .=  $request->getServer("SERVER_NAME") . $request->getBaseUrl(); 
-    $this->schema = $baseurl . "/schemas/cs-xacml-schema-policy-01.xsd";     
+    
     if (is_null($dom)) {
       $dom = $this->construct_from_template();
     }
