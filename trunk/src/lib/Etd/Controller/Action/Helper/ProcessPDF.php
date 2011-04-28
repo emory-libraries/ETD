@@ -569,9 +569,9 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
   private function clean_name ($name) {   
     $name = str_replace("Dr. ", "", $name);
     // match PhD or Ph.D.; also match MD/PhD, or M.S.
-    $name = preg_replace("!, (M.S.|MD|MPH|MSPH|PhD|Ph.D)/?(M.S.|MD|MPH|MSPH|PhD|Ph\.D)?\.?!", "", $name); 
+    $name = preg_replace("!, (M.S.|MD|M.D.|MPH|MSPH|PhD|Ph.D)/?(M.S.|MD|MPH|MSPH|PhD|Ph\.D)?\.?!", "", $name); 
     // match for a second degrees
-    $name = preg_replace("!, (M.S.|MD|MPH|MSPH|PhD|Ph.D)/?(M.S.|MD|MPH|MSPH|PhD|Ph\.D)?\.?!", "", $name); 
+    $name = preg_replace("!, (M.S.|MD|M.D.|MPH|MSPH|PhD|Ph.D)/?(M.S.|MD|MPH|MSPH|PhD|Ph\.D)?\.?!", "", $name); 
     $name = preg_replace("/\((.*)\)/", "$1", $name);  // remove parentheses around the name
     $name = trim($name);   
     
