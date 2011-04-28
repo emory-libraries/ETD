@@ -212,7 +212,7 @@ class etd_mods extends mods {
       $subject->setAttribute("authority", $authority);
       // proquest fields need an ID attribute, even if it is not set when the field is created
       if ($authority == "proquestresearchfield") {
-  $subject->setAttribute("ID", "id$id");    // id can't start with a number to be valid xml
+        $subject->setAttribute("ID", "id$id");    // id can't start with a number to be valid xml
       }
     }
 
@@ -351,15 +351,15 @@ class etd_mods extends mods {
       // if adding a non-emory committee member and there are none in the xml,
       // then add after last emory committee member
       if (isset($this->map['committee']) && count($this->committee))
-  $contextnode = $this->map['committee'][count($this->committee) - 1]->domnode;
+        $contextnode = $this->map['committee'][count($this->committee) - 1]->domnode;
       else
-  $contextnode = $this->map["chair"][count($this->chair) - 1]->domnode;
-    } elseif ($type == "chair" && !$emory) {
-      // if adding a non-emory chair and there are none in the xml,
-      // then add after last emory chair
-      if (isset($this->map['chair']) && count($this->chair))
-  $contextnode = $this->map['chair'][count($this->chair) - 1]->domnode;
-  } else {
+        $contextnode = $this->map["chair"][count($this->chair) - 1]->domnode;
+      } elseif ($type == "chair" && !$emory) {
+        // if adding a non-emory chair and there are none in the xml,
+        // then add after last emory chair
+        if (isset($this->map['chair']) && count($this->chair))
+          $contextnode = $this->map['chair'][count($this->chair) - 1]->domnode;
+    } else {
       // this shouldn't happen unless there is something wrong with the xml.... 
       trigger_error("Couldn't find context node to insert new committee member", E_USER_NOTICE);
     } 
@@ -410,13 +410,18 @@ class etd_mods extends mods {
     $needUpdate = false;
     $i = 0; // index for looping over committee array
     foreach ($people as $person) {
+      
+      while (isset($this->map[$type][$i])) {
+        $i++;
+      }      
+
       if (isset($this->map[$type][$i])) {
-  $this->setNameFromPerson($this->map[$type][$i], $person);
+        $this->setNameFromPerson($this->map[$type][$i], $person);
       } else {
-  $this->addCommittee($person->lastname, $person->name);
-  // FIXME: need a better way store netid... - should be part of addCommittee function ?
-  $this->{$type}[$i]->id = $person->netid;
-  $needUpdate = true; // DOM has changed - new nodes
+        $this->addCommittee($person->lastname, $person->name, $type);
+        // FIXME: need a better way store netid... - should be part of addCommittee function ?
+        $this->{$type}[$i]->id = $person->netid;
+        $needUpdate = true; // DOM has changed - new nodes
       }
       $i++;
     }
@@ -441,22 +446,22 @@ class etd_mods extends mods {
     
     foreach ($netids as $id) {  // if id is unchanged, don't lookup/reset
       if (isset($this->map[$type][$i]) && $this->committee[$i]->id == $id) {
-  $i++;
-  continue;
+        $i++;
+        continue;
       }
 
       $person = $esd->findByUsername($id);
       if ($person) {
-  if (isset($this->map[$type][$i])) {
-    $this->setNameFromPerson($this->{$type}[$i], $person);
-  } else {
-    $this->addCommittee($person->lastname, $person->name, $type);
-    // FIXME: need a better way store netid... - should be part of addCommittee function ?
-    $this->{$type}[$i]->id = $id;
-  }
+        if (isset($this->map[$type][$i])) {
+          $this->setNameFromPerson($this->{$type}[$i], $person);
+        } else {
+          $this->addCommittee($person->lastname, $person->name, $type);
+          // FIXME: need a better way store netid... - should be part of addCommittee function ?
+          $this->{$type}[$i]->id = $id;
+        }
       } else {
-  // shouldn't come here, since ids should be selected by drop-down populated from ESD...
-  trigger_error("Could not find person information for '$id' in Emory Shared Data", E_USER_WARNING);
+        // shouldn't come here, since ids should be selected by drop-down populated from ESD...
+        trigger_error("Could not find person information for '$id' in Emory Shared Data", E_USER_WARNING);
       }
       $i++;
     }
@@ -475,7 +480,7 @@ class etd_mods extends mods {
    * @param array $nonemory_chair_affiliation
    * @param array $nonemory_first
    * @param array $nonemory_last
-                                     $nonemory_affiliation
+   * @param array $nonemory_affiliation
    */
   public function setNonemoryCommittee($nonemory_chair_first,
                                      $nonemory_chair_last,
@@ -488,18 +493,16 @@ class etd_mods extends mods {
     // handle non-emory committee members
     for ($i = 0; $i < count($nonemory_first); $i++) {
       if ($nonemory_last[$i] != '')
-  $this->addCommittee($nonemory_last[$i], $nonemory_first[$i], "nonemory_committee",
+        $this->addCommittee($nonemory_last[$i], $nonemory_first[$i], "nonemory_committee",
          $nonemory_affiliation[$i]);
     }
 
     // handle non-emory chairs
     for ($i = 0; $i < count($nonemory_chair_first); $i++) {
       if ($nonemory_chair_last[$i] != '')
-
-  $this->addCommittee($nonemory_chair_last[$i], $nonemory_chair_first[$i], "nonemory_chair",
+        $this->addCommittee($nonemory_chair_last[$i], $nonemory_chair_first[$i], "nonemory_chair",
          $nonemory_chair_affiliation[$i]);
     }
-
 
   }
 
@@ -517,7 +520,7 @@ class etd_mods extends mods {
     
     // remove the node from the xml dom
     $nodelist = $this->xpath->query("//mods:name[@ID = '$id'][mods:role/mods:roleTerm = 'Committee Member'
-  or mods:role/mods:roleTerm = 'Thesis Advisor']");
+      or mods:role/mods:roleTerm = 'Thesis Advisor']");
     for ($i = 0; $i < $nodelist->length; $i++) {
       $node = $nodelist->item($i);      
       $node->parentNode->removeChild($node);
@@ -547,13 +550,13 @@ class etd_mods extends mods {
   public function setCommitteeAffiliation($id, $affiliation, $type = "committee") {
     foreach ($this->{$type} as $member) {
       if ($member->id == $id) {
-  if (isset($member->affiliation)) {
-    $member->affiliation = $affiliation;
-  } else {
-    $newnode = $this->dom->createElementNS($this->namespace, "mods:affiliation",
-             $affiliation);
-    $member->domnode->appendChild($newnode);
-  }
+        if (isset($member->affiliation)) {
+          $member->affiliation = $affiliation;
+        } else {
+          $newnode = $this->dom->createElementNS($this->namespace, "mods:affiliation",
+                   $affiliation);
+          $member->domnode->appendChild($newnode);
+        }
       }
     }
     $this->update();
@@ -834,10 +837,10 @@ class etd_mods extends mods {
     if ($this->map[$mapname] instanceof DOMElementArray ||
         isset($this->xmlconfig[$mapname]["is_series"]) && $this->xmlconfig[$mapname]["is_series"]) {
       foreach ($this->map[$mapname] as $el) {
-  if ($el instanceof XmlObject) 
-    $el->domnode->parentNode->removeChild($el->domnode);
-  else
-    $el->parentNode->removeChild($el->domnode);
+        if ($el instanceof XmlObject) 
+          $el->domnode->parentNode->removeChild($el->domnode);
+        else
+          $el->parentNode->removeChild($el->domnode);
       }
     } else if ($this->map[$mapname] instanceof XmlObject) {
       $this->map[$mapname]->domnode->parentNode->removeChild($this->map[$mapname]->domnode);
@@ -870,18 +873,18 @@ class etd_mods extends mods {
 
       // if logger object is registered, log any validation errors
       if (Zend_Registry::isRegistered('logger')) {
-  $logger = Zend_Registry::get('logger');
-  // Note: no access to foxml record id at this level, cannot include in log file
-  $logger->err("MODS XML is not valid according to MODS schema");
-  $errors = libxml_get_errors();
-  foreach ($errors as $error) {
-    $message = $error->message . "(Line " . $error->line . ", column " . $error->column . ")";
-    switch ($error->level) {
-    case LIBXML_ERR_WARNING: $logger->warn($message); break;
-    case LIBXML_ERR_ERROR:   $logger->err($message); break;
-    case LIBXML_ERR_FATAL:   $logger->crit($message); break;
-    }
-  }
+        $logger = Zend_Registry::get('logger');
+        // Note: no access to foxml record id at this level, cannot include in log file
+        $logger->err("MODS XML is not valid according to MODS schema");
+        $errors = libxml_get_errors();
+        foreach ($errors as $error) {
+          $message = $error->message . "(Line " . $error->line . ", column " . $error->column . ")";
+          switch ($error->level) {
+          case LIBXML_ERR_WARNING: $logger->warn($message); break;
+          case LIBXML_ERR_ERROR:   $logger->err($message); break;
+          case LIBXML_ERR_FATAL:   $logger->crit($message); break;
+          }
+        }
       }
       return false;
     }      
@@ -986,10 +989,10 @@ class etd_mods extends mods {
     default:
       // if requested field matches a mapped variable, do a simple check
       if (isset($this->$field))
-  return (trim($this->$field) != ""); 
+        return (trim($this->$field) != ""); 
       else
-  // otherwise, complain
-  trigger_error("Cannot determine if '$field' is complete", E_USER_NOTICE);
+        // otherwise, complain
+        trigger_error("Cannot determine if '$field' is complete", E_USER_NOTICE);
     }
   }
 
@@ -1115,7 +1118,6 @@ class etd_mods extends mods {
     return $dom;
   }  
 
-
 }
 
 
@@ -1157,10 +1159,10 @@ class etd_degree extends modsXmlObject {
   protected $namespace = etd_mods::ETDMS_NS;
   public function __construct($xml, $xpath) {
     $config = $this->config(array(
-  "name" => array("xpath" => "etd:name"),
-  "level" => array("xpath" => "etd:level"),
-  "discipline" => array("xpath" => "etd:discipline"),
-   ));
+      "name" => array("xpath" => "etd:name"),
+      "level" => array("xpath" => "etd:level"),
+      "discipline" => array("xpath" => "etd:discipline"),
+       ));
     parent::__construct($xml, $config, $xpath);
   }
 
