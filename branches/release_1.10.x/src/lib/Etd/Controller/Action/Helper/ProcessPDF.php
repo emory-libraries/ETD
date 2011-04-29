@@ -417,7 +417,7 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
         continue;
 
       // marker for the end of the title - break out of the loop
-      } elseif (preg_match("|^(.*)[Bb]y|", $subnode->textContent, $matches)) {
+      } elseif (preg_match("|^(.*)[Bb][Yy]|", $subnode->textContent, $matches)) {
         // preserve any content before the "by", in case it is on same line as title
         $this->fields['title'] .= $matches[1];
         $this->title_complete = true;
@@ -478,7 +478,9 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
         //  look for Field/Faculty/Thesis Advisor on two lines: Name (line 1), Field Advisor (line 2)
       } else if (preg_match("/^\s*(Field\s)?(Faculty\s)?(Thesis\s)?Advis[eo]r/", $content)) {                     
         // pick up name from the preceding line              
-        $this->fields['advisor'][] = $this->clean_name($this->previous_line);       
+        if (trim($this->previous_line) != "Date") { // in some cases getting false matches
+          $this->fields['advisor'][] = $this->clean_name($this->previous_line);
+        }        
                 
         // FIXME: advisor + committee on same line        
       } else {
