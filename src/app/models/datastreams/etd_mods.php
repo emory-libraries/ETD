@@ -407,17 +407,14 @@ class etd_mods extends mods {
    * @param string $type defaults to committee (member); can also be chair
    */
   public function setCommitteeFromPersons(array $people, $type = "committee") {
+    
     $needUpdate = false;
     $i = 0; // index for looping over committee array
     foreach ($people as $person) {
       
-      while (isset($this->map[$type][$i])) {
-        $i++;
-      }      
-
-      if (isset($this->map[$type][$i])) {
+      if (isset($this->map[$type][$i])) {          
         $this->setNameFromPerson($this->map[$type][$i], $person);
-      } else {
+      } else {        
         $this->addCommittee($person->lastname, $person->name, $type);
         // FIXME: need a better way store netid... - should be part of addCommittee function ?
         $this->{$type}[$i]->id = $person->netid;
@@ -427,7 +424,7 @@ class etd_mods extends mods {
     }
 
     // remove any committee members beyond this set of new ones
-    while (isset($this->{$type}[$i]) ) {
+    while (isset($this->{$type}[$i]) ) {     
       $this->removeCommittee($this->{$type}[$i]->id);
       $needUpdate = true; // DOM has changed - removed nodes
     }
