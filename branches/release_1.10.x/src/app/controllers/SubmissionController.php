@@ -338,25 +338,23 @@ class SubmissionController extends Etd_Controller_Action {
     }    
     
     // match faculty names found in the PDF to persons in ESD
-    $esd = new esdPersonObject();
-    // only look up advisor if a name was found
-    if (isset($etd_info['advisor']) && $etd_info['advisor'][0] != '') {
-      foreach ($etd_info['advisor'] as $name) {
-        $advisor = null;
-        try {
-          $advisor = $esd->findFacultyByName($name);
-        } catch (Exception $e) {
-          $this->ESDerror();
-        }
-        if ($advisor) {
-          // add through etd object so xacml will get updated
-          $etd->setCommittee(array($advisor), "chair");
-        } else {
-          $this->_helper->flashMessenger->addMessage("Couldn't find directory match for " .
-                       $name . "; please enter manually");
-        }
+    $advisors = array();
+    foreach ($etd_info['advisor'] as $name) {
+      $esd = new esdPersonObject();      
+      if ($name == "") continue;  // skip if blank for some reason
+      try {
+        $advisor = $esd->findFacultyByName($name);
+      } catch (Exception $e) {
+        $this->ESDerror();
       }
+      if ($advisor) 
+        $advisors[] = $advisor;
+      else 
+        $this->_helper->flashMessenger->addMessage("Couldn't find directory match for "
+               . $name . "; please enter manually");
     }
+    // don't set committee if none are found (causes problem trying to remove blank entry)
+    if (count($advisors)) $etd->setCommittee($advisors, "chair");   
     
     $committee = array();
     foreach ($etd_info['committee'] as $cm) {
