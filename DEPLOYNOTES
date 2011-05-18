@@ -24,6 +24,51 @@ Site webroot should be pointed at src/public
     - which section of the config file is loaded depends on mode
       setting in environment.xml
 
+Update the ETD control objects for particular fedora instance.
+    (1) emory-control:ETD-metadataTransform/datastreams/WSDL
+
+        Update the "location" param for the particular instance of Fedora 
+
+        <wsdl:service name="FedoraSaxon">
+         <wsdl:port binding="this:FedoraSaxon_http" name="FedoraSaxon_port">
+           <http:address location="http://fedora.library.emory.edu:8080/saxon/"></http:address>
+         </wsdl:port>
+        </wsdl:serVIce>
+
+        Note: For wsdl:operation: "getMarcxml", "getEtdms" and "getMods", clear-stylesheet-cache should be set to "no" unless the xslt files are being tested.
+
+    (2) emory-control:ETD-metadataTransform/datastreams/METHODMAP
+        In the sections "getMarcxml", "getEtdms" and "getMods" update the "defaultValue" param to point to the coresponding xsl file for the particular enviroment.
+
+        Example:
+        <fmm:Method operationLabel="getMarcxml" operationName="getMarcxml">
+           <fmm:DatastreamInputParm label="xml datastream" parmName="MODS" passBy="URL_REF" required="true"></fmm:DatastreamInputParm>
+           <fmm:DefaultInputParm defaultValue="http://etd.library.emory.edu/xslt/mods2marc21.xsl" parmName="xslt" passBy="VALUE" required="true"></fmm:DefaultInputParm>
+           <fmm:MethodReturnType wsdlMsgName="xslt_response" wsdlMsgTOMIME="text/xml"></fmm:MethodReturnType>
+        </fmm:Method>
+     
+
+    (3) emory-control::ETDformattedMetadataParts/datastreams/WSDL
+
+        Update the "location" param for the particular enviroment
+
+        Example:
+        <wsdl:service name="XmlById">
+           <wsdl:port binding="this:XmlById_http" name="XmlById_port">
+               <http:address location="https://etd.library.emory.edu/services/xmlbyid/view/"></http:address>
+           </wsdl:port>
+        </wsdl:service>
+
+
+* Update GSearch with latest version of src/public/xslt/etdFoxmlToSolr.xslt.
+  Note that the xslt now requires a parameter containing the Fedora base url
+  to be set in REPOSITORYURL.  You must edit this parameter if Fedora should
+  be accessed somewhere other than this default:
+        http://localhost:8080/fedora/ .  It looks like at least for the staging
+        environment, the hostname will not work. You must use localhost.
+
+
+
 UPGRADE NOTES
 =================
 
