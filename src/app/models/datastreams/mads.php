@@ -16,7 +16,9 @@ class mads extends foxmlDatastreamAbstract {
   public $versionable = true;
   public $mimetype = 'text/xml';
     
-  protected $schema = "http://www.loc.gov/mads/mads.xsd";
+  // Note: the namespace of the xml must match the targetnamespace in the schema.
+  //protected $schema = "http://www.loc.gov/mads/mads.xsd";     
+  protected $schema = "https://etd.library.emory.edu/schemas/mads.xsd";    
   protected $namespace = "http://www.loc.gov/mads/";
 
   protected $xmlconfig;

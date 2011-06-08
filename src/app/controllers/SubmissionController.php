@@ -50,11 +50,11 @@ class SubmissionController extends Etd_Controller_Action {
     
     if(!$questionsValid){
                 
-      //Take parameters array and add values necessary for redirection
-      $redir = $answers;
-      $redir["controller"] = "submission";
-      $redir["action"] = "start";
-      $this->_helper->redirector->gotoRoute($redir);
+        //Take parameters array and add values necessary for redirection
+        $redir = $answers;
+        $redir["controller"] = "submission";
+        $redir["action"] = "start";
+        $this->_helper->redirector->gotoRoute($redir);
     }
 
     //Send answers to view   
@@ -300,6 +300,7 @@ class SubmissionController extends Etd_Controller_Action {
     if ($current_user->academic_plan_id) {
       $prog_id = $programs->findIdbyElement("dc:identifier", $current_user->academic_plan_id);
 
+
       if(isset($prog_id)){
           $collection = new collectionHierarchy($programs->dom, $prog_id);
           $level = $collection->getLevel("#programs");
@@ -337,25 +338,25 @@ class SubmissionController extends Etd_Controller_Action {
     }    
     
     // match faculty names found in the PDF to persons in ESD
-    $advisors = array();
+    $esd = new esdPersonObject();
+    // only look up advisor if a name was found
     if (isset($etd_info['advisor']) && $etd_info['advisor'][0] != '') {
       foreach ($etd_info['advisor'] as $name) {
-        $esd = new esdPersonObject();      
-        if ($name == "") continue;  // skip if blank for some reason
+        $advisor = null;
         try {
           $advisor = $esd->findFacultyByName($name);
         } catch (Exception $e) {
           $this->ESDerror();
         }
-        if ($advisor) 
-          $advisors[] = $advisor;
-        else 
-          $this->_helper->flashMessenger->addMessage("Couldn't find directory match for "
-                 . $name . "; please enter manually");
+        if ($advisor) {
+          // add through etd object so xacml will get updated
+          $etd->setCommittee(array($advisor), "chair");
+        } else {
+          $this->_helper->flashMessenger->addMessage("Couldn't find directory match for " .
+                       $name . "; please enter manually");
+        }
       }
     }
-    // don't set committee if none are found (causes problem trying to remove blank entry)
-    if (count($advisors)) $etd->setCommittee($advisors, "chair");   
     
     $committee = array();
     foreach ($etd_info['committee'] as $cm) {
@@ -401,31 +402,31 @@ class SubmissionController extends Etd_Controller_Action {
     // only look up advisor if a name was found
     if (isset($etd_info['advisor']) && $etd_info['advisor'][0] != '') {
       foreach ($etd_info['advisor'] as $name) {
-        $advisor = null;
-        try {
-          $advisor = $esd->findFacultyByName($name);
-        } catch (Exception $e) {
-          $this->ESDerror();
-        }
-        if ($advisor)
-          $this->view->advisor[] = $advisor;
-        else 
-          $this->_helper->flashMessenger->addMessage("Couldn't find directory match for " . $name . "; please enter manually");
+  $advisor = null;
+  try {
+    $advisor = $esd->findFacultyByName($name);
+  } catch (Exception $e) {
+    $this->ESDerror();
+  }
+  if ($advisor)
+    $this->view->advisor[] = $advisor;
+  else 
+    $this->_helper->flashMessenger->addMessage("Couldn't find directory match for " . $name . "; please enter manually");
       }
     }
     $this->view->committee = array();
     if (isset($this->view->etd_info['committee'])) {
       foreach ($this->view->etd_info['committee'] as $cm) {
-        if ($cm == "") continue;  // skip if blank for some reason
-        try {
-          $committee = $esd->findFacultyByName($cm);
-        } catch (Exception $e) {
-          $this->ESDerror();
-        }
-        if ($committee) 
-          $this->view->committee[] = $committee;
-        else 
-          $this->_helper->flashMessenger->addMessage("Couldn't find directory match for " . $cm . "; please enter manually");
+  if ($cm == "") continue;  // skip if blank for some reason
+  try {
+    $committee = $esd->findFacultyByName($cm);
+  } catch (Exception $e) {
+    $this->ESDerror();
+  }
+  if ($committee) 
+    $this->view->committee[] = $committee;
+  else 
+    $this->_helper->flashMessenger->addMessage("Couldn't find directory match for " . $cm . "; please enter manually");
       }
     }
   }

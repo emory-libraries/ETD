@@ -26,7 +26,6 @@ class XacmlPolicy extends foxmlDatastreamAbstract {
   public $versionable = true;
   public $mimetype = 'text/xml';  
   protected $namespace = "urn:oasis:names:tc:xacml:1.0:policy";
-  
   //protected $schema = "http://www.oasis-open.org/committees/download.php/915/cs-xacml-schema-policy-01.xsd";
   protected $schema = "https://etd.library.emory.edu/schemas/cs-xacml-schema-policy-01.xsd";  
   
@@ -34,7 +33,7 @@ class XacmlPolicy extends foxmlDatastreamAbstract {
 
   
   public function __construct($dom=null, $xpath = null) {
-    
+      
     if (is_null($dom)) {
       $dom = $this->construct_from_template();
     }

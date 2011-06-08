@@ -1,5 +1,12 @@
 CHANGE LOG 
 =================
+
+Version 1.10.5 - June 2011 (bugfix)
+---------------------------------------
+* Use a new local modified version of the mads schema
+* Update the url for the cs-xacml-schema-policy-01.xsd 
+  so that it is valid outside of apache for the publish script.
+  
 Version 1.10.4 - April 2011 (add proxy)
 ---------------------------------------
 * Proxying HTTP requests for XML schemas used in validation is now
