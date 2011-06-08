@@ -1,0 +1,36 @@
+<h1><?= $this->list_title ?></h1>
+
+<? /* common parameters to pass to the list view script for both etd lists */
+  $list_vars = array("show_status" => $this->show_status,
+		      "show_lastaction" => $this->show_lastaction,
+		      "controller" => $this->controller,
+		      "action" => $this->action,
+		      "acl" => $this->acl,
+		      "filters" => $this->filters,
+		      "url_params" => $this->url_params,
+		      );
+?>
+
+<? /* records where user is the author */ ?>
+<? if ($this->myEtds->numFound): ?>
+  <?=  $this->partial('browse/list.phtml',
+		      array_merge(array("etdSet" => $this->myEtds,
+					"list_description" => $this->my_description,
+					),
+				  $list_vars)
+		      ); ?>
+<? endif ?>
+
+<? if ($this->myEtds->numFound && $this->etdSet->numFound): ?>
+  <hr/><? /* if there are records for both types, display a visual divider between */ ?>
+<? endif ?> 
+
+<? /* records where user is on the committee */ ?>
+<? if ($this->etdSet->numFound): ?>
+  <?=  $this->partial('browse/list.phtml',
+		      array_merge(array("etdSet" => $this->etdSet,
+					"list_description" => $this->list_description,
+					),
+				  $list_vars)
+		      ); ?>
+<? endif ?>
