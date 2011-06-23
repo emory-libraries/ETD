@@ -1,0 +1,44 @@
+<h1>Export Student Emails Download</h1>
+
+<p>
+    Select the desired Status/School/Year and click Download to create Report
+    <br><small>Note: Approved records have no year parameter.</small>
+</p>
+
+  <script type="text/javascript">
+  <!--
+  function showYear(c) {
+    if(c=="published") {
+      document.getElementById("year").style.visibility="visible";
+    }
+    else {
+      document.getElementById("year").style.visibility="hidden";
+    }
+  }
+  -->
+  </script>
+
+<form name="gradDataRange" action="export-emails-csv" method="post">
+
+    <table>
+        <tr><td><br>Status:
+            <select name="exportStatus" id ="exportStatus" onchange="showYear(this.value)">
+              <?php foreach($this->options_status as $key => $value): ?>
+              <?php $selected = ($key == "approved") ? ' selected="selected"' : ''; ?>
+                <option value="<?=$value?>" <?= $selected ?>><?=$key?></option>
+              <?php endforeach; ?>                
+            </select>                      
+        </td></tr>   
+        <tr><td><br>School: 
+            <?=$this->formSelect("exportSchool", null, null, $this->options_school) ?>
+        </td></tr> 
+        <!-- Toggle hidden/visible Year based on Status -->
+        <tr><td><br><div id="year" style="visibility:hidden">Year: 
+            <?=$this->formSelect("exportYear", null, null, $this->options_year) ?></div>
+        </td></tr>              
+        <tr><td><br><p><small style="color:red">(PLEASE, run this report off hours, if possible.)</small></p>
+            <?= $this->formSubmit("download", "Download >", Array("class" => "submitlink")); ?>
+        </td></tr>
+    </table>
+
+</form>
