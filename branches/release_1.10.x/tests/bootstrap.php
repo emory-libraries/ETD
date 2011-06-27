@@ -29,10 +29,16 @@ $src_dir = "../../src";
 $config_dir = $src_dir . "/config/";
 Zend_Registry::set("config-dir", $config_dir);
 
+// set environment variables
+$proxy = getenv('HTTP_PROXY');
+if (!isset($proxy)) {
+  putenv("HTTP_PROXY=tcp://skoda.library.emory.edu:3128/");
+}
+
 // needed for notifier
 $config = new Zend_Config_Xml($config_dir . "config.xml", $mode);
 Zend_Registry::set('config', $config);
-touch($config->logfile);	// make sure logfile exists	  
+touch($config->logfile);  // make sure logfile exists   
 
 $fedora_cfg = new Zend_Config_Xml($config_dir . "fedora.xml", $mode);
 if (! isset($fedora_cfg->pidspace) || ! $fedora_cfg->pidspace)
@@ -67,10 +73,10 @@ $db_config = new Zend_Config_Xml($config_dir . 'statistics.xml', $mode);
 // copy over an empty version of the stats db with all tables set up
 copy($src_dir . "/data/stats.db", $db_config->params->dbname);
 $db = Zend_Db::factory($db_config);
-Zend_Registry::set('stat-db', $db);	
+Zend_Registry::set('stat-db', $db); 
 
 Zend_Registry::set('persis-config',
-		   new Zend_Config_Xml($config_dir . "persis.xml", $mode));
+       new Zend_Config_Xml($config_dir . "persis.xml", $mode));
 
 
 // set to allow modifications
@@ -81,7 +87,7 @@ Zend_Registry::set('schools-config', $schools_config);
 $front = Zend_Controller_Front::getInstance();
 //$front = $this->view->getFrontController();
 $front->setControllerDirectory(array("default" => $src_dir . "/app/controllers",
-				     "emory" => $src_dir . "/lib/ZendFramework/Emory"));
+             "emory" => $src_dir . "/lib/ZendFramework/Emory"));
 $front->addModuleDirectory($src_dir . "/app/modules");
 $front->setControllerDirectory($src_dir . "/app/controllers", "default");
 // set a dummy request for any functionality that requires it
@@ -89,7 +95,7 @@ $front->setRequest(new Zend_Controller_Request_Http());
 
 // default routes must be set up for certain helpers, like url
 $router = $front->getRouter();
-$router->addDefaultRoutes();	
+$router->addDefaultRoutes();  
 
 // add new helper path to view
 $viewRenderer = Zend_Controller_Action_HelperBroker::getStaticHelper('ViewRenderer');
