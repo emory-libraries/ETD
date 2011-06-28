@@ -27,7 +27,7 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
 
   private $title_complete = false;
 
-  public function __construct() {
+  public function __construct() {    
     $this->initialize_fields();
     
     // FIXME: how to encapsulate order information ?
@@ -136,12 +136,12 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
 
   }
 
-
   /**
    * extract information from an html file
    * @param string $file filename
    */
-  public function getInformation($file) {
+  public function getInformation($file) { 
+    
     $doc = new DOMDocument();
     $this->doc = $doc;
 
@@ -182,7 +182,7 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
     // creating a DOMDocument to hold the contents of the current page
     // NOTE: using separate dom to allow deep-importing of nodes
     // (some content was getting missed when trying to append to fragment)
-    
+        
     $page = new DOMDocument();
     $div = $page->createElement("div", "");
     $page->appendChild($div);
@@ -212,7 +212,6 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
     // process the final page
     $this->process_page($page);
 
-
     // minor cleaning on fields that need it
     /* FIXME: some dom equivalent for this? */
     $this->fields['toc'] = preg_replace("|<hr/?>|", "",  $this->fields['toc']);
@@ -220,12 +219,24 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
           $this->fields['toc']);
     $this->fields['toc'] = preg_replace("|<a name=\"\d+\"\/>|", "",  $this->fields['toc']);
 
+    $this->fields['abstract'] = trim($this->fields['abstract'], "\n ");
     $this->fields['abstract'] = preg_replace("|<hr/?>|", "",  $this->fields['abstract']);   
-    $this->fields['abstract'] = preg_replace("|<a name=\"?\d+\"?\/>|", "",  $this->fields['abstract']);   
-    $this->fields['abstract'] = preg_replace("|^\s*(<br/>)?\s*(<b>)?\s*abstract\s*(</b>)?\s*(<br/>)?\s*|i", "",  $this->fields['abstract']);   
+    $this->fields['abstract'] = preg_replace("|<a name=\"?\d+\"?\/>|", "",  $this->fields['abstract']);      
     // consolidate repeating line breaks into a single line break
     $this->fields['abstract'] = preg_replace("|(<br/>){2,}|", "<br/>",  $this->fields['abstract']);
-
+    $this->fields['abstract'] = preg_replace("|^\s*(<br/>)?\s*(<b>)?\s*abstract\s*(</b>)?\s*(<br/>)?\s*|i", "",  $this->fields['abstract']);    
+    $this->fields['abstract'] = trim($this->fields['abstract'], "\n "); 
+    $this->fields['abstract'] = preg_replace("|\s*(<br/>)?\s*(<b>)?\s*[Bb][Yy]\s*(<br/>)?\s*[A-Z]+.*\s*(</b>)?\s*(<br/>)?\s*|", "<br/>",  $this->fields['abstract']);     
+    
+    // Trim the title from the beginning of the Abstract if present.   
+    $trimmed_title = preg_replace("|\s*(<br/>)?\s*(<b>)?\s*abstract\s*(</b>)?\s*(<br/>)?\s*|i", "",  trim($this->fields['title'], "\n "));     
+    if (isset($this->fields['abstract']) && !empty($this->fields['abstract'])) {
+      $title_pos = $this->positionMatch($this->fields['abstract'], $trimmed_title);
+      if ($title_pos > 0) {      
+        $this->fields['abstract'] = substr($this->fields['abstract'], $title_pos);
+      }
+    }  
+    
     // some error-checking to display useful messages to the user
     if ($this->fields["distribution_agreement"] == false)
       $this->_actionController->view->errors[] = "Distribution Agreement not detected";
@@ -234,9 +245,8 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
       $this->_actionController->view->errors[] = "Could not determine title";
     if (!isset($this->fields['abstract']) || $this->fields['abstract'] == "") 
       $this->_actionController->view->errors[] = "Could not find abstract";
-    
+         
     // FIXME: what other fields should be checked?
-
   }
 
 
@@ -246,11 +256,11 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
    *
    * @param DOMDocument $page temporary DOMDocument with only the contents of the current page
    */
-  public function process_page(DOMDocument $page) {
+  public function process_page(DOMDocument $page) {   
     $page->normalize();
     $content = $page->textContent;  // complete text content under this node
     // collapse multiple spaces into one, to simplify regular expressions
-    $content = preg_replace("/\s+/", " ", $content);
+    $content = preg_replace("/\s+/", " ", $content);     
 
     // look for content based on the next expected page
     switch($this->next) {
@@ -268,29 +278,35 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
       // abstract cover page - do nothing
       break;
 
-    case "abstract":
+    case "abstract":           
       // save as xml to preserve formatting (xml without wrapping div node)
       $this->fields['abstract'] .= etd_html::getContentXml($page->documentElement);
-
       // abstract could be two pages, so next page may be more abstract
-      $this->next = "abstract-cont";  // possibly 
+      $this->next = "abstract-cont";  // possibly      
       break;
 
     case "abstract-cont":
-      // possible second page of abstract - check
-      if (preg_match("/submitted\s+to\s+the\s+Faculty\s+of\s+the\s+Graduate/", $content)) {
-        // title page
+          // possible second page of abstract - eliminate the following conditions           
+      if  ( 
+          // does the page begin with the title?
+          (0==strcmp(trim($this->fields['title']), substr(trim($content), 0, strlen($this->fields['title']))))
+          // does the page begin with "Acknowledgements"?          
+          || (preg_match("/^Acknowledgements/i", trim($content)))
+          // does the page begin with "submitted to the Faculty of the Graduate"?          
+          || (preg_match("/submitted\s+to\s+the\s+Faculty\s+of\s+the\s+Graduate/", trim($content)))          
+          ) 
+      {
         if ($this->debug) print "DEBUG: abstract does not continue on second page<br>\n";
         $this->_actionController->view->log[] = "Found Abstract on page " .
           ($this->current_page - 1);
-        $this->next = "";
-      } else {  // no title page: must be second page of abstract
+        $this->next = "";                
+      } else {  // Abstract DOES continue on second page            
         if ($this->debug) print "DEBUG: abstract continues on second page<br>\n";
         $this->_actionController->view->log[] = "Found Abstract on pages " .
           ($this->current_page - 1) . "-" . $this->current_page;
         $this->fields['abstract'] .= etd_html::getContentXml($page->documentElement);
         $this->next = "";
-      }
+      }               
       break;
 
     case "toc-cont":
@@ -550,13 +566,14 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
     // department should be on a single line
     // matches either "Department of Chemistry" or "Chemistry Department"
     if (preg_match("/Department of (.+)/m", $line, $matches)
-        || preg_match("/(.+) Department/m", $line, $matches)) {
+        || preg_match("/(.+) Department/m", $line, $matches) 
+        || preg_match("/Graduate Division of (.+)/m", $line, $matches)) {
       $this->fields['department'] = $matches[1];
 
     // match any specially named departments here
     } elseif (preg_match("/Graduate Institute of the Liberal Arts/", $line)) {
       $this->fields['department'] = "Graduate Institute of the Liberal Arts";
-    }
+    }   
 
     // trim any whitespace
     $this->fields['department'] = trim($this->fields['department']);
@@ -585,6 +602,58 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
     } 
      
     return $name;
+  }
+  
+  /**
+   * return the position of the needle found in haystack that contains tags.
+   *
+   * @param string $haystack haystack
+   * @param string $needle needle
+   * @return int position
+   */
+  public function positionMatch($haystack, $needle) {
+    
+    $logger = Zend_Registry::get('logger');
+    $logger->err("01 haystack=[$haystack]");
+    $logger->err("02 needle=[$needle]");    
+    
+    $pos = 0;
+            
+    for ($i = 0; $i <= strlen($needle)-1; $i++) { 
+      if ($haystack[$pos] == $needle[$i] || (ord($haystack[$pos])==10 && ord($needle[$i]) == 32)) {
+        $pos++;
+      }
+      // Skip over tags and white spaces in the abstract text
+      else if ($pos < strlen($haystack) &&
+        ($haystack[$pos] == "<" || ($haystack[$pos] == " ") || (ord($haystack[$pos])==10))) { 
+        
+        while ($pos < strlen($haystack) &&
+              ($haystack[$pos] == "<" || ($haystack[$pos] == " ") || (ord($haystack[$pos])==10))) {              
+          
+          // Check for beginning of html tag, and jump to end of tag
+          if ($haystack[$pos] == "<") {              
+            $endpos = strpos(substr($haystack, $pos), ">");
+            $pos = $pos + $endpos + 1;              
+          }
+          // Check for space character
+          else if (($haystack[$pos] == " ") || (ord($haystack[$pos])==10)) {        
+            while ($pos < strlen($haystack) && ($haystack[$pos] == " "|| ord($haystack[$pos])==10)) {  
+              $pos++;
+            }
+          }
+          if ($haystack[$pos] == $needle[$i] || (ord($haystack[$pos])==10 && ord($needle[$i]) == 32)) {              
+            $pos++;
+          }
+        }       
+      }      
+      else {  // Failure to match
+        $pos = 0;
+        break;      
+      }       
+    } 
+      
+    $logger->err("03 pos=[$pos]");               
+    return $pos;
   }
 }
 
