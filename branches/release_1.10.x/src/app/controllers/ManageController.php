@@ -201,40 +201,44 @@ class ManageController extends Etd_Controller_Action {
 
    // send an email with more information about changes requested
    public function changesEmailAction() {
-     // send email about changes requested
-     $etd = $this->_helper->getFromFedora("pid", "etd");
-     $subject = $this->_getParam("subject");
-     $content = $this->_getParam("content");
-     $changetype = $this->_getParam("type", "record");
+      // send email about changes requested
+      $etd = $this->_helper->getFromFedora("pid", "etd");
+      $subject = $this->_getParam("subject");
+      $content = $this->_getParam("content");
+      $changetype = $this->_getParam("type", "record");
 
-     $newstatus = "draft";
-     $etd->setStatus($newstatus);
+      $newstatus = "draft";
+      $etd->setStatus($newstatus);
 
-     // log event in record history
-     $etd->premis->addEvent("status change",
+      // log event in record history
+      $etd->premis->addEvent("status change",
           "Changes to $changetype requested by " .
           $this->current_user->getGenericAgent(),
           "success",  array("netid", $this->current_user->netid));
 
-     $result = $etd->save("set status to '$newstatus'");
+      $result = $etd->save("set status to '$newstatus'");
 
-     if ($result) {
-         //Send The email
+      if ($result) {
+        //Send The email                
         $notify = new etd_notifier($etd);
         //author-school currently only used with honors
         $sendTo = ($etd->schoolId() == "honors" ? "author-school" : "author");
-        $to = $notify->request_changes($subject, $content, $sendTo);
+        // Specifically set the "from" email address to the current user.
+        $sendFrom = array("eaddr" => $this->current_user->netid . "@emory.edu",
+                        "name" => "Emory ETD Admin: " . $this->current_user->fullname);
+
+        $to = $notify->request_changes($subject, $content, $sendTo, $sendFrom);
         $this->_helper->flashMessenger->addMessage("Email sent to <b>" . implode(', ', array_keys($to)) . "</b>");
 
-       $this->_helper->flashMessenger->addMessage("Changes requested; record status changed to <b>$newstatus</b>");
-       $this->logger->info("Updated etd " . $etd->pid . " - changes requested, status set to $newstatus at $result");
-     } else {
-       $this->_helper->flashMessenger->addMessage("Error: could not update record status");
-       $this->logger->err("Could not save etd " . $etd->pid . " - changes requested, status change to $newstatus");
-     }
+        $this->_helper->flashMessenger->addMessage("Changes requested; record status changed to <b>$newstatus</b>");
+        $this->logger->info("Updated etd " . $etd->pid . " - changes requested, status set to $newstatus at $result");
+      } else {
+        $this->_helper->flashMessenger->addMessage("Error: could not update record status");
+        $this->logger->err("Could not save etd " . $etd->pid . " - changes requested, status change to $newstatus");
+      }
 
-     // forward to main admin page
-     $this->_helper->redirector->gotoRoute(array("controller" => "manage",
+      // forward to main admin page
+      $this->_helper->redirector->gotoRoute(array("controller" => "manage",
              "action" => "summary"), "", true);
 
      

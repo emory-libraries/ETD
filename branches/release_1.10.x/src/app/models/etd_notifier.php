@@ -59,18 +59,21 @@ class etd_notifier extends notifier {
    *   - permanent : send to author's permanent address and to committee
    *   - all : (default) send to both author's email addresses and to committee
    * @param boolean $bcc_admin - bcc the etd admin that is configured in the project or not (default is true)
+   * @param array $from - email address and name of sender
+   *   - "eaddr" : sender email address
+   *   - "name" : sender name
    */
-  protected function setRecipients($who = "all", $bcc_admin = true) {
+  protected function setRecipients($who = "all", $bcc_admin = true, $from = null) {
 
     // configure who should receive this email
     switch ($who) {
-    case "author":	// both author email addresses
+    case "author":  // both author email addresses
       $this->send_to = array("author", "author_permanent"); break;
     case "author-permanent": // only send to author's permanent address
       $this->send_to = array("author_permanent"); break;
     case "author-school": // both author email addresses and the school admin(s)
       $this->send_to = array("author", "author_permanent", "school"); break;
-    case "permanent":	// author's permanent address and committee
+    case "permanent": // author's permanent address and committee
       $this->send_to = array("author_permanent", "committee"); break;
     case "patent_info":
       $this->send_to = array("ott", "etd-admin"); break;
@@ -85,11 +88,18 @@ class etd_notifier extends notifier {
     $config = Zend_Registry::get('config');
     // contact information - where questions should be directed
     $this->view->contact = $config->contact;
-    
-    $this->mail->setFrom($config->email->etd->address,
-			 $config->email->etd->name);
+       
+    // If the "from" email address is defined, then use it.
+    $from_eaddr = $config->email->etd->address;
+    $from_name = $config->contact->name;
+    if (isset($from)) {      
+      $from_eaddr = (isset($from["eaddr"])) ? $from["eaddr"] : $config->email->etd->address;
+      $from_name = (isset($from["name"])) ? $from["name"] : $config->contact->name;            
+    }
+ 
+    $this->mail->setFrom($from_eaddr, $from_name);
     $this->mail->setReplyTo($config->contact->email,
-			 $config->contact->name);
+       $config->contact->name);
 
 //bcc admin if flag is set to true
     if($bcc_admin){
@@ -125,11 +135,11 @@ if ($environment->mode != "production") {
     if (isset($etd->authorInfo)) {
       $name = $etd->authorInfo->mads->name->first . " " . $etd->authorInfo->mads->name->last;
       if (in_array("author", $this->send_to)) {
-	if (isset($etd->authorInfo->mads->current->email) && ($etd->authorInfo->mads->current->email != '')) 
-	  $this->to[$etd->authorInfo->mads->current->email] = $name;
+  if (isset($etd->authorInfo->mads->current->email) && ($etd->authorInfo->mads->current->email != '')) 
+    $this->to[$etd->authorInfo->mads->current->email] = $name;
       }
       if (in_array("author_permanent", $this->send_to)) {
-	$this->to[$etd->authorInfo->mads->permanent->email] = $name;
+  $this->to[$etd->authorInfo->mads->permanent->email] = $name;
       }
     }
 
@@ -139,13 +149,13 @@ if ($environment->mode != "production") {
       $esd = new esdPersonObject();
       
       foreach (array_merge($etd->mods->chair, $etd->mods->committee) as $committee) {
-	// skip former faculty, as we can't rely on any email address ESD has for them
-	if (preg_match("/^esdid/", $committee->id)) continue;
-	$person = $esd->findByUsername($committee->id);
-	if ($person && $person->email != "")
-	  $this->cc[$person->email] = $person->fullname;
-	else
-	  trigger_error("Committee member/chair (" . $committee->id . ") not found in ESD", E_USER_NOTICE);
+  // skip former faculty, as we can't rely on any email address ESD has for them
+  if (preg_match("/^esdid/", $committee->id)) continue;
+  $person = $esd->findByUsername($committee->id);
+  if ($person && $person->email != "")
+    $this->cc[$person->email] = $person->fullname;
+  else
+    trigger_error("Committee member/chair (" . $committee->id . ") not found in ESD", E_USER_NOTICE);
       }
     }
 
@@ -153,10 +163,10 @@ if ($environment->mode != "production") {
     if (in_array("ott", $this->send_to) || in_array("etd-admin", $this->send_to)) {
       $config = Zend_Registry::get('config');
       if (in_array("etd-admin", $this->send_to)) {
-	$this->to[$config->email->etd->address] = $config->email->etd->name;
+  $this->to[$config->email->etd->address] = $config->email->etd->name;
       }
       if (in_array("ott", $this->send_to)) {
-	$this->to[$config->email->ott->address] = $config->email->ott->name;
+  $this->to[$config->email->ott->address] = $config->email->ott->name;
       }
     }
 
@@ -233,7 +243,7 @@ if ($environment->mode != "production") {
    * @return array of addresses email was sent to
    */
   public function embargo_expiration() {
-    $this->setRecipients("permanent", false);	// send to author's permanent address + committee
+    $this->setRecipients("permanent", false); // send to author's permanent address + committee
     $this->mail->setSubject("Your ETD Access Restriction will Expire in 60 Days");
     $this->setBodyHtml($this->view->render("email/embargo_expiration.phtml"));
     $this->send();
@@ -257,7 +267,7 @@ if ($environment->mode != "production") {
    * @return array of addresses email was sent to
    */
   public function embargo_end() {
-    $this->setRecipients("permanent");	// send to author's permanent address + committee
+    $this->setRecipients("permanent");  // send to author's permanent address + committee
     $this->mail->setSubject("Your ETD Access Restriction Expires Today");
     $this->setBodyHtml($this->view->render("email/embargo_end.phtml"));
     $this->send();
@@ -270,11 +280,12 @@ if ($environment->mode != "production") {
    * @param string $subject subject for the email
    * @param string $text email content to include in the output
    * @param string $to code for group to send to
+   * @param string $from code for group to send from
    * @return array of addresses email was sent to
    */
-  public function request_changes($subject, $text, $to="author") {
+  public function request_changes($subject, $text, $to="author", $from=null) {
     // don't send to committee
-    $this->setRecipients($to);
+    $this->setRecipients($to, true, $from);
     $this->mail->setSubject($subject);
     $this->view->text = $text;
     $this->setBodyHtml($this->view->render("email/request_changes.phtml"));
@@ -330,9 +341,9 @@ class etdSet_notifier extends notifier {
     $this->view->contact = $config->contact;
     
     $this->mail->setFrom($config->email->etd->address,
-			 $config->email->etd->name);
+       $config->email->etd->name);
     $this->mail->setReplyTo($config->contact->email,
-			 $config->contact->name);
+       $config->contact->name);
     if ($environment->mode != "production") {
       // use a configured debug email address when in development mode
       $this->mail->addTo($config->email->test);
