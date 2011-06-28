@@ -613,10 +613,6 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
    */
   public function positionMatch($haystack, $needle) {
     
-    $logger = Zend_Registry::get('logger');
-    $logger->err("01 haystack=[$haystack]");
-    $logger->err("02 needle=[$needle]");    
-    
     $pos = 0;
             
     for ($i = 0; $i <= strlen($needle)-1; $i++) { 
@@ -651,8 +647,7 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
         break;      
       }       
     } 
-      
-    $logger->err("03 pos=[$pos]");               
+                  
     return $pos;
   }
 }
