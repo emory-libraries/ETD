@@ -9,6 +9,7 @@ require_once("datastreams/etd_dc.php");
  * @subpackage Etd
  *
  * @property array $format
+ * @property array $identifier 
  * @property string $ark dc:identifier that contains ark
  * @property string $fedora_pid dc:identifier that contains info:fedora
  * @property string $filesize dc:format that does not contain '/' or 'p.'
@@ -27,6 +28,7 @@ class etdfile_dc extends etd_dc {
     parent::configure();
 
     // a few special cases 
+    $this->xmlconfig['identifier']['is_series'] = false;  // override etd_dc where is_series is true.  
     $this->xmlconfig["ark"] = array("xpath" => "dc:identifier[contains(., 'ark')]");
     $this->xmlconfig["fedora_pid"] = array("xpath" => "dc:identifier[contains(., 'info:fedora')]");
 
