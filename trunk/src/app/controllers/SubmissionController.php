@@ -337,6 +337,7 @@ class SubmissionController extends Etd_Controller_Action {
     }    
     
     // match faculty names found in the PDF to persons in ESD
+    $esd = new esdPersonObject();    
     $advisors = array();
     if (isset($etd_info['advisor']) && $etd_info['advisor'][0] != '') {
       foreach ($etd_info['advisor'] as $name) {

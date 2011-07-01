@@ -291,6 +291,49 @@ class TestProcessPdf extends UnitTestCase {
     // NOTE: removed tests for non-breaking spaces in process_page because they are now handled by tidy
   }
   
+  function testPositionMatch() {
+    $needle = "SUMMATIVE EVALUATION OF A WORKSHOP IN COLLABORATIVE COMMUNICATION";
+    $haystack = "SUMMATIVE EVALUATION 
+                <br/>OF A WORKSHOP IN  
+                <br/>COLLABORATIVE COMMUNICATION<br/>A Collaborative Communication workshop designed<br/>
+                Space Inc, and associates, 
+                <br/>was evaluated for effectiveness in furthering targeted
+                skills, intentions, behaviors and outcomes. 
+                <br/>Rooted in the Nonviolent Communicationsm (NVC) model
+                developed<br/>Rosenberg, the workshop fosters intra- and interpersonal
+                relationships of compassion, 
+                <br/>connection, collaboration and caring. As such it seeks to
+                enhance individual and relational 
+                <br/>wellbeing. Recommendations are made 
+                <br/>regarding potential target audiences, marketing, course
+                emphasis and further study.  
+                <br/>";
+    $position = $this->processpdf->positionMatch($haystack, $needle);
+    $this->assertEqual($position, 110);
+    
+    $needle = "SUMMATIVE EVALUATION OF A WORKSHOP IN COLLABORATIVE COMMUNICATION";
+    $haystack = "SUMMATIVE EVALUATION 
+                <br/>OF A WORKSHOP IN  
+                <br/>COLLABORATIVE COMMUNICATION<br/>A Collaborative Communication workshop designed<br/>
+                Space Inc, and associates, 
+                <br/>was evaluated for effectiveness in furthering targeted
+                skills, intentions, behaviors and outcomes.  
+                <br/>";
+    $position = $this->processpdf->positionMatch($haystack, $needle);
+    $this->assertEqual($position, 110); 
+    
+    $haystack = "XSUMMATIVE EVALUATION 
+                <br/>OF A WORKSHOP IN  
+                <br/>COLLABORATIVE COMMUNICATION<br/>A Collaborative Communication workshop designed<br/>
+                Space Inc, and associates, 
+                <br/>was evaluated for effectiveness in furthering targeted
+                skills, intentions, behaviors and outcomes.  
+                <br/>";
+    $position = $this->processpdf->positionMatch($haystack, $needle);
+    $this->assertEqual($position, 0);       
+
+    // NOTE: removed tests for non-breaking spaces in process_page because they are now handled by tidy
+  }  
 }
 
 runtest(new TestProcessPdf());

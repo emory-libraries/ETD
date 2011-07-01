@@ -981,8 +981,23 @@ class etd extends foxml implements etdInterface {
       // could generate service unavailable exception - should be caught in the controller
       $persis = new Emory_Service_Persis(Zend_Registry::get('persis-config'));
 
-      // FIXME: use view/controller to build this url?
-      $ark = $persis->generateArk("http://etd.library.emory.edu/view/record/pid/emory:{%PID%}", $this->label);
+      $logger = Zend_Registry::get('logger'); 
+      
+      // Set the development/staging url is applicable.
+      try {
+        $front  = Zend_Controller_Front::getInstance();
+        $request = $front->getRequest();
+        $baseurl = ($request->getServer("HTTPS") == "") ? "http://" : "https://";
+        $ark_base =  $baseurl . $request->getServer("SERVER_NAME") . $request->getBaseUrl();
+      } catch (Exception $e) {  // swallow exception
+        $logger->warn("ETD failed to set development/staging server url for ARK exception [" . $e->getMessage() . "]");
+      }
+      
+      // If using dev/staging server, reflect this in the ARK target URL.
+      if (!isset($ark_base)) $ark_base = "http://etd.library.emory.edu";     
+      $ark_target = $ark_base . "/view/record/pid/emory:{%PID%}";     
+            
+      $ark = $persis->generateArk($ark_target, $this->label);
       $pid = $persis->pidfromArk($ark);
       list($nma, $naan, $noid) = $persis->parseArk($ark);
 

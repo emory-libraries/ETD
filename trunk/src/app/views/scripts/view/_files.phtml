@@ -69,7 +69,7 @@
        $this->acl->isAllowed($this->role, $this->etd->originals[0], "edit") ||
        isset($this->etd->supplements[0]) &&
        $this->acl->isAllowed($this->role, $this->etd->supplements[0], "edit") ): ?>
-     <h3>Replace a File</h3>
+     <h3><a name="updatefile">Replace a File</a></h3>
      <p>If you would like to replace one of your files, upload the new version here.</p>
   <form name="updatefile" method="post" enctype="multipart/form-data" onsubmit="disableButton('Replace')"
   action="<?= $this->url(array("controller" => "file", "action" => "update",

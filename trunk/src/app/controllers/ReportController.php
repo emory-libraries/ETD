@@ -291,6 +291,122 @@ class ReportController extends Etd_Controller_Action {
        $this->getResponse()->setHeader('Content-Disposition', 'attachment; filename="' . $filename . '"');
     }
 
+    /**
+     *  Display an academic year date selection form for grad-data report
+     *  Start of year is 12/31 of last year, end is 8/31 of current year
+     */
+    public function exportEmailsAction(){
+            
+      if(!$this->_helper->access->allowed("report", "view")) {return false;}
+      $this->view->title = "Export Student Emails";
+
+      // parameter year
+      $startYear = 2007;
+      $endYear = date('Y');
+      for ($i = $endYear; $i >= $startYear; $i--) {
+        $options_year[strval($i)]=$i;
+      } 
+      
+      // parameter school
+      $schools = Zend_Registry::get("schools-config");
+      //Have to use quotes because value has a colon and have to escape the quotes
+      foreach ($schools as $school){
+        if(isset($school->acl_id)){ //This excludes the All Schools collection
+          $options_school[$school->acl_id] = $school->label;
+        }
+      }
+      
+      // parameter ETD status
+      $options_status["approved"]="approved";      
+      $options_status["published"]="published";           
+
+      $this->view->options_school=$options_school;
+      $this->view->options_year=$options_year;
+      $this->view->options_status=$options_status;          
+    }
+
+    /*
+     * generate a CSV file of graduate school data for the requested date range
+     */
+    public function exportEmailsCsvAction(){
+      if(!$this->_helper->access->allowed("report", "view")) {return false;}
+
+      // get parameters from post, and set default if null
+      $exportYear=($this->_hasParam("exportYear")) ? $this->_getParam("exportYear") : date('Y');
+      $exportSchool=($this->_hasParam("exportSchool")) ? $this->_getParam("exportSchool") : 'grad';
+      $exportStatus=($this->_hasParam("exportStatus")) ? $this->_getParam("exportStatus") : 'published';
+
+      // Retrieve the school collection in the schools config file
+      // Must use quotes because value has a colon and have to escape the quotes
+      $schools = Zend_Registry::get("schools-config");      
+      foreach ($schools as $school){
+        if(isset($school->acl_id)){ // This excludes the All Schools collection
+          if ($exportSchool == $school->acl_id) {                        
+            $collection = "\"" . $school->fedora_collection . "\"";
+          }
+        }
+      }    
+        
+      $etdSet = new EtdSet(); 
+      
+      switch ($exportStatus) {
+        case "approved": // The approved status does not take the year parameter
+          $options = array("AND" => array("status" => $exportStatus, "collection" => $collection), 
+                       "start" => 0, "max" => 2000);          
+          break;
+        case "published":
+          $options = array("AND" => array("status" => $exportStatus, "year" => $exportYear, "collection" => $collection), 
+                       "start" => 0, "max" => 2000);       
+          break;
+      }      
+
+      $etdSet->find($options);
+
+      // date/time this output was generated to be included inside the file
+      $date = date("Y-m-d H:i:s");
+      
+      switch ($exportStatus) {
+        case "approved":
+          $data[] = array("Name", "Emory email address", "Permanent email address",
+          "Program", "Output Generated " . $date);
+
+          foreach ($etdSet->etds as $etd){
+            $data[] = array($etd->authorInfo->mads->name,
+            $etd->authorInfo->mads->current->email,
+            $etd->authorInfo->mads->permanent->email,
+            $etd->program());
+          }        
+          break;
+        case "published":
+          $data[] = array("Name", "Emory email address", "Permanent email address", "Date Issued", "Publication Year", 
+          "Program", "Output Generated " . $date);
+
+          foreach ($etdSet->etds as $etd){
+            // extract the year from the date, exclude 1969 year
+            $exportYear = (isset($etd->mods->date) && (!strtotime($etd->mods->date, 0) == 1969)) ? '': date("Y", strtotime($etd->mods->date, 0)); 
+            $data[] = array($etd->authorInfo->mads->name,
+            $etd->authorInfo->mads->current->email,
+            $etd->authorInfo->mads->permanent->email,
+            $etd->mods->originInfo->issued,
+            $exportYear,  
+            $etd->program());
+          }        
+          break;
+      }
+
+      $this->view->data = $data;
+      $this->view->filter = $options;  //used for debugging and testing
+
+      $this->_helper->layout->disableLayout();
+      // add date to the suggested output filename
+      $filename = "ETD_" . $exportStatus . "_emails_" . $exportYear . "_" . $exportSchool . "_" . date("Y-m-d") . ".csv";
+      $this->getResponse()->setHeader('Cache-Control', 'public', true);
+      $this->getResponse()->setHeader('Pragma','public',true);
+      $this->getResponse()->setHeader('Expires','-1');
+      $this->getResponse()->setHeader('Content-Type', 'text/csv');
+      $this->getResponse()->setHeader('Content-Disposition',
+             'attachment; filename="' . $filename . '"');        
+    }
 
 
     /**
@@ -410,46 +526,6 @@ class ReportController extends Etd_Controller_Action {
       $this->getResponse()->setHeader('Content-Disposition', 'attachment; filename="' . $filename . '"');
     }
 
-    /**
-     * generate a CSV file with student name, emory email, and permanent email
-     */
-    public function exportemailsAction() {
-      if(!$this->_helper->access->allowed("report", "view")) {return false;}
-      $etdSet = new EtdSet();
-      // FIXME: how do we make sure to get *all* the records ?
-      
-      //Have to use quotes because value has a colon and have to escape the quotes
-      $options = array("AND" => array("status" => "approved", "collection" => "\"emory-control:ETD-GradSchool-collection\""), 
-                       "start" => 0, "max" => 200);
-      
-      $etdSet->find($options);
-
-      // date/time this output was generated to be included inside the file
-      $date = date("Y-m-d H:i:s");
-
-      $data[] = array("Name", "Emory email address", "Permanent email address",
-      "Program", "Output Generated " . $date);
-
-      foreach ($etdSet->etds as $etd){
-        $data[] = array($etd->authorInfo->mads->name,
-        $etd->authorInfo->mads->current->email,
-        $etd->authorInfo->mads->permanent->email,
-        $etd->program());
-      }
-
-      $this->view->data = $data;
-      $this->view->filter = $options;  //used for debugging and testing
-
-      $this->_helper->layout->disableLayout();
-      // add date to the suggested output filename
-      $filename = "ETD_approved_emails_" . date("Y-m-d") . ".csv";
-      $this->getResponse()->setHeader('Cache-Control', 'public', true);
-      $this->getResponse()->setHeader('Pragma','public',true);
-      $this->getResponse()->setHeader('Expires','-1');
-      $this->getResponse()->setHeader('Content-Type', 'text/csv');
-      $this->getResponse()->setHeader('Content-Disposition',
-             'attachment; filename="' . $filename . '"');
-   }
 
    /**
     * summary statistics based on facets in the solr index
