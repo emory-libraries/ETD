@@ -223,7 +223,11 @@ class ManageController extends Etd_Controller_Action {
         $notify = new etd_notifier($etd);
         //author-school currently only used with honors
         $sendTo = ($etd->schoolId() == "honors" ? "author-school" : "author");
-        $to = $notify->request_changes($subject, $content, $sendTo);
+        // Specifically set the "from" email address to the current user.
+        $sendFrom = array("eaddr" => $this->current_user->netid . "@emory.edu",
+                        "name" => "Emory ETD Admin: " . $this->current_user->fullname);
+
+        $to = $notify->request_changes($subject, $content, $sendTo, $sendFrom);
         $this->_helper->flashMessenger->addMessage("Email sent to <b>" . implode(', ', array_keys($to)) . "</b>");
 
        $this->_helper->flashMessenger->addMessage("Changes requested; record status changed to <b>$newstatus</b>");

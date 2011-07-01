@@ -59,8 +59,11 @@ class etd_notifier extends notifier {
    *   - permanent : send to author's permanent address and to committee
    *   - all : (default) send to both author's email addresses and to committee
    * @param boolean $bcc_admin - bcc the etd admin that is configured in the project or not (default is true)
+   * @param array $from - email address and name of sender
+   *   - "eaddr" : sender email address
+   *   - "name" : sender name
    */
-  protected function setRecipients($who = "all", $bcc_admin = true) {
+  protected function setRecipients($who = "all", $bcc_admin = true, $from = null) {
 
     // configure who should receive this email
     switch ($who) {
@@ -86,8 +89,15 @@ class etd_notifier extends notifier {
     // contact information - where questions should be directed
     $this->view->contact = $config->contact;
     
-    $this->mail->setFrom($config->email->etd->address,
-			 $config->email->etd->name);
+    // If the "from" email address is defined, then use it.
+    $from_eaddr = $config->email->etd->address;
+    $from_name = $config->contact->name;
+    if (isset($from)) {      
+      $from_eaddr = (isset($from["eaddr"])) ? $from["eaddr"] : $config->email->etd->address;
+      $from_name = (isset($from["name"])) ? $from["name"] : $config->contact->name;            
+    }
+ 
+    $this->mail->setFrom($from_eaddr, $from_name);
     $this->mail->setReplyTo($config->contact->email,
 			 $config->contact->name);
 
@@ -270,11 +280,12 @@ if ($environment->mode != "production") {
    * @param string $subject subject for the email
    * @param string $text email content to include in the output
    * @param string $to code for group to send to
+   * @param string $from code for group to send from
    * @return array of addresses email was sent to
    */
-  public function request_changes($subject, $text, $to="author") {
+  public function request_changes($subject, $text, $to="author", $from=null) {
     // don't send to committee
-    $this->setRecipients($to);
+    $this->setRecipients($to, true, $from);
     $this->mail->setSubject($subject);
     $this->view->text = $text;
     $this->setBodyHtml($this->view->render("email/request_changes.phtml"));

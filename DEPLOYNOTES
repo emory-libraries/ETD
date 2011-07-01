@@ -72,6 +72,10 @@ Update the ETD control objects for particular fedora instance.
 UPGRADE NOTES
 =================
 
+Version 1.10.5
+--------------
+* Update the svn repository.
+
 Version 1.10.4
 --------------
 * Update the svn repository.

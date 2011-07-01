@@ -28,6 +28,11 @@ Zend_Registry::set('debug', false);
 $src_dir = "../../src";
 $config_dir = $src_dir . "/config/";
 Zend_Registry::set("config-dir", $config_dir);
+// set environment variables
+$proxy = getenv('HTTP_PROXY');
+if (!isset($proxy)) {
+  putenv("HTTP_PROXY=tcp://skoda.library.emory.edu:3128/");
+}
 
 // needed for notifier
 $config = new Zend_Config_Xml($config_dir . "config.xml", $mode);
