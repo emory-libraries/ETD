@@ -248,9 +248,9 @@ function testExportEmailsAction() {
     $ReportController = new ReportControllerForTest($this->request,$this->response);
     $ReportController->exportEmailsAction();
 
-    $this->assertTrue(isset($ReportController->view->options_year));
-    $this->assertTrue(isset($ReportController->view->options_school));
-    $this->assertTrue(isset($ReportController->view->options_status));
+    $this->assertTrue(isset($ReportController->view->options_year), "Export Email Report should have a year parameter.");
+    $this->assertTrue(isset($ReportController->view->options_school), "Export Email Report should have a school parameter.");
+    $this->assertTrue(isset($ReportController->view->options_status), "Export Email Report should have a status parameter.");
 
     //test as student,  all other tests are done as admin
     $this->test_user->role = "student";
