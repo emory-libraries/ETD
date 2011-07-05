@@ -326,15 +326,15 @@ class ReportController extends Etd_Controller_Action {
     }
 
     /*
-     * generate a CSV file of graduate school data for the requested date range
+     * generate a CSV file of student emails based on school/year/status
      */
     public function exportEmailsCsvAction(){
       if(!$this->_helper->access->allowed("report", "view")) {return false;}
 
       // get parameters from post, and set default if null
-      $exportYear=($this->_hasParam("exportYear")) ? $this->_getParam("exportYear") : date('Y');
-      $exportSchool=($this->_hasParam("exportSchool")) ? $this->_getParam("exportSchool") : 'grad';
-      $exportStatus=($this->_hasParam("exportStatus")) ? $this->_getParam("exportStatus") : 'published';
+      $exportYear = $this->_getParam("exportYear", date('Y'));
+      $exportSchool = $this->_getParam("exportSchool",'grad');
+      $exportStatus = $this->_getParam("exportStatus",'published');;
 
       // Retrieve the school collection in the schools config file
       // Must use quotes because value has a colon and have to escape the quotes
@@ -349,16 +349,11 @@ class ReportController extends Etd_Controller_Action {
         
       $etdSet = new EtdSet(); 
       
-      switch ($exportStatus) {
-        case "approved": // The approved status does not take the year parameter
-          $options = array("AND" => array("status" => $exportStatus, "collection" => $collection), 
+      $options = array("AND" => array("status" => $exportStatus, "collection" => $collection), 
                        "start" => 0, "max" => 2000);          
-          break;
-        case "published":
-          $options = array("AND" => array("status" => $exportStatus, "year" => $exportYear, "collection" => $collection), 
-                       "start" => 0, "max" => 2000);       
-          break;
-      }      
+
+      if ($exportStatus == "published") // published etd take an additional parameter
+        $options["AND"]["year"] = $exportYear; 
 
       $etdSet->find($options);
 
