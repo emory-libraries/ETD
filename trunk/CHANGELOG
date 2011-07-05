@@ -1,5 +1,15 @@
 CHANGE LOG 
 =================
+Version 1.10.6 - July 2011 (bugfix)
+---------------------------------------
+* Improved PDF Processing on Advisor prefixes. 
+* Improved PDF Processing on Abstract data. 
+* Create the ark target based on the originating server.
+* New link available at top of ETD edit record page to jump to replace PDF.
+* Revised ETD email report to take parameters for school, year and status.
+* Set the sender/from email address for "request changes" email to the etd school admin.
+* Allow the ark to be saved in the fedora file object DC datastream.
+
 Version 1.10.5 - June 2011 (bugfix)
 ---------------------------------------
 * Use a new local modified version of the mads schema
