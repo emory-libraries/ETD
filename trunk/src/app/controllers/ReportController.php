@@ -301,7 +301,7 @@ class ReportController extends Etd_Controller_Action {
       if(!$this->_helper->access->allowed("report", "view")) {return false;}
       $this->view->title = "Export Student Emails";
 
-      // parameter year
+      // The start year is hardcoded to save processing time with fedora/solr
       $startYear = 2007;
       $endYear = date('Y');
       for ($i = $endYear; $i >= $startYear; $i--) {
@@ -396,6 +396,7 @@ class ReportController extends Etd_Controller_Action {
       $this->_helper->layout->disableLayout();
       // add date to the suggested output filename
       $filename = "ETD_" . $exportStatus . "_emails_" . $exportYear . "_" . $exportSchool . "_" . date("Y-m-d") . ".csv";
+      // These reports should not be run often, so they are not cached.
       $this->getResponse()->setHeader('Cache-Control', 'public', true);
       $this->getResponse()->setHeader('Pragma','public',true);
       $this->getResponse()->setHeader('Expires','-1');
