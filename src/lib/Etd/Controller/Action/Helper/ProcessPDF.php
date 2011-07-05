@@ -613,43 +613,52 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
    * @param string $needle needle
    * @return int position
    */
-  public function positionMatch($haystack, $needle) {
-    
-    $pos = 0;
-            
-    for ($i = 0; $i <= strlen($needle)-1; $i++) { 
-      if ($haystack[$pos] == $needle[$i] || (ord($haystack[$pos])==10 && ord($needle[$i]) == 32)) {
-        $pos++;
+function positionMatch($abstract, $title) {
+   
+    //$logger = Zend_Registry::get('logger');
+    //$logger->err("Title=[$title]\n");    
+    //$logger->err("Abstract=[$abstract]\n");
+       
+    $pos = 0; // position in abstract index
+           
+    for ($i = 0; $i <= strlen($title)-1; $i++) {
+      
+      //$logger->err("ord[" . ord($abstract[$pos]) . "] pos[$pos]=[" . $abstract[$pos] . "]  === i[$i]=[" . $title[$i] . "] ord[" . ord($title[$i]) . "]\n");
+      
+      // Try to match abstract char with title; be flexible on space character.
+      if ($abstract[$pos] == $title[$i] || (ord($abstract[$pos])==10 && ord($title[$i]) == 32)) {
+        $pos++;        // match char in title, continue.
       }
       // Skip over tags and white spaces in the abstract text
-      else if ($pos < strlen($haystack) &&
-        ($haystack[$pos] == "<" || ($haystack[$pos] == " ") || (ord($haystack[$pos])==10))) { 
-        
-        while ($pos < strlen($haystack) &&
-              ($haystack[$pos] == "<" || ($haystack[$pos] == " ") || (ord($haystack[$pos])==10))) {              
-          
-          // Check for beginning of html tag, and jump to end of tag
-          if ($haystack[$pos] == "<") {              
-            $endpos = strpos(substr($haystack, $pos), ">");
-            $pos = $pos + $endpos + 1;              
+      else if ($pos < strlen($abstract) &&
+        ($abstract[$pos] == "<" || ($abstract[$pos] == " ") || (ord($abstract[$pos])==10))) {
+       
+        while ($pos < strlen($abstract) &&
+              ($abstract[$pos] == "<" || ($abstract[$pos] == " ") || (ord($abstract[$pos])==10))) {             
+         
+          // Check for beginning of html tag in abstract, and jump to end of tag
+          if ($abstract[$pos] == "<") {             
+            $endpos = strpos(substr($abstract, $pos), ">");
+            if ($endpos) $pos = $pos + $endpos + 1;    // End tag found, jump to end.
+            else return 0; // No end tag found; failure to match.            
           }
-          // Check for space character
-          else if (($haystack[$pos] == " ") || (ord($haystack[$pos])==10)) {        
-            while ($pos < strlen($haystack) && ($haystack[$pos] == " "|| ord($haystack[$pos])==10)) {  
+          // Check for space character(s) in abstract, jump to end of space character(s)
+          else if (($abstract[$pos] == " ") || (ord($abstract[$pos])==10)) {       
+            while ($pos < strlen($abstract) && ($abstract[$pos] == " "|| ord($abstract[$pos])==10)) { 
               $pos++;
             }
           }
-          if ($haystack[$pos] == $needle[$i] || (ord($haystack[$pos])==10 && ord($needle[$i]) == 32)) {              
-            $pos++;
+          // Done jumping over format characters, try to match char with title.
+          if ($abstract[$pos] == $title[$i]) {             
+            $pos++;    // match char in title, continue.
           }
-        }       
-      }      
+        }      
+      }     
       else {  // Failure to match
-        $pos = 0;
-        break;      
-      }       
-    } 
-                  
+        return 0;
+      }      
+    }
+                 
     return $pos;
   }
 }
