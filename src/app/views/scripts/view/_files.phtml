@@ -1,6 +1,6 @@
 <?= $this->javascript("util.js"); ?>
 <div id="files">
-    <h2>Files</h2>
+    <h2><a name="updatefile">Files</h2>
 <? if ($this->etd->isEmbargoed() && $this->etd->mods->isEmbargoRequested(etd_mods::EMBARGO_FILES)): ?>
     <p>Access restricted until <b><?= $this->etd->mods->embargo_end ?></b></p>
 <? elseif ($this->etd->status() == "published" && count($this->etd->pdfs) == 0): ?>
@@ -8,11 +8,12 @@
     if not embargoed, but published and no pdfs are found, display an error. */ ?>
    <p>File(s) temporarily unavailable.</p>
 <? endif ?>       
-
-     <? if ($this->acl->isAllowed($this->role, $this->etd, "add file")): ?>
+     <? if ($this->acl->isAllowed($this->role, $this->etd, "add file")): ?>    
        <p><a class="action" href="<?= $this->url(array("controller" => "file",
     "action" => "add", "etd" => $this->etd->pid), null, true, false)?>">add another file</a></p>
-    <? /* FIXME: only show this link if at least one category has more than one file */ ?>
+    <? /* Force a space to ensure "add another file" link to display when no files exist. */ ?>  
+    &nbsp;   
+    <? /* FIXME: only show this link if at least one category has more than one file */ ?>    
     <? if ($this->acl->isAllowed($this->role, $this->etd, "order files")
      && (count($this->etd->pdfs) > 1 || count($this->etd->originals) > 1
          || count($this->etd->supplements) > 1)): ?>
@@ -69,7 +70,7 @@
        $this->acl->isAllowed($this->role, $this->etd->originals[0], "edit") ||
        isset($this->etd->supplements[0]) &&
        $this->acl->isAllowed($this->role, $this->etd->supplements[0], "edit") ): ?>
-     <h3><a name="updatefile">Replace a File</a></h3>
+     <h3>Replace a File</a></h3>
      <p>If you would like to replace one of your files, upload the new version here.</p>
   <form name="updatefile" method="post" enctype="multipart/form-data" onsubmit="disableButton('Replace')"
   action="<?= $this->url(array("controller" => "file", "action" => "update",
@@ -91,6 +92,4 @@
   </p>
 </form>
   <? endif ?>
-
-
 </div>
