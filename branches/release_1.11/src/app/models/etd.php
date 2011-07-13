@@ -993,8 +993,13 @@ class etd extends foxml implements etdInterface {
         $logger->warn("ETD failed to set development/staging server url for ARK exception [" . $e->getMessage() . "]");
       }
       
-      // If using dev/staging server, reflect this in the ARK target URL.
-      if (!isset($ark_base)) $ark_base = "http://etd.library.emory.edu";     
+      // If in production environment or base url is not set, use etd.library.emory.edu
+      // otherwise if in dev/staging server, reflect this base url in the ARK target URL.
+      // Do not depend on getServer to define the production url.
+      $environment = Zend_Registry::get('env-config');      
+      if (($environment->mode == "production") || (!isset($ark_base))) {
+        $ark_base = "http://etd.library.emory.edu";
+      }    
       $ark_target = $ark_base . "/view/record/pid/emory:{%PID%}";     
             
       $ark = $persis->generateArk($ark_target, $this->label);
