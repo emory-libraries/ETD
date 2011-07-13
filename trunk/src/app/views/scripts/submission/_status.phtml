@@ -72,7 +72,14 @@
      </ul>
   <? endif ?>
 
-  <?= $etd->hasPDF() ? $ok : $incomplete ?> PDF file<br/>
+  <?if ($etd->hasPDF()) : ?>
+   <?= $ok ?> PDF file
+  <? else : ?>
+    <?= $incomplete ?> <a href="<?= $this->url(array('controller' => 'view', 'action' => 'record',
+      'pid' => $etd->pid), '', true, false)?>#updatefile">PDF file</a>
+  <? endif ?> <br/>  
+  
+  
   <?if ($etd->hasOriginal()) : ?>
    <?= $ok ?> original file
   <? else : ?>
