@@ -35,6 +35,12 @@ class AuthController extends Etd_Controller_Action {
 
      $authAdapter = new Zend_Auth_Adapter_Ldap($ldap_config->toArray(), $username, $password);
      $auth = Zend_Auth::getInstance();
+     // Check option to bypass ldap certificate in non-production environments only
+     $environment = Zend_Registry::get('env-config');         
+     $config = Zend_Registry::get('config');
+     if (($environment->mode != "production") && isset($config->certificate_required->ldap)) {     
+       putenv('LDAPTLS_REQCERT=' . $config->certificate_required->ldap);      
+     }
 
      $result = $auth->authenticate($authAdapter);
      if (!$result->isValid()) {

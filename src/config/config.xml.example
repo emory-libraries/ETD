@@ -88,6 +88,11 @@
       <cdn>http://dojocdn-test.library.emory.edu/dojo/</cdn>
       <version>1.2.3</version>
     </dojo>
+    <!-- Bypass the LDAP certificate authorization - available in non-prod envs only
+    <certificate_required>
+      <ldap>never</ldap>
+    </certificate_required> 
+    -->     
   </development>
 
   <test extends="development">
