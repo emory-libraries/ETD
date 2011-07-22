@@ -74,7 +74,13 @@ UPGRADE NOTES
 
 Version 1.11
 --------------
-* Update the svn repository.
+* Update the svn repository to release 1.11.
+* Update the fedora policy: data/fedora-xacml-policies/repository-policies/etd-policies/permit-etds-if-etdadmin.xml
+  remove the following lines:
+  <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">jreiff</AttributeValue>  <!-- honors - Joseph Reiff -->
+  <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">dlmurra</AttributeValue> <!-- Deanna Murray (EPI, GLEPI) -->
+* Update the etd mysql database
+  remove entries where netid="DLMURRA"
 
 Version 1.10.5
 --------------

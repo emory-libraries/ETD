@@ -1,5 +1,6 @@
 CHANGE LOG 
 =================
+
 Version 1.11 - July 2011
 ---------------------------------------
 * Improved PDF Processing on Advisor prefixes. 
@@ -9,6 +10,14 @@ Version 1.11 - July 2011
 * Revised ETD email report to take parameters for school, year and status.
 * Set the sender/from email address for "request changes" email to the etd school admin.
 * Allow the ark to be saved in the fedora file object DC datastream.
+* Remove two admins:
+  Joe Reiff, Emory College Honors Program
+  Deanne Murray, Rollins School of Public Health
+* Add ldap certificate setting for developers in configuration file.
+* Add firefox 5 to list of supported browsers.
+* Fix bug where "Add Another File" link does not display when all files have been removed.
+* Create a PID for the graduate exit survey documented on trac wiki site.
+* Add a link in the Submission Status list to the PDF file.
 
 Version 1.10.5 - June 2011 (bugfix)
 ---------------------------------------
