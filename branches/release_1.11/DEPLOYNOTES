@@ -79,6 +79,8 @@ Version 1.11
   remove the following lines:
   <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">jreiff</AttributeValue>  <!-- honors - Joseph Reiff -->
   <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">dlmurra</AttributeValue> <!-- Deanna Murray (EPI, GLEPI) -->
+  After the change, please reload the policies as detailed here:
+  https://larson.library.emory.edu/trac/fedora/wiki/Notes/Fedora_Notes#policies
 * Update the etd mysql database
   remove entries where netid="DLMURRA"
 
