@@ -15,33 +15,49 @@ class Services_IndexdataController extends Zend_Controller_Action {
   }
 
   public function indexAction() {
+
+    $this->_helper->viewRenderer->setNoRender();    
     
     // Get the ETD content models from config for reindexing
     // Hardcoded example: 
-    // array("emory-control:ETD-1.0", "emory-control:EtdFile-1.0", "emory-control:AuthorInformation-1.0")    
-    $config = Zend_Registry::get('config');
-    $etd_content_models = $config->contentModels->etd;
+    // (("emory-control:ETD-1.0"), ("emory-control:EtdFile-1.0"))
+    $content_models = array();        
+    $config = Zend_Registry::get('config');  
+    array_push($content_models, array($config->contentModels->etd));   
           
     // Get the solr url from solr config
     // Hardcoded example: 
-    // "http://dev11.library.emory.edu:8983/solr/etd/";     
-    $solr_config = Zend_Registry::get('solr');
-    $solr_url = $solr_config->server . "/" . $solr_config->path . ":" . $solr_config->port;
+    // "http://dev11.library.emory.edu:8983/solr/etd/"; 
+    $config_dir = Zend_Registry::get("config-dir");
+    $env_config = Zend_Registry::get("env-config");    
+    $solr_config = new Zend_Config_Xml($config_dir . "solr.xml", $env_config->mode);    
+    
+    try { // Get the scheme of the url
+      $front  = Zend_Controller_Front::getInstance();
+      $request = $front->getRequest();
+      $scheme = ($request->getServer("HTTPS") == "") ? "http://" : "https://";
+    } catch (Exception $e) {  // swallow exception
+      $logger->warn("Indexdata service failed to automatically set the scheme the url [" . $e->getMessage() . "]");
+    }
+    
+    if (!isset($scheme))   $scheme = "http://";
+          
+    $solr_url = $scheme . $solr_config->server . ":" . $solr_config->port . "/" . $solr_config->path ;
    
     
     // Index configuation data
-    // Hardcoded example:
+    // Hardcoded example json data returned:
     // '{
-    // "SOLR_URL": "http://dev11.library.emory.edu:8983/solr/smallpox/", 
+    // "SOLR_URL": "http://dev11.library.emory.edu:9083/solr/etd/", 
     // "CONTENT_MODELS": [
     // ["info:fedora/emory-control:ETD-1.0"], 
     // ["info:fedora/emory-control:EtdFile-1.0"], 
     // ["info:fedora/emory-control:AuthorInformation-1.0"]
     // ]}';
-    $options = array("SOLR_URL" =>$solr_url, "CONTENT_MODELS" => $etd_content_models);
-
-    echo  Zend_Json::encode($options);
-    
+    $options = array("SOLR_URL" =>$solr_url, "CONTENT_MODELS" => $content_models);
+    // remove escaped slash characters
+    echo str_replace("\/", "/", Zend_Json::encode($options));
+    $this->getResponse()->setHeader('Content-Type', "application/json");    
   }
 
   public function aboutAction() {
