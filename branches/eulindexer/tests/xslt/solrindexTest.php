@@ -79,6 +79,38 @@ class TestSolrIndexXslt extends UnitTestCase {
   function _destruct() { 
     rmdir($this->config->tmpdir);   
   }  
+  
+  function test_getIndexData() {
+    
+    // Ingest the Active pid into fedora
+    $this->etd->state = "Active";    
+    $this->etd->ingest("test etd xslt");
+    $contentModel = "emory-control:ETD-1.0";
+    $result = $this->etd->getIndexData($contentModel);
+    
+    $msg = "indexData should contain value for key=";    
+    $this->assertTrue($result, "getIndexData returned data");
+    $this->assertEqual("PID", array_search($this->etdpid, $result), $msg . "[PID]");
+    $this->assertEqual("collection", array_search("emory-control:ETD-GradSchool-collection", $result), $msg . "[collection]");
+    $this->assertEqual("contentModel", array_search($contentModel, $result), $msg . "[contentModel]");
+    $this->assertEqual("date_embargoedUntil", array_search($this->etd->mods->embargo_end, $result), $msg . "[date_embargoedUntil]");
+    $this->assertEqual("document_type", array_search($this->etd->document_type(), $result), $msg . "[document_type]");
+    $this->assertEqual("embargo_duration", array_search($this->etd->mods->embargo, $result), $msg . "[embargo_duration]");            
+    $embargo_requested = ($this->etd->mods->hasEmbargoRequest()) ? "yes" : "no";
+    $this->assertEqual("embargo_requested", array_search($embargo_requested, $result), $msg . "[embargo_requested]");
+    $this->assertEqual(2, count($this->etd->keywords()), $msg . "[keywords]  [" . count($this->etd->keywords()) . "] equals 1");  
+    $this->assertEqual("keyword1", $this->etd->mods->keywords[1], $msg . "[keywords]"); 
+    $lang = ($this->etd->language() && isset($this->etd->mods->language->text)) ? $this->etd->mods->language->text : null;
+    $this->assertEqual("language", array_search($lang, $result), $msg . "[language]");
+    $this->assertTrue(array_key_exists("lastModified", $result), $msg . "[lastModified]");
+    $this->assertEqual("ownerId", array_search($this->etd->owner, $result), $msg . "[ownerId]");
+    $this->assertEqual("program_id", array_search($this->etd->rels_ext->program, $result), $msg . "[program_id]");
+    $this->assertEqual("status", array_search($this->etd->status(), $result), $msg . "[status]");
+    $this->assertEqual(1, count($this->etd->researchfields()), $msg . "[subject]  [" . count($this->etd->researchfields()) . "] equals 1");   
+    $this->assertEqual("Area Studies", $this->etd->mods->researchfields[0], $msg . "[subject]");     
+    $this->assertEqual("title", array_search($this->etd->title(), $result), $msg . "[title]");
+  }
+  
      
   function test_activeEtdToFoxml() {
     
