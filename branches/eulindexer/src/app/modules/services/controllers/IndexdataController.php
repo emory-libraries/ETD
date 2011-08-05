@@ -11,26 +11,42 @@
 
 class Services_IndexdataController extends Zend_Controller_Action {
   protected $etdContentModel;
+  protected $pid;
+  
+  /**
+   * Magic/Missing method to catch all the individual topics so that
+   * they can be routed to the topicAction with the subject as a param.
+   * @param $name - name of the missing method.
+   * @param $arguments - any arguments.
+   */  
+  public function __call($name, $arguments)
+  {
+    // Look for url pattern /indexdata/{pid} and set the pid, if recognized
+    if (preg_match('@/indexdata/([^/]+/?$)@i', $_SERVER['REQUEST_URI'], $matches)) {
+      $this->pid = $matches[1];
+      $this->indexPid($this->pid); 	// get the indexdata for this pid 
+    }
+    else {
+      $this->_helper->redirector->gotoRouteAndExit(array("controller" => "error", "action" => "notfound"), "", true);
+    }
+  } 
 
   public function init() {
-          
+    
+    // these next two lines need to be here in order for __call to work
+    $this->_helper->layout->disableLayout();    
+    $this->_helper->viewRenderer->setNoRender();
+ 
     $config = Zend_Registry::get('config');
     $this->etdContentModel = $config->contentModels->etd;
-        
-    $this->_helper->layout->disableLayout();
+
   }
 
+  /**
+   * Get the index configuration data for the ETD-1.0 content model
+   * @return the index configuration data as json.
+   */
   public function indexAction() {
-    
-    // If parameter pid is set, then call indexPid.
-    $pid = $this->_getParam('pid', null);    
-    if (isset($pid)) {
-      $this->indexPid($pid);
-      return;   
-    }
-
-    // No pid in url, so run the generic indexdata on content model(s)
-    $this->_helper->viewRenderer->setNoRender();    
     
     // Get the ETD content models from config for reindexing
     $content_models = array();        
@@ -66,30 +82,40 @@ class Services_IndexdataController extends Zend_Controller_Action {
     $this->getResponse()->setHeader('Content-Type', "application/json");    
   }
 
+  /**
+   * About page for the service indexdata.
+   * @return about page for service indexdata.
+   */
   public function aboutAction() {
     $this->_forward("about");    
   }
-  
-  public function indexPid($pid) {
-    
-    $this->_helper->viewRenderer->setNoRender();
+   
+  /**
+   * Function to provide the data for indexing pid that is a member
+   * of ETD content model: ETD-1.0
+   * @return the index configuration data for pid as json.
+   */   
+  public function indexPid() {
     
     try {
-      $etd = new ETD($pid);
+      $etd = new ETD($this->pid);
       if ($etd->hasContentModel($this->etdContentModel)) {
 	$options = $etd->getIndexData($this->etdContentModel);
 	// remove escaped slash characters
 	echo str_replace("\/", "/", Zend_Json::encode($options)); 
 	$this->getResponse()->setHeader('Content-Type', "application/json");
       }
-      else {	// return a 404 response \
-	echo "404 error incorrect content model\n";          
-	$this->_response->setHttpResponseCode(404);    
+      else {	// return a 404 response
+	$message = "Error: PID=[" . $this->pid . "] is not recognized as a member of Content Model=[" . $this->etdContentModel . "]";
+	$this->_helper->flashMessenger->addMessage($message);
+	$this->_helper->redirector->gotoRouteAndExit(array("controller" => "error", "action" => "notfound"), "", true);    
       } 
     }
-    catch (Exception $e) {  
-      echo "404 in catch exception\n";    
-      $this->_response->setHttpResponseCode(404);      
+    catch (Exception $e) {
+      $message = "Error: PID=[" . $this->pid . "] is not recognized as a member of Content Model=[" . $this->etdContentModel . "]";
+      $this->_helper->flashMessenger->addMessage($message);
+      $this->_helper->redirector->gotoRouteAndExit(array("controller" => "error", "action" => "notfound"), "", true);          
     }                   
-  }  
+  } 
+
 }
