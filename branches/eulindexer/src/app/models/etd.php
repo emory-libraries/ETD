@@ -1351,16 +1351,18 @@ class etd extends foxml implements etdInterface {
   }
   
   /**
-   * getIndexData
-   * Return an array of solr data for this etd.
-   */
+   * get topic subject will extract the subject portion from the feed for display
+   * Do not include fields in the result set that are empty.
+   * @param $etdContentModel - the pid's ETD content model.
+   * @return an array of solr data for this etd.
+   */  
   public function getIndexData($etdContentModel) {
 
     $dateIssued = $state = null;
        
     $coll = $this->_get_school_config();
 
-    // Create the result set with two values we know to be populated.
+    // Initiate the result array with two values known to be populated.
     $options = array("PID" => $this->pid(), "collection" => $coll->fedora_collection); 
 	
     if ($this->_abstract() && ($this->_abstract()) != "")
@@ -1443,7 +1445,7 @@ class etd extends foxml implements etdInterface {
       $options["registering_copyright"] = $this->mods->copyright;
     }
     
-    if ($this->status() && $this->status() != "") {	// Fedora Object State
+    if ($this->status() && $this->status() != "") {	// Fedora Object State is based on the status
       $options["status"] = $this->status();
       switch ($this->status()) {
 	case "published":	$state = "Active";  break;
