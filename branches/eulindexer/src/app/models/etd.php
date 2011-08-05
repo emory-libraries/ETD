@@ -1356,28 +1356,31 @@ class etd extends foxml implements etdInterface {
    */
   public function getIndexData($etdContentModel) {
 
-    $copyright = $dateIssued = $state = null;
-    
-    if ($this->status()) {	// Fedora Object State
-      switch ($this->status()) {
-	case "published":	$state = "Active";  break;
-	case "inactive":	$state = "Inactive";  break;
-      }
-    }
-    
-    $advisor = array();		// committee chair(s) / advisors
-    $advisor_id = array();
+    $dateIssued = $state = null;
+       
+    $coll = $this->_get_school_config();
+
+    // Create the result set with two values we know to be populated.
+    $options = array("PID" => $this->pid(), "collection" => $coll->fedora_collection); 
+	
+    if ($this->_abstract() && ($this->_abstract()) != "")
+	$options["abstract"] = $this->_abstract();
+
+    $advisor = $advisor_id = array();		// committee chair(s) / advisors
     if ($this->chair()) {  
       foreach ($this->mods->chair as $chair) {
 	if ($chair->full != "") {
 	  array_push($advisor, $chair->full);	
-	  array_push($advisor_id, $ch->id);
+	  array_push($advisor_id, $chair->id);
 	}
       }
+      $options["advisor"] = $advisor;
+      $options["advisor_id"] = $advisor_id;      
     }
-    
-    $committee_members = array();	// committee members
-    $committee_members_id = array();  
+    						
+    if ($this->author() && $this->author() != "")	$options["author"] = $this->author();
+						
+    $committee_members = $committee_members_id = array();	// committee members 
     if ($this->committee()) {          
       foreach ($this->mods->committee as $committee_mem) {
 	if ($committee_mem->full != "") {
@@ -1385,74 +1388,80 @@ class etd extends foxml implements etdInterface {
 	  $committee_members_id[] = $committee_mem->id;	
 	}
       }
-    }
+      $options["committee"] = $committee_members;
+      $options["committee_id"] = $committee_members_id;      
+    }						
+						
+    if ($etdContentModel)			$options["contentModel"] = $etdContentModel;    
+    if (isset($this->mods->embargo_end) && $this->mods->embargo_end != "")	
+						$options["date_embargoedUntil"] = $this->mods->embargo_end;
+    if ($this->pubdate()) 			$dateIssued = str_replace("-", "", $this->pubdate());
+    if ($dateIssued && $dateIssued != "")	$options["dateIssued"] = $dateIssued;        
+    if (isset($this->mods->degree->level) && $this->mods->degree->level != "")	
+						$options["degree_level"] = $this->mods->degree->level; 
+    if (isset($this->mods->degree->name) && $this->mods->degree->name != "")	
+						$options["degree_name"] = $this->mods->degree->name; 
+    if ($this->document_type() && $this->document_type() != "")
+						$options["document_type"] = $this->document_type();
+    if (isset($this->mods->embargo) && $this->mods->embargo != "")
+						$options["embargo_duration"] = $this->mods->embargo;  
+    if (isset($this->mods->embargo_notice) && $this->mods->embargo_notice != "")
+						$options["embargo_notice"] = $this->mods->embargo_notice;
+    $embargo_requested = ($this->mods->hasEmbargoRequest()) ? "yes" : "no";
+    $options["embargo_requested"] = $embargo_requested;
     
     $keywords = array();	// Keywords, clean out empty values
     if ($this->keywords()) {        
       foreach ($this->mods->keywords as $k) {
 	if (trim($k->topic) != "") array_push($keywords, $k->topic);      		
       }
-    }
-    
-    if (isset($this->mods->copyright) && $this->mods->copyright != "") {
-      $copyright = $this->mods->copyright;	// yes/no value
-    }
-
-    if (count($advisor)) {
-	$options["advisor"] = $advisor;
-	$options["advisor_id"] = $advisor_id;
-    }
-   
-    if (count($committee_members)) {
-	$options["committee"] = $committee_members;
-	$options["committee_id"] = $committee_members_id;
-    }
-
+      $options["keywords"] = $keywords;      
+    }    
+    			
+    if (isset($this->label) && $this->label != "")
+						$options["label"] = $this->label;
+    $lang = ($this->language() && isset($this->mods->language->text)) ? $this->mods->language->text : null;						
+    if (isset($lang) && $lang != "")		$options["language"] = $lang;
+    if (isset($this->last_modified) && $this->last_modified != "")
+						$options["lastModified"] = $this->last_modified;
+    if ($this->num_pages() && $this->num_pages() != "")
+						$options["num_pages"] = $this->num_pages();
+    if (isset($this->owner) && $this->owner != "")
+						$options["ownerId"] = $this->owner;
     $pa_array = array();	// Partnering Agencies
     if ($this->partneringagencies()) {        
       foreach ($this->mods->partneringagencies as $pa) {
-	if (trim($pa->id) != "")	array_push($pa_array, $pa->id);      		
+	if (trim($pa->topic) != "")	array_push($pa_array, $pa->topic);      		
       }
     }
-    
-    $embargo_requested = ($this->mods->hasEmbargoRequest()) ? "yes" : "no";
-    
-    $lang = ($this->language() && isset($this->mods->language->text)) ? $this->mods->language->text : null; 
-
-    $coll = $this->_get_school_config();
-    
-    $options = array("PID" => $this->pid(), "collection" => $coll->fedora_collection); 
-	
-    if ($this->_abstract())			$options["abstract"] = $this->_abstract();
-    if ($this->author())			$options["author"] = $this->author();
-    if ($etdContentModel)			$options["contentModel"] = $etdContentModel;    
-    if (isset($this->mods->embargo_end))	$options["date_embargoedUntil"] = $this->mods->embargo_end;
-    if ($this->pubdate()) 			$dateIssued = str_replace("-", "", $this->pubdate());
-    if ($dateIssued)				$options["dateIssued"] = $dateIssued;        
-    if (isset($this->mods->degree->level))	$options["degree_level"] = $this->mods->degree->level; 
-    if (isset($this->mods->degree->name))	$options["degree_name"] = $this->mods->degree->name; 
-    if ($this->document_type())			$options["document_type"] = $this->document_type();
-    if (isset($this->mods->embargo))		$options["embargo_duration"] = $this->mods->embargo;  
-    if (isset($this->mods->embargo_notice))	$options["embargo_notice"] = $this->mods->embargo_notice;  
-    if ($embargo_requested)			$options["embargo_requested"] = $embargo_requested;
-    if (count($keywords)) 			$options["keywords"] = $keywords;
-    if (isset($this->label))			$options["label"] = $this->label;
-    if (isset($lang))				$options["language"] = $lang;
-    if (isset($this->last_modified))		$options["lastModified"] = $this->last_modified;
-    if ($this->num_pages())			$options["num_pages"] = $this->num_pages();
-    if (isset($this->owner))			$options["ownerId"] = $this->owner;           
     if (count($pa_array))			$options["partneringagencies"] = $pa_array;                   
-    if ($this->program())			$options["program"] = $this->program(); 
-    if ($this->program_id())			$options["program_id"] = $this->program_id();
-    if ($copyright)				$options["registering_copyright"] = $copyright; 
-    if ($state)					$options["state"] = $state;        
-    if ($this->status())			$options["status"] = $this->status(); 
-    if ($this->subfield())			$options["subfield"] = $this->subfield(); 
-    if ($this->subfield_id())			$options["subfield_id"] = $this->subfield_id();   
+    if ($this->program() && $this->program() != "")
+						$options["program"] = $this->program(); 
+    if ($this->program_id() && $this->program_id() != "")
+						$options["program_id"] = $this->program_id();
+    if (isset($this->mods->copyright) && $this->mods->copyright != "") {
+      $options["registering_copyright"] = $this->mods->copyright;
+    }
+    
+    if ($this->status() && $this->status() != "") {	// Fedora Object State
+      $options["status"] = $this->status();
+      switch ($this->status()) {
+	case "published":	$state = "Active";  break;
+	case "inactive":	$state = "Inactive";  break;
+      }
+    }
+    if ($state && $state != "")			$options["state"] = $state;
+						 
+    if ($this->subfield() && $this->subfield() != "")
+						$options["subfield"] = $this->subfield(); 
+    if ($this->subfield_id() && $this->subfield_id() != "")
+						$options["subfield_id"] = $this->subfield_id();   
     if (count($this->researchfields()))    	$options["subject"] = $this->researchfields();
-    if ($this->tableOfContents())		$options["tableOfContents"] = $this->tableOfContents();
-    if ($this->title())				$options["title"] = $this->title(); 
-    if ($this->year())				$options["year"] = $this->year(); 
+   
+    if ($this->tableOfContents() && trim($this->tableOfContents()) != "")
+						$options["tableOfContents"] = $this->tableOfContents();
+    if ($this->title() && $this->title() != "")	$options["title"] = $this->title(); 
+    if ($this->year() && $this->year() != "")	$options["year"] = $this->year(); 
 
     return ($options);    
   }  
