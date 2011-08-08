@@ -32,29 +32,30 @@ class AuthController extends Etd_Controller_Action {
 
      $config_dir = Zend_Registry::get("config-dir");
      $ldap_config = new Zend_Config_Xml($config_dir . "ldap.xml", $this->env);
-
+     
      $authAdapter = new Zend_Auth_Adapter_Ldap($ldap_config->toArray(), $username, $password);
      $auth = Zend_Auth::getInstance();
+     
      // Check option to bypass ldap certificate in non-production environments only
      $environment = Zend_Registry::get('env-config');         
      $config = Zend_Registry::get('config');
      if (($environment->mode != "production") && isset($config->certificate_required->ldap)) {     
        putenv('LDAPTLS_REQCERT=' . $config->certificate_required->ldap);      
      }
-
+     
      $result = $auth->authenticate($authAdapter);
      if (!$result->isValid()) {
        $message = "Error: login failed";
        switch($result->getCode()) {
        case Zend_Auth_Result::FAILURE_IDENTITY_NOT_FOUND :
        case Zend_Auth_Result::FAILURE_IDENTITY_AMBIGUOUS :
-   $message .= " - wrong username?";
-   break;
+	 $message .= " - wrong username?";
+	 break;
        case Zend_Auth_Result::FAILURE_CREDENTIAL_INVALID:
-   $message .= " - wrong password?";
-   break;
+	 $message .= " - wrong password?";
+	 break;
        default:
-   // no additional information for user
+	// no additional information for user
        }
 
        // display information about failed login / reason
@@ -67,18 +68,18 @@ class AuthController extends Etd_Controller_Action {
 
        // find this user in ESD and save their user information
        $esd = new esdPersonObject();
-       try {
-   $current_user = $esd->findByUsername($username);
+       try {	 
+	 $current_user = $esd->findByUsername($username);	 
 
-   // if user is not found in ESD, force init without ESD
-   if (! $current_user instanceOf esdPerson)
-     throw new Exception("Username $username not found in ESD");
+	 // if user is not found in ESD, force init without ESD
+	 if (! $current_user instanceOf esdPerson)
+	   throw new Exception("Username $username not found in ESD");
        } catch (Exception $e) {
-   // if ESD is not accessible, create an esdPerson object with netid only
-   $current_user = $esd->initializeWithoutEsd($username);
-   $this->logger->warn("could not access ESD; logging in without full user information");
-   
-   $this->_helper->flashMessenger->addMessage("Warning: could not access Emory Shared Data; some functionality may not be available");
+	 // if ESD is not accessible, create an esdPerson object with netid only
+	 $current_user = $esd->initializeWithoutEsd($username);
+	 $this->logger->warn("could not access ESD; logging in without full user information");
+	 
+	 $this->_helper->flashMessenger->addMessage("Warning: could not access Emory Shared Data; some functionality may not be available");
        }
 
        // store username for newly logged in user
