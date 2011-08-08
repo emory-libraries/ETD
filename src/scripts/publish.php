@@ -322,7 +322,7 @@ function get_graduate_etds($filename, $refdate = null) {
     if (count($data) < 2) continue;	// skip blank lines
     if(in_array($data[$degree], $honors_degrees) && empty($data[$honors])) { //skip entry if undergrad and honors not set
         $name_degree = $data[$lastname] . ", " . $data[$firstname] . " (" . $data[$major] . ")";
-        $logger->debug("Found undergrad, excluding because not honors: " . $data[$netid] . " $name_degree");
+        //$logger->debug("Found undergrad, excluding because not honors: " . $data[$netid] . " $name_degree");
         continue;
     } 
     if ($data[$degree_status] == "AW"  // degree status = awarded
@@ -843,7 +843,7 @@ function find_orphans() {
     $logger->notice("Found " . $count . " approved record" . ($count != 1 ? "s" : ""));
     $counts["numOfOrphanedEtd"] = $count;
     foreach ($etdSet->etds as $etd) {
-      $msg = $etd->author() . " " . $etd->ark();
+      $msg = $etd->author() . " [" . $etd->owner . "] " . $etd->ark();
       $logger->info("    " . $msg); 
       $orphanedEtds = $orphanedEtds . "\t" . $msg . "\n";
     }
