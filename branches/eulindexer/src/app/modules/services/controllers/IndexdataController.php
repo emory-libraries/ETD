@@ -152,7 +152,7 @@ class Services_IndexdataController extends Zend_Controller_Action {
     try {
       $etd = new ETD($this->pid);
       if ($etd->hasContentModel($this->etdContentModel)) {
-	$options = $etd->getIndexData($this->etdContentModel);
+	$options = $etd->getIndexData();
 	// remove escaped slash characters
 	echo str_replace("\/", "/", Zend_Json::encode($options)); 
 	$this->getResponse()->setHeader('Content-Type', "application/json");

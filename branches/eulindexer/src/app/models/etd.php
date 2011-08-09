@@ -1356,7 +1356,7 @@ class etd extends foxml implements etdInterface {
    * @param $etdContentModel - the pid's ETD content model.
    * @return an array of solr data for this etd.
    */  
-  public function getIndexData($etdContentModel) {
+  public function getIndexData() {
 
     $dateIssued = $state = null;
        
@@ -1394,7 +1394,7 @@ class etd extends foxml implements etdInterface {
       $options["committee_id"] = $committee_members_id;      
     }						
 						
-    if ($etdContentModel)			$options["contentModel"] = $etdContentModel;    
+    if ($this->rels_ext->hasModel)			$options["contentModel"] = $this->rels_ext->hasModel;						   
     if (isset($this->mods->embargo_end) && $this->mods->embargo_end != "")	
 						$options["date_embargoedUntil"] = $this->mods->embargo_end;
     if ($this->pubdate()) 			$dateIssued = str_replace("-", "", $this->pubdate());
@@ -1460,8 +1460,8 @@ class etd extends foxml implements etdInterface {
 						$options["subfield_id"] = $this->subfield_id();   
     if (count($this->researchfields()))    	$options["subject"] = $this->researchfields();
    
-    if ($this->tableOfContents() && trim($this->tableOfContents()) != "")
-						$options["tableOfContents"] = etd_html::removeTags($this->tableOfContents());
+    if ($this->mods->tableOfContents && $this->mods->tableOfContents != "")
+						$options["tableOfContents"] = etd_html::removeTags($this->mods->tableOfContents);
     if ($this->title() && $this->title() != "")	$options["title"] = etd_html::removeTags($this->title()); 
     if ($this->year() && $this->year() != "")	$options["year"] = $this->year(); 
 
