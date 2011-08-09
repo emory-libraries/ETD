@@ -1365,8 +1365,8 @@ class etd extends foxml implements etdInterface {
     // Initiate the result array with two values known to be populated.
     $options = array("PID" => $this->pid(), "collection" => $coll->fedora_collection); 
 	
-    if ($this->_abstract() && ($this->_abstract()) != "")
-	$options["abstract"] = $this->_abstract();
+    if ($this->mods->abstract && ($this->mods->abstract != ""))
+	$options["abstract"] = $this->mods->abstract;	
 
     $advisor = $advisor_id = array();		// committee chair(s) / advisors
     if ($this->chair()) {  
@@ -1461,8 +1461,8 @@ class etd extends foxml implements etdInterface {
     if (count($this->researchfields()))    	$options["subject"] = $this->researchfields();
    
     if ($this->tableOfContents() && trim($this->tableOfContents()) != "")
-						$options["tableOfContents"] = $this->tableOfContents();
-    if ($this->title() && $this->title() != "")	$options["title"] = $this->title(); 
+						$options["tableOfContents"] = etd_html::removeTags($this->tableOfContents());
+    if ($this->title() && $this->title() != "")	$options["title"] = etd_html::removeTags($this->title()); 
     if ($this->year() && $this->year() != "")	$options["year"] = $this->year(); 
 
     return ($options);    
