@@ -10,8 +10,60 @@
 
 
 class Services_IndexdataController extends Zend_Controller_Action {
+  
+  /**
+   * Content Model of ETD
+   * @var string 
+   */
   protected $etdContentModel;
+  
+  /**
+   * PID to be indexed.
+   * @var string 
+   */  
   protected $pid;
+  
+  /**
+   * copy of fedoraConnection with current user's auth credentials
+   * (to be restored in postDispatch)
+   * @var FedoraConnection
+   */
+  protected $_fedoraConnection;  
+  
+  /**
+   * Overriding fedora connection with a connection that uses
+   * maintenance account credentials.
+   * Note: this will be done before all actions in this
+   * controller, and the default fedora connection will restored
+   * by postDispatch.
+   */
+  public function preDispatch() {
+    
+    $logger = Zend_Registry::get('logger');    
+    
+    // store fedoraConnection with user auth credentials - to be restored in postDispatch
+    $this->_fedoraConnection = Zend_Registry::get("fedora");
+    
+    $fedora_cfg = Zend_Registry::get('fedora-config');
+    try {
+      $fedora_opts = $fedora_cfg->toArray();
+      // use default fedora config opts but with maintenance account credentials
+      $fedora_opts["username"] = $fedora_cfg->maintenance_account->username;
+      $fedora_opts["password"] = $fedora_cfg->maintenance_account->password;
+      $maintenance_fedora = new FedoraConnection($fedora_opts);
+    } catch (FedoraNotAvailable $e) {
+      $this->logger->err("Error connecting to Fedora with maintenance account - " . $e->getMessage());
+      $this->_forward("fedoraunavailable", "error"); 
+    } 
+    Zend_Registry::set("fedora", $maintenance_fedora);        
+  }  
+  
+  /**
+   * restore fedoraConnection with currently-logged in user's credentials
+   */
+  public function postDispatch() {
+    Zend_Registry::set("fedora", $this->_fedoraConnection);  
+  }  
   
   /**
    * Magic/Missing method to catch all the individual topics so that
