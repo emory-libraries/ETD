@@ -1,6 +1,13 @@
 CHANGE LOG 
 =================
 
+Version 1.12 - August 2011
+---------------------------------------
+* Indexdata service configures ETD Fedora content to be indexed in Solr using eulindexer.
+* Deploy eulindexer for ETD website:
+  * https://github.com/emory-libraries/eulindexer/blob/master/DEPLOYNOTES.rst
+* Reduced logging for publish script for revised ALUMNI.CSV file.
+
 Version 1.11 - July 2011
 ---------------------------------------
 * Improved PDF Processing on Advisor prefixes. 

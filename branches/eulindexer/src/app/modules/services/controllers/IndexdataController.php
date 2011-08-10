@@ -139,7 +139,7 @@ class Services_IndexdataController extends Zend_Controller_Action {
    * @return about page for service indexdata.
    */
   public function aboutAction() {
-    $this->_forward("about");    
+    $this->_helper->viewRenderer->setNoRender(false); 
   }
    
   /**
