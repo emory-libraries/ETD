@@ -1363,7 +1363,7 @@ class etd extends foxml implements etdInterface {
     $coll = $this->_get_school_config();
 
     // Initiate the result array with two values known to be populated.
-    $options = array("PID" => $this->pid(), "collection" => $coll->fedora_collection); 
+    $options = array("PID" => $this->pid()); 
 	
     if ($this->mods->abstract && ($this->mods->abstract != ""))
 	$options["abstract"] = $this->mods->abstract;	
@@ -1381,6 +1381,7 @@ class etd extends foxml implements etdInterface {
     }
     						
     if ($this->author() && $this->author() != "")	$options["author"] = $this->author();
+    $options["collection"] = $coll->fedora_collection;    
 						
     $committee_members = $committee_members_id = array();	// committee members 
     if ($this->committee()) {          
