@@ -1,18 +1,16 @@
-<h1>About the web service: Indexdata (eulindexer)</h1>
+<h1>About the web service:</h1>
 
-<p>This php web service provides solr index configuration and data to 
+<p>Indexdata is a php web service that provides solr index configuration and data to 
 <a target=_blank href="https://github.com/emory-libraries/eulindexer/blob/master/README.rst">eulindexer</a> 
-that will deposit this data into a SOLR index.</p>
+that will deposit data into a SOLR index.</p>
 <p></p>
 <p>Required parameters are:</p>
 <ul>
-  <li><i>default</i> - full index of all ETD objects that have a content model: "emory-control:ETD-1.0".<br/>
-  <li><b><i>{PID}</i></b> - single solr index for individual pid.</li>
-</ul>
-<p>Response are in JSON format examples:</p>
-<ul>
-  <li><i>default</i> <pre>{"SOLR_URL":"http://dev11.library.emory.edu:9083/solr/etd","CONTENT_MODELS":["emory-control:ETD-1.0"]}</pre><br/>
-  <li><b><i>{PID}</i></b> <pre>
+  <li><i>/services/indexdata</i> - full index of all ETD objects that have a content model: "emory-control:ETD-1.0".<br/>
+  <p>Response example:<pre>{"SOLR_URL":"http://dev11.library.emory.edu:9083/solr/etd","CONTENT_MODELS":["emory-control:ETD-1.0"]}</pre></p></li>
+  
+  <li><i>/services/indexdata/<b>{PID}</b></i> - single solr index for individual pid.
+  <p>Response example:<pre>
   {"PID":"emory:9kqb1",
   "advisor":["Thomas, Alexander"],
   "advisor_id":["athom09"],
@@ -44,7 +42,7 @@ that will deposit this data into a SOLR index.</p>
   "subfield_id":"rsph-bios",
   "subject":["Music","Biology, Bioinformatics","Biology, Biostatistics"],
   "title":"Indexdata test restricted toc and abstract",
-  "year":"2011"}</pre></li>
+  "year":"2011"}</pre></p></li>
 </ul>
 
 <hr/>
