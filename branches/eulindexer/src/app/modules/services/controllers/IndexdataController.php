@@ -102,7 +102,7 @@ class Services_IndexdataController extends Zend_Controller_Action {
     
     // Get the ETD content models from config for reindexing
     $content_models = array();        
-    array_push($content_models, $this->etdContentModel);   
+    array_push($content_models, array($this->etdContentModel));   
           
     // Get the solr url from solr config
     // Example: "http://dev11.library.emory.edu:8983/solr/etd/"
