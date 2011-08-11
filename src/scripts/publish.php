@@ -843,7 +843,7 @@ function find_orphans() {
     $logger->notice("Found " . $count . " approved record" . ($count != 1 ? "s" : ""));
     $counts["numOfOrphanedEtd"] = $count;
     foreach ($etdSet->etds as $etd) {
-      $msg = $etd->author() . " [" . $etd->owner . "] " . $etd->ark();
+      $msg = $etd->author() . " " . $etd->ark();
       $logger->info("    " . $msg); 
       $orphanedEtds = $orphanedEtds . "\t" . $msg . "\n";
     }
