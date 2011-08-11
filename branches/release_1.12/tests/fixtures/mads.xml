@@ -1,0 +1,38 @@
+        <mads:mads xmlns:mads="http://www.loc.gov/mads/" xmlns:mods="http://www.loc.gov/mods/v3">
+          <mads:authority>
+            <mads:name>
+              <mads:namePart type="family">Mouse</mads:namePart>
+              <mads:namePart type="given">Mickey</mads:namePart>
+              <mads:namePart type="date">1920</mads:namePart>
+            </mads:name>
+          </mads:authority>
+          <mads:affiliation>
+            <mads:position>permanent resident</mads:position>
+            <mads:address>
+              <mads:street>123 Disney Lane</mads:street>
+              <mads:city>Disney World</mads:city>
+              <mads:state>FL</mads:state>
+              <mads:country>USA</mads:country>
+              <mads:postcode>12345</mads:postcode>
+            </mads:address>
+            <mads:email>mickey@disney.com</mads:email>
+            <mads:phone/>
+            <mads:dateValid>2009-12-15</mads:dateValid>
+          </mads:affiliation>
+
+ <mads:affiliation>
+  <mads:position>degree candidate</mads:position> 
+  <mads:organization/>
+   <mads:address>
+     <mads:street/>
+     <mads:city/>
+     <mads:state/>
+     <mads:country>UNITED STATES</mads:country>
+     <mads:postcode/>
+   </mads:address>
+   <mads:email/>
+   <mads:phone/>
+   <mads:dateValid/>
+ </mads:affiliation>
+          <mads:identifier type="netid">mmouse</mads:identifier>
+        </mads:mads>
