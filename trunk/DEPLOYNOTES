@@ -72,6 +72,23 @@ Update the ETD control objects for particular fedora instance.
 UPGRADE NOTES
 =================
 
+Version 1.12
+--------------
+* Update the svn repository to release 1.12.
+* Restrict IP address access to these url patterns /services/indexdata and /services/indexdata/{PID}
+  The IP addresses allowed to access the indexdata service include:
+  * Server running the EULINDEXER for the ETD website.
+  * Developer machines supporting the ETD application and eulindexer.
+* Deploy eulindexer for ETD website:
+  * If eulindexer is not already deployed see deployment notes:
+    https://github.com/emory-libraries/eulindexer/blob/master/DEPLOYNOTES.rst
+  * Once eulindexer is deployed, configure for ETD site:
+    - update the localsettings to include the ETD site, modify url for correct location.
+      INDEXER_SITE_URLS = {
+	'ETD': 'http://servername.library.emory.edu/services/indexdata',
+      }
+    - restart eulindexer    
+  
 Version 1.11
 --------------
 * Update the svn repository to release 1.11.
