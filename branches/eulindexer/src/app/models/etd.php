@@ -1351,9 +1351,7 @@ class etd extends foxml implements etdInterface {
   }
   
   /**
-   * get topic subject will extract the subject portion from the feed for display
-   * Do not include fields in the result set that are empty.
-   * @param $etdContentModel - the pid's ETD content model.
+   * getIndexData will assemble the data needed for solr indexing
    * @return an array of solr data for this etd.
    */  
   public function getIndexData() {
