@@ -74,12 +74,12 @@ class Services_IndexdataController extends Zend_Controller_Action {
   public function __call($name, $arguments)
   {
     // Look for url pattern /indexdata/{pid} and set the pid, if recognized
-    if (preg_match('@/indexdata/([^/]+/?$)@i', $_SERVER['REQUEST_URI'], $matches)) {
+    if (preg_match('@/indexdata/([^/]+)/?$@i', $_SERVER['REQUEST_URI'], $matches)) {
       $this->pid = $matches[1];
       $this->indexPid($this->pid); 	// get the indexdata for this pid 
     }
     else {
-      $this->_helper->redirector->gotoRouteAndExit(array("controller" => "error", "action" => "notfound"), "", true);
+      //$this->_helper->redirector->gotoRouteAndExit(array("controller" => "error", "action" => "notfound"), "", true);
     }
   } 
 
@@ -102,7 +102,7 @@ class Services_IndexdataController extends Zend_Controller_Action {
     
     // Get the ETD content models from config for reindexing
     $content_models = array();        
-    array_push($content_models, array($this->etdContentModel));   
+    array_push($content_models, array("info:fedora/" . $this->etdContentModel));   
           
     // Get the solr url from solr config
     // Example: "http://dev11.library.emory.edu:8983/solr/etd/"

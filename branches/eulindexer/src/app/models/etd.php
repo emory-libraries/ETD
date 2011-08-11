@@ -1395,7 +1395,7 @@ class etd extends foxml implements etdInterface {
       $options["committee_id"] = $committee_members_id;      
     }						
 						
-    if ($this->rels_ext->hasModel)			$options["contentModel"] = $this->rels_ext->hasModel;						   
+    if ($this->rels_ext->hasModel)			$options["contentModel"] = "info:fedora/" . $this->rels_ext->hasModel;						   
     if (isset($this->mods->embargo_end) && $this->mods->embargo_end != "")	
 						$options["date_embargoedUntil"] = $this->mods->embargo_end;
     if ($this->pubdate()) 			$dateIssued = str_replace("-", "", $this->pubdate());
@@ -1418,15 +1418,13 @@ class etd extends foxml implements etdInterface {
       foreach ($this->mods->keywords as $k) {
 	if (trim($k->topic) != "") array_push($keywords, $k->topic);      		
       }
-      $options["keywords"] = $keywords;      
+      $options["keyword"] = $keywords;      
     }    
     			
     if (isset($this->label) && $this->label != "")
 						$options["label"] = $this->label;
     $lang = ($this->language() && isset($this->mods->language->text)) ? $this->mods->language->text : null;						
     if (isset($lang) && $lang != "")		$options["language"] = $lang;
-    if (isset($this->last_modified) && $this->last_modified != "")
-						$options["lastModified"] = $this->last_modified;
     if ($this->num_pages() && $this->num_pages() != "")
 						$options["num_pages"] = $this->num_pages();
     if (isset($this->owner) && $this->owner != "")
