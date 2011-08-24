@@ -24,17 +24,17 @@ class ManageControllerTest extends ControllerTestCase {
   
   function __construct() {
     $this->fedora = Zend_Registry::get("fedora");
-    $fedora_cfg = Zend_Registry::get('fedora-config');
-
-    // get 3 test pids to be used throughout test
-    $this->pids = $this->fedora->getNextPid($fedora_cfg->pidspace, 3);
-    list($this->published_etdpid, $this->reviewed_etdpid,  $this->userpid) = $this->pids;
-
     $this->schools_cfg = Zend_Registry::get('schools-config');
   }
 
 
   function setUp() {
+
+    // get 3 test pids to be used throughout test
+    $fedora_cfg = Zend_Registry::get('fedora-config');    
+    $this->pids = $this->fedora->getNextPid($fedora_cfg->pidspace, 3);
+    list($this->published_etdpid, $this->reviewed_etdpid,  $this->userpid) = $this->pids;
+        
     $ep = new esdPerson();
     $this->test_user = $ep->getTestPerson();
     $this->test_user->role = "admin";
@@ -91,8 +91,9 @@ class ManageControllerTest extends ControllerTestCase {
   }
   
   function tearDown() {
-    foreach ($this->pids as $pid)
-      $this->fedora->purge($pid, "removing test etd");
+    foreach ($this->pids as $pid) {
+      try { $this->fedora->purge($pid, "removing test etd");  } catch (Exception $e) {}
+    }
 
     Zend_Registry::set('solr', null);
     Zend_Registry::set('current_user', null);

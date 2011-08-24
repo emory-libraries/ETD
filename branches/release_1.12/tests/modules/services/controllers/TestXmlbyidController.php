@@ -15,16 +15,16 @@ class XmlbyidControllerTest extends ControllerTestCase {
   function __construct() {
     global $_SERVER;
     $this->fedora_cfg = Zend_Registry::get('fedora-config');
-
-    
     $this->fedora = Zend_Registry::get("fedora");
-    // generate one new pid in the configured fedora test pidspace
-    // will be used for test object (loaded & purged) throughout this test
-    $this->testpid = $this->fedora->getNextPid($this->fedora_cfg->pidspace);
   }
   
   
   function setUp() {
+    
+    // generate one new pid in the configured fedora test pidspace
+    // will be used for test object (loaded & purged) throughout this test
+    $this->testpid = $this->fedora->getNextPid($this->fedora_cfg->pidspace);
+        
     // override remote address to make requests look like they come from configured fedora instance
     // (all other hosts will get access denied)
     $_SERVER["REMOTE_ADDR"] = gethostbyname($this->fedora_cfg->server);
@@ -46,7 +46,8 @@ class XmlbyidControllerTest extends ControllerTestCase {
   }
   
   function tearDown() {
-    $this->fedora->purge($this->testpid, "removing test etd");
+    try { $this->fedora->purge($this->testpid, "removing test etd");  } catch (Exception $e) {}    
+    
 
     Zend_Registry::set('fedora-config', $this->orig_fedora_cfg);
   }

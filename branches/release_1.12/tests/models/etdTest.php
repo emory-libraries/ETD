@@ -5,32 +5,31 @@ require_once('models/esdPerson.php');
 require_once("fixtures/esd_data.php");
 
 class TestEtd extends UnitTestCase {
-    private $etd;
-    private $honors_etd;
-    private $person;
+  private $etd;
+  private $honors_etd;
+  private $person;
 
-    // fedoraConnection
-    private $fedora;
+  // fedoraConnection
+  private $fedora;
 
-    private $etdpid;
-    private $gradpid;
-    private $non_etdpid;
-
-    private $school_cfg;
-    
-    function __construct() {
-      $this->fedora = Zend_Registry::get("fedora");
-      $this->fedora_cfg = Zend_Registry::get('fedora-config');
-
-      $this->school_cfg = Zend_Registry::get("schools-config");
-      
-      // get test pids for fedora objects
-      list($this->etdpid, $this->gradpid,
-     $this->non_etdpid) = $this->fedora->getNextPid($this->fedora_cfg->pidspace, 3);
-    }
+  private $etdpid;
+  private $gradpid;
+  private $non_etdpid;
+  private $fedora_cfg;
+  private $school_cfg;
+  
+  function __construct() {
+    $this->fedora = Zend_Registry::get("fedora");
+    $this->school_cfg = Zend_Registry::get("schools-config");
+  }
 
     
   function setUp() {
+    // get 3 test pids to be used throughout test
+    $fedora_cfg = Zend_Registry::get('fedora-config');    
+    $this->pids = $this->fedora->getNextPid($fedora_cfg->pidspace, 3);
+    list($this->etdpid, $this->gradpid,  $this->non_etdpid) = $this->pids;
+         
     $fname = '../fixtures/etd1.xml';
     $dom = new DOMDocument();
     $dom->load($fname);
@@ -72,6 +71,10 @@ class TestEtd extends UnitTestCase {
   
   function tearDown() {
     $this->data->cleanUp();
+    
+    foreach ($this->pids as $pid) {
+      try { $this->fedora->purge($pid, "removing test etd"); } catch (Exception $e) {}
+    }
   }
   
   function testBasicProperties() {
@@ -496,8 +499,6 @@ class TestEtd extends UnitTestCase {
     $this->assertEqual($config_count, count($required),
            "number of required fields matches config - should be $config_count, got " .
            count($required));
-    
-    $this->fedora->purge($this->gradpid, "removing test etd");
   }
 
   function testRequiredFields() {
@@ -833,8 +834,6 @@ class TestEtd extends UnitTestCase {
       $mods = $etd->getMods();
       $this->assertNotNull($mods, "getMods() return response should not be empty");
       $this->assertPattern("|<mods:mods|", $mods, "getMods () result looks like MODS");
-
-      $this->fedora->purge($this->etdpid, "removing test etd");
   }
 
 
@@ -859,7 +858,7 @@ class TestEtd extends UnitTestCase {
   function testGetPreviousStatus() {
     // ingest a minimal, published record to test fedora methods as object methods
     $etd = new etd($this->school_cfg->emory_college);
-    $etd->pid = $this->fedora->getNextPid($this->fedora_cfg->pidspace);
+    $etd->pid = $this->etdpid;
     $etd->title = "test etd";
     $etd->mods->ark = "ark:/123/bcd";
     $etd->rels_ext->addRelation("rel:author", "me");  
@@ -893,8 +892,6 @@ class TestEtd extends UnitTestCase {
     $this->assertEqual("reviewed", $etd->previousStatus(),
            "previousStatus should return reviewed, got '"
            . $etd->previousStatus() . "'");
-
-    $this->fedora->purge($pid, "removing test etd");
   }
 
   function testUpdateEmbargo() {
@@ -1048,9 +1045,6 @@ class TestEtd extends UnitTestCase {
 
   function test_getIndexData() {
     
-    // Purge test pid and/or temporary fixture if it already exists.
-    try { $this->fedora->purge($this->etdpid, "removing test etd");  } catch (Exception $e) {}      
-    
     // Create an ETD   
     $this->etd = new etd($this->school_cfg->graduate_school);
     $this->etd->pid = $this->etdpid; 
@@ -1095,10 +1089,7 @@ class TestEtd extends UnitTestCase {
     $this->assertEqual(1, count($this->etd->researchfields()), $msg . "[subject]  [" . count($this->etd->researchfields()) . "] equals 1");   
     $this->assertEqual("Area Studies", $this->etd->mods->researchfields[0], $msg . "[subject]"); 
     $title = etd_html::removeTags($this->etd->title());  
-    $this->assertEqual("label", array_search($title, $result), $msg . "[label]");
-    
-    // Purge test pid and/or temporary fixture if it already exists.
-    try { $this->fedora->purge($this->etdpid, "removing test etd");  } catch (Exception $e) {}       
+    $this->assertEqual("label", array_search($title, $result), $msg . "[label]");      
   }
   
 }

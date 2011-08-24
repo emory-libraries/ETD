@@ -15,15 +15,16 @@ class TestGetFromFedora extends ControllerTestCase {
 
   function __construct() {
     $this->fedora = Zend_Registry::get("fedora");
-    $fedora_cfg = Zend_Registry::get('fedora-config');
-
-    // get test pids for fedora objects
-    list($this->etdpid, $this->filepid,
-	   $this->userpid) = $this->fedora->getNextPid($fedora_cfg->pidspace, 3);
   }
 
 
   function setUp() {
+
+    // get test pids for fedora objects
+    $fedora_cfg = Zend_Registry::get('fedora-config');    
+    list($this->etdpid, $this->filepid,
+	   $this->userpid) = $this->fedora->getNextPid($fedora_cfg->pidspace, 3);
+	       
     $_GET = array();
     $_POST = array();
     
@@ -59,9 +60,10 @@ class TestGetFromFedora extends ControllerTestCase {
 
   function tearDown() {
     $this->resetGet();
-    $this->_fedora->purge($this->etdpid, "removing test etd");
-    $this->_fedora->purge($this->filepid, "removing test etd_file");
-    $this->_fedora->purge($this->userpid, "removing test etd authorInfo");
+    try { $this->_fedora->purge($this->etdpid, "removing test etd");  } catch (Exception $e) {} 
+    try { $this->_fedora->purge($this->filepid, "removing test etd_file");  } catch (Exception $e) {}
+    try { $this->_fedora->purge($this->userpid, "removing test etd authorInfo");  } catch (Exception $e) {}           
+    
     // restore real fedora in registry (in case mock fedora was used)
     Zend_Registry::set('fedora', $this->_fedora);
   }
