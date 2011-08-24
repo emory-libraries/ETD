@@ -5,8 +5,6 @@ class TestSolrIndexXslt extends UnitTestCase {
   
   function __construct() {
     
-    echo "<br /> construct begin <br />";
-    
   /* How this test works:
    * The etdFoxmlToSolr.xslt stylesheet is tested using saxonb.
    * The saxonb applies the etdFoxmlToSolr.xslt stylesheet to the file 
@@ -45,12 +43,10 @@ class TestSolrIndexXslt extends UnitTestCase {
         
     // Create the temporary fixture file name
     $this->tmpfile = $this->config->tmpdir . "/fedora-etd-xslt-test.xml";
-    if (!file_exists($this->config->tmpdir))  mkdir($this->config->tmpdir, 0777, true);
-    echo "<br /> construct end <br />";    
+    if (!file_exists($this->config->tmpdir))  mkdir($this->config->tmpdir, 0777, true);   
   }
   
-  function setUp() { // delete tmp file prior to test if it exists.
-    echo "<br /> setUp begin <br />";  
+  function setUp() { // delete tmp file prior to test if it exists. 
     if (file_exists($this->tmpfile)) unlink($this->tmpfile);
         
     // Purge test pid and/or temporary fixture if it already exists.
@@ -73,22 +69,16 @@ class TestSolrIndexXslt extends UnitTestCase {
     $this->etd->mods->abstract = "Gouda or Cheddar?";
     $this->etd->mods->addPartneringAgency("Georgia state or local health department");  
     $this->etd->rels_ext->program = "Disney";
-    $this->etd->rels_ext->hasModel = "emory-control:ETD-1.0";
-    
-    echo "<br /> setUp end <br />";          
+    $this->etd->rels_ext->hasModel = "emory-control:ETD-1.0";       
   }
   
-  function tearDown() { 
-    echo "<br /> tearDown begin <br />";     
+  function tearDown() {      
     if (file_exists($this->tmpfile)) unlink($this->tmpfile);
-    try { $this->fedora->purge($this->etdpid, "removing test etd");  } catch (Exception $e) {} 
-    echo "<br /> tearDown end <br />";   
+    try { $this->fedora->purge($this->etdpid, "removing test etd");  } catch (Exception $e) {}   
   }
   
-  function _destruct() { 
-    echo "<br /> _destruct begin <br />";       
-    rmdir($this->config->tmpdir);  
-  echo "<br /> _destruct end <br />";  
+  function _destruct() {        
+    rmdir($this->config->tmpdir);   
   }  
   
   function test_activeEtdToFoxml() {
