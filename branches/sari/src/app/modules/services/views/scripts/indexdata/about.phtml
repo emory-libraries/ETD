@@ -1,0 +1,48 @@
+<h1>About the web service:</h1>
+
+<p>Indexdata is a php web service that provides solr index configuration and data to 
+<a target=_blank href="https://github.com/emory-libraries/eulindexer/blob/master/README.rst">eulindexer</a> 
+that will deposit data into a SOLR index.</p>
+<p></p>
+<p>Required parameters are:</p>
+<ul>
+  <li><i>/services/indexdata</i> - full index of all ETD objects that have a content model: "emory-control:ETD-1.0".<br/>
+  <p>Response example:<pre>{"SOLR_URL":"http://dev11.library.emory.edu:9083/solr/etd","CONTENT_MODELS":[["info:fedora/emory-control:ETD-1.0"]]}</pre></p></li>
+  
+  <li><i>/services/indexdata/<b>{PID}</b></i> - single solr index for individual pid.
+  <p>Response example:<pre>
+  {"PID":"emory:9kqb1",
+  "advisor":["Thomas, Alexander"],
+  "advisor_id":["athom09"],
+  "author":"Connard, Sari",
+  "collection":"emory-control:ETD-Rollins-collection",
+  "committee":["Anderson, Steven"],
+  "committee_id":["scande3"],
+  "contentModel":"info:fedora/emory-control:ETD-1.0",
+  "date_embargoedUntil":"2012-02-09",
+  "dateIssued":"20110831",
+  "degree_level":"masters (MSPH) ",
+  "degree_name":"MSPH",
+  "document_type":"Master's Thesis",
+  "embargo_duration":"6 months",
+  "embargo_requested":"yes",
+  "keyword":["test","indexdata"],
+  "label":"Indexdata test restricted toc and abstract",
+  "language":"English",
+  "num_pages":"278",
+  "ownerId":"sconna2",
+  "partneringagencies":["CDC","International Non-governmental organization (e.g., CARE, Inc.)"],
+  "program":"Biostatistics and Bioinformatics",
+  "program_id":"rsph-bb",
+  "registering_copyright":"no",
+  "status":"published",
+  "state":"Active",
+  "subfield":"Biostatistics",
+  "subfield_id":"rsph-bios",
+  "subject":["Music","Biology, Bioinformatics","Biology, Biostatistics"],
+  "title":"Indexdata test restricted toc and abstract",
+  "year":"2011"}</pre></p></li>
+</ul>
+
+<hr/>
+<p><small>2011-08-10</small></p>
