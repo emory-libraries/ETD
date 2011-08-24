@@ -5,6 +5,8 @@ class TestSolrIndexXslt extends UnitTestCase {
   
   function __construct() {
     
+    echo "<br /> construct begin <br />";
+    
   /* How this test works:
    * The etdFoxmlToSolr.xslt stylesheet is tested using saxonb.
    * The saxonb applies the etdFoxmlToSolr.xslt stylesheet to the file 
@@ -44,9 +46,11 @@ class TestSolrIndexXslt extends UnitTestCase {
     // Create the temporary fixture file name
     $this->tmpfile = $this->config->tmpdir . "/fedora-etd-xslt-test.xml";
     if (!file_exists($this->config->tmpdir))  mkdir($this->config->tmpdir, 0777, true);
+    echo "<br /> construct end <br />";    
   }
   
   function setUp() { // delete tmp file prior to test if it exists.
+    echo "<br /> setUp begin <br />";  
     if (file_exists($this->tmpfile)) unlink($this->tmpfile);
         
     // Purge test pid and/or temporary fixture if it already exists.
@@ -69,52 +73,24 @@ class TestSolrIndexXslt extends UnitTestCase {
     $this->etd->mods->abstract = "Gouda or Cheddar?";
     $this->etd->mods->addPartneringAgency("Georgia state or local health department");  
     $this->etd->rels_ext->program = "Disney";
-    $this->etd->rels_ext->hasModel = "emory-control:ETD-1.0";    
+    $this->etd->rels_ext->hasModel = "emory-control:ETD-1.0";
+    
+    echo "<br /> setUp end <br />";          
   }
   
   function tearDown() { 
+    echo "<br /> tearDown begin <br />";     
     if (file_exists($this->tmpfile)) unlink($this->tmpfile);
-    try { $this->fedora->purge($this->etdpid, "removing test etd");  } catch (Exception $e) {}     
+    try { $this->fedora->purge($this->etdpid, "removing test etd");  } catch (Exception $e) {} 
+    echo "<br /> tearDown end <br />";   
   }
   
   function _destruct() { 
-    rmdir($this->config->tmpdir);   
+    echo "<br /> _destruct begin <br />";       
+    rmdir($this->config->tmpdir);  
+  echo "<br /> _destruct end <br />";  
   }  
   
-  function test_getIndexData() {
-    
-    // Ingest the Active pid into fedora
-    $this->etd->state = "Active";    
-    $this->etd->ingest("test etd xslt");
-    $result = $this->etd->getIndexData();
-    
-    print_r($result);
-    
-    $msg = "indexData should contain value for key=";    
-    $this->assertTrue($result, "getIndexData returned data");
-    $this->assertEqual("PID", array_search($this->etdpid, $result), $msg . "[PID]");
-    $this->assertEqual("collection", array_search("emory-control:ETD-GradSchool-collection", $result), $msg . "[collection]");
-    $this->assertEqual("contentModel", array_search($this->etd->rels_ext->hasModel, $result), $msg . "[contentModel]");
-    $this->assertEqual("date_embargoedUntil", array_search($this->etd->mods->embargo_end, $result), $msg . "[date_embargoedUntil]");
-    $this->assertEqual("document_type", array_search($this->etd->document_type(), $result), $msg . "[document_type]");
-    $this->assertEqual("embargo_duration", array_search($this->etd->mods->embargo, $result), $msg . "[embargo_duration]");            
-    $embargo_requested = ($this->etd->mods->hasEmbargoRequest()) ? "yes" : "no";
-    $this->assertEqual("embargo_requested", array_search($embargo_requested, $result), $msg . "[embargo_requested]");
-    $this->assertEqual(2, count($this->etd->keywords()), $msg . "[keywords]  [" . count($this->etd->keywords()) . "] equals 1");  
-    $this->assertEqual("keyword1", $this->etd->mods->keywords[1], $msg . "[keywords]"); 
-    $lang = ($this->etd->language() && isset($this->etd->mods->language->text)) ? $this->etd->mods->language->text : null;
-    $this->assertEqual("language", array_search($lang, $result), $msg . "[language]");
-    $this->assertTrue(array_key_exists("lastModified", $result), $msg . "[lastModified]");
-    $this->assertEqual("ownerId", array_search($this->etd->owner, $result), $msg . "[ownerId]");
-    $this->assertEqual("program_id", array_search($this->etd->rels_ext->program, $result), $msg . "[program_id]");
-    $this->assertEqual("status", array_search($this->etd->status(), $result), $msg . "[status]");
-    $this->assertEqual(1, count($this->etd->researchfields()), $msg . "[subject]  [" . count($this->etd->researchfields()) . "] equals 1");   
-    $this->assertEqual("Area Studies", $this->etd->mods->researchfields[0], $msg . "[subject]"); 
-    $title = etd_html::removeTags($this->etd->title());  
-    $this->assertEqual("label", array_search($title, $result), $msg . "[label]");
-  }
-  
-     
   function test_activeEtdToFoxml() {
     
     // Ingest the Active pid into fedora

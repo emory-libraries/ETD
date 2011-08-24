@@ -1046,8 +1046,61 @@ class TestEtd extends UnitTestCase {
     $this->assertTrue($result);
 }
 
-
-
+  function test_getIndexData() {
+    
+    // Purge test pid and/or temporary fixture if it already exists.
+    try { $this->fedora->purge($this->etdpid, "removing test etd");  } catch (Exception $e) {}      
+    
+    // Create an ETD   
+    $this->etd = new etd($this->school_cfg->graduate_school);
+    $this->etd->pid = $this->etdpid; 
+    $this->etd->title = "Why I Like Cheese"; 
+    $this->etd->owner = "mmouse";    
+    $this->etd->updateEmbargo("2018-05-30", "embargo message"); 
+    $this->etd->mods->title = "MODS Xslt Test Title"; 
+    $this->etd->mods->embargo_end = "2016-05-30";
+    $this->etd->mods->genre = "Dissertation";   
+    $this->etd->mods->embargo = "6 months";
+    $this->etd->mods->addCommittee("Dog", "Pluto", "nonemory_chair", "notEmory");        
+    $this->etd->mods->setEmbargoRequestLevel(etd_mods::EMBARGO_NONE);
+    $this->etd->mods->addResearchField("Area Studies", "7025");   
+    $this->etd->mods->addKeyword("keyword1");
+    $this->etd->mods->abstract = "Gouda or Cheddar?";
+    $this->etd->mods->addPartneringAgency("Georgia state or local health department");  
+    $this->etd->rels_ext->program = "Disney";
+    $this->etd->rels_ext->hasModel = "emory-control:ETD-1.0";     
+    
+    // Ingest the Active pid into fedora
+    $this->etd->state = "Active";    
+    $this->etd->ingest("test etd xslt");
+    $result = $this->etd->getIndexData();
+    
+    $msg = "indexData should contain value for key=";    
+    $this->assertTrue($result, "getIndexData returned data");
+    $this->assertEqual("PID", array_search($this->etdpid, $result), $msg . "[PID]");
+    $this->assertEqual("collection", array_search("emory-control:ETD-GradSchool-collection", $result), $msg . "[collection]");
+    $this->assertEqual("contentModel", array_search('info:fedora/' . $this->etd->rels_ext->hasModel, $result), $msg . "[contentModel]");
+    $this->assertEqual("date_embargoedUntil", array_search($this->etd->mods->embargo_end, $result), $msg . "[date_embargoedUntil]");
+    $this->assertEqual("document_type", array_search($this->etd->document_type(), $result), $msg . "[document_type]");
+    $this->assertEqual("embargo_duration", array_search($this->etd->mods->embargo, $result), $msg . "[embargo_duration]");            
+    $embargo_requested = ($this->etd->mods->hasEmbargoRequest()) ? "yes" : "no";
+    $this->assertEqual("embargo_requested", array_search($embargo_requested, $result), $msg . "[embargo_requested]");
+    $this->assertEqual(2, count($this->etd->keywords()), $msg . "[keywords]  [" . count($this->etd->keywords()) . "] equals 1");  
+    $this->assertEqual("keyword1", $this->etd->mods->keywords[1], $msg . "[keywords]"); 
+    $lang = ($this->etd->language() && isset($this->etd->mods->language->text)) ? $this->etd->mods->language->text : null;
+    $this->assertEqual("language", array_search($lang, $result), $msg . "[language]");
+    $this->assertEqual("ownerId", array_search($this->etd->owner, $result), $msg . "[ownerId]");
+    $this->assertEqual("program_id", array_search($this->etd->rels_ext->program, $result), $msg . "[program_id]");
+    $this->assertEqual("status", array_search($this->etd->status(), $result), $msg . "[status]");
+    $this->assertEqual(1, count($this->etd->researchfields()), $msg . "[subject]  [" . count($this->etd->researchfields()) . "] equals 1");   
+    $this->assertEqual("Area Studies", $this->etd->mods->researchfields[0], $msg . "[subject]"); 
+    $title = etd_html::removeTags($this->etd->title());  
+    $this->assertEqual("label", array_search($title, $result), $msg . "[label]");
+    
+    // Purge test pid and/or temporary fixture if it already exists.
+    try { $this->fedora->purge($this->etdpid, "removing test etd");  } catch (Exception $e) {}       
+  }
+  
 }
 runtest(new TestEtd());
 
