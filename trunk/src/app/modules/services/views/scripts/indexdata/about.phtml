@@ -7,7 +7,7 @@ that will deposit data into a SOLR index.</p>
 <p>Required parameters are:</p>
 <ul>
   <li><i>/services/indexdata</i> - full index of all ETD objects that have a content model: "emory-control:ETD-1.0".<br/>
-  <p>Response example:<pre>{"SOLR_URL":"http://dev11.library.emory.edu:9083/solr/etd","CONTENT_MODELS":["emory-control:ETD-1.0"]}</pre></p></li>
+  <p>Response example:<pre>{"SOLR_URL":"http://dev11.library.emory.edu:9083/solr/etd","CONTENT_MODELS":[["info:fedora/emory-control:ETD-1.0"]]}</pre></p></li>
   
   <li><i>/services/indexdata/<b>{PID}</b></i> - single solr index for individual pid.
   <p>Response example:<pre>
@@ -18,7 +18,7 @@ that will deposit data into a SOLR index.</p>
   "collection":"emory-control:ETD-Rollins-collection",
   "committee":["Anderson, Steven"],
   "committee_id":["scande3"],
-  "contentModel":"emory-control:ETD-1.0",
+  "contentModel":"info:fedora/emory-control:ETD-1.0",
   "date_embargoedUntil":"2012-02-09",
   "dateIssued":"20110831",
   "degree_level":"masters (MSPH) ",
@@ -26,10 +26,9 @@ that will deposit data into a SOLR index.</p>
   "document_type":"Master's Thesis",
   "embargo_duration":"6 months",
   "embargo_requested":"yes",
-  "keywords":["test","indexdata"],
+  "keyword":["test","indexdata"],
   "label":"Indexdata test restricted toc and abstract",
   "language":"English",
-  "lastModified":"2011-08-09T19:07:19.841Z",
   "num_pages":"278",
   "ownerId":"sconna2",
   "partneringagencies":["CDC","International Non-governmental organization (e.g., CARE, Inc.)"],
