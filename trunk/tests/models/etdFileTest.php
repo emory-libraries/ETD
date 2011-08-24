@@ -14,15 +14,15 @@ class TestEtdFile extends UnitTestCase {
 
   function __construct() {
     $this->fedora = Zend_Registry::get("fedora");
-    $fedora_cfg = Zend_Registry::get('fedora-config');
-
-    // get 2 test pids 
-    $this->pids = $this->fedora->getNextPid($fedora_cfg->pidspace, 2);
-    list($this->etdpid, $this->filepid) = $this->pids;
   }
 
   
   function setUp() {
+    // get 2 test pids 
+    $fedora_cfg = Zend_Registry::get('fedora-config');    
+    $this->pids = $this->fedora->getNextPid($fedora_cfg->pidspace, 2);
+    list($this->etdpid, $this->filepid) = $this->pids;
+        
     $fname = '../fixtures/etdfile.xml';
     $dom = new DOMDocument();
     $dom->load($fname);
@@ -30,12 +30,8 @@ class TestEtdFile extends UnitTestCase {
   }
   
   function tearDown() {
-    try{
-        $fedora = Zend_Registry::get("fedora");
-        $fedora->purge($this->etdpid, "completed test");
-        $fedora->purge($this->filepid, "completed test");
-    }catch(Exception $e){} //Ignore exception if can not purge object
-
+    try { $this->fedora->purge($this->etdpid, "removing test etd");  } catch (Exception $e) {}
+    try { $this->fedora->purge($this->filepid, "removing test etdfile pid");  } catch (Exception $e) {}
   }
   
   function NOtestBasicProperties() {
@@ -105,10 +101,8 @@ class TestEtdFile extends UnitTestCase {
     
   }
 
-  function testDownload() {
+  function testSmFileDownload() {
     $fedora = Zend_Registry::get("fedora");
-
-    //Normal size file
     $etdfile = new etd_file();
     $etdfile->pid = $this->filepid;
     $file = "../fixtures/tinker_sample.pdf";
@@ -118,9 +112,11 @@ class TestEtdFile extends UnitTestCase {
     // get the content from fedora and check that it is the content we ingested
     $content = $etdfile->getFile();
     $this->assertEqual($original_md5, md5($content));
-    $fedora->purge($this->filepid, "completed test");
 
-    //Large file
+  }
+  
+    function testLgFileDownload() {
+    $fedora = Zend_Registry::get("fedora");
     $etdfile = new etd_file();
     $etdfile->pid = $this->filepid;
     $file = "../fixtures/large.pdf";
@@ -130,10 +126,8 @@ class TestEtdFile extends UnitTestCase {
     // get the content from fedora and check that it is the content we ingested
     $content = $etdfile->getFile();
     $this->assertEqual($original_md5, md5($content));
-    $fedora->purge($this->filepid, "completed test");
-
-    
   }
+  
 
 
   public function NOtestInitFromFile() {

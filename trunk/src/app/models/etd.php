@@ -1356,113 +1356,91 @@ class etd extends foxml implements etdInterface {
    */  
   public function getIndexData() {
 
-    $dateIssued = $state = null;
-       
-    $coll = $this->_get_school_config();
-
-    // Initiate the result array with two values known to be populated.
-    $options = array("PID" => $this->pid()); 
-	
-    if ($this->mods->abstract && ($this->mods->abstract != ""))
-	$options["abstract"] = $this->mods->abstract;	
-
-    $advisor = $advisor_id = array();		// committee chair(s) / advisors
-    if ($this->chair()) {  
-      foreach ($this->mods->chair as $chair) {
-	if ($chair->full != "") {
-	  array_push($advisor, $chair->full);	
-	  array_push($advisor_id, $chair->id);
-	}
-      }
-      $options["advisor"] = $advisor;
-      $options["advisor_id"] = $advisor_id;      
-    }
-    						
-    if ($this->author() && $this->author() != "")	$options["author"] = $this->author();
-    $options["collection"] = $coll->fedora_collection;    
-						
-    $committee_members = $committee_members_id = array();	// committee members 
-    if ($this->committee()) {          
-      foreach ($this->mods->committee as $committee_mem) {
-	if ($committee_mem->full != "") {
-	  $committee_members[] = $committee_mem->full;
-	  $committee_members_id[] = $committee_mem->id;	
-	}
-      }
-      $options["committee"] = $committee_members;
-      $options["committee_id"] = $committee_members_id;      
-    }						
-						
-    if ($this->rels_ext->hasModel)			$options["contentModel"] = "info:fedora/" . $this->rels_ext->hasModel;						   
-    if (isset($this->mods->embargo_end) && $this->mods->embargo_end != "")	
-						$options["date_embargoedUntil"] = $this->mods->embargo_end;
-    if ($this->pubdate()) 			$dateIssued = str_replace("-", "", $this->pubdate());
-    if ($dateIssued && $dateIssued != "")	$options["dateIssued"] = $dateIssued;        
-    if (isset($this->mods->degree->level) && $this->mods->degree->level != "")	
-						$options["degree_level"] = $this->mods->degree->level; 
-    if (isset($this->mods->degree->name) && $this->mods->degree->name != "")	
-						$options["degree_name"] = $this->mods->degree->name; 
-    if ($this->document_type() && $this->document_type() != "")
-						$options["document_type"] = $this->document_type();
-    if (isset($this->mods->embargo) && $this->mods->embargo != "")
-						$options["embargo_duration"] = $this->mods->embargo;  
-    if (isset($this->mods->embargo_notice) && $this->mods->embargo_notice != "")
-						$options["embargo_notice"] = $this->mods->embargo_notice;
-    $embargo_requested = ($this->mods->hasEmbargoRequest()) ? "yes" : "no";
-    $options["embargo_requested"] = $embargo_requested;
+    // Initiate the result array
+    $options = array("PID" => $this->pid());
     
-    $keywords = array();	// Keywords, clean out empty values
-    if ($this->keywords()) {        
-      foreach ($this->mods->keywords as $k) {
-	if (trim($k->topic) != "") array_push($keywords, $k->topic);      		
+    // Set Metadata Fields    
+    $options["status"] = $this->status();    
+    
+    // Set Fedora Top Level Fields
+    $options["label"] = (isset($this->label)) ? $this->label : null;
+    $options["ownerId"] = (isset($this->owner)) ? $this->owner : null;    
+    $options["state"] = (isset($this->state)) ? $this->state : null;
+
+    // Set MODS Fields
+    $options["author"] = $this->author();
+    $options["date_embargoedUntil"] = (isset($this->mods->embargo_end)) ? $this->mods->embargo_end : null;
+    $options["dateIssued"] = ($this->pubdate()) ? str_replace("-", "", $this->pubdate()) : null;    
+    $options["degree_level"] = (isset($this->mods->degree) && $this->mods->degree->level) ? $this->mods->degree->level : null;
+    $options["degree_name"] = ($this->mods->degree && $this->mods->degree->name) ? $this->mods->degree->name : null;
+    $options["document_type"] = $this->document_type();
+    $options["registering_copyright"] = (isset($this->mods->copyright)) ? $this->mods->copyright : null;    
+    $options["embargo_duration"] =  (isset($this->mods->embargo)) ? $this->mods->embargo : null;
+    $options["embargo_notice"] = (isset($this->mods->embargo_notice)) ? $this->mods->embargo_notice : null;
+    $options["embargo_requested"] = ($this->mods->hasEmbargoRequest()) ? "yes" : "no";
+    $options["language"] = (isset($this->mods->language) && isset($this->mods->language->text)) ? $this->mods->language->text : null;    
+    $options["num_pages"] = $this->num_pages(); 
+    $options["program"] = $this->program(); 
+    $options["program_id"] = $this->program_id();
+    $options["subfield"] = $this->subfield(); 
+    $options["subfield_id"] = $this->subfield_id();   
+    $options["subject"] = $this->researchfields();
+    $options["year"] = $this->year();
+    
+    // Set formatted fields title/abstract/TOC
+    // These fields must be retrieved from the mods record so tags are removed.
+    // Embargoed abstract/TOC should not be indexed.
+    $options["abstract"] = (isset($this->mods->abstract)) ? $this->mods->abstract : null;    
+    $options["tableOfContents"] = (isset($this->mods->tableOfContents)) ? $this->mods->tableOfContents : null;    
+    $options["title"] = (isset($this->mods->title)) ? $this->mods->title : null;
+        
+    // Set committee chair / advisor and committee member arrays
+    $advisor_committee_list = array("advisor" => "chair", "committee" => "committee"); 
+    foreach ($advisor_committee_list as $key => $value) {
+      $name = $id = array();
+      if ($key=="advisor" && $this->chair() || $key=="committee" && $this->committee()) {  
+	foreach ($this->mods->$value as $item) {
+	  if ($item->full != "") {
+	    array_push($name, $item->full);	
+	    array_push($id, $item->id);
+	  }
+	}
+	$options[$key] = $name;
+	$options[$key . "_id"] = $id;
       }
-      $options["keyword"] = $keywords;      
+    }
+    
+    // Set keyword and partnering agency arrays
+    $kplist = array("keyword" => "keywords", "partneringagencies" => "partneringagencies"); 
+    foreach ($kplist as $key => $value) {
+      $item_array = array();
+      if ($key=="keyword" && $this->keywords() || $key=="partneringagencies" && $this->partneringagencies()) {  
+	foreach ($this->mods->keywords as $kp) {
+	if (trim($kp->topic) != "") array_push($item_array, $kp->topic);      		
+      }
+      $options[$key] = $item_array;
+      }
     }    
-    			
-    if (isset($this->label) && $this->label != "")
-						$options["label"] = $this->label;
-    $lang = ($this->language() && isset($this->mods->language->text)) ? $this->mods->language->text : null;						
-    if (isset($lang) && $lang != "")		$options["language"] = $lang;
-    if ($this->num_pages() && $this->num_pages() != "")
-						$options["num_pages"] = $this->num_pages();
-    if (isset($this->owner) && $this->owner != "")
-						$options["ownerId"] = $this->owner;
-    $pa_array = array();	// Partnering Agencies
-    if ($this->partneringagencies()) {        
-      foreach ($this->mods->partneringagencies as $pa) {
-	if (trim($pa->topic) != "")	array_push($pa_array, $pa->topic);      		
-      }
-    }
-    if (count($pa_array))			$options["partneringagencies"] = $pa_array;                   
-    if ($this->program() && $this->program() != "")
-						$options["program"] = $this->program(); 
-    if ($this->program_id() && $this->program_id() != "")
-						$options["program_id"] = $this->program_id();
-    if (isset($this->mods->copyright) && $this->mods->copyright != "") {
-      $options["registering_copyright"] = $this->mods->copyright;
-    }
     
-    if ($this->status() && $this->status() != "") {	// Fedora Object State is based on the status
-      $options["status"] = $this->status();
-      switch ($this->status()) {
-	case "published":	$state = "Active";  break;
-	case "inactive":	$state = "Inactive";  break;
+    // Set RELS-EXT Fields 
+    $options["contentModel"] = ($this->rels_ext->hasModel) ? "info:fedora/" . $this->rels_ext->hasModel : null;
+    
+    if (isset($this->rels_ext->isMemberOfCollections) &&
+	  count($this->rels_ext->isMemberOfCollections)) {
+      for ($i = 0; $i < count($this->rels_ext->isMemberOfCollections); $i++) {
+	  $options["collection"] = preg_replace('@^info:fedora/@', '', $this->rels_ext->isMemberOfCollections[$i]);
       }
     }
-    if ($state && $state != "")			$options["state"] = $state;
-						 
-    if ($this->subfield() && $this->subfield() != "")
-						$options["subfield"] = $this->subfield(); 
-    if ($this->subfield_id() && $this->subfield_id() != "")
-						$options["subfield_id"] = $this->subfield_id();   
-    if (count($this->researchfields()))    	$options["subject"] = $this->researchfields();
-   
-    if ($this->mods->tableOfContents && $this->mods->tableOfContents != "")
-						$options["tableOfContents"] = etd_html::removeTags($this->mods->tableOfContents);
-    if ($this->title() && $this->title() != "")	$options["title"] = etd_html::removeTags($this->title()); 
-    if ($this->year() && $this->year() != "")	$options["year"] = $this->year(); 
+       
+    // Clear out null and empty values
+    foreach ($options as $key => $value) {
+      if (!$value || $value == "") {
+	unset($options[$key]);
+      }
+    }
 
-    return ($options);    
+    ksort($options);	// Sort the results for easy reading
+    return ($options);   
   }  
 
 }

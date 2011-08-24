@@ -21,18 +21,16 @@ class TestProgramXacml extends UnitTestCase {
   private $fedoraAdmin;
   private $fedora_cfg;
 
-
   function __construct() {
     $this->fedora_cfg = Zend_Registry::get('fedora-config');
     $this->fedoraAdmin = new FedoraConnection($this->fedora_cfg);
-
-    // get test pid for fedora fixture
-    $this->pid = $this->fedoraAdmin->getNextPid($this->fedora_cfg->pidspace);
   }
-
-
     
   function setUp() {
+    
+    // get test pid for fedora fixture
+    $this->pid = $this->fedoraAdmin->getNextPid($this->fedora_cfg->pidspace);
+        
     $this->dsid = "SKOS";
     
     if (!isset($this->fedoraAdmin)) {
@@ -53,7 +51,7 @@ class TestProgramXacml extends UnitTestCase {
 
   function tearDown() {
     setFedoraAccount("fedoraAdmin");
-    $this->fedoraAdmin->purge($this->pid, "removing test object");
+    try { $this->fedoraAdmin->purge($this->pid, "removing test object");  } catch (Exception $e) {}
   }
 
 

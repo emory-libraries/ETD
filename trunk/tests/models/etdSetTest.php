@@ -12,19 +12,18 @@ class TestEtdSet extends UnitTestCase {
   private $fedora;
   
   function __construct() {
-  
     $this->fedora = Zend_Registry::get("fedora");
-    $fedora_cfg = Zend_Registry::get('fedora-config');
-  
-    // get 2 test pids 
-    list($this->etdpid, $this->honors_etdpid) = $this->fedora->getNextPid($fedora_cfg->pidspace, 5);
   }
 
   function setUp() {
+  
+    // get 2 test pids 
+    $fedora_cfg = Zend_Registry::get('fedora-config');
+    list($this->etdpid, $this->honors_etdpid) = $this->fedora->getNextPid($fedora_cfg->pidspace, 2);
+        
     $this->etdset = new EtdSet();
     $this->fedora = Zend_Registry::get("fedora");
     $school_cfg = Zend_Registry::get("schools-config");
-
     
     $etd = new etd($school_cfg->graduate_school);
     $etd->pid = $this->etdpid;
@@ -49,8 +48,8 @@ class TestEtdSet extends UnitTestCase {
   }
   
   function tearDown() {
-    $this->fedora->purge($this->etdpid, "removing test etd");
-    $this->fedora->purge($this->honors_etdpid, "removing test honors etd");
+    try { $this->fedora->purge($this->etdpid, "removing test etd");  } catch (Exception $e) {}
+    try { $this->fedora->purge($this->honors_etdpid, "removing test honors etd");  } catch (Exception $e) {}        
   }
 
   function testInitialize() {
