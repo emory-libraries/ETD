@@ -20,15 +20,14 @@ class FileControllerTest extends ControllerTestCase {
 
   function __construct() {
     $this->fedora = Zend_Registry::get("fedora");
-    $fedora_cfg = Zend_Registry::get('fedora-config');
-
-    // get test pid
-    $this->etdpid = $this->fedora->getNextPid($fedora_cfg->pidspace);
   }
-
-
   
   function setUp() {
+
+    // get test pid
+    $fedora_cfg = Zend_Registry::get('fedora-config');    
+    $this->etdpid = $this->fedora->getNextPid($fedora_cfg->pidspace);
+        
     $this->response = $this->makeResponse();
     $this->request  = $this->makeRequest();
 
@@ -58,7 +57,8 @@ class FileControllerTest extends ControllerTestCase {
   }
   
   function tearDown() {
-    $this->fedora->purge($this->etdpid, "removing test etd");
+    
+    try { $this->fedora->purge($this->etdpid, "removing test etd");  } catch (Exception $e) {}    
 
     $FileController = new FileControllerForTest($this->request,$this->response);
     $gff = $FileController->getHelper("GetFromFedora");

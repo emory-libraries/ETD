@@ -29,14 +29,15 @@ class ReportControllerTest extends ControllerTestCase {
 
   function __construct() {
     $this->fedora = Zend_Registry::get("fedora");
-    $fedora_cfg = Zend_Registry::get('fedora-config');
-
-    // get pids for test objects
-    list($this->etd_pid, $this->author_pid) = $this->fedora->getNextPid($fedora_cfg->pidspace, 2);
   }
 
  
   function setUp() {
+
+    // get pids for test objects
+    $fedora_cfg = Zend_Registry::get('fedora-config');    
+    list($this->etd_pid, $this->author_pid) = $this->fedora->getNextPid($fedora_cfg->pidspace, 2);
+        
     $ep = new esdPerson();
     $this->test_user = $ep->getTestPerson();
     $this->test_user->role = "admin";
@@ -65,8 +66,6 @@ class ReportControllerTest extends ControllerTestCase {
     $foxml = new foxml($dom);
     $foxml->pid = $this->author_pid;
     $foxml->ingest("loading test authorInfo");
-
-
    
     $this->solr = &new Mock_Etd_Service_Solr();
     Zend_Registry::set('solr', $this->solr);
@@ -81,9 +80,8 @@ class ReportControllerTest extends ControllerTestCase {
   function tearDown() {
     Zend_Registry::set('solr', null);
     Zend_Registry::set('current_user', null);
-    $this->fedora->purge($this->etd_pid, "removing test etd");
-    $this->fedora->purge($this->author_pid, "removing test author info");
-
+    try { $this->fedora->purge($this->etd_pid, "removing test etd");  } catch (Exception $e) {}
+    try { $this->fedora->purge($this->author_pid, "removing test author info");  } catch (Exception $e) {}
   }
 
   function testcommencementReviewAction() {

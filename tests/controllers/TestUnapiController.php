@@ -14,15 +14,14 @@ class UnapiControllerTest extends ControllerTestCase {
   
   function __construct() {
     $this->fedora = Zend_Registry::get("fedora");
-    $fedora_cfg = Zend_Registry::get('fedora-config');
-    
-    // get test pid
-    $this->testpid = $this->fedora->getNextPid($fedora_cfg->pidspace);
   }
-
-
   
   function setUp() {
+    
+    // get test pid
+    $fedora_cfg = Zend_Registry::get('fedora-config');    
+    $this->testpid = $this->fedora->getNextPid($fedora_cfg->pidspace);
+        
     $this->response = $this->makeResponse();
     $this->request  = $this->makeRequest();
     $this->resetGet();
@@ -42,7 +41,8 @@ class UnapiControllerTest extends ControllerTestCase {
   
   function tearDown() {
     $fedora = Zend_Registry::get("fedora");
-    $fedora->purge($this->testpid, "removing test etd");
+    try { $fedora->purge($this->testpid, "removing test etd");  } catch (Exception $e) {}    
+    
   }
 
   function test_noparams() {

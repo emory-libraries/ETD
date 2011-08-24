@@ -18,7 +18,8 @@ Xmlbyid: This php web service retrieves an xml datastream from Fedora and then g
          - The related Fedora object is emory-control:ETDmetadataParts.
 	 
 Indexdata: This php web service provides solr index configuration and data to eulindexer that will deposit this data into a SOLR index.
-	Parameters are:
-	default - full index of all ETD objects that have a content model: "emory-control:ETD-1.0".
-	{PID} - solr index for individual pid.
+        - Source code for eulindexer: https://github.com/emory-libraries/eulindexer
+	- Parameters for indexdata service:
+	  default - full index of all ETD objects that have a content model: "emory-control:ETD-1.0".
+	  {PID} - solr index for individual pid.
 	 

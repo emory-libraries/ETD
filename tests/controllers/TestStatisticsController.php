@@ -18,14 +18,15 @@ class StatisticsControllerTest extends ControllerTestCase {
 
   function __construct() {
     $this->fedora = Zend_Registry::get("fedora");
-    $fedora_cfg = Zend_Registry::get('fedora-config');
-
-    // get test pid
-    $this->etdpid = $this->fedora->getNextPid($fedora_cfg->pidspace);
   }
 
   
   function setUp() {
+
+    // get test pid
+    $fedora_cfg = Zend_Registry::get('fedora-config');    
+    $this->etdpid = $this->fedora->getNextPid($fedora_cfg->pidspace);
+        
     $this->response = $this->makeResponse();
     $this->request  = $this->makeRequest();
 
@@ -40,6 +41,9 @@ class StatisticsControllerTest extends ControllerTestCase {
     // remove stats
     $db = Zend_Registry::get("stat-db");
     //    $db->delete("stats");
+    
+    try { $this->fedora->purge($this->etdpid, "removing test etd");  } catch (Exception $e) {}    
+        
   }
 
   function testCountryAction() {
@@ -100,9 +104,6 @@ class StatisticsControllerTest extends ControllerTestCase {
     $this->assertFalse(isset($statsController->view->country));
     $this->assertFalse(isset($statsController->view->month));
     $this->assertFalse(isset($statsController->view->countries));
-    
-    
-    $this->fedora->purge($this->etdpid, "removing test etd");
   }
   
 
