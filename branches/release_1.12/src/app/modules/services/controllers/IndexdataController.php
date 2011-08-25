@@ -129,9 +129,9 @@ class Services_IndexdataController extends Zend_Controller_Action {
     // ["info:fedora/emory-control:ETD-1.0"], 
     // ]}';    
     $options = array("SOLR_URL" =>$solr_url, "CONTENT_MODELS" => $content_models);
-    // remove escaped slash characters
-    echo str_replace("\/", "/", Zend_Json::encode($options));    
-    $this->getResponse()->setHeader('Content-Type', "application/json");    
+
+    $this->getResponse()->setHeader('Content-Type', "application/json");
+    $this->getResponse()->setBody(Zend_Json::encode($options));
   }
 
   /**
@@ -152,22 +152,18 @@ class Services_IndexdataController extends Zend_Controller_Action {
     try {
       $etd = new ETD($this->pid);
       if ($etd->hasContentModel($this->etdContentModel)) {
-	$options = $etd->getIndexData();
-	// remove escaped slash characters
-	echo str_replace("\/", "/", Zend_Json::encode($options)); 
+	$options = $etd->getIndexData();	
 	$this->getResponse()->setHeader('Content-Type', "application/json");
+	$this->getResponse()->setBody(Zend_Json::encode($options));	
       }
-      else {	// return a 404 response
-	$message = "Error: PID=[" . $this->pid . "] is not recognized as a member of Content Model=[" . $this->etdContentModel . "]";
-	$this->_helper->flashMessenger->addMessage($message);
-	$this->_helper->redirector->gotoRouteAndExit(array("controller" => "error", "action" => "notfound"), "", true);    
-      } 
+      return;
     }
-    catch (Exception $e) {
-      $message = "Error: PID=[" . $this->pid . "] is not recognized as a member of Content Model=[" . $this->etdContentModel . "]";
-      $this->_helper->flashMessenger->addMessage($message);
-      $this->_helper->redirector->gotoRouteAndExit(array("controller" => "error", "action" => "notfound"), "", true);          
-    }                   
+    catch (Exception $e) { }  // fall through to 404 error  
+    
+    // Display the 404 error
+    $message = "Error: Object (" . $this->pid . ") does not appear to be an ETD object (does not have content model : " . $this->etdContentModel . ")";
+    $this->_helper->flashMessenger->addMessage($message);
+    $this->_helper->redirector->gotoRouteAndExit(array("controller" => "error", "action" => "notfound"), "", true);                        
   } 
 
 }
