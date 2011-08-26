@@ -55,7 +55,14 @@ class Services_IndexdataController extends Zend_Controller_Action {
       $this->logger->err("Error connecting to Fedora with maintenance account - " . $e->getMessage());
       $this->_forward("fedoraunavailable", "error"); 
     } 
-    Zend_Registry::set("fedora", $maintenance_fedora);        
+    Zend_Registry::set("fedora", $maintenance_fedora);
+    
+    // these next two lines need to be here in order for __call to work
+    $this->_helper->layout->disableLayout();    
+    $this->_helper->viewRenderer->setNoRender();
+ 
+    $config = Zend_Registry::get('config');
+    $this->etdContentModel = $config->contentModels->etd;
   }  
   
   /**
@@ -82,17 +89,6 @@ class Services_IndexdataController extends Zend_Controller_Action {
       //$this->_helper->redirector->gotoRouteAndExit(array("controller" => "error", "action" => "notfound"), "", true);
     }
   } 
-
-  public function init() {
-    
-    // these next two lines need to be here in order for __call to work
-    $this->_helper->layout->disableLayout();    
-    $this->_helper->viewRenderer->setNoRender();
- 
-    $config = Zend_Registry::get('config');
-    $this->etdContentModel = $config->contentModels->etd;
-
-  }
 
   /**
    * Get the index configuration data for the ETD-1.0 content model
@@ -129,7 +125,6 @@ class Services_IndexdataController extends Zend_Controller_Action {
     // ["info:fedora/emory-control:ETD-1.0"], 
     // ]}';    
     $options = array("SOLR_URL" =>$solr_url, "CONTENT_MODELS" => $content_models);
-
     $this->getResponse()->setHeader('Content-Type', "application/json");
     $this->getResponse()->setBody(Zend_Json::encode($options));
   }
@@ -151,10 +146,9 @@ class Services_IndexdataController extends Zend_Controller_Action {
     
     try {
       $etd = new ETD($this->pid);
-      if ($etd->hasContentModel($this->etdContentModel)) {
-	$options = $etd->getIndexData();	
+      if ($etd->hasContentModel($this->etdContentModel)) {	
 	$this->getResponse()->setHeader('Content-Type', "application/json");
-	$this->getResponse()->setBody(Zend_Json::encode($options));	
+	$this->getResponse()->setBody(Zend_Json::encode($etd->getIndexData()));	
       }
       return;
     }
