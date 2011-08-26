@@ -15,13 +15,13 @@ class Services_IndexdataController extends Zend_Controller_Action {
    * Content Model of ETD
    * @var string 
    */
-  protected $etdContentModel;
+  public $etdContentModel;
   
   /**
    * PID to be indexed.
    * @var string 
    */  
-  protected $pid;
+  public $pid;
   
   /**
    * copy of fedoraConnection with current user's auth credentials
@@ -133,7 +133,7 @@ class Services_IndexdataController extends Zend_Controller_Action {
    * @return the index configuration data for pid as json.
    */   
   public function indexPid() {
-    
+
     try {
       $etd = new ETD($this->pid);
       if ($etd->hasContentModel($this->etdContentModel)) {	
@@ -148,6 +148,7 @@ class Services_IndexdataController extends Zend_Controller_Action {
     $message = "Error: Object (" . $this->pid . ") does not appear to be an ETD object (does not have content model : " . $this->etdContentModel . ")";
     $this->_helper->flashMessenger->addMessage($message);
     $this->_helper->redirector->gotoRouteAndExit(array("controller" => "error", "action" => "notfound"), "", true);                        
+    $this->_response->setHttpResponseCode(404);	// bad request
   } 
 
 }
