@@ -1062,7 +1062,8 @@ class TestEtd extends UnitTestCase {
     $this->etd->mods->abstract = "Gouda or Cheddar?";
     $this->etd->mods->addPartneringAgency("Georgia state or local health department");  
     $this->etd->rels_ext->program = "Disney";
-    $this->etd->rels_ext->hasModel = "emory-control:ETD-1.0";     
+    $this->etd->rels_ext->hasModel = "emory-control:ETD-1.0";   
+    $this->etd->mods->tableOfContents = "intro 1 -- chap 1 2 -- chap 2 3 -- chap 3 4 -- conclusion 5";  
     
     // Ingest the Active pid into fedora
     $this->etd->state = "Active";    
@@ -1072,6 +1073,7 @@ class TestEtd extends UnitTestCase {
     $msg = "indexData should contain value for key=";    
     $this->assertTrue($result, "getIndexData returned data");
     $this->assertEqual("PID", array_search($this->etdpid, $result), $msg . "[PID]");
+    $this->assertEqual("abstract", array_search($this->etd->mods->abstract, $result), $msg . "[abstract]");    
     $this->assertEqual("collection", array_search("emory-control:ETD-GradSchool-collection", $result), $msg . "[collection]");
     $this->assertEqual("contentModel", array_search('info:fedora/' . $this->etd->rels_ext->hasModel, $result), $msg . "[contentModel]");
     $this->assertEqual("date_embargoedUntil", array_search($this->etd->mods->embargo_end, $result), $msg . "[date_embargoedUntil]");
@@ -1088,6 +1090,7 @@ class TestEtd extends UnitTestCase {
     $this->assertEqual("status", array_search($this->etd->status(), $result), $msg . "[status]");
     $this->assertEqual(1, count($this->etd->researchfields()), $msg . "[subject]  [" . count($this->etd->researchfields()) . "] equals 1");   
     $this->assertEqual("Area Studies", $this->etd->mods->researchfields[0], $msg . "[subject]"); 
+    $this->assertEqual("tableOfContents", array_search($this->etd->mods->tableOfContents, $result), $msg . "[abstract]");     
     $title = etd_html::removeTags($this->etd->title());  
     $this->assertEqual("label", array_search($title, $result), $msg . "[label]");      
   }
