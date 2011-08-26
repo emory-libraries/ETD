@@ -104,18 +104,8 @@ class Services_IndexdataController extends Zend_Controller_Action {
     // Example: "http://dev11.library.emory.edu:8983/solr/etd/"
     $config_dir = Zend_Registry::get("config-dir");
     $env_config = Zend_Registry::get("env-config");    
-    $solr_config = new Zend_Config_Xml($config_dir . "solr.xml", $env_config->mode);    
-    
-    try { // Get the scheme of the url
-      $front  = Zend_Controller_Front::getInstance();
-      $request = $front->getRequest();
-      $scheme = ($request->getServer("HTTPS") == "") ? "http://" : "https://";
-    } catch (Exception $e) {  // swallow exception
-      $logger->warn("Indexdata service failed to automatically set the scheme the url [" . $e->getMessage() . "]");
-    }
-    if (!isset($scheme))   $scheme = "http://";
-          
-    $solr_url = $scheme . $solr_config->server . ":" . $solr_config->port . "/" . $solr_config->path ;
+    $solr_config = new Zend_Config_Xml($config_dir . "solr.xml", $env_config->mode);           
+    $solr_url = "http://" . $solr_config->server . ":" . $solr_config->port . "/" . $solr_config->path ;
     
     // Index configuation data
     // Example json data returned:
