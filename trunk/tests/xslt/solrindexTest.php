@@ -43,10 +43,10 @@ class TestSolrIndexXslt extends UnitTestCase {
         
     // Create the temporary fixture file name
     $this->tmpfile = $this->config->tmpdir . "/fedora-etd-xslt-test.xml";
-    if (!file_exists($this->config->tmpdir))  mkdir($this->config->tmpdir, 0777, true);
+    if (!file_exists($this->config->tmpdir))  mkdir($this->config->tmpdir, 0777, true);   
   }
   
-  function setUp() { // delete tmp file prior to test if it exists.
+  function setUp() { // delete tmp file prior to test if it exists. 
     if (file_exists($this->tmpfile)) unlink($this->tmpfile);
         
     // Purge test pid and/or temporary fixture if it already exists.
@@ -69,7 +69,7 @@ class TestSolrIndexXslt extends UnitTestCase {
     $this->etd->mods->abstract = "Gouda or Cheddar?";
     $this->etd->mods->addPartneringAgency("Georgia state or local health department");  
     $this->etd->rels_ext->program = "Disney";
-    $this->etd->rels_ext->hasModel = "emory-control:ETD-1.0";
+    $this->etd->rels_ext->hasModel = "emory-control:ETD-1.0";       
   }
   
   function tearDown() {      
@@ -77,7 +77,7 @@ class TestSolrIndexXslt extends UnitTestCase {
     try { $this->fedora->purge($this->etdpid, "removing test etd");  } catch (Exception $e) {}   
   }
   
-  function _destruct() {       
+  function _destruct() {        
     rmdir($this->config->tmpdir);   
   }  
   

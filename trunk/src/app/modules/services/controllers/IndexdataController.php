@@ -15,13 +15,13 @@ class Services_IndexdataController extends Zend_Controller_Action {
    * Content Model of ETD
    * @var string 
    */
-  protected $etdContentModel;
+  public $etdContentModel;
   
   /**
    * PID to be indexed.
    * @var string 
    */  
-  protected $pid;
+  public $pid;
   
   /**
    * copy of fedoraConnection with current user's auth credentials
@@ -55,7 +55,14 @@ class Services_IndexdataController extends Zend_Controller_Action {
       $this->logger->err("Error connecting to Fedora with maintenance account - " . $e->getMessage());
       $this->_forward("fedoraunavailable", "error"); 
     } 
-    Zend_Registry::set("fedora", $maintenance_fedora);        
+    Zend_Registry::set("fedora", $maintenance_fedora);
+    
+    // these next two lines need to be here in order for __call to work
+    $this->_helper->layout->disableLayout();    
+    $this->_helper->viewRenderer->setNoRender();
+ 
+    $config = Zend_Registry::get('config');
+    $this->etdContentModel = $config->contentModels->etd;
   }  
   
   /**
@@ -83,17 +90,6 @@ class Services_IndexdataController extends Zend_Controller_Action {
     }
   } 
 
-  public function init() {
-    
-    // these next two lines need to be here in order for __call to work
-    $this->_helper->layout->disableLayout();    
-    $this->_helper->viewRenderer->setNoRender();
- 
-    $config = Zend_Registry::get('config');
-    $this->etdContentModel = $config->contentModels->etd;
-
-  }
-
   /**
    * Get the index configuration data for the ETD-1.0 content model
    * @return the index configuration data as json.
@@ -108,18 +104,8 @@ class Services_IndexdataController extends Zend_Controller_Action {
     // Example: "http://dev11.library.emory.edu:8983/solr/etd/"
     $config_dir = Zend_Registry::get("config-dir");
     $env_config = Zend_Registry::get("env-config");    
-    $solr_config = new Zend_Config_Xml($config_dir . "solr.xml", $env_config->mode);    
-    
-    try { // Get the scheme of the url
-      $front  = Zend_Controller_Front::getInstance();
-      $request = $front->getRequest();
-      $scheme = ($request->getServer("HTTPS") == "") ? "http://" : "https://";
-    } catch (Exception $e) {  // swallow exception
-      $logger->warn("Indexdata service failed to automatically set the scheme the url [" . $e->getMessage() . "]");
-    }
-    if (!isset($scheme))   $scheme = "http://";
-          
-    $solr_url = $scheme . $solr_config->server . ":" . $solr_config->port . "/" . $solr_config->path ;
+    $solr_config = new Zend_Config_Xml($config_dir . "solr.xml", $env_config->mode);           
+    $solr_url = "http://" . $solr_config->server . ":" . $solr_config->port . "/" . $solr_config->path ;
     
     // Index configuation data
     // Example json data returned:
@@ -129,9 +115,8 @@ class Services_IndexdataController extends Zend_Controller_Action {
     // ["info:fedora/emory-control:ETD-1.0"], 
     // ]}';    
     $options = array("SOLR_URL" =>$solr_url, "CONTENT_MODELS" => $content_models);
-    // remove escaped slash characters
-    echo str_replace("\/", "/", Zend_Json::encode($options));    
-    $this->getResponse()->setHeader('Content-Type', "application/json");    
+    $this->getResponse()->setHeader('Content-Type', "application/json");
+    $this->getResponse()->setBody(Zend_Json::encode($options));
   }
 
   /**
@@ -148,26 +133,22 @@ class Services_IndexdataController extends Zend_Controller_Action {
    * @return the index configuration data for pid as json.
    */   
   public function indexPid() {
-    
+
     try {
       $etd = new ETD($this->pid);
-      if ($etd->hasContentModel($this->etdContentModel)) {
-	$options = $etd->getIndexData();
-	// remove escaped slash characters
-	echo str_replace("\/", "/", Zend_Json::encode($options)); 
+      if ($etd->hasContentModel($this->etdContentModel)) {	
 	$this->getResponse()->setHeader('Content-Type', "application/json");
+	$this->getResponse()->setBody(Zend_Json::encode($etd->getIndexData()));	
       }
-      else {	// return a 404 response
-	$message = "Error: PID=[" . $this->pid . "] is not recognized as a member of Content Model=[" . $this->etdContentModel . "]";
-	$this->_helper->flashMessenger->addMessage($message);
-	$this->_helper->redirector->gotoRouteAndExit(array("controller" => "error", "action" => "notfound"), "", true);    
-      } 
+      return;
     }
-    catch (Exception $e) {
-      $message = "Error: PID=[" . $this->pid . "] is not recognized as a member of Content Model=[" . $this->etdContentModel . "]";
-      $this->_helper->flashMessenger->addMessage($message);
-      $this->_helper->redirector->gotoRouteAndExit(array("controller" => "error", "action" => "notfound"), "", true);          
-    }                   
+    catch (Exception $e) { }  // fall through to 404 error  
+    
+    // Display the 404 error
+    $message = "Error: Object (" . $this->pid . ") does not appear to be an ETD object (does not have content model : " . $this->etdContentModel . ")";
+    $this->_helper->flashMessenger->addMessage($message);
+    $this->_helper->redirector->gotoRouteAndExit(array("controller" => "error", "action" => "notfound"), "", true);                        
+    $this->_response->setHttpResponseCode(404);	// bad request
   } 
 
 }
