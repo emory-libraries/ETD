@@ -248,7 +248,7 @@
    <field name="subject" type="text" indexed="true" stored="true" multiValued="true"/> 
    <field name="language" type="string" indexed="true" stored="false" required="false"/> 
    <field name="num_pages" type="integer" indexed="true" stored="false" required="false"/> 
-   <field name="program" type="text" indexed="true" stored="true" required="true" /> 
+   <field name="program" type="text" indexed="true" stored="true" required="false" /> 
    <field name="subfield" type="text" indexed="true" stored="true" required="false" /> 
    <field name="program_id" type="string" indexed="true" stored="true" required="false"/> 
    <field name="subfield_id" type="string" indexed="true" stored="true" required="false" /> 

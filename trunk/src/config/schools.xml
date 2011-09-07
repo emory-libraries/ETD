@@ -6,7 +6,7 @@
       <OAIInfo>ETD</OAIInfo>
   </all_schools>
   <graduate_school>
-    <label>Graduate School</label>
+    <label>Laney Graduate School</label>
     <acl_id>grad</acl_id>
     <db_id>GSAS</db_id>
     <fedora_collection>emory-control:ETD-GradSchool-collection</fedora_collection>
