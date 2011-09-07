@@ -20,7 +20,7 @@ Emory's repository.</p>
 <li>Submit all required forms to the ADAP in your department</li>
 <? endif ?>
 <? if ($this->etd->schoolId() != "rollins"): ?>
-    <li>Submit all required forms to the <?if($this->etd->schoolId() == "grad"):?>Laney <?endif?><?=$this->etd->admin_agent?></li>
+    <li>Submit all required forms to the <?=$this->etd->admin_agent?></li>
 <? else: ?>
     <li>Take the Graduate Information Survey and the Rollins Exit Survey</li>
 <? endif ?>
