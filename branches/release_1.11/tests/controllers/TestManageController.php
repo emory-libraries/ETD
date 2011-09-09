@@ -192,7 +192,7 @@ class ManageControllerTest extends ControllerTestCase {
     $ManageController->acceptAction();
     $etd = new etd($this->reviewed_etdpid); // get from fedora to check changes
     $last_event = count($etd->premis->event) - 1;
-    $this->assertEqual("Record reviewed by Graduate School", $etd->premis->event[$last_event]->detail);
+    $this->assertEqual("Record reviewed by Laney Graduate School", $etd->premis->event[$last_event]->detail);
 
     // FIXME: not allowed to do this on non-honors etd -- temporarily convert fixture to honors?
     /*    $this->test_user->role = "honors admin";
@@ -327,9 +327,9 @@ class ManageControllerTest extends ControllerTestCase {
     $this->assertPattern("/Email sent to/", $messages[0]);
     $this->assertPattern("/Changes requested;.*status changed/", $messages[1]);
 
-    $this->assertEqual("Changes to record requested by Graduate School", $etd->premis->event[$last_event]->detail);
+    $this->assertEqual("Changes to record requested by Laney Graduate School", $etd->premis->event[$last_event]->detail);
     $this->assertEqual("test_user", $etd->premis->event[$last_event]->agent->value);
-    $this->assertEqual("Changes to record requested by Graduate School", $etd->premis->event[$last_event]->detail);
+    $this->assertEqual("Changes to record requested by Laney Graduate School", $etd->premis->event[$last_event]->detail);
 }
 
   public function ApproveAction() {
@@ -414,7 +414,7 @@ class ManageControllerTest extends ControllerTestCase {
     $etd->save("set status to reviewed to test doApprove");
     $ManageController->doapproveAction();
     $etd = new etd($this->reviewed_etdpid);
-    $this->assertEqual("Record approved by Graduate School", $etd->premis->event[3]->detail);
+    $this->assertEqual("Record approved by Laney Graduate School", $etd->premis->event[3]->detail);
     */
   }
 

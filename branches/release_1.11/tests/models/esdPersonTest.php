@@ -268,7 +268,7 @@
 
     function testGetGenericAgent() {
       $this->user->role = "grad admin";
-      $this->assertEqual("Graduate School", $this->user->getGenericAgent());
+      $this->assertEqual("Laney Graduate School", $this->user->getGenericAgent());
       $this->user->role = "honors admin";
       $this->assertEqual("College Honors Program", $this->user->getGenericAgent());
       $this->user->role = "admin";

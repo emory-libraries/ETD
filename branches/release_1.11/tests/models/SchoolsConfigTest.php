@@ -22,7 +22,7 @@ class TestSchoolsConfig extends UnitTestCase {
 
   
   function testGetLabelById() {
-    $this->assertEqual("Graduate School", $this->schools->getLabel("graduate_school"));
+    $this->assertEqual("Laney Graduate School", $this->schools->getLabel("graduate_school"));
     $this->assertEqual("College Honors Program", $this->schools->getLabel("emory_college"));
     $this->assertEqual("Candler School of Theology", $this->schools->getLabel("candler"));
     $this->assertEqual("Rollins School of Public Health", $this->schools->getLabel("rollins"));    
@@ -108,7 +108,7 @@ class TestSchoolsConfig extends UnitTestCase {
   function testGetSchoolByAclId() {
     $school = $this->schools->getSchoolByAclId("grad");
     $this->assertIsA($school, "Zend_Config");
-    $this->assertEqual("Graduate School", $school->label);
+    $this->assertEqual("Laney Graduate School", $school->label);
     
     $school = $this->schools->getSchoolByAclId("honors");
     $this->assertIsA($school, "Zend_Config");

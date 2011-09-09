@@ -184,7 +184,7 @@ class SubmissionControllerTest extends ControllerTestCase {
     $this->assertEqual("chapter 1 -- chapter 2", $etd->mods->tableOfContents);
     $this->assertEqual("test", $etd->mods->keywords[0]->topic);
     $this->assertEqual("etd", $etd->mods->keywords[1]->topic);
-    $this->assertEqual("Graduate School", $etd->admin_agent);
+    $this->assertEqual("Laney Graduate School", $etd->admin_agent);
 
 
     // if student is honors, etd should be initialized the same but as
@@ -212,7 +212,7 @@ class SubmissionControllerTest extends ControllerTestCase {
     // if academic career missing - should set a default
     $this->test_user->academic_career = null;
     $etd = $SubmissionController->initialize_etd($test_info);
-    $this->assertEqual("Graduate School", $etd->admin_agent);
+    $this->assertEqual("Laney Graduate School", $etd->admin_agent);
     
     // PUBH test setting the program and department from the academic_plan_id
     $this->test_user->academic_plan_id = "MCHEPIMPH";    
@@ -240,7 +240,7 @@ class SubmissionControllerTest extends ControllerTestCase {
     $this->test_user->academic_career = "GRAD";
     $etd = $SubmissionController->initialize_etd($test_info);
     $this->assertIsA($etd, "etd");
-    $this->assertEqual("Graduate School", $etd->admin_agent);
+    $this->assertEqual("Laney Graduate School", $etd->admin_agent);
     $this->assertEqual("English", $etd->mods->department);
     $this->assertEqual("English", $etd->policy->view->condition->department);
     $this->assertEqual("english", $etd->rels_ext->program);
