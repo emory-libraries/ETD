@@ -86,11 +86,13 @@ class FileControllerTest extends ControllerTestCase {
     $headers = $FileController->getResponse()->getHeaders();
     $this->assertTrue(in_array(array("name" => "Content-Disposition",
              "value" => 'attachment; filename="author_dissertation.pdf"',
-             "replace" => ''), $headers));
+                                     "replace" => ''), $headers),
+          'filename should be set in Content-Disposition header');
 
     $this->assertTrue(in_array(array("name" => "Content-Type",
                                      "value" => 'application/pdf',
-                                     "replace" => ''), $headers));
+                                     "replace" => ''), $headers),
+           'Content-Type header should be set as application/pdf');
 
     // last-modified header from datastream last_modified
     $this->assertTrue(in_array(array("name" => "Last-Modified",
