@@ -9,6 +9,8 @@ Version 1.11.1 - September 2011
   honor if-none-match and if-modified-since headers on request 
 * Add last-modified header to etd record view; 
   honor if-modified-since header
+* If guest user, do not attempt to retrieve the abstract/toc 
+  if the abstract/toc is embargoed for fullrecord view.
 
 Version 1.11 - July 2011
 ---------------------------------------
