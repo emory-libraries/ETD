@@ -1,6 +1,15 @@
 CHANGE LOG 
 =================
 
+Version 1.11.1 - September 2011
+---------------------------------------
+* Change label for "Graduate School" to "Laney Graduate School" 
+* Fix bug for research fields link on short list.
+* Add last-modified and etag headers to file download view; 
+  honor if-none-match and if-modified-since headers on request 
+* Add last-modified header to etd record view; 
+  honor if-modified-since header
+
 Version 1.11 - July 2011
 ---------------------------------------
 * Improved PDF Processing on Advisor prefixes. 
