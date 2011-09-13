@@ -1,0 +1,16 @@
+Services in ETD
+===============
+- The about page for each service can be found by going to <base url>/services/<service name>.
+  Example https://asbestos.library.emory.edu/services/Xmlbyid.
+- The related files are located in the project here: src/app/modules/services
+- Alternate_hosts and Alternate_ports can be configured so that the service will
+  accept connections from other fedora instances besides the instance it is configured to communicate with.
+- The development and staging instances should always be configured to point to the staging version unless
+  development is being done on the service.  If development is being don on the service it should be configured
+  to point to the developer's instance of the service.
+- The instance of the service can be configured by editing the location url in the WSDL datastream in the related Fedora object.
+
+
+Xmlbyid: This php web service retrieves an xml datastream from Fedora and then gives the user just one part of it, according to the specified id.
+         - Some valid id's are 'title' and 'abstract'.
+         - The related Fedora object is emory-control:ETDmetadataParts.
