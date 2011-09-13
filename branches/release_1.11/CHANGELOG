@@ -11,6 +11,7 @@ Version 1.11.1 - September 2011
   honor if-modified-since header
 * If guest user, do not attempt to retrieve the abstract/toc 
   if the abstract/toc is embargoed for fullrecord view.
+* Add firefox 6 to list of supported browsers.
 
 Version 1.11 - July 2011
 ---------------------------------------
