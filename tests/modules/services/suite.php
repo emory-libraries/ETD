@@ -14,7 +14,6 @@ ini_set("include_path", "../modules/services:" . ini_get("include_path"));
 class ServicesModuleGroupTest extends GroupTest {
   function ServicesModuleGroupTest() {
     $this->addTestFile('controllers/TestXmlbyidController.php');
-    $this->addTestFile('controllers/TestIndexdataController.php');    
   }
 }
 

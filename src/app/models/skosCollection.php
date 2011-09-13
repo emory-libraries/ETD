@@ -114,9 +114,8 @@ class collectionHierarchy extends foxmlDatastreamAbstract {
     } else {
       return null;
     }
-   
   }
-  
+
   public function findIdbyLabel($string) {
     // look for an exact match first
     $xpath = '//skos:Collection[rdfs:label = "' . $string . '"]'; 
@@ -134,8 +133,8 @@ class collectionHierarchy extends foxmlDatastreamAbstract {
       return null;
     }
    
-  }  
-
+  } 
+  
   public function findLabelbyId($id) {
     // if id does not have leading #, prepend it since all ids should
     $id = preg_replace("/^([^#])/", '#$1', $id);

@@ -20,15 +20,14 @@ class SubmissionControllerTest extends ControllerTestCase {
 
   function __construct() {
     $this->fedora = Zend_Registry::get("fedora");
+    $fedora_cfg = Zend_Registry::get('fedora-config');
+
+    // get 2 test pids to be used throughout test
+    list($this->etdpid, $this->userpid) = $this->fedora->getNextPid($fedora_cfg->pidspace, 2);
   }
 
   
   function setUp() {
-    
-    // get 2 test pids to be used throughout test
-    $fedora_cfg = Zend_Registry::get('fedora-config');    
-    list($this->etdpid, $this->userpid) = $this->fedora->getNextPid($fedora_cfg->pidspace, 2);
-        
     $ep = new esdPerson();
     $this->test_user = $ep->getTestPerson();
     $this->test_user->role = "student";
@@ -70,9 +69,8 @@ class SubmissionControllerTest extends ControllerTestCase {
   }
   
   function tearDown() {
-    foreach (array($this->etdpid, $this->userpid) as $pid) {
-      try { $this->fedora->purge($pid, "removing test etd");  } catch (Exception $e) {}
-    }
+    foreach (array($this->etdpid, $this->userpid) as $pid)
+      $this->fedora->purge($pid, "removing test etd");
     
     Zend_Registry::set('current_user', null);
 

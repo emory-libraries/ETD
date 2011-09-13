@@ -87,7 +87,7 @@ class TestSkosCollection extends UnitTestCase {
     $this->assertEqual("#toplevel", $this->skos->findIdbylabel("Women's Studies"));
     $this->skos->label = "Cell & Developmental Biology";
     $this->assertEqual("#toplevel", $this->skos->findIdbylabel("Cell & Developmental Biology"));
-  }    
+  }
 
   public function testfindLabelById() {
     $this->assertEqual("Top Level", $this->skos->findLabelbyId("#toplevel"));

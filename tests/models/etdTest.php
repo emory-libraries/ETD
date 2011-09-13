@@ -5,31 +5,32 @@ require_once('models/esdPerson.php');
 require_once("fixtures/esd_data.php");
 
 class TestEtd extends UnitTestCase {
-  private $etd;
-  private $honors_etd;
-  private $person;
+    private $etd;
+    private $honors_etd;
+    private $person;
 
-  // fedoraConnection
-  private $fedora;
+    // fedoraConnection
+    private $fedora;
 
-  private $etdpid;
-  private $gradpid;
-  private $non_etdpid;
-  private $fedora_cfg;
-  private $school_cfg;
-  
-  function __construct() {
-    $this->fedora = Zend_Registry::get("fedora");
-    $this->school_cfg = Zend_Registry::get("schools-config");
-  }
+    private $etdpid;
+    private $gradpid;
+    private $non_etdpid;
+
+    private $school_cfg;
+    
+    function __construct() {
+      $this->fedora = Zend_Registry::get("fedora");
+      $this->fedora_cfg = Zend_Registry::get('fedora-config');
+
+      $this->school_cfg = Zend_Registry::get("schools-config");
+      
+      // get test pids for fedora objects
+      list($this->etdpid, $this->gradpid,
+     $this->non_etdpid) = $this->fedora->getNextPid($this->fedora_cfg->pidspace, 3);
+    }
 
     
   function setUp() {
-    // get 3 test pids to be used throughout test
-    $fedora_cfg = Zend_Registry::get('fedora-config');    
-    $this->pids = $this->fedora->getNextPid($fedora_cfg->pidspace, 3);
-    list($this->etdpid, $this->gradpid,  $this->non_etdpid) = $this->pids;
-         
     $fname = '../fixtures/etd1.xml';
     $dom = new DOMDocument();
     $dom->load($fname);
@@ -71,10 +72,6 @@ class TestEtd extends UnitTestCase {
   
   function tearDown() {
     $this->data->cleanUp();
-    
-    foreach ($this->pids as $pid) {
-      try { $this->fedora->purge($pid, "removing test etd"); } catch (Exception $e) {}
-    }
   }
   
   function testBasicProperties() {
@@ -499,6 +496,8 @@ class TestEtd extends UnitTestCase {
     $this->assertEqual($config_count, count($required),
            "number of required fields matches config - should be $config_count, got " .
            count($required));
+    
+    $this->fedora->purge($this->gradpid, "removing test etd");
   }
 
   function testRequiredFields() {
@@ -834,6 +833,8 @@ class TestEtd extends UnitTestCase {
       $mods = $etd->getMods();
       $this->assertNotNull($mods, "getMods() return response should not be empty");
       $this->assertPattern("|<mods:mods|", $mods, "getMods () result looks like MODS");
+
+      $this->fedora->purge($this->etdpid, "removing test etd");
   }
 
 
@@ -858,7 +859,7 @@ class TestEtd extends UnitTestCase {
   function testGetPreviousStatus() {
     // ingest a minimal, published record to test fedora methods as object methods
     $etd = new etd($this->school_cfg->emory_college);
-    $etd->pid = $this->etdpid;
+    $etd->pid = $this->fedora->getNextPid($this->fedora_cfg->pidspace);
     $etd->title = "test etd";
     $etd->mods->ark = "ark:/123/bcd";
     $etd->rels_ext->addRelation("rel:author", "me");  
@@ -892,6 +893,8 @@ class TestEtd extends UnitTestCase {
     $this->assertEqual("reviewed", $etd->previousStatus(),
            "previousStatus should return reviewed, got '"
            . $etd->previousStatus() . "'");
+
+    $this->fedora->purge($pid, "removing test etd");
   }
 
   function testUpdateEmbargo() {
@@ -1043,58 +1046,8 @@ class TestEtd extends UnitTestCase {
     $this->assertTrue($result);
 }
 
-  function test_getIndexData() {
-    
-    // Create an ETD   
-    $this->etd = new etd($this->school_cfg->graduate_school);
-    $this->etd->pid = $this->etdpid; 
-    $this->etd->title = "Why I Like Cheese"; 
-    $this->etd->owner = "mmouse";    
-    $this->etd->updateEmbargo("2018-05-30", "embargo message"); 
-    $this->etd->mods->title = "MODS Xslt Test Title"; 
-    $this->etd->mods->embargo_end = "2016-05-30";
-    $this->etd->mods->genre = "Dissertation";   
-    $this->etd->mods->embargo = "6 months";
-    $this->etd->mods->addCommittee("Dog", "Pluto", "nonemory_chair", "notEmory");        
-    $this->etd->mods->setEmbargoRequestLevel(etd_mods::EMBARGO_NONE);
-    $this->etd->mods->addResearchField("Area Studies", "7025");   
-    $this->etd->mods->addKeyword("keyword1");
-    $this->etd->mods->abstract = "Gouda or Cheddar?";
-    $this->etd->mods->addPartneringAgency("Georgia state or local health department");  
-    $this->etd->rels_ext->program = "Disney";
-    $this->etd->rels_ext->hasModel = "emory-control:ETD-1.0";   
-    $this->etd->mods->tableOfContents = "intro 1 -- chap 1 2 -- chap 2 3 -- chap 3 4 -- conclusion 5";  
-    
-    // Ingest the Active pid into fedora
-    $this->etd->state = "Active";    
-    $this->etd->ingest("test etd xslt");
-    $result = $this->etd->getIndexData();
-    
-    $msg = "indexData should contain value for key=";    
-    $this->assertTrue($result, "getIndexData returned data");
-    $this->assertEqual("PID", array_search($this->etdpid, $result), $msg . "[PID]");
-    $this->assertEqual("abstract", array_search($this->etd->mods->abstract, $result), $msg . "[abstract]");    
-    $this->assertEqual("collection", array_search("emory-control:ETD-GradSchool-collection", $result), $msg . "[collection]");
-    $this->assertEqual("contentModel", array_search('info:fedora/' . $this->etd->rels_ext->hasModel, $result), $msg . "[contentModel]");
-    $this->assertEqual("date_embargoedUntil", array_search($this->etd->mods->embargo_end, $result), $msg . "[date_embargoedUntil]");
-    $this->assertEqual("document_type", array_search($this->etd->document_type(), $result), $msg . "[document_type]");
-    $this->assertEqual("embargo_duration", array_search($this->etd->mods->embargo, $result), $msg . "[embargo_duration]");            
-    $embargo_requested = ($this->etd->mods->hasEmbargoRequest()) ? "yes" : "no";
-    $this->assertEqual("embargo_requested", array_search($embargo_requested, $result), $msg . "[embargo_requested]");
-    $this->assertEqual(2, count($this->etd->keywords()), $msg . "[keywords]  [" . count($this->etd->keywords()) . "] equals 1");  
-    $this->assertEqual("keyword1", $this->etd->mods->keywords[1], $msg . "[keywords]"); 
-    $lang = ($this->etd->language() && isset($this->etd->mods->language->text)) ? $this->etd->mods->language->text : null;
-    $this->assertEqual("language", array_search($lang, $result), $msg . "[language]");
-    $this->assertEqual("ownerId", array_search($this->etd->owner, $result), $msg . "[ownerId]");
-    $this->assertEqual("program_id", array_search($this->etd->rels_ext->program, $result), $msg . "[program_id]");
-    $this->assertEqual("status", array_search($this->etd->status(), $result), $msg . "[status]");
-    $this->assertEqual(1, count($this->etd->researchfields()), $msg . "[subject]  [" . count($this->etd->researchfields()) . "] equals 1");   
-    $this->assertEqual("Area Studies", $this->etd->mods->researchfields[0], $msg . "[subject]"); 
-    $this->assertEqual("tableOfContents", array_search($this->etd->mods->tableOfContents, $result), $msg . "[abstract]");     
-    $title = etd_html::removeTags($this->etd->title());  
-    $this->assertEqual("label", array_search($title, $result), $msg . "[label]");      
-  }
-  
+
+
 }
 runtest(new TestEtd());
 

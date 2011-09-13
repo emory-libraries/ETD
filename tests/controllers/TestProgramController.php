@@ -24,15 +24,14 @@ class ProgramControllerTest extends ControllerTestCase {
 
   function __construct() {
     $this->fedora = Zend_Registry::get('fedora');
+    $fedora_cfg = Zend_Registry::get('fedora-config');
+    
+    // get test pid for fedora fixture
+    $this->pid = $this->fedora->getNextPid($fedora_cfg->pidspace);
   }
 
   
   function setUp() {
-    
-    // get test pid for fedora fixture
-    $fedora_cfg = Zend_Registry::get('fedora-config');    
-    $this->pid = $this->fedora->getNextPid($fedora_cfg->pidspace);
-        
     $ep = new esdPerson();
     $this->test_user = $ep->getTestPerson();
     $this->test_user->role = "superuser";
@@ -40,6 +39,7 @@ class ProgramControllerTest extends ControllerTestCase {
     
     $this->response = $this->makeResponse();
     $this->request  = $this->makeRequest();
+
 
     $dom = new DOMDocument();
     $dom->load("../fixtures/programs.xml");
@@ -62,7 +62,7 @@ class ProgramControllerTest extends ControllerTestCase {
     // restore real config to registry
     Zend_Registry::set('config', $this->_realconfig);
     Zend_Registry::set('current_user', null);
-    try { $this->fedora->purge($this->pid, "removing test programs object");  } catch (Exception $e) {}
+    $this->fedora->purge($this->pid, "removing test programs object");
   }
 
   function testXmlAction() {

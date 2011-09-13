@@ -16,7 +16,6 @@ require_once('models/FedoraCollection.php');
 class TestEtdXacml extends UnitTestCase {
   private $pid;
   private $collectionpid;
-  private $fedora_cfg;
 
   /**
    * FedoraConnection with default test user credentials
@@ -29,17 +28,16 @@ class TestEtdXacml extends UnitTestCase {
   private $fedora;
 
   function __construct() {
-    $this->fedora_cfg = Zend_Registry::get('fedora-config');
-    $this->fedoraAdmin = new FedoraConnection($this->fedora_cfg);
+    $fedora_cfg = Zend_Registry::get('fedora-config');
+    $this->fedoraAdmin = new FedoraConnection($fedora_cfg);
+    
+    // get test pids for fedora fixture
+    $this->pid = $this->fedoraAdmin->getNextPid($fedora_cfg->pidspace);
+    $this->collectionpid = $this->fedoraAdmin->getNextPid($fedora_cfg->pidspace);
   }
 
     
   function setUp() {
-    
-    // get test pids for fedora fixture
-    $this->pid = $this->fedoraAdmin->getNextPid($this->fedora_cfg->pidspace);
-    $this->collectionpid = $this->fedoraAdmin->getNextPid($this->fedora_cfg->pidspace);
-        
     $this->fedora = Zend_Registry::get('fedora');
       
     $fname = '../fixtures/etd1.xml';
@@ -67,12 +65,15 @@ class TestEtdXacml extends UnitTestCase {
     $collection->pid = $this->collectionpid;
     $collection->owner = "etdadmin";	// set owner to etdadmin  to allow for editing by superusers
     $collection->ingest("creating test object");
+
+
+
   }
 
   function tearDown() {
     setFedoraAccount("fedoraAdmin");
-    try { $this->fedoraAdmin->purge($this->pid, "removing test object");  } catch (Exception $e) {}
-    try { $this->fedoraAdmin->purge($this->collectionpid, "removing test object");  } catch (Exception $e) {}
+    $this->fedoraAdmin->purge($this->pid, "removing test object");
+    $this->fedoraAdmin->purge($this->collectionpid, "removing test object");
   }
 
 

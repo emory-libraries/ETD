@@ -21,14 +21,13 @@ class EditControllerTest extends ControllerTestCase {
 
   function __construct() {
     $this->fedora = Zend_Registry::get("fedora");
+    $fedora_cfg = Zend_Registry::get('fedora-config');
+
+    // get 4 test pids - to be used throughout test
+    list($this->etdpid, $this->honors_etdpid, $this->masters_etdpid, $this->userpid) = $this->fedora->getNextPid($fedora_cfg->pidspace, 4);
   }
   
   function setUp() {
-
-    // get 4 test pids - to be used throughout test
-    $fedora_cfg = Zend_Registry::get('fedora-config');    
-    list($this->etdpid, $this->honors_etdpid, $this->masters_etdpid, $this->userpid) = $this->fedora->getNextPid($fedora_cfg->pidspace, 4);
-        
     $config = Zend_Registry::get('config');
 
     $ep = new esdPerson();
@@ -110,10 +109,8 @@ class EditControllerTest extends ControllerTestCase {
   }
   
   function tearDown() {
-    foreach (array($this->etdpid, $this->honors_etdpid, $this->masters_etdpid, $this->userpid) as $pid) {
-      try { $this->fedora->purge($pid, "removing test etd");  } catch (Exception $e) {}
-    }      
-      
+    foreach (array($this->etdpid, $this->honors_etdpid, $this->masters_etdpid, $this->userpid) as $pid)
+      $this->fedora->purge($pid, "removing test etd");
 
     // is there a better way to discard messages?
     $EditController = new EditControllerForTest($this->request, $this->response);

@@ -11,7 +11,6 @@ require_once('models/datastreams/etdfile.php');
 
 class TestEtdFileXacml extends UnitTestCase {
   private $pid;
-  private $fedora_cfg;
 
   /**
    * FedoraConnection with default test user credentials
@@ -19,16 +18,15 @@ class TestEtdFileXacml extends UnitTestCase {
   private $fedoraAdmin;
 
   function __construct() {
-    $this->fedora_cfg = Zend_Registry::get('fedora-config');
-    $this->fedoraAdmin = new FedoraConnection($this->fedora_cfg);
+    $fedora_cfg = Zend_Registry::get('fedora-config');
+    $this->fedoraAdmin = new FedoraConnection($fedora_cfg);
+    
+    // get test pid for fedora fixture
+    $this->pid = $this->fedoraAdmin->getNextPid($fedora_cfg->pidspace);
   }
 
   
   function setUp() {
-    
-    // get test pid for fedora fixture
-    $this->pid = $this->fedoraAdmin->getNextPid($this->fedora_cfg->pidspace);
-        
     $fname = '../fixtures/etdfile.xml';
     $dom = new DOMDocument();
     $dom->load($fname);
@@ -51,7 +49,7 @@ class TestEtdFileXacml extends UnitTestCase {
 
   function tearDown() {
     setFedoraAccount("fedoraAdmin");
-    try { $this->fedoraAdmin->purge($this->pid, "removing test object");  } catch (Exception $e) {}    
+    $this->fedoraAdmin->purge($this->pid, "removing test object");
   }
 
 

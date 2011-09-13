@@ -20,14 +20,15 @@ class FileControllerTest extends ControllerTestCase {
 
   function __construct() {
     $this->fedora = Zend_Registry::get("fedora");
-  }
-  
-  function setUp() {
+    $fedora_cfg = Zend_Registry::get('fedora-config');
 
     // get test pid
-    $fedora_cfg = Zend_Registry::get('fedora-config');    
     $this->etdpid = $this->fedora->getNextPid($fedora_cfg->pidspace);
-        
+  }
+
+
+  
+  function setUp() {
     $this->response = $this->makeResponse();
     $this->request  = $this->makeRequest();
 
@@ -57,8 +58,7 @@ class FileControllerTest extends ControllerTestCase {
   }
   
   function tearDown() {
-    
-    try { $this->fedora->purge($this->etdpid, "removing test etd");  } catch (Exception $e) {}    
+    $this->fedora->purge($this->etdpid, "removing test etd");
 
     $FileController = new FileControllerForTest($this->request,$this->response);
     $gff = $FileController->getHelper("GetFromFedora");
@@ -75,6 +75,9 @@ class FileControllerTest extends ControllerTestCase {
     $FileController = new FileControllerForTest($this->request,$this->response);
 
     $this->mock_etdfile->file->mimetype = "application/pdf";
+    $this->mock_etdfile->file->last_modified = "2011-09-09T19:57:55.905Z";
+    $this->mock_etdfile->file->checksum = "00134922bf38e7ca7a22312404bcf2be";
+    
     $this->mock_etdfile->setReturnValue('prettyFilename', "author_dissertation.pdf");
 
     $FileController->viewAction();
@@ -83,12 +86,47 @@ class FileControllerTest extends ControllerTestCase {
     $headers = $FileController->getResponse()->getHeaders();
     $this->assertTrue(in_array(array("name" => "Content-Disposition",
              "value" => 'attachment; filename="author_dissertation.pdf"',
-             "replace" => ''), $headers));
+                                     "replace" => ''), $headers),
+          'filename should be set in Content-Disposition header');
 
     $this->assertTrue(in_array(array("name" => "Content-Type",
-             "value" => 'application/pdf',
-             "replace" => ''), $headers));
+                                     "value" => 'application/pdf',
+                                     "replace" => ''), $headers),
+           'Content-Type header should be set as application/pdf');
 
+    // last-modified header from datastream last_modified
+    $this->assertTrue(in_array(array("name" => "Last-Modified",
+                                     "value" => date(DATE_RFC1123, strtotime($this->mock_etdfile->file->last_modified)),
+                                     "replace" => ''), $headers),
+          'datastream last modified should be set as Last-Modified header');
+    // ETag from datastream checksum
+    $this->assertTrue(in_array(array("name" => "Etag",
+                                     "value" => $this->mock_etdfile->file->checksum,
+                                     "replace" => ''), $headers),
+          'datastream checksum should be set as ETag header');
+
+    
+    // no checksum
+    $this->mock_etdfile->file->checksum = "none";
+    $FileController->viewAction();
+    $headers = $FileController->getResponse()->getHeaders();
+    // ETag from datastream checksum
+    $this->assertFalse(in_array(array("name" => "Etag",
+                                     "value" => $this->mock_etdfile->file->checksum,
+                                     "replace" => ''), $headers),
+          'datastream checksum should be set as ETag header');
+
+
+    // not-modified responses
+    $this->mock_etdfile->file->checksum = "00134922bf38e7ca7a22312404bcf2be";
+    global $_SERVER;
+    $_SERVER['HTTP_IF_MODIFIED_SINCE'] = $this->mock_etdfile->file->last_modified;
+    $FileController->viewAction();
+    $this->assertEqual(304, $FileController->getResponse()->getHttpResponseCode(304));
+    unset($_SERVER['HTTP_IF_MODIFIED_SINCE']);
+    $_SERVER['HTTP_IF_NONE_MATCH'] = $this->mock_etdfile->file->checksum;
+    $FileController->viewAction();
+    $this->assertEqual(304, $FileController->getResponse()->getHttpResponseCode(304));
 
     // should not be allowed to view
     $this->test_user->role = "guest";
