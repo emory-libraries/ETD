@@ -115,7 +115,7 @@ class TestEtdFile extends UnitTestCase {
 
   }
   
-    function testLgFileDownload() {
+  function testLgFileDownload() {
     $fedora = Zend_Registry::get("fedora");
     $etdfile = new etd_file();
     $etdfile->pid = $this->filepid;

@@ -87,7 +87,11 @@ Version 1.12
       INDEXER_SITE_URLS = {
 	'ETD': 'http://servername.library.emory.edu/services/indexdata',
       }
-    - restart eulindexer    
+    - restart eulindexer  
+    
+Version 1.11.1
+--------------
+* Update the svn repository.
   
 Version 1.11
 --------------

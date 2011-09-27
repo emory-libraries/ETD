@@ -53,7 +53,11 @@
    <? if ($this->etd->isEmbargoed() && $this->etd->mods->isEmbargoRequested(etd_mods::EMBARGO_ABSTRACT)): ?>
     <p>Access restricted until <b><?= $this->etd->mods->embargo_end ?></b></p>
    <? endif ?>
-    <?= $this->etd->_abstract() ?>
+   <? if ( $this->role=='guest' && $this->etd->isEmbargoed() && $this->etd->mods->isEmbargoRequested(etd_mods::EMBARGO_ABSTRACT)): ?>
+    <!-- guest role and abstract is embargoed, so don't attempt to retrieve the abstract -->
+   <? else: ?>    
+    <?= $this->etd->_abstract() ?> 
+   <? endif ?>  
   </div>
 
   <h2>Table of Contents</h2>
@@ -65,7 +69,12 @@
     <p>Access restricted until <b><?= $this->etd->mods->embargo_end ?></b></p>
    <? endif ?>
 
-    <?= $this->etd->tableOfContents() ?>
+   <? if ( $this->role=='guest' && $this->etd->isEmbargoed() && $this->etd->mods->isEmbargoRequested(etd_mods::EMBARGO_TOC)): ?>
+    <!-- guest role and TOC is embargoed, so don't attempt to retrieve the TOC -->
+   <? else: ?>    
+    <?= $this->etd->tableOfContents() ?> 
+   <? endif ?> 
+   
   </div>
      
   <?=  $this->render('view/_files.phtml'); ?>
