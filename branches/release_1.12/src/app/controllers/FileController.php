@@ -21,7 +21,6 @@ class FileController extends Etd_Controller_Action {
      $this->_helper->layout->disableLayout();
      $this->_helper->viewRenderer->setNoRender(true);
 
-
      // fix headers for IE bug (otherwise file download doesn't work over https)
      $this->getResponse()->setHeader('Cache-Control', "public", true);  // replace any other cache-control values
      $this->getResponse()->setHeader('Pragma', "public", true);         // replace any other pragma values
@@ -39,20 +38,21 @@ class FileController extends Etd_Controller_Action {
      // send a not-modified response if we can
      $modified_since = $this->getRequest()->getHeader('If-Modified-Since', '');
      $no_match = $this->getRequest()->getHeader('If-None-Match', '');
+ 
      // if either header is set and content has not changed, return 304 Not Modified
      if ( ($modified_since &&
            strtotime($etdfile->file->last_modified) <= strtotime($modified_since))
           || ($no_match && $etdfile->file->checksum != 'none'
-               && ($no_match == $etdfile->file->checksum)) ){
+               && ($no_match == $etdfile->file->checksum)) ){                
        $this->getResponse()->setHttpResponseCode(304);
      } else {
-       // if this is a GET request, add the file content & download header (i.e., skip for HEAD)
-       if ($this->getRequest()->isGet()) {
+       // if this is a HEAD request, add the file content & download header     
+       if ($this->getRequest()->isHead()) {
          $this->getResponse()->setHeader('Content-Disposition',
                                          'attachment; filename="' . $etdfile->prettyFilename() . '"')
            ->setBody($etdfile->getFile());
        }
-     }
+     }    
    }
 
 

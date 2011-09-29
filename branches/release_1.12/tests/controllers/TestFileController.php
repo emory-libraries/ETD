@@ -73,7 +73,8 @@ class FileControllerTest extends ControllerTestCase {
 
   public function testViewAction() {
     $FileController = new FileControllerForTest($this->request,$this->response);
-
+    $this->setUpHead(); 
+    
     $this->mock_etdfile->file->mimetype = "application/pdf";
     $this->mock_etdfile->file->last_modified = "2011-09-09T19:57:55.905Z";
     $this->mock_etdfile->file->checksum = "00134922bf38e7ca7a22312404bcf2be";
@@ -81,9 +82,10 @@ class FileControllerTest extends ControllerTestCase {
     $this->mock_etdfile->setReturnValue('prettyFilename', "author_dissertation.pdf");
 
     $FileController->viewAction();
-    $layout = $FileController->getHelper("layout");
+    $layout = $FileController->getHelper("layout");   
     $this->assertFalse($layout->enabled);
-    $headers = $FileController->getResponse()->getHeaders();
+    $headers = $FileController->getResponse()->getHeaders();   
+    
     $this->assertTrue(in_array(array("name" => "Content-Disposition",
              "value" => 'attachment; filename="author_dissertation.pdf"',
                                      "replace" => ''), $headers),
@@ -105,16 +107,20 @@ class FileControllerTest extends ControllerTestCase {
                                      "replace" => ''), $headers),
           'datastream checksum should be set as ETag header');
 
-    
     // no checksum
     $this->mock_etdfile->file->checksum = "none";
     $FileController->viewAction();
     $headers = $FileController->getResponse()->getHeaders();
+     
     // ETag from datastream checksum
     $this->assertFalse(in_array(array("name" => "Etag",
                                      "value" => $this->mock_etdfile->file->checksum,
                                      "replace" => ''), $headers),
           'datastream checksum should be set as ETag header');
+    $this->assertTrue(in_array(array("name" => "Content-Disposition",
+             "value" => 'attachment; filename="author_dissertation.pdf"',
+                                     "replace" => ''), $headers),
+          '2 filename should be set in Content-Disposition header');          
 
 
     // not-modified responses
