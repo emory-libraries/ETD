@@ -415,7 +415,7 @@ class ManageControllerTest extends ControllerTestCase {
     $etd->save("set status to reviewed to test doApprove");
     $ManageController->doapproveAction();
     $etd = new etd($this->reviewed_etdpid);
-    $this->assertEqual("Record approved by Graduate School", $etd->premis->event[3]->detail);
+    $this->assertEqual("Record approved by Laney Graduate School", $etd->premis->event[3]->detail);
     */
   }
 

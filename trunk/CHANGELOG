@@ -1,12 +1,24 @@
 CHANGE LOG 
 =================
 
-Version 1.12 - August 2011
+Version 1.12 - October 2011
 ---------------------------------------
 * Indexdata service configures ETD Fedora content to be indexed in Solr using eulindexer.
 * Deploy eulindexer for ETD website:
   * https://github.com/emory-libraries/eulindexer/blob/master/DEPLOYNOTES.rst
 * Reduced logging for publish script for revised ALUMNI.CSV file.
+
+Version 1.11.1 - September 2011
+---------------------------------------
+* Change label for "Graduate School" to "Laney Graduate School" 
+* Fix bug for research fields link on short list.
+* Add last-modified and etag headers to file download view; 
+  honor if-none-match and if-modified-since headers on request 
+* Add last-modified header to etd record view; 
+  honor if-modified-since header
+* If guest user, do not attempt to retrieve the abstract/toc 
+  if the abstract/toc is embargoed for fullrecord view.
+* Add firefox 6 to list of supported browsers.
 
 Version 1.11 - July 2011
 ---------------------------------------

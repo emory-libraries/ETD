@@ -1,6 +1,6 @@
 Services in ETD
 ===============
-- The about page for Xmlbyid service can be found by going to <base url>/services/<service name>.
+- The about page for each service can be found by going to <base url>/services/<service name>.
   Example https://asbestos.library.emory.edu/services/Xmlbyid.
 - The about page for indexdata service can be found by going to <base url>/services/indexdata/about.
   Example https://asbestos.library.emory.edu/services/indexdata/about.  

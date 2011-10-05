@@ -24,6 +24,29 @@ class ViewController extends Etd_Controller_Action {
 
        // ETD abstract page should have print view link
        $this->view->printable = true;
+
+       // set last modified header based on object modification date
+       $this->getResponse()->setHeader('Last-Modified',
+                                       date(DATE_RFC1123, strtotime($etd->last_modified)),
+                                            true);
+
+       // if user is not logged in, override session-based cache
+       // headers that prevents any caching whatsoever
+       if (! isset($this->current_user)) {
+         $this->getResponse()->setHeader('Cache-Control', 'public', true)
+           ->setHeader('Expires', date(DATE_RFC1123, strtotime('+1 year')))
+           ->setHeader('Pragma', null, true);
+
+         // send a not-modified response for the public version of this page, if possible
+         $modified_since = $this->getRequest()->getHeader('If-Modified-Since', '');
+         if ($modified_since &&
+             strtotime($etd->last_modified) <= strtotime($modified_since)){
+           $this->getResponse()->setHttpResponseCode(304);
+           // no content needed for 304 Not Modified
+           $this->_helper->layout->disableLayout();
+           $this->_helper->viewRenderer->setNoRender(true);
+         }    
+       }
      }
    }
 
