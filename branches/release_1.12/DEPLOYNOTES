@@ -75,7 +75,9 @@ UPGRADE NOTES
 Version 1.12
 --------------
 * Update the svn repository to release 1.12.
-* Restrict IP address access to these url patterns /services/indexdata and /services/indexdata/{PID}
+* Restrict IP address access to these url patterns:
+   * /services/indexdata
+   * /services/indexdata/{PID}
   The IP addresses allowed to access the indexdata service include:
   * Server running the EULINDEXER for the ETD website.
   * Developer machines supporting the ETD application and eulindexer.
@@ -85,10 +87,14 @@ Version 1.12
   * Once eulindexer is deployed, configure for ETD site:
     - update the localsettings to include the ETD site, modify url for correct location.
       INDEXER_SITE_URLS = {
-	'ETD': 'http://servername.library.emory.edu/services/indexdata',
+	      'etd': 'http://servername.library.emory.edu/services/indexdata',
       }
-    - restart eulindexer  
-    
+    - restart eulindexer
+    - reindex etd using eulindexer
+      example: manage.py reindex -s etd
+* Update the Solr etd-euli scheme with /src/scripts/solr-schema.xml
+  /home/fedora34/gsearch/solr/multicore/etd-euli/conf/scheme.xml
+      
 Version 1.11.1
 --------------
 * Update the svn repository.
