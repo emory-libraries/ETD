@@ -25,10 +25,34 @@ class FileController extends Etd_Controller_Action {
      $this->getResponse()->setHeader('Cache-Control', "public", true);  // replace any other cache-control values
      $this->getResponse()->setHeader('Pragma', "public", true);         // replace any other pragma values
      // set content type, filename, and set datastream content as the body of the response
-     $this->getResponse()->setHeader('Content-Type', $etdfile->file->mimetype);
-     $this->getResponse()->setHeader('Content-Disposition',
-             'attachment; filename="' . $etdfile->prettyFilename() . '"');
-     $this->getResponse()->setBody($etdfile->getFile());
+     $this->getResponse()->setHeader('Content-Type', $etdfile->file->mimetype)
+       // override the aggressive past expiration date set by php cache
+       ->setHeader('Expires', date(DATE_RFC1123, strtotime('+1 year')), true)
+       // use datastream last-modification date, if available
+       ->setHeader('Last-Modified', date(DATE_RFC1123, strtotime($etdfile->file->last_modified)));
+     // if we have a checksum for the datastream, use that for the ETag
+     if ($etdfile->file->checksum != 'none') {
+       $this->getResponse()->setHeader('ETag', $etdfile->file->checksum);
+     }
+
+     // send a not-modified response if we can
+     $modified_since = $this->getRequest()->getHeader('If-Modified-Since', '');
+     $no_match = $this->getRequest()->getHeader('If-None-Match', '');
+ 
+     // if either header is set and content has not changed, return 304 Not Modified
+     if ( ($modified_since &&
+           strtotime($etdfile->file->last_modified) <= strtotime($modified_since))
+          || ($no_match && $etdfile->file->checksum != 'none'
+               && ($no_match == $etdfile->file->checksum)) ){                
+       $this->getResponse()->setHttpResponseCode(304);
+     } else {
+       // if this is a HEAD request, add the file content & download header     
+       if ($this->getRequest()->isHead()) {
+         $this->getResponse()->setHeader('Content-Disposition',
+                                         'attachment; filename="' . $etdfile->prettyFilename() . '"')
+           ->setBody($etdfile->getFile());
+       }
+     }    
    }
 
 

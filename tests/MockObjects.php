@@ -61,6 +61,7 @@ class MockEtd extends BasicMock_Etd {
   public $premis;
 
   public $status;
+  public $last_modified;  
   public $user_role;
 
   public $fedora;

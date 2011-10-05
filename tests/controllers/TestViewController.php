@@ -41,15 +41,59 @@ class ViewControllerTest extends ControllerTestCase {
     Zend_Registry::set('current_user', null);
   }
 
-  function testRecordAction_guest() {
+  function NOtestRecordAction_guest_draft() {
+    // simulate having no user logged in - public, guest view
+    Zend_Registry::set('current_user', null);
     $this->mock_etd->user_role = "guest";
     $this->mock_etd->status = "draft";
+    $this->mock_etd->last_modified = "2011-09-09T19:57:55.905Z";
     $ViewController = new ViewControllerForTest($this->request,$this->response);
     // guest on draft etd - not allowed
     $this->assertFalse($ViewController->recordAction());
   }
+
+  function testRecordAction_guest_published() {
+    // simulate having no user logged in - public, guest view
+    Zend_Registry::set('current_user', null);
+    $this->mock_etd->user_role = "guest";
+    $this->mock_etd->status = "published";
+    $this->mock_etd->last_modified = '2011-09-09T19:57:55.905Z';
+    $ViewController = new ViewControllerForTest($this->request,$this->response);
+
+    // guest on published etd - should have last-modified header
+    $ViewController->recordAction();
+    $headers = $ViewController->getResponse()->getHeaders();
+    // last-modified header from object last_modified
+    $this->assertTrue(in_array(array("name" => "Last-Modified",
+                                     "value" => date(DATE_RFC1123,
+                                                     strtotime($this->mock_etd->last_modified)),
+                                     "replace" => true), $headers),
+          'object last modified should be set as Last-Modified header');
+    $this->assertTrue(in_array(array("name" => "Cache-Control",
+                                     "value" => "public",
+                                     "replace" => true), $headers),
+          'cache-control should be set to public when no user is logged in');
+  }
+
+  function testRecordAction_guest_published_notmodified() {
+    // simulate having no user logged in - public, guest view
+    Zend_Registry::set('current_user', null);
+    $this->mock_etd->user_role = "guest";
+    $this->mock_etd->status = "published";
+    $this->mock_etd->last_modified = "2011-09-09T19:57:55.905Z";
+        
+    // not-modified response
+    global $_SERVER;
+    $_SERVER['HTTP_IF_MODIFIED_SINCE'] = $this->mock_etd->last_modified;
+      
+    $ViewController = new ViewControllerForTest($this->request,$this->response);
+    $ViewController->recordAction();
+    $this->assertEqual(304, $ViewController->getResponse()->getHttpResponseCode());
+  }
+
+
   
-  function testRecordAction_author() {
+  function NOtestRecordAction_author() {
     $ViewController = new ViewControllerForTest($this->request,$this->response);
     $this->mock_etd->user_role = "author";
     $this->mock_etd->status = "published";
@@ -58,6 +102,12 @@ class ViewControllerTest extends ControllerTestCase {
     $this->assertTrue(isset($ViewController->view->title));
     $this->assertIsA($ViewController->view->etd, "etd");
     $this->assertTrue($ViewController->view->printable);
+    $headers = $ViewController->getResponse()->getHeaders();
+    $this->assertFalse(in_array(array("name" => "Cache-Control",
+                                     "value" => "public",
+                                     "replace" => true), $headers),
+          'cache-control should not be set to public when a user is logged in');
+
   }
 
 
