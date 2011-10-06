@@ -1,0 +1,12 @@
+<ul class="suggestions">
+<? if (!empty($this->matches)) : ?>
+  <? foreach ($this->matches as $value => $count) : ?>
+    <li>
+       <? if ($this->show_count): ?><span class="count">(<?= $count ?>)</span>  <? endif ?>
+      <span class="value"><?= $value ?></span>
+    </li>
+  <? endforeach ?>
+<? else : ?>
+  <li>No matches found</li>
+<? endif ?>
+</ul>
