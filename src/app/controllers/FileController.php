@@ -47,7 +47,7 @@ class FileController extends Etd_Controller_Action {
        $this->getResponse()->setHttpResponseCode(304);
      } else {
        // if this is a HEAD request, add the file content & download header     
-       if ($this->getRequest()->isHead()) {
+       if ($this->getRequest()->isGet()) {
          $this->getResponse()->setHeader('Content-Disposition',
                                          'attachment; filename="' . $etdfile->prettyFilename() . '"')
            ->setBody($etdfile->getFile());
