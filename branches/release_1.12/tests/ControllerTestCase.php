@@ -7,12 +7,11 @@ class ControllerTestCase extends UnitTest {
 
   
   protected function makeRequest($url = null) {
-    echo "<pre>ControllerTestCase makeRequest</pre>";
+
     return new Zend_Controller_Request_Http($url);
   }
   
-  protected function makeResponse() {
-    echo "<pre>ControllerTestCase makeResponse</pre>";    
+  protected function makeResponse() {   
     return new TestEtd_Controller_Response_Http();
   }	
   
