@@ -72,6 +72,10 @@ Update the ETD control objects for particular fedora instance.
 UPGRADE NOTES
 =================
 
+Version 1.12.1
+--------------
+* Update the svn repository to release 1.12.1
+
 Version 1.12
 --------------
 * Update the svn repository to release 1.12.
@@ -94,7 +98,7 @@ Version 1.12
       example: manage.py reindex -s etd
 * Update the Solr etd-euli scheme with /src/scripts/solr-schema.xml
   /home/fedora34/gsearch/solr/multicore/etd-euli/conf/scheme.xml
-    
+      
 Version 1.11.1
 --------------
 * Update the svn repository.

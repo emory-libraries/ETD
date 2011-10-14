@@ -128,6 +128,9 @@ class MockEtdFile extends BasicMock_EtdFile {
     $this->dc = &new Mocketd_dc();
     //    $this->etd = &new MockEtd();
   }
+  public function getfile() {   
+    return "This is the file contents for the body of the request.";
+  }  
 }
 
 class MockAuthorInfo extends BasicMock_AuthorInfo {
