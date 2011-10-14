@@ -1,6 +1,10 @@
 CHANGE LOG 
 =================
 
+Version 1.12.1 - October 2011
+---------------------------------------
+* BugFix for download pdf failure.
+
 Version 1.12 - October 2011
 ---------------------------------------
 * Indexdata service configures ETD Fedora content to be indexed in Solr using eulindexer.

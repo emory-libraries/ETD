@@ -73,19 +73,23 @@ class FileControllerTest extends ControllerTestCase {
 
   public function testViewAction() {
     $FileController = new FileControllerForTest($this->request,$this->response);
-    $this->setUpHead(); 
+    $this->setUpGet(); 
     
     $this->mock_etdfile->file->mimetype = "application/pdf";
     $this->mock_etdfile->file->last_modified = "2011-09-09T19:57:55.905Z";
     $this->mock_etdfile->file->checksum = "00134922bf38e7ca7a22312404bcf2be";
         
     $this->mock_etdfile->setReturnValue('prettyFilename', "author_dissertation.pdf");
-
+    $body1 = $FileController->getResponse()->getBody();
     $FileController->viewAction();
     $layout = $FileController->getHelper("layout");   
     $this->assertFalse($layout->enabled);
-    $headers = $FileController->getResponse()->getHeaders();   
+    $headers = $FileController->getResponse()->getHeaders();
+    $body = $FileController->getResponse()->getBody();
     
+    $this->assertTrue("This is the file contents for the body of the request.", $body,
+      'file body should be set.');
+
     $this->assertTrue(in_array(array("name" => "Content-Disposition",
              "value" => 'attachment; filename="author_dissertation.pdf"',
                                      "replace" => ''), $headers),
