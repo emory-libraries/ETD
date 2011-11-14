@@ -87,6 +87,7 @@ for ($page = 0; $page<sizeof($paginator); $page++) {
       // send email about embargo expiration
       try {
         $notify->embargo_expiration();
+        $logger->info("Sent 60 day notification email to " . $etd->pid);         
       } catch (Zend_Db_Adapter_Exception $e) {
          // if ESD is not accessible, cannot look up faculty email addresses - notification will fail
         $logger->crit("Error accessing ESD (needed for faculty email addresses); cannot proceed");
@@ -174,8 +175,9 @@ for ($page = 0; $page<sizeof($paginator); $page++) {
     if (!$opts->noact) {
       $notify = new etd_notifier($etd);
       // send email about embargo ending
-      try {
+      try {          
         $notify->embargo_end();
+        $logger->info("Sent 0 day notification email to " . $etd->pid);        
       } catch (Zend_Db_Adapter_Exception $e) {
          // if ESD is not accessible, cannot look up faculty email addresses - notification will fail
         $logger->crit("Error accessing ESD (needed for faculty email addresses); cannot proceed");
