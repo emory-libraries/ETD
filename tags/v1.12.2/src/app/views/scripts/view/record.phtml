@@ -1,0 +1,24 @@
+<? /* full record view for an etd */ ?>
+<? $this->role = $this->etd->getUserRole($this->current_user); ?>
+
+<? if ($this->etd->status() == "draft"): ?>
+  <? /* if record is still a draft, show submission progress */ ?>
+<div id="submission_status">
+  <?=  $this->render('submission/_status.phtml') ?>
+</div>
+
+ <div id="submission">
+<? endif ?>
+
+  <?=  $this->render('view/fullrecord.phtml'); ?>
+<div class="fullrecord">
+    <? if ($this->etd->status() == "published"):   /* only published records should have stats */ ?>
+      <?=  $this->render('view/_statistics.phtml'); ?>
+    <? endif ?>
+  <?=  $this->render('view/_history.phtml'); ?>
+  <? if (isset($this->etd->mods->useAndReproduction)): ?>
+    <div class="use"><?=  $this->etd->mods->useAndReproduction ?></div>
+  <? endif ?>
+</div>
+
+<? if ($this->etd->status() == "draft"): ?></div><? endif /* end submission div */?>
