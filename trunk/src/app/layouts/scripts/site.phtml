@@ -13,6 +13,11 @@
 <head>
 
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  
+<? if ($this->env == "production"): ?>
+  <meta name="google-site-verification" content="WWdn3okWneQob5r6S1Svxtf87zwE1FHre0bRMvUzPvQ" />
+<? endif ?>
+  
    <title>Emory ETDs : <?= $this->escape($this->title) ?></title>
   <?= $this->css('etd.css'); ?>
   <? if (isset($this->dc)): ?>
