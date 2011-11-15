@@ -72,6 +72,12 @@ Update the ETD control objects for particular fedora instance.
 UPGRADE NOTES
 =================
 
+Version 1.12.2
+--------------
+* Update the svn repository to release 1.12.2
+* Reindex etd using eulindexer
+      example: manage.py reindex -s etd
+      
 Version 1.12.1
 --------------
 * Update the svn repository to release 1.12.1
