@@ -82,6 +82,7 @@ for ($page = 0; $page<sizeof($paginator); $page++) {
       continue;
     }
 
+    $logger->info("Sending 60 day notification email to " . $etd->pid);
     if (!$opts->noact) {
       $notify = new etd_notifier($etd);
       // send email about embargo expiration
@@ -171,6 +172,7 @@ for ($page = 0; $page<sizeof($paginator); $page++) {
       $etd->contents = $etd->html->contents;
     }
     
+    $logger->info("Sending 0 day notification email to " . $etd->pid);    
     if (!$opts->noact) {
       $notify = new etd_notifier($etd);
       // send email about embargo ending

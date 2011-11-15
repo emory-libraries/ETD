@@ -1376,7 +1376,7 @@ class etd extends foxml implements etdInterface {
     $options["document_type"] = $this->document_type();
     $options["registering_copyright"] = (isset($this->mods->copyright)) ? $this->mods->copyright : null;    
     $options["embargo_duration"] =  (isset($this->mods->embargo)) ? $this->mods->embargo : null;
-    $options["embargo_notice"] = (isset($this->mods->embargo_notice)) ? $this->mods->embargo_notice : null;
+    $options["embargo_notice"] = (isset($this->mods->embargo_notice)) ? "sent ".$this->mods->embargo_notice : null;
     $options["embargo_requested"] = ($this->mods->hasEmbargoRequest()) ? "yes" : "no";
     $options["language"] = (isset($this->mods->language) && isset($this->mods->language->text)) ? $this->mods->language->text : null;    
     $options["num_pages"] = $this->num_pages(); 

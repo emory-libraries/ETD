@@ -1,6 +1,10 @@
 CHANGE LOG 
 =================
 
+Version 1.12.2 - October 2011
+---------------------------------------
+* Bugfix for repeated embargo notification emails.
+
 Version 1.12.1 - October 2011
 ---------------------------------------
 * BugFix for download pdf failure.
