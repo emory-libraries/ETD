@@ -1369,7 +1369,7 @@ class etd extends foxml implements etdInterface {
 
     // Set MODS Fields
     $options["author"] = $this->author();
-    $options["date_embargoedUntil"] = (isset($this->mods->embargo_end)) ? $this->mods->embargo_end : null;
+    $options["date_embargoedUntil"] = (isset($this->mods->embargo_end)) ? str_replace("-", "", $this->mods->embargo_end) : null;
     $options["dateIssued"] = ($this->pubdate()) ? str_replace("-", "", $this->pubdate()) : null;    
     $options["degree_level"] = (isset($this->mods->degree) && $this->mods->degree->level) ? $this->mods->degree->level : null;
     $options["degree_name"] = ($this->mods->degree && $this->mods->degree->name) ? $this->mods->degree->name : null;
