@@ -72,6 +72,13 @@ Update the ETD control objects for particular fedora instance.
 UPGRADE NOTES
 =================
 
+Version 1.12.4
+--------------
+* Update the svn repository to release 1.12.4
+* Update config.xml supported_browsers property:
+    <supported_browsers>IE 7.0,Firefox</supported_browsers> 
+
+
 Version 1.12.3
 --------------
 * Update the svn repository to release 1.12.3
