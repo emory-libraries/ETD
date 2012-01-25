@@ -264,12 +264,15 @@ class ManageController extends Etd_Controller_Action {
    public function validateDoApprove($embargo_request, $embargo){
        $msg="";
 
-       if($embargo_request=="no" && $embargo!= "0 days"){
+        if (is_null($embargo) || empty($embargo)) {
+         $msg = "There has been a problem retrieving the embargo duration. " .
+                 "Please check to see if you are using a supported browser.";
+        }
+        else if($embargo_request=="no" && $embargo!= "0 days"){
          $msg = "The author has indicated this thesis or dissertation " .
                  "should not be embargoed.  Please indicate \"none\" for length of the embargo.";
         }
-
-     else if($embargo_request!="no" && $embargo== "0 days"){
+        else if($embargo_request!="no" && $embargo== "0 days"){
          $msg = "The author has indicated this thesis or dissertation " .
                  "should be embargoed.  Please indicate the requested length of the embargo.";
      }

@@ -360,6 +360,21 @@ class ManageControllerTest extends ControllerTestCase {
   public function testValidateDoApproveAction() {
     $ManageController = new ManageControllerForTest($this->request,$this->response);
 
+    $expectedResult = "There has been a problem retrieving the embargo duration. " .
+                 "Please check to see if you are using a supported browser.";
+                 
+    # Check for null embargo 
+    $result = $ManageController->validateDoApprove("no", null);
+    $this->assertEqual($result, $expectedResult, "There embargo should not be null.");
+    $result = $ManageController->validateDoApprove("yes", null);
+    $this->assertEqual($result, $expectedResult, "There embargo should not be null.");
+                 
+    # Check for empty embargo 
+    $result = $ManageController->validateDoApprove("no", "");
+    $this->assertEqual($result, $expectedResult, "There embargo should not be empty.");
+    $result = $ManageController->validateDoApprove("yes", "");  
+    $this->assertEqual($result, $expectedResult, "There embargo should not be empty.");
+                                  
     $result = $ManageController->validateDoApprove("no", "0 days");
     $this->assertEqual($result, "","no embargo requested");
 
@@ -373,10 +388,6 @@ class ManageControllerTest extends ControllerTestCase {
     $result = $ManageController->validateDoApprove("yes:files", "0 days");
     $this->assertTrue($result, "The author has indicated this thesis or dissertation should be embargoed.  " .
                                "Please indicate the requested length of the embargo.", "embargo  requested but admin does not add embargo");
-
-
-
-
   }
 
 
