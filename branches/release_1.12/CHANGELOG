@@ -4,6 +4,7 @@ CHANGE LOG
 Version 1.12.4 - January 2012
 ---------------------------------------
 * Bugfix for empty embargo duration.
+* Allow all versions of Firefox.
 
 Version 1.12.3 - January 2012
 ---------------------------------------
