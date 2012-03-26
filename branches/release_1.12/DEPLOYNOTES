@@ -72,6 +72,15 @@ Update the ETD control objects for particular fedora instance.
 UPGRADE NOTES
 =================
 
+Version 1.12.5
+--------------
+* Change into the directory src/scripts/migrations/ 
+  - run the command: php ./019-add-rollins-program.php -v debug 
+
+* Copy the sql statement from src/scripts/migrations/DB/002-add_rsph_adap_to_program.sql
+  and run it on the coresponding mysql etd database.
+
+
 Version 1.12.4
 --------------
 * Update the svn repository to release 1.12.4
