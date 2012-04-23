@@ -75,7 +75,9 @@ UPGRADE NOTES
 Version 1.12.5
 --------------
 * Change into the directory src/scripts/migrations/ 
-  - run the command: php ./019-add-rollins-program.php -v debug 
+  - run the commands: 
+        php ./019-add-rollins-program.php -v debug 
+        php 020-add-grad-program.php -v debug
 
 * Copy the sql statement from src/scripts/migrations/DB/002-add_rsph_adap_to_program.sql
   and run it on the coresponding mysql etd database.
