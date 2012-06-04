@@ -234,74 +234,84 @@ class FileController extends Etd_Controller_Action {
    }
 
    
-   // edit file metadata
+   /**
+    * Edit file metadata.
+    *
+    * On GET, displays edit form.  On POST, processes form data; if
+    * invalid, redisplays edit form with posted data and error
+    * message; otherwise, saves record and redirects to ETD this file
+    * belongs to.
+    */
    public function editAction() {
      $etdfile = $this->_helper->getFromFedora("pid", "etd_file");
-     
      if (!$this->_helper->access->allowedOnEtdFile("edit", $etdfile)) return false;
-
+     
      $this->view->title = "Edit File Information";
      $this->view->etdfile = $etdfile;
      $this->view->pid = $etdfile->pid;
 
-     // xforms setting - so layout can include needed code in the header
-     $this->view->xforms = true;
-     $this->view->namespaces = array("dc" => "http://purl.org/dc/elements/1.1/",
-             "dcterms" => "http://purl.org/dc/terms/");
-
-     $this->view->xforms_bind_script = "file/_dc_bind.phtml";
+     $dc_types =  array("Text"  => "Text",
+                        "Dataset" => "Dataset",
+                        "MovingImage" => "Video",
+                        "StillImage" => "Image",
+                        "Software" => "Software",
+                        "Sound" => "Sound");
+     $this->view->type_options = $dc_types;
      
-     //    $this->view->xforms_model_xml = $etd->mods->saveXML();
-     // link to xml rather than embedding directly in the page
-     $this->view->xforms_model_uri = $this->view->url(array("controller" => "view",
-                  "action" => "dc", "pid" => $etdfile->pid,
-                  "type" => "etdfile"));
-   }
+     // on GET, display edit form (no additional logic
 
-
-   // save file metadata 
-   public function saveAction() {
-     $etdfile = $this->_helper->getFromFedora("pid", "etd_file");
-     if (!$this->_helper->access->allowedOnEtdFile("edit", $etdfile)) return false;
-
-     global $HTTP_RAW_POST_DATA;
-     $xml = $HTTP_RAW_POST_DATA;
-
-     // FIXME: if dc:title is changed, should label change? (possible to save changed fedora label?)
-     if ($xml == "") {
-       // if no xml is submitted, don't modify 
-       // forward to a different view?
-       $this->view->noxml = true;
-     } else {
-       $etdfile->dc->updateXML($xml);
-
-       if ($etdfile->dc->hasChanged()) {
-   // fixme: needs better error checking (like in EditController)
-   $save_result = $etdfile->save("edited file information");
-   $this->view->save_result = $save_result;
-   if ($save_result) {
-     $this->_helper->flashMessenger->addMessage("Saved changes to file information");
-     $this->logger->info("Saved changes to file metadata for " . $etdfile->pid . " at $save_result");
-   } else {
-     $this->_helper->flashMessenger->addMessage("Error: could not save changes to file information");
-     $this->logger->err("Could not save changes to file metadata for " .  $etdfile->pid);
-   }
-       } else {
-         $this->_helper->flashMessenger->addMessage("No changes made to file information");
+     // on POST, process form data
+     if ($this->getRequest()->isPost()) {
+       // Update file DC with posted data;
+       // used either to save or redisplay the edit form
+       $etdfile->dc->title = $this->_getParam("title", null);
+       $etdfile->dc->creator = $this->_getParam("creator", null);
+       $etdfile->dc->description = $this->_getParam("description", null);
+       $etdfile->dc->type = $this->_getParam("type", null);
+       // validate: check title non-empty, type in list
+       $errors = array();
+       $invalid = false;
+       if (empty($etdfile->dc->title)) {
+           $errors['title'] = 'Error: Title must not be empty';
+           $invalid = true;
        }
+       if (! isset($etdfile->dc->type) || empty($etdfile->dc->type)) {
+         $errors['type'] = "Error: Type is required";
+         $invalid = true;
+       } else if (!array_key_exists($etdfile->dc->type, $dc_types)) {
+         $errors['type'] = 'Error: Type "' . $etdfile->dc->type . '" is not recognized';
+         $invalid = true;
+       }
+       if ($invalid) {
+         // invalid - redisplay form
+         $this->view->errors = $errors;
 
-    }
+       } else {
+         // valid : save and redirect
+         if ($etdfile->dc->hasChanged()) {
+           // NOTE: Consider updating fedora object title based on dc:title 
+           $save_result = $etdfile->save("edited file information");
+           $this->view->save_result = $save_result;
+           if ($save_result) {
+             $this->_helper->flashMessenger->addMessage("Saved changes to file information");
+             $this->logger->info("Saved changes to file metadata for " . $etdfile->pid . " at $save_result");
+           } else {
+             $this->_helper->flashMessenger->addMessage("Error: could not save changes to file information");
+             $this->logger->err("Could not save changes to file metadata for " .  $etdfile->pid);
+           }
+         } else {
+           // dc unchanged
+           $this->_helper->flashMessenger->addMessage("No changes made to file information");
+         }
 
+         // redirect to main etd record
+         $this->_helper->redirector->gotoRoute(array("controller" => "view",
+                                                     "action" => "record",
+                                                     "pid" => $etdfile->etd->pid), '', true);
+       } // end save valid data
+       
+     } // end POST
 
-     $this->view->etd_pid = $etdfile->etd->pid;
-     //$this->view->pid = $pid;   // FIXME: what is this supposed to be? (is not defined) unused (?)
-    //    $this->view->xml = $xml;
-    $this->view->xml = $etdfile->dc->saveXML();
-    $this->view->title = "save file information";
-
-    // redirect to etd record
-    $this->_helper->redirector->gotoRoute(array("controller" => "view", "action" => "record",
-            "pid" => $etdfile->etd->pid), '', true);
    }
 
 

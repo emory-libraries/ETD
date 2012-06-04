@@ -106,6 +106,17 @@ class MockEtd extends BasicMock_Etd {
 
 class MockEtd_dc extends BasicMock_etd_dc {
   public $title;
+  public $type;
+  public $creator;
+  public $description;
+  public $_changed;
+
+  public function __construct() {
+    $this->_changed = true;
+  }
+  public function hasChanged() {
+    return $this->_changed;
+  }
 }
 class Mocketd_mods extends BasicMock_etd_mods {
   public $chair;
@@ -130,7 +141,11 @@ class MockEtdFile extends BasicMock_EtdFile {
   }
   public function getfile() {   
     return "This is the file contents for the body of the request.";
-  }  
+  }
+
+  public function save(){
+    return true;
+  }
 }
 
 class MockAuthorInfo extends BasicMock_AuthorInfo {

@@ -227,7 +227,7 @@ class FileControllerTest extends ControllerTestCase {
     $this->assertPattern("/file is not an allowed type./", $messages[0]);
 
     // updating mock etdfile object
-    # copy pdf fixture file into tmp dir for this test.
+    // copy pdf fixture file into tmp dir for this test.
     $srcfile = "../fixtures/tinker_sample.pdf";
     $testfile = "/tmp/tinker_sample.pdf";
     copy($srcfile, $testfile);
@@ -250,18 +250,72 @@ class FileControllerTest extends ControllerTestCase {
     $this->mock_etdfile->pid = $this->filepid;
     
     // etdfile is not in draft mode, adding new file should not be allowed
+    // etd is not in draft mode, adding new file should not be allowed
+    $this->setUpGet(array('pid' => $this->filepid));
+    $this->assertFalse($FileController->editAction());
+
+    // set to draft mode and try again
+    $etd = new etd($this->etdpid);
+    $etd->rels_ext->status = "draft";
+    $etd->save("status -> draft to test editing");
+    $this->mock_etdfile->etd = $etd;
+    
+    // GET: display form
+    $FileController = new FileControllerForTest($this->request,$this->response);
     $this->setUpGet(array('pid' => $this->filepid));
     $FileController->editAction();
-    $this->assertTrue(isset($FileController->view->title));
-    $this->assertTrue(isset($FileController->view->etdfile));
-    $this->assertTrue($FileController->view->xforms);
-    $this->assertIsA($FileController->view->namespaces, "Array");
-    $this->assertTrue(isset($FileController->view->xforms_bind_script));
-    $this->assertTrue(isset($FileController->view->xforms_model_uri));
-    $this->assertPattern("|view/dc|", $FileController->view->xforms_model_uri);
+    $this->assertTrue(isset($FileController->view->title),
+                      'title should be set in view');
+    $this->assertTrue(isset($FileController->view->etdfile),
+                      'etdfile object should be set in view');
+    $this->assertTrue(isset($FileController->view->type_options),
+                      'dc:type options should be set in view');
+
+    // POST: validate/update
+    // missing required fields
+    $FileController = new FileControllerForTest($this->request,$this->response);
+    $this->setUpPost(array('title' => '', 'type' => '')); 
+    $FileController->editAction();
+    $this->assertTrue(in_array('Error: Title must not be empty',
+                               $FileController->view->errors),
+                      'empty title should result in validation error');
+    $this->assertTrue(in_array('Error: Type is required',
+                               $FileController->view->errors),
+                      'invalid dc:type should result in validation error');
+
+    // invalid type
+    $FileController = new FileControllerForTest($this->request,$this->response);
+    $this->setUpPost(array('title' => 'foo', 'type' => 'bogus')); // invalid
+    $FileController->editAction();
+    $this->assertTrue(in_array('Error: Type "bogus" is not recognized',
+                               $FileController->view->errors),
+                      'invalid dc:type should result in validation error');
+    $this->assertFalse($FileController->redirectRan,
+                       'should not redirect when invalid data is posted');
+
+    // post valid data
+    $FileController = new FileControllerForTest($this->request,$this->response);
+    $data = array('title' => 'access copy', 'type' => 'Text',
+                  'creator' => 'me', 'description' => 'pdf');
+    $this->setUpPost($data);
+    $FileController->editAction();
+    // DC fields should be updated based on posted values
+    $this->assertEqual($data['title'], $this->mock_etdfile->dc->title);
+    $this->assertEqual($data['type'], $this->mock_etdfile->dc->type);
+    $this->assertEqual($data['creator'], $this->mock_etdfile->dc->creator);
+    $this->assertEqual($data['description'], $this->mock_etdfile->dc->description);
+    $messages = $FileController->getHelper('FlashMessenger')->getMessages();
+    $this->assertPattern("/Saved changes to file information/", $messages[0]);
+
+    // dc changed, no save needed
+    $FileController = new FileControllerForTest($this->request,$this->response);
+    $this->mock_etdfile->dc->_changed = false;
+    $this->setUpPost($data);
+    $FileController->editAction();
+    $messages = $FileController->getHelper('FlashMessenger')->getMessages();
+    $this->assertPattern("/No changes made to file information/", $messages[0]);        
   }
 
-  // not sure how to test saving... (only testing non-xml saves in testing edit controller)
 
   public function testRemoveAction() {
     $FileController = new FileControllerForTest($this->request,$this->response);
