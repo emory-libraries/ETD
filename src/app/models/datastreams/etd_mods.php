@@ -197,6 +197,21 @@ class etd_mods extends mods {
   public function addKeyword($text) {
     $this->addSubject($text, "keywords", "keyword");
   }
+
+  /**
+   * Clear out the old keywords and add a list of new values. 
+   * @param array $values list of new keywords
+   */
+  public function setKeywords(array $values) {
+    foreach ($this->keywords as $kw) {
+      $kw->domnode->parentNode->removeChild($kw->domnode);
+    }
+    foreach ($values as $val) {     
+      $this->addKeyword($val);
+    }
+    $this->update();
+  } 
+
   
   /**
    * add subject/topic pair - used for adding both keywords & research fields

@@ -127,6 +127,29 @@ class TestEtdMods extends UnitTestCase {
     error_reporting($errlevel);     // restore prior error reporting
   }
 
+  function testSetKeywords() {
+    $kw = array('testing', 'automation');
+    $this->mods->setKeywords($kw);
+
+    $this->assertEqual(2, count($this->mods->keywords));
+    $this->assertIsA($this->mods->keywords[0], "mods_subject");
+
+    $this->assertEqual('testing', $this->mods->keywords[0]->topic);
+    $this->assertEqual('automation', $this->mods->keywords[1]->topic);
+    
+    $this->assertPattern('|<mods:subject authority="keyword"><mods:topic>testing</mods:topic></mods:subject>|', $this->mods->saveXML());
+
+    // set by array with a shorter list - research fields should only contain new values
+    $newkw = array('unit testing');
+    $this->mods->setKeywords($newkw);
+    $this->assertEqual(1, count($this->mods->keywords));
+
+    // empty list
+    $this->mods->setKeywords(array());
+    $this->assertEqual(0, count($this->mods->keywords));
+    
+  }
+
   function testCheckFields() {
     // ignore php errors - "indirect modification of overloaded property
     $errlevel = error_reporting(E_ALL ^ E_NOTICE);
