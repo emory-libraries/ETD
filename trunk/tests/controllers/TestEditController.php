@@ -127,22 +127,89 @@ class EditControllerTest extends ControllerTestCase {
   function testRecordAction() {
     $EditController = new EditControllerForTest($this->request,$this->response);
 
+    // GET: display form
     $this->setUpGet(array('pid' => $this->etdpid));    
-
     $EditController->recordAction();
-    $viewVars = $EditController->view->getVars();
     $this->assertIsA($EditController->view->etd, "etd");
-    // required namespaces for this xform
-    $this->assertTrue(isset($EditController->view->namespaces['mods']));
-    $this->assertTrue(isset($EditController->view->namespaces['etd']));
-    $this->assertPattern("|/view/mods/pid/" . $this->etdpid . "/mode/edit$|", $EditController->view->xforms_model_uri);
+    // languages & degrees should be set to populate form select options
+    $this->assertTrue(isset($EditController->view->language_options),
+                      'language_options should be set in view to generate language input');
+    $this->assertTrue(isset($EditController->view->degree_options),
+                      'degree_options should be set in view to generate degree input');
 
+    // POST: validate/update
+    // missing required fields
+    $this->setUpPost(array());
+    $EditController->recordAction();
+    $this->assertEqual('Last name is required',
+                       $EditController->view->errors['last-name'],
+                       'missing last name should result in validation error');
+    $this->assertEqual('First name is required',
+                       $EditController->view->errors['first-name'],
+                       'missing first name should result in validation error');
+    $this->assertEqual('Error: Language code "" not recognized',
+                       $EditController->view->errors['language'],
+                       'missing language should result in validation error');
+    $this->assertEqual('Please select a degree',
+                       $EditController->view->errors['degree'],
+                       'missing degree should result in validation error');
+    $this->assertEqual('Please enter at least one keyword',
+                       $EditController->view->errors['keywords'],
+                       'missing keywords should result in validation error');
+
+    // invalid options
+    $this->setUpPost(array('language'=> 'bogus', 'degree'=> 'NOT'));
+    $EditController->recordAction();
+    $this->assertEqual('Error: Language code "bogus" not recognized',
+                       $EditController->view->errors['language'],
+                       'invalid language code should result in validation error');
+    $this->assertEqual('Error: Degree "NOT" not recognized',
+                       $EditController->view->errors['degree'],
+                       'invalid degree name should result in validation error');
+
+    // valid data should be saved
+    $data = array('last-name' => 'Average', 'first-name' => 'Joe',
+                  'language' => 'eng', 'keywords' => array('one', 'two'),
+                  'degree' => 'PhD');
+    $this->setUpPost($data);
+    $EditController->recordAction();
+    $messages = $EditController->getHelper('FlashMessenger')->getMessages();
+    $this->assertEqual("Saved changes to record information", $messages[0]);
+    $this->assertTrue($EditController->redirectRan,
+                       'should redirect when valid data is posted');
+    
+    // inspect etd for data updates
+    $etd = new etd($this->etdpid);
+    $this->assertEqual($data['last-name'], $etd->mods->author->last);
+    $this->assertEqual($data['first-name'], $etd->mods->author->first);
+    // language sets both code and text
+    $this->assertEqual($data['language'], $etd->mods->language->code);
+    $this->assertEqual('English', $etd->mods->language->text);
+    $this->assertEqual(count($data['keywords']), count($etd->mods->keywords));
+    $this->assertEqual($data['keywords'][0], $etd->mods->keywords[0]->topic);
+    $this->assertEqual($data['keywords'][1], $etd->mods->keywords[1]->topic);
+    // degree name, level and genre are all set based on degree
+    $this->assertEqual($data['degree'], $etd->mods->degree->name);
+    $this->assertEqual('doctoral', $etd->mods->degree->level);
+    $this->assertEqual('Dissertation', $etd->mods->genre);
+    $this->assertEqual('Dissertation', $etd->mods->marc_genre);
+
+    // same values posted again - should be no changes, not saved
+    // NOTE: this fails; probably due to whitespace differences in
+    // fedora-normalized xml when removing and re-adding same keywords.
+    $this->setUpPost($data);
+    $EditController->recordAction();
+    $messages = $EditController->getHelper('FlashMessenger')->getMessages();
+    $this->assertEqual("No changes made to record information", $messages[0]);
+    $this->assertTrue($EditController->redirectRan,
+                       'should redirect when valid data is posted');
+
+    
     // set status to non-draft to test access controls
     $etd = new etd($this->etdpid);
     $etd->setStatus("reviewed");
     $etd->save("setting status to reviewed to test edit");
 
-    $EditController = new EditControllerForTest($this->request,$this->response);
     // should not be allowed (wrong status etd)
     $this->assertFalse($EditController->recordAction());
     // no easy way to access response - check error code & message

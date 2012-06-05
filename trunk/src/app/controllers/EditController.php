@@ -6,6 +6,8 @@
 
 require_once("models/etd.php");
 require_once("models/programs.php");
+require_once("models/languages.php");
+require_once("models/degrees.php");
 require_once("models/researchfields.php");
 require_once("models/vocabularies.php");
 
@@ -20,18 +22,119 @@ class EditController extends Etd_Controller_Action {
       
     $this->view->title = "Edit Record Information";
     $this->view->etd = $etd;
-    // xforms setting - so layout can include needed code in the header
-    $this->view->xforms = true;
-    $this->view->xforms_bind_script = "edit/_mods_bind.phtml";
-    $this->view->namespaces = array("mods" => "http://www.loc.gov/mods/v3",
-            "etd" => "http://www.ndltd.org/standards/metadata/etdms/1.0/",
-            );
-    //    $this->view->xforms_model_xml = $etd->mods->saveXML();
-    // link to xml rather than embedding directly in the page
-    $this->view->xforms_model_uri = $this->_helper->url->url(array("controller" => "view", "action" => "mods",
-                   "pid" => $etd->pid, "mode" => "edit"),
-                   // no route name, reset, don't url-encode
-                   '', true, false);
+
+    $lang = new languages();
+    $language_options = $lang->edit_options();
+    $this->view->language_options = $language_options;
+    $degrees = new degrees();
+    $degree_opts = $degrees->edit_options();
+    $degree_info = $degrees->degree_info();
+    $this->view->degree_options = $degree_opts;
+
+    // on GET, display edit form (no additional logic)
+    $errors = array();
+    
+    // on POST, process form data
+    if ($this->getRequest()->isPost()) {
+      // Update etd mods with posted data;
+      // used either to save or redisplay the edit form
+      
+      $invalid = false;   // assume valid until we find otherwise
+      
+      $etd->mods->author->last = $this->_getParam("last-name", null);
+      if (empty($etd->mods->author->last)) {
+        $errors['last-name'] = 'Last name is required';
+        $invalid = true;
+      }
+      $etd->mods->author->first = $this->_getParam("first-name", null);
+      if (empty($etd->mods->author->first)) {
+        $errors['first-name'] = 'First name is required';
+        $invalid = true;
+      }
+      $etd->mods->author->full = $etd->mods->author->last . ', ' .
+        $etd->mods->author->first;
+      $lang = $this->_getParam('language', null);
+      // check that language is a valid code
+      if (! array_key_exists($lang, $language_options)) {
+        $errors['language'] = 'Error: Language code "' . $lang . '" not recognized';
+        $invalid = true;
+      } else {
+        // set code and text in xml
+        $etd->mods->language->code = $lang;
+        $etd->mods->language->text = $language_options[$lang];
+      }
+      
+      $keywords_raw = $this->_getParam('keywords', array());
+      $keywords = array();
+      // sanitize input slightly: trim whitespace, uniquify
+      foreach (array_unique($keywords_raw) as $kwr) {
+        $k = trim($kwr);
+        if (! empty($k)) {
+          $keywords[] = $k;
+        }
+      }
+      $etd->mods->setKeywords($keywords);
+      // check that at least one keyword is set
+      if (! count($keywords) || empty($keywords[0])) {
+        $errors['keywords'] = 'Please enter at least one keyword';
+        $invalid = true;
+      } 
+      
+      $degree = $this->_getParam('degree', null);
+      if (empty($degree)) {
+        $errors['degree'] = 'Please select a degree';
+        $invalid = true;
+      } else if (! array_key_exists($degree, $degree_info)) {
+        $errors['degree'] = 'Error: Degree "' . $degree . '" not recognized';
+        $invalid = true;
+      } else {
+        // set degree level, name, and genre in xml
+        $etd->mods->degree->name = $degree;
+        $etd->mods->degree->level = $degree_info[$degree]['level'];
+        // current logic seems to be setting the same value in both genre fields
+        // can't find any documentation about what (if anything) should be different
+        $etd->mods->genre = $degree_info[$degree]['genre'];
+        $etd->mods->setMarcGenre();  // add in case not already present
+        $etd->mods->marc_genre = $degree_info[$degree]['genre'];
+      }
+
+      // if invalid, redisplay form with error information
+      
+      // otherwise, save and redirect to main record page
+      if (! $invalid) {
+        // valid : save and redirect
+        if ($etd->mods->hasChanged()) {
+          $save_result = $etd->save("edited record information");
+          
+          $this->view->save_result = $save_result;
+          if ($save_result) {
+            $this->_helper->flashMessenger->addMessage("Saved changes to record information");
+            $this->logger->info("Saved changes to record information for " . 
+                                $etd->pid . " at $save_result");
+          } else {
+            $this->_helper->flashMessenger->addMessage("Error: could not save changes to record information");
+            $this->logger->err("Could not save changes to record information for " .
+                               $etd->pid);
+          }
+          
+        } else {
+          // mods unchanged
+          $this->_helper->flashMessenger->addMessage("No changes made to record information");
+        }
+        
+        // redirect to main etd record
+        $this->_helper->redirector->gotoRoute(array("controller" => "view",
+                                                    "action" => "record",
+                                                    "pid" => $etd->pid), '', true);
+      } // end save valid data
+      
+    } // end POST
+
+    
+    // errors should always be set, for form display (always empty on GET)
+    $this->view->errors = $errors;
+                                                       
+    
   }
 
   // edit program and optional subfield
@@ -607,7 +710,7 @@ class EditController extends Etd_Controller_Action {
 
   }
 
-
+  // FIXME: do we still need this now after XForms are removed?
    public function savemodsAction() {
     $etd = $this->_helper->getFromFedora("pid", "etd");
     if (!$this->_helper->access->allowedOnEtd("edit metadata", $etd)) return;

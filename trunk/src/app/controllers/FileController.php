@@ -258,7 +258,7 @@ class FileController extends Etd_Controller_Action {
                         "Sound" => "Sound");
      $this->view->type_options = $dc_types;
      
-     // on GET, display edit form (no additional logic
+     // on GET, display edit form (no additional logic)
 
      // on POST, process form data
      if ($this->getRequest()->isPost()) {
@@ -270,7 +270,7 @@ class FileController extends Etd_Controller_Action {
        $etdfile->dc->type = $this->_getParam("type", null);
        // validate: check title non-empty, type in list
        $errors = array();
-       $invalid = false;
+       $invalid = false;   // assume valid until we find otherwise       
        if (empty($etdfile->dc->title)) {
            $errors['title'] = 'Error: Title must not be empty';
            $invalid = true;
