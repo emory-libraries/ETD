@@ -1,5 +1,4 @@
 <degrees>
-  <level><degree name="select one"/></level>
   <level name="doctoral" genre="Dissertation">
     <degree name="PhD" pq_code="Ph.D."/>
     <degree name="ThD"/>
