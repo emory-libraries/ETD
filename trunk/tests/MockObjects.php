@@ -112,6 +112,7 @@ class MockEtd_dc extends BasicMock_etd_dc {
   public $_changed;
 
   public function __construct() {
+    $this->BasicMock_etd_dc();
     $this->_changed = true;
   }
   public function hasChanged() {
