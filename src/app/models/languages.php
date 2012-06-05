@@ -31,6 +31,20 @@ class languages {
     }
   }
 
+  /**
+   * Associative array of language options for use in an edit form.
+   * Key is language code, value is display form.
+   */
+  public function edit_options() {
+    $nodelist = $this->xpath->query("/languages/language");
+    $opts = array();
+    for ($i = 0; $i < $nodelist->length; $i++) {
+      $lang = $nodelist->item($i);
+      $opts[$lang->getAttribute('code')] = $lang->getAttribute('display');
+    }
+    return $opts;
+  }
+
   
 }
 
