@@ -203,6 +203,15 @@ class etd_mods extends mods {
    * @param array $values list of new keywords
    */
   public function setKeywords(array $values) {
+    // NOTE: due to fedora whitespace normalization, removing and
+    // re-adding the same values makes hasChanged true when it shouldn't be.
+    // Check that the new values are different before updating.
+    $current_values = array();
+    foreach ($this->keywords as $kw) {
+      $current_values[] = $kw;
+    }
+    if ($values == $current_values) return;
+
     foreach ($this->keywords as $kw) {
       $kw->domnode->parentNode->removeChild($kw->domnode);
     }

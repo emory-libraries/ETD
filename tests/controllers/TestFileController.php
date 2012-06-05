@@ -307,7 +307,7 @@ class FileControllerTest extends ControllerTestCase {
     $messages = $FileController->getHelper('FlashMessenger')->getMessages();
     $this->assertPattern("/Saved changes to file information/", $messages[0]);
 
-    // dc changed, no save needed
+    // dc unchanged, no save needed
     $FileController = new FileControllerForTest($this->request,$this->response);
     $this->mock_etdfile->dc->_changed = false;
     $this->setUpPost($data);
