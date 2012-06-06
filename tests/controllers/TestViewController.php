@@ -132,7 +132,7 @@ class ViewControllerTest extends ControllerTestCase {
     $this->assertEqual('<oai_dc:dc/>', $response->getBody());
 
     // invalid datastream 
-    $this->setUpGet(array('datastream' => 'bogus'));
+    $this->setUpGet(array('datastream' => 'bogus', 'pid' => 'testetd:1'));
     $this->expectException(new Exception("'bogus' is not a valid datastream for testetd:1"));
     $ViewController->xmlAction();
   }
