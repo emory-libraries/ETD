@@ -50,7 +50,7 @@ class ViewController extends Etd_Controller_Action {
      }
    }
 
-   // show mods xml - referenced as model for xform
+   // show mods xml 
    public function modsAction() {
      $this->_setParam("datastream", "mods");
      $this->_forward("xml");

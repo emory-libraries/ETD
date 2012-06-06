@@ -258,7 +258,7 @@ class AuthorInfoController extends Etd_Controller_Action {
     $this->view->title = "save user information";
    }
 
-  // show mads xml - referenced as model for xform
+  // show mads xml - previously referenced as model for xforms
    public function madsAction() {
     // if pid is null, display template xml with netid set to id for current user
      $pid = $this->_getParam("pid", null);
