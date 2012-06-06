@@ -22,6 +22,9 @@
  <?= $this->javascript("projax/js/prototype.js"); ?>
 </head>
 <body>
+<? if ($this->env == "test"): ?>   
+   <?= $this->render('test_warning.phtml'); ?>
+<? endif ?>
 
 <div id="header">
   <div id="emory">
