@@ -783,7 +783,7 @@ table#nonemory_list th { font-size:85%; text-align:left; }
 
 ul.suggestions span.count { float:right; font-size:80%;}
 
-p.warning { 
+.warning { 
   border: 2px solid #d70d0d;  /* darkish red */
   padding: 4px;
   background-color: #efefef; /* light grey */
@@ -1036,12 +1036,15 @@ div.subchoice {
 
 .invalid { color:red; font-weight:bold; }
 
-div#key {
+#key {
   font-size:90%;
   border: 2px solid #565656; /* medium grey */
   background-color: #efefef; /* light grey */
   width:35%;
   padding:3px;
+}
+#key li {
+  list-style-type: none;
 }
 
 div.grayed { 
@@ -1062,4 +1065,35 @@ div#calendar ul{
 
 div#calendar div{
     margin-bottom:10px;
+}
+
+form label  {
+    display:block;
+    padding-top: 8px;
+}
+form input[type=text] {
+   display: block;
+   margin-bottom: 3px;
+}
+form textarea {
+    height: 3em;
+}
+form .help-text {
+    margin: 0px;
+    font-style: italic;
+    font-size: 90%;
+}
+
+form .side-by-side {
+  display: inline-block;
+}
+
+#edit-keywords {
+    width: 255px;
+}
+form#thesis-info .rm-input {
+  float: right;
+  display: inline-block;
+  color: red;
+  font-weight: bold;
 }
