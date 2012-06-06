@@ -1410,17 +1410,10 @@ class etd extends foxml implements etdInterface {
       }
     }
     
-    // Set keyword and partnering agency arrays
-    $kplist = array("keyword" => "keywords", "partneringagencies" => "partneringagencies"); 
-    foreach ($kplist as $key => $value) {
-      $item_array = array();
-      if ($key=="keyword" && $this->keywords() || $key=="partneringagencies" && $this->partneringagencies()) {  
-	foreach ($this->mods->keywords as $kp) {
-	if (trim($kp->topic) != "") array_push($item_array, $kp->topic);      		
-      }
-      $options[$key] = $item_array;
-      }
-    }    
+    // Set keyword list
+    $options['keyword'] = $this->keywords();
+    // set partnering agencies list
+    $options['partneringagencies'] = $this->partneringagencies();
     
     // Set RELS-EXT Fields 
     $options["contentModel"] = ($this->rels_ext->hasModel) ? "info:fedora/" . $this->rels_ext->hasModel : null;

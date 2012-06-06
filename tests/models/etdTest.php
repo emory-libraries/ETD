@@ -1058,7 +1058,7 @@ class TestEtd extends UnitTestCase {
     $this->etd->mods->addCommittee("Dog", "Pluto", "nonemory_chair", "notEmory");        
     $this->etd->mods->setEmbargoRequestLevel(etd_mods::EMBARGO_NONE);
     $this->etd->mods->addResearchField("Area Studies", "7025");   
-    $this->etd->mods->addKeyword("keyword1");
+    $this->etd->mods->setKeywords(array("cheese", "mice"));
     $this->etd->mods->abstract = "Gouda or Cheddar?";
     $this->etd->mods->addPartneringAgency("Georgia state or local health department");  
     $this->etd->rels_ext->program = "Disney";
@@ -1068,31 +1068,57 @@ class TestEtd extends UnitTestCase {
     // Ingest the Active pid into fedora
     $this->etd->state = "Active";    
     $this->etd->ingest("test etd xslt");
-    $result = $this->etd->getIndexData();
+    $data = $this->etd->getIndexData();
     
-    $msg = "indexData should contain value for key=";    
-    $this->assertTrue($result, "getIndexData returned data");
-    $this->assertEqual("PID", array_search($this->etdpid, $result), $msg . "[PID]");
-    $this->assertEqual("abstract", array_search($this->etd->mods->abstract, $result), $msg . "[abstract]");    
-    $this->assertEqual("collection", array_search("emory-control:ETD-GradSchool-collection", $result), $msg . "[collection]");
-    $this->assertEqual("contentModel", array_search('info:fedora/' . $this->etd->rels_ext->hasModel, $result), $msg . "[contentModel]");
-    $this->assertEqual("date_embargoedUntil", array_search($this->etd->mods->embargo_end, $result), $msg . "[date_embargoedUntil]");
-    $this->assertEqual("document_type", array_search($this->etd->document_type(), $result), $msg . "[document_type]");
-    $this->assertEqual("embargo_duration", array_search($this->etd->mods->embargo, $result), $msg . "[embargo_duration]");            
+    $msg = "index data should match record value for ";    
+    $this->assertTrue($data, "getIndexData returned data");
+    $this->assertEqual($data["PID"], $this->etdpid,
+                       $msg . "PID");
+    $this->assertEqual($data["abstract"], $this->etd->mods->abstract,
+                       $msg . "abstract");    
+    $this->assertEqual($data["collection"],
+                       "emory-control:ETD-GradSchool-collection",
+                       $msg . "collection");
+    $this->assertEqual($data["contentModel"], 'info:fedora/' . $this->etd->rels_ext->hasModel,
+                       $msg . "contentModel");
+    $this->assertEqual($data["date_embargoedUntil"], str_replace("-", "",
+                                                                 $this->etd->mods->embargo_end),
+                       $msg . "date_embargoedUntil");
+    $this->assertEqual($data["document_type"], $this->etd->document_type(),
+                       $msg . "document_type");
+    $this->assertEqual($data["embargo_duration"], $this->etd->mods->embargo,
+                       $msg . "embargo_duration");            
     $embargo_requested = ($this->etd->mods->hasEmbargoRequest()) ? "yes" : "no";
-    $this->assertEqual("embargo_requested", array_search($embargo_requested, $result), $msg . "[embargo_requested]");
-    $this->assertEqual(2, count($this->etd->keywords()), $msg . "[keywords]  [" . count($this->etd->keywords()) . "] equals 1");  
-    $this->assertEqual("keyword1", $this->etd->mods->keywords[1], $msg . "[keywords]"); 
-    $lang = ($this->etd->language() && isset($this->etd->mods->language->text)) ? $this->etd->mods->language->text : null;
-    $this->assertEqual("language", array_search($lang, $result), $msg . "[language]");
-    $this->assertEqual("ownerId", array_search($this->etd->owner, $result), $msg . "[ownerId]");
-    $this->assertEqual("program_id", array_search($this->etd->rels_ext->program, $result), $msg . "[program_id]");
-    $this->assertEqual("status", array_search($this->etd->status(), $result), $msg . "[status]");
-    $this->assertEqual(1, count($this->etd->researchfields()), $msg . "[subject]  [" . count($this->etd->researchfields()) . "] equals 1");   
-    $this->assertEqual("Area Studies", $this->etd->mods->researchfields[0], $msg . "[subject]"); 
-    $this->assertEqual("tableOfContents", array_search($this->etd->mods->tableOfContents, $result), $msg . "[abstract]");     
+    $this->assertEqual($data["embargo_requested"], $embargo_requested,
+                       $msg . "embargo_requested");
+    $this->assertEqual(count($data['keyword']), count($this->etd->mods->keywords)); //,
+    //'index data should have the same number of keywords as mods');
+    foreach ($this->etd->mods->keywords as $kw){
+      $this->assertTrue(in_array($kw->topic, $data['keyword']),
+           'mods keyword ' . $kw->topic . ' should be in index data keywords array');
+    }
+    
+    $this->assertEqual($data["language"], $this->etd->language(),
+                       $msg . "language");
+    $this->assertEqual($data["ownerId"], $this->etd->owner,
+                       $msg . "ownerId");
+    $this->assertEqual($data["program_id"], $this->etd->rels_ext->program,
+                       $msg . "program_id");
+    $this->assertEqual($data["status"], $this->etd->status(),
+                       $msg . "status");
+    $this->assertEqual(1, count($this->etd->researchfields()), $msg . "[subject]  [" . count($this->etd->researchfields()) . "] equals 1");
+    $this->assertEqual(count($data['subject']), count($this->etd->mods->researchfields),
+                       'index data should have the same number of research fields as mods');
+
+    foreach ($this->etd->mods->researchfields as $rf){
+      $this->assertTrue(in_array($rf->topic, $data['subject']),
+           'research field ' . $rf->topic . ' should be in index data subject array');
+    }
+    
+    $this->assertEqual($data["tableOfContents"], $this->etd->mods->tableOfContents,
+                       $msg . " tableOfContents");     
     $title = etd_html::removeTags($this->etd->title());  
-    $this->assertEqual("label", array_search($title, $result), $msg . "[label]");      
+    $this->assertEqual($data["label"], $title, $msg . "label");      
   }
   
 }
