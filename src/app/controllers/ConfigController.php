@@ -6,8 +6,9 @@
 
 class ConfigController extends Etd_Controller_Action {
 
+  // FIXME: do we need this anymore? No longer used by XForms
 
-  // display config xml -- used in various xforms
+  // display config xml -- previously used in various xforms
   public function viewAction() {
     $request = $this->getRequest();
     $id = $request->getParam("id");

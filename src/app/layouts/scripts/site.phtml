@@ -1,15 +1,5 @@
 <?= $this->doctype('XHTML1_STRICT') ?>
-<html xmlns="http://www.w3.org/1999/xhtml"
- <? if ($this->xforms): ?>
-  xmlns:xf="http://www.w3.org/2002/xforms"
-  xmlns:ev="http://www.w3.org/2001/xml-events"
-   <? if (isset($this->namespaces)): ?>
-    <? foreach ($this->namespaces as $prefix => $uri): ?>
-   xmlns:<?= $prefix ?>="<?= $uri ?>"
-    <? endforeach ?>
-    <? endif ?>
- <? endif ?>       
-  xml:lang="en">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
 
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
@@ -22,13 +12,10 @@
   <?= $this->css('etd.css'); ?>
   <? if (isset($this->dc)): ?>
     <?= $this->render('dc_header.phtml'); ?>
-  <? elseif (isset($this->etd) && !isset($this->etdSet) && !($this->xforms)): /* only if display if this is a single-etd page */?>
+  <? elseif (isset($this->etd) && !isset($this->etdSet)): /* only if display if this is a single-etd page */?>
     <?= $this->render('view/etd_dcheader.phtml'); ?>
   <? endif ?>
-
-  <? if ($this->xforms): ?>
-       <?= $this->render('xforms_head.phtml'); ?>
-  <? endif ?>
+   
 <link rel="Bookmark" href="<?= $this->linkTo('favicon.ico') ?>"/>
 <link rel="SHORTCUT ICON" href="<?= $this->linkTo('favicon.ico') ?>" />
 <link rel="unapi-server" type="application/xml" title="unAPI" href="<?= $this->absoluteUrl(array('controller' => 'unapi'), '', true) ?>"/>
@@ -85,7 +72,7 @@
 
             <li><a href="<?= $this->url(array("controller" => "docs", "action" => "faq"), '', true); ?>#help">Help</a></li>
 
-      <? if ($this->env == "development" && !($this->xforms && $this->browserInfo->browser == "IE")): ?>
+      <? if ($this->env == "development"): ?>
          <?= $this->render("_setrole.phtml"); ?>
       <? endif ?>
          </ul>

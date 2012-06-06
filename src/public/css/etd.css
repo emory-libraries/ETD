@@ -835,7 +835,7 @@ div#whylogin a.close {
 div.indent { margin-left:25px; }
 
 /* consistent look for workflow links and buttons */
-.button, .xforms-submit input { 
+.button { 
  background-color:#efefef;
  border:1px solid black;
  font-weight:bold;
@@ -843,7 +843,7 @@ div.indent { margin-left:25px; }
  padding:3px;
  text-decoration:none;
 }
-.button:hover, .xforms-submit input:hover { 
+.button:hover { 
   color:#881725; 
 }
 
@@ -1071,7 +1071,7 @@ form label  {
     display:block;
     padding-top: 8px;
 }
-form input[type=text] {
+form#thesis-info input[type=text], form#file-metadata input[type=text] {
    display: block;
    margin-bottom: 3px;
 }
