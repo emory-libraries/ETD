@@ -75,7 +75,7 @@
 
             <li><a href="<?= $this->url(array("controller" => "docs", "action" => "faq"), '', true); ?>#help">Help</a></li>
 
-      <? if ($this->env == "development"): ?>
+      <? if ($this->env != "production"): ?>
          <?= $this->render("_setrole.phtml"); ?>
       <? endif ?>
          </ul>
