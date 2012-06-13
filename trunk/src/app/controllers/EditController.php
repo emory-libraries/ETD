@@ -568,9 +568,6 @@ class EditController extends Etd_Controller_Action {
     else
       $this->view->submission_agreement = $etd->mods->hasSubmissionAgreement();
     
-    $config = Zend_Registry::get('config');
-    $this->view->dojo_config = $config->dojo;
-
     $this->view->title = "Edit Author Rights/Access Restrictions";
     $this->view->etd = $etd;
 
