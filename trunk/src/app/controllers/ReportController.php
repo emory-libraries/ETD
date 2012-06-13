@@ -164,10 +164,6 @@ class ReportController extends Etd_Controller_Action {
         }
 
         $this->view->etdSet = $etdSet;
-
-        // get dojo cdn from config
-        $config = Zend_Registry::get('config');
-        $this->view->dojo_config = $config->dojo;
     }
 
     /**
