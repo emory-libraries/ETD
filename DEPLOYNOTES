@@ -72,6 +72,13 @@ Update the ETD control objects for particular fedora instance.
 UPGRADE NOTES
 =================
 
+Version 1.13 (preliminary)
+--------------------------
+
+* Dojo is no longer used anywhere in the site; references to Dojo in
+  ``config.xml`` can be removed.
+
+
 Version 1.12.5
 --------------
 * Change into the directory src/scripts/migrations/ 

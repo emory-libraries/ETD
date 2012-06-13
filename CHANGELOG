@@ -2,11 +2,13 @@ CHANGE LOG
 =================
 
 Version 1.13 (preliminary)
----------------------------------------
+--------------------------
 
 * Thesis record information and file information edit forms no longer
   use XForms; all XForm code has been removed from the site.
-* Help request form has been updated to use jQuery instead of Dojo.
+* Help request form has been updated to use jQuery instead of Dojo;
+  commencement report has been updated to use FCKeditor instead of
+  Dojo; all Dojo code has been removed from the site.
 
 
 Version 1.12.5 - April 2012
