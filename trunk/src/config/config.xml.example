@@ -84,11 +84,6 @@
       <author>emory-control:AuthorInformation-1.0</author> 
     </contentModels>
 
-    <dojo>
-      <cdn>http://dojocdn-test.library.emory.edu/dojo/</cdn>
-      <version>1.2.3</version>
-    </dojo>
-    
     <!-- Bypass the LDAP certificate authorization - available in non-prod envs only
     <certificate_required>
       <ldap>never</ldap>
@@ -102,10 +97,6 @@
   </test>
 
   <production extends="development">
-    <dojo>
-      <cdn>http://dojocdn.library.emory.edu/dojo/</cdn>
-      <version>1.2.3</version>
-    </dojo>
   </production>
 
 </config>

@@ -688,7 +688,6 @@ class EditControllerTest extends ControllerTestCase {
     $EditController->rightsAction();
     $this->assertIsA($EditController->view->etd, "etd");
     $this->assertTrue(isset($EditController->view->title), "page title is set in view");
-    $this->assertTrue(isset($EditController->view->dojo_config), "dojo config is set in view");
 
     // default form values should be pre-set from etd fixture
     $this->assertFalse($EditController->view->embargo);
