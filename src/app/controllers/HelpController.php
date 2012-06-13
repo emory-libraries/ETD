@@ -4,8 +4,6 @@
  * @package Etd_Controllers
  */
 
-require_once("Emory/notifier.php");
-
 
 class HelpController extends Etd_Controller_Action {
   protected $requires_fedora = false;
@@ -14,31 +12,62 @@ class HelpController extends Etd_Controller_Action {
   private $message;
   
   public function indexAction() {
-  	if(isset($this->current_user)) {
-	  	$this->view->fullname = $this->current_user->fullname;
-	  	$this->view->email    = $this->current_user->netid . "@emory.edu";
-	  	$user_etds = $this->current_user->getEtds();
-	  	if($user_etds!=null) {
-	  		$this->view->etd_link = $user_etds[0]->ark();
-  		} else {
-	  		unset($this->view->etd_link);
-	  	}
-  	} else {
-	  	unset($this->view->fullname);
-	  	unset($this->view->email);
-	  	unset($this->view->etd_link);
-	}
-	
-	$config = Zend_Registry::get('config');
-	$this->view->dojo_config = $config->dojo;
 
-	$environment = Zend_Registry::get('env-config');
-	if ($environment->mode != "production") {
-		// use a configured debug email address when in development mode
-		$this->view->list_addr = $config->email->test;
-	}
+    $this->view->title = "Help Request";
+    // using jquery, jqueryui, and jquery form validation function
+    $this->view->extra_scripts = array(
+         "//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js",
+         "//ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.min.js",
+         "//ajax.aspnetcdn.com/ajax/jquery.validate/1.9/jquery.validate.js",
+    );
+    $this->view->extra_css = array(
+         "//ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/ui-lightness/jquery-ui.css",
+    );
 
-	$this->view->title = "Help Request";
+    
+    // on GET, display edit form with default values
+    if ($this->getRequest()->isGet()) {
+      // if user is logged in, pre-populate fields we know
+      if (isset($this->current_user)) {
+        $this->view->fullname = $this->current_user->fullname;
+        $this->view->email    = $this->current_user->netid . "@emory.edu";
+        $user_etds = $this->current_user->getEtds();
+        if ($user_etds != null) {
+          $this->view->etd_link = $user_etds[0]->ark();
+        }
+      }
+
+      if ($this->env != "production") {
+        // use a configured debug email address when not in production
+        $config = Zend_Registry::get('config');
+        $this->view->to_email = $config->email->test;
+      }
+
+      return;
+    } // end GET 
+
+    if ($this->getRequest()->isPost()) {
+      // on POST, process form data
+
+      // populate submitted values in case form needs to be displayed
+      $this->view->fullname = $this->_getParam("username", "");
+      $this->view->email = $this->_getParam("email", "");
+      $this->view->message = $this->_getParam("message", "");
+      $this->view->subject = $this->_getParam("subject", "");
+      $this->view->to_email = $this->_getParam("to_email", "");
+
+      // check for invalid form
+      if (! $this->valid_submission()) {
+        $this->view->error = "There was a problem submitting your request. " 
+          . "Please check that you have filled in all required fields.";
+        return;
+      }
+
+      if ($this->send_email()) {
+        $this->view->email_sent = true;        
+      }
+
+    }
   }
    
   // display success message with more information
@@ -46,89 +75,70 @@ class HelpController extends Etd_Controller_Action {
   	/**/
   }
   
-  public function submitAction() {
-    	
-    $request = $this->getRequest();
-  	
-    if($this->verifyParms()) {
-      $notify = new Zend_Mail();
-	  	
-    	$config = Zend_Registry::get('config');
-	$this->view->dojo_config = $config->dojo;
-
-	    $environment = Zend_Registry::get('env-config');
-			  
-	    if ($environment->mode != "production") {
-	    	// use a configured debug email address when in development mode
-			$list_addr = $request->getParam("list_addr", $config->email->test);
-		} else {
-			$list_addr = $config->contact->email;
-	    }
-	   
-    	$etd_ark = $request->getParam("etd_link", null)!=null?($request->getParam("etd_link")):"NO RECORD FOUND";
-    	$grad_date = $request->getParam("grad_date", null)!=null?($request->getParam("grad_date")):"NOT SPECIFIED";
-	  	
-	  	$notify->addTo($list_addr);
-	  	$notify->setFrom($request->getParam("email"), $request->getParam("username"));
-	  	$copy_netid = $request->getParam("copy_netid", null);
-	  	if($copy_netid!=null) {
-	  		$notify->addCc($request->getParam("email"), $request->getParam("username"));
-	  	}
-	  	$notify->setSubject("ETD Help: " . $request->getParam("subject"));
-    	$tagfilter = new Zend_Filter_StripTags();
-	  	$notify->setBodyText(
-	  		  "Contact: " . $request->getParam("username") . "\n"
-	  		. "Email Address: " . $request->getParam("email") . "\n"
-	  		. "ETD: " . $etd_ark . "\n"
-	  		. "Expected Graduation Date: " . $grad_date . "\n\n"
-	  		. $tagfilter->filter($request->getParam("message"))
-	  		);
-
-	  	try {
-		  if ($environment->mode != "test") {
-		    $notify->send();
-		  }
-  		} catch (Exception $exception) {
-			$this->view->errorMessage = "There was an error sending your message. [" . $exception->getMessage() . "]";
-			$this->view->submittedUsername = $request->getParam("username", "");
-			$this->view->submittedEmail = $request->getParam("email", "");
-			$this->view->submittedMessage = $request->getParam("message", "");
-			$this->view->submittedSubject = $request->getParam("subject", "");
-			$this->_helper->viewRenderer->setScriptAction("index");   	
-  		}
-    		
-	    // send notification only if submit succeeded 
-	    $this->_helper->flashMessenger->addMessage("Help email sent.");
-   	    $this->logger->info("Help request sent - '" 
-   	    	.  $request->getParam("subject") 
-   	    	. "' from " . $request->getParam("username", "")
-			. " <" . $request->getParam("email", "") . ">");
-	    
-    	if ($environment->mode != "test") {
-			// forward to success message
-	  $this->_helper->redirector->gotoRoute(array("controller" => "help", "action" => "success"), "", true);
-	  $this->_forward("success");
-    	} else { // is test mode.
-	  return $notify;
-    	}
-    } else {  // missing parameters
-      $this->view->errorMessage = "Validation Error: there was a problem submitting your message for help.  Ensure that the Name, email, subject and message fields are populated before clicking submit.";
-      $this->view->submittedUsername = $request->getParam("username", "");
-      $this->view->submittedEmail = $request->getParam("email", "");
-      $this->view->submittedMessage = $request->getParam("message", "");
-      $this->view->submittedSubject = $request->getParam("subject", "");
-      $this->_forward("index");
+  protected function send_email() {
+    $rqst = $this->getRequest();
+    if ($this->env != "production") {
+      // use a configured debug email address when in development mode
+      $to_email = $rqst->getParam("to_email", null);
+      if (is_null($to_email)) {
+        $config = Zend_Registry::get('config');
+        $config->email->test;
+      }
+    } else {
+      $to_email = $config->contact->email;
     }
+	   
+    $etd_ark = $rqst->getParam("etd_link", "NO RECORD FOUND");
+    $grad_date = $rqst->getParam("grad_date", "NOT SPECIFIED");
+
+    $notify = new Zend_Mail();
+    $notify->addTo($to_email);
+    // set user submitting the form as from address
+    $notify->setFrom($rqst->getParam("email"), $rqst->getParam("username"));
+    // if user requested a copy, add them as cc
+    if ($rqst->getParam("copy_me", False)) {
+      $notify->addCc($rqst->getParam("email"), $rqst->getParam("username"));
+    }
+    $notify->setSubject("ETD Help: " . $rqst->getParam("subject"));
+    $notify->setBodyText("Contact: " . $rqst->getParam("username") . "\n"
+                         . "Email Address: " . $rqst->getParam("email") . "\n"
+                         . "ETD: " . $etd_ark . "\n"
+                         . "Expected Graduation Date: " . $grad_date . "\n\n"
+                         . $rqst->getParam("message")
+                         );
+
+    // special handling to prevent sending email and allow inspecting message
+    if ($this->env == "test") {
+      return $notify;
+    }
+    try {
+        $notify->send();
+    } catch (Exception $exception) {
+      $this->view->error = "There was an error sending your message. ["
+        . $exception->getMessage() . "]";
+      return false;
+    }
+    		
+    // log help request details
+    $this->logger->info("Help request sent - '" 
+                        .  $rqst->getParam("subject") 
+                        . "' from " . $rqst->getParam("username", "")
+			. " <" . $rqst->getParam("email", "") . ">");
+
+    // return notify to indicate success
+    return $notify;
   }
+
   
-  protected function verifyParms() {
-    $request = $this->getRequest();
-  	return (
-  		$request->getParam("username", null)!=null && 
-  		$request->getParam("email", null)!=null && 
-  		$request->getParam("message", null)!=null && 
-  		$request->getParam("subject", null)!=null 
-  		);
+  protected function valid_submission() {
+    // check that all required fields are filled in
+    $rqst = $this->getRequest();
+    return (
+            $rqst->getParam("username", null)!=null && 
+            $rqst->getParam("email", null)!=null && 
+            $rqst->getParam("message", null)!=null && 
+            $rqst->getParam("subject", null)!=null 
+            );
   }
 
 }

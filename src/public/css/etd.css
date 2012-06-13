@@ -1097,3 +1097,28 @@ form#thesis-info .rm-input {
   color: red;
   font-weight: bold;
 }
+
+
+form#help-request label  {
+    display: inline-block;
+    vertical-align: top;
+    width: 11em;
+}
+
+form#help-request label.error  {
+    display: inline;
+    color: red;
+    font-size: 90%;
+    padding-left: 5px;
+}
+
+form#help-request textarea {
+    height: 15em;
+}
+form#help-request input[type=text] {
+    width: 20em;
+}
+
+form#help-request > div  {
+  padding-top: 8px;
+}

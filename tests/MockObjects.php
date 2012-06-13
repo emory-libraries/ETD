@@ -53,6 +53,7 @@ Mock::generate('authorInfo',  'BasicMock_authorInfo');
 
 class MockEtd extends BasicMock_Etd {
   public $pid;
+  public $ark;
   public $PID;    // not ideal... using for solr results
   public $label;
   public $dc;
@@ -215,3 +216,5 @@ class MockFedoraConnection extends BasicMockFedoraConnection {
 }
 
 
+require_once('models/esdPerson.php');
+Mock::generate('esdPerson', 'MockEsdPerson');
