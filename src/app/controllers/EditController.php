@@ -23,6 +23,10 @@ class EditController extends Etd_Controller_Action {
     $this->view->title = "Edit Record Information";
     $this->view->etd = $etd;
 
+    $this->view->extra_scripts = array(
+         "//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js",
+    );
+
     $lang = new languages();
     $language_options = $lang->edit_options();
     $this->view->language_options = $language_options;
