@@ -16,10 +16,23 @@
     <?= $this->render('view/etd_dcheader.phtml'); ?>
   <? endif ?>
    
-<link rel="Bookmark" href="<?= $this->linkTo('favicon.ico') ?>"/>
-<link rel="SHORTCUT ICON" href="<?= $this->linkTo('favicon.ico') ?>" />
-<link rel="unapi-server" type="application/xml" title="unAPI" href="<?= $this->absoluteUrl(array('controller' => 'unapi'), '', true) ?>"/>
- <?= $this->javascript("projax/js/prototype.js"); ?>
+   <link rel="Bookmark" href="<?= $this->linkTo('favicon.ico') ?>"/>
+   <link rel="SHORTCUT ICON" href="<?= $this->linkTo('favicon.ico') ?>" />
+   <link rel="unapi-server" type="application/xml" title="unAPI" href="<?= $this->absoluteUrl(array('controller' => 'unapi'), '', true) ?>"/>
+   
+   <? if ($this->extra_scripts): ?>
+     <? foreach ($this->extra_scripts as $js): ?>
+     <script src="<?= $js ?>"></script>
+     <? endforeach ?>
+   <? endif ?>
+   <? if ($this->extra_css): ?>
+     <? foreach ($this->extra_css as $css): ?>
+     <link href="<?= $css ?>" type="text/css" rel="Stylesheet" />
+     <? endforeach ?>
+   <? endif ?>
+
+    <?= $this->javascript("projax/js/prototype.js"); ?>
+
 </head>
 <body>
 <? if ($this->env == "staging"): ?>   
