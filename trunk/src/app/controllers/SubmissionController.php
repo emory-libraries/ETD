@@ -279,8 +279,8 @@ class SubmissionController extends Etd_Controller_Action {
     // set author info
     $etd->mods->setAuthorFromPerson($current_user);
     
-    $etd->abstract = $etd_info['abstract'];
-    $etd->contents = $etd_info['toc'];
+    // As of 2012/06, table of contents is no longer extracted from pdf.
+    // Abstract is ignored (may be extracted, but not reliable)
     
     // attempt to find a match for department from program list
     switch ($school_id) { // limit to relevant section

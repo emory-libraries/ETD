@@ -35,10 +35,6 @@ class TestProcessPdf extends UnitTestCase {
       2. another chapter
       3. <i>conclusion</i></div>");
     $this->processpdf->process_page($dom);
-    $this->assertPattern("/2. another chapter/", $this->processpdf->fields['toc']);
-    // formatting preserved
-    $this->assertPattern("/<i>conclusion<\/i>/", $this->processpdf->fields['toc']);
-    
   }
 
   function testProcessSignaturePage() {
@@ -117,7 +113,6 @@ class TestProcessPdf extends UnitTestCase {
     // from second page of abstract
     $this->assertPattern("/assembled\s+peptide\s+nanotubes,\s+with\s+such\s+ordered\s+and\s+dense\s+packed/",
        $fields['abstract'], "second page of abstract");
-    $this->assertPattern("/ZINC EFFECT IN AMYLOID\s+FORMATION/m", $fields['toc'], "table of contents");
     $this->assertTrue($fields["distribution_agreement"]);
   }
   
@@ -134,8 +129,7 @@ class TestProcessPdf extends UnitTestCase {
     // from second page of abstract
     $this->assertPattern("/catalytic mechanism of xanthine hydroxylation/",
        $fields['abstract']);
-    $this->assertPattern("/XOR cofactors/", $fields['toc']);
-    $this->assertTrue($fields["distribution_agreement"]);
+        $this->assertTrue($fields["distribution_agreement"]);
   }
 
   function testGetInformation_davidson() {
@@ -147,7 +141,6 @@ class TestProcessPdf extends UnitTestCase {
     //$this->assertEqual("Anthropology", $fields['department']);
     $this->assertPattern("/long\s+been\s+recognized\s+for\s+their\s+capacity\s+to\s+grow/",
        $fields['abstract'], "abstract");
-    $this->assertPattern("/Introduction: Rice, Rain, and Response/", $fields['toc']);
     $this->assertTrue($fields["distribution_agreement"]);
     }
   function testGetInformation_strickland() {
@@ -158,8 +151,6 @@ class TestProcessPdf extends UnitTestCase {
     //$this->assertEqual("Epidemiology", $fields['department']);
     $this->assertPattern("/temporal\s+relationships\s+between\s+ambient\s+air\s+pollution\s+levels/",
        $fields['abstract']);
-    $this->assertPattern("/The\s+Importance\s+of\s+Nomenclature\s+for\s+Congenital\s+Heart\s+Disease/",
-       $fields['toc']);
     $this->assertTrue($fields["distribution_agreement"]);
   }
   function testGetInformation_tinker() {
@@ -171,11 +162,6 @@ class TestProcessPdf extends UnitTestCase {
     
     //$this->assertEqual("Epidemiology", $fields['department']);
     $this->assertPattern("/municipal\s+drinking\s+water\s+may\s+contribute\s+to/", $fields['abstract']);
-    $this->assertPattern("/Causes of Gastrointestinal Illness/", $fields['toc']);
-    // TOC continues to second page
-    $this->assertPattern("/7 DRINKING WATER TREATMENT PLANTS AND EMERGENCY/", $fields['toc']);
-    // TOC continues to third page
-    $this->assertPattern("/ADDITIONAL ANALYSIS OF DRINKING WATER TURBIDITY/", $fields['toc']);
     $this->assertTrue($fields["distribution_agreement"]);
   }
 
