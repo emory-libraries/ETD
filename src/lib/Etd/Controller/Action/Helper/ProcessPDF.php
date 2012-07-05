@@ -49,16 +49,20 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
   public function initialize_fields() {
     // set the fields to be filled in 
     $this->fields = array("title" => "",
-        // NOTE: advisor, committee and department will no longer be populated;
-        // leaving empty values/arrays to avoid potential errors if any code is missed
-        // that still expects these values to be present in processed info.
+        "keywords" => array(),
+        "filename" => "",
+        // advisor, committee and department will no longer be populated;
+        // leaving empty arrays to avoid potential errors if any code is missed
+        // that still expects these values
         "department" => "",
         "advisor" => array(),    
         "committee" => array(),  
-        "abstract" => "",
+        // table of contents will no longer be populated, since detection 
+        // and formatting is often incomplete and unreliable
         "toc" => "",
-        "keywords" => array(),
-        "filename" => "",
+        // NOTE: abstract detection will be attempted since it abstract text
+        // is used to clean the title, but abstract text may be incomplete or unreliable
+        "abstract" => "",
         "distribution_agreement" => false);
   }
   
@@ -218,11 +222,7 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
 
     // minor cleaning on fields that need it
     /* FIXME: some dom equivalent for this? */
-    $this->fields['toc'] = preg_replace("|<hr/?>|", "",  $this->fields['toc']);
-    $this->fields['toc'] = preg_replace("|^\s*(<b>)?Table\s+of\s+Contents\s*(</b>)?\s*(<br/>)?\s*|i", "",
-          $this->fields['toc']);
-    $this->fields['toc'] = preg_replace("|<a name=\"\d+\"\/>|", "",  $this->fields['toc']);
-
+    
     $this->fields['abstract'] = trim($this->fields['abstract'], "\n ");
     $this->fields['abstract'] = preg_replace("|<hr/?>|", "",  $this->fields['abstract']);   
     $this->fields['abstract'] = preg_replace("|<a name=\"?\d+\"?\/>|", "",  $this->fields['abstract']);
@@ -247,8 +247,6 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
     // FIXME: only true essential is title - should we fall back to filename as title?
     if (!isset($this->fields['title']) || $this->fields['title'] == "") 
       $this->_actionController->view->errors[] = "Could not determine title";
-    if (!isset($this->fields['abstract']) || $this->fields['abstract'] == "") 
-      $this->_actionController->view->errors[] = "Could not find abstract";
     
     // FIXME: what other fields should be checked?
 
@@ -315,21 +313,6 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
       }
       break;
 
-    case "toc-cont":
-      // possible continuation of Table of Contents
-
-      // attempt to detect table of contents:
-      //  -  includes more than one chapter label
-      //  OR has multiple dots followed by a number
-      // (Note that this may also match table of figures, appendices, etc)
-      if (preg_match("/Chapter.*Chapter/", $content) ||
-          preg_match("/\.{4,}\s*[0-9]{2,}/", $content)) {
-        $this->fields['toc'] .= etd_html::getContentXml($page->documentElement);
-        $this->next = "toc-cont";
-      } else {
-        $this->next = "";
-      }
-      break;
 
     default:
       // if next page is not set, try to figure out where we are
@@ -356,16 +339,6 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
       } elseif ($this->current_page == 1) {
         // page 1 and no circ agreement - probably signature page
         $this->processSignaturePage($page);
-            } elseif (preg_match("/Table of Contents/i", $content)) {
-        if ($this->debug) print "* found table of contents - page " . $this->current_page . "\n";
-        $this->_actionController->view->log[] = "Found Table of Contents on page " . $this->current_page;
-
-        $this->fields['toc'] .= etd_html::getContentXml($page->documentElement);
-
-        // table of contents may be more than page, so next page may continue it
-        $this->next = "toc-cont"; // possibly 
-        
-        // FIXME: cleaning for dashes/dots in table of contents ?
       }
       
     }

@@ -182,8 +182,10 @@ class SubmissionControllerTest extends ControllerTestCase {
     $etd = $SubmissionController->initialize_etd($test_info);
     $this->assertIsA($etd, "etd");
     $this->assertEqual("new etd", $etd->label);
-    $this->assertEqual("my abstract", $etd->mods->abstract);
-    $this->assertEqual("chapter 1 -- chapter 2", $etd->mods->tableOfContents);
+    $this->assertEqual("", $etd->mods->abstract,
+      'abstract should no longer be prepopulated by text detected from pdf');
+    $this->assertEqual("", $etd->mods->tableOfContents,
+      'table of contents should no longer be prepopulated by text detected from pdf');
     $this->assertEqual("test", $etd->mods->keywords[0]->topic);
     $this->assertEqual("etd", $etd->mods->keywords[1]->topic);
     $this->assertEqual("Laney Graduate School", $etd->admin_agent);
