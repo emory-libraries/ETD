@@ -52,11 +52,9 @@ class TestProcessPdf extends UnitTestCase {
       Fred Jones<br/>  Committee Member</div>");
     $this->processpdf->processSignaturePage($dom);
     $this->assertEqual("Dissertation Title", $this->processpdf->fields['title']);
-    $this->assertEqual("Doe, Jane", $this->processpdf->fields['advisor'][0]);
-    $this->assertEqual("Jetson, George", $this->processpdf->fields['committee'][0]);
-    $this->assertEqual("Smith, John", $this->processpdf->fields['committee'][1]);
-    $this->assertEqual("Jones, Fred", $this->processpdf->fields['committee'][2]);
-
+    // advisor & committee no longer pre-populated by pdf extractor
+    $this->assertEqual(array(), $this->processpdf->fields['advisor']);
+    $this->assertEqual(array(), $this->processpdf->fields['committee']);
     $this->processpdf->initialize_fields();
     $dom->loadXML("<div>Yet Another Thesis (YAT)<br/>By<br/>A. Grad. Student<br/>
       Jane Smith, Advisor<br/>
@@ -65,10 +63,6 @@ class TestProcessPdf extends UnitTestCase {
       Freddie Prinze Jr., Committee Member<br/></div>");
     $this->processpdf->processSignaturePage($dom);
     $this->assertEqual("Yet Another Thesis (YAT)", $this->processpdf->fields['title']);
-    $this->assertEqual("Smith, Jane", $this->processpdf->fields['advisor'][0]);
-    $this->assertEqual("Brady, Marsha", $this->processpdf->fields['committee'][0]);
-    $this->assertEqual("Smitt, Joe", $this->processpdf->fields['committee'][1]);
-    $this->assertEqual("Freddie Prinze Jr.", $this->processpdf->fields['committee'][2]);
     
     // Test for Field/Faculty/Thesis Advisor
     $this->processpdf->initialize_fields();
@@ -83,12 +77,8 @@ class TestProcessPdf extends UnitTestCase {
       Field Advisor<br/></div>");
     $this->processpdf->processSignaturePage($dom);
     $this->assertEqual("Da Da Dissertation", $this->processpdf->fields['title']);
-    $this->assertEqual(4, count($this->processpdf->fields['advisor']));
-    $this->assertEqual("Duck, Donald", $this->processpdf->fields['advisor'][0]);
-    $this->assertEqual("Duck, Daffy", $this->processpdf->fields['advisor'][1]);
-    $this->assertEqual("Duck, David", $this->processpdf->fields['advisor'][2]);        
-    $this->assertEqual("Mouse, Mickey", $this->processpdf->fields['advisor'][3]);
-
+    $this->assertEqual(0, count($this->processpdf->fields['advisor']));
+    
     // title on same line as "by"
     $this->processpdf->initialize_fields();
     $dom = new DOMDocument();
@@ -113,40 +103,7 @@ class TestProcessPdf extends UnitTestCase {
     $this->processpdf->processSignaturePage($dom);
     $this->assertPattern("|Social Networks and Adaptability to IT-Enabled Change: The Case of Healthcare Information Technologies|", $this->processpdf->fields['title']);
 
-    // advisors and committee members - two names on the same line
-    $this->processpdf->initialize_fields();
-    $dom = new DOMDocument();
-    $dom->loadXML("<div>
-      <b> __________________________                              __________________________ <br/>
-           Benn R. Konsynski, Ph.D.                                     Anandhi Bharadwaj, Ph.D.  <br/>
-           Co-Adviser                                                   Co-Adviser <br/>
-      <br/>_________________________                                  _________________________ <br/>
-           Ramnath K. Chellappa, PhD.                                    Monica C. Worline, Ph.D. <br/>
-           Committee Member                                              Committee Member <br/></b>
-      </div>");
-    $this->processpdf->processSignaturePage($dom);
-    // FIXME: advisor not yet multiple field here?
-    $this->assertEqual("Konsynski, Benn R.", $this->processpdf->fields['advisor'][0]);
-    $this->assertEqual("Bharadwaj, Anandhi", $this->processpdf->fields['advisor'][1]);
-    $this->assertEqual("Chellappa, Ramnath K.", $this->processpdf->fields['committee'][0]);
-    $this->assertEqual("Worline, Monica C.", $this->processpdf->fields['committee'][1]);
   }
-
-  function testDepartment() {
-    $line = "Department of English";
-    $this->processpdf->department($line);
-    $this->assertEqual("English", $this->processpdf->fields['department']);
-
-    $line = "Chemistry Department";
-    $this->processpdf->department($line);
-    $this->assertEqual("Chemistry", $this->processpdf->fields['department']);
-
-    // test unique department names that need special rules:
-    $line = "Graduate Institute of the Liberal Arts";
-    $this->processpdf->department($line);
-    $this->assertEqual("Graduate Institute of the Liberal Arts", $this->processpdf->fields['department']);
-  }
-
 
   /** test pulling information from sample html documents generated from real pdfs **/
   function testGetInformation_xu() {
@@ -154,11 +111,8 @@ class TestProcessPdf extends UnitTestCase {
     $fields = $this->processpdf->fields;
     $this->assertPattern("/Exploring the peptide nanotube formation from the self-assembly/", $fields['title'], "first line of title");
     $this->assertPattern("/peptide in the presence of Zinc ions/", $fields['title'], "second line of title");
-    $this->assertEqual("Lynn, David G.", $fields['advisor'][0], "advisor");
-    $this->assertEqual("Conticello, Vincent P.", $fields['committee'][0],
-           "first committee member");
-    $this->assertEqual("Lutz, Stefan", $fields['committee'][1], "second committee member");
-    $this->assertEqual("Chemistry", $fields['department']);
+    // department detection disabled when committee member detection was removed
+    //$this->assertEqual("Chemistry", $fields['department']);
     $this->assertPattern("/Peptide\s+ribbons\s+have\s+been\s+proposed\s+to\s+be/", $fields['abstract'], "abstract");
     // from second page of abstract
     $this->assertPattern("/assembled\s+peptide\s+nanotubes,\s+with\s+such\s+ordered\s+and\s+dense\s+packed/",
@@ -172,10 +126,7 @@ class TestProcessPdf extends UnitTestCase {
     $fields = $this->processpdf->fields;
     $this->assertPattern("/Influence of Arginine 355 and Glutamate 758/", $fields['title']);
     $this->assertPattern("/Properties of <i>C. acidovorans<\/i> Xanthine/", $fields['title']);
-    $this->assertEqual("Edmondson, Dale E.", $fields['advisor'][0]);
-    $this->assertEqual("MacBeth, Cora E.", $fields['committee'][0]);
-    $this->assertEqual("Warncke, Kurt", $fields['committee'][1]);
-    $this->assertEqual("Chemistry", $fields['department']);
+    //$this->assertEqual("Chemistry", $fields['department']);
     $this->assertPattern("/Xanthine dehydrogenase \(XDH\) was engineered/", $fields['abstract']);
     // formatting in abstract
     $this->assertPattern("/mutant expressed from\s+<i>P. aeruginosa<\/i>/",
@@ -193,10 +144,7 @@ class TestProcessPdf extends UnitTestCase {
     $this->assertPattern("/Feet in the Fire/", $fields['title']);
     $this->assertPattern("/Social Change and Continuity among the Diola of Guinea-Bissau/",
        $fields['title']);
-    $this->assertEqual("Knauft, Bruce M.", $fields['advisor'][0]);
-    $this->assertEqual("Karp, Ivan", $fields['committee'][0]);
-    $this->assertEqual("Donham, Donald L.", $fields['committee'][1]);
-    $this->assertEqual("Anthropology", $fields['department']);
+    //$this->assertEqual("Anthropology", $fields['department']);
     $this->assertPattern("/long\s+been\s+recognized\s+for\s+their\s+capacity\s+to\s+grow/",
        $fields['abstract'], "abstract");
     $this->assertPattern("/Introduction: Rice, Rain, and Response/", $fields['toc']);
@@ -206,21 +154,8 @@ class TestProcessPdf extends UnitTestCase {
     $this->processpdf->getInformation("../fixtures/strickland_sample.html");
     $fields = $this->processpdf->fields;
     $this->assertPattern("/Ambient Air Pollution and Cardiovascular Malformations in Atlanta, Georgia/", $fields['title']);
-    $this->assertEqual("Tolbert, Paige E.", $fields['advisor'][0]);
-  /***
-
-    NOTE: this is how the committee members are listed on the page,
-    but ProcessPDF cannot currently handle committee members listed on
-    the same line.
-    
-    $this->assertEqual("Adolfo Correa", $fields['committee'][0]);
-    $this->assertEqual("Mitchel Klein", $fields['committee'][1]);
-    $this->assertEqual("W. Dana Flanders", $fields['committee'][2]);
-    $this->assertEqual("Michel Marcus", $fields['committee'][3]);
-    */
-    $this->assertEqual("Klein, Mitchel", $fields['committee'][0]);
-    
-    $this->assertEqual("Epidemiology", $fields['department']);
+          
+    //$this->assertEqual("Epidemiology", $fields['department']);
     $this->assertPattern("/temporal\s+relationships\s+between\s+ambient\s+air\s+pollution\s+levels/",
        $fields['abstract']);
     $this->assertPattern("/The\s+Importance\s+of\s+Nomenclature\s+for\s+Congenital\s+Heart\s+Disease/",
@@ -234,17 +169,7 @@ class TestProcessPdf extends UnitTestCase {
        $fields['title']);
     // NOTE: dash in the year is coming through as character entity
     
-    $this->assertEqual("Tolbert, Paige E.", $fields['advisor'][0]);
-    /*
-     ** see note for strickland above regarding committee member detection
-    $this->assertEqual("Christine L. Moe", $fields['committee'][0]);
-    $this->assertEqual("Mitchel Klein", $fields['committee'][1]);
-    $this->assertEqual("W. Dana Falnders", $fields['committee'][2]);
-    $this->assertEqual("Appiah Amirtharajah", $fields['committee'][3]);
-    */
-    $this->assertEqual("Klein, Mitchel", $fields['committee'][0]);
-    $this->assertEqual("Amirtharajah, Appiah", $fields['committee'][1]);
-    $this->assertEqual("Epidemiology", $fields['department']);
+    //$this->assertEqual("Epidemiology", $fields['department']);
     $this->assertPattern("/municipal\s+drinking\s+water\s+may\s+contribute\s+to/", $fields['abstract']);
     $this->assertPattern("/Causes of Gastrointestinal Illness/", $fields['toc']);
     // TOC continues to second page
