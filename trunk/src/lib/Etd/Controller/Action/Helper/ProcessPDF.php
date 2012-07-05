@@ -49,9 +49,12 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
   public function initialize_fields() {
     // set the fields to be filled in 
     $this->fields = array("title" => "",
+        // NOTE: advisor, committee and department will no longer be populated;
+        // leaving empty values/arrays to avoid potential errors if any code is missed
+        // that still expects these values to be present in processed info.
         "department" => "",
-        "advisor" => array(),
-        "committee" => array(),
+        "advisor" => array(),    
+        "committee" => array(),  
         "abstract" => "",
         "toc" => "",
         "keywords" => array(),
@@ -391,7 +394,9 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
     $this->fields['title'] = preg_replace("|^<b>(.*)</b>$|", "$1", $this->fields['title']);
 
     // work through lines to find advisor & committee names
-    $this->processSignatureLines($page);
+    // NOTE: committee member detection disabled 2012/06 to avoid generating 
+    // records with inaccurate names or even potentially invalid mods (duplicate names/ids)
+    //$this->processSignatureLines($page);
   }
 
 
@@ -450,137 +455,10 @@ class Etd_Controller_Action_Helper_ProcessPDF extends Zend_Controller_Action_Hel
     } // end looping through child nodes
   }
 
-  
   /**
-   * recursive function - wrapper to process_line for finding names on
-   * signature page
-   *
-   * @param DOMNode $node
+   *  NOTE: committee member autodetection disabled 2012/06 in an attempt to
+   *  avoid detection errors or generating invalid records.
    */
-  public function processSignatureLines(DOMNode $node) {
-    for($i = 0; $i < $node->childNodes->length; $i++) {
-      $subnode = $node->childNodes->item($i);
-      if ($subnode->hasChildNodes()) {
-        $this->processSignatureLines($subnode);
-      } else {
-        $this->processSignatureLine($subnode);
-      }
-    }
-  }
-
-
-  /**
-   * Process lines of signature page to find Advisor, Committee, Department.
-   * Stores last line for certain patterns (Advisor/Committee label on line below)
-   * @param DOMNode $node single node with no child nodes
-   */
-  public function processSignatureLine(DOMNode $node) {
-
-    $content = $node->textContent;
-    // skip blank lines, and don't store as previous line
-    if ($content == "") return;
-
-    /** Advisor **/
-    //   look for advisor on the same line, either as "Name, Advisor" or Advisor: Name"
-    if (preg_match("/(Co-?)?Advis[eo]r:\s*(.+)/m", $content, $matches)
-        || preg_match("/([^_]+),?\s*(Co-?)?Advis[eo]r/m", $content, $matches)) {
-
-      // two co-advisors labels on one line - look for names on the previous line
-      if (preg_match("/Advis[eo]r.*Advis[eo]r/", $content)) {
-        $names = $this->clean_name($this->previous_line);
-        // split on a large white-space gap between the two names
-        $namelist = preg_split("/\s{4,}/", $names, 2);
-        foreach ($namelist as $name) {
-          $this->fields['advisor'][] = $this->clean_name($name);
-        }
-        
-        //  look for Field/Faculty/Thesis Advisor on two lines: Name (line 1), Field Advisor (line 2)
-      } else if (preg_match("/^\s*(Field\s)?(Faculty\s)?(Thesis\s)?Advis[eo]r/", $content)) {                     
-        // pick up name from the preceding line              
-        if (trim($this->previous_line) != "Date") { // in some cases getting false matches
-          $this->fields['advisor'][] = $this->clean_name($this->previous_line);
-        }        
-                
-        // FIXME: advisor + committee on same line        
-      } else {
-        $this->fields['advisor'][] = $this->clean_name($matches[1]);          
-      }
-      if ($this->debug) print "DEBUG: found advisor(s): " . implode(', ', $this->fields['advisor']) . "\n";
-
-    //  look for advisor on two lines: Name (line 1), Advisor (line 2)
-    } elseif (preg_match("/^\s*(Co-?)?[Aa]dvis[eo]r/", $content)) {
-      // pick up name from the preceding line 
-      $this->fields['advisor'][] = $this->clean_name($this->previous_line);
-
-      /** Committee Members **/
-      //  look on two lines: Name (line 1), Committee Member or Reader (line 2)
-    } elseif (preg_match("/^\s*Committee/", $content) || preg_match("/^\s*Reader/", $content)) {
-      // two committee labels on one line - look for names on the previous line
-      if (preg_match("/(Committee|Reader).*(Committee|Reader)/", $content)) {
-        $names = $this->clean_name($this->previous_line);      
-        // split on a large white-space gap between the two names
-        $namelist = preg_split("/\s{4,}/", $names, 2);
-        foreach ($namelist as $name) {          
-          $this->fields['committee'][] = $this->clean_name($name);
-        }
-      } else {
-        $name = $this->clean_name($this->previous_line); // pick up the committee from the line before
-        if ($name != "Committee Member" && $name != "") { // in some cases getting false matches
-          array_push($this->fields['committee'], $name);
-        }
-      }
-      // look on a single line: "Name, Committee Member"
-    } elseif (preg_match("/^([^_]+), Committee/", $content, $matches)
-        || preg_match("/^([^_]+), Reader/", $content, $matches)) {
-        array_push($this->fields['committee'], $this->clean_name($matches[1]));
-        
-    } elseif ($this->fields['department'] == "") {
-      $this->department($content);
-    }
-
-    // store current line as the next previous for multi-line matches
-    $this->previous_line = $content;
-  }
-  
-
-  /**
-   * detect department name - wrapper for single-line department detection
-   *
-   * @param array $lines array of lines in the page
-   */
-  private function findDepartment(array $lines) {
-    // only look for department if not already set
-    if (!isset($this->fields['department']) || $this->fields['department'] == "") {
-
-      // department should be on a single line
-      foreach ($lines as $line) {
-        $this->department($line);
-      }
-    }
-  }
-    
-  /**
-   * Pull department name from a single line.
-   * Stores department in class variable fields['department']
-   *
-   * @param string $line single line of text
-   */
-  public function department($line) {  
-    // department should be on a single line
-    // matches either "Department of Chemistry" or "Chemistry Department"
-    if (preg_match("/Department of (.+)/m", $line, $matches)
-        || preg_match("/(.+) Department/m", $line, $matches) 
-        || preg_match("/Graduate Division of (.+)/m", $line, $matches)) {
-      $this->fields['department'] = $matches[1];
-
-    // match any specially named departments here
-    } elseif (preg_match("/Graduate Institute of the Liberal Arts/", $line)) {
-      $this->fields['department'] = "Graduate Institute of the Liberal Arts";
-    }
-
-    // trim any whitespace
-    $this->fields['department'] = trim($this->fields['department']);
-  }
 
   /**
    * minimal cleaning for advisor/committee names - remove dr., ph.d., m.s., etc.

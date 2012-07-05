@@ -323,10 +323,9 @@ class SubmissionController extends Etd_Controller_Action {
       // second try to use "academic plan" from ESD to set department
       if ($current_user->academic_plan) {
         $department = $programs->findLabel($current_user->academic_plan);
-      } elseif (isset($this->view->etd_info['department'])) {
-        // otherwise, use department picked up from the PDF (if any)
-        $department = $programs->findLabel($this->view->etd_info['department']);
-      }
+      } 
+      // as of 2012/06, no longer attempting to detect department from
+
       // if we found a department either way, set text in mods and id in rels-ext
       if (isset($department) && $department) {
         $etd->department = $department;
@@ -355,25 +354,30 @@ class SubmissionController extends Etd_Controller_Action {
                  . $name . "; please enter manually");
       }
     }
+
+
+    // NOTE: disabling committee member detection 2012/06 in order to avoid errors
+    // and potentially invalid records (duplicate name/id detection)
+    // 
     // don't set committee if none are found (causes problem trying to remove blank entry)
-    if (count($advisors)) $etd->setCommittee($advisors, "chair");   
+    // if (count($advisors)) $etd->setCommittee($advisors, "chair");   
     
-    $committee = array();
-    foreach ($etd_info['committee'] as $cm) {
-      if ($cm == "") continue;  // skip if blank for some reason
-      try {
-        $person = $esd->findFacultyByName($cm);
-      } catch (Exception $e) {
-        $this->ESDerror();
-      }
-      if ($person) 
-        $committee[] = $person;
-      else 
-        $this->_helper->flashMessenger->addMessage("Couldn't find directory match for "
-               . $cm . "; please enter manually");
-    }
-    // don't set committee if none are found (causes problem trying to remove blank entry)
-    if (count($committee)) $etd->setCommittee($committee);
+    // $committee = array();
+    // foreach ($etd_info['committee'] as $cm) {
+    //   if ($cm == "") continue;  // skip if blank for some reason
+    //   try {
+    //     $person = $esd->findFacultyByName($cm);
+    //   } catch (Exception $e) {
+    //     $this->ESDerror();
+    //   }
+    //   if ($person) 
+    //     $committee[] = $person;
+    //   else 
+    //     $this->_helper->flashMessenger->addMessage("Couldn't find directory match for "
+    //            . $cm . "; please enter manually");
+    // }
+    // // don't set committee if none are found (causes problem trying to remove blank entry)
+    // if (count($committee)) $etd->setCommittee($committee);
     
     
     foreach ($etd_info['keywords'] as $i => $keyword) {
@@ -392,43 +396,7 @@ class SubmissionController extends Etd_Controller_Action {
     $this->view->messages = array();
     $this->view->etd_info = $this->_helper->processPDF($_FILES['pdf']);
 
-    $programObject = new foxmlPrograms();
-    $programs = $programObject->skos;
-    $this->view->department =  $programs->findLabel($this->view->etd_info['department']);
-    
-
-    $esd = new esdPersonObject();
-    $this->view->advisor = array();
-    // only look up advisor if a name was found
-    if (isset($etd_info['advisor']) && $etd_info['advisor'][0] != '') {
-      foreach ($etd_info['advisor'] as $name) {
-        $advisor = null;
-        try {
-          $advisor = $esd->findFacultyByName($name);
-        } catch (Exception $e) {
-          $this->ESDerror();
-        }
-        if ($advisor)
-          $this->view->advisor[] = $advisor;
-        else 
-          $this->_helper->flashMessenger->addMessage("Couldn't find directory match for " . $name . "; please enter manually");
-      }
-    }
-    $this->view->committee = array();
-    if (isset($this->view->etd_info['committee'])) {
-      foreach ($this->view->etd_info['committee'] as $cm) {
-        if ($cm == "") continue;  // skip if blank for some reason
-        try {
-          $committee = $esd->findFacultyByName($cm);
-        } catch (Exception $e) {
-          $this->ESDerror();
-        }
-        if ($committee) 
-          $this->view->committee[] = $committee;
-        else 
-          $this->_helper->flashMessenger->addMessage("Couldn't find directory match for " . $cm . "; please enter manually");
-      }
-    }
+    // as of 2012/06, department and committee no longer detected in pdf
   }
 
   public function reviewAction() {

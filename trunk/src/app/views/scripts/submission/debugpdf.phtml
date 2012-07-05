@@ -11,24 +11,6 @@
   <? if (isset($this->etd_info['title'])): ?>
     <b>Title:</b> <?= $this->etd_info['title'] ?><br/>
   <? endif ?>      
-  <? if (isset($this->etd_info['department'])): ?>
-    <b>Department:</b> <?= $this->etd_info['department'] ?> <br/>
-  <? endif ?>            
-  <? if (isset($this->etd_info['advisor'])): ?>
-       <b>Advisor:</b> <?= implode('; ',  $this->etd_info['advisor']) ?> <br/>
-     &nbsp;&nbsp;&nbsp;<b>from ESD:</b>
-     <? foreach ($this->advisor as $advisor): ?>
-       <?= $advisor->lastname ?>, <?= $advisor->name ?> (netid: <?= $advisor->netid ?>)  <br/>
-     <? endforeach ?>
-  <? endif ?>
-  <? if (isset($this->etd_info['committee'])): ?>   
-    <b>Committee Members:</b> <?=  implode("; ", $this->etd_info['committee']) ?><br/>
-     &nbsp;&nbsp;&nbsp;<b>from ESD:</b>
-    <? foreach ($this->committee as $cm) : ?>
-      <?= $cm->lastname ?>, <?= $cm->name ?> (netid: <?= $cm->netid ?>);
-    <? endforeach ?>
-    <br/>
-  <? endif ?> 
   <? if (isset($this->etd_info['keywords'])): ?>     
     <b>Keywords:</b> <?= implode("; ", $this->etd_info['keywords']) ?><br/>
   <? endif ?>     
