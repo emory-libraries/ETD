@@ -33,6 +33,11 @@
 
     <?= $this->javascript("projax/js/prototype.js"); ?>
 
+    <? /* include javascript for set-role form in any non-production version of the site */ ?>
+    <? if ($this->env != "production"): ?> 
+      <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.3.1/jquery.min.js"></script>
+      <?= $this->javascript("dev.js"); ?> 
+   <? endif ?>
 </head>
 <body>
 <? if ($this->env == "staging"): ?>   
