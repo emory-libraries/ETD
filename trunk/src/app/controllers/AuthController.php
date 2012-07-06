@@ -99,7 +99,9 @@ class AuthController extends Etd_Controller_Action {
 
    // only expects to be called via ajax
    public function setroleAction() {
-     if ($this->env != "development") return false;
+    // allow set role functionality in any mode but production (i.e., dev or staging)
+     if ($this->env == "production") return false;
+
      $this->_helper->viewRenderer->setNoRender(true);
 
      $role = $this->_getParam("role");
