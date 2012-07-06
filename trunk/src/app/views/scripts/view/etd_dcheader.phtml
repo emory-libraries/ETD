@@ -23,4 +23,8 @@
    <? /* Google Scholar wants PDF urls as DC.identifier or citation_pdf_url */ ?>
    <meta name="citation_pdf_url" content="<?= $pdf->dc->ark ?>"/>
  <? endif ?>
+ <? /* include degree name if available for Google Scholar */ ?>
+ <? if (isset($this->etd->mods->degree) && isset($this->etd->mods->degree->name)): ?>
+   <meta name="citation_dissertation_name" content="<?= $this->etd->mods->degree->name ?>"/>
+ <? endif ?>
 <? endforeach ?>
