@@ -20,5 +20,7 @@
 <? foreach ($this->etd->pdfs as $pdf): ?>
  <? if ($this->acl->isAllowed("guest", $pdf, "download")): ?>
    <meta name="DC.relation" content="<?= $pdf->dc->ark ?>"/>
+   <? /* Google Scholar wants PDF urls as DC.identifier or citation_pdf_url */ ?>
+   <meta name="citation_pdf_url" content="<?= $pdf->dc->ark ?>"/>
  <? endif ?>
 <? endforeach ?>
