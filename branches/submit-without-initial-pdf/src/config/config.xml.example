@@ -36,9 +36,6 @@
     <logfile></logfile>
     <!-- executable for pdftohtml; supply full path if necessary -->
     <pdftohtml></pdftohtml> 
-    <!-- browsers supported for submission process  
-    Note: should match the "parent" field returned by get_browser() -->
-    <supported_browsers></supported_browsers>
 
     <!-- override default role for superusers only here:
     NOTE: these people must also be listed permit-etds-to-etdadmins policy -->

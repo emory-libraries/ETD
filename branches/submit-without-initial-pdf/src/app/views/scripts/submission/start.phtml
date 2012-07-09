@@ -1,21 +1,5 @@
 <?= $this->javascript("util.js"); ?>
-<? if (! in_array($this->browserInfo->parent, $this->supported_browsers)
-       && ! preg_match("`Firefox`", $_SERVER["HTTP_USER_AGENT"])): ?>
-<p class="warning">
-   <span id="exclamation">!</span>
-   Your browser
-   <? if ($this->browserInfo->browser != "Default Browser" &&
-	  $this->browserInfo->majorver != 0):  /* if browser not detected, don't display */ ?>
-     (<?= $this->browserInfo->browser ?> <?= $this->browserInfo->majorver ?>) <? endif ?>
-   is currently not supported for the submission process.  <br/>
-   Please use one of the following:
-   <?= implode(', ', $this->supported_browsers) ?>
-   <? /* special check for MSIE 8, which will only work in compatibility view */
-      if (preg_match("|MSIE 8.0|", $_SERVER["HTTP_USER_AGENT"])): ?> 
-    <br/>You appear to be using <b>Internet Explorer 8</b>.  Please switch to compatibility view.
-    <? endif ?>					
-</p>
-<? endif ?>
+<?  /*(! in_array($this->browserInfo->parent, $this->supported_browsers) */ ?>
 
 <noscript style="color:red">The submission process requires that you enable Javascript.</noscript>
 <script type="text/javascript">
