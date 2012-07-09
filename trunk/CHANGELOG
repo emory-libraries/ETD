@@ -9,6 +9,8 @@ Version 1.13 (preliminary)
 * Help request form has been updated to use jQuery instead of Dojo;
   commencement report has been updated to use FCKeditor instead of
   Dojo; all Dojo code has been removed from the site.
+* The list of supported browsers no longer needs to be configured in 
+  ``config.xml`` 
 
 
 Version 1.12.5 - April 2012
