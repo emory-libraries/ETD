@@ -1,12 +1,20 @@
-<h1>Edit Program/Department</h1>
+<h1>Edit School/Program/Department</h1>
 <p><b><?= $this->etd->title() ?></b></p>
-<p>Your Emory record indicates that your degree is in the following Program or Department.</p>
 
-<p>If this information is incorrect, select your program below from the supplied list.
-  <? if ($this->etd->schoolId() == "grad"): /** currently ONLY the graduate school has subfields */ ?>   
-  If your program has an applicable subfield, please select that as well.
-  <? endif ?>
+<p>Your record is currently associated with the following school and program listed below.</p>
+
+<p>If your school or program is incorrect,
+    first select and save the correct school. <br />
+    Then select and save the correct program
+    and sub-field if applicable.
 </p> 
+
+
+<div style="margin-bottom: 50px;">
+    <b>School</b>
+  <?=  $this->render('edit/_school_form.phtml'); ?>
+</div>
+
 
 <form action="<?= $this->url(array("action" => "save-program")) ?>" method="post">
 			    
