@@ -72,20 +72,28 @@
      </ul>
   <? endif ?>
 
+  <? /* FIXME: should files be last on this list ? */ ?>
+
+  <? $new_pdf_url = $this->url(array('controller' => 'file', 'action' => 'add',
+      'etd' => $etd->pid, 'type' => 'pdf'), '', true, false); ?>
   <?if ($etd->hasPDF()) : ?>
-   <?= $ok ?> PDF file
+   <?= $ok ?> <a title="review PDF" href="#updatefile">PDF file</a> (<?= count($this->etd->pdfs) ?>) 
+    <a title="add another PDF" href="<?= $new_pdf_url ?>">[add]</a> <? /* TODO: style add link better */ ?>
   <? else : ?>
-    <?= $incomplete ?> <a href="<?= $this->url(array('controller' => 'view', 'action' => 'record',
-      'pid' => $etd->pid), '', true, false)?>#updatefile">PDF file</a>
+    <?= $incomplete ?> <a href="<?= $new_pdf_url ?>">PDF file</a>
   <? endif ?> <br/>  
   
-  
-  <?if ($etd->hasOriginal()) : ?>
-   <?= $ok ?> original file
+  <? $new_original_url = $this->url(array('controller' => 'file', 'action' => 'add',
+      'etd' => $etd->pid, 'type' => 'original'), '', true, false); ?>
+  <?if ($etd->hasOriginal()) : ?> <? /* link to file section for updates */ ?>
+   <?= $ok ?> <a href="#updatefile">original file</a> (<?= count($this->etd->originals) ?>)
+    <a title="add another original document" href="<?= $new_original_url ?>">[add]</a>
+    <? /* TODO: style add link better */ ?>
   <? else : ?>
-    <?= $incomplete ?> <a href="<?= $this->url(array('controller' => 'file', 'action' => 'add',
-      'etd' => $etd->pid), '', true, false)?>">original file</a>
+    <?= $incomplete ?> <a href="<?= $new_original_url ?>">original file</a>
   <? endif ?> <br/>
+
+  <? /* TODO: list supplemental files here also ?  */ ?>
 
   <?/*** rights details - display choices selected ***/ ?>
   <? if ($etd->isRequired("send to ProQuest") && 
