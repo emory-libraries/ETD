@@ -1,129 +1,72 @@
 <?= $this->javascript("util.js"); ?>
-<?  /*(! in_array($this->browserInfo->parent, $this->supported_browsers) */ ?>
-
 <noscript style="color:red">The submission process requires that you enable Javascript.</noscript>
-<script type="text/javascript">
-/* get radio button value by name */ 
-function radioValue(name) {
-   return Form.getInputs("submission","radio", name).find(function(radio) { return radio.checked; }).value;
-}
-/* check if one radio option is selected */
-function radioSet(name) {
-  var checked = false;
-  Form.getInputs("submission","radio", name).each(function(radio) { if (radio.checked) checked = true; });
-  return checked;
-}   
 
-/* show/hide element by id based on a parameter */
-function showbyid(id, show) {
-  if (show) $(id).show();
-  else $(id).hide();
-}
-/** if value is true, show the first element and hide the second; otherwise, do the reverse
-    -- second element is optional
- */ 
-function showif(value, iftrue, ifnot) {
-  if (value) {
-    $(iftrue).show();
-    if (ifnot) $(ifnot).hide();
-  } else {
-    $(iftrue).hide();
-    if(ifnot) $(ifnot).show();
-  }
-}
+<p>Please answer the follow questions before you begin creating your record.</p>
 
-/*Useed to validate all questions are answerd  before submitting PDF */
-function validate() {
-  var err = false;
-  $('form_errors').update("");
-  // answer to copyright is required
-  if (! radioSet("copyright")) {
-    $('form_errors').appendChild(document.createTextNode("Answer 1 \"copyright\" is required"));
-    $('form_errors').appendChild(document.createElement("br"));
-    err = true;
-  } else if (radioValue("copyright") == 1 && ! radioSet("copyright_permission")) {
-    // if answer to copyright is yes, answer about permissions is required
-    $('form_errors').appendChild(document.createTextNode("Answer 1b \"copyright permissions\" is required"));
-    $('form_errors').appendChild(document.createElement("br"));
-      err = true;
-  }
-  // answer to patent is required
-  if (! radioSet("patent")) {
-    $('form_errors').appendChild(document.createTextNode("Answer 2 \"patent\" is required"));
-    $('form_errors').appendChild(document.createElement("br"));
-    err = true;
-  }
+<? if ($this->errors): ?>
+<div id="messages">
+  <? /* display appropriate detailed error message for any missing required fields */ ?>
+  <? foreach ($this->errors as $err): ?>
+    <p class="error">
+      <? switch ($err): 
+        case 'copyright': ?>You must answer about copyrighted materials.<? break ?>
+        <? case 'copyright_permission': ?>Because you have indicated that you have
+            included copyrighted materials, you must answer whether or not you have obtained permissions.<? break ?>
+        <? case 'patent': ?>You must answer whether or not your work may warrant patenting.<? break ?>
+        <? case 'embargo': ?>You must answer whether or not you are requesting an access restriction.<? break ?>
+        <? case 'embargo_abs_toc': ?>Because you have indicated you are requesting an access restriction, you must answer about your abstract or table of contents.<? break ?>
+        <? case 'title': ?>A title is required to create your initial record.<? break ?>
+      <? endswitch ?>
+    </p>
+  <? endforeach ?>
+</div>
+<? endif ?>
 
-  // answer to embargo question is required
-  if (! radioSet("embargo")) {
-    $('form_errors').appendChild(document.createTextNode("Answer 3 \"embargo\" is required"));
-    $('form_errors').appendChild(document.createElement("br"));
-    err = true;
-  } else if (radioValue("embargo") == 1 && !radioSet("embargo_abs_toc")) {
-    $('form_errors').appendChild(document.createTextNode("Answer 3b \"embargo level\" is required"));
-    $('form_errors').appendChild(document.createElement("br"));
-    err = true;
-  }
+<? /* TODO:  migrate 'disable button' logic to jquery - need to maintain behavior of not allowing double submissions (as much as possible); should probably be tested also */ ?>
+<? /* TODO: identify existing user stories that will need to be tested again fafter this workflow change (including preventing double-click creating multiple submisions) */ ?>
 
-  if (err) $("submit").hide();
-  else  $("submit").show();
+<form name="submission" id="submission" method="post" 
+   action="<?= $this->url(array("action" => "start"))?>"> <!-- onsubmit="disableButton('Begin')"> -->
 
-}
-
-</script>
-
-<p>Welcome!</p>
-    <p>Please answer the follow questions before you submit your document.</p>
-
-<form name="submission" id="submission" method="post" enctype="multipart/form-data"
-    action="<?= $this->url(array("action" => "processpdf"))?>" onsubmit="disableButton('Begin')">
-
-<ol>
+<ol id="screening-questions">
  <li><p>Have you included any copyrighted material in your thesis or dissertation?</p>
-    <?= $this->formRadio("copyright", ($this->answers["copyright"] == null ? null : $this->answers["copyright"]),
-			 array("onClick" => "showif((radioValue('copyright')==1),'copyright_yes')"),
-			 array(1 => "Yes", 0 => "No")) ?>
-
-     <? /* copyright details: display if answered YES to copyright */ ?>
-    <div id="copyright_yes" style="display:none">
+    <?= $this->formRadio('copyright', $this->answers['copyright'], 
+        array('class' => 'required-field'), $this->yes_no) ?>
+     <? /* copyright details: display if answer to copyright question is YES */ ?>
+    <div id="copyright_yes"> 
       <p>1b. Have you obtained permission to include that copyrighted material in your thesis or dissertation?</p>
-      <?= $this->formRadio("copyright_permission", ($this->answers["copyright_permission"] == null ? null : $this->answers["copyright_permission"]),
-			   array("onClick" => "showif((radioValue('copyright_permission')==1), 'copyright_perms_yes', 'copyright_perms_no')"),
-			 array(1 => "Yes", 0 => "No")) ?>
-      <? /* copyright permission details */ ?>
-    <div id="copyright_perms_no" style="display:none">  <? /* if answered NO to permissions */ ?> 
+      <?= $this->formRadio("copyright_permission", $this->answers["copyright_permission"], array(),
+			      $this->yes_no) ?>
+    <? /* copyright permission details */ ?>
+    <div id="copyright_perms_no">  <? /*  Show if answered NO to permissions */ ?> 
         <p>You must obtain these permissions before you can continue with the submission process.
     Contact Lisa Macklin (<a href="mailto:lisa.macklin@emory.edu">lisa.macklin@emory.edu</a>) or
     Heather Williams (<a href="mailto:hrwilli@emory.edu">hrwilli@emory.edu</a>) if you have any questions.</p>
       </div>
-     <div id="copyright_perms_yes" style="display:none"> <? /* if answered YES to permissions */ ?> 
+     <div id="copyright_perms_yes"> <? /*  Show if answered YES to permissions */ ?> 
     <p>Complete Part 4 of the Submission Form.</p>
     </div>
  </li>
 
  <li><p>Does your thesis or dissertation disclose or describe any inventions or discoveries that could potentially have commercial application and therefore warrant patenting?  (If you and/or your faculty advisor(s) have any questions about making this determination, please contact the Emory Office of Technology Transfer at <a href="mailto:ott-web@emory.edu">ott-web@emory.edu</a>).</p>
-    <?= $this->formRadio("patent", ($this->answers["patent"] == null ? null : $this->answers["patent"]),
-			 array("onClick" => "showif((radioValue('patent')==1),'patent_yes')"),
-			 array(1 => "Yes", 0 => "No")) ?>
-  <div id="patent_yes" style="display:none">   <? /* if yes to patent */ ?>	 
+    <?= $this->formRadio("patent", $this->answers["patent"],
+       array('class' => 'required-field'), $this->yes_no) ?>
+  <div id="patent_yes">   <? /* display only if yes to patent */ ?>	 
      <p>The technology transfer and patenting process necessitates further conversation with ETD administrators before you can continue with the ETD submission process.  Please contact ETD Help at <a href="mailto:etd-admin@listerv.cc.emory.edu">etd-admin@listerv.cc.emory.edu</a> or call (404)727-5301.</p>
+     <? /* TODO: use configured email; remove phone number? */ ?>
   </div>
 </li>
 
 <li><p>Are you requesting an access restriction (see Part 3 below) for your thesis or dissertation?</p>
         <?= $this->formRadio("embargo", ($this->answers["embargo"] == null ? null : $this->answers["embargo"]),
-			     array('onClick' => "showif(radioValue('embargo')==1, 'embargo_yes')"),
-			     array(1 => "Yes", 0 => "No")) ?>
-    <div id="embargo_yes" style="display:none">    <? /* if yes to embargo */ ?>
+			     array('class' => 'required-field'), $this->yes_no) ?>
+    <div id="embargo_yes">    <? /* display if answer to embargo is yes */ ?>
      <p>Please indicate how long you intend to restrict access to your dissertation or thesis on the Submission Form. You will also need to indicate your request for an access restriction during the submission process itself.
      </p>
 
     <p>3b. Should your abstract and/or table of contents be included in the access restriction?</p>
-        <?= $this->formRadio("embargo_abs_toc", ($this->answers["embargo_abs_toc"] == null ? null : $this->answers["embargo_abs_toc"]),
-			     array("onClick" => "showif(radioValue('embargo_abs_toc')==1, 'embargo_abs_toc_yes')"),
-			     array(1 => "Yes", 0 => "No")) ?>
-
-    <div id="embargo_abs_toc_yes" style="display:none">  <? /* if restricting abs/toc */ ?>
+        <?= $this->formRadio("embargo_abs_toc", ($this->answers["embargo_abs_toc"] == null ? null : $this->answers["embargo_abs_toc"]), array('class' => 'required-field'), $this->yes_no) ?>
+    <div id="embargo_abs_toc_yes">  <? /* display only if restricting abstract/toc */ ?>
       <p>You will need to restrict access to your abstract and/or your table of contents once you have uploaded you document to the ETD repository. If you have already submitted your document to the ETD repository, you can log in and make appropriate changes to your record while it is in draft form.</p>
     </div>
    </div>
@@ -131,45 +74,24 @@ function validate() {
       
 </ol>
 
-    <p><a onClick="validate()" class="button">Continue &gt;</a></p>
-  <div id="form_errors" style="color:red">
-  </div>
+<p>Enter your thesis or dissertation title to begin the submission process.</p>
 
-  <div id="submit" style="display:none">
-
-  <p style="color:green">You are now ready to submit your thesis or dissertation to the ETD system.</p>
-    
-    <hr/>
-    
-    
-
-<p>To begin the submission process, please upload the PDF of your thesis
-or dissertation.  Click on "Browse" to locate your document and then "Begin"
-to start the process.</p>
+<!-- TODO: label needs to be bold, input field needs to be much longer -->
+<div>
+  <label for="etd_title" class="etd_title">Thesis or Dissertation Title</label>
+  <?= $this->formText("etd_title", $this->answers['title'], array("class" => "required-field")); ?> 
+  <? /* FIXME: should it be a textarea instead ? */ ?>
+</div>
 
 
-<p>Please note that the system will be scanning your PDF document and
-extracting certain information from it.  As a result, it is important
-that your PDF document follow the format for theses and dissertations
-given by the school from which you are graduating (e.g. The Laney
-Graduate School, Emory College, or Candler School of Theology) so that the
-pages are in the proper order (i.e., Circulation Agreement, Approval Sheet,
-Dissertation/Thesis Abstract Cover Sheet, Abstract, etc.).</p>
-
-<p>Any information automatically extracted from the PDF can be edited
-later in the process, if necessary.</p>
-
-
-<?//= $this->formHidden("MAX_FILE_SIZE", "3000000"); ?> 
-  <p><b>Your PDF</b> <?= $this->formFile("pdf"); ?>
-<?= $this->formSubmit("Begin", "Begin >", array("class" => "button", "style" => "margin-left:10px",
-						"onClick" => "Element.show('processing')")); ?>
-
-<span id="processing" style="display:none">Processing ... <span class="note">(this may take a moment)</span></span>
-</p>
+  <?= $this->formSubmit("Begin", "Begin >", array("class" => "button", "style" => "margin-left:10px")); ?>
+						<? /* "onClick" => "Element.show('processing')")); */ ?>
+  <span id="processing" style="display:none">Processing ... <span class="note">(this may take a moment)</span></span>
 </form>
 
-<? $ok = "<span style='color:green'>&#x2714;</span>"; // green check mark 
+<? 
+ /* FIXME: are these unused on this page ? */
+$ok = "<span style='color:green'>&#x2714;</span>"; // green check mark 
  $incomplete = "<span style='color:red'>&#x2717;</span>"; // red x
 ?>
 
@@ -185,6 +107,73 @@ by using the "edit" links.  Green check marks <?= $ok ?> will appear in the Subm
 <img src="<?= $this->linkTo("images/submit_preview.jpg") ?>"/>
 
 
+<script>          
+var $j = jQuery.noConflict(); 
+<? /* avoid conflict with prototype/scriptaculous while ETD has both */ ?>
+
+$j(document).ready(function() {
+  // TODO: yes/no display stuff is substantially the same, refactor to share code
+  $j("input[name=copyright]").change(function(){
+    $j('#copyright_yes').hide();
+    $j('#copyright_no').hide()
+    var val = $j("input[name=copyright]:checked").val();
+    if (val && val != 'undefined') { 
+      // show the appropriate div based on selection
+      $j('#copyright_' + val).show()
+    } 
+  });
+  $j("input[name=copyright_permission]").change(function(){
+    $j('#copyright_perms_yes').hide();
+    $j('#copyright_perms_no').hide()
+    var val = $j("input[name=copyright_permission]:checked").val();
+    if (val && val != 'undefined') { 
+      $j('#copyright_perms_' + val).show();
+    } 
+  });
+  $j("input[name=patent]").change(function(){
+    $j('#patent_yes').hide();
+    var val = $j("input[name=patent]:checked").val();
+    if (val == 'yes') { 
+        $j('#patent_yes').show();
+    }
+  });
+  $j("input[name=embargo]").change(function(){
+    $j('#embargo_yes').hide();
+    var val = $j("input[name=embargo]:checked").val();
+    if (val == 'yes') { 
+        $j('#embargo_yes').show();
+    }
+  });
+  $j("input[name=embargo_abs_toc]").change(function(){
+    $j('#embargo_abs_toc_yes').hide();
+    var val = $j("input[name=embargo_abs_toc]:checked").val();
+    if (val == 'yes') { 
+        $j('#embargo_abs_toc_yes').show();
+    }
+  });
+
+   // trigger change for all radio inputs to show/hide subsections as appropriate
+   // based on initial form values
+   $j("input:radio").change();
+
+   //validate required or conditionally required fields on the form
+   $j('#submission').validate({
+      rules: {
+        "copyright_permission": {
+          required: "#copyright-yes:checked"
+        },
+        "embargo_abs_toc" : {
+          required: "#embargo-yes:checked"
+        }
+      }
+    });
+    jQuery.validator.addClassRules("required-field", {required: true});
+});                                       
+</script>
+
+
+<? /* TODO: remove debugpdf /processpdf code entirely 
+
 <? if ($this->env == "development"): ?>
 
 <form name="submission" method="post" enctype="multipart/form-data" onsubmit="disableButton('Debug')"
@@ -196,4 +185,4 @@ by using the "edit" links.  Green check marks <?= $ok ?> will appear in the Subm
   <p><?= $this->formFile("pdf"); ?> <?= $this->formSubmit("Debug", "Debug >", array("class" => "submitlink", "style" => "padding-left:10px")); ?></p>
 
 </form>
-<? endif ?>
+<? endif ?>*/ ?>
