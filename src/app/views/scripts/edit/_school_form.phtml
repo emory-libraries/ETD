@@ -1,0 +1,5 @@
+<form action="<?= $this->url(array("action" => "save-school")) ?>" method="post" onsubmit="disableButton('save')">
+<?= $this->formSelect("schoolId", $this->schoolId, null, $this->options); ?>
+<?= $this->formHidden("schoolIdOld", $this->schoolId); ?>
+<p><?= $this->formSubmit("save", "save", array("class" => "button")); ?></p>
+</form>

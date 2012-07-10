@@ -231,6 +231,8 @@ class EditControllerTest extends ControllerTestCase {
     $this->assertIsA($EditController->view->programs, 'collectionHierarchy');
     $this->assertTrue(isset($EditController->view->program_section), "progam section is set");
     $this->assertEqual("#grad", $EditController->view->program_section->id);
+    $this->assertTrue(isset($EditController->view->schoolId));
+    $this->assertTrue(isset($EditController->view->options));
 
     $this->setUpGet(array('pid' => $this->honors_etdpid));     
     $EditController->programAction();
@@ -458,7 +460,7 @@ class EditControllerTest extends ControllerTestCase {
    * Test school action
    */
   function testSchoolAction() {
-    //Test with regular user - should return false
+    //Test with regular user - should return false (this is the page with only the school edit form)
       $EditController = new EditControllerForTest($this->request,$this->response);
       $this->assertFalse($EditController->schoolAction(), "Should return false because user is not superuser");
 
@@ -511,12 +513,11 @@ class EditControllerTest extends ControllerTestCase {
    */
   function testSaveSchool() {
 
-    //Test with regular user - should return false
-    $EditController = new EditControllerForTest($this->request,$this->response);
-    $this->assertFalse($EditController->saveSchoolAction(), "Should return false because user is not superuser");
-
-    //Test with superuser - this is the only one who should be able to access the view
-    $this->test_user->role = "superuser";
+    //Test with author 
+    $this->test_user->role = "author";
+    $this->test_user->netid = "author";
+    $this->test_user->firstname = "Author";
+    $this->test_user->lastname = "Jones";
     Zend_Registry::set('current_user', $this->test_user);
 
     $school_cfg = $school_cfg = Zend_Registry::get("schools-config");
@@ -526,6 +527,7 @@ class EditControllerTest extends ControllerTestCase {
     $etd->rels_ext->program = "ahist";
     $etd->rels_ext->subfield = "sub 1";
     $etd->mods->subfield = "sub 2";
+    $etd->rels_ext->author = "author";
     $etd->save("Test INFO");
     $etd = new etd($this->etdpid);
 
@@ -540,8 +542,7 @@ class EditControllerTest extends ControllerTestCase {
     $this->setUpPost(array('pid' => $this->etdpid, 'schoolId' => 'rollins',  'schoolIdOld' => 'grad'));
     $EditController = new EditControllerForTest($this->request,$this->response);
     $EditController->saveSchoolAction();
-
-
+    
     //Get the values again after function has been called
     //Should have new collection and no program values
     $etd = new etd($this->etdpid);

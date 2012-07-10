@@ -14,6 +14,19 @@ require_once("models/vocabularies.php");
 class EditController extends Etd_Controller_Action {
 
   protected $requires_fedora = true;
+
+  //Create schools options for dropdown boxes
+  public function _school_options($schools){
+      //Create options schools
+      foreach ($schools as $school){
+        if(isset($school->acl_id)){ //This excludes the All Schools collection
+            $options[$school->acl_id] = $school->label;
+        }
+
+    }
+    return $options;
+
+  }
   
   // edit main record metadata
   public function recordAction() {
@@ -168,6 +181,11 @@ class EditController extends Etd_Controller_Action {
       // NOTE: currently no default; view falls back to full program hierarchy if section is not set
     }
 
+    #info for schools edit form
+    $schools = $config = Zend_Registry::get('schools-config');
+    $this->view->schoolId = $etd->schoolId(); //Current schoolId used for default value in select list
+    $this->view->options = $this->_school_options($schools);
+
   }
 
   // save program and subfield - text in MODS, ids in RELS-EXT
@@ -316,23 +334,14 @@ class EditController extends Etd_Controller_Action {
   public function schoolAction() {
     //Make sure only superuser can access page
     $etd = $this->_helper->getFromFedora("pid", "etd");
-    if (!$this->_helper->access->allowedOnEtd("view school", $etd)) return;
+    if (!$this->_helper->access->allowedOnEtd("edit school", $etd)) return;
 
     $schools = $config = Zend_Registry::get('schools-config');
 
     $this->view->title = "Edit School";
     $this->view->etd = $etd;
     $this->view->schoolId = $etd->schoolId(); //Current schoolId used for default value in select list
-
-
-    //Create options for select box
-    foreach ($schools as $school){
-        if(isset($school->acl_id)){ //This excludes the All Schools collection
-            $options[$school->acl_id] = $school->label;
-        }
-        
-    }
-    $this->view->options = $options;
+    $this->view->options = $this->_school_options($schools);
 
 
   }
@@ -340,38 +349,42 @@ class EditController extends Etd_Controller_Action {
     // save school collection in RELS-EXT
   public function saveSchoolAction() {
     $etd = $this->_helper->getFromFedora("pid", "etd");
-    if (!$this->_helper->access->allowedOnEtd("edit school", $etd)) return;
+    if (!$this->_helper->access->allowedOnEtd("edit metadata", $etd)) return;
 
       $schoolId = $this->_getParam('schoolId', null);
       $schoolIdOld = $this->_getParam('schoolIdOld', null);
       $school_cfg = Zend_Registry::get("schools-config");
 
-      //Get old collection name based on acl id from form
-      $school = $school_cfg->getSchoolByAclId($schoolIdOld);
-      $collectionOld = $school->fedora_collection;
-      $labelOld = $school->label;
+     if($schoolId != $schoolIdOld){
 
-      //Get new collection name based on acl id from form
-      $school = $school_cfg->getSchoolByAclId($schoolId);
-      $collection = $school->fedora_collection;
-      $label = $school->label;
+        //Get old collection name based on acl id from form
+        $school = $school_cfg->getSchoolByAclId($schoolIdOld);
+        $collectionOld = $school->fedora_collection;
+        $labelOld = $school->label;
 
-     //Remove old collection and add new collection
-     $etd->rels_ext->removeRelation("rel:isMemberOfCollection", $collectionOld);
-     $etd->rels_ext->addRelation("rel:isMemberOfCollection", $collection, true);
+        //Get new collection name based on acl id from form
+        $school = $school_cfg->getSchoolByAclId($schoolId);
+        $collection = $school->fedora_collection;
+        $label = $school->label;
 
-     //Remove Program info so it will have to be set again for the new school
-     $etd->rels_ext->program = "";
-     $etd->department = "";
-     if (isset($etd->rels_ext->subfield)) $etd->rels_ext->subfield = "";
-     $etd->mods->subfield = "";
+        //Remove old collection and add new collection
+        $etd->rels_ext->removeRelation("rel:isMemberOfCollection", $collectionOld);
+        $etd->rels_ext->addRelation("rel:isMemberOfCollection", $collection, true);
 
-    $etd->save("Changed school collection from $collectionOld to $collection");
-    $this->logger->info("Changed {$etd->pid} School from $labelOld to $label");
-    $this->_helper->flashMessenger->addMessage("School has been changed from $labelOld to $label");
-    $this->_helper->flashMessenger->addMessage("Program will have to be reassigned");
+        //Remove Program info so it will have to be set again for the new school
+        $etd->rels_ext->program = "";
+        $etd->department = "";
+        if (isset($etd->rels_ext->subfield)) $etd->rels_ext->subfield = "";
+        $etd->mods->subfield = "";
 
-    $this->_helper->redirector->gotoRoute(array("controller" => "view", "action" => "record",
+        $etd->save("Changed school collection from $collectionOld to $collection");
+        $this->logger->info("Changed {$etd->pid} School from $labelOld to $label");
+        $this->_helper->flashMessenger->addMessage("School has been changed from $labelOld to $label");
+        $this->_helper->flashMessenger->addMessage("Program will have to be reassigned");
+     }
+
+     //redirects to program because the program will have to be rest every time the school is changed
+     $this->_helper->redirector->gotoRoute(array("controller" => "edit", "action" => "program",
             "pid" => $etd->pid), '', true);
   }
 
