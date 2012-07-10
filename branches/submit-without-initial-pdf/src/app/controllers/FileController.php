@@ -66,7 +66,10 @@ class FileController extends Etd_Controller_Action {
      $this->view->pid = $etd->pid;
      $this->view->etd = $etd;
      $this->view->title = "Add File to Record";
-    //upload file first, then edit metadata
+     // allow setting a default file type to pre-select in the drop-down
+     $this->view->default_filetype = $this->_getParam("type", null);
+
+     // upload file first, then edit metadata
    }
 
 
