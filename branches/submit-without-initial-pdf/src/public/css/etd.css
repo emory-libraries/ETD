@@ -1105,7 +1105,7 @@ form#help-request label  {
     width: 11em;
 }
 
-form#help-request label.error  {
+form#help-request label.error {
     display: inline;
     color: red;
     font-size: 90%;
@@ -1122,3 +1122,28 @@ form#help-request input[type=text] {
 form#help-request > div  {
   padding-top: 8px;
 }
+/* FIXME: probably need to distinguish screening question styles */
+form#submission br {
+  display: none;
+}
+/* TODO: screening question options need more space here */
+form#submission #screening-questions label {
+  display: inline-block;
+  font-weight: normal;
+  padding-right: 2em;
+}
+form#submission label.etd_title {
+  display: block;
+  font-weight: bold;
+}
+form#submission input#etd_title {
+  width: 90%;
+  margin-bottom: 10px;
+}
+form#submission label.error  {
+    float: left;  /* TEMPORARY; TODO: style this better */
+    color: red;
+    font-size: 90%;
+    padding-left: 5px;
+}
+
