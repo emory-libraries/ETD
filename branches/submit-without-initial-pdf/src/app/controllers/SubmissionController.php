@@ -16,6 +16,11 @@ class SubmissionController extends Etd_Controller_Action {
     // maybe this should be a summary/status page to check on the submission...
   }
    
+  /**
+   * Start page for creating a new ETD submission.  Logged in students
+   * must answer screening questions and then 
+   *
+   */
   public function startAction() {
     if (!$this->_helper->access->allowedOnEtd("create")) return false;
     // any other info needed here?
@@ -41,9 +46,9 @@ class SubmissionController extends Etd_Controller_Action {
       $this->view->answers = $answers;
 
       // if form is not valid, stop processing and re-display form with errors
-      $errors = $this->validateQuestions($answers);
-      if ($errors) {
-        $this->view->errors = $errors;
+      $form_errors = $this->validateQuestions($answers);
+      if ($form_errors) {
+        $this->view->form_errors = $form_errors;
         return;
       } 
 
@@ -67,7 +72,7 @@ class SubmissionController extends Etd_Controller_Action {
         $this->logger->info("Created new etd record with pid $pid");
         if ($this->debug) $this->_helper->flashMessenger->addMessage("Saved etd as $pid");
     
-        // need to retrieve record from fedora so datastreams can be saved, etc.
+        // retrieve a fresh copy of the record from fedora for additional updates
         $etd = $this->_helper->getFromFedora->findById($pid, "etd");
         
         // FIXME: can premis events be added before ingest ? 
@@ -99,8 +104,7 @@ class SubmissionController extends Etd_Controller_Action {
           // Document that patent email was sent in record history
           $eventMsg = "Email sent due to patent concerns.";
           $etd->premis->addEvent("admin", $eventMsg, "success",
-                     array("netid", $this->current_user->netid)); 
-                     // FIXME: should this really be the current user? or the system?
+              array("software", "etd system"));   // email sent by system, not current user
           $this->_helper->flashMessenger->addMessage("An e-mail has been sent to notify "
             . "the appropriate person of potential patent concerns.");
         }

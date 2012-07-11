@@ -84,7 +84,8 @@ class SubmissionControllerTest extends ControllerTestCase {
   }
 
 
-  function testStartAction() {
+  function testStartAction_GET() {
+    // test the GET portion of the start action
     $this->test_user->role = "staff"; // set to non-student
     Zend_Registry::set('current_user', $this->test_user);
     $SubmissionController = new SubmissionControllerForTest($this->request,$this->response);
@@ -100,9 +101,62 @@ class SubmissionControllerTest extends ControllerTestCase {
     // student
     $SubmissionController = new SubmissionControllerForTest($this->request,$this->response);
     $this->test_user->role = "student";
+
+
+  }
+
+  function testStartAction_POST() {
+    // test POST logic for start action
+
+    // set current user as student
+    $SubmissionController = new SubmissionControllerForTest($this->request,$this->response);
+    $this->test_user->role = "student";
     Zend_Registry::set('current_user', $this->test_user);
+
+    // post with missing required answers - should validate and re-display form
+    $answers = array("copyright" => null,
+                      "patent" => null,
+                      "embargo" => 'no',
+                      'etd_title' => null);
+    $this->setUpPost($answers);
     $SubmissionController->startAction();
-    $this->assertFalse($SubmissionController->redirectRan);
+    $this->assertEqual(array('copyright', 'patent', 'title'), $SubmissionController->view->form_errors);
+
+    // mimic error when attempting to save etd
+    $SubmissionController = new SubmissionControllerForTest($this->request,$this->response);
+    $ioe = $SubmissionController->getHelper("IngestOrError");
+    $ioe->setError("FedoraObjectNotValid");
+    // post with valid answers
+    $answers = array("copyright" => 'no',
+                      "patent" => 'no',
+                      "embargo" => 'no',
+                      'etd_title' => 'test title');
+    $this->setUpPost($answers);
+    $this->assertFalse($SubmissionController->redirectRan, "Should not redirect on ingest error.");
+    $SubmissionController->startAction();
+    $messages = $SubmissionController->getHelper('FlashMessenger')->getMessages();
+    $this->assertPattern("/Error saving record/", $messages[0]);
+    $this->assertPattern("/Could not create record/",
+            $SubmissionController->view->errors[0]);
+     
+    // mimic no error on ingest
+    $SubmissionController = new SubmissionControllerForTest($this->request,$this->response);
+    $ioe->clearError();
+    $gff = $SubmissionController->getHelper("GetFromFedora");
+    $this->mock_etd->setReturnValue("save", "datestamp"); // mimic successful save
+    $this->assertIsA($this->mock_etd->premis, "premis", "mock_etd premis initialized right");
+    $gff->setReturnObject($this->mock_etd);
+    $SubmissionController->startAction();
+    $this->assertTrue($SubmissionController->redirectRan);
+    $messages = $SubmissionController->getHelper('FlashMessenger')->getMessages();
+    $this->assertEqual(0, count($messages));
+    $this->assertEqual(0, count($SubmissionController->view->errors));
+ 
+    //Check that copyright and patent questions have been stored in history
+    $this->assertPattern("/copyrighted/", $this->mock_etd->premis->event[2]->detail);
+    $this->assertPattern("/patented/", $this->mock_etd->premis->event[3]->detail);
+
+
   }
 
   function testInitializeEtd() {
@@ -344,9 +398,10 @@ class SubmissionControllerForTest extends SubmissionController {
   
   public $renderRan = false;
   public $redirectRan = false;
-  
+    
   public function initView() {
     $this->view = new Zend_View();
+    $this->view->errors = array();  // normally handled by common setup
     Zend_Controller_Action_HelperBroker::addPrefix('Test_Controller_Action_Helper');
     // enable test version of ingestOrError helper
     Zend_Controller_Action_HelperBroker::addPrefix('TestEtd_Controller_Action_Helper');

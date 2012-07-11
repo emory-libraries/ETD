@@ -3,10 +3,10 @@
 
 <p>Please answer the follow questions before you begin creating your record.</p>
 
-<? if ($this->errors): ?>
+<? if ($this->form_errors): ?>
 <div id="messages">
   <? /* display appropriate detailed error message for any missing required fields */ ?>
-  <? foreach ($this->errors as $err): ?>
+  <? foreach ($this->form_errors as $err): ?>
     <p class="error">
       <? switch ($err): 
         case 'copyright': ?>You must answer about copyrighted materials.<? break ?>
@@ -21,9 +21,6 @@
   <? endforeach ?>
 </div>
 <? endif ?>
-
-<? /* TODO:  migrate 'disable button' logic to jquery - need to maintain behavior of not allowing double submissions (as much as possible); should probably be tested also */ ?>
-<? /* TODO: identify existing user stories that will need to be tested again fafter this workflow change (including preventing double-click creating multiple submisions) */ ?>
 
 <form name="submission" id="submission" method="post" 
    action="<?= $this->url(array("action" => "start"))?>"> <!-- onsubmit="disableButton('Begin')"> -->
@@ -79,8 +76,7 @@
 <!-- TODO: label needs to be bold, input field needs to be much longer -->
 <div>
   <label for="etd_title" class="etd_title">Thesis or Dissertation Title</label>
-  <?= $this->formText("etd_title", $this->answers['title'], array("class" => "required-field")); ?> 
-  <? /* FIXME: should it be a textarea instead ? */ ?>
+  <?= $this->formTextarea("etd_title", $this->answers['title'], array("class" => "required-field")); ?> 
 </div>
 
 
@@ -88,12 +84,6 @@
 						<? /* "onClick" => "Element.show('processing')")); */ ?>
   <span id="processing" style="display:none">Processing ... <span class="note">(this may take a moment)</span></span>
 </form>
-
-<? 
- /* FIXME: are these unused on this page ? */
-$ok = "<span style='color:green'>&#x2714;</span>"; // green check mark 
- $incomplete = "<span style='color:red'>&#x2717;</span>"; // red x
-?>
 
  <hr/>
 
@@ -170,19 +160,3 @@ $j(document).ready(function() {
     jQuery.validator.addClassRules("required-field", {required: true});
 });                                       
 </script>
-
-
-<? /* TODO: remove debugpdf /processpdf code entirely 
-
-<? if ($this->env == "development"): ?>
-
-<form name="submission" method="post" enctype="multipart/form-data" onsubmit="disableButton('Debug')"
-    action="<?= $this->url(array("action" => "debugpdf"))?> ">
-
-   <p>Test information extracted from a PDF (development only)</p>
-
-<?//= $this->formHidden("MAX_FILE_SIZE", "3000000"); ?> 
-  <p><?= $this->formFile("pdf"); ?> <?= $this->formSubmit("Debug", "Debug >", array("class" => "submitlink", "style" => "padding-left:10px")); ?></p>
-
-</form>
-<? endif ?>*/ ?>
