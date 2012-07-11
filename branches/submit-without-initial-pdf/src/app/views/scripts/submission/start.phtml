@@ -155,8 +155,15 @@ $j(document).ready(function() {
         "embargo_abs_toc" : {
           required: "#embargo-yes:checked"
         }
+      },
+      submitHandler: function(form) {
+        // on valid submit, disable submit button (prevent double/multi-click creating multiple records)
+        $j(form).find('input[type=submit]').attr('disabled', true);
+        $j('#processing').show();  // display indicator that something is happening
+        $j(form).submit();  // now actually submit the form
       }
     });
     jQuery.validator.addClassRules("required-field", {required: true});
+
 });                                       
 </script>
