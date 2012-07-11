@@ -32,8 +32,8 @@ class ManageControllerTest extends ControllerTestCase {
 
     // get 3 test pids to be used throughout test
     $fedora_cfg = Zend_Registry::get('fedora-config');    
-    $this->pids = $this->fedora->getNextPid($fedora_cfg->pidspace, 3);
-    list($this->published_etdpid, $this->reviewed_etdpid,  $this->userpid) = $this->pids;
+    $this->pids = $this->fedora->getNextPid($fedora_cfg->pidspace, 4);
+    list($this->published_etdpid, $this->reviewed_etdpid,  $this->userpid, $this->approved_etdpid) = $this->pids;
         
     $ep = new esdPerson();
     $this->test_user = $ep->getTestPerson();
@@ -73,6 +73,14 @@ class ManageControllerTest extends ControllerTestCase {
     $foxml->pid = $this->reviewed_etdpid;
     $foxml->rels_ext->hasAuthorInfo = $this->userpid;
     $foxml->mods->embargo_request = "yes:files";
+    $foxml->ingest("loading test etd object");
+
+    // load etd2 & set pid & author relation for approved etd
+    $dom->loadXML(file_get_contents('../fixtures/etd2.xml'));
+    $foxml = new etd($dom);
+    $foxml->setSchoolConfig($school_cfg->graduate_school);
+    $foxml->pid = $this->approved_etdpid;
+    $foxml->rels_ext->hasAuthorInfo = $this->userpid;
     $foxml->ingest("loading test etd object");
 
     // load author info
@@ -331,6 +339,35 @@ class ManageControllerTest extends ControllerTestCase {
     $this->assertEqual("Changes to record requested by Laney Graduate School", $etd->premis->event[$last_event]->detail);
     $this->assertEqual("test_user", $etd->premis->event[$last_event]->agent->value);
     $this->assertEqual("Changes to record requested by Laney Graduate School", $etd->premis->event[$last_event]->detail);
+}
+
+
+   public function testRevertEmailAction() {
+    // set status appropriately on etd
+    $etd = new etd($this->reviewed_etdpid);
+    $etd->setStatus("approved");
+    $etd->save("set status to approved to test revert");
+
+    $ManageController = new ManageControllerForTest($this->request,$this->response);
+    $this->setUpGet(array('pid' => $this->approved_etdpid, 'type' => 'record'));
+    
+    $this->test_user->role = "grad admin";
+    // clear out any messages
+    $ManageController->getHelper('FlashMessenger')->getMessages();
+    $ManageController->revertToDraftEmailAction();
+    $etd = new etd($this->approved_etdpid); // get from fedora to check changes
+
+    $this->assertEqual("draft", $etd->status(), "status set correctly as draft");
+
+    $last_event = count($etd->premis->event) - 1;
+    $messages = $ManageController->getHelper('FlashMessenger')->getMessages();
+
+    $this->assertPattern("/Email sent to/", $messages[0]);
+    $this->assertPattern("/Reverted to .*draft/", $messages[1]);
+
+    $this->assertEqual("Reverted to draft at student request by. Laney Graduate School", $etd->premis->event[$last_event]->detail);
+    $this->assertEqual("test_user", $etd->premis->event[$last_event]->agent->value);
+    $this->assertEqual("Reverted to draft at student request by. Laney Graduate School", $etd->premis->event[$last_event]->detail);
 }
 
   public function ApproveAction() {

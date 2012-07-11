@@ -292,6 +292,22 @@ if ($environment->mode != "production") {
     $this->send();
     return array_merge($this->to, $this->cc);
   }
+  
+  /**
+   * email sent when admin reverts status to draft at students request;
+   * @param string $subject subject for the email
+   * @param string $to code for group to send to
+   * @param string $from code for group to send from
+   * @return array of addresses email was sent to
+   */
+  public function revert_to_draft($subject, $to="author", $from=null) {
+    $this->setRecipients($to, false, $from);
+    $this->mail->setSubject($subject);
+    $this->setBodyHtml($this->view->render("email/revert_to_draft.phtml"));
+    $this->send();
+    return array_merge($this->to, $this->cc);
+  }
+
 
 
   /**

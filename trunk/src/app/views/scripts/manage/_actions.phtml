@@ -29,3 +29,9 @@
     <? if ($this->acl->isAllowed($this->role, $this->etd, "revise embargo")): ?>
 <a class="action" href="<?= $this->url(array('controller' => 'manage',
 		'action' => 'reviseembargo', 'pid' => $this->etd->pid()), '', true, false) ?>">revise embargo</a> <? endif ?>
+ROLE: <?= $this->current_user->role;?>
+                <? if ($this->etd->status() == 'approved'): ?>
+<a class="action" href="<?= $this->url(array('controller' => 'manage',
+		'action' => 'revert-to-draft-email', 'pid' => $this->etd->pid()), '', true, false) ?>">
+     revert to draft</a>
+<? endif ?>
