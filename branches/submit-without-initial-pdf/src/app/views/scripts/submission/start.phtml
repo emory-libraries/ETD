@@ -1,4 +1,4 @@
-<?= $this->javascript("util.js"); ?>
+<?= $this->javascript("jquery.local.js"); ?>
 <noscript style="color:red">The submission process requires that you enable Javascript.</noscript>
 
 <p>Please answer the follow questions before you begin creating your record.</p>
@@ -23,7 +23,7 @@
 <? endif ?>
 
 <form name="submission" id="submission" method="post" 
-   action="<?= $this->url(array("action" => "start"))?>"> <!-- onsubmit="disableButton('Begin')"> -->
+   action="<?= $this->url(array("action" => "start"))?>"> 
 
 <ol id="screening-questions">
  <li><p>Have you included any copyrighted material in your thesis or dissertation?</p>
@@ -102,45 +102,22 @@ var $j = jQuery.noConflict();
 <? /* avoid conflict with prototype/scriptaculous while ETD has both */ ?>
 
 $j(document).ready(function() {
-  // TODO: yes/no display stuff is substantially the same, refactor to share code
-  $j("input[name=copyright]").change(function(){
-    $j('#copyright_yes').hide();
-    $j('#copyright_no').hide()
-    var val = $j("input[name=copyright]:checked").val();
-    if (val && val != 'undefined') { 
-      // show the appropriate div based on selection
-      $j('#copyright_' + val).show()
-    } 
+  // configure divs to be conditionally displayed based on answers
+  $j('input[name=copyright]').conditionalDisplay({
+    conditions: { yes: '#copyright_yes' }
   });
-  $j("input[name=copyright_permission]").change(function(){
-    $j('#copyright_perms_yes').hide();
-    $j('#copyright_perms_no').hide()
-    var val = $j("input[name=copyright_permission]:checked").val();
-    if (val && val != 'undefined') { 
-      $j('#copyright_perms_' + val).show();
-    } 
-  });
-  $j("input[name=patent]").change(function(){
-    $j('#patent_yes').hide();
-    var val = $j("input[name=patent]:checked").val();
-    if (val == 'yes') { 
-        $j('#patent_yes').show();
-    }
-  });
-  $j("input[name=embargo]").change(function(){
-    $j('#embargo_yes').hide();
-    var val = $j("input[name=embargo]:checked").val();
-    if (val == 'yes') { 
-        $j('#embargo_yes').show();
-    }
-  });
-  $j("input[name=embargo_abs_toc]").change(function(){
-    $j('#embargo_abs_toc_yes').hide();
-    var val = $j("input[name=embargo_abs_toc]:checked").val();
-    if (val == 'yes') { 
-        $j('#embargo_abs_toc_yes').show();
-    }
-  });
+  $j('input[name=copyright_permission]').conditionalDisplay({
+    conditions: { yes: '#copyright_perms_yes', no: '#copyright_perms_no' }
+  });  
+  $j('input[name=patent]').conditionalDisplay({
+    conditions: { yes: '#patent_yes' }
+  });  
+  $j('input[name=embargo]').conditionalDisplay({
+    conditions: { yes: '#embargo_yes' }
+  });  
+  $j('input[name=embargo_abs_toc]').conditionalDisplay({
+    conditions: { yes: '#embargo_abs_toc_yes' }
+  });  
 
    // trigger change for all radio inputs to show/hide subsections as appropriate
    // based on initial form values
