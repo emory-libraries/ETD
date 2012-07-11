@@ -1127,15 +1127,17 @@ form#help-request input[type=text] {
 form#help-request > div  {
   padding-top: 8px;
 }
-/* FIXME: probably need to distinguish screening question styles */
+/* styles for initial screening question form to create a new submission */
 form#submission br {
   display: none;
 }
-/* TODO: screening question options need more space here */
-form#submission #screening-questions label {
+#screening-questions label {
   display: inline-block;
   font-weight: normal;
   padding-right: 2em;
+}
+#screening-questions input {
+  margin-right: 5px;
 }
 form#submission label.etd_title {
   display: block;
@@ -1143,10 +1145,11 @@ form#submission label.etd_title {
 }
 form#submission textarea#etd_title {
   width: 90%;
-  margin-bottom: 10px;
+}
+form#submission input[type=submit] {
+  margin-top: 15px;
 }
 form#submission label.error  {
-    float: left;  /* TEMPORARY; TODO: style this better */
     color: red;
     font-size: 90%;
     padding-left: 5px;
