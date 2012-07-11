@@ -342,19 +342,19 @@ class ManageControllerTest extends ControllerTestCase {
 }
 
 
-   public function testRevertEmailAction() {
+   public function testRevertAction() {
     // set status appropriately on etd
     $etd = new etd($this->reviewed_etdpid);
     $etd->setStatus("approved");
     $etd->save("set status to approved to test revert");
 
     $ManageController = new ManageControllerForTest($this->request,$this->response);
-    $this->setUpGet(array('pid' => $this->approved_etdpid, 'type' => 'record'));
+    $this->setUpPost(array('pid' => $this->approved_etdpid, 'type' => 'record'));
     
     $this->test_user->role = "grad admin";
     // clear out any messages
     $ManageController->getHelper('FlashMessenger')->getMessages();
-    $ManageController->revertToDraftEmailAction();
+    $ManageController->revertToDraftAction();
     $etd = new etd($this->approved_etdpid); // get from fedora to check changes
 
     $this->assertEqual("draft", $etd->status(), "status set correctly as draft");
@@ -365,9 +365,9 @@ class ManageControllerTest extends ControllerTestCase {
     $this->assertPattern("/Email sent to/", $messages[0]);
     $this->assertPattern("/Reverted to .*draft/", $messages[1]);
 
-    $this->assertEqual("Reverted to draft at student request by. Laney Graduate School", $etd->premis->event[$last_event]->detail);
+    $this->assertEqual("Reverted to draft at student request by Laney Graduate School", $etd->premis->event[$last_event]->detail);
     $this->assertEqual("test_user", $etd->premis->event[$last_event]->agent->value);
-    $this->assertEqual("Reverted to draft at student request by. Laney Graduate School", $etd->premis->event[$last_event]->detail);
+    $this->assertEqual("Reverted to draft at student request by Laney Graduate School", $etd->premis->event[$last_event]->detail);
 }
 
   public function ApproveAction() {

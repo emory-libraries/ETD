@@ -245,44 +245,50 @@ class ManageController extends Etd_Controller_Action {
    }
 
    // send an email when reverting to draft state
-   public function revertToDraftEmailAction() {
+   public function revertToDraftAction() {
      $etd = $this->_helper->getFromFedora("pid", "etd");
-     $subject = "ETD submission reverted to draft";
-//     $content = $this->_getParam("content");
-     $changetype =  "record";
+//FIXME: This does not work in the tests:  if (!$this->_helper->access->allowedOnEtd("revert to draft", $etd)) return false;
+     if ($this->getRequest()->isPost()) {
+         $subject = "ETD submission reverted to draft";
+         $changetype =  "record";
 
-     $newstatus = "draft";
-     $etd->setStatus($newstatus);
+         $newstatus = "draft";
+         $etd->setStatus($newstatus);
 
-     // log event in record history
-     $etd->premis->addEvent("status change",
-          "Reverted to draft at student request by. " .
-          $this->current_user->getGenericAgent(),
-          "success",  array("netid", $this->current_user->netid));
+         // log event in record history
+         $etd->premis->addEvent("status change",
+              "Reverted to draft at student request by " .
+              $this->current_user->getGenericAgent(),
+              "success",  array("netid", $this->current_user->netid));
 
-     $result = $etd->save("set status to '$newstatus'");
+         $result = $etd->save("set status to '$newstatus'");
 
-     if ($result) {
-         //Send The email
-        $notify = new etd_notifier($etd);
-        $sendTo = "author";
-        // Specifically set the "from" email address to the current user.
-        $sendFrom = array("eaddr" => $this->current_user->netid . "@emory.edu",
+         if ($result) {
+             //Send The email
+            $notify = new etd_notifier($etd);
+            $sendTo = "author";
+            // Specifically set the "from" email address to the current user.
+            $sendFrom = array("eaddr" => $this->current_user->netid . "@emory.edu",
                         "name" => "Emory ETD Admin: " . $this->current_user->fullname);
 
-        $to = $notify->revert_to_draft($subject, $sendTo, $sendFrom);
-        $this->_helper->flashMessenger->addMessage("Email sent to <b>" . implode(', ', array_keys($to)) . "</b>");
+            $to = $notify->revert_to_draft($subject, $sendTo, $sendFrom);
+            $this->_helper->flashMessenger->addMessage("Email sent to <b>" . implode(', ', array_keys($to)) . "</b>");
 
-       $this->_helper->flashMessenger->addMessage("Reverted to  <b>$newstatus</b>");
-       $this->logger->info("Reverted to draft at student request " . $etd->pid . " - status set to $newstatus at $result");
-     } else {
-       $this->_helper->flashMessenger->addMessage("Error: could not update record status");
-       $this->logger->err("Could not save etd " . $etd->pid . " - reverted to draft at student request, status change to $newstatus");
+           $this->_helper->flashMessenger->addMessage("Reverted to  <b>$newstatus</b>");
+           $this->logger->info("Reverted to draft at student request " . $etd->pid . " - status set to $newstatus at $result");
+         } else {
+           $this->_helper->flashMessenger->addMessage("Error: could not update record status");
+           $this->logger->err("Could not save etd " . $etd->pid . " - reverted to draft at student request, status change to $newstatus");
+         }
+
+         // forward to main admin page
+         $this->_helper->redirector->gotoRoute(array("controller" => "manage",
+                 "action" => "summary"), "", true);
      }
-
-     // forward to main admin page
-     $this->_helper->redirector->gotoRoute(array("controller" => "manage",
-             "action" => "summary"), "", true);
+     else{
+         $this->view->title = "Manage : Revert To Draft";
+         $this->view->etd = $etd;
+     }
 
 
    }
