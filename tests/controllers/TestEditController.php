@@ -244,7 +244,7 @@ class EditControllerTest extends ControllerTestCase {
     $this->setUpPost(array('pid' => $this->etdpid,
          'program_id' => '#religion',
          'subfield_id' => '#american'));
-    $EditController->saveProgramAction();
+    $EditController->programAction();
     $viewVars = $EditController->view->getVars();
     $messages = $EditController->getHelper('FlashMessenger')->getMessages();
     $this->assertEqual("Saved changes to program", $messages[0]);

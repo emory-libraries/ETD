@@ -154,82 +154,89 @@ class EditController extends Etd_Controller_Action {
     
   }
 
-  // edit program and optional subfield
+  // edit school and program and optional subfield
   public function programAction() {
     $etd = $this->_helper->getFromFedora("pid", "etd");
     if (!$this->_helper->access->allowedOnEtd("edit metadata", $etd)) return;
     
-    $this->view->title = "Edit Program";
-    $this->view->etd = $etd;
+    if ($this->getRequest()->isGet()) {
+        $this->view->title = "Edit Program";
+        $this->view->etd = $etd;
 
-    $programObject = new foxmlPrograms();
-    $this->view->programs = $programObject->skos;
-    // select correct sub-section of progam hierarchy based on which school ETD belongs to
-    switch ($etd->schoolId()) {
-    case 'grad':
-      $this->view->program_section = $programObject->skos->grad;
-      break;
-    case 'honors':
-      $this->view->program_section = $programObject->skos->undergrad;
-      break;
-    case 'candler':      
-      $this->view->program_section = $programObject->skos->candler;
-      break;
-      case 'rollins':
-      $this->view->program_section = $programObject->skos->rollins;
-      break;
-      // NOTE: currently no default; view falls back to full program hierarchy if section is not set
+        $programObject = new foxmlPrograms();
+        $this->view->programs = $programObject->skos;
+        // select correct sub-section of progam hierarchy based on which school ETD belongs to
+        switch ($etd->schoolId()) {
+        case 'grad':
+          $this->view->program_section = $programObject->skos->grad;
+          break;
+        case 'honors':
+          $this->view->program_section = $programObject->skos->undergrad;
+          break;
+        case 'candler':
+          $this->view->program_section = $programObject->skos->candler;
+          break;
+          case 'rollins':
+          $this->view->program_section = $programObject->skos->rollins;
+          break;
+          // NOTE: currently no default; view falls back to full program hierarchy if section is not set
+        }
+
+        // info for schools edit form
+        $schools = $config = Zend_Registry::get('schools-config');
+        $this->view->schoolId = $etd->schoolId(); //Current schoolId used for default value in select list
+        $this->view->options = $this->_school_options($schools);
     }
 
-    // info for schools edit form
-    $schools = $config = Zend_Registry::get('schools-config');
-    $this->view->schoolId = $etd->schoolId(); //Current schoolId used for default value in select list
-    $this->view->options = $this->_school_options($schools);
+    elseif ($this->getRequest()->isPost()) {
+        $schoolId = $this->_getParam("schoolId");
+        $schoolIdOld = $this->_getParam("schoolIdOld");
 
-  }
+        //If school id has changed then forward to school update action
+        if($schoolId != $schoolIdOld){
+            $this->_forward("save-school", "edit", null, array('$schoolId' => $schoolIdOld,
+                                                           '$schoolIdOld' => $schoolIdOld));
+        }
+        else{ //else save program
+            $this->view->etd = $etd;
 
-  // save program and subfield - text in MODS, ids in RELS-EXT
-  public function saveProgramAction() {
-    $etd = $this->_helper->getFromFedora("pid", "etd");
-    if (!$this->_helper->access->allowedOnEtd("edit metadata", $etd)) return;
-    
-    $this->view->etd = $etd;
+            // remove leading # from ids (should be stored in rels-ext without  #)
+            $program_id = preg_replace("/^#/", "", $this->_getParam("program_id", null));
+            $subfield_id = preg_replace("/^#/", "", $this->_getParam("subfield_id", null));
 
-    // remove leading # from ids (should be stored in rels-ext without  #)
-    $program_id = preg_replace("/^#/", "", $this->_getParam("program_id", null));
-    $subfield_id = preg_replace("/^#/", "", $this->_getParam("subfield_id", null));
-    
+            $etd->rels_ext->program = $program_id;
+            $programObject = new foxmlPrograms();
+            $etd->department = $programObject->skos->findLabelbyId("#" . $program_id);
+            if ($subfield_id == null) {
+              // blank out rel if already set (don't add empty relation if not needed)
+              if (isset($etd->rels_ext->subfield)) $etd->rels_ext->subfield = "";
+              // blank out mods subfield
+              $etd->mods->subfield = "";
+            } else {
+              $etd->rels_ext->subfield = $subfield_id;
+              $etd->mods->subfield = $programObject->skos->findLabelbyId("#" . $subfield_id);
+            }
 
-    $etd->rels_ext->program = $program_id;
-    $programObject = new foxmlPrograms();
-    $etd->department = $programObject->skos->findLabelbyId("#" . $program_id);  
-    if ($subfield_id == null) {
-      // blank out rel if already set (don't add empty relation if not needed)
-      if (isset($etd->rels_ext->subfield)) $etd->rels_ext->subfield = "";
-      // blank out mods subfield
-      $etd->mods->subfield = "";
-    } else {
-      $etd->rels_ext->subfield = $subfield_id;
-      $etd->mods->subfield = $programObject->skos->findLabelbyId("#" . $subfield_id);
+            if ($etd->mods->hasChanged() || $etd->rels_ext->hasChanged()) {
+              $save_result = $etd->save("updated program");
+              $this->view->save_result = $save_result;
+              if ($save_result) {
+                  $this->_helper->flashMessenger->addMessage("Saved changes to program");
+                  $this->logger->info("Updated etd " . $etd->pid . " program at $save_result");
+              } else {
+                  $this->_helper->flashMessenger->addMessage("Could not save changes to program (permission denied?)");
+                  $this->logger->err("Could not save changes to program on  etd " . $etd->pid);
+              }
+            } else {
+              $this->_helper->flashMessenger->addMessage("No changes made to program");
+            }
+
+            $this->_helper->redirector->gotoRoute(array("controller" => "view", "action" => "record",
+                    "pid" => $etd->pid), '', true);
+        }
+        
     }
-    
-    if ($etd->mods->hasChanged() || $etd->rels_ext->hasChanged()) {
-      $save_result = $etd->save("updated program");
-      $this->view->save_result = $save_result;
-      if ($save_result) {
-  $this->_helper->flashMessenger->addMessage("Saved changes to program");
-  $this->logger->info("Updated etd " . $etd->pid . " program at $save_result");
-      } else {
-  $this->_helper->flashMessenger->addMessage("Could not save changes to program (permission denied?)");
-  $this->logger->err("Could not save changes to program on  etd " . $etd->pid);
-      }
-    } else {
-      $this->_helper->flashMessenger->addMessage("No changes made to program");
-    }
 
-
-    $this->_helper->redirector->gotoRoute(array("controller" => "view", "action" => "record",
-            "pid" => $etd->pid), '', true);
   }
 
   public function saveRightsAction() {

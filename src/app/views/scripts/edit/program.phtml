@@ -10,14 +10,13 @@
 </p> 
 
 
-<div style="margin-bottom: 50px;">
+<form action="<?= $this->url(array("action" => "program")) ?>" method="post">
+<div style="margin-bottom: 25px;">
     <b>School</b>
-  <?=  $this->render('edit/_school_form.phtml'); ?>
+  <?=  $this->render('edit/_school_elements.phtml'); ?>
 </div>
 
 
-<form action="<?= $this->url(array("action" => "save-program")) ?>" method="post">
-			    
 <div>
 <b>Department/Program <? if ($this->etd->isRequired("program")): ?> * <? endif ?></b><br/>
   <input id="program_id" name="program_id" type="hidden"
