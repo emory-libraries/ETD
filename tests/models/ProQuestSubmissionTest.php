@@ -58,9 +58,11 @@ class TestPQSubmission extends UnitTestCase {
     $foxml = new foxml($dom);
     $foxml->pid = $userpid;
     $fedora->ingest($foxml->saveXML(), "loading test etd authorInfo object");
+    // allow for fedora with syncUpdates False to propagate authorinfo rel to RIsearch
+    sleep(5);
     
     $etd = new etd($etdpid);
-
+    
     $this->pq->initializeFromEtd($etd);
     $this->assertEqual("0", $this->pq->embargo_code);
     // author name & contact information
