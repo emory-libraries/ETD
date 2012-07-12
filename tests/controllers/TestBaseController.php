@@ -29,7 +29,6 @@ class BaseControllerTest extends ControllerTestCase {
     $this->assertIsA($baseController->getVariable("logger"), "Zend_Log");
     $this->assertNotNull($baseController->getVariable("env"));
     $this->assertIsA($baseController->getVariable("acl"), "Zend_Acl");
-    $this->assertIsA($baseController->view->supported_browsers, "Array");
     $this->assertNotNull($baseController->view->controller);
     $this->assertNotNull($baseController->view->action);
   }
