@@ -24,9 +24,9 @@ to your document.</p>
     action="<?= $this->url(array("action" => "new", "etd" => $this->pid))?>">
 
    <p><b>Type of file to add:</b></p>
-  <p><?= $this->formSelect("filetype", "", null,
-			   array("original" => "Thesis/Dissertation in original format ",
-				 "pdf" => "Thesis/Dissertation in PDF format",	
+  <p><?= $this->formSelect("filetype", $this->default_filetype, null,
+			   array("pdf" => "Thesis/Dissertation in PDF format",	
+				 "original" => "Thesis/Dissertation in original format ",
 				 "supplement" => "Supplemental file")); ?> </p>
    
   <p><?= $this->formFile("file"); ?></p>

@@ -84,7 +84,8 @@ class SubmissionControllerTest extends ControllerTestCase {
   }
 
 
-  function testStartAction() {
+  function testStartAction_GET() {
+    // test the GET portion of the start action
     $this->test_user->role = "staff"; // set to non-student
     Zend_Registry::set('current_user', $this->test_user);
     $SubmissionController = new SubmissionControllerForTest($this->request,$this->response);
@@ -100,74 +101,66 @@ class SubmissionControllerTest extends ControllerTestCase {
     // student
     $SubmissionController = new SubmissionControllerForTest($this->request,$this->response);
     $this->test_user->role = "student";
-    Zend_Registry::set('current_user', $this->test_user);
-    $SubmissionController->startAction();
-    $this->assertFalse($SubmissionController->redirectRan);
+
+
   }
 
-  /* FIXME: not sure how to test processPdf action - LOTS of stuff going on, hard to simulate... */
+  function testStartAction_POST() {
+    // test POST logic for start action
 
-  function testProcessPdfAction() {
-    $SubmissionController = new SubmissionControllerForTest($this->request,
-                  $this->response);
-    //valid answers to screeneing questions
-    $this->setUpGet(array("copyright" => 0,
-                       "copyright_permission" => NULL,
-                       "patent" => 0,
-                       "embargo" => 0,
-                       "embargo_abs_toc" => NULL));
-
-
-    // unauthorized user
-    $this->test_user->role = "guest";
-    Zend_Registry::set('current_user', $this->test_user);
-    $this->assertFalse($SubmissionController->processpdfAction());
-
+    // set current user as student
+    $SubmissionController = new SubmissionControllerForTest($this->request,$this->response);
     $this->test_user->role = "student";
-    // sample file data
-    $testfile = "../fixtures/tinker_sample.pdf";
-    $_FILES['pdf'] = array("tmp_name" => $testfile,
-         "size" => filesize($testfile),
-          "type" => "application/pdf", "error" => UPLOAD_ERR_OK,
-          "name" => "diss.pdf");
-    // don't need to test what it is handled by processPDF helper (tested elsewhere)
-    // using test processpdf helper (~mock)
-    $ppdf = $SubmissionController->getHelper("ProcessPDF");
-    $ppdf->setReturnResult(array("title" => "test",
-         "distribution_agreement" => true,
-         "abstract" => "abs", "toc" => "1.2.3.",
-         "committee" => array(),
-         "pdf" => $testfile, "filename" => "diss.pdf",
-         "keywords" => array()));
+    Zend_Registry::set('current_user', $this->test_user);
+
+    // post with missing required answers - should validate and re-display form
+    $answers = array("copyright" => null,
+                      "patent" => null,
+                      "embargo" => 'no',
+                      'etd_title' => null);
+    $this->setUpPost($answers);
+    $SubmissionController->startAction();
+    $this->assertEqual(array('copyright', 'patent', 'title'), $SubmissionController->view->form_errors);
+
     // mimic error when attempting to save etd
+    $SubmissionController = new SubmissionControllerForTest($this->request,$this->response);
     $ioe = $SubmissionController->getHelper("IngestOrError");
     $ioe->setError("FedoraObjectNotValid");
-    $SubmissionController->processpdfAction();
-    $this->assertFalse($SubmissionController->redirectRan, "Should not redirect on successful submission.");
+    // post with valid answers
+    $answers = array("copyright" => 'no',
+                      "patent" => 'no',
+                      "embargo" => 'no',
+                      'etd_title' => 'test title');
+    $this->setUpPost($answers);
+    $this->assertFalse($SubmissionController->redirectRan, "Should not redirect on ingest error.");
+    $SubmissionController->startAction();
     $messages = $SubmissionController->getHelper('FlashMessenger')->getMessages();
     $this->assertPattern("/Error saving record/", $messages[0]);
     $this->assertPattern("/Could not create record/",
-           $SubmissionController->view->errors[0]);
-
+            $SubmissionController->view->errors[0]);
+     
     // mimic no error on ingest
+    $SubmissionController = new SubmissionControllerForTest($this->request,$this->response);
     $ioe->clearError();
     $gff = $SubmissionController->getHelper("GetFromFedora");
     $this->mock_etd->setReturnValue("save", "datestamp"); // mimic successful save
     $this->assertIsA($this->mock_etd->premis, "premis", "mock_etd premis initialized right");
     $gff->setReturnObject($this->mock_etd);
-    $SubmissionController->processpdfAction();
+    $SubmissionController->startAction();
     $this->assertTrue($SubmissionController->redirectRan);
     $messages = $SubmissionController->getHelper('FlashMessenger')->getMessages();
     $this->assertEqual(0, count($messages));
     $this->assertEqual(0, count($SubmissionController->view->errors));
-
+ 
     //Check that copyright and patent questions have been stored in history
     $this->assertPattern("/copyrighted/", $this->mock_etd->premis->event[2]->detail);
     $this->assertPattern("/patented/", $this->mock_etd->premis->event[3]->detail);
+
+
   }
 
   function testInitializeEtd() {
-    // ignore php errors - "indirect modification of overloaded property
+    // ignore php errors - "indirect modification of overloaded programperty
     $errlevel = error_reporting(E_ALL ^ E_NOTICE);
 
     $SubmissionController = new SubmissionControllerForTest($this->request,
@@ -175,8 +168,7 @@ class SubmissionControllerTest extends ControllerTestCase {
     $test_info = array("title" => "new etd",
            "abstract" => "my abstract",
            "toc" => "chapter 1 -- chapter 2",
-           "committee" => array(),
-           "keywords" => array("test", "etd"));
+           "committee" => array());
     // leaving out committee/ESD stuff for now
     $this->test_user->academic_career = "GSAS";
     $etd = $SubmissionController->initialize_etd($test_info);
@@ -186,8 +178,6 @@ class SubmissionControllerTest extends ControllerTestCase {
       'abstract should no longer be prepopulated by text detected from pdf');
     $this->assertEqual("", $etd->mods->tableOfContents,
       'table of contents should no longer be prepopulated by text detected from pdf');
-    $this->assertEqual("test", $etd->mods->keywords[0]->topic);
-    $this->assertEqual("etd", $etd->mods->keywords[1]->topic);
     $this->assertEqual("Laney Graduate School", $etd->admin_agent);
 
 
@@ -357,47 +347,47 @@ class SubmissionControllerTest extends ControllerTestCase {
   function testValidateQuestions() {
       $SubmissionController = new SubmissionControllerForTest($this->request, $this->response);
       
-      //All ansers are no to questions 1, 2, and 3
-      $answers = array("copyright" => 0,
+      // All answers are no to questions 1, 2, and 3
+      $answers = array("copyright" => 'no',
+                       "patent" => 'no',
+                       "embargo" => 'no',
+                       'title' => 'sample title');
+      $errors = $SubmissionController->validateQuestions($answers);
+      $this->assertEqual(array(), $errors);
+
+      //All answers are yes to all questions
+      $answers = array("copyright" => 'yes',
+                       "copyright_permission" => 'yes',
+                       "patent" => 'yes',
+                       "embargo" => 'yes',
+                       "embargo_abs_toc" => 'yes',
+                       'title' => 'sample title');
+      $errors = $SubmissionController->validateQuestions($answers);
+      $this->assertEqual(array(), $errors);
+
+      // 1, 2, 3 answered but sub-questions are not; missing title
+      $answers = array("copyright" => 'yes',
                        "copyright_permission" => NULL,
-                       "patent" => 0,
-                       "embargo" => 0,
-                       "embargo_abs_toc" => NULL);
-      
-      $valid = $SubmissionController->validateQuestions($answers);
-      $this->assertTrue($valid);
-
-      //All ansers are yes to all questions
-      $answers = array("copyright" => 1,
-                       "copyright_permission" => 1,
-                       "patent" => 1,
-                       "embargo" => 1,
-                       "embargo_abs_toc" => 1);
-
-      $valid = $SubmissionController->validateQuestions($answers);
-      $this->assertTrue($valid);
-
-      //1, 2, 3 answered but sub-questions are not
-      $answers = array("copyright" => 1,
-                       "copyright_permission" => NULL,
-                       "patent" => 0,
-                       "embargo" => 1,
-                       "embargo_abs_toc" => NULL
+                       "patent" => 'no',
+                       "embargo" => 'yes',
+                       "embargo_abs_toc" => NULL,
+                       'title' => NULL,
                       );
+      $errors = $SubmissionController->validateQuestions($answers);
+      $this->assertTrue(in_array('copyright_permission', $errors));
+      $this->assertTrue(in_array('embargo_abs_toc', $errors));
+      $this->assertTrue(in_array('title', $errors));
 
-      $valid = $SubmissionController->validateQuestions($answers);
-      $this->assertFalse($valid);
-
-      //1,2,3 are yes sub-questions are no
-      $answers = array("copyright" => 1,
-                       "copyright_permission" => 0,
-                       "patent" => 1,
-                       "embargo" => 1,
-                       "embargo_abs_toc" => 0
+      // 1,2,3 are yes; sub-questions are answered
+      $answers = array("copyright" => 'yes',
+                       "copyright_permission" => 'no',
+                       "patent" => 'yes',
+                       "embargo" => 'yes',
+                       "embargo_abs_toc" => 'no',
+                       'title' => 'sample title'
                       );
-
-      $valid = $SubmissionController->validateQuestions($answers);
-      $this->assertTrue($valid);
+      $errors = $SubmissionController->validateQuestions($answers);
+      $this->assertEqual(array(), $errors);
   }
 
 
@@ -408,9 +398,10 @@ class SubmissionControllerForTest extends SubmissionController {
   
   public $renderRan = false;
   public $redirectRan = false;
-  
+    
   public function initView() {
     $this->view = new Zend_View();
+    $this->view->errors = array();  // normally handled by common setup
     Zend_Controller_Action_HelperBroker::addPrefix('Test_Controller_Action_Helper');
     // enable test version of ingestOrError helper
     Zend_Controller_Action_HelperBroker::addPrefix('TestEtd_Controller_Action_Helper');

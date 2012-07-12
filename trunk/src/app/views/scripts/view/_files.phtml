@@ -10,8 +10,8 @@
 <? endif ?>       
      <? if ($this->acl->isAllowed($this->role, $this->etd, "add file")): ?>    
        <p><a class="action" href="<?= $this->url(array("controller" => "file",
-    "action" => "add", "etd" => $this->etd->pid), null, true, false)?>">add another file</a></p>
-    <? /* Force a space to ensure "add another file" link to display when no files exist. */ ?>  
+    "action" => "add", "etd" => $this->etd->pid), null, true, false)?>">add a file</a></p>
+    <? /* Force a space to ensure "add file" link to display when no files exist. */ ?>  
     &nbsp;   
     <? /* FIXME: only show this link if at least one category has more than one file */ ?>    
     <? if ($this->acl->isAllowed($this->role, $this->etd, "order files")
