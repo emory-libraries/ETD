@@ -6,7 +6,8 @@
 		 "action" => "edit", "pid" => $this->authorInfo->pid), null, true) ?>">edit</a></p>
 <? endif ?>
 
-<? $this->authorInfo->etd ?>
-		 
+<? /* fall-back logic for newly created authorInfo with syncUpdates turned off - if etd is not acccessible
+   via related object (which queries the RIsearch), use the pid stored in the rels ext */ ?>
+<? $etd_pid = $this->authorInfo->etd ? $this->authorInfo->etd->pid : str_replace('info:fedora/', '', $this->authorInfo->rels_ext->etd); ?>
 <a class="button" href="<?= $this->url(array('controller' => 'view', 'action' => 'record',
-	'pid' => $this->authorInfo->etd->pid), '', true, false)?>">return to record &gt;</a><br/>
+	'pid' => $etd_pid), '', true, false)?>">return to record &gt;</a><br/>
