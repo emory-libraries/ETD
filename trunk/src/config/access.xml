@@ -55,6 +55,7 @@
       <allow resource="file">view modified</allow>  
     </role>
 
+    <!-- These perms are applied when the user is an admin for the ETD they are viewing / modifying-->
     <role name="admin" inherits="view_all">
        <allow resource="etd">edit history, edit status, manage</allow>
   <!-- workflow actions according to when they can be done -->
