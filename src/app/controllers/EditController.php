@@ -181,7 +181,7 @@ class EditController extends Etd_Controller_Action {
       // NOTE: currently no default; view falls back to full program hierarchy if section is not set
     }
 
-    #info for schools edit form
+    // info for schools edit form
     $schools = $config = Zend_Registry::get('schools-config');
     $this->view->schoolId = $etd->schoolId(); //Current schoolId used for default value in select list
     $this->view->options = $this->_school_options($schools);
