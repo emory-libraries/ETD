@@ -344,7 +344,7 @@ class ManageControllerTest extends ControllerTestCase {
 
    public function testRevertAction() {
     // set status appropriately on etd
-    $etd = new etd($this->reviewed_etdpid);
+    $etd = new etd($this->approved_etdpid);
     $etd->setStatus("approved");
     $etd->save("set status to approved to test revert");
 

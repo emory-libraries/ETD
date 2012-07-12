@@ -247,7 +247,8 @@ class ManageController extends Etd_Controller_Action {
    // send an email when reverting to draft state
    public function revertToDraftAction() {
      $etd = $this->_helper->getFromFedora("pid", "etd");
-//FIXME: This does not work in the tests:  if (!$this->_helper->access->allowedOnEtd("revert to draft", $etd)) return false;
+     if (!$this->_helper->access->allowedOnEtd("revert to draft", $etd)) return false;
+
      if ($this->getRequest()->isPost()) {
          $subject = "ETD submission reverted to draft";
          $changetype =  "record";
