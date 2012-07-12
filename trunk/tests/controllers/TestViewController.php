@@ -41,7 +41,7 @@ class ViewControllerTest extends ControllerTestCase {
     Zend_Registry::set('current_user', null);
   }
 
-  function NOtestRecordAction_guest_draft() {
+  function testRecordAction_guest_draft() {
     // simulate having no user logged in - public, guest view
     Zend_Registry::set('current_user', null);
     $this->mock_etd->user_role = "guest";
@@ -93,7 +93,7 @@ class ViewControllerTest extends ControllerTestCase {
 
 
   
-  function NOtestRecordAction_author() {
+  function testRecordAction_author() {
     $ViewController = new ViewControllerForTest($this->request,$this->response);
     $this->mock_etd->user_role = "author";
     $this->mock_etd->status = "published";
