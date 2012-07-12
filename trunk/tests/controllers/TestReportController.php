@@ -66,6 +66,8 @@ class ReportControllerTest extends ControllerTestCase {
     $foxml = new foxml($dom);
     $foxml->pid = $this->author_pid;
     $foxml->ingest("loading test authorInfo");
+    // sleep to allow fedora with syncUpdates=False to propagate authorInfo rel to RIsearch
+    sleep(5);
    
     $this->solr = &new Mock_Etd_Service_Solr();
     Zend_Registry::set('solr', $this->solr);
