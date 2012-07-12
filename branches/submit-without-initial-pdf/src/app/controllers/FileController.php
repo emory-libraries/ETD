@@ -321,13 +321,17 @@ class FileController extends Etd_Controller_Action {
    public function removeAction() {
      $etdfile = $this->_helper->getFromFedora("pid", "etd_file");
      if (!$this->_helper->access->allowedOnEtdFile("remove", $etdfile)) return false;
-     
+      
+     // lag warning - if syncUpdates is turned off, record will still be displayed briefly
+     $lag_warning = ' (It may take a moment to disappear from your record.)';
+
      $etd_pid = $etdfile->etd->pid;
      // delete - removes from etd it belongs to and marks as deleted, but does not purge     
      $result = $etdfile->delete("removed by user");
-     if ($result) { // fixme: filename?
+     if ($result) { 
        $this->logger->info("Marked etdFile " . $etdfile->pid . " as deleted at $result");
-       $this->_helper->flashMessenger->addMessage("Successfully removed file <b>" . $etdfile->label . "</b>");
+       $this->_helper->flashMessenger->addMessage("Successfully removed file <b>" . $etdfile->label . 
+                                                  "</b>$lag_warning");
      } else {
        $this->_helper->flashMessenger->addMessage("Error: could not remove file <b>" . $etdfile->label . "</b>");
        $this->logger->err("Error marking etdFile " . $etdfile->pid . " as deleted");
