@@ -1,6 +1,21 @@
 <?= $this->javascript("util.js"); ?>
 <div id="files">
-    <h2><a name="updatefile">Files</h2>
+    <h2>
+        Files <a name="updatefile"> </a>
+
+        <?/* Add file and re-order file links */?>
+        <? if ($this->acl->isAllowed($this->role, $this->etd, "add file")): ?>
+           <a class="record-edit" class="action" href="<?= $this->url(array("controller" => "file",
+            "action" => "add", "etd" => $this->etd->pid), null, true, false)?>">add a file</a>
+
+           <? if ($this->acl->isAllowed($this->role, $this->etd, "order files")
+           && (count($this->etd->pdfs) > 1 || count($this->etd->originals) > 1
+           || count($this->etd->supplements) > 1)): ?>
+              <a class="record-edit" href="<?= $this->url(array("controller" => "edit",
+              "action" => "fileorder", "pid" => $this->etd->pid), null, true, false)?>">re-order files</a>
+           <? endif ?>
+        <? endif ?>
+    </h2>
 <? if ($this->etd->isEmbargoed() && $this->etd->mods->isEmbargoRequested(etd_mods::EMBARGO_FILES)): ?>
     <p>Access restricted until <b><?= $this->etd->mods->embargo_end ?></b></p>
 <? elseif ($this->etd->status() == "published" && count($this->etd->pdfs) == 0): ?>
@@ -8,21 +23,6 @@
     if not embargoed, but published and no pdfs are found, display an error. */ ?>
    <p>File(s) temporarily unavailable.</p>
 <? endif ?>       
-     <? if ($this->acl->isAllowed($this->role, $this->etd, "add file")): ?>    
-       <p><a class="action" href="<?= $this->url(array("controller" => "file",
-    "action" => "add", "etd" => $this->etd->pid), null, true, false)?>">add a file</a></p>
-    <? /* Force a space to ensure "add file" link to display when no files exist. */ ?>  
-    &nbsp;   
-    <? /* FIXME: only show this link if at least one category has more than one file */ ?>    
-    <? if ($this->acl->isAllowed($this->role, $this->etd, "order files")
-     && (count($this->etd->pdfs) > 1 || count($this->etd->originals) > 1
-         || count($this->etd->supplements) > 1)): ?>
-         <p><a class="action" href="<?= $this->url(array("controller" => "edit",
-    "action" => "fileorder", "pid" => $this->etd->pid), null, true, false)?>">re-order files</a></p>
-       <? endif ?>
-     <? endif ?>             
-
-
   <? foreach (array("pdfs", "originals", "supplements") as $filetype): ?>
      <?  /* display a label for supplemental files, if appropriate */
        if ($filetype == "supplements" && count($this->etd->$filetype)
@@ -46,10 +46,10 @@
           <?endif ?>
         
     <? if ($this->acl->isAllowed($this->role, $file, "edit")): ?>
-      <a href="<?= $this->url(array("controller" => "file", "action" => "edit", "pid" => $file->pid), '', true, false)?>">edit title/description</a>
+      <a class ="record-edit" href="<?= $this->url(array("controller" => "file", "action" => "edit", "pid" => $file->pid), '', true, false)?>">edit title/description</a>
     <? endif ?>
     <? if ($this->acl->isAllowed($this->role, $file, "remove")): ?>
-      <a href="<?= $this->url(array("controller" => "file", "action" => "remove", "pid" => $file->pid), '', true, false)?>">remove</a>
+      <a class ="record-edit" href="<?= $this->url(array("controller" => "file", "action" => "remove", "pid" => $file->pid), '', true, false)?>">remove</a>
     <? endif ?>
           <? if ($this->acl->isAllowed($this->role, $file, "view modified")
      && isset($file->lastModified)): ?>        

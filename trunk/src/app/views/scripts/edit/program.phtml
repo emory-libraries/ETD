@@ -16,6 +16,7 @@
   <?=  $this->render('edit/_school_elements.phtml'); ?>
 </div>
 
+<p><?= $this->formSubmit("save", "save", array("class" => "button")); ?></p>
 
 <div>
 <b>Department/Program <? if ($this->etd->isRequired("program")): ?> * <? endif ?></b><br/>
@@ -34,8 +35,7 @@
 	 <span id="subfield_label"><?= $this->etd->mods->subfield ?></span><br/>
  </div>
 
-<p><?= $this->formSubmit("save", "save", array("class" => "button")); ?></p>
-</form>
+
 
 <script language="JavaScript">
 function setProgram(id, label) {
@@ -82,3 +82,6 @@ function setSubfield(id, parent_id) {
 						     "level" => 0)); ?>
   <? endif ?>  
 </ul>
+
+<p><?= $this->formSubmit("save", "save", array("class" => "button")); ?></p>
+</form>
