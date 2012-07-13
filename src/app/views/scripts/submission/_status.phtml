@@ -78,7 +78,7 @@
       'etd' => $etd->pid, 'type' => 'pdf'), '', true, false); ?>
   <?if ($etd->hasPDF()) : ?>
    <?= $ok ?> <a title="review PDF" href="#updatefile">PDF file</a> (<?= count($this->etd->pdfs) ?>) 
-    <a title="add another PDF" href="<?= $new_pdf_url ?>">[add]</a> <? /* TODO: style add link better */ ?>
+    <a title="add another PDF" class="record-edit" href="<?= $new_pdf_url ?>">[add]</a> <? /* TODO: style add link better */ ?>
   <? else : ?>
     <?= $incomplete ?> <a href="<?= $new_pdf_url ?>">PDF file</a>
   <? endif ?> <br/>  
@@ -87,7 +87,7 @@
       'etd' => $etd->pid, 'type' => 'original'), '', true, false); ?>
   <?if ($etd->hasOriginal()) : ?> <? /* link to file section for updates */ ?>
    <?= $ok ?> <a href="#updatefile">original file</a> (<?= count($this->etd->originals) ?>)
-    <a title="add another original document" href="<?= $new_original_url ?>">[add]</a>
+    <a title="add another original document" class="record-edit" href="<?= $new_original_url ?>">[add]</a>
     <? /* TODO: style add link better */ ?>
   <? else : ?>
     <?= $incomplete ?> <a href="<?= $new_original_url ?>">original file</a>

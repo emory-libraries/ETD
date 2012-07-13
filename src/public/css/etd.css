@@ -471,6 +471,12 @@ a.action img {
  vertical-align:middle; 
 }
 
+a.edit {
+  float:left;
+  color:blue;
+  text-decoration:none;
+}
+
 div.info { 
   clear:right;
   float:right;
@@ -1155,4 +1161,18 @@ form#submission label.error  {
     padding-left: 5px;
 }
 
+/* This is to make the edit link on the main record display correctly */
+h1 div#title{display: inline; }
+
+.record-edit{
+    font-size: 10px;
+    font-weight: normal;
+    font-variant: normal;
+    color: #1C1E2D;
+    text-decoration: underline;
+
+}
+
+.record-edit:before{content: "("}
+.record-edit:after{content: ")"}
 

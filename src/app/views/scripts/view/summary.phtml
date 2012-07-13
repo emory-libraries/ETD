@@ -14,11 +14,17 @@
      <? else: ?>   <?= $year ?> <? endif ?>
    <? endif ?>
 
-     <? if ($this->acl->isAllowed($this->etd->getUserRole($this->current_user), "authorInfo", "view") &&
-      isset($this->etd->authorInfo)): /* check acl first so we don't initialize unnecessarily  */?>
-      <span class="userinfo">[<a href="<?= $this->url(array('controller' => 'authorInfo', 'action' => 'view',
-    'pid' => $this->etd->authorInfo->pid), '', true, false) ?>">contact info</a>]</span>
-     <? endif ?>     
+   <? if(isset($this->etd->authorInfo)): ?>
+      <? if ($this->acl->isAllowed($this->etd->getUserRole($this->current_user), "authorInfo", "view") ): ?>
+         <a class="record-edit" href="<?= $this->url(array('controller' => 'authorInfo', 'action' => 'view',
+         'pid' => $this->etd->authorInfo->pid), '', true, false) ?>">edit contact info</a>
+      <? endif ?>
+   <? else: ?>
+      <? if ($this->acl->isAllowed($this->etd->getUserRole($this->current_user), "authorInfo", "edit") ): ?>
+         <a class="record-edit" href="<?= $this->url(array('controller' => 'authorInfo', 'action' => 'new',
+          'etd' => $this->etd->pid), '', true, false) ?>">edit contact info</a>
+      <? endif ?>
+   <? endif ?>
 
   <br/>
  <? if ($doctype = $this->etd->document_type()): ?><b><?= $doctype ?></b><? endif ?>
@@ -38,8 +44,7 @@
      <a href="<?= $this->url(array('controller' => 'browse', 'action' => 'committee',
   'value' => urlencode($chair)), '', true)?>"><?= $chair ?></a><?= $affiliation ?><? if (!$last):?>; <? endif ?>
     <? else: ?>   <?= $chair ?><?= $affiliation ?><? if (!$last):?>; <? endif ?> <? endif ?>
- <? endforeach ?> 
-
+ <? endforeach ?>
   
   <? //  nonemory chairs ?>
   <? if (isset($this->etd->mods->nonemory_chair) &&
@@ -53,6 +58,9 @@
    <? else: ?><?= $nec->full ?> (<?= $nec->affiliation ?>);<? endif ?>
       <? endforeach ?>
     <? endif ?>
+   <? if ($this->acl->isAllowed($this->role, $this->etd, "edit metadata")): ?>
+      <a class="record-edit" href="<?= $this->url(array("controller" => "edit", "action" => "faculty")) ?>">edit</a>
+   <? endif ?>
     <? // linebreak only after both sets of committee members ?> <br/>
      
 <b>Committee Members:</b> <? $committee = $this->etd->committee(); ?>
@@ -66,7 +74,7 @@
       if ($cm != $committee[count($committee)-1] ||
     (isset($this->etd->mods) && count($this->etd->mods->nonemory_committee)) ): ?>; <? endif ?>
     <? endforeach ?>
-    
+
     <? if (isset($this->etd->mods->nonemory_committee) &&
      isset($this->etd->mods->nonemory_committee[0]) && 
      $this->etd->mods->nonemory_committee[0]->full): ?>
@@ -77,6 +85,9 @@
     'value' => urlencode($cm->full)),'', true)?>"><?= $cm->full ?></a> (<?= $cm->affiliation ?>);
    <? else: ?><?= $cm->full ?> (<?= $cm->affiliation ?>);<? endif ?>     
       <? endforeach ?> 
+    <? endif ?>
+    <? if ($this->acl->isAllowed($this->role, $this->etd, "edit metadata")): ?>
+       <a class="record-edit" href="<?= $this->url(array("controller" => "edit", "action" => "faculty")) ?>">edit</a>
     <? endif ?>
     <? // linebreak only after both sets of committee members ?> <br/>
       
@@ -92,7 +103,11 @@
        <? endif ?>
        <? if ($published): ?>
       <a href="<?= $url ?>"><?= $label ?></a><? else: ?><?= $label ?><? endif ?><? if ($field != $fields[count($fields) - 1]): ?>; <? endif ?>
-   <? endforeach ?><br/>
+   <? endforeach ?>
+   <? if ($this->acl->isAllowed($this->role, $this->etd, "edit metadata")): ?>
+      <a class="record-edit" href="<?= $this->url(array("controller" => "edit", "action" => "researchfield")) ?>">edit</a>
+   <? endif ?>
+   <br/>
    
   <? if ($this->etd->school_config->acl_id == "rollins"): ?>
     <b>Partnering Agencies:</b>
@@ -107,7 +122,11 @@
       <? endif ?>
       <?= $label ?>
         <? if ($field != $fields[count($fields) - 1]): ?>; <? endif ?>
-     <? endforeach ?><br/>
+     <? endforeach ?>
+     <? if ($this->acl->isAllowed($this->role, $this->etd, "edit metadata")): ?>
+        <a class="record-edit" href="<?= $this->url(array("controller" => "edit", "action" => "partneringagency")) ?>">edit</a>
+     <? endif ?>
+     <br/>
    <? endif  ?>
       
   <b>Keywords:</b>
@@ -117,8 +136,13 @@
          <a href="<?= $this->url(array('controller' => 'search', 'action' => 'results',
   'keyword' => urlencode(strtolower($keyword))),
   '', true) ?>"><?= $keyword ?></a><? else: ?><?= $keyword ?><? endif ?><? if ($keyword != $keywords[count($keywords)-1]): ?>; <? endif ?>
-    <? endforeach ?><br/>
-  <b>Program:</b>
+    <? endforeach ?>
+    <? if ($this->acl->isAllowed($this->role, $this->etd, "edit metadata")): ?>
+       <a class="record-edit" href="<?= $this->url(array("controller" => "edit", "action" => "record")) ?>">edit</a>
+    <? endif ?>
+     <br/>
+
+    <b>Program:</b>
     <? if ($published && $this->etd->program_id()): ?>  
   <a href="<?= $this->url(array('controller' => 'browse', 'action' => 'programs',
   'coll' => $this->etd->program_id()), '', true) ?>"><?= $this->etd->program() ?></a>
@@ -131,6 +155,9 @@
         (<?= $this->etd->subfield() ?>)
         <? endif ?>
      <? endif /* has subfield */ ?>
+     <? if ($this->acl->isAllowed($this->role, $this->etd, "edit metadata")): ?>
+        <a class="record-edit" href="<?= $this->url(array("controller" => "edit", "action" => "program")) ?>">edit</a>
+     <? endif ?>
      <br/>
 
 <? if ($this->acl->isAllowed($this->etd->getUserRole($this->current_user), "etd", "view mods")): ?>
