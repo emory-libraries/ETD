@@ -942,6 +942,14 @@ class etd extends foxml implements etdInterface {
   }
 
   /**
+   * does this etd have at least one Supplemental file?
+   * @return bool
+   */
+  public function hasSupplemental() {
+    return (count($this->supplements) > 0);
+  }
+
+  /**
    * check if this object (or inherited object) is honors or not
    * @return bool
    * @deprecated - use schoolId function instead
