@@ -1171,7 +1171,8 @@ form#submission label.error  {
 }
 
 /* This is to make the edit link on the main record display correctly */
-h1 div#title{display: inline; }
+h1 div#title, h1 div#title p{display: inline; }
+
 
 .record-edit{
     font-size: 10px;
