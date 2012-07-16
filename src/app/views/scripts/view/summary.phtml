@@ -59,7 +59,7 @@
       <? endforeach ?>
     <? endif ?>
    <? if ($this->acl->isAllowed($this->role, $this->etd, "edit metadata")): ?>
-      <a class="record-edit" href="<?= $this->url(array("controller" => "edit", "action" => "faculty")) ?>">edit</a>
+      <a class="record-edit" href="<?= $this->url(array("controller" => "edit", "action" => "faculty", "pid" => $this->etd->pid())) ?>">edit</a>
    <? endif ?>
     <? // linebreak only after both sets of committee members ?> <br/>
      
@@ -87,7 +87,7 @@
       <? endforeach ?> 
     <? endif ?>
     <? if ($this->acl->isAllowed($this->role, $this->etd, "edit metadata")): ?>
-       <a class="record-edit" href="<?= $this->url(array("controller" => "edit", "action" => "faculty")) ?>">edit</a>
+       <a class="record-edit" href="<?= $this->url(array("controller" => "edit", "action" => "faculty", "pid" => $this->etd->pid())) ?>">edit</a>
     <? endif ?>
     <? // linebreak only after both sets of committee members ?> <br/>
       
@@ -105,7 +105,7 @@
       <a href="<?= $url ?>"><?= $label ?></a><? else: ?><?= $label ?><? endif ?><? if ($field != $fields[count($fields) - 1]): ?>; <? endif ?>
    <? endforeach ?>
    <? if ($this->acl->isAllowed($this->role, $this->etd, "edit metadata")): ?>
-      <a class="record-edit" href="<?= $this->url(array("controller" => "edit", "action" => "researchfield")) ?>">edit</a>
+      <a class="record-edit" href="<?= $this->url(array("controller" => "edit", "action" => "researchfield", "pid" => $this->etd->pid())) ?>">edit</a>
    <? endif ?>
    <br/>
    
@@ -124,7 +124,7 @@
         <? if ($field != $fields[count($fields) - 1]): ?>; <? endif ?>
      <? endforeach ?>
      <? if ($this->acl->isAllowed($this->role, $this->etd, "edit metadata")): ?>
-        <a class="record-edit" href="<?= $this->url(array("controller" => "edit", "action" => "partneringagency")) ?>">edit</a>
+        <a class="record-edit" href="<?= $this->url(array("controller" => "edit", "action" => "partneringagency", "pid" => $this->etd->pid())) ?>">edit</a>
      <? endif ?>
      <br/>
    <? endif  ?>
@@ -138,7 +138,7 @@
   '', true) ?>"><?= $keyword ?></a><? else: ?><?= $keyword ?><? endif ?><? if ($keyword != $keywords[count($keywords)-1]): ?>; <? endif ?>
     <? endforeach ?>
     <? if ($this->acl->isAllowed($this->role, $this->etd, "edit metadata")): ?>
-       <a class="record-edit" href="<?= $this->url(array("controller" => "edit", "action" => "record")) ?>">edit</a>
+       <a class="record-edit" href="<?= $this->url(array("controller" => "edit", "action" => "record", "pid" => $this->etd->pid())) ?>">edit</a>
     <? endif ?>
      <br/>
 
@@ -156,7 +156,7 @@
         <? endif ?>
      <? endif /* has subfield */ ?>
      <? if ($this->acl->isAllowed($this->role, $this->etd, "edit metadata")): ?>
-        <a class="record-edit" href="<?= $this->url(array("controller" => "edit", "action" => "program")) ?>">edit</a>
+        <a class="record-edit" href="<?= $this->url(array("controller" => "edit", "action" => "program", "pid" => $this->etd->pid())) ?>">edit</a>
      <? endif ?>
      <br/>
 
