@@ -765,13 +765,21 @@ div#submission_status a {
   text-decoration:none;
 }
 
-div#submission_status ul.missing { 
- background-color:white;
+div#submission_status ul {list-style: none; }
+
+div#submission_status ul.mods {
  font-size:85%;
  margin:0px;
  padding:0px;
- padding-left:25px;
 }
+
+div.status-key {
+    margin-bottom: 20px;
+    background-color: white;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
 div#submission { 
  margin-right:175px !important;
 }
@@ -1024,6 +1032,7 @@ div.autocomplete ul li {
 
 span.ok { color:green;  }
 span.incomplete { color:red; }
+span.optional {color: aqua; }
 
 form#rightsForm p { margin-bottom:0px; }
 p.label { font-weight:bold }

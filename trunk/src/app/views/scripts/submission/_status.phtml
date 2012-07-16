@@ -6,11 +6,18 @@
  $required_missing = $etd->checkRequired();
  $optional_fields = $etd->optionalFields();
  $optional_missing = $etd->checkOptional();
-// display variables
+  // display variables
  $ok = "<span class='ok'>&#x2714;</span>"; // green check mark 
  $incomplete = "<span class='incomplete'>&#x2717;</span>"; // red x
+ $optional = "<span class='optional'>&#x2717;</span>"; // blue x
 ?>
 <h2>submission status</h2>
+
+<div class="status-key">
+   <div><span><?= $ok ?></span> = completed field</div>
+   <div><span><?= $incomplete ?></span> = required incomplete field</div>
+   <div><span><?= $optional ?></span> = optional incomplete field</div>
+</div>
 <? if (isset($etd->authorInfo)): ?>
    <? $authorInfo_url = $this->url(array("controller" => "authorInfo", "action" => "view",
            "pid" => $etd->authorInfo->pid), '', true, false); ?>
@@ -42,35 +49,21 @@
  $missing_thesis_fields = array_intersect($required_missing, $thesis_fields);
  $optional_thesis_fields = array_intersect($optional_missing, $thesis_fields);
 ?>
-<? if ($readyToSubmit = $etd->readyToSubmit("mods") ||
-       count($missing_thesis_fields) == 0): ?>
-     <? /* mods ready to submit OR no required thesis fields are missing */ ?>
-    <?= $ok ?> thesis information<br/>
-    <? /* special case - should NOT happen unless something is wrong */ ?>
-    <? if (!$readyToSubmit):  /* not ready to submit but no missing fields = xml is invalid */ ?>
-      <ul id="mods_missing" class="missing">
-  <li>XML invalid; please contact ETD Administrator</li>
-      </ul>
-    <? endif ?>
-  <? else: ?> 
-   <?= $incomplete; ?> thesis information
-     <? /* display which required fields are missing, if any */   ?>
-     <ul id="mods_missing" class="missing">
-         <? foreach ($missing_thesis_fields as $missing): ?>
-           <li><a href="<?= $this->editFieldLink($missing) ?>">
-         <?= $etd->mods->fieldLabel($missing) ?></a>
+<ul id="mods" class="mods">
+         <? foreach ($thesis_fields as $field): ?>
+           <li> 
+               <? if(in_array($field, $missing_thesis_fields)): ?>
+                  <span><?= $incomplete ?></span>
+               <? elseif(in_array($field, $optional_thesis_fields)): ?>
+                  <span><?= $optional ?></span>
+               <? else: ?>
+                  <span><?= $ok ?></span>
+               <? endif ?>
+               <a href="<?= $this->editFieldLink($field) ?>">
+                  <?= $etd->mods->fieldLabel($field) ?></a>
            </li>
          <? endforeach ?>
-     </ul>
-  <? endif /* end mods ready to submit */ ?>
-  <? if (count($optional_thesis_fields)): ?>
-     <ul id="mods_optional" class="missing">
-  <? foreach ($optional_thesis_fields as $field): ?>
-  <li><a href="<?= $this->editFieldLink($field) ?>">
-    <?= $etd->mods->fieldLabel($field) ?></a></li>
-  <? endforeach ?>
-     </ul>
-  <? endif ?>
+</ul>
 
   <? /* FIXME: should files be last on this list ? */ ?>
 
@@ -93,7 +86,14 @@
     <?= $incomplete ?> <a href="<?= $new_original_url ?>">original file</a>
   <? endif ?> <br/>
 
-  <? /* TODO: list supplemental files here also ?  */ ?>
+  <? $new_sup_url = $this->url(array('controller' => 'file', 'action' => 'add',
+      'etd' => $etd->pid, 'type' => 'supplement'), '', true, false); ?>
+  <?if ($etd->hasSupplemental()) : ?> <? /* link to file section for updates */ ?>
+   <?= $ok ?> <a href="#updatefile">supplemental file</a> (<?= count($this->etd->supplements) ?>)
+    <a title="add another supplemental document" class="record-edit" href="<?= $new_sup_url ?>">add</a>
+   <? else : ?>
+    <?= $optional ?> <a href="<?= $new_sup_url ?>">supplemental file</a>
+  <? endif ?> <br/>
 
   <?/*** rights details - display choices selected ***/ ?>
   <? if ($etd->isRequired("send to ProQuest") && 
