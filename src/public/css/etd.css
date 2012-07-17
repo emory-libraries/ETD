@@ -768,16 +768,16 @@ div#submission_status a {
 div#submission_status ul {list-style: none; }
 
 div#submission_status ul.mods {
- font-size:85%;
  margin:0px;
  padding:0px;
 }
 
 div.status-key {
-    margin-bottom: 20px;
+    margin-top: 0px;
+    margin-bottom: 7px;
     background-color: white;
-    padding-top: 10px;
-    padding-bottom: 10px;
+    padding-top: 0px;
+    padding-bottom: 0px;
 }
 
 div#submission { 
@@ -1032,7 +1032,7 @@ div.autocomplete ul li {
 
 span.ok { color:green;  }
 span.incomplete { color:red; }
-span.optional {color: aqua; }
+span.optional {color: blue; }
 
 form#rightsForm p { margin-bottom:0px; }
 p.label { font-weight:bold }

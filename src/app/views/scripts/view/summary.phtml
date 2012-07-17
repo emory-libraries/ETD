@@ -142,18 +142,23 @@
     <? endif ?>
      <br/>
 
-    <b>School:</b>
-    <? if ($this->etd->school_config): ?>
-       <?= $this->etd->school_config->label ?>
-       <? if ($this->acl->isAllowed($this->role, $this->etd, "edit metadata")): ?>
-          <a class="record-edit" href="<?= $this->url(array("controller" => "edit", "action" => "program", "pid" => $this->etd->pid())) ?>">edit</a>
-        <? endif ?>
+   <b>Language:</b>
+    <?= $this->etd->language() ?>
+    <? if ($this->acl->isAllowed($this->role, $this->etd, "edit metadata")): ?>
+       <a class="record-edit" href="<?= $this->url(array("controller" => "edit", "action" => "record", "pid" => $this->etd->pid())) ?>">edit</a>
     <? endif ?>
-    <br />
+    <br/>
 
-     <b>Program:</b>
+    <b>Degree:</b>
+    <?= $this->etd->degree() ?>
+    <? if ($this->acl->isAllowed($this->role, $this->etd, "edit metadata")): ?>
+       <a class="record-edit" href="<?= $this->url(array("controller" => "edit", "action" => "record", "pid" => $this->etd->pid())) ?>">edit</a>
+    <? endif ?>
+    <br/>
+
+    <b>Program:</b>
     <? if ($published && $this->etd->program_id()): ?>  
-  <a href="<?= $this->url(array('controller' => 'browse', 'action' => 'programs',
+       <a href="<?= $this->url(array('controller' => 'browse', 'action' => 'programs',
   'coll' => $this->etd->program_id()), '', true) ?>"><?= $this->etd->program() ?></a>
     <? else: ?><?= $this->etd->program() ?><? endif ?>
     <? if ($this->etd->subfield()): ?>
@@ -168,6 +173,15 @@
         <a class="record-edit" href="<?= $this->url(array("controller" => "edit", "action" => "program", "pid" => $this->etd->pid())) ?>">edit</a>
      <? endif ?>
      <br/>
+
+    <b>School:</b>
+    <? if ($this->etd->school_config): ?>
+       <?= $this->etd->school_config->label ?>
+       <? if ($this->acl->isAllowed($this->role, $this->etd, "edit metadata")): ?>
+          <a class="record-edit" href="<?= $this->url(array("controller" => "edit", "action" => "program", "pid" => $this->etd->pid())) ?>">edit</a>
+        <? endif ?>
+    <? endif ?>
+    <br />
 
 <? if ($this->acl->isAllowed($this->etd->getUserRole($this->current_user), "etd", "view mods")): ?>
   <span style="float:right;padding-right:5px;">          

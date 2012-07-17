@@ -1264,6 +1264,7 @@ class etd extends foxml implements etdInterface {
     return (isset($this->mods->genre)) ? $this->mods->genre : null; 
   }
   public function language() { return $this->mods->language; }
+  public function degree() { return $this->mods->degree; }
   public function year() {
     if ($date = $this->mods->date)    // if date is set
       return date("Y", strtotime($date, 0));    // convert date to year only

@@ -84,6 +84,7 @@ class solrEtd implements etdInterface {
     // dissertation/thesis/etc
   public function document_type() { return $this->getField("document_type"); }
   public function language() { return $this->getField("language"); }
+  public function degree() { return $this->getField("degree_name"); }
   public function year() { return $this->getField("year"); }
   public function pubdate() { return $this->getField("dateIssued"); }
   public function _abstract() { return $this->getField("abstract"); }
