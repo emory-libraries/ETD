@@ -142,7 +142,16 @@
     <? endif ?>
      <br/>
 
-    <b>Program:</b>
+    <b>School:</b>
+    <? if ($this->etd->school_config): ?>
+       <?= $this->etd->school_config->label ?>
+       <? if ($this->acl->isAllowed($this->role, $this->etd, "edit metadata")): ?>
+          <a class="record-edit" href="<?= $this->url(array("controller" => "edit", "action" => "program", "pid" => $this->etd->pid())) ?>">edit</a>
+        <? endif ?>
+    <? endif ?>
+    <br />
+
+     <b>Program:</b>
     <? if ($published && $this->etd->program_id()): ?>  
   <a href="<?= $this->url(array('controller' => 'browse', 'action' => 'programs',
   'coll' => $this->etd->program_id()), '', true) ?>"><?= $this->etd->program() ?></a>
