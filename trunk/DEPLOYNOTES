@@ -78,6 +78,12 @@ Version 1.13 (preliminary)
 * Dojo is no longer used anywhere in the site; references to Dojo in
   ``config.xml`` can be removed.
 
+* solr schema changes require the following steps.
+  - Copy  src/scripts/solr-schema.xml to schema.xml in the solr configuration.
+  - Restart solr
+  - Restart eulindexer
+  - Reindex the site
+
 
 Version 1.12.5
 --------------
