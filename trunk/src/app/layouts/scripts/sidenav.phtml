@@ -1,3 +1,22 @@
+<?/* pages to supress search and browse links on */?>
+<?
+ $suppress_pages = array();
+ $suppress_pages['submission'] = array('start', 'review', 'success');
+ $suppress_pages['view'] = array('record');
+ $suppress_pages['authorInfo'] = array('new', 'view', 'edit');
+ $suppress_pages['file'] = array('add', 'edit');
+ $suppress_pages['edit'] = array( 'title', 'record', 'program',
+                                  'faculty', 'researchfield',
+                                  'abstract', 'contents',
+                                  'partneringagency', 'fileorder', 'rights'
+                           );
+
+//give the array a default value of an empty array if you are not on a suppressed page.
+ $section = (isset($suppress_pages[$this->controller])) ? $suppress_pages[$this->controller] : array();
+ $suppress = (in_array($this->action, $section) && strstr($this->current_user->role, 'student')) ? TRUE : FALSE;
+ ?>
+
+
 <?/* left side navigation */?>
 <div id="sidenav">
 
@@ -15,7 +34,7 @@
   <p><a href="<?= $this->url(array("controller" => "docs", "action" => "ip"), '', true); ?>">Intellectual Property</a></p>
 </div>
 
-
+<? if(!$suppress): ?>
 <? if (!($this->controller == "index" && $this->action == "index")): ?>
 <? /* don't show this content when we are on the home page (redundant) */ ?>
    <? if (!($this->controller == "search" && $this->action == "index")): ?>
@@ -44,6 +63,6 @@ Browse by:
 
 <p><a href="http://www.emory.edu/libraries.cfm">Emory Libraries</a></p>
 </div>
-
+<? endif ?>
 </div>
 
