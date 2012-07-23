@@ -1186,3 +1186,11 @@ h1 div#title, h1 div#title p{display: inline; }
 .record-edit:before{content: "("}
 .record-edit:after{content: ")"}
 
+.start-submission{
+     border: 1px solid gray;
+     padding: 4px 0px;
+     background: #6d7fd2;
+     color: white;
+}
+
+
