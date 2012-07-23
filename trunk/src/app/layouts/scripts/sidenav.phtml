@@ -22,7 +22,7 @@
 
  <? if (isset($this->current_user) && $this->acl->isAllowed($this->current_user, "etd", "create")): ?>
  <p><b><a
- 	href="<?= $this->url(array("controller" => "submission", "action" => "start"), "", true); ?>">Submit your Thesis &gt;</a></b></p>
+ 	class ="start-submission" href="<?= $this->url(array("controller" => "submission", "action" => "start"), "", true); ?>">Submit your Thesis &gt;</a></b></p>
 <? endif ?>	
 
 
