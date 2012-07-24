@@ -4,17 +4,20 @@
 <h1>Edit <?= $this->mode_label ?></h1>
 <p><b><?= $this->etd->title() ?></b></p>
 
-<p><b>If you are using special/foreign language characters</b>
-please use the special character <?= $this->img("images/fck_specialchar.gif") ?> 
-or universal keyboard <?= $this->img("images/fck_keyboard.gif") ?> tools.
-The system may not accept special characters imported using a cut-and-paste
-function from your processor, so we recommend that you insert these special
-characters using the tools provided.</p>
+<p>The system may have trouble with special and foreign language characters 
+    and with characters imported using cut-and-paste.  We recommend using the 
+    following tools:</p>
 
-<p><b>If you are copying and pasting from Microsoft Word</b> please use the
-paste from Word tool <?= $this->img("images/fck_pasteword.gif") ?>.  If special
-characters are causing problems, please use the paste as plain text tool
-<?= $this->img("images/fck_pastetext.gif") ?>.
+<ul>
+    <li>Use the paste from Word tool <?= $this->img("images/fck_pasteword.gif") ?>
+        to copy from Microsoft Word.</li>
+    <li>Use the paste as plain text tool <?= $this->img("images/fck_pastetext.gif") ?> 
+        to copy special characters.</li>
+    <li>Use the special character <?= $this->img("images/fck_specialchar.gif") ?> 
+        or universal keyboard <?= $this->img("images/fck_keyboard.gif") ?> 
+        tool for special
+        and foreign language characters.</li>
+</ul>
 
 <form name="edit" method="post" onsubmit="disableButton('Save')"
     action="<?= $this->url(array("action" => "save" . ucfirst($this->mode), "mode" => $this->mode))?>">

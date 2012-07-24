@@ -44,15 +44,8 @@ function updatePrimary(listitem) {
 <h1>Edit Research Fields</h1>
 <p><b><?= $this->etd->title() ?></b></p>
 
-<p>
-<? if ($this->etd->isRequired("researchfields")): ?>
-Proquest requests that you supply at least one and
-<? else: /* language if optional */ ?>Please supply <? endif ?>up to a maximum
-of three research fields which describe the field for your work.
-Choose each (numbered) field below by clicking on it. Your primary
-field should be chosen first but you can rearrange the order of the
-fields by dragging and dropping your choices listed at the top of the
-page.</p>
+<p>Select one to three research fields that describe your work. List your 
+    primary field first.  Drag and drop the fields to reorder them.</p>
 
 <form method="post" id="fields_form"  action="<?= $this->url(array("action" => "saveResearchfield"))?>" onsubmit="disableButton('save_button')">
   <ul id="user_fields">

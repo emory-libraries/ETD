@@ -20,18 +20,16 @@
    <p>Required fields are <span class="required label">bold</span></p>
 </div>
 
-<p> <? if ($this->etd->isRequired("send to ProQuest")): ?>
-   The personal information below will be collected and sent to
-Proquest with an electronic copy of your thesis or dissertation.
-(Proquest/UMI collects this information so that they can contact you
-regarding the payment of royalties, etc.)
+<? if ($this->etd->isRequired("send to ProQuest")): ?>
+ <p>Your contact information will be sent to Proquest/UMI along with an 
+     electronic copy of your thesis or dissertation.  Proquest/UMI collects 
+     it so that they may contact you regarding the payment of royalties, etc.  
+     The information will not be shared without your consent.</p>
 <? endif ?>
-We collect a non-Emory permanent 
-email address to inform you of the impending expiration of access
-restrictions you have placed on your document. The free permanent address
-service provided by the Emory Alumni Association (yourname@alum.emory.edu) is acceptable. Your personal
-information will not be available publicly or shared with anyone
-without your consent.</p>
+<p>We request a non-Emory, permanent email address to inform you of the 
+    expiration of any access restrictions you place on your document.  
+    You may use the free, permanent address provided by the Emory 
+    Alumni Association.</p>
 
 
 <form name="contact-info" action="<?= $this->url(array("controller" => "authorInfo", "action" => "save"), '', true); ?>"

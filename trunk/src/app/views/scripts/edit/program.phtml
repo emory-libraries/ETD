@@ -1,13 +1,9 @@
 <h1>Edit School/Program/Department</h1>
 <p><b><?= $this->etd->title() ?></b></p>
 
-<p>Your record is currently associated with the following school and program listed below.</p>
-
-<p>If your school or program is incorrect,
-    first select and save the correct school. <br />
-    Then select and save the correct program
-    and sub-field if applicable.
-</p> 
+<p>Your record is associated with the school and program listed below.  
+    If one or both are incorrect, select and save the correct school. 
+    Then select and save the correct program and sub-field, if applicable.</p> 
 
 
 <form action="<?= $this->url(array("action" => "program")) ?>" method="post">
