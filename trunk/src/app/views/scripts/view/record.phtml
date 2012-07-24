@@ -12,9 +12,10 @@
 
   <?=  $this->render('view/fullrecord.phtml'); ?>
 <div class="fullrecord">
-    <? if ($this->etd->status() == "published"):   /* only published records should have stats */ ?>
+    <?/* only published records should have stats */ ?>
+    <? /* <? if ($this->etd->status() == "published"): ?>
       <?=  $this->render('view/_statistics.phtml'); ?>
-    <? endif ?>
+    <? endif ?> */?>
   <?=  $this->render('view/_history.phtml'); ?>
   <? if (isset($this->etd->mods->useAndReproduction)): ?>
     <div class="use"><?=  $this->etd->mods->useAndReproduction ?></div>
