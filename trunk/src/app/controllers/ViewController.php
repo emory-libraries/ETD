@@ -16,6 +16,14 @@ class ViewController extends Etd_Controller_Action {
      $etd = $this->_helper->getFromFedora("pid", "etd");
      if ($etd) {
        if (!$this->_helper->access->allowedOnEtd("view metadata", $etd)) return false;
+
+       // using jquery for minor submission status interaction
+       if ($etd->status() == 'draft') {
+        $this->view->extra_scripts = array(
+          "//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js",
+        );
+       }
+
        
        $this->view->etd = $etd;
        $this->view->title = $etd->dc->title;	// need non-formatted version of title

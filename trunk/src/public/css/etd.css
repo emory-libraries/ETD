@@ -1202,10 +1202,22 @@ h1 div#title, h1 div#title p{display: inline; }
 }
 
 /* instructions link in submission status menu */
-.instructions{
- text-decoration: underline; 
- font-size: 10px; 
- padding-bottom: 7px;   
+#submission_status .instructions {
+ padding-bottom: 15px;
+}
+#submission_status :link {
+  text-decoration: underline; 
+}
+#submission_status .help {
+  float: right;
+}
+
+#submission_status #help-info {
+  position: absolute;
+  border: 1px solid gray;
+  background-color: white;
+  margin-top: 20px;
+  padding: 10px;
 }
 
 ol.alpha {
