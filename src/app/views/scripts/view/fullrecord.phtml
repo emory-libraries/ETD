@@ -23,8 +23,7 @@
   <h2>
       Abstract
       <? if ($this->acl->isAllowed($this->role, $this->etd, "edit metadata")): ?>
-         <? $edit_label = ($this->etd->abstract_word_count()) ? 'edit' : 'add your abstract'; ?>
-         <a class="record-edit" href="<?= $this->url(array("controller" => "edit", "action" => "abstract")) ?>"><?= $edit_label ?></a>
+         <a class="record-edit" href="<?= $this->url(array("controller" => "edit", "action" => "abstract")) ?>">edit</a>
       <? endif ?>
   </h2>
    <? if ($this->acl->isAllowed($this->role, $this->etd, "edit metadata")): ?>
@@ -50,8 +49,7 @@
       Table of Contents
       <? if ($this->acl->isAllowed($this->role, $this->etd, "edit metadata")): ?>
       <? $toc = $this->etd->tableOfContents(); /* save TOC contents and re-use for content checking / display */ ?>
-      <? $edit_label = ($toc == '' || $toc == '<div id="contents"/>' ) ? 'add your table of contents' : 'edit'; ?>
-      <a class="record-edit" href="<?= $this->url(array("controller" => "edit", "action" => "contents")) ?>"><?= $edit_label ?></a>
+      <a class="record-edit" href="<?= $this->url(array("controller" => "edit", "action" => "contents")) ?>">edit</a>
      <? endif ?>
   </h2>
     <div id="toc">
