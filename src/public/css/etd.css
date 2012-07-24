@@ -1193,4 +1193,11 @@ h1 div#title, h1 div#title p{display: inline; }
      color: white;
 }
 
+/*instructions link in submission status menu*/
+.instructions{
+ text-decoration: underline; 
+ font-size: 10px; 
+ padding-bottom: 7px;   
+}
+
 

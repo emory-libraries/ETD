@@ -11,7 +11,13 @@
  $incomplete = "<span class='incomplete'>&#x2717;</span>"; // red x
  $optional = "<span class='optional'>&#x2717;</span>"; // blue x
 ?>
-<h2 style="margin-bottom: 7px;">submission status</h2>
+
+<div class="instructions"><a target="_blank" href="<?= $this->url(array('controller' => 'docs', 'action' => 'instructions'), ''
+        , true, false) ?> ">instructions</a></div>
+
+<h2>submission status</h2>
+
+
 
 <div class="status-key">
    <div><span><?= $incomplete ?></span> = required</div>
