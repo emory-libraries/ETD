@@ -82,4 +82,12 @@ $j(document).ready(function() {
         $j(this).next('input').remove();
         $j(this).remove();
     });
+
+    /* toggle display of the next item on mouse over/mouse out */
+    $j('.next-toggle').mouseover(function(){
+      $j(this).next().show();
+    }).mouseout(function(){
+      $j(this).next().delay(3500).fadeOut(1000);
+    });
+
 });                                       

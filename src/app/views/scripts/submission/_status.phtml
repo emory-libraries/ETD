@@ -1,4 +1,5 @@
 <?= $this->javascript("projax/js/prototype.js"); ?>
+<?= $this->javascript("jquery.local.js"); ?>
 <?
  $etd = $this->etd;
 // get required & optional fields, and which are missing
@@ -12,19 +13,28 @@
  $optional = "<span class='optional'>&#x2717;</span>"; // blue x
 ?>
 
-<div class="instructions"><a target="_blank" href="<?= $this->url(array('controller' => 'docs', 'action' => 'instructions'), ''
-        , true, false) ?> ">instructions</a></div>
+<a class="help next-toggle" 
+   target="_blank" 
+   href="<?= $this->url(array('controller' => 'docs', 'action' => 'instructions'), '', true, false) ?>"
+   title="Submission Help"><img src="<?= $this->linkTo("images/help.png") ?>" alt="help"/>
+   <? /* redundant link to instructions in case users click instead of mouseover */ ?>
+
+  <div id="help-info" style="display:none">
+
+    <div>
+      <a class="instructions" target="_blank" href="<?= $this->url(array('controller' => 'docs', 'action' => 'instructions'), '', true, false) ?>">Submission Instructions</a>
+    </div>
+    <hr/>
+    <div class="status-key">
+      <div><span><?= $incomplete ?></span> = required</div>
+      <div><span><?= $optional ?></span> = optional</div>
+      <div><span><?= $ok ?></span> = completed</div>
+    </div>
+  </div>
+</a>
 
 <h2>submission status</h2>
 
-
-
-<div class="status-key">
-   <div><span><?= $incomplete ?></span> = required</div>
-   <div><span><?= $optional ?></span> = optional</div>
-    <div><span><?= $ok ?></span> = completed</div>
-   
-</div>
 <? if (isset($etd->authorInfo)): ?>
    <? $authorInfo_url = $this->url(array("controller" => "authorInfo", "action" => "view",
            "pid" => $etd->authorInfo->pid), '', true, false); ?>
@@ -77,8 +87,10 @@
   <? $new_pdf_url = $this->url(array('controller' => 'file', 'action' => 'add',
       'etd' => $etd->pid, 'type' => 'pdf'), '', true, false); ?>
   <?if ($etd->hasPDF()) : ?>
-   <?= $ok ?> <a title="review PDF" href="#updatefile">PDF file</a> (<?= count($this->etd->pdfs) ?>) 
-    <a title="add another PDF" class="record-edit" href="<?= $new_pdf_url ?>">add</a> <? /* TODO: style add link better */ ?>
+   <?= $ok ?> <a title="review PDF" href="#updatefile">PDF file</a> 
+   <? /* display pdf count if more than 1 */ ?>
+   <? if (count($this->etd->pdfs) > 1): ?>(<?= count($this->etd->pdfs) ?>) <? endif ?>
+    <a title="add another PDF" class="record-edit" href="<?= $new_pdf_url ?>">add</a> 
   <? else : ?>
     <?= $incomplete ?> <a href="<?= $new_pdf_url ?>">PDF file</a>
   <? endif ?> <br/>  
@@ -86,7 +98,9 @@
   <? $new_original_url = $this->url(array('controller' => 'file', 'action' => 'add',
       'etd' => $etd->pid, 'type' => 'original'), '', true, false); ?>
   <?if ($etd->hasOriginal()) : ?> <? /* link to file section for updates */ ?>
-   <?= $ok ?> <a href="#updatefile">original file</a> (<?= count($this->etd->originals) ?>)
+   <?= $ok ?> <a href="#updatefile">original file</a> 
+   <? /* display original count if more than 1 */ ?>
+   <? if (count($this->etd->originals) > 1): ?>(<?= count($this->etd->originals) ?>)<? endif ?>
     <a title="add another original document" class="record-edit" href="<?= $new_original_url ?>">add</a>
     <? /* TODO: style add link better */ ?>
   <? else : ?>
