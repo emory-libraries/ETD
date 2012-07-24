@@ -15,6 +15,12 @@ class EditController extends Etd_Controller_Action {
 
   protected $requires_fedora = true;
 
+  public function preDispatch() {
+    // suppress sidebar search & browse navigation for all edit actions,
+    // for any user
+    $this->view->suppress_sidenav_browse = true;
+  }
+
   //Create schools options for dropdown boxes
   public function _school_options($schools){
       //Create options schools

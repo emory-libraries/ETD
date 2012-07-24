@@ -11,6 +11,12 @@ require_once("models/programs.php");
 class SubmissionController extends Etd_Controller_Action {
   protected $requires_fedora = true;
   
+  public function preDispatch() {
+    // suppress sidebar search & browse navigation for all submission actions,
+    // for any user
+    $this->view->suppress_sidenav_browse = true;
+  }
+
   public function indexAction() {
     $this->_forward("start");
     // maybe this should be a summary/status page to check on the submission...

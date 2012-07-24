@@ -46,6 +46,11 @@ class ViewController extends Etd_Controller_Action {
            $this->_helper->layout->disableLayout();
            $this->_helper->viewRenderer->setNoRender(true);
          }    
+       } elseif (strstr($this->current_user->role, 'student')  // could also be student with submission
+            && $etd->status() == 'draft') {
+        // if this is a student viewing a draft record, suppress sidenav search & browse
+        // to avoid distraction during the submission process
+         $this->view->suppress_sidenav_browse = true;
        }
      }
    }
