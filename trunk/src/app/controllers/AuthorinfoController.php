@@ -10,6 +10,12 @@ require_once("models/etd.php");
 class AuthorInfoController extends Etd_Controller_Action {
   protected $requires_fedora = true;
   
+  public function preDispatch() {
+    // suppress sidebar search & browse navigation for all author info actions
+    // (primarily used during the submission process) for any user
+    $this->view->suppress_sidenav_browse = true;
+  }
+
   public function viewAction() {
     $authorInfo = $this->_helper->getFromFedora("pid", "authorInfo");
     if (!$this->_helper->access->allowedOnAuthorInfo("view", $authorInfo)) return false;

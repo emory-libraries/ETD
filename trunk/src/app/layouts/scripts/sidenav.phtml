@@ -1,22 +1,3 @@
-<?/* pages to supress search and browse links on */?>
-<?
- $suppress_pages = array();
- $suppress_pages['submission'] = array('start', 'review', 'success');
- $suppress_pages['view'] = array('record');
- $suppress_pages['authorInfo'] = array('new', 'view', 'edit');
- $suppress_pages['file'] = array('add', 'edit');
- $suppress_pages['edit'] = array( 'title', 'record', 'program',
-                                  'faculty', 'researchfield',
-                                  'abstract', 'contents',
-                                  'partneringagency', 'fileorder', 'rights'
-                           );
-
-//give the array a default value of an empty array if you are not on a suppressed page.
- $section = (isset($suppress_pages[$this->controller])) ? $suppress_pages[$this->controller] : array();
- $suppress = (in_array($this->action, $section) && strstr($this->current_user->role, 'student')) ? TRUE : FALSE;
- ?>
-
-
 <?/* left side navigation */?>
 <div id="sidenav">
 
@@ -34,35 +15,30 @@
   <p><a href="<?= $this->url(array("controller" => "docs", "action" => "ip"), '', true); ?>">Intellectual Property</a></p>
 </div>
 
-<? if(!$suppress): ?>
-<? if (!($this->controller == "index" && $this->action == "index")): ?>
-<? /* don't show this content when we are on the home page (redundant) */ ?>
-   <? if (!($this->controller == "search" && $this->action == "index")): ?>
-  <div class="section">
-   Search ETDs:
+<? if (! $this->suppress_sidenav_browse): ?>
+  <? if (!($this->controller == "index" && $this->action == "index")): ?>
+  <? /* don't show search & browse navigation when we are on the home page (redundant) */ ?>
+    <div class="section">
+     Search ETDs:
       <form name="search" method="get" action="<?= $this->url(array("controller" => "search", "action" => "results"), '', true)?>">
         <?= $this->formText("query"); ?>
         <?= $this->formSubmit("Search", "Go >", array("class" => "submitlink")); ?>
       </form>
      <a href="<?= $this->url(array("controller" => "search"), '', true)?>">Advanced Search</a>
-      </div>
-   <? endif ?>
-<div class="section">
-Browse by:
-<? $this->browse_class = 'browse'; ?>
-<?=  $this->render('browse/_categories.phtml'); ?>
+   </div>
+   <div class="section">
+    Browse by:
+    <? $this->browse_class = 'browse'; ?>
+    <?=  $this->render('browse/_categories.phtml'); ?>
+    <?=  $this->render('_proquest.phtml'); ?>
+   </div>
+  <? endif ?>  <? /* end home page */ ?>
 
-<?=  $this->render('_proquest.phtml'); ?>
-</div>
-<? endif ?>
-
-<div class="section">
-<p><a href="http://www.emory.edu/GSOAS/">Laney Graduate School</a></p>
-
-<p><a href="http://www.college.emory.edu/">Emory College</a></p>
-
-<p><a href="http://www.emory.edu/libraries.cfm">Emory Libraries</a></p>
-</div>
-<? endif ?>
+  <div class="section">
+    <p><a href="http://www.emory.edu/GSOAS/">Laney Graduate School</a></p>
+    <p><a href="http://www.college.emory.edu/">Emory College</a></p>
+    <p><a href="http://www.emory.edu/libraries.cfm">Emory Libraries</a></p>
+  </div>
+<? endif ?> <? /* end suppress sidenav search & browse */ ?>
 </div>
 

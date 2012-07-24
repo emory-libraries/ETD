@@ -10,6 +10,13 @@ require_once("models/datastreams/etdfile.php");
 class FileController extends Etd_Controller_Action {
 
   protected $requires_fedora = true;
+
+
+  public function preDispatch() {
+    // suppress sidebar search & browse navigation for all file actions 
+    // (which are primarily used during the submission process) for any user
+    $this->view->suppress_sidenav_browse = true;
+  }
   
    // serve out a file attached to an ETD record from fedora
    public function viewAction() {
