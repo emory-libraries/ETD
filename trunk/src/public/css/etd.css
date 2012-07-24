@@ -1146,6 +1146,9 @@ form#help-request > div  {
 form#submission br {
   display: none;
 }
+#screening-questions {
+  margin-bottom: 2.5em;  
+}
 #screening-questions label {
   display: inline-block;
   font-weight: normal;
@@ -1186,11 +1189,16 @@ h1 div#title, h1 div#title p{display: inline; }
 .record-edit:before{content: "("}
 .record-edit:after{content: ")"}
 
-.start-submission{
+/* highlight start submission link so it is more noticeable */
+.start-submission {
      border: 1px solid gray;
      padding: 4px 0px;
      background: #6d7fd2;
      color: white;
+}
+/* override default hover link colors for highlighted start submission link */
+.start-submission:hover {
+  color: #efefef;
 }
 
 /* instructions link in submission status menu */
