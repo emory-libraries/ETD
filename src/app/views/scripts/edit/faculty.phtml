@@ -73,28 +73,18 @@ function addNonemoryChair() {
 <p><b><?= $this->etd->title() ?></b></p>
 
 
-<p>Your PDF submission indicates that the following faculty members
-comprise your committee.</p>
+<p>Enter the last name of an Emory faculty member in the appropriate box.
+    After the system retrieves a list of matching faculty, select the
+    appropriate faculty.</p>
 <ul>
-  <li>If any of the selections are incorrect, click on remove and re-enter the name in the
-      box provided.</li>
-  <li>As you begin typing a faculty member's name, the system will suggest
-      names for you to select.</li>
-  <li>If any faculty members on your committee have retired or otherwise
-      left Emory, select "former Emory faculty" and then begin typing. You
-      may add their current university affiliation if appropriate.</li>
-  <li>If you have any committee members who are not Emory faculty,
-      indicate that below and you will be prompted to enter their names and
-      affiliation.</li>
-  <li>You may rearrange the order of your committee by
-      clicking on and dragging the names.</li>
+  <li>If you make an incorrect selection, click remove and re-enter the name
+      in the box.</li>
+  <li>You can reorder the list of committee members by clicking on and
+      dragging the names.</li>
+
 </ul>
 
-<p> Enter last name of faculty member(s) below and <b>wait a moment</b>
-while the system retrieves names.</p>
 
-<p>Please note: automated ETD email notices cannot be sent to former or
-non-Emory committee members.</p>
 
 <div id="edit_faculty">
 <? $chairs = $this->etd->mods->chair; ?>
