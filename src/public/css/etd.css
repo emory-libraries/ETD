@@ -629,7 +629,7 @@ div.listnav {
  }
 
 /* statistics */
-ol.top50 { 
+>ol.top50 { 
  clear:right;
  padding-top:0.25in;
 }
@@ -1193,11 +1193,16 @@ h1 div#title, h1 div#title p{display: inline; }
      color: white;
 }
 
-/*instructions link in submission status menu*/
+/* instructions link in submission status menu */
 .instructions{
  text-decoration: underline; 
  font-size: 10px; 
  padding-bottom: 7px;   
 }
 
-
+ol.alpha {
+  list-style-type:lower-alpha;
+}
+.tip {
+  font-size: 90%;
+}
