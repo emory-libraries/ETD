@@ -34,35 +34,29 @@
         array('class' => 'required-field'), $this->yes_no) ?>
      <? /* copyright details: display if answer to copyright question is YES */ ?>
     <div id="copyright_yes"> 
-      <p>
-          1b. Have you obtained permission to use these materials? (Examples of
+      <ol class="alpha">
+      <li>
+          <p>Have you obtained permission to use these materials? (Examples of
           materials for which you may need permission include long
           quotations, images, articles you authored for which you no
-          longer own copyright.)
-      </p>
+          longer own copyright.)</p>
 
-      <p>Please Note:</p>
-
-      <p>
-          Materials in the public domain or materials that fit the Fair Use
-          parameters of the 
-          <a href="http://www.copyright.gov/fls/fl102.html" target="_blank">U.S. Copyright Law</a>
-          DO NOT REQUIRE permission.
-      </p>
-
-      <p>
-          See the 
+          <p><em>Please Note:</em> Materials in the public domain or materials that fit the Fair Use
+          parameters of the <a href="http://www.copyright.gov/fls/fl102.html" target="_blank">U.S. 
+          Copyright Law</a> <b>DO NOT REQUIRE</b> permission.  See the 
           <a href="https://classes.emory.edu/webapps/lobj-wiki-bb_bb60/wiki_home/Handler?course_id=_11416_1&content_id=_1251529_1"
              target="_blank">Copyright Education Initiative</a>
           on Blackboard for more information on the public domain, fair use,
           the permissions process,
-          and example permission letters.
-      </p>
+          and example permission letters.</p>
+
       <?= $this->formRadio("copyright_permission", $this->answers["copyright_permission"], array(),
 			      $this->yes_no) ?>
-    </div>
-    <? /* copyright permission details */ ?>
-    <div id="copyright_perms_no">  <? /*  Show if answered NO to permissions */ ?> 
+
+      </li> 
+
+      <? /* copyright permission details */ ?>
+      <div id="copyright_perms_no">  <? /*  Show if answered NO to permissions */ ?> 
         <p>
             If you have not obtained necessary permissions, you must obtain
             permissions or remove the copyrighted content from your ETD
@@ -75,7 +69,11 @@
 <!--     <div id="copyright_perms_yes"> <? /*  Show if answered YES to permissions */ ?>
             <p>Complete Part 4 of the Submission Form.</p>
       </div>-->
- </li>
+    </li>
+
+    </ol>
+
+    </div>
 
  <li><p>Does your thesis or dissertation disclose or describe any 
          inventions or discoveries that could potentially have commercial 
@@ -109,30 +107,32 @@
          submission process itself.
      </p>
 
-    <p>
-        3b. The ETD system allows for both full and partial embargo of your 
+     <ol class="alpha">
+      <li>
+        <p>The ETD system allows for both full and partial embargo of your 
         work. A partial embargo will allow visitors to read your abstract 
         and/or table of contents while the full text of your thesis or 
         dissertation is embargoed. A full embargo allows to you hide this 
         information for the duration of the embargo period. Should your 
-        abstract and/or table of contents be included in the access restriction?
-    </p>
+        abstract and/or table of contents be included in the access restriction?</p>
         <?= $this->formRadio("embargo_abs_toc", ($this->answers["embargo_abs_toc"] == null ? null : $this->answers["embargo_abs_toc"]), array('class' => 'required-field'), $this->yes_no) ?>
-    <div id="embargo_abs_toc_yes">  <? /* display only if restricting abstract/toc */ ?>
-      <p>
+
+        <div id="embargo_abs_toc_yes">  <? /* display only if restricting abstract/toc */ ?>
+          <p>
           You will need to restrict access to your abstract and/or your 
           table of contents once you have uploaded you document to the ETD 
           repository. If you have already submitted your document to the ETD 
           repository, you can log in and make appropriate changes to your 
           record while it is in draft form.
-      </p>
-    </div>
+        </p>
+      </div>
+    </li>
+  </ol>
    </div>
 </li>
-
-<li><p>Enter your thesis or dissertation title to begin the submission process.</p></li>
-      
 </ol>
+
+<p>Enter your thesis or dissertation title to begin the submission process.</p>
 
 <!-- TODO: label needs to be bold, input field needs to be much longer -->
 <div>
