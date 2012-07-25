@@ -1,3 +1,4 @@
+<div class="actions">
 <? if ($this->acl->isAllowed($this->role, $this->etd, "review")
        && !($this->controller == 'manage' && $this->action == 'review')): ?>
   <a class="action" href="<?= $this->url(array('controller' => 'manage',
@@ -26,11 +27,18 @@
 <a class="action" href="<?= $this->url(array('controller' => 'manage',
 		'action' => 'reactivate', 'pid' => $this->etd->pid()), '', true, false) ?>">re-activate</a> <? endif ?>
     
-    <? if ($this->acl->isAllowed($this->role, $this->etd, "revise embargo")): ?>
-<a class="action" href="<?= $this->url(array('controller' => 'manage',
-		'action' => 'reviseembargo', 'pid' => $this->etd->pid()), '', true, false) ?>">revise embargo</a> <? endif ?>
-                <? if ($this->etd->status() == 'approved'): ?>
-<a class="action" href="<?= $this->url(array('controller' => 'manage',
+<? if ($this->acl->isAllowed($this->role, $this->etd, "revise embargo")): ?>
+  <a class="action" href="<?= $this->url(array('controller' => 'manage',
+		'action' => 'reviseembargo', 'pid' => $this->etd->pid()), '', true, false) ?>">revise embargo</a> 
+<? endif ?>
+
+<? if ($this->acl->isAllowed($this->role, $this->etd, "revert to draft")): ?>
+  <a class="action" href="<?= $this->url(array('controller' => 'manage',
 		'action' => 'revert-to-draft', 'pid' => $this->etd->pid()), '', true, false) ?>">
      revert to draft</a>
 <? endif ?>
+<? if ($this->acl->isAllowed($this->role, $this->etd, "edit school")): ?>
+  <a class="action" href="<?= $this->url(array("controller" => "edit", "action" => "school")) ?>">edit school</a>
+<? endif ?>
+</div>
+
