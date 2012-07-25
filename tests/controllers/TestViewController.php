@@ -115,6 +115,7 @@ class ViewControllerTest extends ControllerTestCase {
 
   function testXmlAction() {
     $ViewController = new ViewControllerForTest($this->request,$this->response);
+    $this->mock_etd->pid = "mock published etd with dc content";
     $this->mock_etd->user_role = "author";
     $this->mock_etd->status = "published";
     $this->mock_etd->dc->setReturnValue("saveXML", "<oai_dc:dc/>");
@@ -132,6 +133,7 @@ class ViewControllerTest extends ControllerTestCase {
     $this->assertEqual('<oai_dc:dc/>', $response->getBody());
 
     // invalid datastream 
+    $this->mock_etd->pid = "testetd:1";
     $this->setUpGet(array('datastream' => 'bogus', 'pid' => 'testetd:1'));
     $this->expectException(new Exception("'bogus' is not a valid datastream for testetd:1"));
     $ViewController->xmlAction();

@@ -67,7 +67,9 @@ class ReportControllerTest extends ControllerTestCase {
     $foxml->pid = $this->author_pid;
     $foxml->ingest("loading test authorInfo");
     // sleep to allow fedora with syncUpdates=False to propagate authorInfo rel to RIsearch
-    sleep(5);
+    // NOTE: it would be more reliable to run an risearch query with flush=true
+    // (not supported by current php fedora/risearch api code)
+    sleep(10);
    
     $this->solr = &new Mock_Etd_Service_Solr();
     Zend_Registry::set('solr', $this->solr);

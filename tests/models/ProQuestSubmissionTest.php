@@ -57,28 +57,31 @@ class TestPQSubmission extends UnitTestCase {
     $dom->loadXML(file_get_contents('../fixtures/authorInfo.xml'));
     $foxml = new foxml($dom);
     $foxml->pid = $userpid;
-    $fedora->ingest($foxml->saveXML(), "loading test etd authorInfo object");
+    $upid = $fedora->ingest($foxml->saveXML(), "loading test etd authorInfo object");
     // allow for fedora with syncUpdates False to propagate authorinfo rel to RIsearch
-    sleep(5);
+    // NOTE: it would be more reliable to run an risearch query with flush=true,
+    // but the currenp php fedora apis don't seem to expose that functionality
+    sleep(10);
     
     $etd = new etd($etdpid);
+    $authinfo = new authorInfo($userpid);
     
     $this->pq->initializeFromEtd($etd);
     $this->assertEqual("0", $this->pq->embargo_code);
     // author name & contact information
     $this->assertEqual($etd->mods->author->last, $this->pq->author_info->name->last);
     $this->assertEqual($etd->mods->author->first, $this->pq->author_info->name->first);
-    $this->assertEqual($etd->authorInfo->mads->current->email, $this->pq->author_info->current_contact->email);
+    $this->assertEqual($authinfo->mads->current->email, $this->pq->author_info->current_contact->email);
     $this->assertEqual("01/01/2001", $this->pq->author_info->current_contact->date);
-    $this->assertEqual($etd->authorInfo->mads->permanent->email, $this->pq->author_info->permanent_contact->email);
+    $this->assertEqual($authinfo->mads->permanent->email, $this->pq->author_info->permanent_contact->email);
     $this->assertEqual("12/15/2009", $this->pq->author_info->permanent_contact->date);
-    $this->assertEqual($etd->authorInfo->mads->permanent->address->street[0],
+    $this->assertEqual($authinfo->mads->permanent->address->street[0],
 		       $this->pq->author_info->permanent_contact->address->street[0]);
-    $this->assertEqual($etd->authorInfo->mads->permanent->address->city,
+    $this->assertEqual($authinfo->mads->permanent->address->city,
 		       $this->pq->author_info->permanent_contact->address->city);
-    $this->assertEqual($etd->authorInfo->mads->permanent->address->state,
+    $this->assertEqual($authinfo->mads->permanent->address->state,
 		       $this->pq->author_info->permanent_contact->address->state);
-    $this->assertEqual($etd->authorInfo->mads->permanent->address->postcode,
+    $this->assertEqual($authinfo->mads->permanent->address->postcode,
 		       $this->pq->author_info->permanent_contact->address->zipcode);
     // country code
     $this->assertEqual("US", $this->pq->author_info->permanent_contact->address->country);
