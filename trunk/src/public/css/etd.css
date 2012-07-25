@@ -1238,3 +1238,13 @@ ol.alpha {
 .tip {
   font-size: 90%;
 }
+.notice {
+  margin-bottom: 15px;
+  color: green;
+}
+.notice .etd-title  {
+  font-weight: bold;
+}
+.notice .etd-title * {
+  display: inline;
+}
