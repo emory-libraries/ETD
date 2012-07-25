@@ -763,13 +763,19 @@ div#submission_status {
 
 div#submission_status a { 
   text-decoration:none;
+  clear: right;
 }
 
-div#submission_status ul {list-style: none; }
+div#submission_status ul { list-style: none; }
 
-div#submission_status ul.mods {
- margin:0px;
- padding:0px;
+div#submission_status ul#submission-checklist {
+  clear: right;
+  margin:0px;
+  padding:0px;
+}
+ul#submission-checklist li {
+  text-indent: -15px;
+  padding-left: 15px;
 }
 
 div.status-key {
@@ -1030,7 +1036,13 @@ div.autocomplete ul li {
   cursor:pointer;
 }
 
-span.ok { color:green;  }
+span.ok, span.incomplete, span.optional { 
+  display:inline-block; 
+  width: 10px;
+  text-indent: 0px;
+}
+
+span.ok { color:green; }
 span.incomplete { color:red; }
 span.optional {color: blue; }
 

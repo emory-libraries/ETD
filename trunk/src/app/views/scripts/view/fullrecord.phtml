@@ -7,13 +7,11 @@
 <h1>
      <?= $this->etd->title() ?>
      <? if ($this->acl->isAllowed($this->role, $this->etd, "edit metadata")): ?>
-       <a class="record-edit" href="<?= $this->url(array("controller" => "edit", "action" => "title")) ?>">edit</a>
+       <a class="record-edit" href="<?= $this->url(array("controller" => "edit", "action" => "title")) ?>"
+        title="edit title">edit</a>
      <? endif ?>
 </h1>
 
-<? if ($this->acl->isAllowed($this->role, $this->etd, "edit school")): ?>
-  <a class="action" href="<?= $this->url(array("controller" => "edit", "action" => "school")) ?>">edit school</a>
-<? endif ?>
 <?=  $this->render('view/summary.phtml'); ?>
 <? if ($this->etd->status() == "published"): ?>
   <?= $this->etdCoins($this->etd); ?>
@@ -23,7 +21,8 @@
   <h2>
       Abstract
       <? if ($this->acl->isAllowed($this->role, $this->etd, "edit metadata")): ?>
-         <a class="record-edit" href="<?= $this->url(array("controller" => "edit", "action" => "abstract")) ?>">edit</a>
+         <a class="record-edit" href="<?= $this->url(array("controller" => "edit", "action" => "abstract")) ?>"
+          title="edit abstract">edit</a>
       <? endif ?>
   </h2>
    <? if ($this->acl->isAllowed($this->role, $this->etd, "edit metadata")): ?>
@@ -49,7 +48,8 @@
       Table of Contents
       <? if ($this->acl->isAllowed($this->role, $this->etd, "edit metadata")): ?>
       <? $toc = $this->etd->tableOfContents(); /* save TOC contents and re-use for content checking / display */ ?>
-      <a class="record-edit" href="<?= $this->url(array("controller" => "edit", "action" => "contents")) ?>">edit</a>
+      <a class="record-edit" href="<?= $this->url(array("controller" => "edit", "action" => "contents")) ?>"
+        title="edit table of contents">edit</a>
      <? endif ?>
   </h2>
     <div id="toc">
