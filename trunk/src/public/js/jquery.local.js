@@ -28,7 +28,7 @@ var $j = jQuery.noConflict();
     var methods = {
      init : function( options ) {
         var settings = $j.extend({
-            conditions: {},
+            conditions: {}
             }, options);
 
        return this.each(function(){

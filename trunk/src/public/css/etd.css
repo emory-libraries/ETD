@@ -1248,3 +1248,6 @@ ol.alpha {
 .notice .etd-title * {
   display: inline;
 }
+
+/* remove border for checkbox, radio buttons  in IE */
+input[type="radio"], input[type="checkbox"] {border: none;} 
