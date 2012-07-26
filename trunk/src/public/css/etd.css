@@ -1249,5 +1249,5 @@ ol.alpha {
   display: inline;
 }
 
-/* remove border for checkbox, radio buttons  in IE */
-input[type="radio"], input[type="checkbox"] {border: none;} 
+/* remove border for checkbox, radio buttons etc.  in IE */
+input[type="radio"], input[type="checkbox"], a image {border: none;}
