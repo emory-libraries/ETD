@@ -161,6 +161,7 @@ access and modify (with some limitations) etd objects (etd, etdfile, user)</Desc
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">rfreem2</AttributeValue> <!-- Robie Freeman-Michaux super rollins ADAP -->
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">arozo</AttributeValue>   <!-- Angela Rozo (IH) -->
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">ascarl</AttributeValue>  <!-- Ariadne Swichtenberg (EOH, EOHEPI, EOHIH) -->
+           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">sbasnig</AttributeValue> <!-- Shana Basnight (BSHE) -->
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">cdettme</AttributeValue> <!-- Cammie Dettmer (BSHE) -->
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">ddunba2</AttributeValue> <!-- Deanne Dunbar (BSHE) -->          
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">dlmurra</AttributeValue> <!-- Deanna Murray (EPI, GLEPI) -->
@@ -173,8 +174,6 @@ access and modify (with some limitations) etd objects (etd, etdfile, user)</Desc
     <!-- tech support users - THESE NEED TO BE IN APP CONFIG TOO! -->
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">aafonja</AttributeValue> <!-- Ade Afonja -->
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">athom09</AttributeValue> <!-- Alex Thomas -->
-          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">scolli9</AttributeValue> <!-- Steve Collins -->
-          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">sconna2</AttributeValue> <!-- Sari Connard -->        
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">tcarte5</AttributeValue>
         </Apply>
       </Apply>
