@@ -175,6 +175,8 @@ access and modify (with some limitations) etd objects (etd, etdfile, user)</Desc
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">aafonja</AttributeValue> <!-- Ade Afonja -->
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">athom09</AttributeValue> <!-- Alex Thomas -->
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">tcarte5</AttributeValue>
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">jmbodna</AttributeValue> <!--  John Bondar-->
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">bnash3</AttributeValue> <!-- Bethany Nash -->
         </Apply>
       </Apply>
 
@@ -207,7 +209,7 @@ access and modify (with some limitations) etd objects (etd, etdfile, user)</Desc
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">etdsuper</AttributeValue>
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">fedoraAdmin</AttributeValue>
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">etdmaint</AttributeValue>
-          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">scolli9</AttributeValue>   <!-- Steve Collins -->
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">athom09</AttributeValue>   <!-- Alex Thomas -->
         </Apply>
    </Condition>
 
