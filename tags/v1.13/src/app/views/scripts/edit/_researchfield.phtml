@@ -1,0 +1,24 @@
+<? $current_field = $this->field; ?>
+<?/*
+<li><a id="<?= $current_field->id ?>" onclick="new Insertion.Bottom('user_fields', '<li><?= $current_field->label ?></li>');
+Element.addClassName('<?= $current_field->id ?>','selected');
+return false;"><?= $current_field->label ?></a>
+*/?>
+
+<li>
+  <? if (count($current_field->members)): ?>
+    <?= $current_field->label ?>
+     <ul>
+     <? foreach ($this->field->members as $member): ?>
+	<? $this->field = $member; ?>
+        <?=  $this->render('edit/_researchfield.phtml'); /* recurse again */  ?>
+     <? endforeach ?>
+    </ul>
+   <? else: /* only the lowest-level entries can actually be selected */?>
+      <a id="<?= $current_field->id ?>" href="#"
+	 <? $id = str_replace('#', '', $current_field->id); ?>
+	 <? if ($this->etd->mods->hasResearchField($id)): ?>class="selected" <? endif ?>
+	 onclick="javascript:toggle_selection('<?= $current_field->id ?>', '<?= addslashes($current_field->label) ?>');return false;"><?= $id ?> <?= $current_field->label ?></a>
+   <? endif ?>
+</li>
+
