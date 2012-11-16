@@ -1,0 +1,19 @@
+Solr
+====
+
+Adding a new field to the solr index
+------------------------------------
+1. Update src/public/xslt/etdFoxmlToSolr.xslt to index the new field.
+   Probably also a good idea to update the xslt unit tests
+2. Update src/scripts/solr-schema.xml to define the new field.
+   - attribute stored = true/false - return in results
+   - attribute indexed = true/false - searchable
+   - attribute multiValued = true/false - can have more than one in a result
+3. Add a new method in the etdInterface class in src/app/models/etdInterface.php
+4. Implement the method in step 3 in solrEtd class in src/app/models/solrEtd.php
+5. Implement the method in step 3 in the Etd classes in src/app/models/etd.php
+6. Deploy  src/public/xslt/etdFoxmlToSolr.xslt from step 1
+   to fedora in $FEDORA_HOME/tomcat/webapps/fedoragsearch/WEB-INF/classes/config/index/ETDsolr/etdFoxmlToSolr.xslt
+7. Deploy src/scripts/solr-schema.xml from step 2 to 
+   gsearch in $FEDORA_HOME/gsearch/solr/multicore/etd/conf/schema.xml (Note the different file name)
+8. Restart solr
