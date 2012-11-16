@@ -3,11 +3,11 @@
 <head>
 
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-  
+
 <? if ($this->env == "production"): ?>
   <meta name="google-site-verification" content="WWdn3okWneQob5r6S1Svxtf87zwE1FHre0bRMvUzPvQ" />
 <? endif ?>
-  
+
    <title>Emory ETDs : <?= $this->escape($this->title) ?></title>
   <?= $this->css('etd.css'); ?>
   <? if (isset($this->dc)): ?>
@@ -15,16 +15,16 @@
   <? elseif (isset($this->etd) && !isset($this->etdSet)): /* only if display if this is a single-etd page */?>
     <?= $this->render('view/etd_dcheader.phtml'); ?>
   <? endif ?>
-   
+
    <link rel="Bookmark" href="<?= $this->linkTo('favicon.ico') ?>"/>
    <link rel="SHORTCUT ICON" href="<?= $this->linkTo('favicon.ico') ?>" />
    <link rel="unapi-server" type="application/xml" title="unAPI" href="<?= $this->absoluteUrl(array('controller' => 'unapi'), '', true) ?>"/>
 
     <? /* include javascript for set-role form in any non-production version of the site */ ?>
     <? /* NOTE: include *before* extra scripts to avoid conflict/reload issues */ ?>
-    <? if ($this->env != "production"): ?> 
+    <? if ($this->env != "production"): ?>
       <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
-      <?= $this->javascript("dev.js"); ?> 
+      <?= $this->javascript("dev.js"); ?>
    <? endif ?>
 
    <? if ($this->extra_scripts): ?>
@@ -41,7 +41,7 @@
     <?= $this->javascript("projax/js/prototype.js"); ?>
 </head>
 <body>
-<? if ($this->env == "staging"): ?>   
+<? if ($this->env == "staging"): ?>
    <?= $this->render('test_warning.phtml'); ?>
 <? endif ?>
 
@@ -141,8 +141,8 @@
 <div id="footer">
  <a
     href="http://www.emory.edu/copyright.cfm">&copy; 2008 Emory
-    University.</a> 
-   Version 1.12 updated 04/2012.
+    University.</a>
+   Version 1.13 updated 11/2012.
  <a href="<?= $this->url(array("controller" => "docs", "action" => "ip"), '', true); ?>">Rights and Privileges</a>
  <?/*| <a href="<?= $this->url(array("controller" => "statistics", "action" => "index"), '', true); ?>">Access Statistics</a> */?>
 </div>
