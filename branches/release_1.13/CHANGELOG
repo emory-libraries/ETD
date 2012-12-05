@@ -1,6 +1,13 @@
 CHANGE LOG
 =================
 
+
+Version 1.13.1
+------------
+
+* Bugfix: display table of contents even if user does not have permission
+  to edit table of contents.
+
 Version 1.13
 ------------
 
