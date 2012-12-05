@@ -46,8 +46,8 @@
 
   <h2>
       Table of Contents
-      <? if ($this->acl->isAllowed($this->role, $this->etd, "edit metadata")): ?>
       <? $toc = $this->etd->tableOfContents(); /* save TOC contents and re-use for content checking / display */ ?>
+      <? if ($this->acl->isAllowed($this->role, $this->etd, "edit metadata")): ?>
       <a class="record-edit" href="<?= $this->url(array("controller" => "edit", "action" => "contents")) ?>"
         title="edit table of contents">edit</a>
      <? endif ?>
