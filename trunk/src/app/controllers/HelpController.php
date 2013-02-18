@@ -85,6 +85,9 @@ class HelpController extends Etd_Controller_Action {
         $config->email->test;
       }
     } else {
+      // I added the following so the config would get loaded and not have uninitilised value for the contact email
+      // 02/16/2013 - M Prefer
+      $config = Zend_Registry::get('config');
       $to_email = $config->contact->email;
     }
 	   
