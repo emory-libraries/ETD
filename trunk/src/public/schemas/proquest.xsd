@@ -408,52 +408,53 @@ accepted</xs:documentation>
     <xs:complexType mixed="true" />
   </xs:element>
 
+  <xs:group name="formattedtext">
+    <xs:choice>
+      <xs:element name="em"/>
+      <xs:element name="strong"/>
+      <xs:element name="sup"/>
+      <xs:element name="sub"/>
+    </xs:choice>
+  </xs:group>
+
   <xs:element name="DISS_para">
     <xs:complexType mixed="true">
-	<xs:choice>
-	    <xs:element name="em" minOccurs="0" maxOccurs="unbounded"/>
-	    <xs:element name="strong" minOccurs="0" maxOccurs="unbounded"/>
-	    <xs:element name="sup" minOccurs="0" maxOccurs="unbounded"/>
-	    <xs:element name="sub" minOccurs="0" maxOccurs="unbounded"/>
-	</xs:choice>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:group ref="formattedtext"/>
+      </xs:choice>
     </xs:complexType>
   </xs:element>
 
 
   <xs:element name="strong">
-    <xs:complexType mixed="true" >
-	<xs:choice>
-	    <xs:element name="em" minOccurs="0" maxOccurs="unbounded"/>
-	    <xs:element name="sup" minOccurs="0" maxOccurs="unbounded"/>
-	    <xs:element name="sub" minOccurs="0" maxOccurs="unbounded"/>
-	</xs:choice>
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:group ref="formattedtext"/>
+      </xs:choice>
     </xs:complexType>
   </xs:element>
+
   <xs:element name="em">
     <xs:complexType mixed="true">
-	<xs:choice>
-	    <xs:element name="strong" minOccurs="0" maxOccurs="unbounded"/>
-	    <xs:element name="sup" minOccurs="0" maxOccurs="unbounded"/>
-	    <xs:element name="sub" minOccurs="0" maxOccurs="unbounded"/>
-	</xs:choice>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:group ref="formattedtext"/>
+      </xs:choice>
     </xs:complexType>
   </xs:element>
+
   <xs:element name="sup">
     <xs:complexType mixed="true">
-	<xs:choice>
-	    <xs:element name="strong" minOccurs="0" maxOccurs="unbounded"/>
-	    <xs:element name="em" minOccurs="0" maxOccurs="unbounded"/>
-	    <xs:element name="sub" minOccurs="0" maxOccurs="unbounded"/>
-	</xs:choice>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:group ref="formattedtext"/>
+      </xs:choice>
     </xs:complexType>
   </xs:element>
+
   <xs:element name="sub">
     <xs:complexType mixed="true">
-	<xs:choice>
-	    <xs:element name="em" minOccurs="0" maxOccurs="unbounded"/>
-	    <xs:element name="strong" minOccurs="0" maxOccurs="unbounded"/>
-	    <xs:element name="sup" minOccurs="0" maxOccurs="unbounded"/>
-	</xs:choice>
+	    <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:group ref="formattedtext"/>
+      </xs:choice>
     </xs:complexType>
   </xs:element>
 
@@ -589,13 +590,13 @@ accepted</xs:documentation>
 
 
   <xs:simpleType name="yearType">
-    <xs:restriction base="xs:string"> 
+    <xs:restriction base="xs:string">
       <xs:pattern value="[0-9]{4}"/>
     </xs:restriction>
   </xs:simpleType>
 
   <xs:simpleType name="dateType">
-    <xs:restriction base="xs:string"> 
+    <xs:restriction base="xs:string">
       <xs:pattern value="[0-9]{2}/[0-9]{2}/[0-9]{4}"/>
     </xs:restriction>
   </xs:simpleType>
