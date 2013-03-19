@@ -122,6 +122,14 @@ calendar -> (under My Calendars section click the down arrow)
 -> Share this calendar -> Calendar Details -> (under Private Address) -> XML
 you must change the last part of the url from "basic" to "full"
 
+
+Removing Records
+================
+1. Look at the RELS-EXT of the main object and make a list of the associated objects  (PDF, AuthorInfo, Original, Supplemental).
+2. Delete each associated object then delete the main object.
+3. In PIDManager mark the pid for each main object and associated object as inactive.
+
+
 See also
 ========
 Additional documentation is found in the  Documentation directory.
