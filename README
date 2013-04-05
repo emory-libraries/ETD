@@ -137,7 +137,7 @@ Error: bnash3 (role=superuser) is not authorized to view Page
 **Solution:**
 Edit RELS-EXT and remove refs to non-existent objects
 
-Ser also
+See also
 ========
 Additional documentation is found in the  Documentation directory.
 
