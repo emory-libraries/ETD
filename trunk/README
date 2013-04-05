@@ -129,8 +129,15 @@ Removing Records
 2. Delete each associated object then delete the main object.
 3. In PIDManager mark the pid for each main object and associated object as inactive.
 
+Common Errors
+=============
+**Symptom:**
+Error: bnash3 (role=superuser) is not authorized to view Page
 
-See also
+**Solution:**
+Edit RELS-EXT and remove refs to non-existent objects
+
+Ser also
 ========
 Additional documentation is found in the  Documentation directory.
 
