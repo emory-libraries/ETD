@@ -86,7 +86,7 @@ class IndexdataControllerTest extends ControllerTestCase {
     $result = Zend_Json::decode($response->getBody(), true);
     $key = 'SOLR_URL';
     $value = $result[$key];
-    $pattern = "|http://[^:]+:\d\d\d\d/solr/etd|";
+    $pattern = "|https://[^:]+:\d\d\d\d/solr/etd|";
     $this->assertPattern($pattern, $value, "json $key should contain pattern [$pattern] in $value"); 
     $key = 'CONTENT_MODELS';
     $pattern = "info:fedora/";
