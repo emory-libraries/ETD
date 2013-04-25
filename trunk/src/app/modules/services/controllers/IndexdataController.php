@@ -101,16 +101,16 @@ class Services_IndexdataController extends Zend_Controller_Action {
     array_push($content_models, array("info:fedora/" . $this->etdContentModel));   
           
     // Get the solr url from solr config
-    // Example: "http://dev11.library.emory.edu:8983/solr/etd/"
+    // Example: "https://dev11.library.emory.edu:9193/solr/etd/"
     $config_dir = Zend_Registry::get("config-dir");
     $env_config = Zend_Registry::get("env-config");    
     $solr_config = new Zend_Config_Xml($config_dir . "solr.xml", $env_config->mode);           
-    $solr_url = "http://" . $solr_config->server . ":" . $solr_config->port . "/" . $solr_config->path ;
+    $solr_url = "https://" . $solr_config->server . ":" . $solr_config->port . "/" . $solr_config->path ;
     
     // Index configuation data
     // Example json data returned:
     // '{
-    // "SOLR_URL": "http://dev11.library.emory.edu:9083/solr/etd/", 
+    // "SOLR_URL": "https://dev11.library.emory.edu:9193/solr/etd/", 
     // "CONTENT_MODELS": [
     // ["info:fedora/emory-control:ETD-1.0"], 
     // ]}';    
