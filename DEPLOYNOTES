@@ -72,6 +72,14 @@ Update the ETD control objects for particular fedora instance.
 UPGRADE NOTES
 =================
 
+Version 1.14
+--------------------------
+* Copy etd 3.3 core from staging to production, delete data directory  and restart solr.
+* Change solr.xml config to point to new empty 3.3 core.
+* Reindex ETD using EULIndexer using the command: python ./manage.py reindex -s etd
+
+
+
 Version 1.13 (preliminary)
 --------------------------
 

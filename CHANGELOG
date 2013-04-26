@@ -2,8 +2,12 @@ CHANGE LOG
 =================
 
 
-Version 1.13.1
+Version 1.14
 ------------
+* Modified code to use Solr 3.3(ssl)
+
+Version 1.13.1
+--------------
 
 * Bugfix: display table of contents even if user does not have permission
   to edit table of contents.
