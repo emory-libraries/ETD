@@ -214,7 +214,13 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
    */
   public function setFileInfo($tmpfile, $userfilename = null) {  
     // note: using fileinfo because mimetype reported by the browser is unreliable
-    $finfo = finfo_open(FILEINFO_MIME); 
+    $magicfile= getenv('MAGIC_MIME_PATH'); 
+    if($magicfile) {
+               $finfo = finfo_open(FILEINFO_MIME, $magicfile);
+      }
+      else{
+          $finfo = finfo_open(FILEINFO_MIME);
+      }
     $filetype = finfo_file($finfo, $tmpfile);
 
     if (isset($userfilename)) $filename = $userfilename;
@@ -272,8 +278,14 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
     $this->file->dslabel = $this->label;  // set the label for the ds to the filename.   
     $this->file->filename = $filename;
     // calculate and store datastream mimetype here
-    $finfo = finfo_open(FILEINFO_MIME); 
-    $filetype = finfo_file($finfo, $filename);
+    $magicfile= getenv('MAGIC_MIME_PATH');
+   if($magicfile) {
+       $finfo = finfo_open(FILEINFO_MIME, $magicfile);
+   }
+   else{
+          $finfo = finfo_open(FILEINFO_MIME);
+   }
+   $filetype = finfo_file($finfo, $filename);
     if (!isset($this->file->mimetype)) {   
       $this->file->mimetype = $filetype;
     }
