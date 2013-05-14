@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Policy xmlns="urn:oasis:names:tc:xacml:1.0:policy"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        PolicyId="permit-etd-mods-relsext-from-localhost"
+        RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:first-applicable">
+        <Description>Permit access to MODS and RELS-EXT on ETD objects in any status
+            from localhost ONLY, to allow GSearch to access and index managed content
+            in managed MODS/RELS-EXT datastreams.</Description>
+  <Target>
+    <Subjects>
+      <AnySubject/>
+    </Subjects>
+    <Resources>
+     <!-- restrict to etd objects ONLY -->
+      <Resource>
+        <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+            <AttributeValue
+            DataType="http://www.w3.org/2001/XMLSchema#string">info:fedora/emory-control:ETD-1.0</AttributeValue>
+            <ResourceAttributeDesignator
+            AttributeId="info:fedora/fedora-system:def/model#hasModel"
+            DataType="http://www.w3.org/2001/XMLSchema#string"
+            MustBePresent="false"/>
+        </ResourceMatch>
+      </Resource>
+
+    </Resources>
+    <Actions>
+      <AnyAction/>
+    </Actions>
+  </Target>
+
+  <!-- allow datastream access to mods/rels-ext from localhost only -->
+  <Rule RuleId="permit-if-localhost" Effect="Permit">
+    <Target>
+      <Subjects>
+        <AnySubject/>
+      </Subjects>
+      <Resources>
+        <Resource>
+        <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">MODS</AttributeValue>
+          <ResourceAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:resource:datastream:id"
+            MustBePresent="false"
+            DataType="http://www.w3.org/2001/XMLSchema#string"/>
+        </ResourceMatch>
+      </Resource>
+      <Resource>
+        <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">RELS-EXT</AttributeValue>
+          <ResourceAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:resource:datastream:id"
+            MustBePresent="false"
+            DataType="http://www.w3.org/2001/XMLSchema#string"/>
+        </ResourceMatch>
+      </Resource>
+
+      </Resources>
+      <Actions>
+        <Action>
+          <ActionMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+              <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">urn:fedora:names:fedora:2.1:action:id-getDatastreamDissemination</AttributeValue>
+            <ActionAttributeDesignator
+                AttributeId="urn:fedora:names:fedora:2.1:action:id"
+                DataType="http://www.w3.org/2001/XMLSchema#string"/>
+          </ActionMatch>
+        </Action>
+      </Actions>
+    </Target>
+
+
+    <Condition FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-at-least-one-member-of">
+      <EnvironmentAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:environment:httpRequest:clientIpAddress"
+DataType="http://www.w3.org/2001/XMLSchema#string"/>
+      <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-bag">
+        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">127.0.0.1</AttributeValue>
+        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">::1</AttributeValue>
+        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">0:0:0:0:0:0:0:1</AttributeValue>
+      </Apply>
+    </Condition>
+  </Rule>
+</Policy>
