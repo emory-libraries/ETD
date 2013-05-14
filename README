@@ -137,6 +137,22 @@ Error: bnash3 (role=superuser) is not authorized to view Page
 **Solution:**
 Edit RELS-EXT and remove refs to non-existent objects
 
+
+**Symptom:**
+Icon is not displayed beside Original File and when the file is downloaded it only contains "Error parsing media type 'application/msword application/msword' "
+
+**Solution:**
+Do ONE  of the following:
+1. re-save a good version of the file using MSWord in the latest docx format and replace the file in ETD.
+2. Manually change the mime type of the FILE datastream to "application/msword".
+
+**Symptom:**
+After an admin uploads a file for a student the student can no longer access the ETD or the file.
+
+**Solution:**
+Change the owner of the file object to the netid of the ETD submitter.
+
+
 See also
 ========
 Additional documentation is found in the  Documentation directory.
