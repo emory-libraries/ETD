@@ -1,0 +1,22 @@
+<esd>
+  <development>
+     <dbSchema>ESDV</dbSchema>
+     <adapter>Oracle</adapter>
+	<params>
+	  <username></username>
+	  <password></password>
+	  <host></host>
+	  <port></port>
+	  <dbname></dbname>
+	</params>
+  </development>
+  <test extends="development">
+     <dbSchema></dbSchema>
+	<params>
+	  <username></username>
+	  <password></password> 
+          <dbname></dbname>   
+	</params> 
+  </test> 
+  <production extends="development"/>
+</esd>
