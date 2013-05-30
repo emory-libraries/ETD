@@ -32,7 +32,7 @@ class ManageController extends Etd_Controller_Action {
      // retrieve multi-school configuration from registry
      $this->schools_cfg = Zend_Registry::get("schools-config");
      
-     // if user ir a school-specific admin, determine which school
+     // if user is a school-specific admin, determine which school
      if ($pos = strpos($this->current_user->role, " admin")) {
        $admin_type = substr($this->current_user->role, 0, $pos);
        // find the school config that current user is admin for
@@ -84,7 +84,9 @@ class ManageController extends Etd_Controller_Action {
        $results = $etd_db->fetchAssoc($results);
 
        foreach($results as $row){
+           if($row['programid'] !=''){
            $programs[] = strtolower($row['programid']);
+           }
        }
        return $programs;
    }
