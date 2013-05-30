@@ -72,6 +72,11 @@ Update the ETD control objects for particular fedora instance.
 UPGRADE NOTES
 =================
 
+Version 1.14.1
+--------------------------
+* Make sure RFREEM2 has a recode in the etd DB with a blank program code. 
+
+
 Version 1.14
 --------------------------
 * Copy etd 3.3 core from staging to production, delete data directory  and restart solr.
