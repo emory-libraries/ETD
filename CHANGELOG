@@ -2,6 +2,10 @@ CHANGE LOG
 =================
 
 
+Version 1.14.1
+------------
+* Fixed issue with Super ADAP
+
 Version 1.14
 ------------
 * Modified code to use Solr 3.3(ssl)
