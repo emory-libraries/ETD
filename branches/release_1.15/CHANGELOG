@@ -2,6 +2,11 @@ CHANGE LOG
 =================
 
 
+Version 1.15.0
+--------------
+* Removed "by April 22, 2010" in email template
+
+
 Version 1.14.1
 ------------
 * Fixed issue with Super ADAP
