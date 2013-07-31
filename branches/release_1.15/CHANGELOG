@@ -5,6 +5,7 @@ CHANGE LOG
 Version 1.15.0
 --------------
 * Removed "by April 22, 2010" in email template
+* Modified code to keep original ETD owner when admin uploads new file
 
 
 Version 1.14.1
