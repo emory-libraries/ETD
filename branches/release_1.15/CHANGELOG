@@ -6,6 +6,9 @@ Version 1.15.0
 --------------
 * Removed "by April 22, 2010" in email template
 * Modified code to keep original ETD owner when admin uploads new file
+* Fixed mime-type when uploading Word file
+* Added mime-type mappings for rar and gzip files
+* Fixed IE bug to correct placement of auto-complete pop-ups
 
 
 Version 1.14.1
