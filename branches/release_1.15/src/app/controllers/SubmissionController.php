@@ -90,9 +90,6 @@ class SubmissionController extends Etd_Controller_Action {
 
         //Save info for copyright questions
         $eventMsg = "The author " . ($answers["copyright"] == 'yes' ? "has" : "has not") . " submitted copyrighted material";
-        if ($answers["copyright"] == 'yes'){
-            $eventMsg .= " and " . ($answers["copyright_permission"] == 'yes' ? "has" : "has not") . " obtained permission to include this copyrighted material";
-        }
         $eventMsg .= ".";
         $etd->premis->addEvent("admin", $eventMsg, "success",
              array("netid", $this->current_user->netid));
@@ -145,10 +142,6 @@ class SubmissionController extends Etd_Controller_Action {
       // answer to copyright is required
       if ($answers["copyright"] == null) {
          $errors[] = 'copyright';
-      } else if ($answers["copyright"] == 'yes' && 
-          $answers["copyright_permission"] == null) {
-         // if answer to copyright is yes, answer about permissions is required
-         $errors[]  = 'copyright_permission';
       }
       // answer to patent is required
       if ($answers["patent"] == null) {
