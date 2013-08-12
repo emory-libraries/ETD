@@ -24,7 +24,10 @@ class SubmissionController extends Etd_Controller_Action {
   
   
   public function introAction() {
-  $this->view->title = "Submission Introduction";
+      if (!$this->_helper->access->allowedOnEtd("create")) return false;
+      $this->view->title = "Submission Introduction";
+  
+  
       
   }
   
