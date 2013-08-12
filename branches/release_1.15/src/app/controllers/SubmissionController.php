@@ -18,9 +18,16 @@ class SubmissionController extends Etd_Controller_Action {
   }
 
   public function indexAction() {
-    $this->_forward("start");
+    $this->_forward("intro");
     // maybe this should be a summary/status page to check on the submission...
   }
+  
+  
+  public function introAction() {
+  $this->view->title = "Submission Introduction";
+      
+  }
+  
    
   /**
    * Start page for creating a new ETD submission.  Logged in students
