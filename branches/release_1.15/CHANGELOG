@@ -9,6 +9,7 @@ Version 1.15.0
 * Fixed mime-type when uploading Word file
 * Added mime-type mappings for rar and gzip files
 * Fixed IE bug to correct placement of auto-complete pop-ups
+* Updated Screening Questions.
 
 
 Version 1.14.1
