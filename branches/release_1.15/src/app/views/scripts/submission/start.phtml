@@ -43,7 +43,8 @@
             <ul>
                <li>Published in the US prior to 1923</li>
                <li>Unpublished materials when the author died more than 70 years ago</li>
-               <li>Federal government documents created by a US government employee as part</li> 
+               <li>Federal
+government documents created by a US government employee as part of their employment</li> 
 
             </ul>
          </li>
@@ -80,7 +81,7 @@
     on Blackboard for more information on the public domain, fair use, 
     Creative Commons, the permissions process, and example permission letters. 
     You can also contact the Libraries’ Scholarly Communications Office at 
-    scholcomm@listserv.cc.emory.edu if you have questions.</p>
+    <a href="mailto:scholcomm@listserv.cc.emory.edu">scholcomm@listserv.cc.emory.edu</a> if you have questions.</p>
 
 <p><b>Does your thesis or dissertation include text, audiovisual or other material for which you need permission?</b></p>
     
@@ -127,8 +128,8 @@
         NOTE: All access restrictions must be approved by your advisor prior 
         to submission.</p>
     
-    <p>Are you requesting an access restriction (see Part 3 below) for your 
-        thesis or dissertation?</p>
+    <p>Are you requesting an access restriction for your thesis or 
+        dissertation?</p>
     
         <?= $this->formRadio("embargo", ($this->answers["embargo"] == null ? null : $this->answers["embargo"]),
 			     array('class' => 'required-field'), $this->yes_no) ?>
