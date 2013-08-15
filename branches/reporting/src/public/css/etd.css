@@ -1024,7 +1024,7 @@ div.autocomplete ul {
   list-style-type:none;
 }
 
-div.autocomplete ul li.selected { 
+div.autocomplete ul li.selected, ul.ui-autocomplete li.selected, .ui-state-focus { 
   background-color:#ffb;
 }
 

@@ -1,6 +1,8 @@
 <style>
 /* li.ui-menu-item {background-color: yellowgreen; width: 80px}*/
  span.ui-helper-hidden-accessible{display: none;}
+ 
+li.ui-menu-item:first-word {font-weight: bold;}
 </style>
 
 <h1><?=$this->title?></h1>
@@ -28,12 +30,12 @@ return split( term ).pop();
 }
 $j( "#birds" )
 // don't navigate away from the field on tab when selecting an item
-.bind( "keydown", function( event ) {
-if ( event.keyCode === $j.ui.keyCode.TAB &&
-$j( this ).data( "ui-autocomplete" ).menu.active ) {
-event.preventDefault();
-}
-})
+//.bind( "keydown", function( event ) {
+//if ( event.keyCode === $j.ui.keyCode.TAB &&
+//$j( this ).data( "ui-autocomplete" ).menu.active ) {
+//event.preventDefault();
+//}
+//})
 .autocomplete({
 source: function( request, response ) {
 $j.getJSON( "<?=$this->url(array("controller"=>"report", "action"=>"custom-autocomplete"))?>", {
@@ -42,14 +44,14 @@ term: extractLast( request.term )
 },
 search: function() {
 // custom minLength
-var term = extractLast( this.value );
-if ( term.length < 2 ) {
-return false;
-}
+//var term = extractLast( this.value );
+//if ( term.length < 2 ) {
+//return false;
+//}
 },
-focus: function() {
-// prevent value inserted on focus
-return false;
+focus: function (event, ui) {
+       this.value = ui.item.value;
+       event.preventDefault(); // Prevent the default focus behavior.
 },
 select: function( event, ui ) {
 var terms = split( this.value );
