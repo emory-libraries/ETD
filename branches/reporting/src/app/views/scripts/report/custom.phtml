@@ -1,0 +1,68 @@
+<style>
+/* li.ui-menu-item {background-color: yellowgreen; width: 80px}*/
+ span.ui-helper-hidden-accessible{display: none;}
+</style>
+
+<h1><?=$this->title?></h1>
+<p>Some text here to explain what to do on the page. Bla Bla Bla Bla Bla Bla Bla Bla Bla Bla Bla <br /> 
+    Bla Bla Bla Bla Bla Bla Bla Bla Bla Bla Bla Bla Bla Bla Bla Bla Bla Bla Bla Bla Bla Bla </p>
+
+<form method="post" id="fields_form"  action="<?= $this->url(array("action" => "savefaculty"))?>" onsubmit="disableButton('save')">
+    
+	  
+<div class="ui-widget">
+<label for="birds">Birds: </label>
+<input id="birds" size="50" />
+</div>
+    
+</form>
+
+<script language="Javascript" type="text/javascript">
+$j(document).ready(function() {
+   //START of ready function
+    function split( val ) {
+return val.split( /,\s*/ );
+}
+function extractLast( term ) {
+return split( term ).pop();
+}
+$j( "#birds" )
+// don't navigate away from the field on tab when selecting an item
+.bind( "keydown", function( event ) {
+if ( event.keyCode === $j.ui.keyCode.TAB &&
+$j( this ).data( "ui-autocomplete" ).menu.active ) {
+event.preventDefault();
+}
+})
+.autocomplete({
+source: function( request, response ) {
+$j.getJSON( "<?=$this->url(array("controller"=>"report", "action"=>"custom-autocomplete"))?>", {
+term: extractLast( request.term )
+}, response );
+},
+search: function() {
+// custom minLength
+var term = extractLast( this.value );
+if ( term.length < 2 ) {
+return false;
+}
+},
+focus: function() {
+// prevent value inserted on focus
+return false;
+},
+select: function( event, ui ) {
+var terms = split( this.value );
+// remove the current input
+terms.pop();
+// add the selected item
+terms.push( ui.item.value );
+// add placeholder to get the comma-and-space at the end
+terms.push( "" );
+this.value = terms.join( ", " );
+return false;
+}
+});
+   //END of ready function
+});
+</script>

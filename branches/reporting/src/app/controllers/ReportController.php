@@ -791,7 +791,7 @@ class ReportController extends Etd_Controller_Action {
                 
         // Fields with their descriptions
         $fields = array(
-        array('value'=>'label:', 'label'=>      'Label - Fedora object label (set from initial title)'),
+        array('value'=>'label:', 'label'=>      '<b>Label</b> - Fedora object label (set from initial title)'),
         array('value'=>'ownerId:', 'label'=>    'OwnerId - netid of user who owns the object (author'),
         array('value'=>'state:', 'label'=>      'State - Fedora object state indicating whether the objest is Active, Inactive, Deleted'),
         array('value'=>'author:', 'label'=>     'Author - Full name of the ETD author as lastname, firstname'),
