@@ -629,7 +629,7 @@ div.listnav {
  }
 
 /* statistics */
->ol.top50 { 
+ol.top50 { 
  clear:right;
  padding-top:0.25in;
 }
@@ -767,6 +767,8 @@ div#submission_status a {
 }
 
 div#submission_status ul { list-style: none; }
+
+ul.ui-menu { list-style: none; padding-left: 0; margin-left: 0; border: 1px solid; width: 25em;}
 
 div#submission_status ul#submission-checklist {
   clear: right;

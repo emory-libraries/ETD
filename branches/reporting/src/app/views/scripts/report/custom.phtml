@@ -1,8 +1,6 @@
 <style>
 /* li.ui-menu-item {background-color: yellowgreen; width: 80px}*/
  span.ui-helper-hidden-accessible{display: none;}
- 
-li.ui-menu-item:first-word {font-weight: bold;}
 </style>
 
 <h1><?=$this->title?></h1>
@@ -13,58 +11,46 @@ li.ui-menu-item:first-word {font-weight: bold;}
     
 	  
 <div class="ui-widget">
-<label for="birds">Birds: </label>
-<input id="birds" size="50" />
+<input id="custom-report" size="50" />
 </div>
     
 </form>
 
 <script language="Javascript" type="text/javascript">
-$j(document).ready(function() {
-   //START of ready function
-    function split( val ) {
-return val.split( /,\s*/ );
+$j(document).ready(function() { //START of ready function
+function split( val ) {
+    return val.split( /,\s*/ );
 }
 function extractLast( term ) {
-return split( term ).pop();
+    return split( term ).pop();
 }
-$j( "#birds" )
-// don't navigate away from the field on tab when selecting an item
-//.bind( "keydown", function( event ) {
-//if ( event.keyCode === $j.ui.keyCode.TAB &&
-//$j( this ).data( "ui-autocomplete" ).menu.active ) {
-//event.preventDefault();
-//}
-//})
+
+$j( "#custom-report" )
 .autocomplete({
 source: function( request, response ) {
 $j.getJSON( "<?=$this->url(array("controller"=>"report", "action"=>"custom-autocomplete"))?>", {
 term: extractLast( request.term )
 }, response );
 },
+
 search: function() {
-// custom minLength
-//var term = extractLast( this.value );
-//if ( term.length < 2 ) {
-//return false;
-//}
+//Place holder
 },
+
 focus: function (event, ui) {
-       this.value = ui.item.value;
-       event.preventDefault(); // Prevent the default focus behavior.
-},
+       // Prevent the default focus behavior.
+       event.preventDefault();
+}
+,
 select: function( event, ui ) {
 var terms = split( this.value );
-// remove the current input
 terms.pop();
-// add the selected item
 terms.push( ui.item.value );
-// add placeholder to get the comma-and-space at the end
-terms.push( "" );
 this.value = terms.join( ", " );
 return false;
 }
+
+
 });
-   //END of ready function
-});
+}); //END of ready function
 </script>

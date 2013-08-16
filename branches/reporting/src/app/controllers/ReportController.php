@@ -7,6 +7,7 @@
 require_once("models/etd.php");
 require_once("models/charts.php");
 require_once("models/programs.php");
+require_once("controllers/report_fields.php");
 
 class ReportController extends Etd_Controller_Action {
   protected $requires_fedora = false;
@@ -778,6 +779,7 @@ class ReportController extends Etd_Controller_Action {
     
   
     public function customAutocompleteAction(){
+        global $all_report_fields;
 ///////////////////////////////////////////////////////////////////        
 //        DO NOT REMOVE UNDER PENALTY OF DEATH!!!!!
         $this->_helper->layout->disableLayout();
@@ -789,43 +791,8 @@ class ReportController extends Etd_Controller_Action {
         $params = '$arr,'.'$term='.'"'.$term.'"';
         $filter = create_function($params, 'if ($term=="") return true; return strstr(strtoupper($arr["label"]), strtoupper($term)) || strstr(strtoupper($arr["value"]), strtoupper($term));');
                 
-        // Fields with their descriptions
-        $fields = array(
-        array('value'=>'label:', 'label'=>      'Label - Fedora object label (set from initial title)'),
-        array('value'=>'ownerId:', 'label'=>    'OwnerId - netid of user who owns the object (author'),
-        array('value'=>'state:', 'label'=>      'State - Fedora object state indicating whether the objest is Active, Inactive, Deleted'),
-        array('value'=>'author:', 'label'=>     'Author - Full name of the ETD author as lastname, firstname'),
-        array('value'=>'date_embargoedUntil:', 'label'=> 'DateEmbargoedUntil - Date embargo expires in YYYYMMDD format; only available for published records'),
-        array('value'=>'dateIssued:', 'label'=> 'DateIssued - Date published in YYYYMMDD format; only available for published records'),
-        array('value'=>'degree_level:', 'label'=>       'Degree_level - Level of the degree, e.g. bachelors, masters, doctoral'),
-        array('value'=>'degree_name:', 'label'=>        'DegreeName - Actual degree received, e.g. PhD, MA, BA'),
-        array('value'=>'document_type:', 'label'=>      'DocumentType - Genre of the record, i.e. dissertation or thesis'),
-        array('value'=>'registering_copyright:', 'label'=> 'RegisteringCopyright - yes/no flag indicating that the user is registering copyright'),
-        array('value'=>'embargo_duration:', 'label'=>   'EmbargoDuration - Duration of embargo'),
-        array('value'=>'embargo_notice:', 'label'=>     'EmbargoNotice - If set, indicates when 60 day embargo expiration was sent (e.g., "sent 2013-04-04")'),
-        array('value'=>'embargo_requested:', 'label'=>  'EmbargoRequested - yes/no flag indicating whether the user requested an embargo'),
-        array('value'=>'language:', 'label'=>   'Language - Language in which the thesis is written'),
-        array('value'=>'num_pages:', 'label'=>  'NumPages - Number of pages in the submitted PDF'),
-        array('value'=>'program:', 'label'=>    'Program - Name of program ETD is associated'),
-        array('value'=>'program_id:', 'label'=> 'ProgramId - ETD code for the associated program'),
-        array('value'=>'subfield:', 'label'=>   'Subfield - Name of sub-divison of program ETD is associated'),
-        array('value'=>'subfield_id:', 'label'=>   'SubfieldId - Code of sub-divison of program ETD is associated'),
-        array('value'=>'subject:', 'label'=>    'Subject - Text list of subjects / research fields'),
-        array('value'=>'year:', 'label'=>       'Year - Year the record was published (only available for records that have been published)'),
-        array('value'=>'abstract:', 'label'=>   ' Abstract - Text of the abstract, without any formatting'),
-        array('value'=>'tableOfContents:', 'label'=>  'TableOfContents - Text of the table of contents, without any formatting'),
-        array('value'=>'title:', 'label'=>      'Title - Title of the record without any formatting'),
-        array('value'=>'advisor:', 'label'=>    'Advisor - List of full names for all committee chairs/advisors in lastname, first format'),
-        array('value'=>'advisor_id:', 'label'=> 'AdvisorId - List of netids for committee chair/advisor (Emory faculty only)'),
-        array('value'=>'committee:', 'label'=>  'Committee - List of full names for all committee members in lastname, first format'),
-        array('value'=>'committee_id:', 'label'=>  'CommitteeId - List of netids for committee members on the record (Emory faculty only)'),
-        array('value'=>'keyword:', 'label'=>    'Keyword - Text keyword terms entered by author'),
-        array('value'=>'status:', 'label'=>     'Status - Status of the record within the ETD system (draft, submitted, approved, reviewed, published, inactive)'),
-        array('value'=>'partneringagencies:', 'Partneringagencies - label'=> 'Text names of Rollins partnering agencies'),
-        array('value'=>'collection:', 'label'=> 'Collection - Fedora identifier for the collection this ETD belongs to; use to associated ETD records with schools (i.e., Graduate School, Theology, Rollins, etc)')
-        );
         $this->getResponse()->setHeader('Content-Type', "application/json");
-        $this->getResponse()->setBody(json_encode(array_filter($fields, $filter)));
+        $this->getResponse()->setBody(json_encode(array_filter($all_report_fields, $filter)));
     }
     
     public function customAction() {
