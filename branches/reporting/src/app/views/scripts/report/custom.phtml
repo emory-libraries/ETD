@@ -1,31 +1,43 @@
 <style>
-/* li.ui-menu-item {background-color: yellowgreen; width: 80px}*/
- span.ui-helper-hidden-accessible{display: none;}
+ span.ui-helper-hidden-accessible{display: none;} /*prevent weird jquery output */
 </style>
 
 <h1><?=$this->title?></h1>
 <p>Some text here to explain what to do on the page. Bla Bla Bla Bla Bla Bla Bla Bla Bla Bla Bla <br /> 
     Bla Bla Bla Bla Bla Bla Bla Bla Bla Bla Bla Bla Bla Bla Bla Bla Bla Bla Bla Bla Bla Bla </p>
 
-<form method="post" id="fields_form"  action="<?= $this->url(array("action" => "savefaculty"))?>" onsubmit="disableButton('save')">
+
+<form method="post" id="customs_report_form"  action="<?= $this->url(array("action" => "custom"))?>" onsubmit="disableButton('search')">
     
 	  
-<div class="ui-widget">
-<input id="custom-report" size="50" />
-</div>
+<span class="ui-widget" style="display: inline-block;" >
+<div id='field-desc' style="color:white; background-color:black; display: none"></div>    
+<input id="custom-report" size="80" />
+<?= $this->formSubmit("search", "Search >", array("class" => "submitbutton")); ?>
+</span>
     
 </form>
 
 <script language="Javascript" type="text/javascript">
-$j(document).ready(function() { //START of ready function
-function split( val ) {
+    function split( val ) {
     return val.split( /,\s*/ );
 }
 function extractLast( term ) {
     return split( term ).pop();
 }
 
-$j( "#custom-report" )
+$j(document).ready(function() { //START of ready function
+$j.ui.autocomplete.prototype._renderItem = function (ul, item) {
+    return $j("<li></li>")
+     .data("item.autocomplete", item)
+    .addClass("tip ui-menu-item")
+    .append("<a>" + item.label + "</a>")
+    .attr("desc", item.description)
+    .attr("role", "presentation")
+    .appendTo(ul);
+};
+
+$j("#custom-report" )
 .autocomplete({
 source: function( request, response ) {
 $j.getJSON( "<?=$this->url(array("controller"=>"report", "action"=>"custom-autocomplete"))?>", {
@@ -40,8 +52,16 @@ search: function() {
 focus: function (event, ui) {
        // Prevent the default focus behavior.
        event.preventDefault();
-}
-,
+       // display descriptions of fields
+       var target =  $j('#field-desc');
+       target.text(ui.item.description);
+       target.fadeIn('slow');
+},
+
+close: function(event, ui){
+    $j('#field-desc').fadeOut('slow');
+},
+
 select: function( event, ui ) {
 var terms = split( this.value );
 terms.pop();
@@ -49,8 +69,7 @@ terms.push( ui.item.value );
 this.value = terms.join( ", " );
 return false;
 }
-
-
 });
+
 }); //END of ready function
 </script>
