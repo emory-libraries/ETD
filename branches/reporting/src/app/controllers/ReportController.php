@@ -797,11 +797,23 @@ class ReportController extends Etd_Controller_Action {
     
     public function customAction() {
     if(!$this->_helper->access->allowed("report", "view")) {return false;}
-    $this->view->title = "Custom Report";
+    
     $this->view->extra_scripts = array(
          "//code.jquery.com/ui/1.10.3/jquery-ui.js"
-         
     );
+    
+    $this->view->title = "Custom Report";
+    $criteria = $this->_getParam('criteria', '');
+    $this->view->criteria = $criteria;
+    
+    $query = stripslashes(join(" AND ", explode(',', $criteria)));
+    $optionsArray['query'] = $query;
+    // show ALL records on a single page 
+    $optionsArray['max'] = 1000000;
+    $optionsArray['return_type'] = "solrEtd";
+    $etdSet = new EtdSet();
+    $etdSet->find($optionsArray);
+    $this->view->etdSet = $etdSet;
   }    
     
 

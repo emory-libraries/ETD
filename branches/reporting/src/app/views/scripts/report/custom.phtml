@@ -1,5 +1,6 @@
 <style>
  span.ui-helper-hidden-accessible{display: none;} /*prevent weird jquery output */
+ ul.ui-menu li.ui-menu-item a.ui-state-focus {display: block;} // made sure it only effects this page
 </style>
 
 <h1><?=$this->title?></h1>
@@ -13,12 +14,16 @@
 <span class="ui-widget" style="display: inline-block;" >
 <div id='field-desc' style="color:white; background-color:black; position: absolute; top: 104px; display: none"></div>    
 <div style="margin-top:20px;">
-<input id="custom-report" size="80" />
+<input id="custom-report" size="80" name="criteria" value="<?=$this->criteria;?>" />
 <?= $this->formSubmit("search", "Search >", array("class" => "submitbutton")); ?>
 </div>
 </span>
     
 </form>
+
+<!-- COUNT:<?=count($this->etdSet);?><br><br>
+<? foreach($this->etdSet->etds as $etd){print "Author: $etd->author <br>";} ?> -->
+
 
 <script language="Javascript" type="text/javascript">
     function split( val ) {
@@ -55,9 +60,12 @@ focus: function (event, ui) {
        // Prevent the default focus behavior.
        event.preventDefault();
        // display descriptions of fields
+       var li = $j(event.srcElement).parent()
+       li.addClass('selected')
        var target =  $j('#field-desc');
        target.text(ui.item.description);
        target.fadeIn('slow');
+       var e = $j('li').hover(function(){this.addClass('ui-state-focus');}, function(){this.removeClass('ui-state-focus');});
 },
 
 close: function(event, ui){
