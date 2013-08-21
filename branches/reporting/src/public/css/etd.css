@@ -768,7 +768,14 @@ div#submission_status a {
 
 div#submission_status ul { list-style: none; }
 
-ul.ui-menu { list-style: none; padding-left: 0; margin-left: 0; border: 1px solid; width: 25em;}
+ul.ui-menu { list-style: none; 
+          padding-left: 0; 
+          margin-left: 0; 
+          border: 1px solid; 
+          width: 25em;
+}
+
+ul.ui-menu li.ui-menu-item {opacity: 1; background-color: white}
 
 div#submission_status ul#submission-checklist {
   clear: right;
