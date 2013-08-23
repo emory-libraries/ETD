@@ -45,7 +45,7 @@ table#report-results tr th { margin: 0; padding: 5px; border: 1px solid black; b
         <tr>
             <?// data cell ?>
             <? foreach ($this->viewable_fields as $var): ?>
-                <td><?= (is_array($etd->$var['value']) ? join(";", $etd->$var['value']) : $etd->$var['value']);?></td>  <? //again value is actually the solr field ?>
+                <td><?= (is_array($etd->$var['field']) ? join(";", $etd->$var['field']) : $etd->$var['field']);?></td>
             <? endforeach ?>
         </tr>
     <? endforeach ?>
@@ -105,9 +105,8 @@ select: function( event, ui ) {
 var terms = split( this.value );
 terms.pop();
 // Adding : here for solr query formatting
-// This allows etdSet field name to pull from the same field as solr field.  
-// In field list is key is value.  This due to autocomplete requirments 
-terms.push( ui.item.value + ":" );   
+// This allows etdSet field name to pull from the same field as solr field. 
+terms.push( ui.item.field + ":" );   
 this.value = terms.join( ", " );
 return false;
 }
