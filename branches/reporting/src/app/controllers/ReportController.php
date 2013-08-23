@@ -796,6 +796,7 @@ class ReportController extends Etd_Controller_Action {
     }
     
     public function customAction() {
+    global $all_report_fields;    
     if(!$this->_helper->access->allowed("report", "view")) {return false;}
     
     $this->view->extra_scripts = array(
@@ -804,16 +805,29 @@ class ReportController extends Etd_Controller_Action {
     
     $this->view->title = "Custom Report";
     $criteria = $this->_getParam('criteria', '');
-    $this->view->criteria = $criteria;
+    $this->view->criteria = preg_replace('|\\\\"|', '&quot;', $this->view->criteria = $criteria);
     
-    $query = stripslashes(join(" AND ", explode(',', $criteria)));
-    $optionsArray['query'] = $query;
-    // show ALL records on a single page 
-    $optionsArray['max'] = 1000000;
-    $optionsArray['return_type'] = "solrEtd";
-    $etdSet = new EtdSet();
-    $etdSet->find($optionsArray);
-    $this->view->etdSet = $etdSet;
+    if ($this->getRequest()->isPost()) {
+        $query = stripslashes(join(" AND ", explode(',', $criteria)));
+        $optionsArray['query'] = $query;
+        // show ALL records on a single page 
+        $optionsArray['max'] = 1000000;
+        $optionsArray['return_type'] = "solrEtd";
+        $etdSet = new EtdSet();
+        
+        try{
+            $etdSet->find($optionsArray);
+            $this->view->etdSet = $etdSet;
+        }catch(Exception $e){
+            $this->_helper->flashMessenger->addMessage("Error: " . $e->getMessage());
+            $this->view->messages = $this->_helper->flashMessenger->getMessages();
+        }
+    
+        // AKA available = True in list
+        $filter = create_function('$arr', 'return $arr["available"];');
+    
+        $this->view->viewable_fields = array_filter($all_report_fields, $filter);
+    }
   }    
     
 
