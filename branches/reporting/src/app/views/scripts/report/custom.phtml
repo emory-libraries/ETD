@@ -12,7 +12,13 @@ table#report-results tr th { margin: 0; padding: 5px; border: 1px solid black; b
 <h1><?=$this->title?></h1>
 
 
-<p>To search for several values in a field seperate values </p>
+<ul>
+    <li>When searching for a numeric range, date range or the existence of a value use the format <b>field:[MINVAL TO MAXVAL]</b> . User * for any value. <br>
+        Example: <b>num_pages:[50 TO *]</b> would search for ETDs with at least 50 pages</li>
+    <li>use &QUOT;&QUOT; for an <b>EXACT</b> value</li>
+    <li>Separate multiple values within a field with a  space to search for <b>ANY</b> of the values </li>
+    <li>Separate fields with a <b>,</b></li>
+</ul>
 
 
 <form method="post" id="customs_report_form"  action="<?= $this->url(array("action" => "custom"))?>" onsubmit="disableButton('search')">
