@@ -1,0 +1,122 @@
+<style>
+ span.ui-helper-hidden-accessible{display: none;} /*prevent weird jquery output */
+ ul.ui-menu li.ui-menu-item a.ui-state-focus {display: block;} <? //made sure it only effects this pag?e ?>
+ 
+table#report-results tr th { background-color :lightgray; }
+table#report-results, 
+table#report-results tr td, 
+table#report-results tr th { margin: 0; padding: 5px; border: 1px solid black; border-collapse: collapse; border-spacing: 0; }
+
+</style>
+
+<h1><?=$this->title?></h1>
+
+
+<ul>
+    <li>When searching for a numeric range, date range or the existence of a value use the format <b>field:[MINVAL TO MAXVAL]</b> . User * for any value. <br>
+        Example: <b>num_pages:[50 TO *]</b> would search for ETDs with at least 50 pages</li>
+    <li>use &QUOT;&QUOT; for an <b>EXACT</b> value</li>
+    <li>Separate multiple values within a field with a  space to search for <b>ANY</b> of the values </li>
+    <li>Separate fields with a <b>,</b></li>
+</ul>
+
+
+<form method="post" id="customs_report_form"  action="<?= $this->url(array("action" => "custom"))?>" onsubmit="disableButton('search')">
+    
+    
+<span class="ui-widget" style="display: inline-block;" >
+<div id='field-desc' style="color:white; background-color:black; position: absolute; top: 100px; display: none"></div>    
+<div style="margin-top:25px;">
+    <input id="custom-report" size="80" name="criteria" value="<?=  $this->criteria;?>" />
+<?= $this->formSubmit("search", "Search >", array("class" => "submitbutton")); ?>
+</div>
+</span>
+    
+</form>
+
+
+
+<? if($this->etdSet): ?>
+<div style="margin-top: 15px;">
+<table id="report-results">
+    <tr> <?// header row ?>
+        <? foreach($this->viewable_fields as $field): ?>
+            <th><?=$field['label']?></th>
+    
+        <? endforeach ?>
+    </tr>
+
+    <?// data rows?>
+    <? foreach($this->etdSet->etds as $etd): ?>
+        <tr>
+            <?// data cell ?>
+            <? foreach ($this->viewable_fields as $var): ?>
+                <td><?= (is_array($etd->$var['field']) ? join(";", $etd->$var['field']) : $etd->$var['field']);?></td>
+            <? endforeach ?>
+        </tr>
+    <? endforeach ?>
+</table>
+</div>
+<? endif ?>
+
+
+<script language="Javascript" type="text/javascript">
+    function split( val ) {
+    return val.split( /,\s*/ );
+}
+function extractLast( term ) {
+    return split( term ).pop();
+}
+
+$j(document).ready(function() { //START of ready function
+$j.ui.autocomplete.prototype._renderItem = function (ul, item) {
+    return $j("<li></li>")
+     .data("item.autocomplete", item)
+    .addClass("tip ui-menu-item")
+    .append("<a>" + item.label + "</a>")
+    .attr("desc", item.description)
+    .attr("role", "presentation")
+    .appendTo(ul);
+};
+
+$j("#custom-report" )
+.autocomplete({
+source: function( request, response ) {
+$j.getJSON( "<?=$this->url(array("controller"=>"report", "action"=>"custom-autocomplete"))?>", {
+term: extractLast( request.term )
+}, response );
+},
+
+search: function() {
+//Place holder
+},
+
+focus: function (event, ui) {
+       // Prevent the default focus behavior.
+       event.preventDefault();
+       // display descriptions of fields
+       var li = $j(event.srcElement).parent()
+       li.addClass('selected')
+       var target =  $j('#field-desc');
+       target.text(ui.item.description);
+       target.fadeIn('slow');
+       var e = $j('li').hover(function(){this.addClass('ui-state-focus');}, function(){this.removeClass('ui-state-focus');});
+},
+
+close: function(event, ui){
+    $j('#field-desc').fadeOut('slow');
+},
+
+select: function( event, ui ) {
+var terms = split( this.value );
+terms.pop();
+// Adding : here for solr query formatting
+// This allows etdSet field name to pull from the same field as solr field. 
+terms.push( ui.item.field + ":" );   
+this.value = terms.join( ", " );
+return false;
+}
+});
+
+}); //END of ready function
+</script>

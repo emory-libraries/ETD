@@ -1,4 +1,4 @@
- <?php
+  <?php
 /**
  * @category Etd
  * @package Etd_Controllers
@@ -7,6 +7,7 @@
 require_once("models/etd.php");
 require_once("models/charts.php");
 require_once("models/programs.php");
+require_once("controllers/report_fields.php");
 
 class ReportController extends Etd_Controller_Action {
   protected $requires_fedora = false;
@@ -775,6 +776,60 @@ class ReportController extends Etd_Controller_Action {
       }
       return array(array_keys($pagelength_labels), $totals);
     }
+    
+  
+    public function customAutocompleteAction(){
+        global $all_report_fields;
+///////////////////////////////////////////////////////////////////        
+//        DO NOT REMOVE UNDER PENALTY OF DEATH!!!!!
+        $this->_helper->layout->disableLayout();
+        $this->_helper->viewRenderer->setNoRender();
+///////////////////////////////////////////////////////////////////  
+        $term = $this->_getParam("term", ""); // autocomplete term
+        
+        // make lamda like function to filter results - case insensitive search of name and description
+        $params = '$arr,'.'$term='.'"'.$term.'"';
+        $filter = create_function($params, 'if ($term=="") return true; return strstr(strtoupper($arr["label"]), strtoupper($term)) || strstr(strtoupper($arr["value"]), strtoupper($term));');
+                
+        $this->getResponse()->setHeader('Content-Type', "application/json");
+        $this->getResponse()->setBody(json_encode(array_filter($all_report_fields, $filter)));
+    }
+    
+    public function customAction() {
+    global $all_report_fields;    
+    if(!$this->_helper->access->allowed("report", "view")) {return false;}
+    
+    $this->view->extra_scripts = array(
+         "//code.jquery.com/ui/1.10.3/jquery-ui.js"
+    );
+    
+    $this->view->title = "Custom Report";
+    $criteria = $this->_getParam('criteria', '');
+    $this->view->criteria = preg_replace('|\\\\"|', '&quot;', $this->view->criteria = $criteria);
+    
+    if ($this->getRequest()->isPost()) {
+        $query = stripslashes(join(" AND ", explode(',', $criteria)));
+        $optionsArray['query'] = $query;
+        // show ALL records on a single page 
+        $optionsArray['max'] = 1000000;
+        $optionsArray['return_type'] = "solrEtd";
+        $etdSet = new EtdSet();
+        
+        try{
+            $etdSet->find($optionsArray);
+            $this->view->etdSet = $etdSet;
+        }catch(Exception $e){
+            $this->_helper->flashMessenger->addMessage("Error: " . $e->getMessage());
+            $this->view->messages = $this->_helper->flashMessenger->getMessages();
+        }
+    
+        // AKA available = True in list
+        $filter = create_function('$arr', 'return $arr["available"];');
+    
+        $this->view->viewable_fields = array_filter($all_report_fields, $filter);
+    }
+  }    
+    
 
 }  // end ReportController
 
