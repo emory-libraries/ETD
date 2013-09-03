@@ -1,8 +1,0 @@
-<?=  $this->render('email/_debug.phtml'); ?>
-
-<p>Dear <?= $this->etd->authorInfo->mads->name ?>,</p>
-
-<p>At your request your ETD submission has been changed to draft status.</p>
-
-<!--This part is shared between the revert_to_draft and the request_changes email -->
-<?= $this->render("email/_rqstchange_foot.phtml") ?>
