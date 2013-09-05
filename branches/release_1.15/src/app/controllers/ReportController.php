@@ -806,8 +806,10 @@ class ReportController extends Etd_Controller_Action {
     $this->view->title = "Custom Report";
     
     $criteria = $this->_getParam('criteria', '');
+    //Handle quotes in search string
     $this->view->criteria = preg_replace('|\\\\"|', '&quot;', $this->view->criteria = $criteria);
     
+    //Selected fields to include in CSV
     $csv_fields = $this->_getParam('include', array());
     $this->view->csv_fields = $csv_fields;
     
@@ -856,16 +858,22 @@ class ReportController extends Etd_Controller_Action {
             foreach ($etdSet->etds as $etd){
                 $row = array();
                 foreach ($csv_fields as $field){
-                    $row[] = $etd->$field;
+                    if(is_array($etd->$field)){
+                        $row[] = join (";", $etd->$field);
+                    }else{
+                        $row[] = $etd->$field;
+                    }
                 }
             
                 $data[] = $row;
             }
             
             
+            //This MUST be named this->view->data  for the csv template
             $this->view->data = $data;
             
             
+            //HTML headers for CSV output
             $this->_helper->layout->disableLayout();
             $this->getResponse()->setHeader('Cache-Control', 'public', true);
             $this->getResponse()->setHeader('Pragma','public',true);
