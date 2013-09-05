@@ -804,8 +804,15 @@ class ReportController extends Etd_Controller_Action {
     );
     
     $this->view->title = "Custom Report";
+    
     $criteria = $this->_getParam('criteria', '');
     $this->view->criteria = preg_replace('|\\\\"|', '&quot;', $this->view->criteria = $criteria);
+    
+    $csv_fields = $this->_getParam('include', array());
+    $this->view->csv_fields = $csv_fields;
+    
+    $export = $this->_getParam('export', ''); // Export to CSV button
+
     
     if ($this->getRequest()->isPost()) {
         $query = stripslashes(join(" AND ", explode(',', $criteria)));
@@ -827,6 +834,46 @@ class ReportController extends Etd_Controller_Action {
         $filter = create_function('$arr', 'return $arr["available"];');
     
         $this->view->viewable_fields = array_filter($all_report_fields, $filter);
+        
+        //If export button was clicked then do the export
+        //set HTML headers in response to make output downloadable
+        if($export != ''){
+            
+            $data = array();
+            
+            //Header Row
+            $headers = array();
+            foreach ($csv_fields as $name){
+                foreach ($all_report_fields as $field){
+                    if($field['field'] == $name){
+                        $headers[] =  $field['label'];
+                    }
+                }
+            }
+            $data[] = $headers;
+            
+            // Add data fields
+            foreach ($etdSet->etds as $etd){
+                $row = array();
+                foreach ($csv_fields as $field){
+                    $row[] = $etd->$field;
+                }
+            
+                $data[] = $row;
+            }
+            
+            
+            $this->view->data = $data;
+            
+            
+            $this->_helper->layout->disableLayout();
+            $this->getResponse()->setHeader('Cache-Control', 'public', true);
+            $this->getResponse()->setHeader('Pragma','public',true);
+            $this->getResponse()->setHeader('Expires','-1');
+            $this->getResponse()->setHeader('Content-Type', "text/csv");
+            $this->getResponse()->setHeader('Content-Disposition', 'attachment; filename="' . "ETD_Report.csv" . '"');
+            $this->render("export-csv");  // use generic csv template
+        }
     }
   }    
     
