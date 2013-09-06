@@ -817,7 +817,21 @@ class ReportController extends Etd_Controller_Action {
 
     
     if ($this->getRequest()->isPost()) {
-        $query = stripslashes(join(" AND ", explode(',', $criteria)));
+        //$query = stripslashes(join(" AND ", explode(',', $criteria)));
+        //
+        // break into each field
+        $tmp = explode(",", $criteria);
+        //handel mutiple values in each field
+        foreach ($tmp as &$name_val){
+            $p = strpos($name_val, ":");
+            $name = substr($name_val, 0, $p+1);
+            $val = substr($name_val, $p+1);
+            $name_val = preg_replace('/("\b[\w\s]+\b"|\b[\w]+\b|\[.+\])/', "{$name}$1 OR", $val);
+            $name_val = rtrim($name_val, "OR");
+            $name_val = "($name_val)";
+        }
+        $query = join(" AND ", $tmp);
+        
         $optionsArray['query'] = $query;
         // show ALL records on a single page 
         $optionsArray['max'] = 1000000;
