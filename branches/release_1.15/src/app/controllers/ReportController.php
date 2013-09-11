@@ -778,7 +778,12 @@ class ReportController extends Etd_Controller_Action {
     }
     
   
-    public function customAutocompleteAction(){
+    public function standardAction(){
+        
+        $this->view->title = "Create Report";
+    }
+    
+    public function advancedAutocompleteAction(){
         global $all_report_fields;
 ///////////////////////////////////////////////////////////////////        
 //        DO NOT REMOVE UNDER PENALTY OF DEATH!!!!!
@@ -795,7 +800,7 @@ class ReportController extends Etd_Controller_Action {
         $this->getResponse()->setBody(json_encode(array_filter($all_report_fields, $filter)));
     }
     
-    public function customAction() {
+    public function advancedAction() {
     global $all_report_fields;    
     if(!$this->_helper->access->allowed("report", "view")) {return false;}
     
@@ -803,7 +808,7 @@ class ReportController extends Etd_Controller_Action {
          "//code.jquery.com/ui/1.10.3/jquery-ui.js"
     );
     
-    $this->view->title = "Custom Report";
+    $this->view->title = "Create Advanced Report";
     
     $criteria = $this->_getParam('criteria', '');
     //Handle quotes in search string

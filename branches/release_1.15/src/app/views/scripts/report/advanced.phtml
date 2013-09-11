@@ -9,7 +9,10 @@ table#report-results tr th { margin: 0; padding: 5px; border: 1px solid black; b
 
 </style>
 
-<h1><?=$this->title?></h1>
+<div>
+    <h1><?=$this->title?></h1>
+    <a href="<?= $this->url(array("action" => "standard"))?>">Switch to Standard Report</a>
+</div>
 
 
 <ul>
@@ -21,13 +24,13 @@ table#report-results tr th { margin: 0; padding: 5px; border: 1px solid black; b
 </ul>
 
 
-<form method="post" id="customs_report_form"  action="<?= $this->url(array("action" => "custom"))?>" onsubmit="disableButton('search')">
+<form method="post" id="advanced_report_form"  action="<?= $this->url(array("action" => "advanced"))?>" onsubmit="disableButton('search')">
     
     
 <span class="ui-widget" style="display: inline-block;" >
 <div id='field-desc' style="color:white; background-color:black; position: absolute; top: 150px; display: none"></div>    
 <div style="margin-top:25px;">
-    <input id="custom-report" size="80" name="criteria" value="<?=  $this->criteria;?>" />
+    <input id="advanced-report" size="80" name="criteria" value="<?=  $this->criteria;?>" />
 <?= $this->formSubmit("search", "Search >", array("class" => "submitbutton")); ?>
 </div>
 </span>
@@ -88,10 +91,10 @@ $j.ui.autocomplete.prototype._renderItem = function (ul, item) {
     .appendTo(ul);
 };
 
-$j("#custom-report" )
+$j("#advanced-report" )
 .autocomplete({
 source: function( request, response ) {
-$j.getJSON( "<?=$this->url(array("controller"=>"report", "action"=>"custom-autocomplete"))?>", {
+$j.getJSON( "<?=$this->url(array("controller"=>"report", "action"=>"advanced-autocomplete"))?>", {
 term: extractLast( request.term )
 }, response );
 },
