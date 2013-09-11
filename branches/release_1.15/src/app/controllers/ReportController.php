@@ -779,11 +779,13 @@ class ReportController extends Etd_Controller_Action {
     
   
     public function standardAction(){
+        if(!$this->_helper->access->allowed("report", "view")) {return false;}
         
         $this->view->title = "Create Report";
     }
     
     public function advancedAutocompleteAction(){
+        if(!$this->_helper->access->allowed("report", "view")) {return false;}
         global $all_report_fields;
 ///////////////////////////////////////////////////////////////////        
 //        DO NOT REMOVE UNDER PENALTY OF DEATH!!!!!
@@ -809,23 +811,31 @@ class ReportController extends Etd_Controller_Action {
     );
     
     $this->view->title = "Create Advanced Report";
+     
+    }
     
+    public function previewexportAction(){
+    global $all_report_fields;    
+    if(!$this->_helper->access->allowed("report", "view")) {return false;}
     $criteria = $this->_getParam('criteria', '');
     //Handle quotes in search string
     $this->view->criteria = preg_replace('|\\\\"|', '&quot;', $this->view->criteria = $criteria);
     
     //Selected fields to include in CSV
-    $csv_fields = $this->_getParam('include', array());
+    $csv_fields = $this->_getParam('include', $all_report_fields);
     $this->view->csv_fields = $csv_fields;
     
     $export = $this->_getParam('export', ''); // Export to CSV button
+    
+    $this->view->is_advanced = $this->_getParam("advanced-search", '');
+    print "AD1: {$this->view->is_advanced}";
 
+    $this->_helper->layout->disableLayout();
+    
     
     if ($this->getRequest()->isPost()) {
-        //$query = stripslashes(join(" AND ", explode(',', $criteria)));
-        //
         // break into each field
-        $tmp = explode(",", $criteria);
+        $tmp = explode(",", stripslashes($criteria));
         //handel mutiple values in each field
         foreach ($tmp as &$name_val){
             $p = strpos($name_val, ":");
@@ -901,8 +911,10 @@ class ReportController extends Etd_Controller_Action {
             $this->getResponse()->setHeader('Content-Disposition', 'attachment; filename="' . "ETD_Report.csv" . '"');
             $this->render("export-csv");  // use generic csv template
         }
+    }        
     }
-  }    
+    
+    
     
 
 }  // end ReportController

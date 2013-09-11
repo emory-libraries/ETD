@@ -1,12 +1,6 @@
 <style>
  span.ui-helper-hidden-accessible{display: none;} /*prevent weird jquery output */
  ul.ui-menu li.ui-menu-item a.ui-state-focus {display: block;} <? //made sure it only effects this pag?e ?>
- 
-table#report-results tr th { background-color :lightgray; }
-table#report-results, 
-table#report-results tr td, 
-table#report-results tr th { margin: 0; padding: 5px; border: 1px solid black; border-collapse: collapse; border-spacing: 0; }
-
 </style>
 
 <div>
@@ -24,55 +18,19 @@ table#report-results tr th { margin: 0; padding: 5px; border: 1px solid black; b
 </ul>
 
 
-<form method="post" id="advanced_report_form"  action="<?= $this->url(array("action" => "advanced"))?>" onsubmit="disableButton('search')">
+<form method="post" id="advanced_report_form"  action="<?= $this->url(array("action" => "preview_export"))?>" onsubmit="disableButton('search')" target="_blank">
     
     
 <span class="ui-widget" style="display: inline-block;" >
 <div id='field-desc' style="color:white; background-color:black; position: absolute; top: 150px; display: none"></div>    
 <div style="margin-top:25px;">
     <input id="advanced-report" size="80" name="criteria" value="<?=  $this->criteria;?>" />
-<?= $this->formSubmit("search", "Search >", array("class" => "submitbutton")); ?>
+<?= $this->formSubmit("advanced-search", "Search >", array("class" => "submitbutton")); ?>
 </div>
 </span>
     
 
-
-<? if($this->etdSet): ?>
-<div style="margin-top: 15px;">
-    
-<div style="margin-bottom: 5px;">
-  Number of Results: <?=count($this->etdSet->etds)?>
-  <?if (count($this->etdSet->etds)): ?>
-      <?= $this->formSubmit("export", "Export as CSV >", array("class" => "submitbutton")); ?>
-  <? endif ?>
-</div>    
-<table id="report-results">
-    <tr> <?// header row ?>
-        <? foreach($this->viewable_fields as $field): ?>
-            <th>
-    <div><input type="checkbox" name="include[]" value="<?=$field['field']?>" <?=(in_array($field['field'], $this->csv_fields) ? 'checked' : '')?>></input></div>
-            <div><?=$field['label']?></div>
-            </th>
-    
-        <? endforeach ?>
-    </tr>
-
-    <?// data rows?>
-    <? foreach($this->etdSet->etds as $etd): ?>
-        <tr>
-            <?// data cell ?>
-            <? foreach ($this->viewable_fields as $var): ?>
-                <td><?= (is_array($etd->$var['field']) ? join(";", $etd->$var['field']) : $etd->$var['field']);?></td>
-            <? endforeach ?>
-        </tr>
-    <? endforeach ?>
-</table>
-    </form>
-</div>
-<? endif ?>
-
-
-<script language="Javascript" type="text/javascript">
+ <script language="Javascript" type="text/javascript">
     function split( val ) {
     return val.split( /,\s*/ );
 }
