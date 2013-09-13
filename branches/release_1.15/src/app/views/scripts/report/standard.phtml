@@ -2,3 +2,145 @@
     <h1><?=$this->title?></h1>
     <a href="<?= $this->url(array("action" => "advanced"))?>">Switch to Advanced Report</a>
 </div>
+
+<div>
+<form method="post" id="standard_report_form"  action="<?= $this->url(array("action" => "preview_export"))?>" target="_blank">
+    <div style="margin-top:15px">
+    <fieldset>
+        <b>Status:</b>
+    
+    <div> <input type="checkbox" name="status[]" value='ALL' class="checkall"> All </div>
+    <div> <input type="checkbox" name="status[]" value='inactive'> Inactive </div>
+    <div> <input type="checkbox" name="status[]" value='draft'> Draft</div>
+    <div> <input type="checkbox" name="status[]" value='submitted'> Submitted</div>
+    <div> <input type="checkbox" name="status[]" value='reviewed'> Reviewed</div>
+    <div> <input type="checkbox" name="status[]" value='approved'> Approved</div>
+    <div> <input type="checkbox" name="status[]" value='published' id="pub-box"> published 
+        <input type="text" size="8" id="pub-from" name="pub_from"> TO
+        <input type="text" size="8" id="pub-to" name="pub_to"></div>
+    </div>
+
+    </fieldset>
+        
+    <fieldset>
+        <b>Degree:</b>
+    
+    <div> <input type="checkbox" name="degree_name[]" value='ALL' class="checkall"> All </div>
+    <div> <input type="checkbox" name="degree_name[]" value='PhD'> PhD </div>
+    <div> <input type="checkbox" name="degree_name[]" value='BA'> BA </div>
+    <div> <input type="checkbox" name="degree_name[]" value='MS'> MS </div>
+    <div> <input type="checkbox" name="degree_name[]" value='MA'> MA </div>
+    <div> <input type="checkbox" name="degree_name[]" value='BS'> BS </div>
+    <div> <input type="checkbox" name="degree_name[]" value='MPH'> MPH </div>
+    <div> <input type="checkbox" name="degree_name[]" value='MSPH'> MSPH </div>
+    <div> <input type="checkbox" name="degree_name[]" value='BBA'> BBA </div>
+    <div> <input type="checkbox" name="degree_name[]" value='ThD'> ThD </div>
+    <div> <input type="checkbox" name="degree_name[]" value='MTS'> MTS </div>
+    <div> <input type="checkbox" name="degree_name[]" value='MDiv'> MDiv </div>
+    </fieldset>         
+        
+<fieldset>
+        <b>Document Type:</b>
+    
+    <div> <input type="checkbox" name="document_type[]" value='ALL' class="checkall"> All </div>
+    <div> <input type="checkbox" name="document_type[]" value='Dissertation'> Dissertation </div>
+    <div> <input type="checkbox" name="document_type[]" value="Master's Thesis"> Master's Thesis </div>
+    <div> <input type="checkbox" name="document_type[]" value='Honors Thesis'> Honors Thesis </div>
+    
+    </fieldset>
+        
+<fieldset>
+        <b>Embargo Requested:</b>
+    
+    <div> <input type="checkbox" name="embargo_duration[]" value='ALL' class="checkall"> All </div>
+    <div> <input type="checkbox" name="embargo_duration[]" value='0 days'> 0 days </div>
+    <div> <input type="checkbox" name="embargo_duration[]" value='6 months'> 6 months </div>
+    <div> <input type="checkbox" name="embargo_duration[]" value='1 year'> 1 year </div>
+    <div> <input type="checkbox" name="embargo_duration[]" value='2 years'> 2 years </div>
+    <div> <input type="checkbox" name="embargo_duration[]" value='6 years'> 6 years </div>
+</fieldset>
+    
+<fieldset>
+        <b>Language:</b>
+    
+    <div> <input type="checkbox" name="language[]" value='ALL' class="checkall"> All </div>
+    <div> <input type="checkbox" name="language[]" value='English'> English </div>
+    <div> <input type="checkbox" name="language[]" value='French'> French </div>
+    <div> <input type="checkbox" name="language[]" value='Spanish'> Spanish </div>
+</fieldset>
+        
+<fieldset>
+        <b>School:</b>
+    
+    <div> <input type="checkbox" name="collection[]" value='ALL' class="checkall"> All </div>
+    <div> <input type="checkbox" name="collection[]" value='emory-control:ETD-GradSchool-collection'> Grad School </div>
+    <div> <input type="checkbox" name="collection[]" value='emory-control:ETD-Rollins-collection'> Rollins </div>
+    <div> <input type="checkbox" name="collection[]" value='emory-control:ETD-College-collection'> Honors </div>
+    <div> <input type="checkbox" name="collection[]" value='emory-control:ETD-Candler-collection'> Candler </div>
+</fieldset>
+        
+<fieldset>
+        <b>Select Output Fields:</b>
+    
+    <input type="checkbox" name="include[]" value='ALL' class="checkall"> All
+    <input type="checkbox" name="include[]" value='author'> Author
+    <input type="checkbox" name="include[]" value='dateIssued'> Date Published
+    <input type="checkbox" name="include[]" value='degree_name'> Degree
+    <input type="checkbox" name="include[]" value='document_type'> Document Type
+    <input type="checkbox" name="include[]" value='embargo_duration'> Embargo Duration
+    <input type="checkbox" name="include[]" value='language'> Language
+    <input type="checkbox" name="include[]" value='program'> Program
+    <input type="checkbox" name="include[]" value='program_id'> Program ID
+    <input type="checkbox" name="include[]" value='subfield'> Subfield
+    <input type="checkbox" name="include[]" value='subfield_id'> Subfield ID
+    <input type="checkbox" name="include[]" value='subject'> Subjects
+    <input type="checkbox" name="include[]" value='title'> Title
+    <input type="checkbox" name="include[]" value='advisor'> Committee Chair
+    <input type="checkbox" name="include[]" value='keyword'> Keywords
+    <input type="checkbox" name="include[]" value='status'> Status
+    <input type="checkbox" name="include[]" value='partneringagencies'> Partnering Agencies
+    <input type="checkbox" name="include[]" value='collection'> School
+    
+</fieldset>
+    
+<?= $this->formSubmit("standard-search", "Search >", array("class" => "submitbutton")); ?>
+</form>
+ </div>
+
+<script language="Javascript" type="text/javascript">
+    
+    /*
+     * Toggle Checkboxes in a  logical way
+     * the select all box must have the class 'checkall' and a value of ''
+     **/
+    $j(function () {
+    $j('.checkall').on('click', function () {
+        $j(this).closest('fieldset').find(':checkbox').prop('checked', this.checked);
+    });
+    
+   $j(':checkbox').on('change', function () {
+        if(!this.checked){
+            $j(this).closest('fieldset').find('.checkall').prop('checked', false);
+        }
+    });
+    
+    $j('#pub-box').on('change', function () {
+            var pub_from = $j('#pub-from');
+            var pub_to = $j('#pub-to');
+            
+            
+            if(!this.checked){
+                pub_from.prop("value", '');
+//                pub_from.prop('disabled', true);
+                pub_to.prop("value", '');
+//                pub_to.prop('disabled', true);
+//            }
+//            else{
+//                pub_from.prop('disabled', false);
+//                pub_to.prop('disabled', false);
+            }
+    });
+        
+});
+
+</script>

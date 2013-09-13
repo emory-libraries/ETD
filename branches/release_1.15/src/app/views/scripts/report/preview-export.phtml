@@ -16,12 +16,12 @@ table#report-results tr th { margin: 0; padding: 5px; border: 1px solid black; b
   <?if (count($this->etdSet->etds)): ?>
       <?= $this->formSubmit("export", "Export as CSV >", array("class" => "submitbutton")); ?>
   <? endif ?>
-</div>    
+</div>
 <table id="report-results">
     <tr> <?// header row ?>
-        <? foreach($this->viewable_fields as $field): ?>
+        <? foreach($this->csv_fields as $field): ?>
             <th>
-    <div><input type="checkbox" name="include[]" value="<?=$field['field']?>" <?=(empty($this->is_advanced) ? 'checked' : '')?>></input></div>
+    <div><input type="checkbox" name="include[]" value="<?=$field['field']?>" checked></input></div>
             <div><?=$field['label']?></div>
             </th>
     
@@ -32,7 +32,7 @@ table#report-results tr th { margin: 0; padding: 5px; border: 1px solid black; b
     <? foreach($this->etdSet->etds as $etd): ?>
         <tr>
             <?// data cell ?>
-            <? foreach ($this->viewable_fields as $var): ?>
+            <? foreach ($this->csv_fields as $var): ?>
                 <td><?= (is_array($etd->$var['field']) ? join(";", $etd->$var['field']) : $etd->$var['field']);?></td>
             <? endforeach ?>
         </tr>

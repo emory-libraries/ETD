@@ -782,6 +782,15 @@ class ReportController extends Etd_Controller_Action {
         if(!$this->_helper->access->allowed("report", "view")) {return false;}
         
         $this->view->title = "Create Report";
+//        
+//        $csv_fields = $this->_getParam('include', array());
+//        print "CSV: ";
+//        print_r($csv_fields);
+//        
+//        if ($this->getRequest()->isPost()) {
+//            $this->_forward('preview_export', null, null, array('criteria'=>'ownerId:athom09', 'csv_fields'=> $csv_fields));
+//        }
+        
     }
     
     public function advancedAutocompleteAction(){
@@ -815,20 +824,28 @@ class ReportController extends Etd_Controller_Action {
     }
     
     public function previewexportAction(){
-    global $all_report_fields;    
+    global $all_report_fields;
+    global $csv_fields;
+    
     if(!$this->_helper->access->allowed("report", "view")) {return false;}
     $criteria = $this->_getParam('criteria', '');
     //Handle quotes in search string
     $this->view->criteria = preg_replace('|\\\\"|', '&quot;', $this->view->criteria = $criteria);
     
     //Selected fields to include in CSV
-    $csv_fields = $this->_getParam('include', $all_report_fields);
-    $this->view->csv_fields = $csv_fields;
+    $csv_fields = $this->_getParam('include', array());
+    $filter_selected =  create_function('$arr', 'global $csv_fields; return in_array($arr["field"], $csv_fields);');
+    $filter_all_visable = create_function('$arr', 'return $arr["available"];');
+    if ($csv_fields){
+        $this->view->csv_fields = array_filter($all_report_fields, $filter_selected);
+    }
+    else{
+        $this->view->csv_fields = array_filter($all_report_fields, $filter_all_visable);
+    }
     
     $export = $this->_getParam('export', ''); // Export to CSV button
     
     $this->view->is_advanced = $this->_getParam("advanced-search", '');
-    print "AD1: {$this->view->is_advanced}";
 
     $this->_helper->layout->disableLayout();
     
@@ -843,11 +860,12 @@ class ReportController extends Etd_Controller_Action {
             $val = substr($name_val, $p+1);
             $name_val = preg_replace('/("\b[\w\s]+\b"|\b[\w]+\b|\[.+\])/', "{$name}$1 OR", $val);
             $name_val = rtrim($name_val, "OR");
-            $name_val = "($name_val)";
+            $name_val = (!empty($name_val) ? "($name_val)" : '');
         }
         $query = join(" AND ", $tmp);
         
         $optionsArray['query'] = $query;
+        // print "QUERY: {$query}";
         // show ALL records on a single page 
         $optionsArray['max'] = 1000000;
         $optionsArray['return_type'] = "solrEtd";
@@ -861,10 +879,6 @@ class ReportController extends Etd_Controller_Action {
             $this->view->messages = $this->_helper->flashMessenger->getMessages();
         }
     
-        // AKA available = True in list
-        $filter = create_function('$arr', 'return $arr["available"];');
-    
-        $this->view->viewable_fields = array_filter($all_report_fields, $filter);
         
         //If export button was clicked then do the export
         //set HTML headers in response to make output downloadable
