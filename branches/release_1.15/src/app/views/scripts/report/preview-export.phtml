@@ -33,7 +33,13 @@ table#report-results tr th { margin: 0; padding: 5px; border: 1px solid black; b
         <tr>
             <?// data cell ?>
             <? foreach ($this->csv_fields as $var): ?>
-                <td><?= (is_array($etd->$var['field']) ? join(";", $etd->$var['field']) : $etd->$var['field']);?></td>
+                <td>
+                <? if (is_array($etd->$var['field'])): ?>  
+                        <?= join(";", $etd->$var['field']); ?>
+                <? else: ?>
+                        <?= $etd->$var['field']; ?>
+                <? endif ?>
+                </td>
             <? endforeach ?>
         </tr>
     <? endforeach ?>

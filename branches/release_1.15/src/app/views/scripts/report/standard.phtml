@@ -73,11 +73,32 @@
         <b>School:</b>
     
     <div> <input type="checkbox" name="collection[]" value='ALL' class="checkall"> All </div>
-    <div> <input type="checkbox" name="collection[]" value='emory-control:ETD-GradSchool-collection'> Grad School </div>
-    <div> <input type="checkbox" name="collection[]" value='emory-control:ETD-Rollins-collection'> Rollins </div>
-    <div> <input type="checkbox" name="collection[]" value='emory-control:ETD-College-collection'> Honors </div>
-    <div> <input type="checkbox" name="collection[]" value='emory-control:ETD-Candler-collection'> Candler </div>
+    <div> <input type="checkbox" name="collection[]" value='emory-control:ETD-GradSchool-collection'> 
+        <?=$this->schools->getLabel($this->schools->getIdByFedoraCollection('emory-control:ETD-GradSchool-collection')) ?> </div>
+    <div> <input type="checkbox" name="collection[]" value='emory-control:ETD-Rollins-collection'> 
+        <?=$this->schools->getLabel($this->schools->getIdByFedoraCollection('emory-control:ETD-Rollins-collection')) ?> </div>
+    <div> <input type="checkbox" name="collection[]" value='emory-control:ETD-College-collection'> 
+        <?=$this->schools->getLabel($this->schools->getIdByFedoraCollection('emory-control:ETD-College-collection')) ?> </div>
+    <div> <input type="checkbox" name="collection[]" value='emory-control:ETD-Candler-collection'> 
+        <?=$this->schools->getLabel($this->schools->getIdByFedoraCollection('emory-control:ETD-Candler-collection')) ?> </div>
 </fieldset>
+        
+<fieldset>
+        <b>Program:</b>
+        <div>
+            <?=$this->formSelect('program_id[]', null, array('multiple'=> 'multiple', 'size'=>10), $this->programs);?>
+        </div>
+
+</fieldset>
+        
+<fieldset>
+        <b>Subfield:</b>
+        <div>
+            <?=$this->formSelect('subfield_id[]', null, array('multiple'=> 'multiple', 'size'=>10), $this->subfields);?>
+        </div>
+
+
+</fieldset>        
         
 <fieldset>
         <b>Select Output Fields:</b>
@@ -127,18 +148,6 @@
     $j('#pub-box').on('change', function () {
             var pub_from = $j('#pub-from');
             var pub_to = $j('#pub-to');
-            
-            
-            if(!this.checked){
-                pub_from.prop("value", '');
-//                pub_from.prop('disabled', true);
-                pub_to.prop("value", '');
-//                pub_to.prop('disabled', true);
-//            }
-//            else{
-//                pub_from.prop('disabled', false);
-//                pub_to.prop('disabled', false);
-            }
     });
         
 });

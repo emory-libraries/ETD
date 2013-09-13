@@ -191,7 +191,7 @@
         ),
         array(
           'field' => 'collection', 
-          'label' => 'Collection', 
+          'label' => 'School', 
           'description' => 'Fedora identifier for the collection this ETD belongs to; use to associated ETD records with schools (i.e., Graduate School, Theology, Rollins, etc)',
           'available' => true
         ),

@@ -782,14 +782,40 @@ class ReportController extends Etd_Controller_Action {
         if(!$this->_helper->access->allowed("report", "view")) {return false;}
         
         $this->view->title = "Create Report";
-//        
-//        $csv_fields = $this->_getParam('include', array());
-//        print "CSV: ";
-//        print_r($csv_fields);
-//        
-//        if ($this->getRequest()->isPost()) {
-//            $this->_forward('preview_export', null, null, array('criteria'=>'ownerId:athom09', 'csv_fields'=> $csv_fields));
-//        }
+        $this->view->schools=$schools_cfg = Zend_Registry::get("schools-config");
+        
+        $optionsArray['query'] = '';
+        $optionsArray['max'] = 1000000;
+        $optionsArray['return_type'] = "solrEtd";
+        $etdSet = new EtdSet();
+        
+        // make program select box options
+        $programs = array();
+        $subfields = array();
+        try{
+            $etdSet->find($optionsArray);
+            foreach ($etdSet->etds as $etd){
+                $prog = $etd->program;
+                $prog_id = $etd->program_id;
+                
+                if (!empty($prog_id) && !empty($prog)) {
+                    $programs[$prog_id] = $prog;
+                }
+                
+                //make subfiled select box options
+                $sub = $etd->subfield;
+                $sub_id = $etd->subfield_id;
+                
+                if (!empty($sub_id) && !empty($sub)) {
+                    $subfields[$sub_id] = $sub;
+                }
+            }
+            $this->view->programs = $programs;
+            $this->view->subfields = $subfields;
+        }catch(Exception $e){
+            $this->_helper->flashMessenger->addMessage("Error: " . $e->getMessage());
+            $this->view->messages = $this->_helper->flashMessenger->getMessages();
+        }
         
     }
     
@@ -823,14 +849,26 @@ class ReportController extends Etd_Controller_Action {
      
     }
     
+    public function _formatStandardReportField($field, $values){
+        if(empty($values)) {return '';}
+        
+        foreach($values as $i=> &$value){
+            if($value=="ALL") {unset($values[$i]);}
+            
+            $value = '\"' . $value . '\"';
+        }
+        return $term = $field . ":" .join(' ', $values);
+    }
+    
     public function previewexportAction(){
     global $all_report_fields;
     global $csv_fields;
+    $criteria = '';
+   
+    $this->view->schools=$schools_cfg = Zend_Registry::get("schools-config");
     
     if(!$this->_helper->access->allowed("report", "view")) {return false;}
     $criteria = $this->_getParam('criteria', '');
-    //Handle quotes in search string
-    $this->view->criteria = preg_replace('|\\\\"|', '&quot;', $this->view->criteria = $criteria);
     
     //Selected fields to include in CSV
     $csv_fields = $this->_getParam('include', array());
@@ -851,6 +889,52 @@ class ReportController extends Etd_Controller_Action {
     
     
     if ($this->getRequest()->isPost()) {
+        $tmp = array();
+        if($this->_getParam('standard-search', '') !=''){
+            
+            //Status
+            $status = $this->_getParam('status', array());
+            if(!empty($status)){$tmp[]= $this->_formatStandardReportField('status', $status);}
+            
+            //pub date only active when published status selected
+            if(in_array('published', $status)){
+                $pub_from = $this->_getParam('pub_from', '*');
+                $pub_to = $this->_getParam('pub_to', '*');
+                $tmp[] = "dateIssued:[$pub_from TO $pub_to]";
+                
+            }
+            
+            //degree
+            $degree_name = $this->_getParam('degree_name', array());
+            if(!empty($degree_name)){$tmp[]= $this->_formatStandardReportField('degree_name', $degree_name);}
+            
+            //doc type
+            $document_type = $this->_getParam('document_type', array());
+            if(!empty($document_type)){$tmp[]= $this->_formatStandardReportField('document_type', $document_type);}
+            
+            //embargo requested
+            $embargo_duration = $this->_getParam('embargo_duration', array());
+            if(!empty($embargo_duration)){$tmp[]= $this->_formatStandardReportField('embargo_duration', $embargo_duration);}
+            
+            //language
+            $language = $this->_getParam('language', array());
+            if(!empty($language)){$tmp[]= $this->_formatStandardReportField('language', $language);}
+            
+            //School
+            $collection = $this->_getParam('collection', array());
+            if(!empty($collection)){$tmp[]= $this->_formatStandardReportField('collection', $collection);}
+            
+            //program
+            $program_id = $this->_getParam('program_id', array());
+            if(!empty($program_id)){$tmp[]= $this->_formatStandardReportField('program_id', $program_id);}
+            
+            //subfield
+            $subfield_id = $this->_getParam('subfield_id', array());
+            if(!empty($subfield_id)){$tmp[]= $this->_formatStandardReportField('subfield_id', $subfield_id);}
+            $criteria = join(', ', $tmp);
+            
+    }
+        
         // break into each field
         $tmp = explode(",", stripslashes($criteria));
         //handel mutiple values in each field
@@ -863,10 +947,7 @@ class ReportController extends Etd_Controller_Action {
             $name_val = (!empty($name_val) ? "($name_val)" : '');
         }
         $query = join(" AND ", $tmp);
-        
         $optionsArray['query'] = $query;
-        // print "QUERY: {$query}";
-        // show ALL records on a single page 
         $optionsArray['max'] = 1000000;
         $optionsArray['return_type'] = "solrEtd";
         $etdSet = new EtdSet();
@@ -878,7 +959,9 @@ class ReportController extends Etd_Controller_Action {
             $this->_helper->flashMessenger->addMessage("Error: " . $e->getMessage());
             $this->view->messages = $this->_helper->flashMessenger->getMessages();
         }
-    
+        
+        $this->view->criteria = preg_replace('|\\\\"|', '&quot;', $criteria);
+   
         
         //If export button was clicked then do the export
         //set HTML headers in response to make output downloadable
