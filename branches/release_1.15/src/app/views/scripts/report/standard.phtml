@@ -9,15 +9,15 @@
     <fieldset>
         <b>Status:</b>
     
-    <div> <input type="checkbox" name="status[]" value='ALL' class="checkall"> All </div>
+    <div> <input type="checkbox" name="status[]" value='ALL' class="checkall" id="status-all"> All </div>
     <div> <input type="checkbox" name="status[]" value='inactive'> Inactive </div>
     <div> <input type="checkbox" name="status[]" value='draft'> Draft</div>
     <div> <input type="checkbox" name="status[]" value='submitted'> Submitted</div>
     <div> <input type="checkbox" name="status[]" value='reviewed'> Reviewed</div>
     <div> <input type="checkbox" name="status[]" value='approved'> Approved</div>
     <div> <input type="checkbox" name="status[]" value='published' id="pub-box"> published 
-        <input type="text" size="8" id="pub-from" name="pub_from"> TO
-        <input type="text" size="8" id="pub-to" name="pub_to"></div>
+        <input type="text" size="8" id="pub-from" name="pub-from" disabled> TO
+        <input type="text" size="8" id="pub-to" name="pub-to" disabled></div>
     </div>
 
     </fieldset>
@@ -145,10 +145,31 @@
         }
     });
     
-    $j('#pub-box').on('change', function () {
-            var pub_from = $j('#pub-from');
-            var pub_to = $j('#pub-to');
+    $j(':checkbox').on("change", function(){
+    var total = $j(this).closest('fieldset').find(':checkbox');
+    var c = total.filter(":checked");
+    if(total.length-1 == c.length){
+        total.filter(".checkall").prop("checked", true);
+    }
     });
+    
+    $j('#pub-box, #status-all').on("change", function(){
+    var from = $j('#pub-from');
+    var to = $j('#pub-to');
+    
+    if(this.checked){
+        to.prop('disabled', false);
+        from.prop('disabled', false);
+    }
+    else{
+        to.prop('disabled', true);
+        to.prop('value', '');
+        from.prop('disabled', true);
+        from.prop('value', '');
+    }
+    
+    });
+    
         
 });
 
