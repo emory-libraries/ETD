@@ -35,7 +35,13 @@ table#report-results tr th { margin: 0; padding: 5px; border: 1px solid black; b
             <? foreach ($this->csv_fields as $var): ?>
                 <td>
                 <? if (is_array($etd->$var['field'])): ?>  
-                        <?= join(";", $etd->$var['field']); ?>
+                        <? 
+                        $term = join(";", $etd->$var['field']); 
+                        if ($var['field'] == 'collection'){
+                            $term = $this->schools->getLabel($this->schools->getIdByFedoraCollection($term));
+                        }
+                        echo $term;
+                        ?>
                 <? else: ?>
                         <?= $etd->$var['field']; ?>
                 <? endif ?>

@@ -853,7 +853,7 @@ class ReportController extends Etd_Controller_Action {
         if(empty($values)) {return '';}
         
         foreach($values as $i=> &$value){
-            if($value=="ALL") {unset($values[$i]);}
+            if($value=="ALL" || empty($value)) {unset($values[$i]);}
             
             $value = '\"' . $value . '\"';
         }
@@ -942,11 +942,14 @@ class ReportController extends Etd_Controller_Action {
             $p = strpos($name_val, ":");
             $name = substr($name_val, 0, $p+1);
             $val = substr($name_val, $p+1);
-            $name_val = preg_replace('/("\b[\w\s]+\b"|\b[\w]+\b|\[.+\])/', "{$name}$1 OR", $val);
+            $name_val = preg_replace('/("\b[\w\s:-]+\b"|\b[\w:-]+\b|\[.+\])/', "{$name}$1 OR", $val);
             $name_val = rtrim($name_val, "OR");
             $name_val = (!empty($name_val) ? "($name_val)" : '');
         }
         $query = join(" AND ", $tmp);
+        //There is a much better way tod do this but the regex was really complicated
+        $query = str_replace("MasterXs", "Master's", $query);
+        print $query;
         $optionsArray['query'] = $query;
         $optionsArray['max'] = 1000000;
         $optionsArray['return_type'] = "solrEtd";
@@ -985,7 +988,9 @@ class ReportController extends Etd_Controller_Action {
                 $row = array();
                 foreach ($csv_fields as $field){
                     if(is_array($etd->$field)){
-                        $row[] = join (";", $etd->$field);
+                        $term = join (";", $etd->$field);
+                        if($field == 'collection'){$term =$schools_cfg->getLabel($schools_cfg->getIdByFedoraCollection($term));}
+                        $row[] = $term;
                     }else{
                         $row[] = $etd->$field;
                     }
