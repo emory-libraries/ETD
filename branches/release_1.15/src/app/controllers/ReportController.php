@@ -797,9 +797,12 @@ class ReportController extends Etd_Controller_Action {
             foreach ($etdSet->etds as $etd){
                 $prog = $etd->program;
                 $prog_id = $etd->program_id;
+                $school = $schools_cfg->getLabel($schools_cfg->getIdByFedoraCollection($etd->collection[0]));
+                
+                
                 
                 if (!empty($prog_id) && !empty($prog)) {
-                    $programs[$prog_id] = $prog;
+                    $programs[$school][$prog_id] = $prog;
                 }
                 
                 //make subfiled select box options
@@ -807,9 +810,22 @@ class ReportController extends Etd_Controller_Action {
                 $sub_id = $etd->subfield_id;
                 
                 if (!empty($sub_id) && !empty($sub)) {
-                    $subfields[$sub_id] = $sub;
+                    $subfields[$school][$sub_id] = $sub;
                 }
             }
+            
+           //Sort by school
+            ksort($programs);
+            //sort programs within school
+            foreach($programs as &$v) {asort($v);}
+            
+            
+            //Sort by school
+            ksort($subfields);
+            // sort the subfield within the school
+            foreach($subfields as &$v) {asort($v);}
+            
+            
             $this->view->programs = $programs;
             $this->view->subfields = $subfields;
         }catch(Exception $e){

@@ -26,17 +26,18 @@
         <b>Degree:</b>
     
     <div> <input type="checkbox" name="degree_name[]" value='ALL' class="checkall"> All </div>
-    <div> <input type="checkbox" name="degree_name[]" value='PhD'> PhD </div>
     <div> <input type="checkbox" name="degree_name[]" value='BA'> BA </div>
-    <div> <input type="checkbox" name="degree_name[]" value='MS'> MS </div>
-    <div> <input type="checkbox" name="degree_name[]" value='MA'> MA </div>
-    <div> <input type="checkbox" name="degree_name[]" value='BS'> BS </div>
-    <div> <input type="checkbox" name="degree_name[]" value='MPH'> MPH </div>
-    <div> <input type="checkbox" name="degree_name[]" value='MSPH'> MSPH </div>
     <div> <input type="checkbox" name="degree_name[]" value='BBA'> BBA </div>
-    <div> <input type="checkbox" name="degree_name[]" value='ThD'> ThD </div>
-    <div> <input type="checkbox" name="degree_name[]" value='MTS'> MTS </div>
+    <div> <input type="checkbox" name="degree_name[]" value='BS'> BS </div>
+    <div> <input type="checkbox" name="degree_name[]" value='MA'> MA </div>
     <div> <input type="checkbox" name="degree_name[]" value='MDiv'> MDiv </div>
+    <div> <input type="checkbox" name="degree_name[]" value='MPH'> MPH </div>
+    <div> <input type="checkbox" name="degree_name[]" value='MS'> MS </div>
+    <div> <input type="checkbox" name="degree_name[]" value='MSPH'> MSPH </div>
+    <div> <input type="checkbox" name="degree_name[]" value='MTS'> MTS </div>
+    <div> <input type="checkbox" name="degree_name[]" value='PhD'> PhD </div>
+    <div> <input type="checkbox" name="degree_name[]" value='ThD'> ThD </div>
+    
     </fieldset>         
         
 <fieldset>
@@ -44,8 +45,8 @@
     
     <div> <input type="checkbox" name="document_type[]" value='ALL' class="checkall"> All </div>
     <div> <input type="checkbox" name="document_type[]" value='Dissertation'> Dissertation </div>
-    <div> <input type="checkbox" name="document_type[]" value="MasterXs Thesis"> Master's Thesis </div>
     <div> <input type="checkbox" name="document_type[]" value='Honors Thesis'> Honors Thesis </div>
+    <div> <input type="checkbox" name="document_type[]" value="MasterXs Thesis"> Master's Thesis </div>
     
     </fieldset>
         
@@ -73,14 +74,14 @@
         <b>School:</b>
     
     <div> <input type="checkbox" name="collection[]" value='ALL' class="checkall"> All </div>
+    <div> <input type="checkbox" name="collection[]" value='emory-control:ETD-Candler-collection'> 
+        <?=$this->schools->getLabel($this->schools->getIdByFedoraCollection('emory-control:ETD-Candler-collection')) ?> </div>
+    <div> <input type="checkbox" name="collection[]" value='emory-control:ETD-College-collection'> 
+        <?=$this->schools->getLabel($this->schools->getIdByFedoraCollection('emory-control:ETD-College-collection')) ?> </div>
     <div> <input type="checkbox" name="collection[]" value='emory-control:ETD-GradSchool-collection'> 
         <?=$this->schools->getLabel($this->schools->getIdByFedoraCollection('emory-control:ETD-GradSchool-collection')) ?> </div>
     <div> <input type="checkbox" name="collection[]" value='emory-control:ETD-Rollins-collection'> 
         <?=$this->schools->getLabel($this->schools->getIdByFedoraCollection('emory-control:ETD-Rollins-collection')) ?> </div>
-    <div> <input type="checkbox" name="collection[]" value='emory-control:ETD-College-collection'> 
-        <?=$this->schools->getLabel($this->schools->getIdByFedoraCollection('emory-control:ETD-College-collection')) ?> </div>
-    <div> <input type="checkbox" name="collection[]" value='emory-control:ETD-Candler-collection'> 
-        <?=$this->schools->getLabel($this->schools->getIdByFedoraCollection('emory-control:ETD-Candler-collection')) ?> </div>
 </fieldset>
         
 <fieldset>
