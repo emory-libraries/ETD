@@ -781,6 +781,10 @@ class ReportController extends Etd_Controller_Action {
     public function standardAction(){
         if(!$this->_helper->access->allowed("report", "view")) {return false;}
         
+        $this->view->extra_scripts = array(
+         "//code.jquery.com/ui/1.10.3/jquery-ui.js"
+        );
+        
         $this->view->title = "Create Report";
         $this->view->schools=$schools_cfg = Zend_Registry::get("schools-config");
         
@@ -965,7 +969,6 @@ class ReportController extends Etd_Controller_Action {
         $query = join(" AND ", $tmp);
         //There is a much better way tod do this but the regex was really complicated
         $query = str_replace("MasterXs", "Master's", $query);
-        print $query;
         $optionsArray['query'] = $query;
         $optionsArray['max'] = 1000000;
         $optionsArray['return_type'] = "solrEtd";
