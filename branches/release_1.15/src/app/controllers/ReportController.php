@@ -977,7 +977,7 @@ class ReportController extends Etd_Controller_Action {
         //There is a much better way tod do this but the regex was really complicated
         $query = str_replace("MasterXs", "Master's", $query);
         
-        print $query;
+        //print $query;
         $optionsArray['query'] = $query;
         $optionsArray['max'] = 1000000;
         $optionsArray['return_type'] = "solrEtd";
