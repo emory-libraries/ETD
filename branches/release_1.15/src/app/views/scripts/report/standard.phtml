@@ -1,4 +1,4 @@
-<link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" />
+<link rel="stylesheet" href="//code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" />
 <div>
     <h1><?=$this->title?><span style="font-size: 10px; color: red">(Beta)</span></h1>
     <a href="<?= $this->url(array("action" => "advanced"))?>">Switch to Advanced Report</a>
@@ -25,7 +25,8 @@
      <td><input type="checkbox" name="status[]" value='approved'> Approved</td>
      <td><input type="checkbox" name="status[]" value='published' id="pub-box"> Published 
       <input type="text" size="10" id="pub-from" name="pub-from" value="YYYYMMDD" disabled> TO
-      <input type="text" size="10" id="pub-to" name="pub-to" value="YYYYMMDD" disabled></td>
+      <input type="text" size="10" id="pub-to" name="pub-to" value="YYYYMMDD" disabled>
+      <span> Leave date fields blank to search all published records</span></td>
       </tr>
       </table>
 
@@ -213,9 +214,9 @@
     
     if(this.checked){
         to.prop('disabled', false);
-        to.prop('value', '');
+//        to.prop('value', '');
         from.prop('disabled', false);
-        from.prop('value', '');
+//        from.prop('value', '');
     }
     else{
         to.prop('disabled', true);

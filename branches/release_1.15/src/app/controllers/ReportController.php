@@ -918,8 +918,14 @@ class ReportController extends Etd_Controller_Action {
             
             //pub date only active when published status selected
             if(in_array('published', $status)){
-                $pub_from = $this->_getParam('pub_from', '*');
-                $pub_to = $this->_getParam('pub_to', '*');
+                $pub_from = $this->_getParam('pub-from', '');
+                $pub_from = preg_replace('|[YMD]+|', '', $pub_from);
+                $pub_from = (!empty($pub_from) ? $pub_from : '*');
+                
+                $pub_to = $this->_getParam('pub-to', '');
+                $pub_to = preg_replace('|[YMD]+|', '', $pub_to);
+                $pub_to = (!empty($pub_to) ? $pub_to : '*');
+                
                 $tmp[] = "dateIssued:[$pub_from TO $pub_to]";
                 
             }
@@ -967,8 +973,11 @@ class ReportController extends Etd_Controller_Action {
             $name_val = (!empty($name_val) ? "($name_val)" : '');
         }
         $query = join(" AND ", $tmp);
+        
         //There is a much better way tod do this but the regex was really complicated
         $query = str_replace("MasterXs", "Master's", $query);
+        
+        print $query;
         $optionsArray['query'] = $query;
         $optionsArray['max'] = 1000000;
         $optionsArray['return_type'] = "solrEtd";
