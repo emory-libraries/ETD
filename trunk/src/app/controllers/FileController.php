@@ -123,7 +123,22 @@ class FileController extends Etd_Controller_Action {
    }
        }
        $etdfile = new etd_file(null, $etd); // initialize from template, but associate with parent etd
-       $etdfile->initializeFromFile($filename, $file_rel, $this->current_user, $fileinfo['name']);
+       
+       $esd = new esdPersonObject();
+       $owner = $esd->findByUsername($etd->owner);
+       if ($owner == null){
+         //we have to keep the same netid at all cost!
+         if (isset($etd->authorInfo)){
+           $owner = $esd->initializeWithoutEsd($etd->owner);
+           $owner->firstname = $etd->authorInfo->mads->name->first;
+           $owner->lastname = $etd->authorInfo->mads->name->last;
+           }else{
+           $this->_helper->flashMessenger->addMessage("Error: Could not identify user, file not attached to ETD");
+           return;
+           }
+       }
+       
+       $etdfile->initializeFromFile($filename, $file_rel, $owner, $fileinfo['name']);
 
        // add relation to etd
        // FIXME: this should probably be a function of etdfile or rels

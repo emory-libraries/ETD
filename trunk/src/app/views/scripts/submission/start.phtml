@@ -1,3 +1,10 @@
+<style>
+    ol ul {margin-left: -1.5em}
+    ol ul li {list-style-type:disc; padding-top: 0; margin-top: 0}
+    ol ul li ul li {list-style-type:circle;}
+    p {margin-bottom: 0}
+    
+</style>
 <?= $this->javascript("jquery.local.js"); ?>
 <noscript style="color:red">The submission process requires that you enable Javascript.</noscript>
 
@@ -10,8 +17,6 @@
     <p class="error">
       <? switch ($err): 
         case 'copyright': ?>You must answer about copyrighted materials.<? break ?>
-        <? case 'copyright_permission': ?>Because you have indicated that you have
-            included copyrighted materials, you must answer whether or not you have obtained permissions.<? break ?>
         <? case 'patent': ?>You must answer whether or not your work may warrant patenting.<? break ?>
         <? case 'embargo': ?>You must answer whether or not you are requesting an access restriction.<? break ?>
         <? case 'embargo_abs_toc': ?>Because you have indicated you are requesting an access restriction, you must answer about your abstract or table of contents.<? break ?>
@@ -26,53 +31,68 @@
    action="<?= $this->url(array("action" => "start"))?>"> 
 
 <ol id="screening-questions">
- <li><p>
-         Does your thesis or dissertation include any text, audiovisual, or
-         other material not created by you or for which you no longer own
-         copyright?  (See the Copyright
-         <a target="_blank" href="https://classes.emory.edu/webapps/lobj-wiki-bb_bb60/wiki_home/Handler?course_id=_11416_1&content_id=_1251529_1">Education Initiative on Blackboard</a>
-         for more information if you are uncertain how to answer this question)
+ <li> <!-- Question 1 -->
+     <p>If your thesis or dissertation includes any text, audiovisual, or 
+         other material not created by you or for which you no longer own 
+         copyright, and which is not a fair use, you may need to seek permission 
+         from the copyright owner.   NOTE:  All third party copyrighted 
+         content should be properly cited, regardless of copyright status.</p>
+     <p>These materials do not require permission:
+     <ul>
+         <li>Public domain materials (no longer protected by copyright)
+            <ul>
+               <li>Published in the US prior to 1923</li>
+               <li>Unpublished materials when the author died more than 70 years ago</li>
+               <li>Federal
+government documents created by a US government employee as part of their employment</li> 
+
+            </ul>
+         </li>
+         <li><a href="http://creativecommons.org/" target="_blank">Creative Commons</a> licensed materials used in accordance with their licences</li>
+         <li>Materials you authored and for which you currently own the copyright</li>
+         <li>Photos you took and for which you currently own the copyright</li>
+     </ul>
      </p>
-    <?= $this->formRadio('copyright', $this->answers['copyright'], 
+     
+     <p>You may typically rely on fair use to include these types of materials:
+         <ul>
+             <li>Short quotations of books, journal articles, poetry</li>
+             <li>Film stills from movies</li>
+             <li>Graphs, charts and tables of facts</li>
+              <li>Screenshots of web pages (unless they include proprietary information)</li>
+              <li>Materials which are integral to the argument being made (not simply illustrative), using no more than is necessary to make the argument</li>
+         </ul>
+</p>
+
+
+<p>You may need permission to include these types of materials:
+         <ul>
+            <li>Images, particularly from ArtStor, other licensed databases, or archives and museums</li>
+            <li>Articles or other materials you authored, but for which you no longer own copyright --  most common are journal articles where copyright was transferred to the publisher</li>
+            <li>Long quotations of a page or more from a book</li>
+            <li>Unpublished materials when the author died less than 70 years ago</li>
+            <li>Poetry or music lyrics when used in their entirety or without comment or criticism</li>
+            <li>Musical scores or sound recordings</li>
+            <li>Computer Code without an open license</li>
+</ul>
+</p>
+
+<p>See the <a href="https://classes.emory.edu/webapps/lobj-wiki-bb_bb60/wiki/CEI/_1251529_1/Home" target="_blank">Copyright Education Initiative</a> 
+    on Blackboard for more information on the public domain, fair use, 
+    Creative Commons, the permissions process, and example permission letters. 
+    You can also contact the Libraries’ Scholarly Communications Office at 
+    <a href="mailto:scholcomm@listserv.cc.emory.edu">scholcomm@listserv.cc.emory.edu</a> if you have questions.</p>
+
+<p><b>Does your thesis or dissertation include text, audiovisual or other material for which you need permission?</b></p>
+    
+        <?= $this->formRadio('copyright', $this->answers['copyright'], 
         array('class' => 'required-field'), $this->yes_no) ?>
      <? /* copyright details: display if answer to copyright question is YES */ ?>
     <div id="copyright_yes"> 
-      <ol class="alpha">
-      <li>
-          <p>Have you obtained permission to use these materials?</p>
-
-          <p>Examples of materials for which you may need permission include
-              long quotations, images, and articles you authored for which you
-              no longer own copyright.  You will need to list the materials
-              for which you obtained permission on the Submission Form.</p>
-          <p><b>Please Note:</b></p>
-          <p>Materials in the public domain, materials with Creative Commons 
-              licenses or materials that fit the Fair Use parameters of
-              <a href="http://www.copyright.gov/fls/fl102.html" target="_blank">U.S.
-          Copyright Law</a> DO NOT REQUIRE permission.
-          <p>See the
-              <a href="https://classes.emory.edu/webapps/lobj-wiki-bb_bb60/wiki_home/Handler?course_id=_11416_1&content_id=_1251529_1"
-             target="_blank">Copyright Education Initiative</a>
-          on Blackboard for more information on the public domain, fair use,
-          Creative Commons, the permissions process, and example permission letters.</p>
-
-      <?= $this->formRadio("copyright_permission", $this->answers["copyright_permission"], array(),
-			      $this->yes_no) ?>
-
-      </li>
-      </ol>
-
-      <? /* copyright permission details */ ?>
-      <div id="copyright_perms_no">  <? /*  Show if answered NO to permissions */ ?> 
-        <p>
-            If you have not obtained necessary permissions, you must obtain
-            permissions or remove the copyrighted content from your ETD before
-            proceeding with submission.  Please contact Lisa Macklin or
-            Melanie Kowalski of the Libraries’ Scholarly Communications Office
-            at <a href="mailto:scholcomm@listserv.cc.emory.edu">scholcomm@listserv.cc.emory.edu</a>
-            if you have questions.
-        </p>
-      </div>
+      <p>You must obtain permissions or remove the copyrighted content from 
+          your ETD before proceeding with submission. Please list all 
+          materials for which you received permission on the ETD submission 
+          form available on the <a href="https://etd.library.emory.edu/" target="_blank">ETD home page</a>.</p>
     </div>
 <!--     <div id="copyright_perms_yes"> <? /*  Show if answered YES to permissions */ ?>
             <p>Complete Part 4 of the Submission Form.</p>
@@ -80,62 +100,46 @@
     </li>
 
 
- <li><p>
-         Does your thesis or dissertation disclose or describe any inventions
+    <!-- Question 2 -->
+    <li><p>Does your thesis or dissertation disclose or describe any inventions 
          or discoveries that could potentially have commercial application 
-         and therefore may be patented? (If you and/or your faculty advisor(s) 
-         have any questions about patents and commercial applications, please 
-         contact the Emory Office of Technology Transfer at
-         <a href="mailto:ott-web@emory.edu">ott-web@emory.edu</a>).
-     </p>
+         and therefore may be patented?  (If you and/or your faculty 
+         advisor(s) have any questions about patents and commercial 
+         applications, please contact the Emory Office of Technology 
+         Transfer at <a href="mailto:ott-web@emory.edu">ott-web@emory.edu</a>).</p>
     <?= $this->formRadio("patent", $this->answers["patent"],
        array('class' => 'required-field'), $this->yes_no) ?>
   <div id="patent_yes">   <? /* display only if yes to patent */ ?>	 
-     <p>
-         If your ETD describes an invention or discovery that may be patented, 
-         further conversation with ETD administrators is required before you 
+     <p>Further conversation with ETD administrators is required before you 
          can continue with the ETD submission process. Please contact ETD Help 
-         at etd-admin@listerv.cc.emory.edu or call (404)727-5301.
-         <a href="mailto:etd-admin@listerv.cc.emory.edu">etd-admin@listerv.cc.emory.edu</a>
-         or call (404)727-5301.
-     </p>
+         at <a href="mailto:etd-admin@listerv.cc.emory.edu">etd-admin@listerv.cc.emory.edu</a>.</p>
      <? /* TODO: use configured email; remove phone number? */ ?>
   </div>
 </li>
 
-<li><p>Are you requesting an access restriction for your thesis or dissertation?</p>
+<!-- Questions 3 -->
+<li><p>The ETD repository allows two levels of access restriction on your work: 
+        full or partial. With a partial access restriction, your abstract 
+        and/or table of contents are available to the public, but the full 
+        text of your thesis/dissertation is not available for viewing or 
+        download until your access restriction expires. A full access 
+        restriction allows you to restrict access to the abstract, table of 
+        contents, and full text for the duration of the restriction period. 
+        NOTE: All access restrictions must be approved by your advisor prior 
+        to submission.</p>
+    
+    <p>Are you requesting an access restriction for your thesis or 
+        dissertation?</p>
+    
         <?= $this->formRadio("embargo", ($this->answers["embargo"] == null ? null : $this->answers["embargo"]),
 			     array('class' => 'required-field'), $this->yes_no) ?>
     <div id="embargo_yes">    <? /* display if answer to embargo is yes */ ?>
-     <p>
-         Please indicate how long you intend to restrict access to your
-         dissertation or thesis on the Submission Form. You will also need to
-         indicate your request for an access restriction during the submission
-         process itself.
-     </p>
+     <p>Should your abstract and/or table of contents be included in the access restriction?</p>
+     
+     <p>NOTE: You will specify your requested access restriction (full, table 
+         of contents and/or abstract) later in the ETD record creation process.</p>
 
-     <ol class="alpha">
-      <li>
-        <p>The ETD system allows for both full and partial embargo of your
-            work. A partial embargo will allow visitors to read your abstract
-            and/or table of contents while the full text of your thesis or
-            dissertation is embargoed. A full embargo allows to you hide this
-            information for the duration of the embargo period. Should your
-            abstract and/or table of contents be included in the access
-            restriction?</p>
-        <?= $this->formRadio("embargo_abs_toc", ($this->answers["embargo_abs_toc"] == null ? null : $this->answers["embargo_abs_toc"]), array('class' => 'required-field'), $this->yes_no) ?>
-
-        <div id="embargo_abs_toc_yes">  <? /* display only if restricting abstract/toc */ ?>
-          <p>
-          You will need to restrict access to your abstract and/or your
-          table of contents once you have uploaded you document to the ETD
-          repository. If you have already submitted your document to the ETD
-          repository, you can log in and make appropriate changes to your
-          record while it is in draft form.
-        </p>
-      </div>
-    </li>
-  </ol>
+     <?= $this->formRadio("embargo_abs_toc", ($this->answers["embargo_abs_toc"] == null ? null : $this->answers["embargo_abs_toc"]), array('class' => 'required-field'), $this->yes_no) ?>
    </div>
 </li>
 </ol>

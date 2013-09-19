@@ -374,7 +374,6 @@ class SubmissionControllerTest extends ControllerTestCase {
                        'title' => NULL,
                       );
       $errors = $SubmissionController->validateQuestions($answers);
-      $this->assertTrue(in_array('copyright_permission', $errors));
       $this->assertTrue(in_array('embargo_abs_toc', $errors));
       $this->assertTrue(in_array('title', $errors));
 
