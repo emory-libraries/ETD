@@ -72,8 +72,14 @@ Update the ETD control objects for particular fedora instance.
 UPGRADE NOTES
 =================
 
+Version 1.15.0
+--------------
+* If it has not been done so already, make the change to the mime file.
+  staging: /usr/share/misc/magic.mime.mgc - compiled binary
+  production: /usr/share/file/magic.mime - ASCII text
+
 Version 1.14.1
---------------------------
+--------------
 * Make sure RFREEM2 has a recode in the etd DB with a blank program code. 
 
 

@@ -343,6 +343,20 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
     switch ($this->file->mimetype) {
     case "application/pdf":  $ext = "pdf"; break;
     case "application/msword":  $ext = "doc"; break;
+    case "application/zip":
+    case "application/x-zip":
+        $ext = "zip"; break;
+    case "application/rar":
+    case "application/x-rar":
+        $ext = "rar"; break;
+    case "application/gzip":
+    case "application/x-gzip":
+        $ext = "gz"; break;
+    case "application/vnc.ms-excel":
+        $ext = "xls"; break;
+        case "application/vnd.ms-powerpoint":
+          $ext = "ppt"; break;
+
     default:
       if (isset($this->file->filename)) {   // stored original filename
         $parts = explode(".", basename($this->file->filename));
