@@ -22,10 +22,10 @@
 
     <? /* include javascript for set-role form in any non-production version of the site */ ?>
     <? /* NOTE: include *before* extra scripts to avoid conflict/reload issues */ ?>
-    <? if ($this->env != "production"): ?>
+    <? /*if ($this->env != "production"): */?>
       <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
       <?= $this->javascript("dev.js"); ?>
-   <? endif ?>
+   <?/* endif */?>
 
    <? if ($this->extra_scripts): ?>
      <? foreach ($this->extra_scripts as $js): ?>
