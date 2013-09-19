@@ -1,4 +1,4 @@
- <?php
+  <?php
 /**
  * @category Etd
  * @package Etd_Controllers
@@ -7,6 +7,7 @@
 require_once("models/etd.php");
 require_once("models/charts.php");
 require_once("models/programs.php");
+require_once("controllers/report_fields.php");
 
 class ReportController extends Etd_Controller_Action {
   protected $requires_fedora = false;
@@ -775,6 +776,276 @@ class ReportController extends Etd_Controller_Action {
       }
       return array(array_keys($pagelength_labels), $totals);
     }
+    
+  
+    public function standardAction(){
+        if(!$this->_helper->access->allowed("report", "view")) {return false;}
+        
+        $this->view->extra_scripts = array(
+         "//code.jquery.com/ui/1.10.3/jquery-ui.js"
+        );
+        
+        $this->view->title = "Create Report";
+        $this->view->schools=$schools_cfg = Zend_Registry::get("schools-config");
+        
+        $optionsArray['query'] = '';
+        $optionsArray['max'] = 1000000;
+        $optionsArray['return_type'] = "solrEtd";
+        $etdSet = new EtdSet();
+        
+        // make program select box options
+        $programs = array();
+        $subfields = array();
+        try{
+            $etdSet->find($optionsArray);
+            foreach ($etdSet->etds as $etd){
+                $prog = $etd->program;
+                $prog_id = $etd->program_id;
+                $school = $schools_cfg->getLabel($schools_cfg->getIdByFedoraCollection($etd->collection[0]));
+                
+                
+                
+                if (!empty($prog_id) && !empty($prog)) {
+                    $programs[$school][$prog_id] = $prog;
+                }
+                
+                //make subfiled select box options
+                $sub = $etd->subfield;
+                $sub_id = $etd->subfield_id;
+                
+                if (!empty($sub_id) && !empty($sub)) {
+                    $subfields[$school][$sub_id] = $sub;
+                }
+            }
+            
+           //Sort by school
+            ksort($programs);
+            //sort programs within school
+            foreach($programs as &$v) {asort($v);}
+            
+            
+            //Sort by school
+            ksort($subfields);
+            // sort the subfield within the school
+            foreach($subfields as &$v) {asort($v);}
+            
+            
+            $this->view->programs = $programs;
+            $this->view->subfields = $subfields;
+        }catch(Exception $e){
+            $this->_helper->flashMessenger->addMessage("Error: " . $e->getMessage());
+            $this->view->messages = $this->_helper->flashMessenger->getMessages();
+        }
+        
+    }
+    
+    public function advancedAutocompleteAction(){
+        if(!$this->_helper->access->allowed("report", "view")) {return false;}
+        global $all_report_fields;
+///////////////////////////////////////////////////////////////////        
+//        DO NOT REMOVE UNDER PENALTY OF DEATH!!!!!
+        $this->_helper->layout->disableLayout();
+        $this->_helper->viewRenderer->setNoRender();
+///////////////////////////////////////////////////////////////////  
+        $term = $this->_getParam("term", ""); // autocomplete term
+        
+        // make lamda like function to filter results - case insensitive search of name and description
+        $params = '$arr,'.'$term='.'"'.$term.'"';
+        $filter = create_function($params, 'if ($term=="") return true; return strstr(strtoupper($arr["label"]), strtoupper($term)) || strstr(strtoupper($arr["value"]), strtoupper($term));');
+                
+        $this->getResponse()->setHeader('Content-Type', "application/json");
+        $this->getResponse()->setBody(json_encode(array_filter($all_report_fields, $filter)));
+    }
+    
+    public function advancedAction() {
+    global $all_report_fields;    
+    if(!$this->_helper->access->allowed("report", "view")) {return false;}
+    
+    $this->view->extra_scripts = array(
+         "//code.jquery.com/ui/1.10.3/jquery-ui.js"
+    );
+    
+    $this->view->title = "Create Advanced Report";
+     
+    }
+    
+    public function _formatStandardReportField($field, $values){
+        if(empty($values)) {return '';}
+        
+        foreach($values as $i=> &$value){
+            if($value=="ALL" || empty($value)) {unset($values[$i]);}
+            
+            $value = '\"' . $value . '\"';
+        }
+        return $term = $field . ":" .join(' ', $values);
+    }
+    
+    public function previewexportAction(){
+    global $all_report_fields;
+    global $csv_fields;
+    $criteria = '';
+   
+    $this->view->schools=$schools_cfg = Zend_Registry::get("schools-config");
+    
+    if(!$this->_helper->access->allowed("report", "view")) {return false;}
+    $criteria = $this->_getParam('criteria', '');
+    
+    //Selected fields to include in CSV
+    $csv_fields = $this->_getParam('include', array());
+    $filter_selected =  create_function('$arr', 'global $csv_fields; return in_array($arr["field"], $csv_fields);');
+    $filter_all_visable = create_function('$arr', 'return $arr["available"];');
+    if ($csv_fields){
+        $this->view->csv_fields = array_filter($all_report_fields, $filter_selected);
+    }
+    else{
+        $this->view->csv_fields = array_filter($all_report_fields, $filter_all_visable);
+    }
+    
+    $export = $this->_getParam('export', ''); // Export to CSV button
+    
+    $this->view->is_advanced = $this->_getParam("advanced-search", '');
+
+    $this->_helper->layout->disableLayout();
+    
+    
+    if ($this->getRequest()->isPost()) {
+        $tmp = array();
+        if($this->_getParam('standard-search', '') !=''){
+            
+            //Status
+            $status = $this->_getParam('status', array());
+            if(!empty($status)){$tmp[]= $this->_formatStandardReportField('status', $status);}
+            
+            //pub date only active when published status selected
+            if(in_array('published', $status)){
+                $pub_from = $this->_getParam('pub-from', '');
+                $pub_from = preg_replace('|[YMD]+|', '', $pub_from);
+                $pub_from = (!empty($pub_from) ? $pub_from : '*');
+                
+                $pub_to = $this->_getParam('pub-to', '');
+                $pub_to = preg_replace('|[YMD]+|', '', $pub_to);
+                $pub_to = (!empty($pub_to) ? $pub_to : '*');
+                
+                $tmp[] = "dateIssued:[$pub_from TO $pub_to]";
+                
+            }
+            
+            //degree
+            $degree_name = $this->_getParam('degree_name', array());
+            if(!empty($degree_name)){$tmp[]= $this->_formatStandardReportField('degree_name', $degree_name);}
+            
+            //doc type
+            $document_type = $this->_getParam('document_type', array());
+            if(!empty($document_type)){$tmp[]= $this->_formatStandardReportField('document_type', $document_type);}
+            
+            //embargo requested
+            $embargo_duration = $this->_getParam('embargo_duration', array());
+            if(!empty($embargo_duration)){$tmp[]= $this->_formatStandardReportField('embargo_duration', $embargo_duration);}
+            
+            //language
+            $language = $this->_getParam('language', array());
+            if(!empty($language)){$tmp[]= $this->_formatStandardReportField('language', $language);}
+            
+            //School
+            $collection = $this->_getParam('collection', array());
+            if(!empty($collection)){$tmp[]= $this->_formatStandardReportField('collection', $collection);}
+            
+            //program
+            $program_id = $this->_getParam('program_id', array());
+            if(!empty($program_id)){$tmp[]= $this->_formatStandardReportField('program_id', $program_id);}
+            
+            //subfield
+            $subfield_id = $this->_getParam('subfield_id', array());
+            if(!empty($subfield_id)){$tmp[]= $this->_formatStandardReportField('subfield_id', $subfield_id);}
+            $criteria = join(', ', $tmp);
+            
+    }
+        
+        // break into each field
+        $tmp = explode(",", stripslashes($criteria));
+        //handel mutiple values in each field
+        foreach ($tmp as &$name_val){
+            $p = strpos($name_val, ":");
+            $name = substr($name_val, 0, $p+1);
+            $val = substr($name_val, $p+1);
+            $name_val = preg_replace('/("\b[\w\s:-]+\b"|\b[\w:-]+\b|\[.+\])/', "{$name}$1 OR", $val);
+            $name_val = rtrim($name_val, "OR");
+            $name_val = (!empty($name_val) ? "($name_val)" : '');
+        }
+        $query = join(" AND ", $tmp);
+        
+        //There is a much better way tod do this but the regex was really complicated
+        $query = str_replace("MasterXs", "Master's", $query);
+        
+        //print $query;
+        $optionsArray['query'] = $query;
+        $optionsArray['max'] = 1000000;
+        $optionsArray['return_type'] = "solrEtd";
+        $etdSet = new EtdSet();
+        
+        try{
+            $etdSet->find($optionsArray);
+            $this->view->etdSet = $etdSet;
+        }catch(Exception $e){
+            $this->_helper->flashMessenger->addMessage("Error: " . $e->getMessage());
+            $this->view->messages = $this->_helper->flashMessenger->getMessages();
+        }
+        
+        $this->view->criteria = preg_replace('|\\\\"|', '&quot;', $criteria);
+   
+        
+        //If export button was clicked then do the export
+        //set HTML headers in response to make output downloadable
+        if($export != ''){
+            
+            $data = array();
+            
+            //Header Row
+            $headers = array();
+            foreach ($csv_fields as $name){
+                foreach ($all_report_fields as $field){
+                    if($field['field'] == $name){
+                        $headers[] =  $field['label'];
+                    }
+                }
+            }
+            $data[] = $headers;
+            
+            // Add data fields
+            foreach ($etdSet->etds as $etd){
+                $row = array();
+                foreach ($csv_fields as $field){
+                    if(is_array($etd->$field)){
+                        $term = join (";", $etd->$field);
+                        if($field == 'collection'){$term =$schools_cfg->getLabel($schools_cfg->getIdByFedoraCollection($term));}
+                        $row[] = $term;
+                    }else{
+                        $row[] = $etd->$field;
+                    }
+                }
+            
+                $data[] = $row;
+            }
+            
+            
+            //This MUST be named this->view->data  for the csv template
+            $this->view->data = $data;
+            
+            
+            //HTML headers for CSV output
+            $this->_helper->layout->disableLayout();
+            $this->getResponse()->setHeader('Cache-Control', 'public', true);
+            $this->getResponse()->setHeader('Pragma','public',true);
+            $this->getResponse()->setHeader('Expires','-1');
+            $this->getResponse()->setHeader('Content-Type', "text/csv");
+            $this->getResponse()->setHeader('Content-Disposition', 'attachment; filename="' . "ETD_Report.csv" . '"');
+            $this->render("export-csv");  // use generic csv template
+        }
+    }        
+    }
+    
+    
+    
 
 }  // end ReportController
 
