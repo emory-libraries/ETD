@@ -132,8 +132,8 @@
         array(
           'field' => 'abstract', 
           'label' => 'Abstract', 
-          'description' => 'Text of the abstract, without any formatting',
-          'available' => false
+          'description' => 'Text of the abstract, without any formatting. (May increase report generation time)',
+          'available' => true
         ),
         array(
           'field' => 'tableOfContents', 

@@ -957,6 +957,11 @@ class ReportController extends Etd_Controller_Action {
             //subfield
             $subfield_id = $this->_getParam('subfield_id', array());
             if(!empty($subfield_id)){$tmp[]= $this->_formatStandardReportField('subfield_id', $subfield_id);}
+            
+            //abstract
+            $abstract = $this->_getParam('abstract', '');
+            if(!empty($abstract) && $abstract!=''){$tmp[]=  'abstract:' . $abstract;}
+            
             $criteria = join(', ', $tmp);
             
     }
@@ -979,7 +984,7 @@ class ReportController extends Etd_Controller_Action {
         
         //print $query;
         $optionsArray['query'] = $query;
-        $optionsArray['max'] = 1000000;
+        $optionsArray['max'] = 10000000;
         $optionsArray['return_type'] = "solrEtd";
         $etdSet = new EtdSet();
         
@@ -1020,6 +1025,10 @@ class ReportController extends Etd_Controller_Action {
                         if($field == 'collection'){$term =$schools_cfg->getLabel($schools_cfg->getIdByFedoraCollection($term));}
                         $row[] = $term;
                     }else{
+                        if($field == 'abstract'){
+                            $ab_etd = new etd($etd->PID);
+                            $row[] = $ab_etd->mods->abstract;}
+                        else
                         $row[] = $etd->$field;
                     }
                 }

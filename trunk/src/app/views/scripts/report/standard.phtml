@@ -141,7 +141,11 @@
         <b>Subfield:</b>
         <?=$this->formSelect('subfield_id[]', null, array('multiple'=> 'multiple', 'size'=>10), $this->subfields);?>
         
-</fieldset>        
+</fieldset>
+<fieldset>
+    <b>Abstract:</b> <br />
+    <input type="text" size="100" id="abstract" name="abstract">
+</fieldset>
         
 <fieldset>
         <b>Select Output Fields:</b>
@@ -174,6 +178,9 @@
       <td><input type="checkbox" name="include[]" value='status'> Status
       <td><input type="checkbox" name="include[]" value='partneringagencies'> Partnering Agencies
       <td><input type="checkbox" name="include[]" value='collection'> School
+    </tr>
+    <tr>
+      <td><input type="checkbox" name="include[]" value='abstract'> Abstract <span style="font-size: 10px;">(May cause slow performance)</span></td>  
     </tr>
     </table>
     
