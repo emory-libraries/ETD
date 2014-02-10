@@ -1027,7 +1027,7 @@ class ReportController extends Etd_Controller_Action {
                     }else{
                         if($field == 'abstract'){
                             $ab_etd = new etd($etd->PID);
-                            $row[] = $ab_etd->mods->abstract;}
+                            $row[] = strip_tags($ab_etd->html->abstract);}
                         else
                         $row[] = $etd->$field;
                     }
