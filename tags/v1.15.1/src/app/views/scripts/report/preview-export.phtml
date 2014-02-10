@@ -1,0 +1,62 @@
+<style>
+table#report-results tr th { background-color :lightgray; }
+table#report-results, 
+table#report-results tr td, 
+table#report-results tr th { margin: 0; padding: 5px; border: 1px solid black; border-collapse: collapse; border-spacing: 0; }
+</style>
+
+<form method="post" id="preview_report_form"  action="<?= $this->url(array("action" => "preview_export"))?>" onsubmit="disableButton('search')">
+<input id="preview-report" name="criteria" value="<?=  $this->criteria;?>" type="hidden" />
+    
+    <? if($this->etdSet): ?>
+<div style="margin-top: 15px;">
+    
+<div style="margin-bottom: 5px;">
+  Number of Results: <?=count($this->etdSet->etds)?>
+  <?if (count($this->etdSet->etds)): ?>
+      <?= $this->formSubmit("export", "Export as CSV >", array("class" => "submitbutton")); ?>
+  <? endif ?>
+</div>
+<table id="report-results">
+    <tr> <?// header row ?>
+        <? foreach($this->csv_fields as $field): ?>
+            <th>
+    <div><input type="checkbox" name="include[]" value="<?=$field['field']?>" checked></input></div>
+            <div><?=$field['label']?></div>
+            </th>
+    
+        <? endforeach ?>
+    </tr>
+
+    <?// data rows?>
+    <? foreach($this->etdSet->etds as $etd): ?>
+        <tr>
+            <?// data cell ?>
+            <? foreach ($this->csv_fields as $var): ?>
+                <td>
+                <? if (is_array($etd->$var['field'])): ?>  
+                        <? 
+                        $term = join(";", $etd->$var['field']); 
+                        if ($var['field'] == 'collection'){
+                            $term = $this->schools->getLabel($this->schools->getIdByFedoraCollection($term));
+                        }
+                        echo $term;
+                        ?>
+                <? else: ?>
+                    <?if ($var['field'] == 'abstract'): ?>
+                        <? 
+                            $ab_etd = new etd($etd->PID);
+                            echo strip_tags($ab_etd->html->abstract); 
+                        ?>
+                    <? endif ?>
+                        <?= $etd->$var['field']; ?>
+                <? endif ?>
+                </td>
+            <? endforeach ?>
+        </tr>
+    <? endforeach ?>
+</table>
+    </form>
+</div>
+<? endif ?>
+</form>
