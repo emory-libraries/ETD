@@ -46,7 +46,7 @@ table#report-results tr th { margin: 0; padding: 5px; border: 1px solid black; b
                     <?if ($var['field'] == 'abstract'): ?>
                         <? 
                             $ab_etd = new etd($etd->PID);
-                            echo $ab_etd->mods->abstract; 
+                            echo strip_tags($ab_etd->html->abstract); 
                         ?>
                     <? endif ?>
                         <?= $etd->$var['field']; ?>
