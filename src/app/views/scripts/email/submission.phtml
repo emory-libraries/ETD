@@ -24,9 +24,6 @@ Emory's repository.</p>
 <? else: ?>
     <li>Take the Graduate Information Survey and the Rollins Exit Survey</li>
 <? endif ?>
-<? if ($this->etd->schoolId() == "grad"): ?>
-<li>Take the Graduate Exit Survey</li>
-<? endif ?>
 </ol>
 
 <p>Details for each of these steps are included below.</p>
@@ -75,5 +72,5 @@ dissertation or thesis. In part 3 of that form, you must choose between the "Ope
 </li>
 <? endif ?>
 <? if ($this->etd->schoolId() == "grad"): /* not applicable to honors etds */ ?>
-<li>Soon after graduation, you will receive an email message notifying you that your dissertation or thesis has been published by the ETD system. You will find a link to the Graduate Exit Survey in that email. Please take the time to provide valuable feedback to the Graduate School by completing this survey.</li>
+<li>Soon after graduation, you will receive an email message notifying you that your dissertation or thesis has been published by the ETD system.</li>
 <? endif ?>
