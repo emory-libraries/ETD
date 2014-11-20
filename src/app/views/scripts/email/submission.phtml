@@ -68,7 +68,11 @@ dissertation or thesis. In part 3 of that form, you must choose between the "Ope
    will be published in the repository immediately after graduation.
 <? endif ?></p>
 
- <p>You will receive written notification confirming whether or not your dissertation or thesis has been approved by the <?= $this->etd->admin_agent ?>. Upon approval you will receive further information regarding the publication of your ETD in our repository, as well as your opportunity to order bound copies.</p>
+ <p>You will receive written notification confirming whether or not your dissertation or thesis has been approved by the <?= $this->etd->admin_agent ?>. 
+<? if ($this->etd->schoolId() != "grad"): ?>
+Upon approval you will receive further information regarding the publication of your ETD in our repository, as well as your opportunity to order bound copies.
+<? endif ?>
+</p>
 </li>
 <? endif ?>
 <? if ($this->etd->schoolId() == "grad"): /* not applicable to honors etds */ ?>
