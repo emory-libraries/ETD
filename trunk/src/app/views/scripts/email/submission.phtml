@@ -20,7 +20,7 @@ Emory's repository.</p>
 <li>Submit all required forms to the ADAP in your department</li>
 <? endif ?>
 <? if ($this->etd->schoolId() != "rollins"): ?>
-    <li>Submit all required forms to the <?if($this->etd->schoolId() == "grad"):?>Laney <?endif?><?=$this->etd->admin_agent?></li>
+    <li>Submit all required forms to the <?if($this->etd->schoolId() == "grad"):?> <?endif?><?=$this->etd->admin_agent?></li>
 <? else: ?>
     <li>Take the Graduate Information Survey and the Rollins Exit Survey</li>
 <? endif ?>
@@ -50,7 +50,7 @@ dissertation or thesis. In part 3 of that form, you must choose between the "Ope
    will be published in the repository immediately after graduation.
 <? endif ?></p>
 
- <p>You will receive written notification confirming whether or not your dissertation or thesis has been approved by the <?= $this->etd->admin_agent ?>. Upon approval you will receive further information regarding the publication of your ETD in our repository, as well as your opportunity to order bound copies.</p>
+ <p>You will receive notification confirming whether or not your dissertation or thesis has been approved by the <?= $this->etd->admin_agent ?>.</p>
 </li>
 
 <? if($this->etd->schoolId() == "rollins"): ?>
@@ -69,12 +69,9 @@ dissertation or thesis. In part 3 of that form, you must choose between the "Ope
 <? endif ?></p>
 
  <p>You will receive written notification confirming whether or not your dissertation or thesis has been approved by the <?= $this->etd->admin_agent ?>. 
-<? if ($this->etd->schoolId() != "grad"): ?>
-Upon approval you will receive further information regarding the publication of your ETD in our repository, as well as your opportunity to order bound copies.
-<? endif ?>
 </p>
 </li>
 <? endif ?>
 <? if ($this->etd->schoolId() == "grad"): /* not applicable to honors etds */ ?>
-<li>Soon after graduation, you will receive an email message notifying you that your dissertation or thesis has been published by the ETD system.</li>
+<p>Soon after graduation, you will receive an email message notifying you that your dissertation or thesis has been published by the ETD system.</p>
 <? endif ?>
