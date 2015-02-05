@@ -1,0 +1,50 @@
+<div class="fullrecord">
+  <div id="access">
+   <h2>
+       Access Restrictions
+       <? if ($this->acl->isAllowed($this->role, $this->etd, "edit metadata")): ?>
+    <a class="record-edit" href="<?= $this->url(array("controller" => "edit", "action" => "rights")) ?>">edit access restrictions</a>
+      <? endif ?>
+   </h2>
+	   Access restrictions requested?
+	   <? if ($this->etd->mods->isEmbargoRequested()): ?>
+	      <b>yes:
+<? $restricted = array();	// nicer view of what exactly will be restricted
+if ($this->etd->mods->isEmbargoRequested(etd_mods::EMBARGO_FILES)) $restricted[] = "files";
+if ($this->etd->mods->isEmbargoRequested(etd_mods::EMBARGO_TOC)) $restricted[] = "table of contents";
+if ($this->etd->mods->isEmbargoRequested(etd_mods::EMBARGO_ABSTRACT)) $restricted[] = "abstract"; ?>
+		<?= implode(", ", $restricted); ?>
+		 </b>
+	   <? else: ?>
+	      <b>no: </b>
+	   <? endif ?>
+  </div>
+
+ <? if ($this->etd->isRequired("send to ProQuest")): ?>	   
+  <div id="proquest">
+   <h2>
+       ProQuest Submission Information
+       <? if ($this->acl->isAllowed($this->role, $this->etd, "edit metadata")): ?>
+      <a class="record-edit" href="<?= $this->url(array("controller" => "edit", "action" => "rights")) ?>">edit copyright</a>
+    <? endif ?>
+   </h2>
+
+   <p>Sending to ProQuest? <b><?= $this->etd->mods->submitToProquest() ? "yes" : "no"; ?></b></p>
+   <p>Applying for copyright? <b><?= $this->etd->mods->copyright ?></b></p>
+    
+  </div>
+<? endif ?>
+     
+  <div id="contact">
+    <h2>
+        Contact information
+        <? if ($this->acl->isAllowed($this->role, "authorInfo", "edit")): ?>
+      <a class="record-edit" href="<?= $this->url(array("controller" => "authorInfo", "action" => "edit",
+		"pid" => $this->etd->authorInfo->pid), '', true) ?>">edit contact information</a>
+    <? endif ?>
+    </h2>
+       <? $this->user = $this->etd->authorInfo; ?>
+    <?=  $this->render('author-info/_view.phtml'); ?>
+
+  </div>
+</div>
