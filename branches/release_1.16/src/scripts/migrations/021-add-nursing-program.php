@@ -48,7 +48,7 @@ $nhwson_departments= array(
 // programs for School of Nursing
 // department code does not have # because it is only referenced at this point and is referenced without the #
 $nhwson_programs = array(
-array('id' => '#nhwson-dnp', 'label' => 'Doctor of Nursing Practice', "identifiers" => array('NRHSLD','NRPOP')),
+array('id' => '#nhwson-dnp', 'label' => 'Doctor of Nursing Practice', department => 'nhwson', "identifiers" => array('NRHSLD','NRPOP')),
 );
 
 
