@@ -18,7 +18,7 @@ $opts = new Zend_Console_Getopt($common_getopts);
 // extended usage information - based on option list above, but with explanation/examples
 $scriptname = basename($_SERVER{"SCRIPT_NAME"});
 $usage = $opts->getUsageMessage() . "
- $scriptname updates program list to add Neil Hodgson Woodruff School of Nursing with its subdivisions
+ $scriptname updates program list to add Nell Hodgson Woodruff School of Nursing with its subdivisions
 ";
 
 try {
@@ -33,7 +33,7 @@ $logger = setup_logging($opts->verbose);
 
 // Top level for School of Nursing school
 $nhwson_school = array("id" => "#nhwson",
-     "label" => "Neil Hodgson Woodruff School of Nursing");
+     "label" => "Nell Hodgson Woodruff School of Nursing");
 
 /**
  * WARNING: There cannot be any duplicate id values.
