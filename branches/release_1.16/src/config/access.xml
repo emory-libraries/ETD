@@ -36,23 +36,23 @@
 
 
 <!-- pseudo-role with view privileges inherited by author, committee, dept. staff -->
-    <role name="view_all" inherits="guest"> 
+    <role name="view_all" inherits="guest">
       <allow resource="etd">view metadata, view history, view status</allow>
   <!-- files in any status, including embargoed -->
-      <allow resource="file">view, download</allow> 
+      <allow resource="file">view, download</allow>
     </role>
 
     <role name="author" inherits="view_all">
-      <allow resource="file">view modified</allow>  
+      <allow resource="file">view modified</allow>
       <allow resource="draft etd">edit metadata, add file, order files, submit</allow>
       <allow resource="draft file">edit, remove</allow>
       <allow resource="authorInfo">view, edit</allow>
     </role>
-    <role name="committee" inherits="view_all"/>  
-  <!--  coordinator for a particular program/department; 
+    <role name="committee" inherits="view_all"/>
+  <!--  coordinator for a particular program/department;
       role is determined in relation to specific ETDs -->
     <role name="program coordinator" inherits="view_all">
-      <allow resource="file">view modified</allow>  
+      <allow resource="file">view modified</allow>
     </role>
 
     <!-- These perms are applied when the user is an admin for the ETD they are viewing / modifying-->
@@ -83,11 +83,12 @@
        <allow resource="report">view</allow>
     </role>
 
-    <!-- administrator for undergraduate honors ETDs -->
+    <!-- administrator for ETDs by school -->
     <role name="grad admin" inherits="school admin"/>
     <role name="honors admin" inherits="school admin"/>
     <role name="candler admin" inherits="school admin"/>
-    <role name="rollins admin" inherits="school admin"/>    
+    <role name="rollins admin" inherits="school admin"/>
+    <role name="nhwson admin" inherits="school admin"/>
 
     <role name="techsupport" inherits="view_all">
       <!-- view/edit any record, view log, but no workflow steps -->
@@ -120,8 +121,8 @@
    <resource name="file">
       <resource name="embargoed file"/>
       <resource name="published file"/> <!-- better way to specify these? -->
-      <resource name="draft file"/> 
-      <resource name="original file"/>  
+      <resource name="draft file"/>
+      <resource name="original file"/>
    </resource>
 
    <resource name="authorInfo"/>
@@ -140,7 +141,7 @@
 
   </resources>
 
-<!-- fixme: some way to use these as shortcuts? 
+<!-- fixme: some way to use these as shortcuts?
 e.g., author can view, view = view metadata + view history + view status, etc. -->
   <actions>
     <action name="view"/>
