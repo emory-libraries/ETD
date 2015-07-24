@@ -1,6 +1,12 @@
 CHANGE LOG
 =================
 
+Version 1.17
+------------
+* Updates for Fedora 3.8
+* Updated from SSL3 to SSL4 for curl
+
+
 Version 1.16
 ------------
 * Changes to embargo email templates
@@ -8,7 +14,7 @@ Version 1.16
 
 Version 1.15.1
 --------------
-* Made abstract searchable and retrievable in custom report section 
+* Made abstract searchable and retrievable in custom report section
 
 
 Version 1.15.0
@@ -19,7 +25,7 @@ Version 1.15.0
 * Added mime-type mappings for rar and gzip files
 * Fixed IE bug to correct placement of auto-complete pop-ups
 * Updated Screening Questions
-* Added Intro page to submission process 
+* Added Intro page to submission process
 * Added custom report page for Admins / ADAPS
 
 
