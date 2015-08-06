@@ -299,7 +299,7 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
    * @return binary
    */
   public function getFile() {
-    return $this->fedora->getDatastreamREST($this->pid, "FILE");
+    return $this->fedora->getDatastreamREST($this->pid, "FILE", $wfilename=$this->pid."-".$this->prettyFilename());
   }
 
   /**

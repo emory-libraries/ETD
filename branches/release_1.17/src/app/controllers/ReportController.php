@@ -1,4 +1,4 @@
-  <?php
+<?php
 /**
  * @category Etd
  * @package Etd_Controllers
@@ -11,8 +11,8 @@ require_once("controllers/report_fields.php");
 
 class ReportController extends Etd_Controller_Action {
   protected $requires_fedora = false;
-  protected $params;  
-  
+  protected $params;
+
   /**
    * copy of fedoraConnection with current user's auth credentials
    * (to be restored in postDispatch)
@@ -27,7 +27,7 @@ class ReportController extends Etd_Controller_Action {
   private $year;
   /**
    * possible embargo durations, as present in the ETD data (for use in flash charts)
-   * @var array 
+   * @var array
    */
   private $embargo_duration;
   /**
@@ -39,7 +39,7 @@ class ReportController extends Etd_Controller_Action {
    *
    */
   private $report_title;
-  
+
   /**
    * report viewers do not have special accesses at the fedora
    * level, which some of these reports required.  Temporarily
@@ -52,9 +52,9 @@ class ReportController extends Etd_Controller_Action {
   public function preDispatch() {
     // store fedoraConnection with user auth credentials - to be restored in postDispatch
     $this->_fedoraConnection = Zend_Registry::get("fedora");
-    
+
     if (isset($this->current_user)) {
-      
+
       // if current user is a report viewer (do NOT have special access at the fedora level),
       // temporarily replace fedora connection
       if ($this->current_user->role == "report viewer") {
@@ -69,7 +69,7 @@ class ReportController extends Etd_Controller_Action {
           $this->logger->err("Error connecting to Fedora with maintenance account - " . $e->getMessage());
           $this->_forward("fedoraunavailable", "error");
           return;
-        } 
+        }
         Zend_Registry::set("fedora", $maintenance_fedora);
       }
     }
@@ -89,29 +89,29 @@ class ReportController extends Etd_Controller_Action {
     if(!$this->_helper->access->allowed("report", "view")) {return false;}
     $this->view->title = "Reports";
   }
-   
+
   /**
-   * commencement review - allow user to select ETDs to be excluded 
+   * commencement review - allow user to select ETDs to be excluded
    * from the commencement report
    */
   public function commencementReviewAction() {
     if(!$this->_helper->access->allowed("report", "view")) {return false;}
-    
+
     $this->view->title = "Reports : Commencement Report Review";
-    
+
     //Create dates in query and human formats
     list($startDate, $endDate) = $this->getCommencementDateRange();
     $dateRange= "[" . date("Ymd", $startDate) . " TO " . date("Ymd", $endDate) ."]";
-    
-    
+
+
     $optionsArray = array();
     $optionsArray['query'] = "(degree_name:PhD AND (dateIssued:" . $dateRange . ") OR (-dateIssued:[* TO *] AND -status:'inactive'))";
     $optionsArray['sort'] = "author";
     $optionsArray['NOT']['status'] = "draft";
-    // show ALL records on a single page 
+    // show ALL records on a single page
     $optionsArray['max'] = 1000;
     $optionsArray['return_type'] = "solrEtd";
-    
+
     $etdSet = new EtdSet();
     $etdSet->find($optionsArray);
     $this->view->etdSet = $etdSet;
@@ -124,7 +124,7 @@ class ReportController extends Etd_Controller_Action {
      */
     public function commencementAction() {
       if(!$this->_helper->access->allowed("report", "view")) {return false;}
-      
+
         $this->view->title = "Reports : Commencement Report";
 
         //Get the list of PIDs to exclude
@@ -147,14 +147,14 @@ class ReportController extends Etd_Controller_Action {
         $optionsArray['query'] = "(degree_name:PhD AND (dateIssued:" . $dateRange . ") OR (-dateIssued:[* TO *] AND -status:'inactive'))";
         $optionsArray['sort'] = "author";
         $optionsArray['NOT']['status'] = "draft";
-        // show ALL records on a single page 
+        // show ALL records on a single page
         $optionsArray['max'] = 1000;
         /* FIXME: should this really be solrEtd ? loses title formatting, but is much faster... */
         $optionsArray['return_type'] = "solrEtd";
-            
+
         $etdSet = new EtdSet();
         $etdSet->find($optionsArray);
-        
+
         //remove ETDs by pid or calculate & save grad semester indicator
         foreach ($etdSet->etds as $index => $etd) {
             if(is_array($exclude) && in_array($etd->pid(), $exclude)){
@@ -180,7 +180,7 @@ class ReportController extends Etd_Controller_Action {
         $acEnd="Aug 31";
         $numYears=2;  //number of years to include before most recent academic year
         $curDate=strtotime("now"); //current date
-                
+
         //Create first and thus default choice
         //We are looking for completed yeears only!
         //If the report is run durring an academic year we get the most renct complted year: December from 2 years ago and  August from 1 yer ago
@@ -230,7 +230,7 @@ class ReportController extends Etd_Controller_Action {
         if($this->_hasParam($inputField)){
             list($start, $end) = split(":", $this->_getParam($inputField));
         }
-       
+
         //Query solr
         $optionsArray = array();
         $optionsArray['query'] = "(degree_name:PhD OR degree_name:MS OR degree_name:MA) AND dateIssued:[$start TO $end]";
@@ -274,10 +274,10 @@ class ReportController extends Etd_Controller_Action {
 
             $data[] = $line;
         }
-        
+
         $this->view->data = $data;
 
-       
+
         //set HTML headers in response to make output downloadable
         $this->_helper->layout->disableLayout();
         $filename = "GradReport-".date("Ymd", strtotime($start))."-".date("Ymd", strtotime($end)).".csv";
@@ -286,7 +286,7 @@ class ReportController extends Etd_Controller_Action {
         $this->getResponse()->setHeader('Expires','-1');
         $this->getResponse()->setHeader('Content-Type', "text/csv");
         $this->getResponse()->setHeader('Content-Disposition', 'attachment; filename="' . $filename . '"');
-        $this->render("export-csv");  // use generic csv template      
+        $this->render("export-csv");  // use generic csv template
     }
 
     /**
@@ -294,7 +294,7 @@ class ReportController extends Etd_Controller_Action {
      *  Start of year is 12/31 of last year, end is 8/31 of current year
      */
     public function exportEmailsAction(){
-            
+
       if(!$this->_helper->access->allowed("report", "view")) {return false;}
       $this->view->title = "Export Student Emails";
 
@@ -303,8 +303,8 @@ class ReportController extends Etd_Controller_Action {
       $endYear = date('Y');
       for ($i = $endYear; $i >= $startYear; $i--) {
         $options_year[strval($i)]=$i;
-      } 
-      
+      }
+
       // parameter school
       $schools = Zend_Registry::get("schools-config");
       //Have to use quotes because value has a colon and have to escape the quotes
@@ -313,14 +313,14 @@ class ReportController extends Etd_Controller_Action {
           $options_school[$school->acl_id] = $school->label;
         }
       }
-      
+
       // parameter ETD status
-      $options_status["approved"]="approved";      
-      $options_status["published"]="published";           
+      $options_status["approved"]="approved";
+      $options_status["published"]="published";
 
       $this->view->options_school=$options_school;
       $this->view->options_year=$options_year;
-      $this->view->options_status=$options_status;          
+      $this->view->options_status=$options_status;
     }
 
     /*
@@ -336,28 +336,28 @@ class ReportController extends Etd_Controller_Action {
 
       // Retrieve the school collection in the schools config file
       // Must use quotes because value has a colon and have to escape the quotes
-      $schools = Zend_Registry::get("schools-config");      
+      $schools = Zend_Registry::get("schools-config");
       foreach ($schools as $school){
         if(isset($school->acl_id)){ // This excludes the All Schools collection
-          if ($exportSchool == $school->acl_id) {                        
+          if ($exportSchool == $school->acl_id) {
             $collection = "\"" . $school->fedora_collection . "\"";
           }
         }
-      }    
-        
-      $etdSet = new EtdSet(); 
-      
-      $options = array("AND" => array("status" => $exportStatus, "collection" => $collection), 
-                       "start" => 0, "max" => 2000);          
+      }
+
+      $etdSet = new EtdSet();
+
+      $options = array("AND" => array("status" => $exportStatus, "collection" => $collection),
+                       "start" => 0, "max" => 2000);
 
       if ($exportStatus == "published") // published etd take an additional parameter
-        $options["AND"]["year"] = $exportYear; 
+        $options["AND"]["year"] = $exportYear;
 
       $etdSet->find($options);
 
       // date/time this output was generated to be included inside the file
       $date = date("Y-m-d H:i:s");
-      
+
       switch ($exportStatus) {
         case "approved":
           $data[] = array("Name", "Emory email address", "Permanent email address",
@@ -368,22 +368,22 @@ class ReportController extends Etd_Controller_Action {
             $etd->authorInfo->mads->current->email,
             $etd->authorInfo->mads->permanent->email,
             $etd->program());
-          }        
+          }
           break;
         case "published":
-          $data[] = array("Name", "Emory email address", "Permanent email address", "Date Issued", "Publication Year", 
+          $data[] = array("Name", "Emory email address", "Permanent email address", "Date Issued", "Publication Year",
           "Program", "Output Generated " . $date);
 
           foreach ($etdSet->etds as $etd){
             // extract the year from the date, exclude 1969 year
-            $exportYear = (isset($etd->mods->date) && (!strtotime($etd->mods->date, 0) == 1969)) ? '': date("Y", strtotime($etd->mods->date, 0)); 
+            $exportYear = (isset($etd->mods->date) && (!strtotime($etd->mods->date, 0) == 1969)) ? '': date("Y", strtotime($etd->mods->date, 0));
             $data[] = array($etd->authorInfo->mads->name,
             $etd->authorInfo->mads->current->email,
             $etd->authorInfo->mads->permanent->email,
             $etd->mods->originInfo->issued,
-            $exportYear,  
+            $exportYear,
             $etd->program());
-          }        
+          }
           break;
       }
 
@@ -400,7 +400,7 @@ class ReportController extends Etd_Controller_Action {
       $this->getResponse()->setHeader('Content-Type', 'text/csv');
       $this->getResponse()->setHeader('Content-Disposition',
              'attachment; filename="' . $filename . '"');
-      $this->render("export-csv");  // use generic csv template                  
+      $this->render("export-csv");  // use generic csv template
     }
 
 
@@ -413,7 +413,7 @@ class ReportController extends Etd_Controller_Action {
       //created dates so they can be reformated for the query and people
       $startDate = mktime(0, 0, 0, 6, 1, (date("Y")-1));
       $endDate = mktime(0, 0, 0, 5, 31, date("Y"));
-      
+
       return array($startDate, $endDate);
     }
 
@@ -519,7 +519,7 @@ class ReportController extends Etd_Controller_Action {
       $this->getResponse()->setHeader('Expires','-1');
       $this->getResponse()->setHeader('Content-Type', "text/csv");
       $this->getResponse()->setHeader('Content-Disposition', 'attachment; filename="' . $filename . '"');
-      $this->render("export-csv");  // use generic csv template        
+      $this->render("export-csv");  // use generic csv template
     }
 
 
@@ -574,7 +574,7 @@ class ReportController extends Etd_Controller_Action {
       }
       return $decorator;
     }
-     
+
 
     /*** Open Flash Chart reports  ***/
 
@@ -587,11 +587,11 @@ class ReportController extends Etd_Controller_Action {
       $report_title = "Document Length";
       $this->view->title = "Report : " . $report_title;
 
-      list($filters, $title_detail) =  $this->segmented_chart_setup();      
+      list($filters, $title_detail) =  $this->segmented_chart_setup();
       $report_title .= $title_detail;
       $this->view->title .= $title_detail;
       list($x_legend, $data) = $this->pagelength_totals($filters);
-      
+
       $this->view->chart = new stacked_bar_chart($report_title, $x_legend, "Document Length", $data, count($x_legend), $this->document_type);
       $this->render("filtered-chart");
     }
@@ -609,14 +609,14 @@ class ReportController extends Etd_Controller_Action {
       $embargo_opts = $this->embargo_duration;
       $this->view->title .= $title_detail;
       $report_title .= $title_detail;
-      
+
       $data = $this->embargo_totals($filters);
 
       $this->view->chart = new stacked_bar_chart($report_title, $embargo_opts, 'Embargo Duration',
              $data, count($embargo_opts), $this->document_type);
       $this->render("filtered-chart");
     }
-    
+
     /**
      * common setup for segmented, filterable charts (embargo, page-length)
      * @return array of filters, title detail
@@ -661,9 +661,9 @@ class ReportController extends Etd_Controller_Action {
       $solr = Zend_Registry::get('solr');
       $facets = array("year", "document_type", "embargo_duration");
       $solr->clearFacets()->addFacets($facets);
-      $solr->setFacetLimit(-1)->setFacetMinCount(1); 
+      $solr->setFacetLimit(-1)->setFacetMinCount(1);
       $result = $solr->query("*:*", 0, 0);
-      
+
       $data = array();
       foreach ($facets as $facet) {
         $values = array_diff(array_keys($result->facets->$facet), array(0 => ''));
@@ -706,7 +706,7 @@ class ReportController extends Etd_Controller_Action {
       // only facet on embargo duration, no limit, minimum 0 (include all values)
       $solr->clearFacets()->addFacets(array("embargo_duration"))->setFacetLimit(-1)->setFacetMinCount(0);
       $filter = $this->solr_filters($filters);
-      
+
       // NOTE: using genre/document type instead of degree names to consistently filter across all schools/degrees
       foreach ($this->document_type as $doc) {
         $response = $solr->query("$filter document_type:\"$doc\" AND status:published", 0, 0);
@@ -776,23 +776,23 @@ class ReportController extends Etd_Controller_Action {
       }
       return array(array_keys($pagelength_labels), $totals);
     }
-    
-  
+
+
     public function standardAction(){
         if(!$this->_helper->access->allowed("report", "view")) {return false;}
-        
+
         $this->view->extra_scripts = array(
          "//code.jquery.com/ui/1.10.3/jquery-ui.js"
         );
-        
+
         $this->view->title = "Create Report";
         $this->view->schools=$schools_cfg = Zend_Registry::get("schools-config");
-        
+
         $optionsArray['query'] = '';
         $optionsArray['max'] = 1000000;
         $optionsArray['return_type'] = "solrEtd";
         $etdSet = new EtdSet();
-        
+
         // make program select box options
         $programs = array();
         $subfields = array();
@@ -802,94 +802,94 @@ class ReportController extends Etd_Controller_Action {
                 $prog = $etd->program;
                 $prog_id = $etd->program_id;
                 $school = $schools_cfg->getLabel($schools_cfg->getIdByFedoraCollection($etd->collection[0]));
-                
-                
-                
+
+
+
                 if (!empty($prog_id) && !empty($prog)) {
                     $programs[$school][$prog_id] = $prog;
                 }
-                
+
                 //make subfiled select box options
                 $sub = $etd->subfield;
                 $sub_id = $etd->subfield_id;
-                
+
                 if (!empty($sub_id) && !empty($sub)) {
                     $subfields[$school][$sub_id] = $sub;
                 }
             }
-            
+
            //Sort by school
             ksort($programs);
             //sort programs within school
             foreach($programs as &$v) {asort($v);}
-            
-            
+
+
             //Sort by school
             ksort($subfields);
             // sort the subfield within the school
             foreach($subfields as &$v) {asort($v);}
-            
-            
+
+
             $this->view->programs = $programs;
             $this->view->subfields = $subfields;
         }catch(Exception $e){
             $this->_helper->flashMessenger->addMessage("Error: " . $e->getMessage());
             $this->view->messages = $this->_helper->flashMessenger->getMessages();
         }
-        
+
     }
-    
+
     public function advancedAutocompleteAction(){
         if(!$this->_helper->access->allowed("report", "view")) {return false;}
         global $all_report_fields;
-///////////////////////////////////////////////////////////////////        
+///////////////////////////////////////////////////////////////////
 //        DO NOT REMOVE UNDER PENALTY OF DEATH!!!!!
         $this->_helper->layout->disableLayout();
         $this->_helper->viewRenderer->setNoRender();
-///////////////////////////////////////////////////////////////////  
+///////////////////////////////////////////////////////////////////
         $term = $this->_getParam("term", ""); // autocomplete term
-        
+
         // make lamda like function to filter results - case insensitive search of name and description
         $params = '$arr,'.'$term='.'"'.$term.'"';
         $filter = create_function($params, 'if ($term=="") return true; return strstr(strtoupper($arr["label"]), strtoupper($term)) || strstr(strtoupper($arr["value"]), strtoupper($term));');
-                
+
         $this->getResponse()->setHeader('Content-Type', "application/json");
         $this->getResponse()->setBody(json_encode(array_filter($all_report_fields, $filter)));
     }
-    
+
     public function advancedAction() {
-    global $all_report_fields;    
+    global $all_report_fields;
     if(!$this->_helper->access->allowed("report", "view")) {return false;}
-    
+
     $this->view->extra_scripts = array(
          "//code.jquery.com/ui/1.10.3/jquery-ui.js"
     );
-    
+
     $this->view->title = "Create Advanced Report";
-     
+
     }
-    
+
     public function _formatStandardReportField($field, $values){
         if(empty($values)) {return '';}
-        
+
         foreach($values as $i=> &$value){
             if($value=="ALL" || empty($value)) {unset($values[$i]);}
-            
+
             $value = '\"' . $value . '\"';
         }
         return $term = $field . ":" .join(' ', $values);
     }
-    
+
     public function previewexportAction(){
     global $all_report_fields;
     global $csv_fields;
     $criteria = '';
-   
+
     $this->view->schools=$schools_cfg = Zend_Registry::get("schools-config");
-    
+
     if(!$this->_helper->access->allowed("report", "view")) {return false;}
     $criteria = $this->_getParam('criteria', '');
-    
+
     //Selected fields to include in CSV
     $csv_fields = $this->_getParam('include', array());
     $filter_selected =  create_function('$arr', 'global $csv_fields; return in_array($arr["field"], $csv_fields);');
@@ -900,72 +900,72 @@ class ReportController extends Etd_Controller_Action {
     else{
         $this->view->csv_fields = array_filter($all_report_fields, $filter_all_visable);
     }
-    
+
     $export = $this->_getParam('export', ''); // Export to CSV button
-    
+
     $this->view->is_advanced = $this->_getParam("advanced-search", '');
 
     $this->_helper->layout->disableLayout();
-    
-    
+
+
     if ($this->getRequest()->isPost()) {
         $tmp = array();
         if($this->_getParam('standard-search', '') !=''){
-            
+
             //Status
             $status = $this->_getParam('status', array());
             if(!empty($status)){$tmp[]= $this->_formatStandardReportField('status', $status);}
-            
+
             //pub date only active when published status selected
             if(in_array('published', $status)){
                 $pub_from = $this->_getParam('pub-from', '');
                 $pub_from = preg_replace('|[YMD]+|', '', $pub_from);
                 $pub_from = (!empty($pub_from) ? $pub_from : '*');
-                
+
                 $pub_to = $this->_getParam('pub-to', '');
                 $pub_to = preg_replace('|[YMD]+|', '', $pub_to);
                 $pub_to = (!empty($pub_to) ? $pub_to : '*');
-                
+
                 $tmp[] = "dateIssued:[$pub_from TO $pub_to]";
-                
+
             }
-            
+
             //degree
             $degree_name = $this->_getParam('degree_name', array());
             if(!empty($degree_name)){$tmp[]= $this->_formatStandardReportField('degree_name', $degree_name);}
-            
+
             //doc type
             $document_type = $this->_getParam('document_type', array());
             if(!empty($document_type)){$tmp[]= $this->_formatStandardReportField('document_type', $document_type);}
-            
+
             //embargo requested
             $embargo_duration = $this->_getParam('embargo_duration', array());
             if(!empty($embargo_duration)){$tmp[]= $this->_formatStandardReportField('embargo_duration', $embargo_duration);}
-            
+
             //language
             $language = $this->_getParam('language', array());
             if(!empty($language)){$tmp[]= $this->_formatStandardReportField('language', $language);}
-            
+
             //School
             $collection = $this->_getParam('collection', array());
             if(!empty($collection)){$tmp[]= $this->_formatStandardReportField('collection', $collection);}
-            
+
             //program
             $program_id = $this->_getParam('program_id', array());
             if(!empty($program_id)){$tmp[]= $this->_formatStandardReportField('program_id', $program_id);}
-            
+
             //subfield
             $subfield_id = $this->_getParam('subfield_id', array());
             if(!empty($subfield_id)){$tmp[]= $this->_formatStandardReportField('subfield_id', $subfield_id);}
-            
+
             //abstract
             $abstract = $this->_getParam('abstract', '');
             if(!empty($abstract) && $abstract!=''){$tmp[]=  'abstract:' . $abstract;}
-            
+
             $criteria = join(', ', $tmp);
-            
+
     }
-        
+
         // break into each field
         $tmp = explode(",", stripslashes($criteria));
         //handel mutiple values in each field
@@ -978,16 +978,16 @@ class ReportController extends Etd_Controller_Action {
             $name_val = (!empty($name_val) ? "($name_val)" : '');
         }
         $query = join(" AND ", $tmp);
-        
+
         //There is a much better way tod do this but the regex was really complicated
         $query = str_replace("MasterXs", "Master's", $query);
-        
+
         //print $query;
         $optionsArray['query'] = $query;
         $optionsArray['max'] = 10000000;
         $optionsArray['return_type'] = "solrEtd";
         $etdSet = new EtdSet();
-        
+
         try{
             $etdSet->find($optionsArray);
             $this->view->etdSet = $etdSet;
@@ -995,16 +995,16 @@ class ReportController extends Etd_Controller_Action {
             $this->_helper->flashMessenger->addMessage("Error: " . $e->getMessage());
             $this->view->messages = $this->_helper->flashMessenger->getMessages();
         }
-        
+
         $this->view->criteria = preg_replace('|\\\\"|', '&quot;', $criteria);
-   
-        
+
+
         //If export button was clicked then do the export
         //set HTML headers in response to make output downloadable
         if($export != ''){
-            
+
             $data = array();
-            
+
             //Header Row
             $headers = array();
             foreach ($csv_fields as $name){
@@ -1015,7 +1015,7 @@ class ReportController extends Etd_Controller_Action {
                 }
             }
             $data[] = $headers;
-            
+
             // Add data fields
             foreach ($etdSet->etds as $etd){
                 $row = array();
@@ -1032,15 +1032,15 @@ class ReportController extends Etd_Controller_Action {
                         $row[] = $etd->$field;
                     }
                 }
-            
+
                 $data[] = $row;
             }
-            
-            
+
+
             //This MUST be named this->view->data  for the csv template
             $this->view->data = $data;
-            
-            
+
+
             //HTML headers for CSV output
             $this->_helper->layout->disableLayout();
             $this->getResponse()->setHeader('Cache-Control', 'public', true);
@@ -1050,11 +1050,11 @@ class ReportController extends Etd_Controller_Action {
             $this->getResponse()->setHeader('Content-Disposition', 'attachment; filename="' . "ETD_Report.csv" . '"');
             $this->render("export-csv");  // use generic csv template
         }
-    }        
     }
-    
-    
-    
+    }
+
+
+
 
 }  // end ReportController
 
@@ -1063,7 +1063,7 @@ class ReportController extends Etd_Controller_Action {
 /**
  * sort embargo durations logically (days/months/years)
  * - used by summaryStat and chart data for flash charts
- */ 
+ */
 function sort_embargoes($a, $b) {
   // check if either is blank
   if (trim($a) == "") return -1; // a is less than b
@@ -1087,7 +1087,7 @@ function sort_embargoes($a, $b) {
     }
   }
 
-  if ($a_time == $b_time) { 
+  if ($a_time == $b_time) {
     // same time duration - compare by numbers only
     if ($a_num == $b_num) return 0;
     return ($a_num < $b_num) ? -1 : 1;
