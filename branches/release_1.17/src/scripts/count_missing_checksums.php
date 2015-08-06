@@ -1,7 +1,7 @@
 #!/usr/bin/php -q
 <?php
 
-/** 
+/**
  * script to check ETD objects for datastreams with missing checksums
  *
  * @category Etd
@@ -61,5 +61,3 @@ $logger->notice("Totals for datastreams with missing checksums");
 foreach ($missing_count as $ds => $count) {
     $logger->notice("$ds : $count");
 }
-
-?>

@@ -1,5 +1,5 @@
 <?
-require_once("../bootstrap.php"); 
+require_once("../bootstrap.php");
 /**
  * unit tests for the File Controller
  * etdFile handling (view, edit, etc.)
@@ -21,13 +21,13 @@ class FileControllerTest extends ControllerTestCase {
   function __construct() {
     $this->fedora = Zend_Registry::get("fedora");
   }
-  
+
   function setUp() {
 
     // get test pid
-    $fedora_cfg = Zend_Registry::get('fedora-config');    
+    $fedora_cfg = Zend_Registry::get('fedora-config');
     $this->etdpid = $this->fedora->getNextPid($fedora_cfg->pidspace);
-        
+
     $this->response = $this->makeResponse();
     $this->request  = $this->makeRequest();
 
@@ -55,17 +55,17 @@ class FileControllerTest extends ControllerTestCase {
     $gff->setReturnObject($this->mock_etdfile);
 
   }
-  
+
   function tearDown() {
-    
-    try { $this->fedora->purge($this->etdpid, "removing test etd");  } catch (Exception $e) {}    
+
+    try { $this->fedora->purge($this->etdpid, "removing test etd");  } catch (Exception $e) {}
 
     $FileController = new FileControllerForTest($this->request,$this->response);
     $gff = $FileController->getHelper("GetFromFedora");
     $gff->clearReturnObject();
 
     $this->mock_etdfile->type = null;
-    $this->mock_etdfile->etd = null;    
+    $this->mock_etdfile->etd = null;
 
     Zend_Registry::set('solr', null);
     Zend_Registry::set('current_user', null);
@@ -73,20 +73,20 @@ class FileControllerTest extends ControllerTestCase {
 
   public function testViewAction() {
     $FileController = new FileControllerForTest($this->request,$this->response);
-    $this->setUpGet(); 
-    
+    $this->setUpGet();
+
     $this->mock_etdfile->file->mimetype = "application/pdf";
     $this->mock_etdfile->file->last_modified = "2011-09-09T19:57:55.905Z";
     $this->mock_etdfile->file->checksum = "00134922bf38e7ca7a22312404bcf2be";
-        
+
     $this->mock_etdfile->setReturnValue('prettyFilename', "author_dissertation.pdf");
     $body1 = $FileController->getResponse()->getBody();
     $FileController->viewAction();
-    $layout = $FileController->getHelper("layout");   
+    $layout = $FileController->getHelper("layout");
     $this->assertFalse($layout->enabled);
     $headers = $FileController->getResponse()->getHeaders();
     $body = $FileController->getResponse()->getBody();
-    
+
     $this->assertTrue("This is the file contents for the body of the request.", $body,
       'file body should be set.');
 
@@ -115,7 +115,7 @@ class FileControllerTest extends ControllerTestCase {
     $this->mock_etdfile->file->checksum = "none";
     $FileController->viewAction();
     $headers = $FileController->getResponse()->getHeaders();
-     
+
     // ETag from datastream checksum
     $this->assertFalse(in_array(array("name" => "Etag",
                                      "value" => $this->mock_etdfile->file->checksum,
@@ -124,7 +124,7 @@ class FileControllerTest extends ControllerTestCase {
     $this->assertTrue(in_array(array("name" => "Content-Disposition",
              "value" => 'attachment; filename="author_dissertation.pdf"',
                                      "replace" => ''), $headers),
-          '2 filename should be set in Content-Disposition header');          
+          '2 filename should be set in Content-Disposition header');
 
 
     // not-modified responses
@@ -160,7 +160,7 @@ class FileControllerTest extends ControllerTestCase {
     $etd = new etd($this->etdpid);
     $etd->rels_ext->status = "draft";
     $etd->save("status -> draft to test editing");
-    
+
     $FileController->addAction();
     $this->assertTrue(isset($FileController->view->title));
     $this->assertTrue(isset($FileController->view->pid));
@@ -184,7 +184,7 @@ class FileControllerTest extends ControllerTestCase {
     $etd->save("status -> draft to test editing");
 
     $tmpfile = tempnam("/tmp", "etdtest-");
-  
+
     // uploading a non-pdf for pdf file should fail
     $_FILES['file'] = array("tmp_name" => $tmpfile, "size" => 150,
           "type" => "text/plain", "error" => UPLOAD_ERR_OK,
@@ -215,13 +215,13 @@ class FileControllerTest extends ControllerTestCase {
 
     $FileController = new FileControllerForTest($this->request, $this->response);
     $tmpfile = tempnam("/tmp", "etdtest-");
-  
+
     // uploading a non-pdf to update pdf object should fail
     $_FILES['file'] = array("tmp_name" => $tmpfile, "size" => 150,
           "type" => "text/plain", "error" => UPLOAD_ERR_OK,
-          "name" => "original.txt");        
-    $this->setUpGet(array('pid' => "mock_etdfilepid"));   
-    $this->assertFalse($FileController->updateAction());   
+          "name" => "original.txt");
+    $this->setUpGet(array('pid' => "mock_etdfilepid"));
+    $this->assertFalse($FileController->updateAction());
     $this->assertFalse(isset($FileController->view->file_pid));
     $messages = $FileController->getHelper('FlashMessenger')->getMessages();
     $this->assertPattern("/file is not an allowed type./", $messages[0]);
@@ -231,15 +231,15 @@ class FileControllerTest extends ControllerTestCase {
     $srcfile = "../fixtures/tinker_sample.pdf";
     $testfile = "/tmp/tinker_sample.pdf";
     copy($srcfile, $testfile);
-    
+
     $_FILES['file'] = array("tmp_name" => $testfile,
          "size" => filesize($testfile),
           "type" => "application/pdf", "error" => UPLOAD_ERR_OK,
           "name" => "diss.pdf");
-    $allowed_types = array("text/plain"); 
-    $this->assertFalse($FileController->updateAction());    
+    $allowed_types = array("text/plain");
+    $this->assertFalse($FileController->updateAction());
     $messages = $FileController->getHelper('FlashMessenger')->getMessages();
-    $this->assertPattern("/Successfully updated file/", $messages[0]); 
+    $this->assertPattern("/Successfully updated file/", $messages[0]);
   }
 
 
@@ -248,7 +248,7 @@ class FileControllerTest extends ControllerTestCase {
 
     // use mock etd object to simplify permissions/roles/etc
     $this->mock_etdfile->pid = $this->filepid;
-    
+
     // etdfile is not in draft mode, adding new file should not be allowed
     // etd is not in draft mode, adding new file should not be allowed
     $this->setUpGet(array('pid' => $this->filepid));
@@ -259,7 +259,7 @@ class FileControllerTest extends ControllerTestCase {
     $etd->rels_ext->status = "draft";
     $etd->save("status -> draft to test editing");
     $this->mock_etdfile->etd = $etd;
-    
+
     // GET: display form
     $FileController = new FileControllerForTest($this->request,$this->response);
     $this->setUpGet(array('pid' => $this->filepid));
@@ -274,7 +274,7 @@ class FileControllerTest extends ControllerTestCase {
     // POST: validate/update
     // missing required fields
     $FileController = new FileControllerForTest($this->request,$this->response);
-    $this->setUpPost(array('title' => '', 'type' => '')); 
+    $this->setUpPost(array('title' => '', 'type' => ''));
     $FileController->editAction();
     $this->assertTrue(in_array('Error: Title must not be empty',
                                $FileController->view->errors),
@@ -313,14 +313,14 @@ class FileControllerTest extends ControllerTestCase {
     $this->setUpPost($data);
     $FileController->editAction();
     $messages = $FileController->getHelper('FlashMessenger')->getMessages();
-    $this->assertPattern("/No changes made to file information/", $messages[0]);        
+    $this->assertPattern("/No changes made to file information/", $messages[0]);
   }
 
 
   public function testRemoveAction() {
     $FileController = new FileControllerForTest($this->request,$this->response);
     $this->setUpGet(array('pid' => $this->filepid));
-  
+
     // guest should not be allowed to remove
     $this->test_user->role = "guest";
     $this->assertFalse($FileController->removeAction());
@@ -341,30 +341,29 @@ class FileControllerTest extends ControllerTestCase {
 
 
   }
-  
+
 }
 
 
 
 
 class FileControllerForTest extends FileController {
-  
+
   public $renderRan = false;
   public $redirectRan = false;
-  
+
   public function initView() {
     $this->view = new Zend_View();
     Zend_Controller_Action_HelperBroker::addPrefix('Test_Controller_Action_Helper');
   }
-  
+
   public function render() {
     $this->renderRan = true;
   }
-  
+
   public function _redirect() {
     $this->redirectRan = true;
   }
-}   
+}
 
 runtest(new FileControllerTest());
-?>

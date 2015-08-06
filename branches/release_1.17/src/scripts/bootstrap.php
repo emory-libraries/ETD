@@ -34,11 +34,11 @@ try {
     // use default fedora config opts but with maintenance account credentials
     $fedora_opts["username"] = $fedora_cfg->maintenance_account->username;
     $fedora_opts["password"] = $fedora_cfg->maintenance_account->password;
-    $fedora = new FedoraConnection($fedora_opts);  
+    $fedora = new FedoraConnection($fedora_opts);
 } catch (FedoraNotAvailable $e) {
   trigger_error("Fedora is not available-- cannot proceed", E_USER_ERROR);
   return;
-} 
+}
 Zend_Registry::set('fedora', $fedora);
 $config_dir = "../config/";
 
@@ -68,7 +68,7 @@ Zend_Registry::set('etd-db', $etdDB);
 // sqlite db for statistics data
 $stat_config = new Zend_Config_Xml($config_dir . 'statistics.xml', $env_config->mode);
 $db = Zend_Db::factory($stat_config);
-Zend_Registry::set('stat-db', $db);	
+Zend_Registry::set('stat-db', $db);
 
 Zend_Registry::set('persis-config',
     new Zend_Config_Xml($config_dir . "persis.xml", $env_config->mode));
@@ -78,8 +78,8 @@ Zend_Registry::set('schools-config', $schools_config);
 
 // common getopt configurations that used by most scripts
 $common_getopts = array('verbose|v=s'  => 'Output level/verbosity; one of error, warn, notice, info, debug (default: error)',
-			'noact|n'      => "Test/simulate - don't actually do anything (no actions)");
-			
+      'noact|n'      => "Test/simulate - don't actually do anything (no actions)");
+
 
 
 
@@ -92,14 +92,14 @@ function setup_logging($level) {
   $formatter = new Zend_Log_Formatter_Simple($format);
   $writer->setFormatter($formatter);
   $logger = new Zend_Log($writer);
-  
+
   // set level of output to be displayed based on command line parameter
   switch ($level) {
   case "warn":    $verbosity = Zend_Log::WARN; break;
   case "notice":  $verbosity = Zend_Log::NOTICE; break;
   case "info":    $verbosity = Zend_Log::INFO; break;
-  case "debug":   $verbosity = Zend_Log::DEBUG; break;   
-  case "error": 
+  case "debug":   $verbosity = Zend_Log::DEBUG; break;
+  case "error":
   default:
     $verbosity = Zend_Log::ERR; break;
   }
@@ -115,10 +115,10 @@ function all_etd_pids() {
     $etd_pids = $fedora->risearch->findByCModel($config->contentModels->etd);
     $logger->notice("Found " . count($etd_pids) . " ETD objects");
     $etdfile_pids = $fedora->risearch->findByCModel($config->contentModels->etdfile);
-    $logger->notice("Found " . count($etdfile_pids) . " EtdFile objects");    
+    $logger->notice("Found " . count($etdfile_pids) . " EtdFile objects");
     $author_pids = $fedora->risearch->findByCModel($config->contentModels->author);
     $logger->notice("Found " . count($author_pids) . " AuthorInfo objects");
-    
+
     //Get all school collection pids from the schools config file
     $school_pids = array();
     foreach ($schools_config as $school){
@@ -133,5 +133,3 @@ function all_etd_pids() {
 
     return $all_pids;
 }
-
-?>

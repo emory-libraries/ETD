@@ -3,10 +3,10 @@ require_once("../bootstrap.php");
 require_once('ControllerTestCase.php');
 require_once('controllers/EditController.php');
 require_once("fixtures/esd_data.php");
-      
+
 class EditControllerTest extends ControllerTestCase {
 
-  // array of test foxml files & their pids 
+  // array of test foxml files & their pids
   private $etdxml;
   private $test_user;
   private $data;
@@ -22,13 +22,13 @@ class EditControllerTest extends ControllerTestCase {
   function __construct() {
     $this->fedora = Zend_Registry::get("fedora");
   }
-  
+
   function setUp() {
 
     // get 4 test pids - to be used throughout test
-    $fedora_cfg = Zend_Registry::get('fedora-config');    
+    $fedora_cfg = Zend_Registry::get('fedora-config');
     list($this->etdpid, $this->honors_etdpid, $this->masters_etdpid, $this->userpid) = $this->fedora->getNextPid($fedora_cfg->pidspace, 4);
-        
+
     $config = Zend_Registry::get('config');
 
     $ep = new esdPerson();
@@ -38,15 +38,15 @@ class EditControllerTest extends ControllerTestCase {
     $this->test_user->firstname = "Author";
     $this->test_user->lastname = "Jones";
     Zend_Registry::set('current_user', $this->test_user);
-  
+
     $_GET   = array();
     $_POST  = array();
-    
+
     $this->response = $this->makeResponse();
     $this->request  = $this->makeRequest();
 
     $school_cfg = Zend_Registry::get("schools-config");
-    
+
     // load fixtures
     // note: etd & related user need to be in repository so authorInfo relation will work
     $etd = new etd($this->loadEtdDom());
@@ -108,12 +108,12 @@ class EditControllerTest extends ControllerTestCase {
     $etd->policy->view->condition->addUser("nobody");
     $etd->policy->view->condition->addUser("nobodytoo");
   }
-  
+
   function tearDown() {
     foreach (array($this->etdpid, $this->honors_etdpid, $this->masters_etdpid, $this->userpid) as $pid) {
       try { $this->fedora->purge($pid, "removing test etd");  } catch (Exception $e) {}
-    }      
-      
+    }
+
 
     // is there a better way to discard messages?
     $EditController = new EditControllerForTest($this->request, $this->response);
@@ -128,7 +128,7 @@ class EditControllerTest extends ControllerTestCase {
     $EditController = new EditControllerForTest($this->request,$this->response);
 
     // GET: display form
-    $this->setUpGet(array('pid' => $this->etdpid));    
+    $this->setUpGet(array('pid' => $this->etdpid));
     $EditController->recordAction();
     $this->assertIsA($EditController->view->etd, "etd");
     // languages & degrees should be set to populate form select options
@@ -177,7 +177,7 @@ class EditControllerTest extends ControllerTestCase {
     $this->assertEqual("Saved changes to record information", $messages[0]);
     $this->assertTrue($EditController->redirectRan,
                        'should redirect when valid data is posted');
-    
+
     // inspect etd for data updates
     $etd = new etd($this->etdpid);
     $this->assertEqual($data['last-name'], $etd->mods->author->last);
@@ -204,7 +204,7 @@ class EditControllerTest extends ControllerTestCase {
     $this->assertTrue($EditController->redirectRan,
                        'should redirect when valid data is posted');
 
-    
+
     // set status to non-draft to test access controls
     $etd = new etd($this->etdpid);
     $etd->setStatus("reviewed");
@@ -219,11 +219,11 @@ class EditControllerTest extends ControllerTestCase {
   }
 
   // Note: not testing access on all of these because they are exactly the same
-  
+
   function testProgramAction() {
     $EditController = new EditControllerForTest($this->request,$this->response);
 
-    $this->setUpGet(array('pid' => $this->etdpid));    
+    $this->setUpGet(array('pid' => $this->etdpid));
     $EditController->programAction();
     $this->assertIsA($EditController->view->etd, "etd");
     $this->assertTrue(isset($EditController->view->programs));
@@ -234,7 +234,7 @@ class EditControllerTest extends ControllerTestCase {
     $this->assertTrue(isset($EditController->view->schoolId));
     $this->assertTrue(isset($EditController->view->options));
 
-    $this->setUpGet(array('pid' => $this->honors_etdpid));     
+    $this->setUpGet(array('pid' => $this->honors_etdpid));
     $EditController->programAction();
     $this->assertEqual("#undergrad", $EditController->view->program_section->id);
   }
@@ -257,8 +257,8 @@ class EditControllerTest extends ControllerTestCase {
     $this->assertEqual("Religion", $etd->mods->department);
     $this->assertPattern("/American Religio/", $etd->mods->subfield);
   }
-  
-  /** 
+
+  /**
    * rights
    * @todo test controller method validateRights directly - to simplify finding problems when something goes wrong
    * with rights save action
@@ -321,12 +321,12 @@ class EditControllerTest extends ControllerTestCase {
     $this->postSaveRights($this->masters_etdpid, 0, null, 1, 0, 1);
     $this->assertRights(new etd($this->masters_etdpid),
                         0, etd_mods::EMBARGO_NONE, 1, 0, 1);
-    
+
     // Masters ETD, PQ, copyright
     $this->postSaveRights($this->masters_etdpid, 0, null, 1, 1, 1);
     $this->assertRights(new etd($this->masters_etdpid),
                         0, etd_mods::EMBARGO_NONE, 1, 1, 1);
-    
+
     // Honors ETD never goes to PQ: it doesn't even have the option
     $this->postSaveRights($this->honors_etdpid, 0, null, null, null, 1);
     $this->assertRights(new etd($this->honors_etdpid),
@@ -366,7 +366,7 @@ class EditControllerTest extends ControllerTestCase {
     $this->assertFalse($redirect, "saveRights should not redirect when invalid");
     $this->assertPattern("/Error: invalid input/", $view->messages[0],
        "invalid input should display error message to user ");
-  
+
 
     // PROQUEST
 
@@ -405,7 +405,7 @@ class EditControllerTest extends ControllerTestCase {
   }
 
   private function postSaveRights($pid, $embargo, $embargo_level,
-                                  $pq_submit, $pq_copyright, 
+                                  $pq_submit, $pq_copyright,
                                   $submission_agreement) {
     $controller = new EditControllerForTest($this->request, $this->response);
 
@@ -480,7 +480,7 @@ class EditControllerTest extends ControllerTestCase {
 
 
   }
-  
+
   /*
    * Test Sticky Id, if a superuser modifies an ETD, the fedora object owner should stick.
    */
@@ -500,20 +500,20 @@ class EditControllerTest extends ControllerTestCase {
     $etd_before_save->dc->title = $new_title;
     $etd_before_save->mods->title = $new_title;
     $etd_before_save->save("Test INFO");
-    
+
     // If a non owner edits the etd, then the owner should not be updated.
-    $etd_after_save = new etd($this->etdpid);    
-    $this->assertTrue($etd_after_save->owner);  
+    $etd_after_save = new etd($this->etdpid);
+    $this->assertTrue($etd_after_save->owner);
     $this->assertEqual($etd_after_save->dc->title, $new_title);
-    $this->assertEqual($etd_after_save->mods->title, $new_title);    
-  }   
+    $this->assertEqual($etd_after_save->mods->title, $new_title);
+  }
 
   /*
    * Test save School
    */
   function testSaveSchool() {
 
-    //Test with author 
+    //Test with author
     $this->test_user->role = "author";
     $this->test_user->netid = "author";
     $this->test_user->firstname = "Author";
@@ -542,7 +542,7 @@ class EditControllerTest extends ControllerTestCase {
     $this->setUpPost(array('pid' => $this->etdpid, 'schoolId' => 'rollins',  'schoolIdOld' => 'grad'));
     $EditController = new EditControllerForTest($this->request,$this->response);
     $EditController->saveSchoolAction();
-    
+
     //Get the values again after function has been called
     //Should have new collection and no program values
     $etd = new etd($this->etdpid);
@@ -558,7 +558,7 @@ class EditControllerTest extends ControllerTestCase {
   function testFacultyAction() {
     $EditController = new EditControllerForTest($this->request,$this->response);
 
-    $this->setUpGet(array('pid' => $this->etdpid));    
+    $this->setUpGet(array('pid' => $this->etdpid));
     $EditController->facultyAction();
     $viewVars = $EditController->view->getVars();
     $this->assertIsA($EditController->view->etd, "etd");
@@ -567,7 +567,7 @@ class EditControllerTest extends ControllerTestCase {
   function testSaveFacultyAction() {
     $EditController = new EditControllerForTest($this->request,$this->response);
 
-    $this->setUpPost(array('pid' => $this->etdpid, 
+    $this->setUpPost(array('pid' => $this->etdpid,
                            'chair' => array('mthink'),
                            'committee' => array('engrbs'),
                            'nonemory_firstname' => array('Marvin'),
@@ -580,7 +580,7 @@ class EditControllerTest extends ControllerTestCase {
     $messages = $EditController->getHelper('FlashMessenger')->getMessages();
     $this->assertEqual("Saved changes to committee/adviser", $messages[0]);
     $this->assertTrue($EditController->redirectRan);  // redirects back to record
-    
+
     $etd = new etd($this->etdpid);
     $this->assertEqual("Thinker", $etd->mods->chair[0]->last);
     $this->assertEqual("Scholar", $etd->mods->committee[0]->last);
@@ -596,12 +596,12 @@ class EditControllerTest extends ControllerTestCase {
     $etd = new etd($this->etdpid);
     $this->assertEqual("grants", $etd->mods->chair[0]->affiliation);
     $this->assertEqual("preservation", $etd->mods->committee[0]->affiliation);
-    
+
     // simulate bad input (nonexistent ids - shouldn't happen in real life)
     $this->setUpPost(array('pid' => $this->etdpid, 'chair' => array('nobody'), 'committee' => array('nobodytoo'),
          'nonemory_firstname' => array(), 'nonemory_lastname' => array(),
          'nonemory_affiliation' => array()));
-    
+
     $this->expectError("Could not find person information for 'nobody' in Emory Shared Data", E_USER_WARNING);
     $this->expectError("Could not find person information for 'nobodytoo' in Emory Shared Data", E_USER_WARNING);
     $EditController->savefacultyAction();
@@ -609,7 +609,7 @@ class EditControllerTest extends ControllerTestCase {
     $messages = $EditController->getHelper('FlashMessenger')->getMessages();
     $this->assertEqual("Saved changes to committee/adviser", $messages[0]);
     $this->assertTrue($EditController->redirectRan);  // redirects back to record
-    
+
     $etd = new etd($this->etdpid);
     // if names are not found, values will not be changed
     $this->assertEqual("Thinker", $etd->mods->chair[0]->last);
@@ -627,7 +627,7 @@ class EditControllerTest extends ControllerTestCase {
                                'chair' => array('mthink'),
                                'nonemory_chair_firstname' => array('Uncle'),
                                'nonemory_chair_lastname' => array('Jessee'),
-			       'nonemory_chair_affiliation' => array('The Farm')
+             'nonemory_chair_affiliation' => array('The Farm')
                          ));
 
 
@@ -649,7 +649,7 @@ class EditControllerTest extends ControllerTestCase {
         $this->setUpPost(array('pid' => $this->etdpid,
                                'nonemory_chair_firstname' => array('Boss'),
                                'nonemory_chair_lastname' => array('Hogg'),
-			       'nonemory_chair_affiliation' => array('Hazzard County Police')
+             'nonemory_chair_affiliation' => array('Hazzard County Police')
                          ));
 
         $EditController->savefacultyAction();
@@ -659,12 +659,12 @@ class EditControllerTest extends ControllerTestCase {
         $this->assertEqual("Hogg", $etd->mods->nonemory_chair[0]->last);
         $this->assertEqual("Boss", $etd->mods->nonemory_chair[0]->first);
         $this->assertEqual("Hazzard County Police", $etd->mods->nonemory_chair[0]->affiliation);
-        
+
         //Two Non-Emory Chair
         $this->setUpPost(array('pid' => $this->etdpid,
                                'nonemory_chair_firstname' => array('Boss', 'Uncle'),
                                'nonemory_chair_lastname' => array('Hogg', 'Jessee'),
-			                   'nonemory_chair_affiliation' => array('Hazzard County Police', 'The Farm')
+                         'nonemory_chair_affiliation' => array('Hazzard County Police', 'The Farm')
                          ));
 
         $EditController->savefacultyAction();
@@ -677,7 +677,7 @@ class EditControllerTest extends ControllerTestCase {
         $this->assertEqual("Jessee", $etd->mods->nonemory_chair[1]->last);
         $this->assertEqual("Uncle", $etd->mods->nonemory_chair[1]->first);
         $this->assertEqual("The Farm", $etd->mods->nonemory_chair[1]->affiliation);
-        
+
    }
 
 
@@ -685,7 +685,7 @@ class EditControllerTest extends ControllerTestCase {
   function RightsAction() {
     $EditController = new EditControllerForTest($this->request,$this->response);
 
-    $this->setUpGet(array('pid' => $this->etdpid));    
+    $this->setUpGet(array('pid' => $this->etdpid));
     $EditController->rightsAction();
     $this->assertIsA($EditController->view->etd, "etd");
     $this->assertTrue(isset($EditController->view->title), "page title is set in view");
@@ -707,7 +707,7 @@ class EditControllerTest extends ControllerTestCase {
     $this->assertTrue($EditController->view->pq_submit);
     $this->assertTrue($EditController->view->pq_copyright);
     $this->assertFalse($EditController->view->submission_agreement);
-    
+
 
     // if degree is blank, should redirect to main edit page
     $etd = new etd($this->etdpid);
@@ -718,13 +718,13 @@ class EditControllerTest extends ControllerTestCase {
     $this->assertTrue($EditController->redirectRan);  // redirects back to record
     $messages = $EditController->getHelper('FlashMessenger')->getMessages();
     $this->assertEqual("You must select your degree before editing Rights and Access Restrictions", $messages[0]);
-      
+
   }
 
   function testResearchfieldAction() {
     $EditController = new EditControllerForTest($this->request,$this->response);
-    
-    $this->setUpGet(array('pid' => $this->etdpid));    
+
+    $this->setUpGet(array('pid' => $this->etdpid));
     $EditController->researchfieldAction();
     $viewVars = $EditController->view->getVars();
     $this->assertIsA($EditController->view->etd, "etd");
@@ -746,7 +746,7 @@ class EditControllerTest extends ControllerTestCase {
     $messages = $EditController->getHelper('FlashMessenger')->getMessages();
     $this->assertEqual("Saved changes to research fields", $messages[0]);
     $this->assertTrue($EditController->redirectRan);  // redirects back to record
-    
+
     // check that the values were saved correctly
     $etd = new etd($this->etdpid);
     $this->assertEqual("2", count($etd->mods->researchfields));
@@ -768,7 +768,7 @@ class EditControllerTest extends ControllerTestCase {
     $viewVars = $EditController->view->getVars();
     $this->assertTrue(isset($EditController->view->title));
     $this->assertIsA($EditController->view->etd, "etd");
-    
+
   }
 
   // FIXME: can't test saving new file order because test object does not have multiple (any?) etd files
@@ -779,23 +779,22 @@ class EditControllerTest extends ControllerTestCase {
 
 
 class EditControllerForTest extends EditController {
-  
+
   public $renderRan = false;
   public $redirectRan = false;
-  
+
   public function initView() {
     $this->view = new Zend_View();
     Zend_Controller_Action_HelperBroker::addPrefix('Test_Controller_Action_Helper');
   }
-  
+
   public function render() {
     $this->renderRan = true;
   }
-  
+
   public function _redirect() {
     $this->redirectRan = true;
   }
-}   
+}
 
 runtest(new EditControllerTest());
-?>

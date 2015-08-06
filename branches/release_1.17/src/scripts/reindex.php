@@ -65,5 +65,3 @@ $logger->notice("Reindexed $indexed object(s)");
 if ($indexed != $pidcount) {
     $logger->warn("Attempted to index $pidcount object(s), but only inserted or updated $indexed");
 }
-
-?>

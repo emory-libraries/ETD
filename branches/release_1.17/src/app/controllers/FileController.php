@@ -13,17 +13,17 @@ class FileController extends Etd_Controller_Action {
 
 
   public function preDispatch() {
-    // suppress sidebar search & browse navigation for all file actions 
+    // suppress sidebar search & browse navigation for all file actions
     // (which are primarily used during the submission process) for any user
     $this->view->suppress_sidenav_browse = true;
   }
-  
+
    // serve out a file attached to an ETD record from fedora
    public function viewAction() {
      $etdfile = $this->_helper->getFromFedora("pid", "etd_file");
-     
+
      if (!$this->_helper->access->allowedOnEtdFile("view", $etdfile)) return false;
-     
+
      // don't use layout or templates
      $this->_helper->layout->disableLayout();
      $this->_helper->viewRenderer->setNoRender(true);
@@ -31,6 +31,7 @@ class FileController extends Etd_Controller_Action {
      // fix headers for IE bug (otherwise file download doesn't work over https)
      $this->getResponse()->setHeader('Cache-Control', "public", true);  // replace any other cache-control values
      $this->getResponse()->setHeader('Pragma', "public", true);         // replace any other pragma values
+
      // set content type, filename, and set datastream content as the body of the response
      $this->getResponse()->setHeader('Content-Type', $etdfile->file->mimetype)
        // override the aggressive past expiration date set by php cache
@@ -45,25 +46,24 @@ class FileController extends Etd_Controller_Action {
      // send a not-modified response if we can
      $modified_since = $this->getRequest()->getHeader('If-Modified-Since', '');
      $no_match = $this->getRequest()->getHeader('If-None-Match', '');
- 
+
      // if either header is set and content has not changed, return 304 Not Modified
      if ( ($modified_since &&
            strtotime($etdfile->file->last_modified) <= strtotime($modified_since))
           || ($no_match && $etdfile->file->checksum != 'none'
-               && ($no_match == $etdfile->file->checksum)) ){                
+               && ($no_match == $etdfile->file->checksum)) ){
        $this->getResponse()->setHttpResponseCode(304);
      } else {
-       // if this is a HEAD request, add the file content & download header     
+       // if this is a HEAD request, add the file content & download header
        if ($this->getRequest()->isGet()) {
-         $this->getResponse()->setHeader('Content-Disposition',
-                                         'attachment; filename="' . $etdfile->prettyFilename() . '"')
-           ->setBody($etdfile->getFile());
+         //  $this->getResponse()->setHeader('Content-Disposition', 'attachment; filename="' . $etdfile->prettyFilename() . '"')->setBody($etdfile->getFile());
+         $this->getResponse()->setHeader('Content-Disposition', 'attachment; filename="' . $etdfile->prettyFilename() . '"')->setBody('In line.');
        }
-     }    
+     }
    }
 
 
-  
+
   // add file to an etd record
    public function addAction() {
      // etd record the file should be added to
@@ -87,7 +87,7 @@ class FileController extends Etd_Controller_Action {
      // creating a new etdfile is part of adding a file to an etd
      if (!$this->_helper->access->allowedOnEtd("add file", $etd)) return false;
      $this->view->etd = $etd;
-     
+
      // how this file is related to the to the etd record
      $file_rel = $this->_getParam("filetype");
      $allowed_types = null;
@@ -96,13 +96,13 @@ class FileController extends Etd_Controller_Action {
      switch($file_rel) {
      case "pdf":  $relation = "PDF"; $allowed_types = array("application/pdf"); break;
      // original and supplement use the relation as set above
-     case "original": $disallowed_types = array("application/pdf"); break; 
+     case "original": $disallowed_types = array("application/pdf"); break;
      case "supplement":
        break;
      default:
        trigger_error("Unknown etd file relation: $file_rel", E_USER_WARNING);
      }
-     
+
      $fileinfo = $_FILES['file'];
      $filename = $fileinfo['tmp_name'];
      $filetype = $fileinfo['type'];
@@ -123,7 +123,7 @@ class FileController extends Etd_Controller_Action {
    }
        }
        $etdfile = new etd_file(null, $etd); // initialize from template, but associate with parent etd
-       
+
        $esd = new esdPersonObject();
        $owner = $esd->findByUsername($etd->owner);
        if ($owner == null){
@@ -137,7 +137,7 @@ class FileController extends Etd_Controller_Action {
            return;
            }
        }
-       
+
        $etdfile->initializeFromFile($filename, $file_rel, $owner, $fileinfo['name']);
 
        // add relation to etd
@@ -150,17 +150,17 @@ class FileController extends Etd_Controller_Action {
        if ($filepid) {
    $this->logger->info("Created new etd file record with pid $filepid");
    $this->view->file_pid = $filepid;
-   
-   
+
+
    // add relation to etd object as well
    switch($file_rel) {
    case "pdf":    $etd->addPdf($etdfile); break;
    case "original":   $etd->addOriginal($etdfile); break;
    case "supplement": $etd->addSupplement($etdfile); break;
-   default: 
+   default:
      trigger_warning("relation '$relation' not recognized - not adding to etd", E_USER_WARNING);
    }
-   
+
    // note: saving etd will also save any changed related objects (etdfile rels & xacml)
    $result = $etd->save("added relation to uploaded $file_rel");
    if ($result) {
@@ -178,8 +178,8 @@ class FileController extends Etd_Controller_Action {
    $this->_helper->redirector->gotoRoute(array("controller" => "file", "action" => "edit",
                  "pid" => $etdfile->pid, 'etd' => $etd->pid), '', true);
        }  // end successfully ingested file
-       
-       
+
+
      } else {
        // upload failed - should be error messages from file upload helper
        $this->_helper->redirector->gotoRoute(array("controller" => "file", "action" => "add",
@@ -198,7 +198,7 @@ class FileController extends Etd_Controller_Action {
      $this->view->etd = $etdfile->etd;
 
      $fileinfo = $_FILES['file'];
-     
+
      Zend_Controller_Action_HelperBroker::addPrefix('Etd_Controller_Action_Helper');
      $filename = $fileinfo['tmp_name'];
 
@@ -209,10 +209,10 @@ class FileController extends Etd_Controller_Action {
      } else {
        $uploaded = $this->_helper->FileUpload->check_upload($fileinfo);
      }
-     
+
      if ($uploaded) {
        $old_pagecount = $etdfile->dc->pages;  // save current page count
-       
+
        $fileresult = $etdfile->updateFile($filename, "new version of file");  // update file info, upload new file
        $xmlresult = $etdfile->save("modified metadata for new version of file");
        if ($fileresult === false || $xmlresult === false) { // how to determine which failed?
@@ -258,7 +258,7 @@ class FileController extends Etd_Controller_Action {
              "pid" => $etdfile->etd->pid), '', true);
    }
 
-   
+
    /**
     * Edit file metadata.
     *
@@ -270,7 +270,7 @@ class FileController extends Etd_Controller_Action {
    public function editAction() {
      $etdfile = $this->_helper->getFromFedora("pid", "etd_file");
      if (!$this->_helper->access->allowedOnEtdFile("edit", $etdfile)) return false;
-     
+
      $this->view->title = "Edit File Information";
      $this->view->etdfile = $etdfile;
      $this->view->pid = $etdfile->pid;
@@ -282,7 +282,7 @@ class FileController extends Etd_Controller_Action {
                         "Software" => "Software",
                         "Sound" => "Sound");
      $this->view->type_options = $dc_types;
-     
+
      // on GET, display edit form (no additional logic)
 
      // on POST, process form data
@@ -295,7 +295,7 @@ class FileController extends Etd_Controller_Action {
        $etdfile->dc->type = $this->_getParam("type", null);
        // validate: check title non-empty, type in list
        $errors = array();
-       $invalid = false;   // assume valid until we find otherwise       
+       $invalid = false;   // assume valid until we find otherwise
        if (empty($etdfile->dc->title)) {
            $errors['title'] = 'Error: Title must not be empty';
            $invalid = true;
@@ -314,7 +314,7 @@ class FileController extends Etd_Controller_Action {
        } else {
          // valid : save and redirect
          if ($etdfile->dc->hasChanged()) {
-           // NOTE: Consider updating fedora object title based on dc:title 
+           // NOTE: Consider updating fedora object title based on dc:title
            $save_result = $etdfile->save("edited file information");
            $this->view->save_result = $save_result;
            if ($save_result) {
@@ -334,7 +334,7 @@ class FileController extends Etd_Controller_Action {
                                                      "action" => "record",
                                                      "pid" => $etdfile->etd->pid), '', true);
        } // end save valid data
-       
+
      } // end POST
 
    }
@@ -343,16 +343,16 @@ class FileController extends Etd_Controller_Action {
    public function removeAction() {
      $etdfile = $this->_helper->getFromFedora("pid", "etd_file");
      if (!$this->_helper->access->allowedOnEtdFile("remove", $etdfile)) return false;
-      
+
      // lag warning - if syncUpdates is turned off, record will still be displayed briefly
      $lag_warning = ' (It may take a moment to disappear from your record.)';
 
      $etd_pid = $etdfile->etd->pid;
-     // delete - removes from etd it belongs to and marks as deleted, but does not purge     
+     // delete - removes from etd it belongs to and marks as deleted, but does not purge
      $result = $etdfile->delete("removed by user");
-     if ($result) { 
+     if ($result) {
        $this->logger->info("Marked etdFile " . $etdfile->pid . " as deleted at $result");
-       $this->_helper->flashMessenger->addMessage("Successfully removed file <b>" . $etdfile->label . 
+       $this->_helper->flashMessenger->addMessage("Successfully removed file <b>" . $etdfile->label .
                                                   "</b>$lag_warning");
      } else {
        $this->_helper->flashMessenger->addMessage("Error: could not remove file <b>" . $etdfile->label . "</b>");

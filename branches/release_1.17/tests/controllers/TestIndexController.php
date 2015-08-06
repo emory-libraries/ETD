@@ -1,5 +1,5 @@
 <?php
-require_once("../bootstrap.php"); 
+require_once("../bootstrap.php");
 /**
  * unit tests for the Index Controller  (main index page only)
  */
@@ -11,7 +11,7 @@ require_once('controllers/IndexController.php');
 class IndexControllerTest extends ControllerTestCase {
   private $_realconfig;
   private $testconfig;
-  
+
   function setUp() {
     $this->response = $this->makeResponse();
     $this->request  = $this->makeRequest();
@@ -19,16 +19,16 @@ class IndexControllerTest extends ControllerTestCase {
     // store real config to restore later
     $this->_realconfig = Zend_Registry::get('config');
 
-    // stub config 
+    // stub config
     $this->testconfig = new Zend_Config(array());
     Zend_Registry::set('config', $this->testconfig);
   }
-  
+
   function tearDown() {
     // restore real config
     Zend_Registry::set('config', $this->_realconfig);
   }
-    	
+
   function testIndexAction() {
     $IndexController = new IndexControllerForTest($this->request,$this->response);
 
@@ -36,7 +36,7 @@ class IndexControllerTest extends ControllerTestCase {
     $this->expectException(new Exception("Calendar feed is not configured"));
     $this->expectError("Error retrieving news: News feed is not configured");
     $IndexController->indexAction();
-    
+
     $this->assertTrue(isset($IndexController->view->title));
 
     // FIXME: test the feed part of this page by customizing the absoluteUrl helper  ?
@@ -67,7 +67,7 @@ class IndexControllerTest extends ControllerTestCase {
     unset($ex);
 
     // FIXME: how to test success feed?  how to create mock feed ?
-	
+
   }
 
   function testGetCalendar() {
@@ -77,7 +77,7 @@ class IndexControllerTest extends ControllerTestCase {
     $index = new IndexControllerForTest($this->request,$this->response);
     $result = $index->getCalendar($calendarFeed);
     $this->assertIsA($result, "array");
-        
+
     //Test event with mutiple dates and times
     //The order of whenWhere arrays are important because the dates are sorted by start time
     $this->assertEqual("Submit IT", $result["Submission Workshops"]["description"]);
@@ -102,7 +102,7 @@ class IndexControllerTest extends ControllerTestCase {
     $this->assertEqual("", $result["Saint Patrick's Day"]["whenWhere"][0]["end"]);
     $this->assertEqual("The Pub", $result["Saint Patrick's Day"]["whenWhere"][0]["where"]);
 
-    
+
   }
 
 
@@ -138,24 +138,23 @@ class IndexControllerTest extends ControllerTestCase {
   }
 
 }
-        
+
 class IndexControllerForTest extends IndexController {
   public $renderRan = false;
   public $redirectRan = false;
-  
+
   public function initView() {
     $this->view = new Zend_View();
   }
-  
+
   public function render() {
     $this->renderRan = true;
   }
-  
+
   public function _redirect() {
     $this->redirectRan = true;
   }
-} 	
+}
 
-    
+
 runtest(new IndexControllerTest());
-?>

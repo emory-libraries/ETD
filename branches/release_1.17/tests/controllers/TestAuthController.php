@@ -1,9 +1,9 @@
 <?
-require_once("../bootstrap.php"); 
+require_once("../bootstrap.php");
 
 require_once('../ControllerTestCase.php');
 require_once('controllers/AuthController.php');
-      
+
 class AuthControllerTest extends ControllerTestCase {
 
   private $test_user;
@@ -11,7 +11,7 @@ class AuthControllerTest extends ControllerTestCase {
   function setUp() {
     $_GET 	= array();
     $_POST	= array();
-    
+
     $this->response = $this->makeResponse();
     $this->request  = $this->makeRequest();
 
@@ -19,7 +19,7 @@ class AuthControllerTest extends ControllerTestCase {
     $auth = Zend_Auth::getInstance();
     $auth->setStorage(new Zend_Auth_Storage_NonPersistent());
   }
-  
+
   function tearDown() {}
 
 
@@ -43,7 +43,7 @@ class AuthControllerTest extends ControllerTestCase {
     $messages = $AuthController->getHelper('FlashMessenger')->getMessages();
     $this->assertEqual("Error: please supply username and password", $messages[0]);
     $this->assertFalse(isset($AuthController->view->current_user));
-    
+
     // password but no username
     $this->setUpGet(array("login" => array("username" => "", "password" => "somepass", "url" => "index")));
     $AuthController = new AuthControllerForTest($this->request,$this->response);
@@ -59,12 +59,12 @@ class AuthControllerTest extends ControllerTestCase {
     // line, but it works properly when run from the web.
     // (some kind of difference in running environment, user?)
     // Should revisit and fix if we ever get access to a test Ldap server.
-    
+
     // bad username
     $AuthController = new AuthControllerForTest($this->request,$this->response);
     $this->resetGet();
     $this->setUpGet(array("login" => array("username" => "nonexistent", "password" => "somepass",
-					   "url" => "index")));
+             "url" => "index")));
     $AuthController->loginAction();
     $this->assertTrue($AuthController->redirectRan);
     $messages = $AuthController->getHelper('FlashMessenger')->getMessages();
@@ -76,7 +76,7 @@ class AuthControllerTest extends ControllerTestCase {
     $AuthController = new AuthControllerForTest($this->request,$this->response);
     $this->resetGet();
     $this->setUpGet(array("login" => array("username" => "rsutton", "password" => "somepass",
-					   "url" => "index")));
+             "url" => "index")));
     $AuthController->loginAction();
     $this->assertTrue($AuthController->redirectRan);
     $messages = $AuthController->getHelper('FlashMessenger')->getMessages();
@@ -84,7 +84,7 @@ class AuthControllerTest extends ControllerTestCase {
     $this->assertPattern("/Error: login failed/", $messages[0]);
     $this->assertFalse(isset($AuthController->view->current_user));
 
-    
+
     // not testing successful login because that would require including an ldap login and password here
   }
 
@@ -140,33 +140,31 @@ class AuthControllerTest extends ControllerTestCase {
     $this->assertEqual("staff", $AuthController->current_user->role);
     $this->assertEqual("English", $AuthController->current_user->program_coord);
 
-    
+
     // restore real environment mode
     Zend_Registry::set('environment', $real_env);
     // clear test user
     Zend_Registry::set("current_user", null);
   }
-    	
+
 }
 
 class AuthControllerForTest extends AuthController {
   public $renderRan = false;
   public $redirectRan = false;
-  
+
   public function initView() {
     $this->view = new Zend_View();
     Zend_Controller_Action_HelperBroker::addPrefix('Test_Controller_Action_Helper');
   }
-  
+
   public function render() {
     $this->renderRan = true;
   }
-  
+
   public function _redirect() {
     $this->redirectRan = true;
   }
-} 	
+}
 
 runtest(new AuthControllerTest());
-
-?>

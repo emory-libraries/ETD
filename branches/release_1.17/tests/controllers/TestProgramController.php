@@ -1,5 +1,5 @@
 <?
-require_once("../bootstrap.php"); 
+require_once("../bootstrap.php");
 /**
  * unit tests for the Program Controller
  */
@@ -7,7 +7,7 @@ require_once("../bootstrap.php");
 
 require_once('../ControllerTestCase.php');
 require_once('controllers/ProgramController.php');
-      
+
 class ProgramControllerTest extends ControllerTestCase {
 
   private $test_user;
@@ -15,7 +15,7 @@ class ProgramControllerTest extends ControllerTestCase {
   private $pid;
 
   /**
-   * FedoraConnection 
+   * FedoraConnection
    */
   private $fedora;
 
@@ -25,18 +25,18 @@ class ProgramControllerTest extends ControllerTestCase {
     $this->fedora = Zend_Registry::get('fedora');
   }
 
-  
+
   function setUp() {
-    
+
     // get test pid for fedora fixture
-    $fedora_cfg = Zend_Registry::get('fedora-config');    
+    $fedora_cfg = Zend_Registry::get('fedora-config');
     $this->pid = $this->fedora->getNextPid($fedora_cfg->pidspace);
-        
+
     $ep = new esdPerson();
     $this->test_user = $ep->getTestPerson();
     $this->test_user->role = "superuser";
     Zend_Registry::set('current_user', $this->test_user);
-    
+
     $this->response = $this->makeResponse();
     $this->request  = $this->makeRequest();
 
@@ -52,11 +52,11 @@ class ProgramControllerTest extends ControllerTestCase {
 
     // stub config with test pid for programs_pid
     $testconfig = new Zend_Config(array("programs_collection" => array("pid" => $this->pid)));
-    
+
     // temporarily override config in with test configuration
     Zend_Registry::set('config', $testconfig);
   }
-  
+
   function tearDown() {
     // restore real config to registry
     Zend_Registry::set('config', $this->_realconfig);
@@ -66,7 +66,7 @@ class ProgramControllerTest extends ControllerTestCase {
 
   function testXmlAction() {
     $programController = new ProgramControllerForTest($this->request,$this->response);
-    
+
     $programController->xmlAction();
     $response = $programController->getResponse();
     $headers = $response->getHeaders();
@@ -148,21 +148,19 @@ class ProgramControllerTest extends ControllerTestCase {
 class ProgramControllerForTest extends ProgramController {
   public $renderRan = false;
 
-  
+
   public function initView() {
     $this->view = new Zend_View();
     Zend_Controller_Action_HelperBroker::addPrefix('Test_Controller_Action_Helper');
   }
-  
+
   public function render() {
     $this->renderRan = true;
   }
-  
+
   public function _redirect() {
     $this->redirectRan = true;
   }
-}   
+}
 
 runtest(new ProgramControllerTest());
-
-?>
