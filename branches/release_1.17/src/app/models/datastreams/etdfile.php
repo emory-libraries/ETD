@@ -298,8 +298,13 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
    * uses REST api in order to support large datastreams
    * @return binary
    */
-  public function getFile() {
-    return $this->fedora->getDatastreamREST($this->pid, "FILE", $wfilename=$this->pid."-".$this->prettyFilename());
+  public function getFile($write_to_file = null) {
+    if ($write_to_file){
+      $write_to_filename=$this->pid."-".$this->prettyFilename();
+    } else{
+      $write_to_filename = null;
+    }
+    return $this->fedora->getDatastreamREST($this->pid, "FILE", $wfilename=$write_to_filename);
   }
 
   /**

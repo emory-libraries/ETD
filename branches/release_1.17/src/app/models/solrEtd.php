@@ -27,7 +27,7 @@ class solrEtd implements etdInterface {
                 $this->school_config = $schools_cfg->$school_id;
             }
         }
-        
+
     }
 
     if(!isset($this->school_config)){
@@ -90,7 +90,7 @@ class solrEtd implements etdInterface {
   public function _abstract() { return $this->getField("abstract"); }
   public function tableOfContents() { return $this->getField("tableOfContents"); }
   public function num_pages() { return $this->getField("num_pages"); }
-  
+
   public function keywords() { return $this->getField("keyword", true); } //array
   public function researchfields() { return $this->getField("subject", true); }   //array
   public function partneringagencies() { return $this->getField("partneringagencies", true); }   //array
@@ -101,7 +101,7 @@ class solrEtd implements etdInterface {
     $pid = str_replace("emory:", "", $this->PID);
     return "http://pid.emory.edu/ark:/25593/" . $pid;
   }
-  
+
 
   private function getField($name, $array = false) {
     if (isset($this->$name))
@@ -137,9 +137,9 @@ class solrEtd implements etdInterface {
      if ($user->netid == $this->rels_ext->author)
       return "author";
     elseif ($this->rels_ext->committee instanceof DOMElementArray
-      && $this->rels_ext->committee->includes($user->netid))  
+      && $this->rels_ext->committee->includes($user->netid))
       return "committee";*/
-    
+
     elseif ($user->isCoordinator($this->program()))
       return "program coordinator";
     elseif ($pos = strpos($user->role, " admin")) {
@@ -152,7 +152,5 @@ class solrEtd implements etdInterface {
       return $user->role;
   }
 
-  
-}
 
-?>
+}

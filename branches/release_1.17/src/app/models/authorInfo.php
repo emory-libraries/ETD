@@ -42,15 +42,15 @@ class authorInfo extends foxml {
 
 
     $this->available_fields = array("name", "email", "permanent email", "permanent address");
-               
+
   }
 
-  // configure additional datastreams here 
+  // configure additional datastreams here
   protected function configure() {
     parent::configure();
 
     $this->addNamespace("mads", "http://www.loc.gov/mads/");
-    
+
     // add mappings for xmlobject
     $this->xmlconfig["mads"] = array("xpath" => "//foxml:datastream[@ID='MADS']/foxml:datastreamVersion/foxml:xmlContent/mads:mads",
              "class_name" => "mads", "dsID" => "MADS");
@@ -76,7 +76,7 @@ class authorInfo extends foxml {
       $this->label = $this->dc->title = $value;
       break;
     case "owner":
-      // since owner attribute cannot be retrieved from Fedora via APIs, 
+      // since owner attribute cannot be retrieved from Fedora via APIs,
       // store author's username in rels-ext as author
       if (isset($this->rels_ext)) {
   if (isset($this->rels_ext->author)) $this->rels_ext->author = $value;
@@ -86,7 +86,7 @@ class authorInfo extends foxml {
       parent::__set($name, $value);
       break;
     default:
-      parent::__set($name, $value); 
+      parent::__set($name, $value);
     }
   }
 
@@ -111,13 +111,13 @@ class authorInfo extends foxml {
     if (! $this->mads->isValid()) {     // xml should be valid MODS
       // error message?
       return false;
-    }      
-      
+    }
+
     // all checks passed
     return true;
   }
 
-  
+
 
   /**
    * check a list of fields; returns an array of incomplete fields
@@ -138,17 +138,17 @@ class authorInfo extends foxml {
   /**
    * check all available fields
    * @see user::checkFields
-   * @return array 
+   * @return array
    */
   public function checkAllFields() {
     return $this->checkFields($this->available_fields);
   }
 
 
-  
+
   /**
    * check if a required field is filled in completely (part of submission-ready check)
-   * 
+   *
    * @param string $field name
    * @return boolean
    */
@@ -181,8 +181,8 @@ class authorInfo extends foxml {
     else return $user->role;
   }
 
-  
-  
+
+
   /**
    * override default foxml ingest function to use arks for object pids
    * @param string $message
@@ -199,12 +199,12 @@ class authorInfo extends foxml {
 
         $this->pid = $pid;
         // store the full ark as an additional identifier
-        // if no dc->identifier elements are present, append will fail, so just set first format element        
-        if (!count($this->dc->identifier)) {        
+        // if no dc->identifier elements are present, append will fail, so just set first format element
+        if (!count($this->dc->identifier)) {
           $this->dc->identifier = $ark;
         }
         else {
-          $this->dc->identifier->append($ark);          
+          $this->dc->identifier->append($ark);
         }
     }
     // use parent ingest logic to construct new foxml & datastreams appropriately
@@ -236,8 +236,5 @@ class authorInfo extends foxml {
       return null;  // what should the proper response be?
     }
   }
-  
+
 }
-
-
-?>

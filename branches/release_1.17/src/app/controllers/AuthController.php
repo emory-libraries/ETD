@@ -154,4 +154,3 @@ class AuthController extends Etd_Controller_Action {
    }
 
 }
-?>
