@@ -15,31 +15,31 @@ access and modify (with some limitations) etd objects (etd, etdfile, user)</Desc
 
       <Resource>
         <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
-            <AttributeValue 
+            <AttributeValue
     DataType="http://www.w3.org/2001/XMLSchema#string">info:fedora/emory-control:ETD-1.0</AttributeValue>
     <!-- DataType="http://www.w3.org/2001/XMLSchema#string">etd</AttributeValue> -->
-            <ResourceAttributeDesignator 
-    AttributeId="info:fedora/fedora-system:def/model#hasModel" 
+            <ResourceAttributeDesignator
+    AttributeId="info:fedora/fedora-system:def/model#hasModel"
                 DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="false"/>
         </ResourceMatch>
       </Resource>
 
       <Resource>
         <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
-            <AttributeValue 
+            <AttributeValue
     DataType="http://www.w3.org/2001/XMLSchema#string">info:fedora/emory-control:EtdFile-1.0</AttributeValue>
-            <ResourceAttributeDesignator 
-    AttributeId="info:fedora/fedora-system:def/model#hasModel" 
+            <ResourceAttributeDesignator
+    AttributeId="info:fedora/fedora-system:def/model#hasModel"
                 DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="false"/>
         </ResourceMatch>
       </Resource>
 
       <Resource>
         <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
-            <AttributeValue 
-    DataType="http://www.w3.org/2001/XMLSchema#string">info:fedora/emory-control:AuthorInformation-1.0</AttributeValue> 
-            <ResourceAttributeDesignator 
-    AttributeId="info:fedora/fedora-system:def/model#hasModel" 
+            <AttributeValue
+    DataType="http://www.w3.org/2001/XMLSchema#string">info:fedora/emory-control:AuthorInformation-1.0</AttributeValue>
+            <ResourceAttributeDesignator
+    AttributeId="info:fedora/fedora-system:def/model#hasModel"
                 DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="false"/>
         </ResourceMatch>
       </Resource>
@@ -55,11 +55,11 @@ access and modify (with some limitations) etd objects (etd, etdfile, user)</Desc
         </ResourceMatch>
       </Resource>
 
-      
-    </Resources>    
+
+    </Resources>
     <Actions>
       <AnyAction/>
-    </Actions>    
+    </Actions>
   </Target>
 
   <Rule RuleId="etdadmin" Effect="Permit">
@@ -147,14 +147,14 @@ access and modify (with some limitations) etd objects (etd, etdfile, user)</Desc
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">gradqew</AttributeValue> <!-- graduate school - Queen Watson -->
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">unilsso</AttributeValue> <!-- graduate school - Ulf Nilsson -->
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">efricke</AttributeValue> <!-- honors - Elizabeth Fricker -->
-          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">jreiff</AttributeValue>  <!-- honors - Joseph Reiff --> 
-          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">mmcca04</AttributeValue> <!-- candler school - Missy Page -->          
-          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">shart</AttributeValue>   <!-- candler school - Shelly Hart -->           
-          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">skraftc</AttributeValue> <!-- candler school - Steven Kraftchick -->           
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">jreiff</AttributeValue>  <!-- honors - Joseph Reiff -->
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">mmcca04</AttributeValue> <!-- candler school - Missy Page -->
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">shart</AttributeValue>   <!-- candler school - Shelly Hart -->
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">skraftc</AttributeValue> <!-- candler school - Steven Kraftchick -->
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">fpici</AttributeValue>   <!-- Fran Pici -->
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">libmhk</AttributeValue>  <!-- Marian Kelley -->
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">liblna</AttributeValue>  <!-- Laura Akerman -->
-          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">elfarr</AttributeValue>  <!-- Erika Farr --> 
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">elfarr</AttributeValue>  <!-- Erika Farr -->
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">etdadmin</AttributeValue>
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">etdmaint</AttributeValue>
       <!-- usernames for etd Rollins admins - THESE NEED TO BE IN ETD DATABASE TOO -->
@@ -162,20 +162,21 @@ access and modify (with some limitations) etd objects (etd, etdfile, user)</Desc
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">arozo</AttributeValue>   <!-- Angela Rozo (IH) -->
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">ascarl</AttributeValue>  <!-- Ariadne Swichtenberg (EOH, EOHEPI, EOHIH) -->
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">cdettme</AttributeValue> <!-- Cammie Dettmer (BSHE) -->
-          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">ddunba2</AttributeValue> <!-- Deanne Dunbar (BSHE) -->          
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">ddunba2</AttributeValue> <!-- Deanne Dunbar (BSHE) -->
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">dlmurra</AttributeValue> <!-- Deanna Murray (EPI, GLEPI) -->
-          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">ftraven</AttributeValue> <!-- Flavia Traven (IH) -->          
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">ftraven</AttributeValue> <!-- Flavia Traven (IH) -->
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">jtenley</AttributeValue> <!-- Jena Black (EOH, EOHEPI, EOHIH, EPI, GLEPI) -->
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">kwollen</AttributeValue> <!-- Kathy Wollenzien (HPM) -->
-          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">mkrance</AttributeValue> <!-- Melissa Krancer (APEPI, HCOM, MCHEPI, MS, PS)-->          
-          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">msherre</AttributeValue> <!-- Melissa Sherrer (BIOS, INFO) -->        
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">mkrance</AttributeValue> <!-- Melissa Krancer (APEPI, HCOM, MCHEPI, MS, PS)-->
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">msherre</AttributeValue> <!-- Melissa Sherrer (BIOS, INFO) -->
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">tnash</AttributeValue>   <!-- Theresa Nash (IH) -->
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">mfriddl</AttributeValue>   <!-- Theresa Nash (IH) -->
     <!-- tech support users - THESE NEED TO BE IN APP CONFIG TOO! -->
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">aafonja</AttributeValue> <!-- Ade Afonja -->
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">athom09</AttributeValue> <!-- Alex Thomas -->
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">hkglove</AttributeValue> <!-- Kevin Glover -->
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">scolli9</AttributeValue> <!-- Steve Collins -->
-          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">sconna2</AttributeValue> <!-- Sari Connard -->        
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">sconna2</AttributeValue> <!-- Sari Connard -->
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">tcarte5</AttributeValue>
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">sturnbu</AttributeValue> <!-- Scott Turnbull -->
         </Apply>
@@ -205,12 +206,13 @@ access and modify (with some limitations) etd objects (etd, etdfile, user)</Desc
         <SubjectAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:subject:loginId" DataType="http://www.w3.org/2001/XMLSchema#string"/>
         <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-bag">
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">rsutton</AttributeValue>  <!-- Rebecca  Sutton Koeser -->
-          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">rsvarne</AttributeValue>  <!-- Stewart Varner -->     
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">rsvarne</AttributeValue>  <!-- Stewart Varner -->
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">elfarr</AttributeValue>   <!-- Erika Farr -->
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">etdsuper</AttributeValue>
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">fedoraAdmin</AttributeValue>
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">etdmaint</AttributeValue>
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">athom09</AttributeValue>   <!-- Alex Thomas -->
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">hkglove</AttributeValue>   <!-- Kevin Glover -->
         </Apply>
    </Condition>
 
@@ -280,6 +282,6 @@ access and modify (with some limitations) etd objects (etd, etdfile, user)</Desc
 
   </Rule>
 
-  <Rule RuleId="deny-the-rest" Effect="Deny"/> 
+  <Rule RuleId="deny-the-rest" Effect="Deny"/>
 
 </Policy>

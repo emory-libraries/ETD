@@ -11,7 +11,7 @@ class countries {
 
   private $dom;
   private $xpath;
-  
+
   public function __construct() {
     $this->dom = new DOMDocument();
     $this->dom->loadXML(file_get_contents("countries.xml", FILE_USE_INCLUDE_PATH));
@@ -31,7 +31,5 @@ class countries {
     }
   }
 
-  
-}
 
-?>
+}

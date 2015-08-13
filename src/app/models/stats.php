@@ -13,7 +13,7 @@ class Stats_Db_Table extends Emory_Db_Table {
   protected function _setupDatabaseAdapter() {
     if (! $this->_db) $this->_db = Zend_Registry::get("stat-db");
   }
-}  
+}
 
 class Stat extends Zend_Db_Table_Row {
 }
@@ -22,15 +22,15 @@ class Stats extends Zend_Db_Table_Rowset {}
 
 class StatObject extends Stats_Db_Table {
   protected $_name           = 'stats';
-  protected $_rowsetClass    = 'Stats';  
-  protected $_rowClass       = 'Stat';  
+  protected $_rowsetClass    = 'Stats';
+  protected $_rowClass       = 'Stat';
   protected $_primary        = 'id';
 
   /**
    * override the default adapter to get the stats db
    */
   protected function _setupDatabaseAdapter() {
-    if (! $this->_db) 
+    if (! $this->_db)
       $this->_db = Zend_Registry::get("stat-db");
   }
 
@@ -61,8 +61,8 @@ class StatObject extends Stats_Db_Table {
     $abs_sel = $this->selectTypeByCountry($pids, "abstract");
     $file_sel = $this->selectTypeByCountry($pids, "file");
     $sql = "SELECT a.c as country, abstract, file FROM (" . $abs_sel->__toString() . ") as a
-	    LEFT OUTER JOIN (" . $file_sel->__toString() . ") AS f ON a.c = f.c
-    	    ORDER BY a.abstract DESC;";
+      LEFT OUTER JOIN (" . $file_sel->__toString() . ") AS f ON a.c = f.c
+          ORDER BY a.abstract DESC;";
 
     //        print "<pre>" . $sql . "</pre>";
     $stmt = $this->_db->query($sql);
@@ -79,29 +79,29 @@ class StatObject extends Stats_Db_Table {
    left join (select count(*) as file, country from stats where type='file' group by country)
    as f on a.country = f.country order by (a.abstract + f.file) DESC;*/
 
-    
+
   }
 
   // build a select statement to be used as a subselect
   private function selectTypeByCountry(array $pids = null, $type) {
     $select = $this->_db->select();
     $select->from($this->_name, array("COUNT(*) as $type", "country as c"));
-    		// note: have to rename country because field wasn't being found on the join
+        // note: have to rename country because field wasn't being found on the join
 
     // FIXME: pull into sub function - duplicate logic in select type by month
     if (!is_null($pids)) {
       $pid_filter = array();
       //          $sql .= $this->getAdapter()->quoteInto($where_sql, $uname);
       for ($i = 0;  $i < count($pids); $i++) {
-	$pid_filter[] = $this->getAdapter()->quoteInto("pid = ?", $pids[$i]);
+  $pid_filter[] = $this->getAdapter()->quoteInto("pid = ?", $pids[$i]);
       }
-      
+
       // need to group (pid1 or pid2) and type, NOT pid1 or pid2 and type
       $where = "(" . implode(" OR ", $pid_filter) . ") AND type = '$type' ";
     } else {
       $where = " type = '$type'";
     }
-    
+
     $select->where($where);
     $select->group("country");
 
@@ -113,8 +113,8 @@ class StatObject extends Stats_Db_Table {
     $abs_sel = $this->selectTypeByMonthYear($pids, "abstract");
     $file_sel = $this->selectTypeByMonthYear($pids, "file");
     $sql = "SELECT a.month as month, abstract, file FROM (" . $abs_sel->__toString() . ") as a
-	    LEFT OUTER JOIN (" . $file_sel->__toString() . ") AS f ON a.month = f.month
-    	    ORDER BY a.month DESC;";
+      LEFT OUTER JOIN (" . $file_sel->__toString() . ") AS f ON a.month = f.month
+          ORDER BY a.month DESC;";
 
     //        print "<pre>" . $sql . "</pre>";
     $stmt = $this->_db->query($sql);
@@ -135,21 +135,21 @@ class StatObject extends Stats_Db_Table {
     $select = $this->_db->select();
     $select->from($this->_name, array("COUNT(*) as $type", "strftime('%Y-%m', date) as month"));
     // in mysql: date_format(date, '%b %Y')
-    		// note: have to rename country because field wasn't being found on the join
+        // note: have to rename country because field wasn't being found on the join
 
     if (!is_null($pids)) {
       $pid_filter = array();
       //          $sql .= $this->getAdapter()->quoteInto($where_sql, $uname);
       for ($i = 0;  $i < count($pids); $i++) {
-	$pid_filter[] = $this->getAdapter()->quoteInto("pid = ?", $pids[$i]);
+  $pid_filter[] = $this->getAdapter()->quoteInto("pid = ?", $pids[$i]);
       }
-      
+
       // need to group (pid1 or pid2) and type, NOT pid1 or pid2 and type
       $where = "(" . implode(" OR ", $pid_filter) . ") AND type = '$type' ";
     } else {
       $where = " type = '$type'";
     }
-    
+
     $select->where($where);
     $select->group("month");
 
@@ -171,11 +171,11 @@ class StatObject extends Stats_Db_Table {
     foreach ($result as $record) {
       $pids[] = $record["pid"];
     }
-    
+
     return $pids;
   }
 
-  
+
 
   // need another count totals - by month/year (how to do?)
 }
@@ -188,8 +188,8 @@ class Bots extends Zend_Db_Table_Rowset {}
 
 class BotObject extends Stats_Db_Table {
   protected $_name           = 'bots';
-  protected $_rowsetClass    = 'Bots';  
-  protected $_rowClass       = 'Bot';  
+  protected $_rowsetClass    = 'Bots';
+  protected $_rowClass       = 'Bot';
   protected $_primary        = 'id';
 
 }
@@ -201,8 +201,8 @@ class LastRuns extends Zend_Db_Table_Rowset {}
 
 class LastRunObject extends Stats_Db_Table {
   protected $_name           = 'lastrun';
-  protected $_rowsetClass    = 'LastRuns';  
-  protected $_rowClass       = 'LastRun';  
+  protected $_rowsetClass    = 'LastRuns';
+  protected $_rowClass       = 'LastRun';
   protected $_primary        = 'id';
 
 
@@ -216,8 +216,5 @@ class LastRunObject extends Stats_Db_Table {
     // $result = $stmt->fetchObject("LastRun");
     return $result;
   }
-  
+
 }
-
-
-?>

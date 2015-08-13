@@ -14,14 +14,14 @@ require_once("fedora/models/foxml.php");
 
 class vcard extends XmlObject {
   const namespace = "http://www.w3.org/2001/vcard-rdf/3.0#";
-  
+
   public $dslabel = "User Information";
   public $control_group = FedoraConnection::MANAGED_DATASTREAM;
   public $state = FedoraConnection::STATE_ACTIVE;
   public $versionable = true;
-  public $mimetype = 'text/xml';  
-  
-  public function __construct($dom=null, $xpath = null) { 
+  public $mimetype = 'text/xml';
+
+  public function __construct($dom=null, $xpath = null) {
     $this->addNamespace("v", self::namespace);
 
     $config = $this->config(array(
@@ -87,5 +87,3 @@ class vcard_name extends XmlObject {
     parent::__construct($xml, $config, $xpath);
     }
 }
-
-?>

@@ -7,7 +7,7 @@
 
 require_once("js/FCKeditor/fckeditor.php");
 
-class Zend_View_Helper_FckEditor { 
+class Zend_View_Helper_FckEditor {
   public $view;
 
   /**
@@ -42,5 +42,3 @@ class Zend_View_Helper_FckEditor {
   }
 
 }
-
-?>

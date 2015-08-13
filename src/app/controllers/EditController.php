@@ -33,12 +33,12 @@ class EditController extends Etd_Controller_Action {
     return $options;
 
   }
-  
+
   // edit main record metadata
   public function recordAction() {
     $etd = $this->_helper->getFromFedora("pid", "etd");
     if (!$this->_helper->access->allowedOnEtd("edit metadata", $etd)) return false;
-      
+
     $this->view->title = "Edit Record Information";
     $this->view->etd = $etd;
 
@@ -56,14 +56,14 @@ class EditController extends Etd_Controller_Action {
 
     // on GET, display edit form (no additional logic)
     $errors = array();
-    
+
     // on POST, process form data
     if ($this->getRequest()->isPost()) {
       // Update etd mods with posted data;
       // used either to save or redisplay the edit form
-      
+
       $invalid = false;   // assume valid until we find otherwise
-      
+
       $etd->mods->author->last = $this->_getParam("last-name", null);
       if (empty($etd->mods->author->last)) {
         $errors['last-name'] = 'Last name is required';
@@ -86,7 +86,7 @@ class EditController extends Etd_Controller_Action {
         $etd->mods->language->code = $lang;
         $etd->mods->language->text = $language_options[$lang];
       }
-      
+
       $keywords_raw = $this->_getParam('keywords', array());
       $keywords = array();
       // sanitize input slightly: trim whitespace, uniquify
@@ -101,8 +101,8 @@ class EditController extends Etd_Controller_Action {
       if (! count($keywords) || empty($keywords[0])) {
         $errors['keywords'] = 'Please enter at least one keyword';
         $invalid = true;
-      } 
-      
+      }
+
       $degree = $this->_getParam('degree', null);
       if (empty($degree)) {
         $errors['degree'] = 'Please select a degree';
@@ -122,49 +122,49 @@ class EditController extends Etd_Controller_Action {
       }
 
       // if invalid, redisplay form with error information
-      
+
       // otherwise, save and redirect to main record page
       if (! $invalid) {
         // valid : save and redirect
         if ($etd->mods->hasChanged()) {
           $save_result = $etd->save("edited record information");
-          
+
           $this->view->save_result = $save_result;
           if ($save_result) {
             $this->_helper->flashMessenger->addMessage("Saved changes to record information");
-            $this->logger->info("Saved changes to record information for " . 
+            $this->logger->info("Saved changes to record information for " .
                                 $etd->pid . " at $save_result");
           } else {
             $this->_helper->flashMessenger->addMessage("Error: could not save changes to record information");
             $this->logger->err("Could not save changes to record information for " .
                                $etd->pid);
           }
-          
+
         } else {
           // mods unchanged
           $this->_helper->flashMessenger->addMessage("No changes made to record information");
         }
-        
+
         // redirect to main etd record
         $this->_helper->redirector->gotoRoute(array("controller" => "view",
                                                     "action" => "record",
                                                     "pid" => $etd->pid), '', true);
       } // end save valid data
-      
+
     } // end POST
 
-    
+
     // errors should always be set, for form display (always empty on GET)
     $this->view->errors = $errors;
-                                                       
-    
+
+
   }
 
   // edit school and program and optional subfield
   public function programAction() {
     $etd = $this->_helper->getFromFedora("pid", "etd");
     if (!$this->_helper->access->allowedOnEtd("edit metadata", $etd)) return;
-    
+
     if ($this->getRequest()->isGet()) {
         $this->view->title = "Edit Program";
         $this->view->etd = $etd;
@@ -240,7 +240,7 @@ class EditController extends Etd_Controller_Action {
             $this->_helper->redirector->gotoRoute(array("controller" => "view", "action" => "record",
                     "pid" => $etd->pid), '', true);
         }
-        
+
     }
 
   }
@@ -255,15 +255,15 @@ class EditController extends Etd_Controller_Action {
       // invalid input - forward back to rights edit form and stop processing
       // more specific error messages may be set by validateRights function
       // - if there is no error message, add a generic 'invalid' message
-      if (! $this->_helper->flashMessenger->hasMessages()) 
+      if (! $this->_helper->flashMessenger->hasMessages())
   $this->_helper->flashMessenger->addMessage('Error: invalid input, please check and resubmit.');
       $this->view->messages = $this->_helper->flashMessenger->getCurrentMessages();
-      
+
       $this->_forward("rights", "edit", null, array("pid" => $etd->pid));
       // note: using forward instead of redirect so parameters can be picked up
       return;
     }
-    
+
     $embargo = $this->_getParam('embargo', null);
     $embargo_level = $this->_getParam('embargo_level', null);
     $pq_submit = $this->_getParam('pq_submit', null);
@@ -276,10 +276,10 @@ class EditController extends Etd_Controller_Action {
 
     if ($embargo){
       $etd->mods->setEmbargoRequestLevel($embargo_level);
-      
+
       //Restore mods values when embargo level decreases
       if($embargo_level == etd_mods::EMBARGO_TOC)
-      { 
+      {
           $etd->abstract = $etd->html->abstract;
       }
       elseif($embargo_level <= etd_mods::EMBARGO_FILES){
@@ -300,7 +300,7 @@ class EditController extends Etd_Controller_Action {
       $etd->mods->addNote('', 'admin', 'pq_submit');
     if ( ! isset($etd->mods->copyright) )
       $etd->mods->addNote('', 'admin', 'copyright');
-    if ($etd->isRequired('send to ProQuest') && 
+    if ($etd->isRequired('send to ProQuest') &&
         ($etd->mods->ProquestRequired() ||
          $pq_submit)) {
       $etd->mods->pq_submit = 'yes';
@@ -433,8 +433,8 @@ class EditController extends Etd_Controller_Action {
     // ProQuest submission is only on the form if PQ submission is available
     // at all (not the case for honors undergrads) and not required (as it
     // is for PhDs.
-    if ($etd->isRequired("send to ProQuest") && 
-        ! $etd->mods->ProquestRequired() && 
+    if ($etd->isRequired("send to ProQuest") &&
+        ! $etd->mods->ProquestRequired() &&
         $pq_submit === null)
       return false;
     // If ProQuest stuff isn't on the form at all (e.g., for an Honors ETD,
@@ -450,7 +450,7 @@ class EditController extends Etd_Controller_Action {
     // copyright preference must be specified.
     if ($etd->isRequired('send to ProQuest') and
         ($pq_submit or
-         $etd->mods->ProquestRequired()) and 
+         $etd->mods->ProquestRequired()) and
         ($pq_copyright === null))
       return false;
 
@@ -467,7 +467,7 @@ class EditController extends Etd_Controller_Action {
     $this->view->etd = $etd;
   }
 
-  
+
   //Saves changes to Committee chair and members
   //Possible post values are:
   //ids for emory chair (Array) - info looked up in ESD
@@ -481,10 +481,10 @@ class EditController extends Etd_Controller_Action {
   public function savefacultyAction() {
     $etd = $this->_helper->getFromFedora("pid", "etd");
     if (!$this->_helper->access->allowedOnEtd("edit metadata", $etd)) return;
-    
+
     $this->view->etd = $etd;
 
-    $chair_ids = $this->_getParam("chair", array());         
+    $chair_ids = $this->_getParam("chair", array());
     $committee = $this->_getParam("committee", array());
 
     $committee_ids = array();
@@ -523,8 +523,8 @@ class EditController extends Etd_Controller_Action {
     $nonemory_first = $this->_getParam("nonemory_firstname");
     $nonemory_last = $this->_getParam("nonemory_lastname");
     $nonemory_affiliation = $this->_getParam("nonemory_affiliation");
-    
-    
+
+
     $etd->mods->setNonemoryCommittee($nonemory_chair_first,
                                      $nonemory_chair_last,
                                      $nonemory_chair_affiliation,
@@ -565,7 +565,7 @@ class EditController extends Etd_Controller_Action {
       $this->_helper->redirector->gotoRoute(array("controller" => "edit", "action" => "record",
                 "pid" => $etd->pid), '', true);
       return;
-      
+
     }
 
     // get *current* messages to get validation errors when forwarding from save-rights
@@ -573,7 +573,7 @@ class EditController extends Etd_Controller_Action {
 
     // if redirected from save-rights (invalid input), pre-set to user's last selections
     // if params are not present, default to what is set in the record
-    if ($this->_hasParam("embargo")) 
+    if ($this->_hasParam("embargo"))
       $this->view->embargo = $this->_getParam('embargo');
     else
       $this->view->embargo = $etd->mods->isEmbargoRequested();
@@ -589,34 +589,34 @@ class EditController extends Etd_Controller_Action {
       $this->view->pq_copyright = $this->_getParam('pq_copyright');
     else
       $this->view->pq_copyright = ($etd->mods->copyright == "yes");
-    if ($this->_hasParam("submission_agreement")) 
+    if ($this->_hasParam("submission_agreement"))
       $this->view->submission_agreement = $this->_getParam('submission_agreement');
     else
       $this->view->submission_agreement = $etd->mods->hasSubmissionAgreement();
-    
+
     $this->view->title = "Edit Author Rights/Access Restrictions";
     $this->view->etd = $etd;
 
-    // fixme: unused until record is saved? 
+    // fixme: unused until record is saved?
     $this->view->rights_stmt = $config->useAndReproduction;
-    
+
   }
 
 
   public function researchfieldAction() {
     $etd = $this->_helper->getFromFedora("pid", "etd");
     if (!$this->_helper->access->allowedOnEtd("edit metadata", $etd)) return;
-    
+
     $this->view->title = "Edit Research Fields";
     $this->view->etd = $etd;
 
-    $this->view->fields = new researchfields(); 
+    $this->view->fields = new researchfields();
   }
 
   public function saveresearchfieldAction() {
     $etd = $this->_helper->getFromFedora("pid", "etd");
     if (!$this->_helper->access->allowedOnEtd("edit metadata", $etd)) return;
-    
+
     $this->view->fields = $this->_getParam("fields");
 
     // construct an array of id => text name
@@ -649,9 +649,9 @@ class EditController extends Etd_Controller_Action {
                 "pid" => $etd->pid), '', true);
 
   }
-  
 
-  // formatted/html fields - edit one at a time 
+
+  // formatted/html fields - edit one at a time
   public function titleAction() {
     $this->_setParam("mode", "title");
     $this->_forward("html");
@@ -661,7 +661,7 @@ class EditController extends Etd_Controller_Action {
     $this->_setParam("mode", "abstract");
     $this->_forward("html");
   }
-  
+
   public function contentsAction() {
     $this->_setParam("mode", "contents");
     $this->_forward("html");
@@ -687,7 +687,7 @@ class EditController extends Etd_Controller_Action {
     $this->_setParam("mode", "title");
     $this->_forward("savehtml");
   }
-  
+
   public function saveabstractAction() {
     $this->_setParam("mode", "abstract");
     $this->_forward("savehtml");
@@ -698,7 +698,7 @@ class EditController extends Etd_Controller_Action {
     $this->_forward("savehtml");
   }
 
-  
+
   // save formatted fields
   public function savehtmlAction() {
     $etd = $this->_helper->getFromFedora("pid", "etd");
@@ -714,15 +714,18 @@ class EditController extends Etd_Controller_Action {
     // fixme: make this a generic function? similar throughout controller
     if ($etd->html->hasChanged()) {
       $save_result = $etd->save("modified $mode");
+      $this->logger->err("Save Results: $save_result");
       $this->view->save_result = $save_result;
       if ($save_result) {
-  $this->_helper->flashMessenger->addMessage("Saved changes to $mode");
-  $this->logger->info("Updated etd " . $etd->pid . " html $mode at $save_result");
-      } else {  // record changed but save failed for some reason
-  $this->_helper->flashMessenger->addMessage("Could not save changes to $mode");
-  $this->logger->err("Could not save changes to etd " . $etd->pid . " html $mode");
+        $this->_helper->flashMessenger->addMessage("Saved changes to $mode");
+        $this->logger->info("Updated etd " . $etd->pid . " html $mode at $save_result");
       }
-    } else {
+      else {  // record changed but save failed for some reason
+        $this->_helper->flashMessenger->addMessage("Could not save changes to $mode");
+        $this->logger->err("Could not save changes to etd " . $etd->pid . " html $mode");
+      }
+    }
+    else {
       $this->_helper->flashMessenger->addMessage("No changes made to $mode");
     }
 
@@ -749,14 +752,14 @@ class EditController extends Etd_Controller_Action {
     $xml = $HTTP_RAW_POST_DATA;
 
     if ($xml == "") {
-      // if no xml is submitted, don't modify 
+      // if no xml is submitted, don't modify
       // forward to a different view?
       $this->view->noxml = true;
     } else {
       $etd->mods->updateXML($xml);
       // update main record in case dept. has changed - set in etd & etdfile xacml, etc.
       $etd->department = $etd->mods->department;
-      
+
       if ($etd->mods->hasChanged()) {
   $save_result = $etd->save($log_message);
   $this->view->save_result = $save_result;
@@ -764,7 +767,7 @@ class EditController extends Etd_Controller_Action {
     $this->_helper->flashMessenger->addMessage("Saved changes to $component");  // more info?
     $this->logger->info("Saved etd " . $etd->pid . " changes to $component at $save_result");
   } else {  // record changed but save failed for some reason
-    $message = "Could not save changes to $component";
+    $message = "Could not save changes to $component!";
     $this->_helper->flashMessenger->addMessage($message);
     $this->logger->err($message);
   }
@@ -785,7 +788,7 @@ class EditController extends Etd_Controller_Action {
 
 
    /* FIXME: should these two actions have a different action in the ACL, or is this sufficient? */
-   
+
   public function fileorderAction() {
     $etd = $this->_helper->getFromFedora("pid", "etd");
 
@@ -798,7 +801,7 @@ class EditController extends Etd_Controller_Action {
     $etd = $this->_helper->getFromFedora("pid", "etd");
 
     if (!$this->_helper->access->allowedOnEtd("edit metadata", $etd)) return;
-    
+
     $order['pdf'] = $this->_getParam("pdfs");
     $order['orig'] = $this->_getParam("originals");
     $order['supp'] = $this->_getParam("supplements");
@@ -824,12 +827,12 @@ class EditController extends Etd_Controller_Action {
       $this->_helper->flashMessenger->addMessage("Saved changes");  // more info?
     else
       $this->_helper->flashMessenger->addMessage("No changes made");
-    
+
     // return to record (fixme: make this a generic function of this controller? used frequently)
     $this->_helper->redirector->gotoRoute(array("controller" => "view", "action" => "record",
                 "pid" => $etd->pid), '', true);
 
-    
+
     $this->_helper->viewRenderer->setNoRender(true);
   }
 
@@ -838,30 +841,30 @@ class EditController extends Etd_Controller_Action {
   public function partneringagencyAction() {
     $etd = $this->_helper->getFromFedora("pid", "etd");
     if (!$this->_helper->access->allowedOnEtd("edit metadata", $etd)) return;
-    
+
     $this->view->title = "Edit Partnering Agencies";
     $this->view->etd = $etd;
 
     $vocabularyObject = new foxmlVocabularies("#vocabularies", "#vocabularies");
     $this->view->partnering_agencies = $vocabularyObject->skos;
-    $this->view->vocabulary_section = $vocabularyObject->skos->partnering_agencies;  
+    $this->view->vocabulary_section = $vocabularyObject->skos->partnering_agencies;
   }
-  
+
   public function savepartneringagencyAction() {
-       
+
     $etd = $this->_helper->getFromFedora("pid", "etd");
     if (!$this->_helper->access->allowedOnEtd("edit metadata", $etd)) return;
-    
+
     $this->view->fields = $this->_getParam("fields");
 
     // construct an array of id => text name
     $values = array();
-    foreach ($this->view->fields as $i => $value) {      
+    foreach ($this->view->fields as $i => $value) {
       if(preg_match("/#([a-z\-]*) (.*)$/", $value, $matches)) {
         $id = $matches[1];
         $text = $matches[2];
-        $values[$id] = $text; 
-        //$this->_helper->flashMessenger->addMessage("FIELD[$id] = [$text]<br>");             
+        $values[$id] = $text;
+        //$this->_helper->flashMessenger->addMessage("FIELD[$id] = [$text]<br>");
       }
     }
     $etd->mods->setPartneringAgencies($values);
@@ -879,10 +882,10 @@ class EditController extends Etd_Controller_Action {
     } else {
       $this->_helper->flashMessenger->addMessage("No changes made to partnering agencies");
     }
-    
+
     // return to record (fixme: make this a generic function of this controller? used frequently)
     $this->_helper->redirector->gotoRoute(array("controller" => "view", "action" => "record",
                 "pid" => $etd->pid), '', true);
   }
-   
+
 }
