@@ -28,18 +28,6 @@ class FileController extends Etd_Controller_Action {
      $this->_helper->layout->disableLayout();
      $this->_helper->viewRenderer->setNoRender(true);
 
-
-     // This is a messy fix for an additional 0a being added to the file causing it to be corrupted
-    //  $etdfile->getFile(true);
-    //  $wfilename=$etdfile->pid."-".$etdfile->prettyFilename();
-    //  $file = '/tmp/php.tmp/'.$wfilename;
-    //  $fileURL = '/download/'.$wfilename;
-     //
-    //  $r = Zend_Controller_Action_HelperBroker::getStaticHelper('redirector');
-    //  $r->gotoUrl($fileURL)->redirectAndExit();
-
-     $this->getResponse()->setHeader('Content-Disposition', 'attachment; filename="' . $etdfile->prettyFilename() . '"')->setBody(false);
-
      // fix headers for IE bug (otherwise file download doesn't work over https)
      $this->getResponse()->setHeader('Cache-Control', "public", true);  // replace any other cache-control values
      $this->getResponse()->setHeader('Pragma', "public", true);         // replace any other pragma values
@@ -227,36 +215,37 @@ class FileController extends Etd_Controller_Action {
      if ($uploaded) {
        $old_pagecount = $etdfile->dc->pages;  // save current page count
 
-       $fileresult = $etdfile->updateFile($filename, "new version of file");  // update file info, upload new file
+       $fileresult = $etdfile->updateFile($filename, "New version of file ";  // update file info, upload new file
        $xmlresult = $etdfile->save("modified metadata for new version of file");
+
        if ($fileresult === false || $xmlresult === false) { // how to determine which failed?
-   $this->_helper->flashMessenger->addMessage("Error: there was a problem updating the file.");
-   if ($fileresult === false) {
-     $this->logger->err("Problem updating etdfile " . $etdfile->pid . " with new version of file");
-   }
-   if ($xmlresult === false) {
-     $this->logger->err("Problem saving modified metadata for etdfile " . $etdfile->pid);
-   }
+           $this->_helper->flashMessenger->addMessage("Error: there was a problem updating the file.");
+           if ($fileresult === false) {
+                 $this->logger->err("Problem updating etdfile " . $etdfile->pid . " with new version of file");
+           }
+           if ($xmlresult === false) {
+             $this->logger->err("Problem saving modified metadata for etdfile " . $etdfile->pid);
+           }
        } else {
-   $this->_helper->flashMessenger->addMessage("Successfully updated file");
-   $this->logger->info("Updated etdfile " . $etdfile->pid . " with new file at $fileresult");
-   $this->logger->info("Updated etdfile " . $etdfile->pid . " metadata at $xmlresult");
-   $this->view->save_result = $fileresult;
+         $this->_helper->flashMessenger->addMessage("Successfully updated file");
+         $this->logger->info("Updated etdfile " . $etdfile->pid . " with new file at $fileresult");
+         $this->logger->info("Updated etdfile " . $etdfile->pid . " metadata at $xmlresult");
+         $this->view->save_result = $fileresult;
        }
 
        // if file being updated is a PDF, need to update main record page count (can't be caught elsewhere)
        if ($etdfile->type == "pdf") {
-   // subtract pages from the old version of file
-   $etdfile->etd->mods->pages = (int)$etdfile->etd->mods->pages - (int)$old_pagecount;
-  // add new page count
-  $etdfile->etd->mods->pages = (int)$etdfile->etd->mods->pages + (int)$etdfile->dc->pages;
-  $result = $etdfile->etd->save("updated page count for new version of pdf");
-  if ($result) {
-    $this->logger->info("Updated etd page count for new version of pdf " . $etdfile->etd->pid);
-  } else {
-    $this->logger->err("Problem updating etd page count for new version of pdf" .
-           $etdfile->etd->pid);
-  }
+           // subtract pages from the old version of file
+           $etdfile->etd->mods->pages = (int)$etdfile->etd->mods->pages - (int)$old_pagecount;
+          // add new page count
+          $etdfile->etd->mods->pages = (int)$etdfile->etd->mods->pages + (int)$etdfile->dc->pages;
+          $result = $etdfile->etd->save("updated page count for new version of pdf");
+          if ($result) {
+            $this->logger->info("Updated etd page count for new version of pdf " . $etdfile->etd->pid);
+          } else {
+            $this->logger->err("Problem updating etd page count for new version of pdf" .
+                   $etdfile->etd->pid);
+          }
        }
 
        // delete temporary file now that we are done with it
@@ -264,7 +253,7 @@ class FileController extends Etd_Controller_Action {
 
        $this->_helper->viewRenderer->setScriptAction("new");
 
-     }
+     }//end uploaded
 
      // when updating binary file, redirect to main ETD record page
      // if update was successful or failed, flash messages will be displayed
