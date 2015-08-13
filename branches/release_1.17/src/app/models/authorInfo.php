@@ -193,9 +193,17 @@ class authorInfo extends foxml {
     if ($this->pid == "") {
         $persis = new Emory_Service_Persis(Zend_Registry::get('persis-config'));
 
-        // FIXME: use view/controller to build this url?
+        // FIXME: use view/controller toa build this url?
         $ark = $persis->generateArk("http://etd.library.emory.edu/author-info/view/pid/emory:{%PID%}", $this->label);
         $pid = $persis->pidfromArk($ark);
+
+        $fedora_cfg = Zend_Registry::get('fedora-config');
+        if (isset($fedora_cfg->pidspace) && $fedora_cfg->pidspace != '') {
+         $pid = $persis->pidfromArk($ark, $fedora_cfg->pidspace);
+        } else {
+         $pid = $persis->pidfromArk($ark);
+        }
+
 
         $this->pid = $pid;
         // store the full ark as an additional identifier

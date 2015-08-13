@@ -298,13 +298,8 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
    * uses REST api in order to support large datastreams
    * @return binary
    */
-  public function getFile($write_to_file = null) {
-    if ($write_to_file){
-      $write_to_filename=$this->pid."-".$this->prettyFilename();
-    } else{
-      $write_to_filename = null;
-    }
-    return $this->fedora->getDatastreamREST($this->pid, "FILE", $wfilename=$write_to_filename);
+  public function getFile() {
+    return $this->fedora->getDatastreamREST($this->pid, "FILE");
   }
 
   /**
@@ -388,6 +383,14 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
         $ark = $persis->generateArk("http://etd.library.emory.edu/file/view/pid/emory:{%PID%}",
             $this->etd->label . " : " . $this->label . " (" . $this->type . ")");
         $pid = $persis->pidfromArk($ark);
+
+        $fedora_cfg = Zend_Registry::get('fedora-config');
+        if (isset($fedora_cfg->pidspace) && $fedora_cfg->pidspace != '') {
+         $pid = $persis->pidfromArk($ark, $fedora_cfg->pidspace);
+        } else {
+         $pid = $persis->pidfromArk($ark);
+        }
+
         $this->pid = $pid;
 
         // store the full ark as an additional identifier
@@ -449,7 +452,7 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
     $this->setFileInfo($filename);   // update mimetype, filesize, and pages if appropriate
     $upload_id = $this->fedora->upload($filename);
     return $this->fedora->modifyBinaryDatastream($this->pid, "FILE", "Binary File", $this->file->mimetype,
-             $upload_id, $message);
+             $upload_id, $message, $filename, null, 'MD5');
   }
 
 
