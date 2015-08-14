@@ -215,7 +215,7 @@ class FileController extends Etd_Controller_Action {
      if ($uploaded) {
        $old_pagecount = $etdfile->dc->pages;  // save current page count
 
-       $fileresult = $etdfile->updateFile($filename, "New version of file ";  // update file info, upload new file
+       $fileresult = $etdfile->updateFile($filename, "New version of file ");  // update file info, upload new file
        $xmlresult = $etdfile->save("modified metadata for new version of file");
 
        if ($fileresult === false || $xmlresult === false) { // how to determine which failed?
