@@ -20,13 +20,30 @@ class FileController extends Etd_Controller_Action {
 
   //  serve out a file attached to an ETD record from fedora
    public function viewAction() {
-     $etdfile = $this->_helper->getFromFedora("pid", "etd_file");
-
-     if (!$this->_helper->access->allowedOnEtdFile("view", $etdfile)) return false;
 
      // don't use layout or templates
      $this->_helper->layout->disableLayout();
      $this->_helper->viewRenderer->setNoRender(true);
+
+     $etdfile = $this->_helper->getFromFedora("pid", "etd_file");
+
+     if (!$this->_helper->access->allowedOnEtdFile("view", $etdfile)){
+       return false;
+     } else{
+       // Short Term Fix:
+       // check embargo dates and etd status before serving out any content
+       $embargo = $this->_helper->getFromFedora("etd", "etd");
+       $embargo = $embargo->mods->embargo_end;
+       $time_elasped = (strtotime($this->mods->embargo_end, 0) > time());
+       // If the time elasped from the embargo end time is negative, then the
+       // embargo has not yet passed and the file should still be embargoed.
+
+       if($time_elasped<0){
+         return false;
+       }
+     }
+
+
 
      // fix headers for IE bug (otherwise file download doesn't work over https)
      $this->getResponse()->setHeader('Cache-Control', "public", true);  // replace any other cache-control values
@@ -116,13 +133,13 @@ class FileController extends Etd_Controller_Action {
        // compare MD5 for new file to existings files attached to this ETD, to avoid duplicate files
        $newfile_checksum = md5_file($filename);
        foreach (array_merge($etd->pdfs, $etd->originals, $etd->supplements) as $file) {
-   if ($file->getFileChecksum() == $newfile_checksum) {
-     $this->_helper->flashMessenger->addMessage("Error: You have already uploaded this file (" .
-                  $fileinfo['name'] . ") before.");
-     $this->_helper->redirector->gotoRoute(array("controller" => "file", "action" => "add",
-                   "etd" => $etd->pid), '', true);
-     return;
-   }
+         if ($file->getFileChecksum() == $newfile_checksum) {
+           $this->_helper->flashMessenger->addMessage("Error: You have already uploaded this file (" .
+                        $fileinfo['name'] . ") before.");
+           $this->_helper->redirector->gotoRoute(array("controller" => "file", "action" => "add",
+                         "etd" => $etd->pid), '', true);
+           return;
+         }
        }
        $etdfile = new etd_file(null, $etd); // initialize from template, but associate with parent etd
 

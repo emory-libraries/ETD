@@ -31,16 +31,16 @@
       <b>Supplemental Files</b><br/><? endif ?>
     <? foreach ($this->etd->$filetype as $file) : ?>
       <? if ($this->acl->isAllowed($this->role, $file, "view")): ?>
-      <? if (isset($file->file->mimetype)): ?>
-     <?= $this->FiletypeIcon($file->file->mimetype) ?>
-       <? endif ?>
-       <? if ($this->acl->isAllowed($this->role, $file, "download")): ?>
-        <a href="<?= $this->url(array("controller" => "file", "action" => "view",
-             "pid" => $file->pid), '', true, false)?>/<?= $file->prettyFilename() ?>">
+        <? if (isset($file->file->mimetype)): ?>
+         <?= $this->FiletypeIcon($file->file->mimetype) ?>
+        <? endif ?>
+        <? if ($this->acl->isAllowed($this->role, $file, "download")): ?>
+          <a href="<?= $this->url(array("controller" => "file", "action" => "view",
+             "pid" => $file->pid, "etd" => $this->etd->pid), '', true, false)?>/<?= $file->prettyFilename() ?>">
              <?= $file->dc->title ?></a>
-             <? else: /* view but not download */?>
-      <?= $file->dc->title ?>
-       <? endif ?>
+         <? else: /* view but not download */?>
+           <?= $file->dc->title ?>
+        <? endif ?>
     <? if (isset($file->dc->pages)): ?><?= $file->dc->pages ?> pages<? endif ?>
     <? if (isset($file->dc->filesize)): ?>(<?= $this->readableSize($file->dc->filesize) ?>) <?endif ?>
      <? if (isset($file->dc->description)): ?>
