@@ -7,8 +7,15 @@
     Allow anyone read access to EtdFile objects from the ETD server by IP.
 
     NOTE: this policy is a work-around for an issue in EtdFile per-object policies
-    discovered after the Fedora 3.8 migration (8/)
+    discovered after the Fedora 3.8 migration (8/16/2015) where the date-based
+    conditions used to handle embargoes are not evaluated properly and *all*
+    files are unavailable.
 
+    This policy is intended as a temporary solution ONLY.  It makes *all*
+    etd files (regardless of status or type, including drafts and original/master
+    documents) available to the ETD server by IP.  At the same time,
+    the ETD software will be updated with permission checks so that only file
+    content that should be viewable is served out through the application.
   </Description>
   <Target>
     <Subjects>
