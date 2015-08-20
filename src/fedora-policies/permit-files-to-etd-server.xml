@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Policy xmlns="urn:oasis:names:tc:xacml:1.0:policy"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        PolicyId="permit-user-unrestricted-to-owner"
+        RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:first-applicable">
+  <Description>
+    Allow anyone read access to EtdFile objects from the ETD server by IP.
+
+    NOTE: this policy is a work-around for an issue in EtdFile per-object policies
+    discovered after the Fedora 3.8 migration (8/)
+
+  </Description>
+  <Target>
+    <Subjects>
+      <AnySubject/>
+    </Subjects>
+    <Resources>
+         <!-- restrict to etd file objects ONLY -->
+    <Resource>
+      <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">info:fedora/emory-control:EtdFile-1.0</AttributeValue>
+          <ResourceAttributeDesignator AttributeId="info:fedora/fedora-system:def/model#hasModel" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="false"/>
+      </ResourceMatch>
+    </Resource>
+
+    <Resource>
+        <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">DC</AttributeValue>
+            <ResourceAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:resource:datastream:id" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="false"/>
+        </ResourceMatch>
+      </Resource>
+
+    <Resource>
+        <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">RELS-EXT</AttributeValue>
+            <ResourceAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:resource:datastream:id" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="false"/>
+        </ResourceMatch>
+      </Resource>
+
+    <Resource>
+        <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">FILE</AttributeValue>
+            <ResourceAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:resource:datastream:id" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="false"/>
+        </ResourceMatch>
+      </Resource>
+
+
+    </Resources>
+    <Actions>
+        <Action>
+          <ActionMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">urn:fedora:names:fedora:2.1:action:id-getDatastreamDissemination</AttributeValue>
+            <ActionAttributeDesignator DataType="http://www.w3.org/2001/XMLSchema#string" AttributeId="urn:fedora:names:fedora:2.1:action:id"/>
+          </ActionMatch>
+        </Action>
+    </Actions>
+  </Target>
+
+  <Rule RuleId="permit-from-etdservers" Effect="Permit">
+    <Condition  FunctionId="urn:oasis:names:tc:xacml:1.0:function:and">
+      <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-at-least-one-member-of">
+        <EnvironmentAttributeDesignator AttributeId="urn:fedora:names:fedora:2.1:environment:httpRequest:clientIpAddress" DataType="http://www.w3.org/2001/XMLSchema#string"/>
+        <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-bag">
+          <!-- PRODUCTION ETD - etd.library aka vmch-etd.library -->
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">170.140.26.178</AttributeValue>
+          <!-- QA ETD - testetd.library aka asbestos.library -->
+          <!-- <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">170.140.223.92</AttributeValue> -->
+          <!-- QA ETD - dev10 (this is where requests to fedora seem to come from) -->
+          <!-- <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">170.140.223.126</AttributeValue> -->
+          <!-- DEV ETD - wilson.library -->
+          <!-- <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">170.140.223.98</AttributeValue> -->
+        </Apply>
+      </Apply>
+    </Condition>
+  </Rule>
+
+</Policy>
