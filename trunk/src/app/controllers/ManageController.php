@@ -11,7 +11,7 @@ class ManageController extends Etd_Controller_Action {
   protected $requires_fedora = true;
   protected $schools_cfg;
   protected $school;
-  
+
    public function indexAction() {
      // forward to appropriate action based on user's role
 
@@ -31,7 +31,7 @@ class ManageController extends Etd_Controller_Action {
 
      // retrieve multi-school configuration from registry
      $this->schools_cfg = Zend_Registry::get("schools-config");
-     
+
      // if user is a school-specific admin, determine which school
      if ($pos = strpos($this->current_user->role, " admin")) {
        $admin_type = substr($this->current_user->role, 0, $pos);
@@ -107,14 +107,14 @@ class ManageController extends Etd_Controller_Action {
    public function listAction() {
      if (!$this->_helper->access->allowedOnEtd("manage")) return;
 
-     // pick up common parameters: paging (start/max), sort, facets (including status) 
+     // pick up common parameters: paging (start/max), sort, facets (including status)
      $options = $this->getFilterOptions();
      $options["return_type"] = "solrEtd";
 
      // optionally limit to undergrad or grad records only based on user's role
      $filter = $this->getAdminFilter();
      if ($filter) $options["query"] = $filter;
-     
+
      $etdSet = new EtdSet($options, null, 'find');
      $this->view->etdSet = $etdSet;
 
@@ -165,16 +165,16 @@ class ManageController extends Etd_Controller_Action {
    public function acceptAction() {
      $etd = $this->_helper->getFromFedora("pid", "etd");
      // accept is part of review workflow
-     if (!$this->_helper->access->allowedOnEtd("review", $etd)) return false; 
-     
+     if (!$this->_helper->access->allowedOnEtd("review", $etd)) return false;
+
      $newstatus = "reviewed";
      $etd->setStatus($newstatus);
-     
-     // log event in record history 
+
+     // log event in record history
      $etd->premis->addEvent("status change", "Record reviewed by " .
           $this->current_user->getGenericAgent(),
           "success",  array("netid", $this->current_user->netid));
-     
+
      $result = $etd->save("set status to '$newstatus'");
      if ($result) {
        $this->logger->info("Saved etd status change to '$newstatus' on " . $etd->pid . " at $result");
@@ -184,7 +184,7 @@ class ManageController extends Etd_Controller_Action {
        $this->logger->info("Could not save etd status change to '$newstatus' on " . $etd->pid);
        $this->_helper->flashMessenger->addMessage("Error: Could not set record status to <b>$newstatus</b>");
      }
-     
+
      // forward to .. main admin page ?
      $this->_helper->redirector->gotoRoute(array("controller" => "manage",
              "action" => "summary"), "", true);
@@ -194,7 +194,7 @@ class ManageController extends Etd_Controller_Action {
    public function requestchangesAction() {
      $etd = $this->_helper->getFromFedora("pid", "etd");
      $changetype = $this->_getParam("type", "record");    // could also be document (record=metadata)
-     if (!$this->_helper->access->allowedOnEtd("request $changetype changes", $etd)) return false;  
+     if (!$this->_helper->access->allowedOnEtd("request $changetype changes", $etd)) return false;
 
      $this->view->title = "Manage : Request changes to $changetype";
      $this->view->etd = $etd;
@@ -243,7 +243,7 @@ class ManageController extends Etd_Controller_Action {
      $this->_helper->redirector->gotoRoute(array("controller" => "manage",
              "action" => "summary"), "", true);
 
-     
+
    }
 
    // send an email when reverting to draft state
@@ -295,14 +295,14 @@ class ManageController extends Etd_Controller_Action {
 
 
    }
-  
+
 
    /* approve workflow  (approve, doapprove) */
 
    public function approveAction() {
      $etd = $this->_helper->getFromFedora("pid", "etd");
      if (!$this->_helper->access->allowedOnEtd("approve", $etd)) return false;
-     
+
      $this->view->etd = $etd;
      $this->view->title = "Manage : Approve ETD";
 
@@ -334,7 +334,7 @@ class ManageController extends Etd_Controller_Action {
    public function doapproveAction() {
      $etd = $this->_helper->getFromFedora("pid", "etd");
      if (!$this->_helper->access->allowedOnEtd("approve", $etd)) return false;
-     
+
      $embargo = $this->_getParam("embargo");  // duration
      $embargo_request = $etd->mods->embargo_request;
 
@@ -348,13 +348,13 @@ class ManageController extends Etd_Controller_Action {
          return;
      }
 
-     
+
      // set status to approved
      $newstatus = "approved";
      $etd->setStatus($newstatus);
      $etd->mods->embargo = $embargo;  // save embargo duration
-     
-     // log event in record history 
+
+     // log event in record history
      // log record approval
      $etd->premis->addEvent("status change",
           "Record approved by " . $this->current_user->getGenericAgent(),
@@ -364,7 +364,7 @@ class ManageController extends Etd_Controller_Action {
      $etd->premis->addEvent("admin",
           "Access restriction of $embargo approved",  // by whom ?
           "success",  array("netid", $this->current_user->netid));
-     
+
      // send approval email & log that it was sent
      $notify = new etd_notifier($etd);
      $to = $notify->approval();   // any way to do error checking? (doesn't seem to be)
@@ -380,15 +380,15 @@ class ManageController extends Etd_Controller_Action {
        $this->_helper->flashMessenger->addMessage("Error: problem approving and setting access restricton of $embargo");
        $this->logger->err("Could not update etd " . $etd->pid . " - attempting to approve and set embargo to $embargo");
      }
-     
+
      $this->_helper->flashMessenger->addMessage("Approval notification email sent to " . implode(', ', array_keys($to)));
      $this->_helper->redirector->gotoRoute(array("controller" => "manage",
-             "action" => "summary"), "", true); 
+             "action" => "summary"), "", true);
    }
-   
+
 
    /* inactivation workflow (inactivate, markInactive) */
-   
+
    public function inactivateAction() {
      $etd = $this->_helper->getFromFedora("pid", "etd");
      if (!$this->_helper->access->allowedOnEtd("inactivate", $etd)) return false;
@@ -399,13 +399,13 @@ class ManageController extends Etd_Controller_Action {
    public function markInactiveAction() {
      $etd = $this->_helper->getFromFedora("pid", "etd");
      if (!$this->_helper->access->allowedOnEtd("inactivate", $etd)) return false;
-     
+
      $reason = $this->_getParam("reason", "");
-     
+
      $newstatus = "inactive";
      $etd->setStatus($newstatus);
-     
-     // log event in record history 
+
+     // log event in record history
      $etd->premis->addEvent("status change",
           "Marked inactive - $reason",  // by whom ?
           "success",  array("netid", $this->current_user->netid));
@@ -418,14 +418,14 @@ class ManageController extends Etd_Controller_Action {
        $this->logger->err("Could not save etd " . $etd->pid . " - attempting to change status to $newstatus");
        $this->_helper->flashMessenger->addMessage("Error: Could not set record status to <b>$newstatus</b>");
      }
-     
+
      $this->_helper->redirector->gotoRoute(array("controller" => "manage",
-             "action" => "summary"), "", true); 
+             "action" => "summary"), "", true);
    }
 
 
       /* re-activation for inactive records (reactivate, doReactivate) */
-   
+
    public function reactivateAction() {
      $etd = $this->_helper->getFromFedora("pid", "etd");
      if (!$this->_helper->access->allowedOnEtd("reactivate", $etd)) return false;
@@ -444,12 +444,12 @@ class ManageController extends Etd_Controller_Action {
    public function doReactivateAction() {
      $etd = $this->_helper->getFromFedora("pid", "etd");
      if (!$this->_helper->access->allowedOnEtd("reactivate", $etd)) return false;
-     
+
      $reason = $this->_getParam("reason", "");
      $newstatus = $this->_getParam("status");
      $etd->setStatus($newstatus);
-     
-     // log event in record history 
+
+     // log event in record history
      $etd->premis->addEvent("status change",
           "Reactivated - $reason",  // by whom ?
           "success",  array("netid", $this->current_user->netid));
@@ -462,36 +462,36 @@ class ManageController extends Etd_Controller_Action {
        $this->logger->err("Could not save etd " . $etd->pid . " - attempting to change status to $newstatus");
        $this->_helper->flashMessenger->addMessage("Error: Could not set record status to <b>$newstatus</b>");
      }
-     
+
      $this->_helper->redirector->gotoRoute(array("controller" => "manage",
-             "action" => "summary"), "", true); 
+             "action" => "summary"), "", true);
    }
 
    public function reviseembargoAction() {
      $etd = $this->_helper->getFromFedora("pid", "etd");
      if (!$this->_helper->access->allowedOnEtd("revise embargo", $etd)) return false;
-   
+
      $this->view->etd = $etd;
 
      $this->view->title = "Manage : Revise embargo";
    }
-   
+
    public function updateembargoAction() {
      $etd = $this->_helper->getFromFedora("pid", "etd");
      if (!$this->_helper->access->allowedOnEtd("revise embargo", $etd)) return false;
      $newdate= $this->_getParam("newdate", "");
      $message = "Updating the embargo"; //$this->_getParam("newdate", "");
      $messag = $this->_getParam("message", "");
-    
+
      try
      {
       $etd->updateEmbargo($newdate, $message);
      }
      catch(Exception $e)
      {
-  $this->_helper->flashMessenger->addMessage("Error: " . $e->getMessage()); 
+  $this->_helper->flashMessenger->addMessage("Error: " . $e->getMessage());
       $this->_helper->redirector->gotoRoute(array("controller" => "manage",
-             "action" => "reviseembargo")); 
+             "action" => "reviseembargo"));
   return;
      }
 
@@ -505,9 +505,9 @@ class ManageController extends Etd_Controller_Action {
        $this->logger->err("Could not save etd " . $etd->pid . " - attempting to update embargo ending date to $newdate");
        $this->_helper->flashMessenger->addMessage("Error: Could not update embargo ending date to<b>$newdate</b>");
      }
-     
+
      $this->_helper->redirector->gotoRoute(array("controller" => "manage",
-             "action" => "summary"), "", true); 
+             "action" => "summary"), "", true);
    }
 
    public function embargoesAction() {
@@ -525,7 +525,7 @@ class ManageController extends Etd_Controller_Action {
 
     if ($this->_hasParam('page')) $paginator->setCurrentPageNumber($this->_getParam('page'));
     $this->view->paginator = $paginator;
-    
+
      $this->view->show_lastaction = true;
      // don't allow re-sorting by other fields (doesn't make sense)
      $this->view->sort = null;
@@ -561,7 +561,7 @@ class ManageController extends Etd_Controller_Action {
 
      $solr = Zend_Registry::get('solr');
      $solr->clearFacets();
-     
+
      $result = $solr->browse("dateIssued"); // if desired, sort by most recent and return last 3 (?) only
      $semesters = $result->facets->dateIssued;
 
@@ -572,9 +572,9 @@ class ManageController extends Etd_Controller_Action {
        $solr->setFacetMinCount(0);  // minimum one match
        $result = $solr->query("dateIssued:$sem", 0, 0); // find facets on all records, return none
 
-       // FIXME: convert semester date to human-readable format, e.g. spring/summer/fall 2007 
+       // FIXME: convert semester date to human-readable format, e.g. spring/summer/fall 2007
        $data[$sem] = $result->facets->embargo_duration;
-       // sort durations from low to high 
+       // sort durations from low to high
        uksort($data[$sem], "sort_embargoes");
 
        // FIXME: segment by humanities / social sciences / natural sciences (how?)
@@ -596,6 +596,5 @@ class ManageController extends Etd_Controller_Action {
     //Go back to the summary page
     $this->_forward("summary");
   }
-   
+
 }
-?>

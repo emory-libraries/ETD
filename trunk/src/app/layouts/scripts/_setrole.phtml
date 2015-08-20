@@ -1,4 +1,4 @@
-<form id="set_role" method="post" 
+<form id="set_role" method="post"
    action="<?= $this->url(array('controller' => 'auth', 'action' => 'setrole'), '', true) ?>">
    Set role:
    <? $role_opts = array('' => '--',
@@ -7,6 +7,7 @@
               "honors admin" => "College Honors admin",
               "candler admin" => "Candler admin",
               "rollins admin" => "Rollins admin",
+              "nhwson admin" => "School of Nursing admin",
               "report viewer" => "report viewer",
               "admin" => "admin",
               "superuser" => "superuser",
@@ -16,6 +17,7 @@
               "honors student" => "Honors student",
              "candler student" => "Candler student",
              "rollins student" => "Rollins student",
+             "nhwson student" => "School of Nursing student",
           ),
           "faculty" => "faculty",
           'graduate department coordinator' => array(

@@ -39,8 +39,8 @@ if (! isset($config->programs_collection->pid) || $config->programs_collection->
   throw new FoxmlException("Configuration does not contain vocabulary pid, cannot initialize");
 }
 $pid = $config->programs_collection->pid;
-     
-// programs 
+
+// programs
 // department code does not have # because it is only referenced at this point and is referenced without the #
 $program_data = array(
 array("id"=>'grad', "label"=>'Laney Graduate School'),
@@ -89,7 +89,7 @@ array("level01"=>'grad', "level02"=>'natlhealthsci', "level03"=>'biosci', "id"=>
 array("level01"=>'grad', "level02"=>'natlhealthsci', "level03"=>'biosci', "id"=>'nutrition', "label"=>'Nutrition and Health Sciences'),
 array("level01"=>'grad', "level02"=>'natlhealthsci', "level03"=>'biosci', "id"=>'population', "label"=>'Population Biology, Ecology &amp; Evolution'),
 
-array("level01"=>'grad', "id"=>'socsci', "label"=>'Social Sciences'), 
+array("level01"=>'grad', "id"=>'socsci', "label"=>'Social Sciences'),
 array("level01"=>'grad', "level02"=>'socsci', "id"=>'anthro', "label"=>'Anthropology', "identifiers"=>array('ANTHMA','ANTHPHD')),
 array("level01"=>'grad', "level02"=>'socsci', "id"=>'business', "label"=>'Business', "identifiers"=>array('BUSPHD')),
 array("level01"=>'grad', "level02"=>'socsci', "id"=>'econ', "label"=>'Economics', "identifiers"=>array('ECONMA','ECONPHD')),
@@ -101,10 +101,10 @@ array("level01"=>'grad', "level02"=>'socsci', "level03"=>'psychology', "id"=>'co
 array("level01"=>'grad', "level02"=>'socsci', "level03"=>'psychology', "id"=>'animalbehavior', "label"=>'Neuroscience and Animal Behavior'),
 array("level01"=>'grad', "level02"=>'socsci', "id"=>'sociology', "label"=>'Sociology', "identifiers"=>array('SOCMA','SOCPHD')),
 array("level01"=>'grad', "level02"=>'socsci', "id"=>'womensstudies', "label"=>"Women's Studies", "identifiers"=>array('WMNSTMA','WMNSTPHD')),
-  
+
 // UCOL - Undergraduates
 array("id"=>'undergrad', "label"=>'Emory College'),
-array("level01"=>'undergrad', "id"=>'uhumanities', "label"=>'Humanities'),    
+array("level01"=>'undergrad', "id"=>'uhumanities', "label"=>'Humanities'),
 array("level01"=>'undergrad', "level02"=>'uhumanities', "id"=>'uafr', "label"=>'African Studies', "identifiers"=>array('AFSBA')),
 array("level01"=>'undergrad', "level02"=>'uhumanities', "id"=>'uaas', "label"=>'African American Studies', "identifiers"=>array('AASBA')),
 array("level01"=>'undergrad', "level02"=>'uhumanities', "id"=>'uamerican', "label"=>'American Studies', "identifiers"=>array('AMERSTBA')),
@@ -204,7 +204,7 @@ array("level01"=>'rollins', "level02"=>'rsph-ep', "id"=>'rsph-glepi', "label"=>'
 
   $programs = null;
   $programs  = new foxmlPrograms(); // access existing or create new object.
-  
+
   if (!$programs) {
     $logger->err("Failed to create/access fedora object [$pid]");
     return;
@@ -215,68 +215,68 @@ array("level01"=>'rollins', "level02"=>'rsph-ep', "id"=>'rsph-glepi', "label"=>'
 
     if ($skos->findLabelbyId('#'.$pgm["id"]) == null) {
       $logger->info("Adding collection " . '#' . $pgm["id"]);
-      
+
       // Add the collection
       if (isset($pgm["identifiers"])) {
         /**
          * @todo remove the dc identifiers not in this list or any duplicates.
-         */      
-        $skos->addCollection('#'.$pgm["id"], $pgm["label"], $pgm["identifiers"]);      
+         */
+        $skos->addCollection('#'.$pgm["id"], $pgm["label"], $pgm["identifiers"]);
       }
-      else {     
+      else {
         $skos->addCollection('#'.$pgm["id"], $pgm["label"]);
       }
-    } 
-      
+    }
+
     // Set the collection as a member of another collection
     if (isset($pgm["level01"]) && isset($pgm["level02"]) && isset($pgm["level03"])) {
       if (! $skos->{$pgm["level01"]}->{$pgm["level02"]}->{$pgm["level03"]}->collection->hasMember($pgm["id"])) {
-        $logger->info("Adding program {$pgm["id"]} to {$pgm["level01"]}->{$pgm["level02"]}->{$pgm["level03"]}");       
+        $logger->info("Adding program {$pgm["id"]} to {$pgm["level01"]}->{$pgm["level02"]}->{$pgm["level03"]}");
         $skos->{$pgm["level01"]}->{$pgm["level02"]}->{$pgm["level03"]}->collection->addMember('#'.$pgm["id"]);
       }
       if ($skos->{$pgm["level01"]}->{$pgm["level02"]}->{$pgm["level03"]}->{$pgm["id"]}->label != preg_replace("/&amp;/", "&", $pgm["label"])) {
         $cur_label = $skos->{$pgm["level01"]}->{$pgm["level02"]}->{$pgm["level03"]}->{$pgm["id"]}->label;
-        $logger->info("Set label for [{$pgm["id"]}] old=[$cur_label]  new=[{$pgm["label"]}]\n");      
-        $skos->{$pgm["level01"]}->{$pgm["level02"]}->{$pgm["level03"]}->{$pgm["id"]}->label = $pgm["label"];   
-      }    
+        $logger->info("Set label for [{$pgm["id"]}] old=[$cur_label]  new=[{$pgm["label"]}]\n");
+        $skos->{$pgm["level01"]}->{$pgm["level02"]}->{$pgm["level03"]}->{$pgm["id"]}->label = $pgm["label"];
+      }
     }
-    elseif (isset($pgm["level01"]) && isset($pgm["level02"])) {  
+    elseif (isset($pgm["level01"]) && isset($pgm["level02"])) {
       if (! $skos->{$pgm["level01"]}->{$pgm["level02"]}->collection->hasMember($pgm["id"])) {
-        $logger->info("Adding program {$pgm["id"]} to {$pgm["level01"]}->{$pgm["level02"]}");       
+        $logger->info("Adding program {$pgm["id"]} to {$pgm["level01"]}->{$pgm["level02"]}");
         $skos->{$pgm["level01"]}->{$pgm["level02"]}->collection->addMember('#'.$pgm["id"]);
       }
       if ($skos->{$pgm["level01"]}->{$pgm["level02"]}->{$pgm["id"]}->label != preg_replace("/&amp;/", "&", $pgm["label"])) {
         $cur_label = $skos->{$pgm["level01"]}->{$pgm["level02"]}->{$pgm["id"]}->label;
-        $logger->info("Set label for [{$pgm["id"]}] old=[$cur_label]  new=[{$pgm["label"]}]\n");      
-        $skos->{$pgm["level01"]}->{$pgm["level02"]}->{$pgm["id"]}->label = $pgm["label"];   
-      }    
+        $logger->info("Set label for [{$pgm["id"]}] old=[$cur_label]  new=[{$pgm["label"]}]\n");
+        $skos->{$pgm["level01"]}->{$pgm["level02"]}->{$pgm["id"]}->label = $pgm["label"];
+      }
     }
-    elseif (isset($pgm["level01"])) { 
+    elseif (isset($pgm["level01"])) {
       if (! $skos->{$pgm["level01"]}->collection->hasMember($pgm["id"])) {
-        $logger->info("Adding program {$pgm["id"]} to {$pgm["level01"]}");       
+        $logger->info("Adding program {$pgm["id"]} to {$pgm["level01"]}");
         $skos->{$pgm["level01"]}->collection->addMember('#'.$pgm["id"]);
       }
       if ($skos->{$pgm["level01"]}->{$pgm["id"]}->label != preg_replace("/&amp;/", "&", $pgm["label"])) {
         $cur_label = $skos->{$pgm["level01"]}->{$pgm["id"]}->label;
-        $logger->info("Set label for [{$pgm["id"]}] old=[$cur_label]  new=[{$pgm["label"]}]\n");      
-        $skos->{$pgm["level01"]}->{$pgm["id"]}->label = $pgm["label"];   
+        $logger->info("Set label for [{$pgm["id"]}] old=[$cur_label]  new=[{$pgm["label"]}]\n");
+        $skos->{$pgm["level01"]}->{$pgm["id"]}->label = $pgm["label"];
       }
     }
-    else {    
+    else {
       if (! $skos->collection->hasMember($pgm["id"])) {
-        $logger->info("Adding program {$pgm["id"]} to programs collection.");       
+        $logger->info("Adding program {$pgm["id"]} to programs collection.");
         $skos->collection->addMember('#'.$pgm["id"]);
       }
       if ($skos->{$pgm["id"]}->label != preg_replace("/&amp;/", "&", $pgm["label"])) {
         $cur_label = $skos->{$pgm["id"]}->label;
-        $logger->info("Set label for [{$pgm["id"]}] old=[$cur_label]  new=[{$pgm["label"]}]\n");      
-        $skos->{$pgm["id"]}->label = $pgm["label"];   
-      }          
+        $logger->info("Set label for [{$pgm["id"]}] old=[$cur_label]  new=[{$pgm["label"]}]\n");
+        $skos->{$pgm["id"]}->label = $pgm["label"];
+      }
     }
   }
 
   // if record has changed, save to Fedora; or create fedora object when not found.
-  if ($skos->hasChanged()){  
+  if ($skos->hasChanged()){
     if (!$opts->noact) {
       try {
         $result = $programs->save("updating program list to include new data.");

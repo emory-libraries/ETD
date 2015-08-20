@@ -24,10 +24,10 @@ require_once("models/etd.php");
 
 $opts = new Zend_Console_Getopt(
   array(
-	'noact|n'	=> "no action: don't insert anything into db",
-	'url|u=s'	=> "relative url (without hostname) for site (defaults to /)",
-	'logfile|l=s'	=> "path to access log file",
-	'verbose|v'	=> "verbose information",
+  'noact|n'	=> "no action: don't insert anything into db",
+  'url|u=s'	=> "relative url (without hostname) for site (defaults to /)",
+  'logfile|l=s'	=> "path to access log file",
+  'verbose|v'	=> "verbose information",
   )
 );
 
@@ -75,7 +75,7 @@ $ip_reg = "(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})";
 $date_reg = "\[(.*?)\]";
 $pid_reg = "([a-zA-Z]+(:|%3A)[0-9a-z]+)";	// colon may be urlencoded
 $referrer = '("[^"]+")';
-// view url for an etd record page 
+// view url for an etd record page
 $view = $url . "/?view/record/pid/$pid_reg";
 // download url for an etd file
 $download = $url . "/?file/view/pid/$pid_reg/[^\s]+";	// added filename onto url
@@ -99,12 +99,12 @@ while (!feof($file)) {
       $new = true;	// everything after this line should be new
       continue;
     } elseif (strtotime($date, 0) < $lastruntime) {
-	continue;	// included in the last run
+  continue;	// included in the last run
     } elseif (strtotime($date, 0) > $lastruntime) {
       $new = true;      // we are now past the date/time of the last run -- any hits should be new
     }
   }
-  
+
  if (preg_match("{^$ip_reg - - $date_reg \"GET $bot_reg $ok.* $referrer $agent_reg}i",$buffer,$matches)) {
   // robot
    $ip = $matches[1];
@@ -112,7 +112,7 @@ while (!feof($file)) {
    if (knownRobot($ip, $agent)) continue;	// already a known robot
    else {	// save as a known robot	FIXME: better to save agent string and check against that?
      $data = array("id" => null, "ip" => $ip);
-     if ($opts->verbose) print "Found robot $ip\n"; 
+     if ($opts->verbose) print "Found robot $ip\n";
      if (!$opts->noact)  $botDB->insert($data);
    }
  } elseif (preg_match("{^$ip_reg - - $date_reg \"GET $view $ok .* $referrer $agent_reg}i",$buffer,$matches)) {
@@ -124,7 +124,7 @@ while (!feof($file)) {
 
    $pid = $matches[3];
    $pid = urldecode($pid);	// if pid was urlencoded, convert back to normal pid format
-   $agent = $matches[7];  
+   $agent = $matches[7];
    $type = "abstract";
 
    // if it's a robot, ignore it
@@ -138,13 +138,13 @@ while (!feof($file)) {
    }
 
    $country = geoip_country_code_by_name($ip);
-   
+
    $data = array("id" => null, "ip" => $ip, "date" => $date, "pid" => $pid, "type" => $type, "country" => $country);
    if (!$opts->noact)  $statDB->insert($data);
    if ($opts->verbose) print "Abstract view: $ip $date $country $pid\n";
-   
+
    $count++;
-   
+
  } elseif (preg_match("{^$ip_reg - - $date_reg \"GET $download $ok .* $referrer $agent_reg}i",$buffer,$matches)) {
    // file download
    $ip = $matches[1];
@@ -154,7 +154,7 @@ while (!feof($file)) {
 
    $pid = $matches[3];
    $pid = urldecode($pid);
-   $agent = $matches[7]; 
+   $agent = $matches[7];
    $type = "file";
 
    // if it's a robot, ignore it
@@ -189,7 +189,7 @@ print "Found $count hits in " . (strtotime($end_time,0) - strtotime($start_time,
 
 if (!$opts->noact) {
   $rundata = array("id" => null, "lastentry" => $lastline, "date" => date("Y-m-d"), "inserted" => $count,
-		   "start_time" => $start_time, "end_time" => $end_time);
+       "start_time" => $start_time, "end_time" => $end_time);
   $lastrunDB->insert($rundata);
 }
 
@@ -202,7 +202,7 @@ function knownRobot($ip, $agent) {
     return true;
   }
 
-  
+
   // check if the ip is in the db as a known robot
   $hostname = gethostname($ip);
   // from fez:  preg_match("/^.*((googlebot.com)|(slurp)|(jeeves)|(yahoo)|(msn)).*/i"
@@ -254,9 +254,9 @@ function etdfilePublishedDate($pid) {
     }
     if ($etdfile->etd->status() == "published") {
       if ($embargo = $etdfile->etd->mods->embargo_end)	// if there is an embargo, use embargo end as pub date
-	$etd_published[$pid] = strtotime($embargo, 0);
+  $etd_published[$pid] = strtotime($embargo, 0);
       else			// otherwise, use main record pub date
-	$etd_published[$pid] = strtotime($etdfile->etd->mods->originInfo->issued, 0);
+  $etd_published[$pid] = strtotime($etdfile->etd->mods->originInfo->issued, 0);
     } else {
       $etd_published[$pid] = false;
     }
@@ -273,5 +273,3 @@ function gethostname($ip) {
     return $dns_cache[$ip];
   }
 }
-
-?>

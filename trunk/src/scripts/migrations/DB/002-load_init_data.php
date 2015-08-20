@@ -66,7 +66,7 @@ foreach ($data as $row){
     ->where('netid = ? AND schoolid = ? AND programid = ?')
     ->bind(array(':netid' => $values['netid'], ':schoolid' => $values['schoolid'], ':programid' => $values['programid']));
     $result = $db->fetchall($result);
-    
+
     if($opts->noact){
         if(!$result)
         $logger->info("Would have inserted: {$values['netid']} {$values['schoolid']} {$values['programid']}");
@@ -89,5 +89,3 @@ foreach ($data as $row){
 
     }
 }
-
-?>

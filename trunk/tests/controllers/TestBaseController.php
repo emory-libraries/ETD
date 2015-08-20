@@ -1,9 +1,9 @@
 <?
-require_once("../bootstrap.php"); 
+require_once("../bootstrap.php");
 
 require_once('../ControllerTestCase.php');
 require_once('controllers/AuthController.php');
-      
+
 class BaseControllerTest extends ControllerTestCase {
 
   private $test_user;
@@ -11,11 +11,11 @@ class BaseControllerTest extends ControllerTestCase {
   function setUp() {
     $_GET 	= array();
     $_POST	= array();
-    
+
     $this->response = $this->makeResponse();
     $this->request  = $this->makeRequest();
   }
-  
+
   function tearDown() {}
 
   function testInit() {
@@ -62,7 +62,7 @@ class BaseControllerTest extends ControllerTestCase {
   function testGetFilterOptions() {
     $baseController = new BaseControllerForTest($this->request,$this->response);
     $this->setUpGet(array("status" => "published", "committee" => "faculty guy", "year" => "2008",
-			  "subject" => "Phyto-Chemistry", "author" => "student person", "keyword" => "nonsense"));
+        "subject" => "Phyto-Chemistry", "author" => "student person", "keyword" => "nonsense"));
 
     $opts = $baseController->getFilterOptions();
     $this->assertIsA($baseController->view->filters, "Array");
@@ -76,22 +76,22 @@ class BaseControllerTest extends ControllerTestCase {
   }
 
 
-  	
+
 }
 
 class BaseControllerForTest extends Etd_Controller_Action {
   public $renderRan = false;
   public $redirectRan = false;
-  
+
   public function initView() {
     $this->view = new Zend_View();
     Zend_Controller_Action_HelperBroker::addPrefix('Test_Controller_Action_Helper');
   }
-  
+
   public function render() {
     $this->renderRan = true;
   }
-  
+
   public function _redirect() {
     $this->redirectRan = true;
   }
@@ -103,8 +103,6 @@ class BaseControllerForTest extends Etd_Controller_Action {
 
   public function requiresFedora() {$this->requires_fedora = true; }
 
-} 	
+}
 
 runtest(new BaseControllerTest());
-
-?>

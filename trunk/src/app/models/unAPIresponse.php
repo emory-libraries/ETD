@@ -11,12 +11,12 @@ require_once("xml-utilities/XmlObject.class.php");
  * @property array $format array of unAPIformat
  */
 class unAPIresponse extends XmlObject {
-  
+
   public function __construct() {
     $config = $this->config(array(
      "id" => array("xpath" => "@id"),
      "format" => array("xpath" => "format", "class_name" => "unAPIformat",
-		       "is_series" => true)
+           "is_series" => true)
      ));
     $dom = new DOMDocument();
     $dom->loadXML($this->getTemplate());
@@ -29,9 +29,9 @@ class unAPIresponse extends XmlObject {
    */
   public function setId($id) {
     $this->domnode->setAttribute("id", $id);
-    $this->update();      
+    $this->update();
   }
-  
+
   /**
    * add a format option
    * @param string $name
@@ -71,5 +71,3 @@ class unAPIformat extends XmlObject {
     parent::__construct($xml, $config, $xpath);
   }
 }
-
-?>

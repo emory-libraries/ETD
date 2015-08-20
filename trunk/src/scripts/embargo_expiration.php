@@ -47,10 +47,10 @@ $paginator->setItemCountPerPage(100);
 
 $count = 0;
 for ($page = 0; $page<sizeof($paginator); $page++) {
-  
+
   $plural = ($etdSet->numFound == "1") ? "" : "s";
   $logger->info("Processing record{$plural} " . ($page + 1) . " of " . sizeof($paginator));
-  
+
   // Set the paginator to get the next set of data.
   $paginator->setCurrentPageNumber(($page + 1));
 
@@ -74,7 +74,7 @@ for ($page = 0; $page<sizeof($paginator); $page++) {
       $logger->warn("ETD record " . $etd->pid . " has no embargo (duration is 0 days); skipping");
       continue;
     }
-    
+
     // double-check that embargo notice has not been sent according to MODS record
     // (this should only happen if Solr index does not get updated -- should be fixed by now?)
     if (isset($etd->mods->embargo_notice) && strstr($etd->mods->embargo_notice, "sent")) {
@@ -87,7 +87,7 @@ for ($page = 0; $page<sizeof($paginator); $page++) {
       $notify = new etd_notifier($etd);
       // send email about embargo expiration
       try {
-        $notify->embargo_expiration();         
+        $notify->embargo_expiration();
       } catch (Zend_Db_Adapter_Exception $e) {
          // if ESD is not accessible, cannot look up faculty email addresses - notification will fail
         $logger->crit("Error accessing ESD (needed for faculty email addresses); cannot proceed");
@@ -96,16 +96,16 @@ for ($page = 0; $page<sizeof($paginator); $page++) {
         // -- exit now, don't mark any records as embargoed, etc.
         return;
       }
-      
+
       // add an administrative note that embargo expiration notice has been sent,
       // and add notification event to record history log
       $etd->embargo_expiration_notice();
-      
+
       $result = $etd->save("sent embargo expiration 60-day notice");
       if ($result) {
         $logger->debug("Successfully saved " . $etd->pid . " at $result");
       } else {
-        $logger->err("Could not save embargo expiration notice sent to record history"); 
+        $logger->err("Could not save embargo expiration notice sent to record history");
       }
     }
 
@@ -126,7 +126,7 @@ $etdSet = new EtdSet();
 $etdSet->findExpiringEmbargoes($expiration, $options,
              array("notice_unsent" => false, // don't filter on embargo notice unsent
              "exact_date" => true)  // exact date instead of a date range
-             ); 
+             );
 $logger->debug("Found " . $etdSet->numFound . " record(s) expiring in 7 days");
 // only send the email if records are found
 if ($etdSet->numFound && !$opts->noact) {
@@ -171,12 +171,12 @@ for ($page = 0; $page<sizeof($paginator); $page++) {
     if ($etd->mods->isEmbargoRequested(etd_mods::EMBARGO_TOC)) {
       $etd->contents = $etd->html->contents;
     }
-    
-    $logger->info("Sending 0 day notification email to " . $etd->pid);    
+
+    $logger->info("Sending 0 day notification email to " . $etd->pid);
     if (!$opts->noact) {
       $notify = new etd_notifier($etd);
       // send email about embargo ending
-      try {          
+      try {
         $notify->embargo_end();
       } catch (Zend_Db_Adapter_Exception $e) {
          // if ESD is not accessible, cannot look up faculty email addresses - notification will fail
@@ -195,18 +195,14 @@ for ($page = 0; $page<sizeof($paginator); $page++) {
       if ($result) {
         $logger->debug("Successfully saved " . $etd->pid . " at $result");
       } else {
-        $logger->err("Could not save embargo expiration 0-day notice sent to record history"); 
+        $logger->err("Could not save embargo expiration 0-day notice sent to record history");
       }
     }
 
-    // FIXME: need to add 0-day notice to the history log 
+    // FIXME: need to add 0-day notice to the history log
     $count++;
   } // end looping through current set of etds
 }
 
 
 $logger->info("Sent " . $count . " 0-day notification" . (($count != 1) ? "s" : ""));
-
-
-
-?>

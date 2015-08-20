@@ -7,13 +7,13 @@
  */
 
 
-class Zend_View_Helper_ScaleGraphValue { 
+class Zend_View_Helper_ScaleGraphValue {
   public $view;
 
   /**
-   * 
-   * 
-   */  
+   *
+   *
+   */
   public function scaleGraphValue($num) {
     if ($num == 0) return 0;
     return ($num / $this->view->graph_max) * $this->view->graph_width;
@@ -30,5 +30,3 @@ class Zend_View_Helper_ScaleGraphValue {
   }
 
 }
-
-?>

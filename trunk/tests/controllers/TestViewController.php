@@ -9,13 +9,13 @@ class ViewControllerTest extends ControllerTestCase {
 
   private $test_user;
   private $mock_etd;
-    
+
   function setUp() {
     $ep = new esdPerson();
     $this->test_user = $ep->getTestPerson();
     $this->test_user->role = "guest";
     Zend_Registry::set('current_user', $this->test_user);
-    
+
     $this->response = $this->makeResponse();
     $this->request  = $this->makeRequest();
     $this->resetGet();
@@ -32,7 +32,7 @@ class ViewControllerTest extends ControllerTestCase {
     $gff->setReturnObject($this->mock_etd);
 
   }
-  
+
   function tearDown() {
     unset($this->mock_etd);
     $ViewController = new ViewControllerForTest($this->request,$this->response);
@@ -81,23 +81,23 @@ class ViewControllerTest extends ControllerTestCase {
     $this->mock_etd->user_role = "guest";
     $this->mock_etd->status = "published";
     $this->mock_etd->last_modified = "2011-09-09T19:57:55.905Z";
-        
+
     // not-modified response
     global $_SERVER;
     $_SERVER['HTTP_IF_MODIFIED_SINCE'] = $this->mock_etd->last_modified;
-      
+
     $ViewController = new ViewControllerForTest($this->request,$this->response);
     $ViewController->recordAction();
     $this->assertEqual(304, $ViewController->getResponse()->getHttpResponseCode());
   }
 
 
-  
+
   function testRecordAction_author() {
     $ViewController = new ViewControllerForTest($this->request,$this->response);
     $this->mock_etd->user_role = "author";
     $this->mock_etd->status = "published";
-    
+
     $ViewController->recordAction();
     $this->assertTrue(isset($ViewController->view->title));
     $this->assertIsA($ViewController->view->etd, "etd");
@@ -132,7 +132,7 @@ class ViewControllerTest extends ControllerTestCase {
     $this->assertEqual("text/xml", $headers[0]["value"]);
     $this->assertEqual('<oai_dc:dc/>', $response->getBody());
 
-    // invalid datastream 
+    // invalid datastream
     $this->mock_etd->pid = "testetd:1";
     $this->setUpGet(array('datastream' => 'bogus', 'pid' => 'testetd:1'));
     $this->expectException(new Exception("'bogus' is not a valid datastream for testetd:1"));
@@ -156,27 +156,22 @@ class ViewControllerTest extends ControllerTestCase {
 
 
 class ViewControllerForTest extends ViewController {
-  
+
   public $renderRan = false;
   public $redirectRan = false;
-  
+
   public function initView() {
     $this->view = new Zend_View();
     Zend_Controller_Action_HelperBroker::addPrefix('Test_Controller_Action_Helper');
   }
-  
+
   public function render() {
     $this->renderRan = true;
   }
-  
+
   public function _redirect() {
     $this->redirectRan = true;
   }
-} 	
+}
 
 runtest(new ViewControllerTest());
-
-
-
-?>
-

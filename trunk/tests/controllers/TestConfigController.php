@@ -1,5 +1,5 @@
 <?
-require_once("../bootstrap.php"); 
+require_once("../bootstrap.php");
 /**
  * unit tests for the Config Controller
  * - display configuration xml (previously used in xforms)
@@ -8,7 +8,7 @@ require_once("../bootstrap.php");
 
 require_once('../ControllerTestCase.php');
 require_once('controllers/ConfigController.php');
-      
+
 class ConfigControllerTest extends ControllerTestCase {
 
   function setUp() {
@@ -32,7 +32,7 @@ class ConfigControllerTest extends ControllerTestCase {
     $this->assertPattern('|<country code="AF">|', $response->getBody());
 
     // same functionality for all other modes; confirm that content looks right
-    
+
     $this->setUpGet(array('id' => 'degrees'));
     $configController->viewAction();
     $response = $configController->getResponse();
@@ -48,21 +48,19 @@ class ConfigControllerTest extends ControllerTestCase {
 class ConfigControllerForTest extends ConfigController {
   public $renderRan = false;
   public $redirectRan = false;
-  
+
   public function initView() {
     $this->view = new Zend_View();
     Zend_Controller_Action_HelperBroker::addPrefix('Test_Controller_Action_Helper');
   }
-  
+
   public function render() {
     $this->renderRan = true;
   }
-  
+
   public function _redirect() {
     $this->redirectRan = true;
   }
-} 	
+}
 
 runtest(new ConfigControllerTest());
-
-?>

@@ -23,7 +23,7 @@
 <? /* work-around for etdFile xacml glitch:
     if not embargoed, but published and no pdfs are found, display an error. */ ?>
    <p>File(s) temporarily unavailable.</p>
-<? endif ?>       
+<? endif ?>
   <? foreach (array("pdfs", "originals", "supplements") as $filetype): ?>
      <?  /* display a label for supplemental files, if appropriate */
        if ($filetype == "supplements" && count($this->etd->$filetype)
@@ -31,21 +31,22 @@
       <b>Supplemental Files</b><br/><? endif ?>
     <? foreach ($this->etd->$filetype as $file) : ?>
       <? if ($this->acl->isAllowed($this->role, $file, "view")): ?>
-      <? if (isset($file->file->mimetype)): ?>
-     <?= $this->FiletypeIcon($file->file->mimetype) ?>
-       <? endif ?>
-       <? if ($this->acl->isAllowed($this->role, $file, "download")): ?>
-        <a href="<?= $this->url(array("controller" => "file", "action" => "view",
-             "pid" => $file->pid), '', true, false)?>/<?= $file->prettyFilename() ?>"><?= $file->dc->title ?></a>
-             <? else: /* view but not download */?>
-      <?= $file->dc->title ?>
-       <? endif ?>
+        <? if (isset($file->file->mimetype)): ?>
+         <?= $this->FiletypeIcon($file->file->mimetype) ?>
+        <? endif ?>
+        <? if ($this->acl->isAllowed($this->role, $file, "download")): ?>
+          <a href="<?= $this->url(array("controller" => "file", "action" => "view",
+             "pid" => $file->pid, "etd" => $this->etd->pid), '', true, false)?>/<?= $file->prettyFilename() ?>">
+             <?= $file->dc->title ?></a>
+         <? else: /* view but not download */?>
+           <?= $file->dc->title ?>
+        <? endif ?>
     <? if (isset($file->dc->pages)): ?><?= $file->dc->pages ?> pages<? endif ?>
     <? if (isset($file->dc->filesize)): ?>(<?= $this->readableSize($file->dc->filesize) ?>) <?endif ?>
      <? if (isset($file->dc->description)): ?>
       <span class="description">[<?= $file->dc->description ?>]</span>
           <?endif ?>
-        
+
     <? if ($this->acl->isAllowed($this->role, $file, "edit")): ?>
       <a class ="record-edit" href="<?= $this->url(array("controller" => "file", "action" => "edit", "pid" => $file->pid), '', true, false)?>" title="edit file display information">edit title/description</a>
     <? endif ?>
@@ -53,10 +54,10 @@
       <a class ="record-edit" href="<?= $this->url(array("controller" => "file", "action" => "remove", "pid" => $file->pid), '', true, false)?>" title="remove this file">remove</a>
     <? endif ?>
           <? if ($this->acl->isAllowed($this->role, $file, "view modified")
-     && isset($file->lastModified)): ?>        
+     && isset($file->lastModified)): ?>
          <br/><span class="lastmodified">Last modified
       <?= date("Y-m-d h:ia", strtotime($file->fileLastModified())) ?></span>
-   <? endif ?>         
+   <? endif ?>
     <br/>
 
 

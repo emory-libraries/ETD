@@ -2,6 +2,7 @@
   <level name="doctoral" genre="Dissertation">
     <degree name="PhD" pq_code="Ph.D."/>
     <degree name="ThD"/>
+    <degree name="DNP"/>
   </level>
   <level name="masters" genre="Master's Thesis">
     <degree name="MA" pq_code="M.A."/>
@@ -9,7 +10,7 @@
     <degree name="MDiv" registrar_code="MDV"/>
     <degree name="MTS"/>
     <degree name="MPH"/>
-    <degree name="MSPH"/>    
+    <degree name="MSPH"/>
   </level>
   <level name="bachelors" genre="Honors Thesis">
     <degree name="BA"/>

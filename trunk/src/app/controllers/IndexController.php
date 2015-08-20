@@ -6,8 +6,8 @@
 
 class IndexController extends Etd_Controller_Action {
 
-  
-  public function indexAction() {	
+
+  public function indexAction() {
     $this->view->title = "Welcome";
 
     // contact information for news section
@@ -52,12 +52,12 @@ class IndexController extends Etd_Controller_Action {
     }
 
 
-    
+
     //This section is displayed in the sidebar
     $feed = $this->_getParam("feed", "recent");	// by default, show recently published
     $this->view->feed_type = $feed;
-    // FIXME: check that requested feed type is a valid option (?)    
-    
+    // FIXME: check that requested feed type is a valid option (?)
+
 
     // rss feed of recently published or most-viewed ETD records - for display on sidebar
     try {
@@ -72,7 +72,7 @@ class IndexController extends Etd_Controller_Action {
   /**
    * get news feed for display on home page
    * @param Zend_Config $config - used for news_feed setting; error if not set
-   * @return Zend_Feed_Rss 
+   * @return Zend_Feed_Rss
    */
   public function getNews(Zend_Config $config) {
     // ETD news - rss feed from drupal site
@@ -180,4 +180,3 @@ class IndexController extends Etd_Controller_Action {
 }
 
 }
-?>
