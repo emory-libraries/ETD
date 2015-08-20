@@ -3,10 +3,10 @@
 require_once("../bootstrap.php");
 require_once('ControllerTestCase.php');
 require_once('controllers/SubmissionController.php');
-      
+
 class SubmissionControllerTest extends ControllerTestCase {
 
-  // array of test foxml files & their pids 
+  // array of test foxml files & their pids
   private $etdxml;
   private $test_user;
 
@@ -22,13 +22,13 @@ class SubmissionControllerTest extends ControllerTestCase {
     $this->fedora = Zend_Registry::get("fedora");
   }
 
-  
+
   function setUp() {
-    
+
     // get 2 test pids to be used throughout test
-    $fedora_cfg = Zend_Registry::get('fedora-config');    
+    $fedora_cfg = Zend_Registry::get('fedora-config');
     list($this->etdpid, $this->userpid) = $this->fedora->getNextPid($fedora_cfg->pidspace, 2);
-        
+
     $ep = new esdPerson();
     $this->test_user = $ep->getTestPerson();
     $this->test_user->role = "student";
@@ -37,10 +37,10 @@ class SubmissionControllerTest extends ControllerTestCase {
     $this->test_user->lastname = "Jones";
 
     Zend_Registry::set('current_user', $this->test_user);
-    
+
     $_GET   = array();
     $_POST  = array();
-    
+
     $this->response = $this->makeResponse();
     $this->request  = $this->makeRequest();
 
@@ -60,7 +60,7 @@ class SubmissionControllerTest extends ControllerTestCase {
     $foxml = new foxml($dom);
     $foxml->pid = $this->userpid;
     $foxml->ingest("loading test etd authorInfo object");
-    
+
 
     // use mock etd object for some tests
     $this->mock_etd = &new MockEtd();
@@ -68,12 +68,12 @@ class SubmissionControllerTest extends ControllerTestCase {
     $this->mock_etd->user_role = "author";
     $this->mock_etd->setReturnValue("save", "datestamp"); // mimic successful save
   }
-  
+
   function tearDown() {
     foreach (array($this->etdpid, $this->userpid) as $pid) {
       try { $this->fedora->purge($pid, "removing test etd");  } catch (Exception $e) {}
     }
-    
+
     Zend_Registry::set('current_user', null);
 
     // in case any mock-object has been used, clear it
@@ -92,7 +92,7 @@ class SubmissionControllerTest extends ControllerTestCase {
     $this->assertFalse($SubmissionController->startAction());
     // should not be allowed (not a student)
 
-    // student who already has a submission 
+    // student who already has a submission
     $this->test_user->role = "student with submission";
     Zend_Registry::set('current_user', $this->test_user);
     // should not be allowed to create a new submission
@@ -138,7 +138,7 @@ class SubmissionControllerTest extends ControllerTestCase {
     $this->assertPattern("/Error saving record/", $messages[0]);
     $this->assertPattern("/Could not create record/",
             $SubmissionController->view->errors[0]);
-     
+
     // mimic no error on ingest
     $SubmissionController = new SubmissionControllerForTest($this->request,$this->response);
     $ioe->clearError();
@@ -151,7 +151,7 @@ class SubmissionControllerTest extends ControllerTestCase {
     $messages = $SubmissionController->getHelper('FlashMessenger')->getMessages();
     $this->assertEqual(0, count($messages));
     $this->assertEqual(0, count($SubmissionController->view->errors));
- 
+
     //Check that copyright and patent questions have been stored in history
     $this->assertPattern("/copyrighted/", $this->mock_etd->premis->event[2]->detail);
     $this->assertPattern("/patented/", $this->mock_etd->premis->event[3]->detail);
@@ -195,21 +195,21 @@ class SubmissionControllerTest extends ControllerTestCase {
     $this->assertIsA($etd, "etd");
     $this->assertEqual("new etd", $etd->label);
     $this->assertEqual("Candler School of Theology", $etd->admin_agent);
-    
+
     $this->test_user->academic_career = "PUBH";
     $etd = $SubmissionController->initialize_etd($test_info);
     $this->assertIsA($etd, "etd");
     $this->assertEqual("new etd", $etd->label);
-    $this->assertEqual("Rollins School of Public Health", $etd->admin_agent);    
+    $this->assertEqual("Rollins School of Public Health", $etd->admin_agent);
 
 
     // if academic career missing - should set a default
     $this->test_user->academic_career = null;
     $etd = $SubmissionController->initialize_etd($test_info);
     $this->assertEqual("Laney Graduate School", $etd->admin_agent);
-    
+
     // PUBH test setting the program and department from the academic_plan_id
-    $this->test_user->academic_plan_id = "MCHEPIMPH";    
+    $this->test_user->academic_plan_id = "MCHEPIMPH";
     $this->test_user->academic_career = "PUBH";
     $etd = $SubmissionController->initialize_etd($test_info);
     $this->assertIsA($etd, "etd");
@@ -218,9 +218,9 @@ class SubmissionControllerTest extends ControllerTestCase {
     $this->assertEqual("Maternal and Child Health Epidemiology", $etd->mods->subfield);
     $this->assertEqual("Career Masters of Public Health", $etd->policy->view->condition->department);
     $this->assertEqual("rsph-cmph", $etd->rels_ext->program);
-    
+
     // THEO test setting the program and department from the academic_plan_id
-    $this->test_user->academic_plan_id = "THDCOUNSEL";    
+    $this->test_user->academic_plan_id = "THDCOUNSEL";
     $this->test_user->academic_career = "THEO";
     $etd = $SubmissionController->initialize_etd($test_info);
     $this->assertIsA($etd, "etd");
@@ -228,9 +228,9 @@ class SubmissionControllerTest extends ControllerTestCase {
     $this->assertEqual("Pastoral Counseling", $etd->mods->department);
     $this->assertEqual("Pastoral Counseling", $etd->policy->view->condition->department);
     $this->assertEqual("cstpc", $etd->rels_ext->program);
-    
+
     // GRAD test setting the program and department from the academic_plan_id
-    $this->test_user->academic_plan_id = "ENGLISHPHD";    
+    $this->test_user->academic_plan_id = "ENGLISHPHD";
     $this->test_user->academic_career = "GRAD";
     $etd = $SubmissionController->initialize_etd($test_info);
     $this->assertIsA($etd, "etd");
@@ -238,20 +238,20 @@ class SubmissionControllerTest extends ControllerTestCase {
     $this->assertEqual("English", $etd->mods->department);
     $this->assertEqual("English", $etd->policy->view->condition->department);
     $this->assertEqual("english", $etd->rels_ext->program);
-    
+
     // UCOL test setting the program and department from the academic_plan_id
-    $this->test_user->academic_plan_id = "ECONHISTBA";    
+    $this->test_user->academic_plan_id = "ECONHISTBA";
     $this->test_user->academic_career = "UCOL";
     $etd = $SubmissionController->initialize_etd($test_info);
     $this->assertIsA($etd, "etd");
     $this->assertEqual("College Honors Program", $etd->admin_agent);
     $this->assertEqual("Economics and History", $etd->mods->department);
     $this->assertEqual("Economics and History", $etd->policy->view->condition->department);
-    $this->assertEqual("ueconhist", $etd->rels_ext->program); 
+    $this->assertEqual("ueconhist", $etd->rels_ext->program);
 
     error_reporting($errlevel);     // restore prior error reporting
   }
-    
+
 
 
   function testReviewAction() {
@@ -268,7 +268,7 @@ class SubmissionControllerTest extends ControllerTestCase {
     $etd = new etd($this->etdpid);
     $etd->setStatus("draft");
     $etd->save("setting status to draft to test review");
-    
+
     // etd is not ready to submit; should complain and redirect
     $SubmissionController = new SubmissionControllerForTest($this->request,$this->response);
     $this->setUpGet(array('pid' => $this->etdpid));    // reviewed etd
@@ -284,7 +284,7 @@ class SubmissionControllerTest extends ControllerTestCase {
     $gff = $SubmissionController->getHelper("GetFromFedora");
     $gff->clearReturnObject();
     $gff->setReturnObject($this->mock_etd);
-    
+
     $SubmissionController->reviewAction();
     $this->assertFalse($SubmissionController->redirectRan);
     $this->assertTrue(isset($SubmissionController->view->etd), "etd variable set for review");
@@ -292,7 +292,7 @@ class SubmissionControllerTest extends ControllerTestCase {
 
   function testSubmitAction() {
     $errlevel = error_reporting(E_ALL ^ E_NOTICE);
-  
+
     $this->test_user->role = "student"; // set to non-student
     Zend_Registry::set('current_user', $this->test_user);
     $SubmissionController = new SubmissionControllerForTest($this->request,$this->response);
@@ -301,7 +301,7 @@ class SubmissionControllerTest extends ControllerTestCase {
     // etd is wrong status, should not be allowed
     $this->assertFalse($SubmissionController->submitAction());
     $etd = new etd($this->etdpid);
-    $this->assertEqual("reviewed", $etd->status(), "status unchanged"); 
+    $this->assertEqual("reviewed", $etd->status(), "status unchanged");
 
     // set status to draft so it can be submitted
     $etd = new etd($this->etdpid);
@@ -346,7 +346,7 @@ class SubmissionControllerTest extends ControllerTestCase {
 
   function testValidateQuestions() {
       $SubmissionController = new SubmissionControllerForTest($this->request, $this->response);
-      
+
       // All answers are no to questions 1, 2, and 3
       $answers = array("copyright" => 'no',
                        "patent" => 'no',
@@ -394,10 +394,10 @@ class SubmissionControllerTest extends ControllerTestCase {
 
 
 class SubmissionControllerForTest extends SubmissionController {
-  
+
   public $renderRan = false;
   public $redirectRan = false;
-    
+
   public function initView() {
     $this->view = new Zend_View();
     $this->view->errors = array();  // normally handled by common setup
@@ -405,15 +405,14 @@ class SubmissionControllerForTest extends SubmissionController {
     // enable test version of ingestOrError helper
     Zend_Controller_Action_HelperBroker::addPrefix('TestEtd_Controller_Action_Helper');
   }
-  
+
   public function render() {
     $this->renderRan = true;
   }
-  
+
   public function _redirect() {
     $this->redirectRan = true;
   }
-}   
+}
 
 runtest(new SubmissionControllerTest());
-?>

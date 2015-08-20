@@ -1,7 +1,7 @@
 #!/usr/bin/php -q
 <?php
 // ./update_checksums.php -v info emory:17r1x
-/** 
+/**
  * script to check ETD objects for datastreams with missing checksums
  *
  * @category ETD
@@ -17,7 +17,7 @@ $getopts = array_merge($common_getopts, // use default verbose and noact opts fr
           );
 
 // no-act mode irrelevant for this script, since it doesn't change anything
-unset($getopts['noact|n']);     
+unset($getopts['noact|n']);
 // suppress directory input option (not relevant)
 unset($getopts['dir|d=s']);    // FIXME: why is this a common option?
 $getopts['ignore-xml-errors|x'] = 'Ignore missing/invalid checksums on XML datastreams';
@@ -80,16 +80,16 @@ foreach ($pids as $pid) {
             }
             if (! isset($valid_count[$datastream->ID])) {
                 $valid_count[$datastream->ID] = 0;
-            }                         
+            }
             $checksum = $fedora->compareDatastreamChecksum($pid, $datastream->ID);
             $logger->debug($pid . "/" . $datastream->ID . " compare datastream checksum result is $checksum");
             if ($checksum == "none") {
                 $logger->info($pid . "/" . $datastream->ID . " is missing checksum (checksum = $checksum)");
-                if ($opts->update && $datastream->ID == 'FILE' 
+                if ($opts->update && $datastream->ID == 'FILE'
                       && updateChecksum($pid, $datastream->ID, $fedora)) {
                   $updated_count[$datastream->ID]++;    // successfully update the pid/ds
                 }
-                else {                  
+                else {
                   $missing_count[$datastream->ID]++;    // failed to update the pid/ds
                 }
             } elseif ($checksum == 'Checksum validation error') {
@@ -99,17 +99,17 @@ foreach ($pids as $pid) {
                 } else {
                     $logger->err($pid . "/" . $datastream->ID . " has an invalid checksum");
                 }
-                if ($opts->update && $datastream->ID == 'FILE' 
+                if ($opts->update && $datastream->ID == 'FILE'
                       && updateChecksum($pid, $datastream->ID, $fedora)) {
                   $updated_count[$datastream->ID]++;    // successfully update the pid/ds
                 }
-                else {                   
+                else {
                   $invalid_count[$datastream->ID]++;    // failed to update the pid/ds
-                }                
+                }
             }
             else {
-              $valid_count[$datastream->ID]++;              
-            }            
+              $valid_count[$datastream->ID]++;
+            }
         }
     } catch (FedoraAccessDenied $e) {
         $logger->err('Access denied: ' . $e->getMessage());
@@ -148,19 +148,19 @@ $logger->warn($updated_summary. "\n");
   /**
   * @return value of specified parameter indexes.
   * @param pid value of pid to update checksum.
-  * @param ds value of datastream to update checksum.  
+  * @param ds value of datastream to update checksum.
   * @desc Update the datastream checksum for given pid.
-  */  
+  */
   function updateChecksum($pid, $ds, $fedora) {
-    $checksum = $fedora->compareDatastreamChecksum($pid, $ds);    
+    $checksum = $fedora->compareDatastreamChecksum($pid, $ds);
     $object = new etd_file($pid);
-    
+
     // make sure checksum_type is set to MD5
     if (!isset($object->file->checksum_type) || $object->file->checksum_type != 'MD5') {
       $object->file->checksum_type = 'MD5';
     }
-        
-    $object->file->checksum = ''; 
+
+    $object->file->checksum = '';
     try {
       $save_result = $object->save("update the FILE datastream for a new checksum.");
       if ($save_result) {
@@ -172,9 +172,7 @@ $logger->warn($updated_summary. "\n");
       }
     }
     catch (Exception $err) {
-      print "Exception = [" . $err->getMessage() . "]\n";   
+      print "Exception = [" . $err->getMessage() . "]\n";
     }
     return(false);
   }
-
-?>

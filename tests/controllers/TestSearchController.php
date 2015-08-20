@@ -10,17 +10,17 @@ class SearchControllerTest extends ControllerTestCase {
   private $mock_solr;
   private $data;
   private $schools_cfg;
-  
+
   function setUp() {
     $this->response = $this->makeResponse();
     $this->request  = $this->makeRequest();
-    
+
     $this->resetGet();
 
     $this->mock_solr = &new Mock_Etd_Service_Solr();
     Zend_Registry::set('solr', $this->mock_solr);
 
-    
+
     $this->data = new esd_test_data();
     $this->data->loadAll();
 
@@ -41,14 +41,14 @@ class SearchControllerTest extends ControllerTestCase {
 
   function testResultsAction() {
     $this->mock_solr->response->numFound = 2;
-    
+
     $searchController = new SearchControllerForTest($this->request,$this->response);
     $this->setUpGet(array('query' => 'dissertation', 'title' => 'analysis',
         'abstract' => 'exploration', 'tableOfContents' => 'chapter'));
     $searchController->resultsAction();
     $this->assertTrue(isset($searchController->view->title));
     $this->assertIsA($searchController->view->etdSet, "EtdSet");
-    $this->assertIsA($searchController->view->paginator, "Zend_Paginator");    
+    $this->assertIsA($searchController->view->paginator, "Zend_Paginator");
     // non-facet filter terms should be passed to view for display & facet links
     $this->assertEqual("dissertation", $searchController->view->url_params["query"]);
     $this->assertEqual("analysis", $searchController->view->url_params['title']);
@@ -127,23 +127,22 @@ class SearchControllerTest extends ControllerTestCase {
 
 
 class SearchControllerForTest extends SearchController {
-  
+
   public $renderRan = false;
   public $redirectRan = false;
-  
+
   public function initView() {
     $this->view = new Zend_View();
     Zend_Controller_Action_HelperBroker::addPrefix('Test_Controller_Action_Helper');
   }
-  
+
   public function render() {
     $this->renderRan = true;
   }
-  
+
   public function _redirect() {
     $this->redirectRan = true;
   }
-}   
+}
 
 runtest(new SearchControllerTest());
-?>

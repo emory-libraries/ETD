@@ -13,7 +13,7 @@ require_once('models/authorInfo.php');
 
 class TestUserXacml extends UnitTestCase {
   private $pid;
-  private $fedora_cfg;  
+  private $fedora_cfg;
 
   /**
    * FedoraConnection with default test user credentials
@@ -25,26 +25,26 @@ class TestUserXacml extends UnitTestCase {
     $this->fedoraAdmin = new FedoraConnection($this->fedora_cfg);
   }
 
-    
+
   function setUp() {
-    
+
     // get test pid for fedora fixture
-    $this->pid = $this->fedoraAdmin->getNextPid($this->fedora_cfg->pidspace);    
-      
+    $this->pid = $this->fedoraAdmin->getNextPid($this->fedora_cfg->pidspace);
+
     $fname = '../fixtures/authorInfo.xml';
     $dom = new DOMDocument();
     $dom->load($fname);
     $authorInfo = new authorInfo($dom);
     $authorInfo->owner = "author";	// set author to owner for purposes of the test
     $authorInfo->pid = $this->pid;
-      
+
     /* user does not have object-specific policy rules -
        all relevant rules are set in repo-wide policy   */
     $authorInfo->ingest("loading test object");
   }
 
   function tearDown() {
-    try { $this->fedoraAdmin->purge($this->pid, "removing test object");  } catch (Exception $e) {}    
+    try { $this->fedoraAdmin->purge($this->pid, "removing test object");  } catch (Exception $e) {}
   }
 
 
@@ -104,4 +104,3 @@ class TestUserXacml extends UnitTestCase {
 }
 
 runtest(new TestUserXacml());
-?>

@@ -55,21 +55,21 @@ class etd extends foxml implements etdInterface {
 
   /**
    * basic ACL resource id (has subresource variants that inherit)
-   * @var string $acl_id 
+   * @var string $acl_id
    */
   protected $acl_id = 'etd';   // base ACL resource id is etd
 
   /**
    * generic name for admin/agency responsible for this type of etd
    * should be accessed via magic property admin_agent
-   * @var string 
+   * @var string
    */
   private $_admin_agent = null;
 
   /**
    * configuration for the school that author is getting degree from
    * should be accessed via magic property school_config
-   * @var Zend_Config 
+   * @var Zend_Config
    */
   private $_school_config = null;
 
@@ -103,7 +103,7 @@ class etd extends foxml implements etdInterface {
       $arg = null;
     }
     parent::__construct($arg);
-    
+
     // NOTE: no longer checking content-model when initializing by pid
     //  for efficiency reasons (fewer fedora API calls, better response-time)
 
@@ -115,13 +115,13 @@ class etd extends foxml implements etdInterface {
       } else {
         trigger_error("Config is not in registry, cannot retrieve contentModel for etd");
       }
-      
+
       // all new etds should start out as drafts
       $this->rels_ext->addRelation("rel:etdStatus", "draft");
 
       // when initializing from scratch and school config is not passed in,
       // set to non-null, since attempting to calculate school config based on rels-ext will fail
-      if ($this->_school_config == null) {          
+      if ($this->_school_config == null) {
           $this->_school_config = '';
       }
 
@@ -136,12 +136,12 @@ class etd extends foxml implements etdInterface {
       // FIXME: should researchfields be removed from the mods starting template instead?
       if (!$this->isRequired("researchfields") && count($this->mods->researchfields)) {
         $this->mods->remove("researchfields");
-      }      
+      }
     }
   }
 
 
-  // add datastreams here 
+  // add datastreams here
   protected function configure() {
     parent::configure();
 
@@ -162,9 +162,9 @@ class etd extends foxml implements etdInterface {
     $this->addNamespace("x", "urn:oasis:names:tc:xacml:1.0:policy");
     $this->xmlconfig["policy"] = array("xpath" => "//foxml:xmlContent/x:Policy",
                "class_name" => "XacmlPolicy", "dsID" => "POLICY");
-               
+
     // use customized versions of a few of the default datastreams
-    $this->xmlconfig["dc"]["class_name"] = "etd_dc";                 
+    $this->xmlconfig["dc"]["class_name"] = "etd_dc";
 
     // relations to other objects
     $this->relconfig["pdfs"] = array("relation" => "hasPDF", "is_series" => true, "class_name" => "etd_file",
@@ -204,7 +204,7 @@ class etd extends foxml implements etdInterface {
                           " based on collection membership");
             trigger_error("Could not determine per-school configuration for " . $this->pid .
                           " based on collection membership", E_USER_WARNING);
-             
+
             // set to non-null so we don't attempt to initialize again
             $this->_school_config = '';
         }
@@ -242,7 +242,7 @@ class etd extends foxml implements etdInterface {
     if ($user->netid == $this->rels_ext->author)
       return "author";
     elseif ($this->rels_ext->committee instanceof DOMElementArray
-      && $this->rels_ext->committee->includes($user->netid))  
+      && $this->rels_ext->committee->includes($user->netid))
       return "committee";
     elseif ($user->isCoordinator($this->mods->department))
       return "program coordinator";
@@ -252,7 +252,7 @@ class etd extends foxml implements etdInterface {
       if ($admin_type == $this->school_config->acl_id)
         return "admin";
     }
-    
+
     return $user->role;
   }
 
@@ -266,10 +266,10 @@ class etd extends foxml implements etdInterface {
 
     // when leaving certain statuses, certain rules need to go away
     switch ($old_status) {
-    case "published": $this->removePolicyRule("published");   break;        
+    case "published": $this->removePolicyRule("published");   break;
     case "draft":  $this->removePolicyRule("draft");    break;
     }
-    
+
     // certain policy rules need to change when status changes
     switch ($new_status) {
     case "draft": // add draft rule & allow author to edit
@@ -301,7 +301,7 @@ class etd extends foxml implements etdInterface {
     }
 
     // for all - store the status in rels-ext
-    $this->rels_ext->status = $new_status; 
+    $this->rels_ext->status = $new_status;
   }
 
   /**
@@ -309,7 +309,7 @@ class etd extends foxml implements etdInterface {
    * @return string
    */
   public function previousStatus() {
-    // datastream ID for rels-ext 
+    // datastream ID for rels-ext
     $dsid = $this->xmlconfig["rels_ext"]['dsID'];
 
     // get datastream history (info about each revision)
@@ -336,7 +336,7 @@ class etd extends foxml implements etdInterface {
   }
 
   /**
-   * set OAI identifier in RELS-EXT based on full ARK 
+   * set OAI identifier in RELS-EXT based on full ARK
    */
   public function setOAIidentifier() {
     if (!isset($this->mods->ark) || $this->mods->ark == "")
@@ -374,7 +374,7 @@ class etd extends foxml implements etdInterface {
 
       // special case - customize publish rule according to access restrictions
       if ($name == "published") {
-        // if embargo end is set, put that date in published policy 
+        // if embargo end is set, put that date in published policy
         if (isset($this->mods->embargo_end) && $this->mods->embargo_end != ''
             && isset($obj->policy->published->condition) &&
             isset($obj->policy->published->condition->embargo_end)) {
@@ -396,7 +396,7 @@ class etd extends foxml implements etdInterface {
         $restrict_html[] = "tableofcontents";
       if ($this->mods->isEmbargoRequested(etd_mods::EMBARGO_ABSTRACT))
         $restrict_html[] = "abstract";
-      
+
       $this->policy->published->condition->restrictMethods($restrict_html);
     }
   }
@@ -406,9 +406,9 @@ class etd extends foxml implements etdInterface {
    * @param string $name
    */
   public function removePolicyRule($name) {
-    $objects = array_merge(array($this), $this->pdfs, $this->supplements, $this->originals);    
+    $objects = array_merge(array($this), $this->pdfs, $this->supplements, $this->originals);
     foreach ($objects as $obj) {
-      if (isset($obj->policy) && isset($obj->policy->{$name})) 
+      if (isset($obj->policy) && isset($obj->policy->{$name}))
         $obj->policy->removeRule($name);
     }
   }
@@ -419,7 +419,7 @@ class etd extends foxml implements etdInterface {
    */
   public function addPdf(etd_file $etdfile) {
     // if value is already set, add to the total (multiple pdfs)
-    if (isset($etdfile->dc->pages) && isset($this->mods->pages)) 
+    if (isset($etdfile->dc->pages) && isset($this->mods->pages))
       $this->mods->pages = (int)$this->mods->pages + (int)$etdfile->dc->pages;
     else
       $this->mods->pages = $etdfile->dc->pages;
@@ -431,7 +431,7 @@ class etd extends foxml implements etdInterface {
    * @param etd_file $etdfile
    */
   public function addOriginal(etd_file $etdfile) {
-    // original documents should not have 'view' rule; this is the best place to remove 
+    // original documents should not have 'view' rule; this is the best place to remove
     if (isset($etdfile->policy->view)) $etdfile->policy->removeRule("view");
     return $this->addFile($etdfile, "Original");
   }
@@ -440,7 +440,7 @@ class etd extends foxml implements etdInterface {
    * @param etd_file $etdfile
    */
   public function addSupplement(etd_file $etdfile) { return $this->addFile($etdfile, "Supplement");  }
-  
+
   /**
    * set the relations between this etd and a file object (original, pdf, supplement)
    * @param etd_file $etdfile
@@ -448,14 +448,14 @@ class etd extends foxml implements etdInterface {
    */
   private function addFile(etd_file $etdfile,  $relation) {
     switch ($relation) {
-    case "PDF": 
+    case "PDF":
     case "Original":
     case "Supplement":
       $rel_name = strtolower($relation) . "s";  //pdfs, originals, supplements
       break;
     }
     $count = count($this->{$rel_name});
-    
+
     // if there is already a file of this type, set the number accordingly
     if ($count) {
       $etdfile->rels_ext->sequence = $count + 1;
@@ -497,7 +497,7 @@ class etd extends foxml implements etdInterface {
     switch ($etdfile->type) {
     case "pdf":
       // remove pdf from the total number of pages
-      if (isset($etdfile->dc->pages) && isset($this->mods->pages)) 
+      if (isset($etdfile->dc->pages) && isset($this->mods->pages))
   $this->mods->pages = $this->mods->pages - $etdfile->dc->pages;
       $relation = "hasPDF";
       break;
@@ -523,23 +523,23 @@ class etd extends foxml implements etdInterface {
    */
   public function save($message) {
     // cascade save to related etdfile objects
-    
+
     // since changes on etd can cause changes on etdfiles (e.g., xacml)
     // should not be a big performance hit, because only changed datastreams are actually saved
     $etdfiles = array_merge($this->pdfs, $this->originals, $this->supplements);
     $file_set_result = null;
     foreach ($etdfiles as $file) {
-      // If any of the files objects saved successfully, 
+      // If any of the files objects saved successfully,
       // then set the success to the overall file save result value.
       $file_result = $file->save($message);  // FIXME: add a note that it was saved with/by etd?
       if ($file_result) $file_set_result = $file_result;
       // FIXME2: how to capture/return error messages here?
     }
-    
+
     // If person modifying the etd is not the owner, then set the owner id to the author
     if (!isset($this->owner) || empty($this->owner)) {
-      $this->owner = $this->rels_ext->author;   
-    }    
+      $this->owner = $this->rels_ext->author;
+    }
 
     // update Dublin Core before saving in case MODS has changed
     $this->updateDC();
@@ -547,12 +547,12 @@ class etd extends foxml implements etdInterface {
     // Note: it is possible no changes were made here.
     $parent_result = parent::save($message);
 
-    // If the parent etd did not have any changes that were saved, 
+    // If the parent etd did not have any changes that were saved,
     // check to see if any of the file objects were updated successfully.
     // Return true date value, if either parent or any file saved successfully.
     return ($parent_result) ? $parent_result : $file_set_result;
   }
-  
+
   /**
    * synchronize Dublin Core with MODS (master metadata); called before save to keep in sync
    */
@@ -571,7 +571,7 @@ class etd extends foxml implements etdInterface {
     $this->dc->creator = $this->mods->author->full;
 
     // contributors - committee chair(s) & member(s)
-    $contributors = array(); 
+    $contributors = array();
     // committee chair(s)
     foreach ($this->mods->chair as $chair) {
       if ($chair->full != "") $contributors[] = $chair->full;
@@ -609,9 +609,9 @@ class etd extends foxml implements etdInterface {
     if (isset($this->mods->physicalDescription))
       $this->dc->format = $this->mods->physicalDescription->mimetype;
 
-    $rights = isset($this->mods->rights) ? $this->mods->rights : ""; 
+    $rights = isset($this->mods->rights) ? $this->mods->rights : "";
     if ($this->isEmbargoed()) {
-      $rights = $rights . " Access has been restricted until " . $this->mods->embargo_end; 
+      $rights = $rights . " Access has been restricted until " . $this->mods->embargo_end;
     }
     if (! empty($rights)) $this->dc->rights = $rights;
     $this->dc->setTypes(array($this->mods->genre, "text"));
@@ -660,7 +660,7 @@ class etd extends foxml implements etdInterface {
   }
   /**
    * store formatted title in html, plain-text version in mods/dc
-   * @param string $value 
+   * @param string $value
    */
   protected function _set_title($value) {
       // remove tags that are not wanted even in html
@@ -731,7 +731,7 @@ class etd extends foxml implements etdInterface {
    * @param string $type type of committee person: member or chair
    */
   public function setCommittee(array $ids, $type = "committee") {
-    // clear any old committee members from policy 
+    // clear any old committee members from policy
     foreach ($this->mods->{$type} as $committee) {
       if ($committee->id)
         // remove from etd policy and from associated etd files
@@ -763,14 +763,14 @@ class etd extends foxml implements etdInterface {
       }
     }
   }
-  
+
   /**
    * is this record embargoed?
    * returns true if embargo end date is set and after current time
    * @return boolean
    */
   public function isEmbargoed() {
-    if ($this->mods->embargo_end) 
+    if ($this->mods->embargo_end)
       return (strtotime($this->mods->embargo_end, 0) > time());
     else  // no embargo date defined - not (yet) embargoed
       return false;
@@ -778,7 +778,7 @@ class etd extends foxml implements etdInterface {
 
   /**
    * check if a field is required
-   * 
+   *
    * @param string $field field name
    * @return boolean
    */
@@ -798,7 +798,7 @@ class etd extends foxml implements etdInterface {
     // check required fields that are provided by mods
     $mods_missing = $this->mods->checkFields(array_intersect($required_fields,
                $this->mods->available_fields));
-  
+
     // check required fields provided by user object
     if (isset($this->authorInfo)) {
       $user_missing = $this->authorInfo->checkFields(array_intersect($required_fields,
@@ -809,14 +809,14 @@ class etd extends foxml implements etdInterface {
     }
     return array_merge($mods_missing, $user_missing);
   }
-  
+
   /**
    * check if optional fields are complete
    * @return array of missing fields
    */
   public function checkOptional() {
     $optional_fields = $this->optionalFields();
-    
+
     // check any optional fields that are provided by mods
     $mods_missing = $this->mods->checkFields(array_intersect($optional_fields,
               $this->mods->available_fields));
@@ -839,7 +839,7 @@ class etd extends foxml implements etdInterface {
   public function readyToSubmit($mode = null) {
     $required_fields = $this->requiredFields();
     $embargoLevel = $this->mods->embargoRequestLevel();
-    
+
     if ($mode == null || $mode == "mods") {
         if($embargoLevel == etd_mods::EMBARGO_TOC){ //remove table of contents from mod check when embargoed. Checking $etd->html instead so records will validate on review page
             unset($required_fields[array_search("table of contents", $required_fields)]);
@@ -878,13 +878,13 @@ class etd extends foxml implements etdInterface {
         return false;
       // checking author info only
       if ($mode == "authorInfo") return true;
-    } 
+    }
 
     if (! $this->hasPDF()) return false;
     if (! $this->hasOriginal()) return false;
 
 
-    
+
     return true;
   }
 
@@ -895,9 +895,9 @@ class etd extends foxml implements etdInterface {
   public function requiredFields() {
     if (! $this->school_config)
       trigger_error("School config is not set - could not determine required fields", E_USER_WARNING);
-      
+
     if (isset($this->school_config->submission_fields->required)) {
-      if (is_object($this->school_config->submission_fields->required)) 
+      if (is_object($this->school_config->submission_fields->required))
         return  $this->school_config->submission_fields->required->toArray();
       else  // single item - force into an array
         return  array($this->school_config->submission_fields->required);
@@ -905,7 +905,7 @@ class etd extends foxml implements etdInterface {
       return array();
     }
   }
-  
+
   /**
    * get per-school configured optional fields as an array
    * @return array
@@ -970,10 +970,10 @@ class etd extends foxml implements etdInterface {
     if (! $this->school_config)
       trigger_error("School config is not set, cannot retrieve school id", E_USER_WARNING);
     return $this->school_config->acl_id;;
-    
+
   }
 
-  
+
   /**
    * override default foxml ingest function to use arks for object pids
    * @param string $message
@@ -989,8 +989,8 @@ class etd extends foxml implements etdInterface {
       // could generate service unavailable exception - should be caught in the controller
       $persis = new Emory_Service_Persis(Zend_Registry::get('persis-config'));
 
-      $logger = Zend_Registry::get('logger'); 
-      
+      $logger = Zend_Registry::get('logger');
+
       // Set the development/staging url is applicable.
       try {
         $front  = Zend_Controller_Front::getInstance();
@@ -1000,18 +1000,25 @@ class etd extends foxml implements etdInterface {
       } catch (Exception $e) {  // swallow exception
         $logger->warn("ETD failed to set development/staging server url for ARK exception [" . $e->getMessage() . "]");
       }
-      
+
       // If in production environment or base url is not set, use etd.library.emory.edu
       // otherwise if in dev/staging server, reflect this base url in the ARK target URL.
       // Do not depend on getServer to define the production url.
-      $environment = Zend_Registry::get('env-config');      
+      $environment = Zend_Registry::get('env-config');
       if (($environment->mode == "production") || (!isset($ark_base))) {
         $ark_base = "http://etd.library.emory.edu";
-      }    
-      $ark_target = $ark_base . "/view/record/pid/emory:{%PID%}";     
-            
+      }
+      $ark_target = $ark_base . "/view/record/pid/emory:{%PID%}";
+
       $ark = $persis->generateArk($ark_target, $this->label);
-      $pid = $persis->pidfromArk($ark);
+
+      $fedora_cfg = Zend_Registry::get('fedora-config');
+      if (isset($fedora_cfg->pidspace) && $fedora_cfg->pidspace != '') {
+       $pid = $persis->pidfromArk($ark, $fedora_cfg->pidspace);
+      } else {
+       $pid = $persis->pidfromArk($ark);
+      }
+
       list($nma, $naan, $noid) = $persis->parseArk($ark);
 
       $this->pid = $pid;
@@ -1034,7 +1041,7 @@ class etd extends foxml implements etdInterface {
          "Graduation Confirmed by ETD system",
          "success",  array("software", "etd system"));
   }
-  
+
 
   /* publish a record - does several things:
    *  - set publication date (mods:dateIssued)
@@ -1048,7 +1055,7 @@ class etd extends foxml implements etdInterface {
    * semester so that all records, no matter when they are actually
    * published (this could vary by a few days or more), will have the
    * same publication date.
-   * 
+   *
    * The "real" publication date is the actual date when the Registrar
    * confirms graduation and the record is released (e.g., this could
    * be May 5 when the official publish date is May 31).  The real
@@ -1060,7 +1067,7 @@ class etd extends foxml implements etdInterface {
    * Note that the "real" publication date can be overridden, e.g. in
    * case a record is missed and needs to be published retroactively.
    * Should mostly be used only for testing.
-   * 
+   *
    */
   public function publish($publish_date, $date = null) {
     // set publication date (date issued)
@@ -1071,7 +1078,7 @@ class etd extends foxml implements etdInterface {
 
     // unix timestamp representation of "actual" publication date
     $datetime = strtotime($date, 0);
-    
+
     // calculate embargo end date
     // calculation is based on duration (mods embargo field)
     // in reference to 'real' publication date, e.g. today + 6 months
@@ -1083,7 +1090,7 @@ class etd extends foxml implements etdInterface {
     }
 
     $this->mods->embargo_end = date("Y-m-d", $end_date);
-    
+
     // sets status, add appropriate policies to etd & related files, and puts embargo end date in policies
     $this->setStatus("published");
     // record publication in history
@@ -1092,7 +1099,7 @@ class etd extends foxml implements etdInterface {
           "success",  array("software", "etd system"));
   }
 
-  
+
   /**
    * make a note in record history that record has been sent to ProQuest
    */
@@ -1154,15 +1161,15 @@ class etd extends foxml implements etdInterface {
 
     // update embargo end date in MODS
     $this->mods->embargo_end = $newdate;
-    
+
     // if present, remove admin note that embargo 60-day notice has been sent,
     // so a notice will get sent 60 days before new embargo end date
     if (isset($this->mods->embargo_notice))
       $this->mods->remove("embargo_notice");
-    
+
     // update xacml policies
     // - update end date condition on published policies for etd, pdfs, supplements
-    // FIXME: duplicate logic from addPolicyRule - pull out somewhere common? 
+    // FIXME: duplicate logic from addPolicyRule - pull out somewhere common?
     foreach (array_merge(array($this), $this->pdfs, $this->supplements) as $obj) {
       if (isset($obj->policy->published) && isset($this->policy->published->condition)
         && isset($obj->policy->published->condition->embargo_end)) {
@@ -1171,7 +1178,7 @@ class etd extends foxml implements etdInterface {
     }
 
     // add event to record history with message passed in
-    // -- if this is being done by a logged in user, pick up for event 'agent' 
+    // -- if this is being done by a logged in user, pick up for event 'agent'
     if (Zend_Registry::isRegistered('current_user')) {
       $user = Zend_Registry::get('current_user');
       $agent = array("netid", $user->netid);
@@ -1183,7 +1190,7 @@ class etd extends foxml implements etdInterface {
           "Access restriction ending date is updated to $newdate - $message",
           "success",  $agent);
   }
-  
+
 
 
   public function abstract_word_count() {
@@ -1209,7 +1216,7 @@ class etd extends foxml implements etdInterface {
     }
     // if title dissemination failed (formatted version), fall back to plain-text title in mods
     return $this->mods->title;
-  } 
+  }
   public function author() { return $this->mods->author->full; }
   public function program() { return $this->mods->department; }
   public function program_id() {
@@ -1230,7 +1237,7 @@ class etd extends foxml implements etdInterface {
   public function chair_with_affiliation() {
     $chairs = array();
     foreach ($this->mods->chair as $c) {
-      if (isset($c->affiliation)) 
+      if (isset($c->affiliation))
   $chairs[$c->full] = $c->affiliation;
       else
   $chairs[$c->full] = "";
@@ -1241,7 +1248,7 @@ class etd extends foxml implements etdInterface {
   public function committee_with_affiliation() {
     $committee = array();
     foreach ($this->mods->committee as $c) {
-      if (isset($c->affiliation)) 
+      if (isset($c->affiliation))
   $committee[$c->full] = $c->affiliation;
       else
   $committee[$c->full] = "";
@@ -1260,8 +1267,8 @@ class etd extends foxml implements etdInterface {
   }
   // how to handle non-emory committee?
   // dissertation/thesis/etc
-  public function document_type() { 
-    return (isset($this->mods->genre)) ? $this->mods->genre : null; 
+  public function document_type() {
+    return (isset($this->mods->genre)) ? $this->mods->genre : null;
   }
   public function language() { return $this->mods->language; }
   public function degree() { return $this->mods->degree; }
@@ -1285,7 +1292,7 @@ class etd extends foxml implements etdInterface {
     // if dissemination failed (formatted version), fall back to plain-text version in mods
     return $this->mods->abstract;
   }
-  
+
   public function tableOfContents() {
     // call fedora service - returns html ToC if user is allowed to see it
     try {
@@ -1303,33 +1310,33 @@ class etd extends foxml implements etdInterface {
     return $this->mods->tableOfContents;
   }
   public function num_pages() { return isset($this->mods->pages) ? $this->mods->pages : ""; }
-  
+
   public function keywords() {
     $keywords = array();
     for ($i = 0; $i < count($this->mods->keywords); $i++)
       array_push($keywords, $this->mods->keywords[$i]->topic);
     return $keywords;
   }
-  
+
   public function researchfields() {
     $subjects = array();
-    for ($i = 0; $i < count($this->mods->researchfields); $i++) 
+    for ($i = 0; $i < count($this->mods->researchfields); $i++)
       array_push($subjects, $this->mods->researchfields[$i]->topic);
     return $subjects;
   }
-  
+
   public function partneringagencies() {
     $pa_notes = array();
     for ($i = 0; $i < count($this->mods->partneringagencies); $i++) {
       array_push($pa_notes, $this->mods->partneringagencies[$i]->topic);
     }
     return $pa_notes;
-  }  
+  }
 
   public function ark() {
     return $this->mods->identifier;     // want the resolvable version of the ark
   }
-  
+
   // direct access to metadata disseminations for efficiency
    protected function getMetadataTransform($method) {
         $result = $this->fedora->getDisseminationSOAP($this->pid,
@@ -1340,7 +1347,7 @@ class etd extends foxml implements etdInterface {
    public function getMods() { return $this->getMetadataTransform('getMods');  }
    public function getEtdms() { return $this->getMetadataTransform('getEtdms');  }
 
-  
+
   /**
    * for Zend ACL Resource
    * NOTE: does not include per-school info (e.g., honors, grad)
@@ -1358,92 +1365,92 @@ class etd extends foxml implements etdInterface {
 
     return $acl_id;
   }
-  
+
   /**
    * getIndexData will assemble the data needed for solr indexing
    * @return an array of solr data for this etd.
-   */  
+   */
   public function getIndexData() {
 
     // Initiate the result array
     $options = array("PID" => $this->pid());
-    
-    // Set Metadata Fields    
-    $options["status"] = $this->status();    
-    
+
+    // Set Metadata Fields
+    $options["status"] = $this->status();
+
     // Set Fedora Top Level Fields
     $options["label"] = (isset($this->label)) ? $this->label : null;
-    $options["ownerId"] = (isset($this->owner)) ? $this->owner : null;    
+    $options["ownerId"] = (isset($this->owner)) ? $this->owner : null;
     $options["state"] = (isset($this->state)) ? $this->state : null;
 
     // Set MODS Fields
     $options["author"] = $this->author();
     $options["date_embargoedUntil"] = (isset($this->mods->embargo_end)) ? str_replace("-", "", $this->mods->embargo_end) : null;
-    $options["dateIssued"] = ($this->pubdate()) ? str_replace("-", "", $this->pubdate()) : null;    
+    $options["dateIssued"] = ($this->pubdate()) ? str_replace("-", "", $this->pubdate()) : null;
     $options["degree_level"] = (isset($this->mods->degree) && $this->mods->degree->level) ? $this->mods->degree->level : null;
     $options["degree_name"] = ($this->mods->degree && $this->mods->degree->name) ? $this->mods->degree->name : null;
     $options["document_type"] = $this->document_type();
-    $options["registering_copyright"] = (isset($this->mods->copyright)) ? $this->mods->copyright : null;    
+    $options["registering_copyright"] = (isset($this->mods->copyright)) ? $this->mods->copyright : null;
     $options["embargo_duration"] =  (isset($this->mods->embargo)) ? $this->mods->embargo : null;
     $options["embargo_notice"] = (isset($this->mods->embargo_notice)) ? "sent ".$this->mods->embargo_notice : null;
     $options["embargo_requested"] = ($this->mods->hasEmbargoRequest()) ? "yes" : "no";
-    $options["language"] = (isset($this->mods->language) && isset($this->mods->language->text)) ? $this->mods->language->text : null;    
-    $options["num_pages"] = $this->num_pages(); 
-    $options["program"] = $this->program(); 
+    $options["language"] = (isset($this->mods->language) && isset($this->mods->language->text)) ? $this->mods->language->text : null;
+    $options["num_pages"] = $this->num_pages();
+    $options["program"] = $this->program();
     $options["program_id"] = $this->program_id();
-    $options["subfield"] = $this->subfield(); 
-    $options["subfield_id"] = $this->subfield_id();   
+    $options["subfield"] = $this->subfield();
+    $options["subfield_id"] = $this->subfield_id();
     $options["subject"] = $this->researchfields();
     $options["year"] = $this->year();
-    
+
     // Set formatted fields title/abstract/TOC
     // These fields must be retrieved from the mods record so tags are removed.
     // Embargoed abstract/TOC should not be indexed.
-    $options["abstract"] = (isset($this->mods->abstract)) ? $this->mods->abstract : null;    
-    $options["tableOfContents"] = (isset($this->mods->tableOfContents)) ? $this->mods->tableOfContents : null;    
+    $options["abstract"] = (isset($this->mods->abstract)) ? $this->mods->abstract : null;
+    $options["tableOfContents"] = (isset($this->mods->tableOfContents)) ? $this->mods->tableOfContents : null;
     $options["title"] = (isset($this->mods->title)) ? $this->mods->title : null;
-        
+
     // Set committee chair / advisor and committee member arrays
-    $advisor_committee_list = array("advisor" => "chair", "committee" => "committee"); 
+    $advisor_committee_list = array("advisor" => "chair", "committee" => "committee");
     foreach ($advisor_committee_list as $key => $value) {
       $name = $id = array();
-      if ($key=="advisor" && $this->chair() || $key=="committee" && $this->committee()) {  
-	foreach ($this->mods->$value as $item) {
-	  if ($item->full != "") {
-	    array_push($name, $item->full);	
-	    array_push($id, $item->id);
-	  }
-	}
-	$options[$key] = $name;
-	$options[$key . "_id"] = $id;
+      if ($key=="advisor" && $this->chair() || $key=="committee" && $this->committee()) {
+  foreach ($this->mods->$value as $item) {
+    if ($item->full != "") {
+      array_push($name, $item->full);
+      array_push($id, $item->id);
+    }
+  }
+  $options[$key] = $name;
+  $options[$key . "_id"] = $id;
       }
     }
-    
+
     // Set keyword list
     $options['keyword'] = $this->keywords();
     // set partnering agencies list
     $options['partneringagencies'] = $this->partneringagencies();
-    
-    // Set RELS-EXT Fields 
+
+    // Set RELS-EXT Fields
     $options["contentModel"] = ($this->rels_ext->hasModel) ? "info:fedora/" . $this->rels_ext->hasModel : null;
-    
+
     if (isset($this->rels_ext->isMemberOfCollections) &&
-	  count($this->rels_ext->isMemberOfCollections)) {
+    count($this->rels_ext->isMemberOfCollections)) {
       for ($i = 0; $i < count($this->rels_ext->isMemberOfCollections); $i++) {
-	  $options["collection"] = preg_replace('@^info:fedora/@', '', $this->rels_ext->isMemberOfCollections[$i]);
+    $options["collection"] = preg_replace('@^info:fedora/@', '', $this->rels_ext->isMemberOfCollections[$i]);
       }
     }
-       
+
     // Clear out null and empty values
     foreach ($options as $key => $value) {
       if (!$value || $value == "") {
-	unset($options[$key]);
+  unset($options[$key]);
       }
     }
 
     ksort($options);	// Sort the results for easy reading
-    return ($options);   
-  }  
+    return ($options);
+  }
 
 }
 
