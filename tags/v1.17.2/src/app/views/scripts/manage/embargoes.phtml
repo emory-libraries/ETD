@@ -1,0 +1,50 @@
+<h1>Upcoming Embargo Expirations</h1>
+
+<p>records ordered by embargo expiration date</p>
+
+<? /* Do not display pagination if the results is less than 2 */ ?>
+<? if (sizeof($this->paginator) > 1): ?>
+<div class="grayed">
+<? /* display pagination links again at the end of search results */ ?>
+<?= $this->paginationControl($this->paginator, 'Sliding', 'browse/pagination.phtml',
+            array("url_opts" => $this->url_opts)) ?>
+</div>
+<? endif ?>
+<? /* If the result set if empty, then output "No Results Found" msg */ ?>
+<? if (sizeof($this->paginator) == 0): ?>
+<h3>No Results Found</h3>
+<? endif ?> 
+
+<? foreach ($this->paginator as $this->etd) : ?>
+<div class="listrecord">	
+  <b><?= $this->etd->mods->embargo_end ?></b>
+  <span class="embargo_notice">
+   60 day notice sent
+  <? if (isset($this->etd->mods->embargo_notice)): ?>
+	<?= $this->etd->mods->embargo_notice ?>
+  <? else: ?>
+    should be sent on      
+    <?= date("Y-m-d", strtotime("-60 days", strtotime($this->etd->mods->embargo_end))) ?>
+  <? endif ?>
+  </span> <br/>
+  <?= $this->etd->author() ?>:
+   <a href="<?= $this->url(array("controller" => "view",
+   "action" => "record", "pid" => $this->etd->pid()), "", true, false)?>"><?= $this->etd->title() ?></a>
+
+  <?=  $this->render('view/_lastaction.phtml'); ?>
+</div>
+
+<? endforeach ?>
+
+<? /* Do not display pagination if the results is less than 2 */ ?>
+<? if (sizeof($this->paginator) > 1): ?>
+<div class="grayed">
+<? /* display pagination links again at the end of search results */ ?>
+<?= $this->paginationControl($this->paginator, 'Sliding', 'browse/pagination.phtml',
+            array("url_opts" => $this->url_opts)) ?>
+</div>
+<? endif ?>
+<? /* If the result set if empty, then output "No Results Found" msg */ ?>
+<? if (sizeof($this->paginator) == 0): ?>
+<h3>No Results Found</h3>
+<? endif ?>
