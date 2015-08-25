@@ -81,9 +81,11 @@
      foreach ($this->etd->getAllFiles() as $file) {
        $label = $file->dc->title;
        if (isset($file->dc->filesize)) {
-   $label .= " (" . $this->readableSize($file->dc->filesize) . ")";
+         $label .= " (" . $this->readableSize($file->dc->filesize) . ")";
        }
-       $file_opts[$file->pid] = $label;
+       $opts = $file->pid."|".$file->file->mimetype;
+       $file_opts[$opts] = $label;
+      //  $file_opts[$file->pid] = $label;
      }   ?>
   <p>
     Replace <?= $this->formSelect("pid", "", null, $file_opts) ?>
