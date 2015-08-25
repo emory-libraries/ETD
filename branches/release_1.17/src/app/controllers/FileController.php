@@ -208,7 +208,16 @@ class FileController extends Etd_Controller_Action {
 
    // upload and save a new version of the binary file
    public function updateAction() {
-     $etdfile = $this->_helper->getFromFedora("pid", "etd_file");
+     $params = $this->_getParam('pid');
+
+     $params = explode('|',$params);
+
+     $pid = $params[0];
+     $old_mimetype = $params[1];
+
+     $this->logger->info("Getting file " . $pid . " with mimetype ".$old_mimetype);
+
+     $etdfile = $this->_helper->getFromFedora('pid', "etd_file");
      if (!$this->_helper->access->allowedOnEtdFile("edit", $etdfile)) return false;
 
      // pass on pids for links to etdfile and etd record
@@ -220,6 +229,7 @@ class FileController extends Etd_Controller_Action {
 
      Zend_Controller_Action_HelperBroker::addPrefix('Etd_Controller_Action_Helper');
      $filename = $fileinfo['tmp_name'];
+     $mimetype = $fileinfo['type'];
 
      // if file object is a pdf, it should only be updated with a pdf
      if ($etdfile->type == "pdf") {
@@ -232,7 +242,7 @@ class FileController extends Etd_Controller_Action {
      if ($uploaded) {
        $old_pagecount = $etdfile->dc->pages;  // save current page count
 
-       $fileresult = $etdfile->updateFile($filename, "New version of file ");  // update file info, upload new file
+       $fileresult = $etdfile->updateFile($filename, "New version of file ", $mimetype);  // update file info, upload new file
        $xmlresult = $etdfile->save("modified metadata for new version of file");
 
        if ($fileresult === false || $xmlresult === false) { // how to determine which failed?
@@ -245,8 +255,6 @@ class FileController extends Etd_Controller_Action {
            }
        } else {
          $this->_helper->flashMessenger->addMessage("Successfully updated file");
-         $this->logger->info("Updated etdfile " . $etdfile->pid . " with new file at $fileresult");
-         $this->logger->info("Updated etdfile " . $etdfile->pid . " metadata at $xmlresult");
          $this->view->save_result = $fileresult;
        }
 
