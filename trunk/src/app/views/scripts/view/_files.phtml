@@ -83,7 +83,7 @@
        if (isset($file->dc->filesize)) {
          $label .= " (" . $this->readableSize($file->dc->filesize) . ")";
        }
-       $opts = $file->pid."|".$file->file->mimetype;
+       $opts = $file->pid;
        $file_opts[$opts] = $label;
       //  $file_opts[$file->pid] = $label;
      }   ?>

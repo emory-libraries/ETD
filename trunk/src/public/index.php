@@ -18,7 +18,8 @@ $autoloader->setFallbackAutoloader(true);
 
 // NOTE: php is now outputting a notice when using __set on arrays / objects
 // (actual logic seems to work properly)
-error_reporting(E_ALL ^ E_NOTICE);
+// error_reporting(E_ALL ^ E_NOTICE);
+error_reporting(E_ERROR | E_WARNING | E_PARSE);
 
 require_once("api/FedoraConnection.php");
 

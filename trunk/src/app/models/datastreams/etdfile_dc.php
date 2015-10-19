@@ -54,7 +54,13 @@ class etdfile_dc extends etd_dc {
     } else {
       $this->formats->append("$num p.");
     }
-    $this->update();
+    print "here is the number " . $num;
+    $updated = $this->update();
+    if ($updated) {
+	print "it updated";
+    } else {
+	print "did NOT update";
+    }
   }
 
   /**
