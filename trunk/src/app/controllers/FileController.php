@@ -232,6 +232,9 @@ class FileController extends Etd_Controller_Action {
      if ($etdfile->type == "pdf") {
        $allowed_types = array("application/pdf");
        $uploaded = $this->_helper->FileUpload->check_upload($fileinfo, $allowed_types);
+     } elseif ($etdfile->type == "original") {
+       $allowed_types = array($etdfile->file->mimetype);
+       $uploaded = $this->_helper->FileUpload->check_upload($fileinfo, $allowed_types);
      } else {
        $uploaded = $this->_helper->FileUpload->check_upload($fileinfo);
      }
