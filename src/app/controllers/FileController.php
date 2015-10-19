@@ -208,16 +208,13 @@ class FileController extends Etd_Controller_Action {
 
    // upload and save a new version of the binary file
    public function updateAction() {
-     $params = $this->_getParam('pid');
+     $pid = $this->_getParam('pid');
 
-     $params = explode('|',$params);
 
-     $pid = $params[0];
-     $old_mimetype = $params[1];
-
-     $this->logger->info("Getting file " . $pid . " with mimetype ".$old_mimetype);
+     $this->logger->info("Getting file " . $pid);
 
      $etdfile = $this->_helper->getFromFedora('pid', "etd_file");
+     // print_r ( $etdfile->file->mimetype );
      if (!$this->_helper->access->allowedOnEtdFile("edit", $etdfile)) return false;
 
      // pass on pids for links to etdfile and etd record
@@ -241,7 +238,6 @@ class FileController extends Etd_Controller_Action {
 
      if ($uploaded) {
        $old_pagecount = $etdfile->dc->pages;  // save current page count
-
        $fileresult = $etdfile->updateFile($filename, "New version of file ", $mimetype);  // update file info, upload new file
        $xmlresult = $etdfile->save("modified metadata for new version of file");
 
@@ -258,18 +254,23 @@ class FileController extends Etd_Controller_Action {
          $this->view->save_result = $fileresult;
        }
 
+       $this->logger->info($etdfile->etd->pid . " is a " . $etdfile->type);
+
        // if file being updated is a PDF, need to update main record page count (can't be caught elsewhere)
        if ($etdfile->type == "pdf") {
            // subtract pages from the old version of file
+           $this->logger->info("about to subtract " . (string)$old_pagecount . " from " . (string)$etdfile->etd->mods->pages);
            $etdfile->etd->mods->pages = (int)$etdfile->etd->mods->pages - (int)$old_pagecount;
           // add new page count
           $etdfile->etd->mods->pages = (int)$etdfile->etd->mods->pages + (int)$etdfile->dc->pages;
+          print_r ( $etdfile->etd->mods->pages );
+          $this->logger->info("pages = " . $etdfile->etd->mods->pages);
           $result = $etdfile->etd->save("updated page count for new version of pdf");
           if ($result) {
             $this->logger->info("Updated etd page count for new version of pdf " . $etdfile->etd->pid);
           } else {
             $this->logger->err("Problem updating etd page count for new version of pdf" .
-                   $etdfile->etd->pid);
+                   $etdfile->etd->mods->pages);
           }
        }
 
