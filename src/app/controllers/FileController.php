@@ -227,7 +227,13 @@ class FileController extends Etd_Controller_Action {
      Zend_Controller_Action_HelperBroker::addPrefix('Etd_Controller_Action_Helper');
      $filename = $fileinfo['tmp_name'];
      $mimetype = $fileinfo['type'];
-     $this->logger->info($fileinfo['tmp_name']); 
+     $this->logger->info($fileinfo['tmp_name']);
+
+     $old_parts = explode(".", $etdfile->file->filename);
+     $old_ext = $parts[count($old_parts)-1];
+
+     $new_parts = explode(".", $fileinfo['tmp_name']);
+     $new_ext = $parts[count($new_parts)-1]; 
      
      $etdfileinfo = $this->_helper->getFromFedora("pid", "etd_file");
      $this->logger->info("Right now mimetype is " . $etdfileinfo->file->mimetype . " and fileinfo type is " . $fileinfo['type']);
@@ -238,7 +244,7 @@ class FileController extends Etd_Controller_Action {
      if ($etdfile->type == "pdf") {
        $allowed_types = array("application/pdf");
        $uploaded = $this->_helper->FileUpload->check_upload($fileinfo, $allowed_types);
-     } elseif ($fileinfo['type'] == $etdfile->file->mimetype){
+     } elseif ($fileinfo['type'] == $etdfile->file->mimetype || $old_ext == rtrim($new_ext, "x")){
        $uploaded = $this->_helper->FileUpload->check_upload($fileinfo);
      } else {
        $this->_helper->flashMessenger->addMessage("Error: you cannot replace a file with a different file type.");
