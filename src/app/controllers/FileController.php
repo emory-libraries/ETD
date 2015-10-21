@@ -223,21 +223,28 @@ class FileController extends Etd_Controller_Action {
      $this->view->etd = $etdfile->etd;
 
      $fileinfo = $_FILES['file'];
-
+     $this->logger->info("To start, mime type is " . $fileinfo['type']);
      Zend_Controller_Action_HelperBroker::addPrefix('Etd_Controller_Action_Helper');
      $filename = $fileinfo['tmp_name'];
      $mimetype = $fileinfo['type'];
-
+     $this->logger->info($fileinfo['tmp_name']); 
+     
+     $etdfileinfo = $this->_helper->getFromFedora("pid", "etd_file");
+     $this->logger->info("Right now mimetype is " . $etdfileinfo->file->mimetype . " and fileinfo type is " . $fileinfo['type']);
+     //$fileinfo['type'] = $etdfileinfo->file->mimetype;
+     $this->logger->info("And now mimetype is " . $etdfile->file->mimetype . " and fileinfo type is " . $fileinfo['type']);
      // if file object is a pdf, it should only be updated with a pdf
+     $this->logger->info("etdfile type is : " . $fileinfo['type']);
      if ($etdfile->type == "pdf") {
        $allowed_types = array("application/pdf");
        $uploaded = $this->_helper->FileUpload->check_upload($fileinfo, $allowed_types);
-     } elseif ($etdfile->type == "original") {
-       $allowed_types = array($etdfile->file->mimetype);
-       $uploaded = $this->_helper->FileUpload->check_upload($fileinfo, $allowed_types);
-     } else {
+     } elseif ($fileinfo['type'] == $etdfile->file->mimetype){
        $uploaded = $this->_helper->FileUpload->check_upload($fileinfo);
-     }
+     } else {
+       $this->_helper->flashMessenger->addMessage("Error: you cannot replace a file with a different file type.");
+       $uploaded = false;
+       }
+    
 
      if ($uploaded) {
        $old_pagecount = $etdfile->dc->pages;  // save current page count
