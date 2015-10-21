@@ -229,22 +229,36 @@ class FileController extends Etd_Controller_Action {
      $mimetype = $fileinfo['type'];
      $this->logger->info($fileinfo['tmp_name']);
 
-     $old_parts = explode(".", $etdfile->file->filename);
-     $old_ext = $parts[count($old_parts)-1];
+     $new_parts = explode(".", $fileinfo['name']);
+     $new_ext = $new_parts[count($new_parts)-1];
 
-     $new_parts = explode(".", $fileinfo['tmp_name']);
-     $new_ext = $parts[count($new_parts)-1]; 
+     switch (rtrim($new_ext, "x")){
+       case "doc":
+          $allowable = $fileinfo['type'] == "application/vnd.openxmlformats-officedocument.wordprocessingml.document" || $fileinfo['type'] == 'application/msword';
+          break;
      
-     $etdfileinfo = $this->_helper->getFromFedora("pid", "etd_file");
-     $this->logger->info("Right now mimetype is " . $etdfileinfo->file->mimetype . " and fileinfo type is " . $fileinfo['type']);
-     //$fileinfo['type'] = $etdfileinfo->file->mimetype;
-     $this->logger->info("And now mimetype is " . $etdfile->file->mimetype . " and fileinfo type is " . $fileinfo['type']);
-     // if file object is a pdf, it should only be updated with a pdf
+       case "xls":
+          $allowable = $fileinfo['type'] == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" || $fileinfo['type'] == 'application/vnd.ms-excel';
+          break;
+     
+       case "doc":
+          $allowable = $fileinfo['type'] == "application/vnd.openxmlformats-officedocument.presentationml.presentation" || $fileinfo['type'] == 'application/vnd.ms-powerpoint';
+          break;
+     }
+
+     if ($allowable) {
+       $this->logger->info("*******YAY*********");
+     } else {
+       $this->logger->info("******BOOO ext is " . rtrim($new_ext, "x"));
+     }
+
+     $this->logger->info("old ext = " . $etdfile->prettyFilename() . " new ext = " . $new_ext); 
+     
      $this->logger->info("etdfile type is : " . $fileinfo['type']);
      if ($etdfile->type == "pdf") {
        $allowed_types = array("application/pdf");
        $uploaded = $this->_helper->FileUpload->check_upload($fileinfo, $allowed_types);
-     } elseif ($fileinfo['type'] == $etdfile->file->mimetype || $old_ext == rtrim($new_ext, "x")){
+     } elseif ($fileinfo['type'] == $etdfile->file->mimetype || $allowable) {
        $uploaded = $this->_helper->FileUpload->check_upload($fileinfo);
      } else {
        $this->_helper->flashMessenger->addMessage("Error: you cannot replace a file with a different file type.");
