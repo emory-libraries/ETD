@@ -55,6 +55,8 @@ class Zend_View_Helper_FiletypeIcon
     $icon = "word"; break;
   case "vnc.ms-excel":
     $icon = "excel"; break;
+  case "vnd.ms-excel":
+    $icon = "excel"; break;
   case "zip":
   case "x-zip":
     $icon = "zip"; break;
