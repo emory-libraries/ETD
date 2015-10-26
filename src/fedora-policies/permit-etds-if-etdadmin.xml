@@ -132,6 +132,9 @@ access and modify (with some limitations) etd objects (etd, etdfile, user)</Desc
     <!-- SKOS : rdf hierarchy for programs -->
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">SKOS</AttributeValue>
 
+   <!-- Giving admins rights to replace files -->
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">FILE</AttributeValue>
+
         </Apply>  <!-- end string bag -->
       </Apply>    <!-- end at least one member -->
 
