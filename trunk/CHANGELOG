@@ -1,5 +1,11 @@
 CHANGE LOG
 =================
+Version 1.17.1
+--------------
+* Bug fix for "Replace file functionality": PT# 103231518.
+* Reworked replace file function to disallow replacing files with different mimetypes (though older Office formats can be replaced by newer ones and vice versa).
+* The mimetype of the new file is checked against the mimetype stored in Fedora
+* Added mimetype `vnd.ms-excel` to get the pre '07 Excel icon. `vnc.ms-excel` was the only one in the logic.
 
 Version 1.17
 ------------

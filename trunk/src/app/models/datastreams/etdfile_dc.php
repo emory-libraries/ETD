@@ -9,7 +9,7 @@ require_once("datastreams/etd_dc.php");
  * @subpackage Etd
  *
  * @property array $format
- * @property array $identifier 
+ * @property array $identifier
  * @property string $ark dc:identifier that contains ark
  * @property string $fedora_pid dc:identifier that contains info:fedora
  * @property string $filesize dc:format that does not contain '/' or 'p.'
@@ -17,18 +17,18 @@ require_once("datastreams/etd_dc.php");
  */
 class etdfile_dc extends etd_dc {
   protected $additional_fields;
-  
+
   // In order for the ETD and AuthorInfo to not be versioned, and workaround the fedora bug:
   // https://jira.duraspace.org/browse/FCREPO-849
-  // the control_group MUST be set to Inline/XML_DATASTREAM for the DC datastream, 
+  // the control_group MUST be set to Inline/XML_DATASTREAM for the DC datastream,
   // when versionable is set to false.
   public $versionable = true;
 
   protected function configure() {
     parent::configure();
 
-    // a few special cases 
-    $this->xmlconfig['identifier']['is_series'] = false;  // override etd_dc where is_series is true.  
+    // a few special cases
+    $this->xmlconfig['identifier']['is_series'] = false;  // override etd_dc where is_series is true.
     $this->xmlconfig["ark"] = array("xpath" => "dc:identifier[contains(., 'ark')]");
     $this->xmlconfig["fedora_pid"] = array("xpath" => "dc:identifier[contains(., 'info:fedora')]");
 
@@ -54,13 +54,7 @@ class etdfile_dc extends etd_dc {
     } else {
       $this->formats->append("$num p.");
     }
-    print "here is the number " . $num;
-    $updated = $this->update();
-    if ($updated) {
-	print "it updated";
-    } else {
-	print "did NOT update";
-    }
+    $this->update();
   }
 
   /**

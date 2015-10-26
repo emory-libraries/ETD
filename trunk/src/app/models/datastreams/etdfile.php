@@ -450,18 +450,10 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
    * @return string timestamp on success
    */
   public function updateFile($filename, $message, $mimetype = false) {
-    if(file_exists($filename)){
-      print "yay";
-    }
-    else {print "nope";}
-    if(!$mimetype){
-      $mimetype = $this->file->mimetype;
-    }
     $this->setFileInfo($filename);   // update mimetype, filesize, and pages if appropriate
     $upload_id = $this->fedora->upload($filename);
     return $this->fedora->modifyBinaryDatastream($this->pid, "FILE", "Binary File", $mimetype,
            $upload_id, $message, $filename, null, 'MD5');
-    // return true;
   }
 
 

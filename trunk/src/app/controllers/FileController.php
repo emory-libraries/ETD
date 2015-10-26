@@ -223,11 +223,10 @@ class FileController extends Etd_Controller_Action {
      $this->view->etd = $etdfile->etd;
 
      $fileinfo = $_FILES['file'];
-     $this->logger->info("To start, mime type is " . $fileinfo['type']);
+
      Zend_Controller_Action_HelperBroker::addPrefix('Etd_Controller_Action_Helper');
      $filename = $fileinfo['tmp_name'];
      $mimetype = $fileinfo['type'];
-     $this->logger->info($fileinfo['tmp_name']);
 
      $new_parts = explode(".", $fileinfo['name']);
      $new_ext = $new_parts[count($new_parts)-1];
@@ -236,25 +235,16 @@ class FileController extends Etd_Controller_Action {
        case "doc":
           $allowable = $fileinfo['type'] == "application/vnd.openxmlformats-officedocument.wordprocessingml.document" || $fileinfo['type'] == 'application/msword';
           break;
-     
+
        case "xls":
           $allowable = $fileinfo['type'] == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" || $fileinfo['type'] == 'application/vnd.ms-excel';
           break;
-     
+
        case "doc":
           $allowable = $fileinfo['type'] == "application/vnd.openxmlformats-officedocument.presentationml.presentation" || $fileinfo['type'] == 'application/vnd.ms-powerpoint';
           break;
      }
 
-     if ($allowable) {
-       $this->logger->info("*******YAY*********");
-     } else {
-       $this->logger->info("******BOOO ext is " . rtrim($new_ext, "x"));
-     }
-
-     $this->logger->info("old ext = " . $etdfile->prettyFilename() . " new ext = " . $new_ext); 
-     
-     $this->logger->info("etdfile type is : " . $fileinfo['type']);
      if ($etdfile->type == "pdf") {
        $allowed_types = array("application/pdf");
        $uploaded = $this->_helper->FileUpload->check_upload($fileinfo, $allowed_types);
@@ -264,7 +254,7 @@ class FileController extends Etd_Controller_Action {
        $this->_helper->flashMessenger->addMessage("Error: you cannot replace a file with a different file type.");
        $uploaded = false;
        }
-    
+
 
      if ($uploaded) {
        $old_pagecount = $etdfile->dc->pages;  // save current page count
