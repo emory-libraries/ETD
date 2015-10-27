@@ -1,0 +1,246 @@
+<link rel="stylesheet" href="//code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" />
+<div>
+    <h1><?=$this->title?><span style="font-size: 10px; color: red">(Beta)</span></h1>
+    <a href="<?= $this->url(array("action" => "advanced"))?>">Switch to Advanced Report</a>
+</div>
+
+<div style="margin-top:15px">
+<form method="post" id="standard_report_form"  action="<?= $this->url(array("action" => "preview_export"))?>" target="_blank">
+    <fieldset>
+        <b>Status:</b>
+    
+    <table>
+     <tr>
+      <td colspan="3">    
+       <input type="checkbox" name="status[]" value='ALL' class="checkall" id="status-all"> All
+      </td>
+     </tr>
+    <tr>
+     <td><input type="checkbox" name="status[]" value='inactive'> Inactive</td>
+     <td><input type="checkbox" name="status[]" value='draft'> Draft</td>
+     <td><input type="checkbox" name="status[]" value='submitted'> Submitted</td>
+    </tr>
+    <tr>
+     <td><input type="checkbox" name="status[]" value='reviewed'> Reviewed</td>
+     <td><input type="checkbox" name="status[]" value='approved'> Approved</td>
+     <td><input type="checkbox" name="status[]" value='published' id="pub-box"> Published 
+      <input type="text" size="10" id="pub-from" name="pub-from" value="YYYYMMDD" disabled> TO
+      <input type="text" size="10" id="pub-to" name="pub-to" value="YYYYMMDD" disabled>
+      <span> Leave date fields blank to search all published records</span></td>
+      </tr>
+      </table>
+
+    </fieldset>
+        
+    <fieldset>
+        <b>Degree:</b>
+        
+    <table>
+     <tr>
+      <td colspan="6"> <input type="checkbox" name="degree_name[]" value='ALL' class="checkall"> All</td>
+     </tr>
+     <tr>
+      <td><input type="checkbox" name="degree_name[]" value='BA'> BA</td>
+      <td><input type="checkbox" name="degree_name[]" value='BBA'> BBA</td>
+      <td><input type="checkbox" name="degree_name[]" value='BS'> BS</td>
+      <td><input type="checkbox" name="degree_name[]" value='MA'> MA</td>
+      <td colspan="2" ><input type="checkbox" name="degree_name[]" value='MDiv'> MDiv</td>
+     </tr>
+     <tr>
+      <td><input type="checkbox" name="degree_name[]" value='MPH'> MPH</td>
+      <td><input type="checkbox" name="degree_name[]" value='MS'> MS</td>
+      <td><input type="checkbox" name="degree_name[]" value='MSPH'> MSPH</td>
+      <td><input type="checkbox" name="degree_name[]" value='MTS'> MTS</td>
+      <td><input type="checkbox" name="degree_name[]" value='PhD'> PhD</td>
+      <td><input type="checkbox" name="degree_name[]" value='ThD'> ThD</td>
+     </tr>
+    </table>
+    
+    </fieldset>         
+        
+<fieldset>
+        <b>Document Type:</b>
+    
+    <table>
+     <tr>
+      <td colspan="3"><input type="checkbox" name="document_type[]" value='ALL' class="checkall"> All</td>
+     </tr>
+     <tr>
+      <td><input type="checkbox" name="document_type[]" value='Dissertation'> Dissertation</td>
+      <td><input type="checkbox" name="document_type[]" value='Honors Thesis'> Honors Thesis</td>
+      <td><input type="checkbox" name="document_type[]" value="MasterXs Thesis"> Master's Thesis</td>
+     </tr>
+    </table>
+    
+    </fieldset>
+        
+<fieldset>
+        <b>Embargo Requested:</b>
+    
+    <table>
+     <tr>
+     <td colspan="5"><input type="checkbox" name="embargo_duration[]" value='ALL' class="checkall"> All</td>
+     </tr>
+     <tr>
+      <td><input type="checkbox" name="embargo_duration[]" value='0 days'> 0 days</td>
+      <td><input type="checkbox" name="embargo_duration[]" value='6 months'> 6 months</td>
+      <td><input type="checkbox" name="embargo_duration[]" value='1 year'> 1 year</td>
+      <td><input type="checkbox" name="embargo_duration[]" value='2 years'> 2 years</td>
+      <td><input type="checkbox" name="embargo_duration[]" value='6 years'> 6 years</td>
+     </tr>
+    </table>
+    
+</fieldset>
+    
+<fieldset>
+        <b>Language:</b>
+    
+    <table>
+    <tr>
+     <td colspan="3"><input type="checkbox" name="language[]" value='ALL' class="checkall"> All</td>
+    </tr>
+    <tr>
+     <td><input type="checkbox" name="language[]" value='English'> English</td>
+    <td><input type="checkbox" name="language[]" value='French'> French</td>
+    <td><input type="checkbox" name="language[]" value='Spanish'> Spanish</td>
+    </tr>
+    </table>
+</fieldset>
+        
+<fieldset>
+        <b>School:</b>
+    
+    <table>
+     <tr>
+      <td colspan="2"><input type="checkbox" name="collection[]" value='ALL' class="checkall"> All</td>
+     </tr>
+     <tr>
+      <td><input type="checkbox" name="collection[]" value='emory-control:ETD-Candler-collection'> 
+       <?=$this->schools->getLabel($this->schools->getIdByFedoraCollection('emory-control:ETD-Candler-collection')) ?></td>
+      <td><input type="checkbox" name="collection[]" value='emory-control:ETD-College-collection'> 
+       <?=$this->schools->getLabel($this->schools->getIdByFedoraCollection('emory-control:ETD-College-collection')) ?></td>
+     </tr>
+     <tr>
+      <td><input type="checkbox" name="collection[]" value='emory-control:ETD-GradSchool-collection'> 
+       <?=$this->schools->getLabel($this->schools->getIdByFedoraCollection('emory-control:ETD-GradSchool-collection')) ?></td>
+      <td><input type="checkbox" name="collection[]" value='emory-control:ETD-Rollins-collection'> 
+       <?=$this->schools->getLabel($this->schools->getIdByFedoraCollection('emory-control:ETD-Rollins-collection')) ?></td>
+     </tr>
+    </table>
+</fieldset>
+        
+<fieldset>
+        <b>Program:</b>
+        
+        <?=$this->formSelect('program_id[]', null, array('multiple'=> 'multiple', 'size'=>10), $this->programs);?>
+        
+
+</fieldset>
+        
+<fieldset>
+        <b>Subfield:</b>
+        <?=$this->formSelect('subfield_id[]', null, array('multiple'=> 'multiple', 'size'=>10), $this->subfields);?>
+        
+</fieldset>
+<fieldset>
+    <b>Abstract:</b> <br />
+    <input type="text" size="100" id="abstract" name="abstract">
+</fieldset>
+        
+<fieldset>
+        <b>Select Output Fields:</b>
+    
+    <table>
+     <tr>
+      <td colspan="5"><input type="checkbox" name="include[]" value='ALL' class="checkall"> All</td>
+     </tr>
+     <tr>
+      <td><input type="checkbox" name="include[]" value='author'> Author</td>
+      <td><input type="checkbox" name="include[]" value='dateIssued'> Date Published
+      <td><input type="checkbox" name="include[]" value='degree_name'> Degree
+      <td colspan="2"><input type="checkbox" name="include[]" value='document_type'> Document Type
+     </tr>
+     <tr>
+      <td><input type="checkbox" name="include[]" value='embargo_duration'> Embargo Duration
+      <td><input type="checkbox" name="include[]" value='language'> Language
+      <td><input type="checkbox" name="include[]" value='program'> Program
+      <td colspan="2"><input type="checkbox" name="include[]" value='program_id'> Program ID
+     <tr>
+     <tr>
+      <td><input type="checkbox" name="include[]" value='subfield'> Subfield
+      <td><input type="checkbox" name="include[]" value='subfield_id'> Subfield ID
+      <td><input type="checkbox" name="include[]" value='subject'> Subjects
+      <td colspan="2"><input type="checkbox" name="include[]" value='title'> Title
+     </tr>
+     <tr>
+      <td><input type="checkbox" name="include[]" value='advisor'> Committee Chair
+      <td><input type="checkbox" name="include[]" value='keyword'> Keywords
+      <td><input type="checkbox" name="include[]" value='status'> Status
+      <td><input type="checkbox" name="include[]" value='partneringagencies'> Partnering Agencies
+      <td><input type="checkbox" name="include[]" value='collection'> School
+    </tr>
+    <tr>
+      <td><input type="checkbox" name="include[]" value='abstract'> Abstract <span style="font-size: 10px;">(May cause slow performance)</span></td>  
+    </tr>
+    </table>
+    
+</fieldset>
+    
+<?= $this->formSubmit("standard-search", "Search >", array("class" => "submitbutton")); ?>
+</form>
+ </div>
+
+<script language="Javascript" type="text/javascript">
+    
+    /*
+     * Toggle Checkboxes, publish_from and publish_to in a  logical way.
+     * The select for All must have the class 'checkall' and a value of 'ALL'
+     **/
+    $j(function () {
+    $j('.checkall').on('click', function () {
+        $j(this).closest('fieldset').find(':checkbox').prop('checked', this.checked);
+    });
+    
+   $j(':checkbox').on('change', function () {
+        if(!this.checked){
+            $j(this).closest('fieldset').find('.checkall').prop('checked', false);
+        }
+    });
+    
+    $j(':checkbox').on("change", function(){
+    var total = $j(this).closest('fieldset').find(':checkbox');
+    var c = total.filter(":checked");
+    if(total.length-1 == c.length){
+        total.filter(".checkall").prop("checked", true);
+    }
+    });
+    
+    $j('#pub-box, #status-all').on("change", function(){
+    var from = $j('#pub-from');
+    var to = $j('#pub-to');
+    
+    if(this.checked){
+        to.prop('disabled', false);
+//        to.prop('value', '');
+        from.prop('disabled', false);
+//        from.prop('value', '');
+    }
+    else{
+        to.prop('disabled', true);
+        to.prop('value', 'YYYYMMDD');
+        from.prop('disabled', true);
+        from.prop('value', 'YYYYMMDD');
+    }
+    
+    });
+    
+    // Date picker
+    $j('#pub-from,, #pub-to' ).datepicker({ dateFormat: "yymmdd", 
+                                            changeYear: true, 
+                                            constrainInput: true, 
+                                            yearRange: "2007:" });
+    
+        
+});
+
+</script>
