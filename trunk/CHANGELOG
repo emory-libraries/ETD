@@ -1,11 +1,6 @@
 CHANGE LOG
 =================
-
-Version 1.17.5
---------------
-* Added logging for seeing mimetype of uploaded file.
-
-Version 1.17.4
+Version 1.17.1
 --------------
 * Bug fix for "Replace file functionality": PT# 103231518.
 * Reworked replace file function to disallow replacing files with different mimetypes (though older Office formats can be replaced by newer ones and vice versa).

@@ -126,8 +126,6 @@ class FileController extends Etd_Controller_Action {
      $filename = $fileinfo['tmp_name'];
      $filetype = $fileinfo['type'];
 
-     $this->logger->info($fileinfo['name'] . " has a mimetype of " . $fileinfo['type']);
-
      // check that the file uploaded correctly; check allowed/disallowed types, if any
      $uploaded = $this->_helper->FileUpload->check_upload($fileinfo, $allowed_types, $disallowed_types);
 
@@ -225,8 +223,6 @@ class FileController extends Etd_Controller_Action {
      $this->view->etd = $etdfile->etd;
 
      $fileinfo = $_FILES['file'];
-
-     $this->logger->info($fileinfo['name'] . " has a mimetype of " . $fileinfo['type']);
 
      Zend_Controller_Action_HelperBroker::addPrefix('Etd_Controller_Action_Helper');
      $filename = $fileinfo['tmp_name'];
