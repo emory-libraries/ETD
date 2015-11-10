@@ -222,7 +222,10 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
           $finfo = finfo_open(FILEINFO_MIME);
       }
     $filetype = finfo_file($finfo, $tmpfile);
+    
+    # The PHP mime magic is broken so we use a bit of a brute force hammer here to get the mimetype
     $filetype = exec('/usr/local/bin/file -b --mime-type -m /usr/local/share/file/magic ' . $tmpfile);
+    
     if (isset($userfilename)) $filename = $userfilename;
     else $filename = $tmpfile;
 

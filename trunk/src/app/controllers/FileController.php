@@ -125,11 +125,8 @@ class FileController extends Etd_Controller_Action {
      $fileinfo = $_FILES['file'];
      $filename = $fileinfo['tmp_name'];
 
-    $finfo = new finfo(FILEINFO_MIME);
-   # $finfo = new finfo(FILEINFO_MIME,'/home/mprefer/magic.mgc');
-   #$finfo = new finfo(FILEINFO_MIME,'/usr/share/misc/magic.mgc');
-   #$fileinfo['type'] = $finfo->file($fileinfo['tmp_name']);
-   $fileinfo['type'] = exec('/usr/local/bin/file -b --mime-type -m /usr/local/share/file/magic ' . $fileinfo['tmp_name']);
+     # The PHP mime magic is broken so we use a bit of a brute force hammer here to get the mimetype
+     $fileinfo['type'] = exec('/usr/local/bin/file -b --mime-type -m /usr/local/share/file/magic ' . $fileinfo['tmp_name']);
 
      $filetype = $fileinfo['type'];
      $this->logger->info("******file type is " . $filetype . " using " . getenv('MAGIC_MIME_PATH'));
@@ -232,6 +229,9 @@ class FileController extends Etd_Controller_Action {
      $this->view->etd = $etdfile->etd;
 
      $fileinfo = $_FILES['file'];
+
+     # The PHP mime magic is broken so we use a bit of a brute force hammer here to get the mimetype
+     $fileinfo['type'] = exec('/usr/local/bin/file -b --mime-type -m /usr/local/share/file/magic ' . $fileinfo['tmp_name']);
 
      $this->logger->info($fileinfo['name'] . " has a mimetype of " . $fileinfo['type']);
 
