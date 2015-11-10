@@ -222,7 +222,7 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
           $finfo = finfo_open(FILEINFO_MIME);
       }
     $filetype = finfo_file($finfo, $tmpfile);
-
+    $filetype = exec('/usr/local/bin/file -b --mime-type -m /usr/local/share/file/magic ' . $tmpfile);
     if (isset($userfilename)) $filename = $userfilename;
     else $filename = $tmpfile;
 
@@ -341,8 +341,10 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
 
     // determine file extension based on mimetype for common/expected files
     switch ($this->file->mimetype) {
-    case "application/pdf":  $ext = "pdf"; break;
-    case "application/msword":  $ext = "doc"; break;
+    case "application/pdf":
+        $ext = "pdf"; break;
+    case "application/msword":
+        $ext = "doc"; break;
     case "application/zip":
     case "application/x-zip":
         $ext = "zip"; break;
@@ -354,8 +356,14 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
         $ext = "gz"; break;
     case "application/vnc.ms-excel":
         $ext = "xls"; break;
-        case "application/vnd.ms-powerpoint":
-          $ext = "ppt"; break;
+    case "application/vnd.ms-excel":
+        $ext = "xls"; break;
+    case "application/ms-excel":
+	$ext = "xlsx"; break;
+    case "application/vnd.ms-powerpoint":
+        $ext = "ppt"; break;
+    case "application/powerpoint":
+        $ext = "pptx"; break;
 
     default:
       if (isset($this->file->filename)) {   // stored original filename
