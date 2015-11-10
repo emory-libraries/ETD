@@ -38,6 +38,15 @@ class Zend_View_Helper_FiletypeIcon
 
       $img_path = self::$_baseurl . 'images/filetype/';
 
+/**
+
+IMPORTANT: Not sure when the code below gets called but the actual icons are set in
+
+src/lib/Emory/View/Helper/FiletypeIcon.php
+
+**/
+
+
       // split into major and minor types
       list($major, $minor) = split('/', $mimetype);
 

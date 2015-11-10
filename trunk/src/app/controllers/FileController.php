@@ -124,8 +124,15 @@ class FileController extends Etd_Controller_Action {
 
      $fileinfo = $_FILES['file'];
      $filename = $fileinfo['tmp_name'];
-     $filetype = $fileinfo['type'];
 
+    $finfo = new finfo(FILEINFO_MIME);
+   # $finfo = new finfo(FILEINFO_MIME,'/home/mprefer/magic.mgc');
+   #$finfo = new finfo(FILEINFO_MIME,'/usr/share/misc/magic.mgc');
+   #$fileinfo['type'] = $finfo->file($fileinfo['tmp_name']);
+   $fileinfo['type'] = exec('/usr/local/bin/file -b --mime-type -m /usr/local/share/file/magic ' . $fileinfo['tmp_name']);
+
+     $filetype = $fileinfo['type'];
+     $this->logger->info("******file type is " . $filetype . " using " . getenv('MAGIC_MIME_PATH'));
      $this->logger->info($fileinfo['name'] . " has a mimetype of " . $fileinfo['type']);
 
      // check that the file uploaded correctly; check allowed/disallowed types, if any
@@ -237,15 +244,15 @@ class FileController extends Etd_Controller_Action {
 
      switch (rtrim($new_ext, "x")){
        case "doc":
-          $allowable = $fileinfo['type'] == "application/vnd.openxmlformats-officedocument.wordprocessingml.document" || $fileinfo['type'] == 'application/msword';
+          $allowable = $fileinfo['type'] == "application/vnd.openxmlformats-officedocument.wordprocessingml.document" || strpos($fileinfo['type'], 'msword');
           break;
 
        case "xls":
-          $allowable = $fileinfo['type'] == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" || $fileinfo['type'] == 'application/vnd.ms-excel';
+          $allowable = $fileinfo['type'] == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" || strpos($fileinfo['type'], 'excel');
           break;
 
-       case "doc":
-          $allowable = $fileinfo['type'] == "application/vnd.openxmlformats-officedocument.presentationml.presentation" || $fileinfo['type'] == 'application/vnd.ms-powerpoint';
+       case "ppt":
+          $allowable = $fileinfo['type'] == "application/vnd.openxmlformats-officedocument.presentationml.presentation" || strpos($fileinfo['type'], 'powerpoint');
           break;
      }
 
@@ -277,8 +284,6 @@ class FileController extends Etd_Controller_Action {
          $this->_helper->flashMessenger->addMessage("Successfully updated file");
          $this->view->save_result = $fileresult;
        }
-
-       $this->logger->info($etdfile->etd->pid . " is a " . $etdfile->type);
 
        // if file being updated is a PDF, need to update main record page count (can't be caught elsewhere)
        if ($etdfile->type == "pdf") {
