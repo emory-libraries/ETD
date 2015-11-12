@@ -1,5 +1,9 @@
 CHANGE LOG
 =================
+Version 1.17.6
+--------------
+* It was determined that `fileinfo` is broken and now MimeTypes are determined using `/usr/local/bin/file`
+* Updated file icon mappings for new MimeTypes being reported using the new MimeType finder. Later Office files no longer report as zips.
 
 Version 1.17.5
 --------------
