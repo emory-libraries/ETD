@@ -848,7 +848,7 @@
 		<rdfs:label>Experimental psychology</rdfs:label>
 	</skos:Collection>
 
-	<skos:Collection rdf:about="arts-business-education-humanities-and-social-sciences">
+	<skos:Collection rdf:about="#arts-business-education-humanities-and-social-sciences">
 		<rdfs:label>Arts, Business, Education, Humanities, And Social Sciences</rdfs:label>
 		<skos:member rdf:resource="#fine-and-performing-arts"/>
 		<skos:member rdf:resource="#area-ethnic-and-gender-studies"/>
@@ -1310,7 +1310,7 @@
 		<rdfs:label>Physical education</rdfs:label>
 	</skos:Collection>
 
-	<skos:Collection rdf:about="humanities">
+	<skos:Collection rdf:about="#humanities">
 		<rdfs:label>Humanities</rdfs:label>
 		<skos:member rdf:resource="#language-literature"/>
 		<skos:member rdf:resource="#interdisciplinary"/>
