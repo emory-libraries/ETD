@@ -700,7 +700,7 @@
 		<rdfs:label>Plant biology</rdfs:label>
 	</skos:Collection>
 	<skos:Collection rdf:about="#0412">
-		<rdfs:label>Evolution & development</rdfs:label>
+		<rdfs:label>Evolution and development</rdfs:label>
 	</skos:Collection>
 	<skos:Collection rdf:about="#0758">
 		<rdfs:label>Developmental biology</rdfs:label>
@@ -1250,7 +1250,7 @@
 		<rdfs:label>Religious education</rdfs:label>
 	</skos:Collection>
 	<skos:Collection rdf:about="#0288">
-		<rdfs:label>Educational tests & measurements</rdfs:label>
+		<rdfs:label>Educational tests and measurements</rdfs:label>
 	</skos:Collection>
 	<skos:Collection rdf:about="#0458">
 		<rdfs:label>Education policy</rdfs:label>
@@ -1321,7 +1321,7 @@
 	</skos:Collection>
 
 	<skos:Collection rdf:about="#language-literature">
-		<rdfs:label>Language & Literature</rdfs:label>
+		<rdfs:label>Language and Literature</rdfs:label>
 		<skos:member rdf:resource="0290"/>
 		<skos:member rdf:resource="0313"/>
 		<skos:member rdf:resource="0294"/>
@@ -1397,7 +1397,7 @@
 		<rdfs:label>French Canadian literature</rdfs:label>
 	</skos:Collection>
 	<skos:Collection rdf:about="#0362">
-		<rdfs:label>Icelandic & Scandinavian literature</rdfs:label>
+		<rdfs:label>Icelandic and Scandinavian literature</rdfs:label>
 	</skos:Collection>
 	<skos:Collection rdf:about="#0315">
 		<rdfs:label>Middle Eastern literature</rdfs:label>
@@ -1647,7 +1647,7 @@
 		<rdfs:label>Military studies</rdfs:label>
 	</skos:Collection>
 	<skos:Collection rdf:about="#0628">
-		<rdfs:label>Individual & family studies</rdfs:label>
+		<rdfs:label>Individual and family studies</rdfs:label>
 	</skos:Collection>
 	<skos:Collection rdf:about="#0358">
 		<rdfs:label>Folklore</rdfs:label>
