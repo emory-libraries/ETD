@@ -28,38 +28,38 @@
 
 	<skos:Collection rdf:about="#health-and-medical-sciences">
 		<rdfs:label>Health And Medical Sciences</rdfs:label>
-		<skos:member rdf:resource="0778"/>
-		<skos:member rdf:resource="0493"/>
-		<skos:member rdf:resource="0347"/>
-		<skos:member rdf:resource="0572"/>
-		<skos:member rdf:resource="0380"/>
-		<skos:member rdf:resource="0498"/>
-		<skos:member rdf:resource="0564"/>
-		<skos:member rdf:resource="0497"/>
-		<skos:member rdf:resource="0570"/>
-		<skos:member rdf:resource="0419"/>
-		<skos:member rdf:resource="0573"/>
-		<skos:member rdf:resource="0766"/>
-		<skos:member rdf:resource="0381"/>
-		<skos:member rdf:resource="0567"/>
-		<skos:member rdf:resource="0566"/>
-		<skos:member rdf:resource="0992"/>
-		<skos:member rdf:resource="0769"/>
-		<skos:member rdf:resource="0575"/>
-		<skos:member rdf:resource="0574"/>
-		<skos:member rdf:resource="0383"/>
-		<skos:member rdf:resource="0576"/>
-		<skos:member rdf:resource="0351"/>
-		<skos:member rdf:resource="0982"/>
-		<skos:member rdf:resource="0569"/>
-		<skos:member rdf:resource="0382"/>
-		<skos:member rdf:resource="0460"/>
-		<skos:member rdf:resource="0300"/>
-		<skos:member rdf:resource="0499"/>
-		<skos:member rdf:resource="0500"/>
-		<skos:member rdf:resource="0496"/>
-		<skos:member rdf:resource="0571"/>
-		<skos:member rdf:resource="0354"/>
+		<skos:member rdf:resource="#0778"/>
+		<skos:member rdf:resource="#0493"/>
+		<skos:member rdf:resource="#0347"/>
+		<skos:member rdf:resource="#0572"/>
+		<skos:member rdf:resource="#0380"/>
+		<skos:member rdf:resource="#0498"/>
+		<skos:member rdf:resource="#0564"/>
+		<skos:member rdf:resource="#0497"/>
+		<skos:member rdf:resource="#0570"/>
+		<skos:member rdf:resource="#0419"/>
+		<skos:member rdf:resource="#0573"/>
+		<skos:member rdf:resource="#0766"/>
+		<skos:member rdf:resource="#0381"/>
+		<skos:member rdf:resource="#0567"/>
+		<skos:member rdf:resource="#0566"/>
+		<skos:member rdf:resource="#0992"/>
+		<skos:member rdf:resource="#0769"/>
+		<skos:member rdf:resource="#0575"/>
+		<skos:member rdf:resource="#0574"/>
+		<skos:member rdf:resource="#0383"/>
+		<skos:member rdf:resource="#0576"/>
+		<skos:member rdf:resource="#0351"/>
+		<skos:member rdf:resource="#0982"/>
+		<skos:member rdf:resource="#0569"/>
+		<skos:member rdf:resource="#0382"/>
+		<skos:member rdf:resource="#0460"/>
+		<skos:member rdf:resource="#0300"/>
+		<skos:member rdf:resource="#0499"/>
+		<skos:member rdf:resource="#0500"/>
+		<skos:member rdf:resource="#0496"/>
+		<skos:member rdf:resource="#0571"/>
+		<skos:member rdf:resource="#0354"/>
 	</skos:Collection>
 
 	<skos:Collection rdf:about="#0778">
@@ -161,9 +161,9 @@
 
 	<skos:Collection rdf:about="#ecosystem-sciences">
 		<rdfs:label>Ecosystem Sciences</rdfs:label>
-		<skos:member rdf:resource="0329"/>
-		<skos:member rdf:resource="0420"/>
-		<skos:member rdf:resource="0426"/>
+		<skos:member rdf:resource="#0329"/>
+		<skos:member rdf:resource="#0420"/>
+		<skos:member rdf:resource="#0426"/>
 	</skos:Collection>
 
 	<skos:Collection rdf:about="#0329">
@@ -178,37 +178,37 @@
 
 	<skos:Collection rdf:about="#mathematical-and-physical-sciences">
 		<rdfs:label>Mathematical And Physical Sciences</rdfs:label>
-		<skos:member rdf:resource="0609"/>
-		<skos:member rdf:resource="0463"/>
-		<skos:member rdf:resource="0495"/>
-		<skos:member rdf:resource="0748"/>
-		<skos:member rdf:resource="0596"/>
-		<skos:member rdf:resource="0599"/>
-		<skos:member rdf:resource="0598"/>
-		<skos:member rdf:resource="0405"/>
-		<skos:member rdf:resource="0494"/>
-		<skos:member rdf:resource="0794"/>
-		<skos:member rdf:resource="0756"/>
-		<skos:member rdf:resource="0605"/>
-		<skos:member rdf:resource="0431"/>
-		<skos:member rdf:resource="0738"/>
-		<skos:member rdf:resource="0606"/>
-		<skos:member rdf:resource="0490"/>
-		<skos:member rdf:resource="0611"/>
-		<skos:member rdf:resource="0986"/>
-		<skos:member rdf:resource="0364"/>
-		<skos:member rdf:resource="0565"/>
-		<skos:member rdf:resource="0488"/>
-		<skos:member rdf:resource="0485"/>
-		<skos:member rdf:resource="0752"/>
-		<skos:member rdf:resource="0642"/>
-		<skos:member rdf:resource="0346"/>
-		<skos:member rdf:resource="0597"/>
-		<skos:member rdf:resource="0759"/>
-		<skos:member rdf:resource="0486"/>
-		<skos:member rdf:resource="0607"/>
-		<skos:member rdf:resource="0753"/>
-		<skos:member rdf:resource="0798"/>
+		<skos:member rdf:resource="#0609"/>
+		<skos:member rdf:resource="#0463"/>
+		<skos:member rdf:resource="#0495"/>
+		<skos:member rdf:resource="#0748"/>
+		<skos:member rdf:resource="#0596"/>
+		<skos:member rdf:resource="#0599"/>
+		<skos:member rdf:resource="#0598"/>
+		<skos:member rdf:resource="#0405"/>
+		<skos:member rdf:resource="#0494"/>
+		<skos:member rdf:resource="#0794"/>
+		<skos:member rdf:resource="#0756"/>
+		<skos:member rdf:resource="#0605"/>
+		<skos:member rdf:resource="#0431"/>
+		<skos:member rdf:resource="#0738"/>
+		<skos:member rdf:resource="#0606"/>
+		<skos:member rdf:resource="#0490"/>
+		<skos:member rdf:resource="#0611"/>
+		<skos:member rdf:resource="#0986"/>
+		<skos:member rdf:resource="#0364"/>
+		<skos:member rdf:resource="#0565"/>
+		<skos:member rdf:resource="#0488"/>
+		<skos:member rdf:resource="#0485"/>
+		<skos:member rdf:resource="#0752"/>
+		<skos:member rdf:resource="#0642"/>
+		<skos:member rdf:resource="#0346"/>
+		<skos:member rdf:resource="#0597"/>
+		<skos:member rdf:resource="#0759"/>
+		<skos:member rdf:resource="#0486"/>
+		<skos:member rdf:resource="#0607"/>
+		<skos:member rdf:resource="#0753"/>
+		<skos:member rdf:resource="#0798"/>
 	</skos:Collection>
 
 	<skos:Collection rdf:about="#0609">
@@ -307,33 +307,33 @@
 
 	<skos:Collection rdf:about="#geosciences">
 		<rdfs:label>Geosciences</rdfs:label>
-		<skos:member rdf:resource="0653"/>
-		<skos:member rdf:resource="0416"/>
-		<skos:member rdf:resource="0367"/>
-		<skos:member rdf:resource="0996"/>
-		<skos:member rdf:resource="0594"/>
-		<skos:member rdf:resource="0425"/>
-		<skos:member rdf:resource="0418"/>
-		<skos:member rdf:resource="0799"/>
-		<skos:member rdf:resource="0373"/>
-		<skos:member rdf:resource="0590"/>
-		<skos:member rdf:resource="0592"/>
-		<skos:member rdf:resource="0725"/>
-		<skos:member rdf:resource="0368"/>
-		<skos:member rdf:resource="0583"/>
-		<skos:member rdf:resource="0557"/>
-		<skos:member rdf:resource="0483"/>
-		<skos:member rdf:resource="0484"/>
-		<skos:member rdf:resource="0388"/>
-		<skos:member rdf:resource="0411"/>
-		<skos:member rdf:resource="0584"/>
-		<skos:member rdf:resource="0372"/>
-		<skos:member rdf:resource="0406"/>
-		<skos:member rdf:resource="0371"/>
-		<skos:member rdf:resource="0415"/>
-		<skos:member rdf:resource="0403"/>
-		<skos:member rdf:resource="0370"/>
-		<skos:member rdf:resource="0556"/>
+		<skos:member rdf:resource="#0653"/>
+		<skos:member rdf:resource="#0416"/>
+		<skos:member rdf:resource="#0367"/>
+		<skos:member rdf:resource="#0996"/>
+		<skos:member rdf:resource="#0594"/>
+		<skos:member rdf:resource="#0425"/>
+		<skos:member rdf:resource="#0418"/>
+		<skos:member rdf:resource="#0799"/>
+		<skos:member rdf:resource="#0373"/>
+		<skos:member rdf:resource="#0590"/>
+		<skos:member rdf:resource="#0592"/>
+		<skos:member rdf:resource="#0725"/>
+		<skos:member rdf:resource="#0368"/>
+		<skos:member rdf:resource="#0583"/>
+		<skos:member rdf:resource="#0557"/>
+		<skos:member rdf:resource="#0483"/>
+		<skos:member rdf:resource="#0484"/>
+		<skos:member rdf:resource="#0388"/>
+		<skos:member rdf:resource="#0411"/>
+		<skos:member rdf:resource="#0584"/>
+		<skos:member rdf:resource="#0372"/>
+		<skos:member rdf:resource="#0406"/>
+		<skos:member rdf:resource="#0371"/>
+		<skos:member rdf:resource="#0415"/>
+		<skos:member rdf:resource="#0403"/>
+		<skos:member rdf:resource="#0370"/>
+		<skos:member rdf:resource="#0556"/>
 	</skos:Collection>
 
 	<skos:Collection rdf:about="#0653">
@@ -420,33 +420,33 @@
 
 	<skos:Collection rdf:about="#engineering">
 		<rdfs:label>Engineering</rdfs:label>
-		<skos:member rdf:resource="0794"/>
-		<skos:member rdf:resource="0548"/>
-		<skos:member rdf:resource="0546"/>
-		<skos:member rdf:resource="0466"/>
-		<skos:member rdf:resource="0552"/>
-		<skos:member rdf:resource="0984"/>
-		<skos:member rdf:resource="0796"/>
-		<skos:member rdf:resource="0428"/>
-		<skos:member rdf:resource="0547"/>
-		<skos:member rdf:resource="0551"/>
-		<skos:member rdf:resource="0542"/>
-		<skos:member rdf:resource="0652"/>
-		<skos:member rdf:resource="0790"/>
-		<skos:member rdf:resource="0541"/>
-		<skos:member rdf:resource="0467"/>
-		<skos:member rdf:resource="0540"/>
-		<skos:member rdf:resource="0543"/>
-		<skos:member rdf:resource="0464"/>
-		<skos:member rdf:resource="0544"/>
-		<skos:member rdf:resource="0538"/>
-		<skos:member rdf:resource="0795"/>
-		<skos:member rdf:resource="0468"/>
-		<skos:member rdf:resource="0771"/>
-		<skos:member rdf:resource="0549"/>
-		<skos:member rdf:resource="0537"/>
-		<skos:member rdf:resource="0765"/>
-		<skos:member rdf:resource="0800"/>
+		<skos:member rdf:resource="#0794"/>
+		<skos:member rdf:resource="#0548"/>
+		<skos:member rdf:resource="#0546"/>
+		<skos:member rdf:resource="#0466"/>
+		<skos:member rdf:resource="#0552"/>
+		<skos:member rdf:resource="#0984"/>
+		<skos:member rdf:resource="#0796"/>
+		<skos:member rdf:resource="#0428"/>
+		<skos:member rdf:resource="#0547"/>
+		<skos:member rdf:resource="#0551"/>
+		<skos:member rdf:resource="#0542"/>
+		<skos:member rdf:resource="#0652"/>
+		<skos:member rdf:resource="#0790"/>
+		<skos:member rdf:resource="#0541"/>
+		<skos:member rdf:resource="#0467"/>
+		<skos:member rdf:resource="#0540"/>
+		<skos:member rdf:resource="#0543"/>
+		<skos:member rdf:resource="#0464"/>
+		<skos:member rdf:resource="#0544"/>
+		<skos:member rdf:resource="#0538"/>
+		<skos:member rdf:resource="#0795"/>
+		<skos:member rdf:resource="#0468"/>
+		<skos:member rdf:resource="#0771"/>
+		<skos:member rdf:resource="#0549"/>
+		<skos:member rdf:resource="#0537"/>
+		<skos:member rdf:resource="#0765"/>
+		<skos:member rdf:resource="#0800"/>
 	</skos:Collection>
 
 	<skos:Collection rdf:about="#0794">
@@ -533,22 +533,22 @@
 
 	<skos:Collection rdf:about="#environmental-sciences">
 		<rdfs:label>Environmental Sciences</rdfs:label>
-		<skos:member rdf:resource="0438"/>
-		<skos:member rdf:resource="0768"/>
-		<skos:member rdf:resource="0536"/>
-		<skos:member rdf:resource="0407"/>
-		<skos:member rdf:resource="0408"/>
-		<skos:member rdf:resource="0392"/>
-		<skos:member rdf:resource="0595"/>
-		<skos:member rdf:resource="0284"/>
-		<skos:member rdf:resource="0477"/>
-		<skos:member rdf:resource="0439"/>
-		<skos:member rdf:resource="0619"/>
-		<skos:member rdf:resource="0442"/>
-		<skos:member rdf:resource="0528"/>
-		<skos:member rdf:resource="0470"/>
-		<skos:member rdf:resource="0775"/>
-		<skos:member rdf:resource="0474"/>
+		<skos:member rdf:resource="#0438"/>
+		<skos:member rdf:resource="#0768"/>
+		<skos:member rdf:resource="#0536"/>
+		<skos:member rdf:resource="#0407"/>
+		<skos:member rdf:resource="#0408"/>
+		<skos:member rdf:resource="#0392"/>
+		<skos:member rdf:resource="#0595"/>
+		<skos:member rdf:resource="#0284"/>
+		<skos:member rdf:resource="#0477"/>
+		<skos:member rdf:resource="#0439"/>
+		<skos:member rdf:resource="#0619"/>
+		<skos:member rdf:resource="#0442"/>
+		<skos:member rdf:resource="#0528"/>
+		<skos:member rdf:resource="#0470"/>
+		<skos:member rdf:resource="#0775"/>
+		<skos:member rdf:resource="#0474"/>
 	</skos:Collection>
 
 	<skos:Collection rdf:about="#0438">
@@ -602,9 +602,9 @@
 
 	<skos:Collection rdf:about="#architecture">
 		<rdfs:label>Architecture</rdfs:label>
-		<skos:member rdf:resource="0390"/>
-		<skos:member rdf:resource="0729"/>
-		<skos:member rdf:resource="0462"/>
+		<skos:member rdf:resource="#0390"/>
+		<skos:member rdf:resource="#0729"/>
+		<skos:member rdf:resource="#0462"/>
 	</skos:Collection>
 
 	<skos:Collection rdf:about="#0390">
@@ -619,30 +619,30 @@
 
 	<skos:Collection rdf:about="#biological-sciences">
 		<rdfs:label>Biological Sciences</rdfs:label>
-		<skos:member rdf:resource="0369"/>
-		<skos:member rdf:resource="0487"/>
-		<skos:member rdf:resource="0410"/>
-		<skos:member rdf:resource="0718"/>
-		<skos:member rdf:resource="0648"/>
-		<skos:member rdf:resource="0317"/>
-		<skos:member rdf:resource="0306"/>
-		<skos:member rdf:resource="0307"/>
-		<skos:member rdf:resource="0793"/>
-		<skos:member rdf:resource="0353"/>
-		<skos:member rdf:resource="0786"/>
-		<skos:member rdf:resource="0379"/>
-		<skos:member rdf:resource="0715"/>
-		<skos:member rdf:resource="0719"/>
-		<skos:member rdf:resource="0720"/>
-		<skos:member rdf:resource="0472"/>
-		<skos:member rdf:resource="0423"/>
-		<skos:member rdf:resource="0309"/>
-		<skos:member rdf:resource="0412"/>
-		<skos:member rdf:resource="0758"/>
-		<skos:member rdf:resource="0308"/>
-		<skos:member rdf:resource="0409"/>
-		<skos:member rdf:resource="0414"/>
-		<skos:member rdf:resource="0287"/>
+		<skos:member rdf:resource="#0369"/>
+		<skos:member rdf:resource="#0487"/>
+		<skos:member rdf:resource="#0410"/>
+		<skos:member rdf:resource="#0718"/>
+		<skos:member rdf:resource="#0648"/>
+		<skos:member rdf:resource="#0317"/>
+		<skos:member rdf:resource="#0306"/>
+		<skos:member rdf:resource="#0307"/>
+		<skos:member rdf:resource="#0793"/>
+		<skos:member rdf:resource="#0353"/>
+		<skos:member rdf:resource="#0786"/>
+		<skos:member rdf:resource="#0379"/>
+		<skos:member rdf:resource="#0715"/>
+		<skos:member rdf:resource="#0719"/>
+		<skos:member rdf:resource="#0720"/>
+		<skos:member rdf:resource="#0472"/>
+		<skos:member rdf:resource="#0423"/>
+		<skos:member rdf:resource="#0309"/>
+		<skos:member rdf:resource="#0412"/>
+		<skos:member rdf:resource="#0758"/>
+		<skos:member rdf:resource="#0308"/>
+		<skos:member rdf:resource="#0409"/>
+		<skos:member rdf:resource="#0414"/>
+		<skos:member rdf:resource="#0287"/>
 	</skos:Collection>
 
 	<skos:Collection rdf:about="#0369">
@@ -700,7 +700,7 @@
 		<rdfs:label>Plant biology</rdfs:label>
 	</skos:Collection>
 	<skos:Collection rdf:about="#0412">
-		<rdfs:label>Evolution and development</rdfs:label>
+		<rdfs:label>Evolution & development</rdfs:label>
 	</skos:Collection>
 	<skos:Collection rdf:about="#0758">
 		<rdfs:label>Developmental biology</rdfs:label>
@@ -720,22 +720,22 @@
 
 	<skos:Collection rdf:about="#agriculture">
 		<rdfs:label>Agriculture</rdfs:label>
-		<skos:member rdf:resource="0471"/>
-		<skos:member rdf:resource="0503"/>
-		<skos:member rdf:resource="0539"/>
-		<skos:member rdf:resource="0475"/>
-		<skos:member rdf:resource="0286"/>
-		<skos:member rdf:resource="0777"/>
-		<skos:member rdf:resource="0479"/>
-		<skos:member rdf:resource="0478"/>
-		<skos:member rdf:resource="0476"/>
-		<skos:member rdf:resource="0481"/>
-		<skos:member rdf:resource="0792"/>
-		<skos:member rdf:resource="0480"/>
-		<skos:member rdf:resource="0517"/>
-		<skos:member rdf:resource="0285"/>
-		<skos:member rdf:resource="0473"/>
-		<skos:member rdf:resource="0281"/>
+		<skos:member rdf:resource="#0471"/>
+		<skos:member rdf:resource="#0503"/>
+		<skos:member rdf:resource="#0539"/>
+		<skos:member rdf:resource="#0475"/>
+		<skos:member rdf:resource="#0286"/>
+		<skos:member rdf:resource="#0777"/>
+		<skos:member rdf:resource="#0479"/>
+		<skos:member rdf:resource="#0478"/>
+		<skos:member rdf:resource="#0476"/>
+		<skos:member rdf:resource="#0481"/>
+		<skos:member rdf:resource="#0792"/>
+		<skos:member rdf:resource="#0480"/>
+		<skos:member rdf:resource="#0517"/>
+		<skos:member rdf:resource="#0285"/>
+		<skos:member rdf:resource="#0473"/>
+		<skos:member rdf:resource="#0281"/>
 	</skos:Collection>
 
 	<skos:Collection rdf:about="#0471">
@@ -789,20 +789,20 @@
 
 	<skos:Collection rdf:about="#behavioral-sciences">
 		<rdfs:label>Behavioral Sciences</rdfs:label>
-		<skos:member rdf:resource="0602"/>
-		<skos:member rdf:resource="0624"/>
-		<skos:member rdf:resource="0349"/>
-		<skos:member rdf:resource="0621"/>
-		<skos:member rdf:resource="0633"/>
-		<skos:member rdf:resource="0622"/>
-		<skos:member rdf:resource="0620"/>
-		<skos:member rdf:resource="0989"/>
-		<skos:member rdf:resource="0625"/>
-		<skos:member rdf:resource="0632"/>
-		<skos:member rdf:resource="0603"/>
-		<skos:member rdf:resource="0451"/>
-		<skos:member rdf:resource="0384"/>
-		<skos:member rdf:resource="0623"/>
+		<skos:member rdf:resource="#0602"/>
+		<skos:member rdf:resource="#0624"/>
+		<skos:member rdf:resource="#0349"/>
+		<skos:member rdf:resource="#0621"/>
+		<skos:member rdf:resource="#0633"/>
+		<skos:member rdf:resource="#0622"/>
+		<skos:member rdf:resource="#0620"/>
+		<skos:member rdf:resource="#0989"/>
+		<skos:member rdf:resource="#0625"/>
+		<skos:member rdf:resource="#0632"/>
+		<skos:member rdf:resource="#0603"/>
+		<skos:member rdf:resource="#0451"/>
+		<skos:member rdf:resource="#0384"/>
+		<skos:member rdf:resource="#0623"/>
 	</skos:Collection>
 
 	<skos:Collection rdf:about="#0602">
@@ -859,17 +859,17 @@
 
 	<skos:Collection rdf:about="#fine-and-performing-arts">
 		<rdfs:label>Fine And Performing Arts</rdfs:label>
-		<skos:member rdf:resource="0377"/>
-		<skos:member rdf:resource="0641"/>
-		<skos:member rdf:resource="0465"/>
-		<skos:member rdf:resource="0357"/>
-		<skos:member rdf:resource="0378"/>
-		<skos:member rdf:resource="0900"/>
-		<skos:member rdf:resource="0435"/>
-		<skos:member rdf:resource="0389"/>
-		<skos:member rdf:resource="0365"/>
-		<skos:member rdf:resource="0644"/>
-		<skos:member rdf:resource="0413"/>
+		<skos:member rdf:resource="#0377"/>
+		<skos:member rdf:resource="#0641"/>
+		<skos:member rdf:resource="#0465"/>
+		<skos:member rdf:resource="#0357"/>
+		<skos:member rdf:resource="#0378"/>
+		<skos:member rdf:resource="#0900"/>
+		<skos:member rdf:resource="#0435"/>
+		<skos:member rdf:resource="#0389"/>
+		<skos:member rdf:resource="#0365"/>
+		<skos:member rdf:resource="#0644"/>
+		<skos:member rdf:resource="#0413"/>
 	</skos:Collection>
 
 	<skos:Collection rdf:about="#0377">
@@ -908,39 +908,39 @@
 
 	<skos:Collection rdf:about="#area-ethnic-and-gender-studies">
 		<rdfs:label>Area, Ethnic, And Gender Studies</rdfs:label>
-		<skos:member rdf:resource="0604"/>
-		<skos:member rdf:resource="0437"/>
-		<skos:member rdf:resource="0434"/>
-		<skos:member rdf:resource="0492"/>
-		<skos:member rdf:resource="0631"/>
-		<skos:member rdf:resource="0639"/>
-		<skos:member rdf:resource="0740"/>
-		<skos:member rdf:resource="0512"/>
-		<skos:member rdf:resource="0293"/>
-		<skos:member rdf:resource="0550"/>
-		<skos:member rdf:resource="0560"/>
-		<skos:member rdf:resource="0453"/>
-		<skos:member rdf:resource="0343"/>
-		<skos:member rdf:resource="0440"/>
-		<skos:member rdf:resource="0342"/>
-		<skos:member rdf:resource="0638"/>
-		<skos:member rdf:resource="0385"/>
-		<skos:member rdf:resource="0737"/>
-		<skos:member rdf:resource="0614"/>
-		<skos:member rdf:resource="0733"/>
-		<skos:member rdf:resource="0323"/>
-		<skos:member rdf:resource="0613"/>
-		<skos:member rdf:resource="0482"/>
-		<skos:member rdf:resource="0751"/>
-		<skos:member rdf:resource="0561"/>
-		<skos:member rdf:resource="0361"/>
-		<skos:member rdf:resource="0432"/>
-		<skos:member rdf:resource="0555"/>
-		<skos:member rdf:resource="0654"/>
-		<skos:member rdf:resource="0296"/>
-		<skos:member rdf:resource="0507"/>
-		<skos:member rdf:resource="0559"/>
-		<skos:member rdf:resource="0325"/>
+		<skos:member rdf:resource="#0604"/>
+		<skos:member rdf:resource="#0437"/>
+		<skos:member rdf:resource="#0434"/>
+		<skos:member rdf:resource="#0492"/>
+		<skos:member rdf:resource="#0631"/>
+		<skos:member rdf:resource="#0639"/>
+		<skos:member rdf:resource="#0740"/>
+		<skos:member rdf:resource="#0512"/>
+		<skos:member rdf:resource="#0293"/>
+		<skos:member rdf:resource="#0550"/>
+		<skos:member rdf:resource="#0560"/>
+		<skos:member rdf:resource="#0453"/>
+		<skos:member rdf:resource="#0343"/>
+		<skos:member rdf:resource="#0440"/>
+		<skos:member rdf:resource="#0342"/>
+		<skos:member rdf:resource="#0638"/>
+		<skos:member rdf:resource="#0385"/>
+		<skos:member rdf:resource="#0737"/>
+		<skos:member rdf:resource="#0614"/>
+		<skos:member rdf:resource="#0733"/>
+		<skos:member rdf:resource="#0323"/>
+		<skos:member rdf:resource="#0613"/>
+		<skos:member rdf:resource="#0482"/>
+		<skos:member rdf:resource="#0751"/>
+		<skos:member rdf:resource="#0561"/>
+		<skos:member rdf:resource="#0361"/>
+		<skos:member rdf:resource="#0432"/>
+		<skos:member rdf:resource="#0555"/>
+		<skos:member rdf:resource="#0654"/>
+		<skos:member rdf:resource="#0296"/>
+		<skos:member rdf:resource="#0507"/>
+		<skos:member rdf:resource="#0559"/>
+		<skos:member rdf:resource="#0325"/>
 	</skos:Collection>
 
 	<skos:Collection rdf:about="#0604">
@@ -1045,13 +1045,13 @@
 
 	<skos:Collection rdf:about="#communications-and-information-sciences">
 		<rdfs:label>Communications And Information Sciences</rdfs:label>
-		<skos:member rdf:resource="0643"/>
-		<skos:member rdf:resource="0708"/>
-		<skos:member rdf:resource="0459"/>
-		<skos:member rdf:resource="0399"/>
-		<skos:member rdf:resource="0391"/>
-		<skos:member rdf:resource="0723"/>
-		<skos:member rdf:resource="0646"/>
+		<skos:member rdf:resource="#0643"/>
+		<skos:member rdf:resource="#0708"/>
+		<skos:member rdf:resource="#0459"/>
+		<skos:member rdf:resource="#0399"/>
+		<skos:member rdf:resource="#0391"/>
+		<skos:member rdf:resource="#0723"/>
+		<skos:member rdf:resource="#0646"/>
 	</skos:Collection>
 
 	<skos:Collection rdf:about="#0643">
@@ -1078,15 +1078,15 @@
 
 	<skos:Collection rdf:about="#business">
 		<rdfs:label>Business</rdfs:label>
-		<skos:member rdf:resource="0424"/>
-		<skos:member rdf:resource="0454"/>
-		<skos:member rdf:resource="0508"/>
-		<skos:member rdf:resource="0310"/>
-		<skos:member rdf:resource="0430"/>
-		<skos:member rdf:resource="0338"/>
-		<skos:member rdf:resource="0429"/>
-		<skos:member rdf:resource="0770"/>
-		<skos:member rdf:resource="0272"/>
+		<skos:member rdf:resource="#0424"/>
+		<skos:member rdf:resource="#0454"/>
+		<skos:member rdf:resource="#0508"/>
+		<skos:member rdf:resource="#0310"/>
+		<skos:member rdf:resource="#0430"/>
+		<skos:member rdf:resource="#0338"/>
+		<skos:member rdf:resource="#0429"/>
+		<skos:member rdf:resource="#0770"/>
+		<skos:member rdf:resource="#0272"/>
 	</skos:Collection>
 
 	<skos:Collection rdf:about="#0424">
@@ -1119,53 +1119,53 @@
 
 	<skos:Collection rdf:about="#education">
 		<rdfs:label>Education</rdfs:label>
-		<skos:member rdf:resource="0443"/>
-		<skos:member rdf:resource="0278"/>
-		<skos:member rdf:resource="0998"/>
-		<skos:member rdf:resource="0727"/>
-		<skos:member rdf:resource="0445"/>
-		<skos:member rdf:resource="0524"/>
-		<skos:member rdf:resource="0520"/>
-		<skos:member rdf:resource="0277"/>
-		<skos:member rdf:resource="0747"/>
-		<skos:member rdf:resource="0340"/>
-		<skos:member rdf:resource="0519"/>
-		<skos:member rdf:resource="0441"/>
-		<skos:member rdf:resource="0518"/>
-		<skos:member rdf:resource="0533"/>
-		<skos:member rdf:resource="0444"/>
-		<skos:member rdf:resource="0447"/>
-		<skos:member rdf:resource="0688"/>
-		<skos:member rdf:resource="0680"/>
-		<skos:member rdf:resource="0275"/>
-		<skos:member rdf:resource="0457"/>
-		<skos:member rdf:resource="0521"/>
-		<skos:member rdf:resource="0529"/>
-		<skos:member rdf:resource="0514"/>
-		<skos:member rdf:resource="0282"/>
-		<skos:member rdf:resource="0525"/>
-		<skos:member rdf:resource="0449"/>
-		<skos:member rdf:resource="0527"/>
-		<skos:member rdf:resource="0288"/>
-		<skos:member rdf:resource="0458"/>
-		<skos:member rdf:resource="0535"/>
-		<skos:member rdf:resource="0273"/>
-		<skos:member rdf:resource="0530"/>
-		<skos:member rdf:resource="0522"/>
-		<skos:member rdf:resource="0714"/>
-		<skos:member rdf:resource="0456"/>
-		<skos:member rdf:resource="0455"/>
-		<skos:member rdf:resource="0745"/>
-		<skos:member rdf:resource="0534"/>
-		<skos:member rdf:resource="0516"/>
-		<skos:member rdf:resource="0450"/>
-		<skos:member rdf:resource="0280"/>
-		<skos:member rdf:resource="0279"/>
-		<skos:member rdf:resource="0710"/>
-		<skos:member rdf:resource="0651"/>
-		<skos:member rdf:resource="0446"/>
-		<skos:member rdf:resource="0515"/>
-		<skos:member rdf:resource="0523"/>
+		<skos:member rdf:resource="#0443"/>
+		<skos:member rdf:resource="#0278"/>
+		<skos:member rdf:resource="#0998"/>
+		<skos:member rdf:resource="#0727"/>
+		<skos:member rdf:resource="#0445"/>
+		<skos:member rdf:resource="#0524"/>
+		<skos:member rdf:resource="#0520"/>
+		<skos:member rdf:resource="#0277"/>
+		<skos:member rdf:resource="#0747"/>
+		<skos:member rdf:resource="#0340"/>
+		<skos:member rdf:resource="#0519"/>
+		<skos:member rdf:resource="#0441"/>
+		<skos:member rdf:resource="#0518"/>
+		<skos:member rdf:resource="#0533"/>
+		<skos:member rdf:resource="#0444"/>
+		<skos:member rdf:resource="#0447"/>
+		<skos:member rdf:resource="#0688"/>
+		<skos:member rdf:resource="#0680"/>
+		<skos:member rdf:resource="#0275"/>
+		<skos:member rdf:resource="#0457"/>
+		<skos:member rdf:resource="#0521"/>
+		<skos:member rdf:resource="#0529"/>
+		<skos:member rdf:resource="#0514"/>
+		<skos:member rdf:resource="#0282"/>
+		<skos:member rdf:resource="#0525"/>
+		<skos:member rdf:resource="#0449"/>
+		<skos:member rdf:resource="#0527"/>
+		<skos:member rdf:resource="#0288"/>
+		<skos:member rdf:resource="#0458"/>
+		<skos:member rdf:resource="#0535"/>
+		<skos:member rdf:resource="#0273"/>
+		<skos:member rdf:resource="#0530"/>
+		<skos:member rdf:resource="#0522"/>
+		<skos:member rdf:resource="#0714"/>
+		<skos:member rdf:resource="#0456"/>
+		<skos:member rdf:resource="#0455"/>
+		<skos:member rdf:resource="#0745"/>
+		<skos:member rdf:resource="#0534"/>
+		<skos:member rdf:resource="#0516"/>
+		<skos:member rdf:resource="#0450"/>
+		<skos:member rdf:resource="#0280"/>
+		<skos:member rdf:resource="#0279"/>
+		<skos:member rdf:resource="#0710"/>
+		<skos:member rdf:resource="#0651"/>
+		<skos:member rdf:resource="#0446"/>
+		<skos:member rdf:resource="#0515"/>
+		<skos:member rdf:resource="#0523"/>
 	</skos:Collection>
 
 	<skos:Collection rdf:about="#0443">
@@ -1250,7 +1250,7 @@
 		<rdfs:label>Religious education</rdfs:label>
 	</skos:Collection>
 	<skos:Collection rdf:about="#0288">
-		<rdfs:label>Educational tests and measurements</rdfs:label>
+		<rdfs:label>Educational tests & measurements</rdfs:label>
 	</skos:Collection>
 	<skos:Collection rdf:about="#0458">
 		<rdfs:label>Education policy</rdfs:label>
@@ -1321,31 +1321,31 @@
 	</skos:Collection>
 
 	<skos:Collection rdf:about="#language-literature">
-		<rdfs:label>Language and Literature</rdfs:label>
-		<skos:member rdf:resource="0290"/>
-		<skos:member rdf:resource="0313"/>
-		<skos:member rdf:resource="0294"/>
-		<skos:member rdf:resource="0401"/>
-		<skos:member rdf:resource="0316"/>
-		<skos:member rdf:resource="0289"/>
-		<skos:member rdf:resource="0298"/>
-		<skos:member rdf:resource="0295"/>
-		<skos:member rdf:resource="0681"/>
-		<skos:member rdf:resource="0314"/>
-		<skos:member rdf:resource="0291"/>
-		<skos:member rdf:resource="0679"/>
-		<skos:member rdf:resource="0312"/>
-		<skos:member rdf:resource="0305"/>
-		<skos:member rdf:resource="0360"/>
-		<skos:member rdf:resource="0355"/>
-		<skos:member rdf:resource="0362"/>
-		<skos:member rdf:resource="0315"/>
-		<skos:member rdf:resource="0591"/>
-		<skos:member rdf:resource="0297"/>
-		<skos:member rdf:resource="0593"/>
-		<skos:member rdf:resource="0352"/>
-		<skos:member rdf:resource="0311"/>
-		<skos:member rdf:resource="0356"/>
+		<rdfs:label>Language & Literature</rdfs:label>
+		<skos:member rdf:resource="#0290"/>
+		<skos:member rdf:resource="#0313"/>
+		<skos:member rdf:resource="#0294"/>
+		<skos:member rdf:resource="#0401"/>
+		<skos:member rdf:resource="#0316"/>
+		<skos:member rdf:resource="#0289"/>
+		<skos:member rdf:resource="#0298"/>
+		<skos:member rdf:resource="#0295"/>
+		<skos:member rdf:resource="#0681"/>
+		<skos:member rdf:resource="#0314"/>
+		<skos:member rdf:resource="#0291"/>
+		<skos:member rdf:resource="#0679"/>
+		<skos:member rdf:resource="#0312"/>
+		<skos:member rdf:resource="#0305"/>
+		<skos:member rdf:resource="#0360"/>
+		<skos:member rdf:resource="#0355"/>
+		<skos:member rdf:resource="#0362"/>
+		<skos:member rdf:resource="#0315"/>
+		<skos:member rdf:resource="#0591"/>
+		<skos:member rdf:resource="#0297"/>
+		<skos:member rdf:resource="#0593"/>
+		<skos:member rdf:resource="#0352"/>
+		<skos:member rdf:resource="#0311"/>
+		<skos:member rdf:resource="#0356"/>
 	</skos:Collection>
 
 	<skos:Collection rdf:about="#0290">
@@ -1397,7 +1397,7 @@
 		<rdfs:label>French Canadian literature</rdfs:label>
 	</skos:Collection>
 	<skos:Collection rdf:about="#0362">
-		<rdfs:label>Icelandic and Scandinavian literature</rdfs:label>
+		<rdfs:label>Icelandic & Scandinavian literature</rdfs:label>
 	</skos:Collection>
 	<skos:Collection rdf:about="#0315">
 		<rdfs:label>Middle Eastern literature</rdfs:label>
@@ -1423,19 +1423,19 @@
 
 	<skos:Collection rdf:about="#interdisciplinary">
 		<rdfs:label>Interdisciplinary</rdfs:label>
-		<skos:member rdf:resource="0386"/>
-		<skos:member rdf:resource="0436"/>
-		<skos:member rdf:resource="0746"/>
-		<skos:member rdf:resource="0640"/>
-		<skos:member rdf:resource="0304"/>
-		<skos:member rdf:resource="0404"/>
-		<skos:member rdf:resource="0791"/>
-		<skos:member rdf:resource="0558"/>
-		<skos:member rdf:resource="0359"/>
-		<skos:member rdf:resource="0363"/>
-		<skos:member rdf:resource="0994"/>
-		<skos:member rdf:resource="0730"/>
-		<skos:member rdf:resource="0489"/>
+		<skos:member rdf:resource="#0386"/>
+		<skos:member rdf:resource="#0436"/>
+		<skos:member rdf:resource="#0746"/>
+		<skos:member rdf:resource="#0640"/>
+		<skos:member rdf:resource="#0304"/>
+		<skos:member rdf:resource="#0404"/>
+		<skos:member rdf:resource="#0791"/>
+		<skos:member rdf:resource="#0558"/>
+		<skos:member rdf:resource="#0359"/>
+		<skos:member rdf:resource="#0363"/>
+		<skos:member rdf:resource="#0994"/>
+		<skos:member rdf:resource="#0730"/>
+		<skos:member rdf:resource="#0489"/>
 	</skos:Collection>
 
 	<skos:Collection rdf:about="#0386">
@@ -1480,24 +1480,24 @@
 
 	<skos:Collection rdf:about="#philosophy-and-religion">
 		<rdfs:label>Philosophy And Religion</rdfs:label>
-		<skos:member rdf:resource="0393"/>
-		<skos:member rdf:resource="0650"/>
-		<skos:member rdf:resource="0376"/>
-		<skos:member rdf:resource="0647"/>
-		<skos:member rdf:resource="0320"/>
-		<skos:member rdf:resource="0422"/>
-		<skos:member rdf:resource="0397"/>
-		<skos:member rdf:resource="0469"/>
-		<skos:member rdf:resource="0618"/>
-		<skos:member rdf:resource="0318"/>
-		<skos:member rdf:resource="0395"/>
-		<skos:member rdf:resource="0319"/>
-		<skos:member rdf:resource="0321"/>
-		<skos:member rdf:resource="0394"/>
-		<skos:member rdf:resource="0322"/>
-		<skos:member rdf:resource="0375"/>
-		<skos:member rdf:resource="0396"/>
-		<skos:member rdf:resource="0402"/>
+		<skos:member rdf:resource="#0393"/>
+		<skos:member rdf:resource="#0650"/>
+		<skos:member rdf:resource="#0376"/>
+		<skos:member rdf:resource="#0647"/>
+		<skos:member rdf:resource="#0320"/>
+		<skos:member rdf:resource="#0422"/>
+		<skos:member rdf:resource="#0397"/>
+		<skos:member rdf:resource="#0469"/>
+		<skos:member rdf:resource="#0618"/>
+		<skos:member rdf:resource="#0318"/>
+		<skos:member rdf:resource="#0395"/>
+		<skos:member rdf:resource="#0319"/>
+		<skos:member rdf:resource="#0321"/>
+		<skos:member rdf:resource="#0394"/>
+		<skos:member rdf:resource="#0322"/>
+		<skos:member rdf:resource="#0375"/>
+		<skos:member rdf:resource="#0396"/>
+		<skos:member rdf:resource="#0402"/>
 	</skos:Collection>
 
 	<skos:Collection rdf:about="#0393">
@@ -1557,11 +1557,11 @@
 
 	<skos:Collection rdf:about="#law-and-legal-studies">
 		<rdfs:label>Law And Legal Studies</rdfs:label>
-		<skos:member rdf:resource="0513"/>
-		<skos:member rdf:resource="0562"/>
-		<skos:member rdf:resource="0398"/>
-		<skos:member rdf:resource="0649"/>
-		<skos:member rdf:resource="0616"/>
+		<skos:member rdf:resource="#0513"/>
+		<skos:member rdf:resource="#0562"/>
+		<skos:member rdf:resource="#0398"/>
+		<skos:member rdf:resource="#0649"/>
+		<skos:member rdf:resource="#0616"/>
 	</skos:Collection>
 
 	<skos:Collection rdf:about="#0513">
@@ -1582,38 +1582,38 @@
 
 	<skos:Collection rdf:about="#social-sciences">
 		<rdfs:label>Social Sciences</rdfs:label>
-		<skos:member rdf:resource="0626"/>
-		<skos:member rdf:resource="0629"/>
-		<skos:member rdf:resource="0617"/>
-		<skos:member rdf:resource="0703"/>
-		<skos:member rdf:resource="0510"/>
-		<skos:member rdf:resource="0999"/>
-		<skos:member rdf:resource="0615"/>
-		<skos:member rdf:resource="0511"/>
-		<skos:member rdf:resource="0635"/>
-		<skos:member rdf:resource="0750"/>
-		<skos:member rdf:resource="0628"/>
-		<skos:member rdf:resource="0358"/>
-		<skos:member rdf:resource="0636"/>
-		<skos:member rdf:resource="0341"/>
-		<skos:member rdf:resource="0509"/>
-		<skos:member rdf:resource="0563"/>
-		<skos:member rdf:resource="0709"/>
-		<skos:member rdf:resource="0501"/>
-		<skos:member rdf:resource="0814"/>
-		<skos:member rdf:resource="0344"/>
-		<skos:member rdf:resource="0938"/>
-		<skos:member rdf:resource="0452"/>
-		<skos:member rdf:resource="0324"/>
-		<skos:member rdf:resource="0326"/>
-		<skos:member rdf:resource="0339"/>
-		<skos:member rdf:resource="0505"/>
-		<skos:member rdf:resource="0601"/>
-		<skos:member rdf:resource="0327"/>
-		<skos:member rdf:resource="0630"/>
-		<skos:member rdf:resource="0627"/>
-		<skos:member rdf:resource="0700"/>
-		<skos:member rdf:resource="0366"/>
+		<skos:member rdf:resource="#0626"/>
+		<skos:member rdf:resource="#0629"/>
+		<skos:member rdf:resource="#0617"/>
+		<skos:member rdf:resource="#0703"/>
+		<skos:member rdf:resource="#0510"/>
+		<skos:member rdf:resource="#0999"/>
+		<skos:member rdf:resource="#0615"/>
+		<skos:member rdf:resource="#0511"/>
+		<skos:member rdf:resource="#0635"/>
+		<skos:member rdf:resource="#0750"/>
+		<skos:member rdf:resource="#0628"/>
+		<skos:member rdf:resource="#0358"/>
+		<skos:member rdf:resource="#0636"/>
+		<skos:member rdf:resource="#0341"/>
+		<skos:member rdf:resource="#0509"/>
+		<skos:member rdf:resource="#0563"/>
+		<skos:member rdf:resource="#0709"/>
+		<skos:member rdf:resource="#0501"/>
+		<skos:member rdf:resource="#0814"/>
+		<skos:member rdf:resource="#0344"/>
+		<skos:member rdf:resource="#0938"/>
+		<skos:member rdf:resource="#0452"/>
+		<skos:member rdf:resource="#0324"/>
+		<skos:member rdf:resource="#0326"/>
+		<skos:member rdf:resource="#0339"/>
+		<skos:member rdf:resource="#0505"/>
+		<skos:member rdf:resource="#0601"/>
+		<skos:member rdf:resource="#0327"/>
+		<skos:member rdf:resource="#0630"/>
+		<skos:member rdf:resource="#0627"/>
+		<skos:member rdf:resource="#0700"/>
+		<skos:member rdf:resource="#0366"/>
 	</skos:Collection>
 
 	<skos:Collection rdf:about="#0626">
@@ -1647,7 +1647,7 @@
 		<rdfs:label>Military studies</rdfs:label>
 	</skos:Collection>
 	<skos:Collection rdf:about="#0628">
-		<rdfs:label>Individual and family studies</rdfs:label>
+		<rdfs:label>Individual & family studies</rdfs:label>
 	</skos:Collection>
 	<skos:Collection rdf:about="#0358">
 		<rdfs:label>Folklore</rdfs:label>
@@ -1715,23 +1715,23 @@
 
 	<skos:Collection rdf:about="#history">
 		<rdfs:label>History</rdfs:label>
-		<skos:member rdf:resource="0333"/>
-		<skos:member rdf:resource="0334"/>
-		<skos:member rdf:resource="0332"/>
-		<skos:member rdf:resource="0336"/>
-		<skos:member rdf:resource="0331"/>
-		<skos:member rdf:resource="0722"/>
-		<skos:member rdf:resource="0335"/>
-		<skos:member rdf:resource="0724"/>
-		<skos:member rdf:resource="0504"/>
-		<skos:member rdf:resource="0579"/>
-		<skos:member rdf:resource="0328"/>
-		<skos:member rdf:resource="0581"/>
-		<skos:member rdf:resource="0582"/>
-		<skos:member rdf:resource="0506"/>
-		<skos:member rdf:resource="0585"/>
-		<skos:member rdf:resource="0337"/>
-		<skos:member rdf:resource="0578"/>
+		<skos:member rdf:resource="#0333"/>
+		<skos:member rdf:resource="#0334"/>
+		<skos:member rdf:resource="#0332"/>
+		<skos:member rdf:resource="#0336"/>
+		<skos:member rdf:resource="#0331"/>
+		<skos:member rdf:resource="#0722"/>
+		<skos:member rdf:resource="#0335"/>
+		<skos:member rdf:resource="#0724"/>
+		<skos:member rdf:resource="#0504"/>
+		<skos:member rdf:resource="#0579"/>
+		<skos:member rdf:resource="#0328"/>
+		<skos:member rdf:resource="#0581"/>
+		<skos:member rdf:resource="#0582"/>
+		<skos:member rdf:resource="#0506"/>
+		<skos:member rdf:resource="#0585"/>
+		<skos:member rdf:resource="#0337"/>
+		<skos:member rdf:resource="#0578"/>
 	</skos:Collection>
 
 	<skos:Collection rdf:about="#0333">
