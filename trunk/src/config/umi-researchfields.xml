@@ -12,7 +12,7 @@
 	</skos:Collection>
 
 
-	<skos:Collection rdf:about="behavioral-natural-and-physical-sciences">
+	<skos:Collection rdf:about="#behavioral-natural-and-physical-sciences">
 		<rdfs:label>Behavioral, Natural, And Physical Sciences</rdfs:label>
 		<skos:member rdf:resource="#health-and-medical-sciences"/>
 		<skos:member rdf:resource="#ecosystem-sciences"/>
