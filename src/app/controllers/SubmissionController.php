@@ -103,10 +103,10 @@ class SubmissionController extends Etd_Controller_Action {
         if ($etd_info['author_netid'] === $this->current_user->netid){
                 $etd->premis->addEvent("ingest", "Record created by " .
                         $etd_info["etd_author_user"]->fullname, "success",
-                        array("netid", $this->current_user->netid)));
+                        array("netid", $this->current_user->netid));
         }
         else {
-                $this->logger->info($this->current_user->netid . "created ETD on behalf of " . $etd_info['author_netid'])
+                $this->logger->info($this->current_user->netid . " created ETD on behalf of " . $etd_info['author_netid']);
                 $etd->premis->addEvent("ingest", "Record created by " .
                         $this->current_user->fullname .
                         " on behalf of " .
