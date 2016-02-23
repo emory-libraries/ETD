@@ -59,7 +59,11 @@ class SubmissionController extends Etd_Controller_Action {
       $answers["embargo"] = $this->_getParam("embargo", null);
       $answers["embargo_abs_toc"] = $this->_getParam("embargo_abs_toc", null);
       $etd_info['title'] = $answers['title'] = $this->_getParam('etd_title', null);
+      $etd_info['etd_author'] = $answers['etd_author_netid'] = $this->_getParam("etd_author", $this->current_user->netid);
       $this->view->answers = $answers;
+
+      $esd = new esdPersonObject();
+      $etd_info["etd_author_user"] = $esd->findByUsername($etd_info["etd_author"]); 
 
       // if form is not valid, stop processing and re-display form with errors
       $form_errors = $this->validateQuestions($answers);
@@ -94,20 +98,32 @@ class SubmissionController extends Etd_Controller_Action {
         // FIXME: can premis events be added before ingest ? 
 
         // could use fullname as agent id, but netid seems more useful
-        $etd->premis->addEvent("ingest", "Record created by " .
-             $this->current_user->fullname, "success",
-             array("netid", $this->current_user->netid));
+        $this->logger->info("Going to crete with the fullname " . $etd_info["etd_author_user"]->fullname . " and netid of " . $etd_info["etd_author"]);
+
+if ($etd_info["etd_author"] === $this->current_user->netid){
+                $etd->premis->addEvent("ingest", "Record created by " .
+                        $etd_info["etd_author_user"]->fullname, "success",
+                        array("netid", $etd_info["etd_author"]));
+        }
+        else {
+                $etd->premis->addEvent("ingest", "Record created by " .
+                        $this->current_user->fullname .
+                        " on behalf of " .
+                        $etd_info["etd_author_user"]->fullname, "success",
+                        //array("netid", $etd_info["etd_author"]));
+                        array("netid", $this->current_user->netid));
+        }
 
         //Save info for copyright questions
         $eventMsg = "The author " . ($answers["copyright"] == 'yes' ? "has" : "has not") . " submitted copyrighted material";
         $eventMsg .= ".";
         $etd->premis->addEvent("admin", $eventMsg, "success",
-             array("netid", $this->current_user->netid));
+             array("netid", $etd_info["etd_author"]));
                
         // Save info for patent questions
         $eventMsg = "The author " . ($answers["patent"] == 'yes' ? "has" : "has not") . " submitted patented material.";
         $etd->premis->addEvent("admin", $eventMsg, "success",
-             array("netid", $this->current_user->netid));
+             array("netid", $etd_info["etd_author"]));
 
         // send email if patent screening question is yes
         if ($answers["patent"] == "yes") {
@@ -181,13 +197,22 @@ class SubmissionController extends Etd_Controller_Action {
   public function initialize_etd(array $etd_info) {
     // create new etd record and save all the fields
 
+   // If this etd was created by an admin on behalf of a sturdent we will use
+   // the provided netid to create the etd.
+   $author_netid = $etd_info['etd_author'];
+   $author_user = $etd_info['etd_author_user'];
+
+   $this->logger->err("\n\n\n\n\nSet author as\n" . $author_netid . "\nusername is\n". $author_user . "\n\n\n");
+
     // get per-school configuration for the current user
     $school_cfg = Zend_Registry::get("schools-config");
-    $school_id = $this->current_user->getSchoolId();
-    // if no school id is found, set a default so no record is created without a school
+    $school_id = $author_user->getSchoolId();
+    $this->logger->info("school_id is " . $school_id);  
+  // if no school id is found, set a default so no record is created without a school
     if (!$school_id) {
+      $this->logger->info("NO SCHOOL ID FOUND");
       $school_id = "graduate_school";
-      $this->logger->err("Could not determine school for " . $this->current_user->netid .
+      $this->logger->err("Could not determine school for " . $author_netid .
        "; defaulting to Graduate School");
     }
     // pass school-specific configuration to new etd record
@@ -196,10 +221,10 @@ class SubmissionController extends Etd_Controller_Action {
     $etd->title = $etd_info['title'];
     
     // use netid for object ownership and author relation
-    $current_user = $this->current_user;
-    $etd->owner = $current_user->netid;
+    //$current_user = $this->current_user;
+    $etd->owner = $author_netid;
     // set author info
-    $etd->mods->setAuthorFromPerson($current_user);
+    $etd->mods->setAuthorFromPerson($author_user);
     
     // As of 2012/06, table of contents is no longer extracted from pdf.
     // Abstract is ignored (may be extracted, but not reliable)
@@ -219,8 +244,8 @@ class SubmissionController extends Etd_Controller_Action {
     // first try to use the academic_plan_id mapped to dc:identifier
     // to set the program, department, and subfield (if exists).
 
-    if ($current_user->academic_plan_id) {
-      $prog_id = $programs->findIdbyElement("dc:identifier", $current_user->academic_plan_id);
+    if ($author_user->academic_plan_id) {
+      $prog_id = $programs->findIdbyElement("dc:identifier", $author_user->academic_plan_id);
 
       if(isset($prog_id)){
           $collection = new collectionHierarchy($programs->dom, $prog_id);
@@ -243,8 +268,8 @@ class SubmissionController extends Etd_Controller_Action {
 
     } else {
       // second try to use "academic plan" from ESD to set department
-      if ($current_user->academic_plan) {
-        $department = $programs->findLabel($current_user->academic_plan);
+      if ($author_user->academic_plan) {
+        $department = $programs->findLabel($author_user->academic_plan);
       } 
       // as of 2012/06, no longer attempting to detect department from PDF
 
