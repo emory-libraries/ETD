@@ -10,7 +10,7 @@ require_once("models/programs.php");
 
 class SubmissionController extends Etd_Controller_Action {
   protected $requires_fedora = true;
-  
+
   public function preDispatch() {
     // suppress sidebar search & browse navigation for all submission actions,
     // for any user
@@ -21,20 +21,20 @@ class SubmissionController extends Etd_Controller_Action {
     $this->_forward("intro");
     // maybe this should be a summary/status page to check on the submission...
   }
-  
-  
+
+
   public function introAction() {
       if (!$this->_helper->access->allowedOnEtd("create")) return false;
       $this->view->title = "Submission Introduction";
-  
-  
-      
+
+
+
   }
-  
-   
+
+
   /**
    * Start page for creating a new ETD submission.  Logged in students
-   * must answer screening questions and then 
+   * must answer screening questions and then
    *
    */
   public function startAction() {
@@ -42,7 +42,7 @@ class SubmissionController extends Etd_Controller_Action {
     // any other info needed here?
     $this->view->title = "Begin Submission";
 
-    // using jquery and jquery form validation 
+    // using jquery and jquery form validation
     $this->view->extra_scripts = array(
          "//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js",
          "//ajax.aspnetcdn.com/ajax/jquery.validate/1.9/jquery.validate.js",
@@ -59,18 +59,20 @@ class SubmissionController extends Etd_Controller_Action {
       $answers["embargo"] = $this->_getParam("embargo", null);
       $answers["embargo_abs_toc"] = $this->_getParam("embargo_abs_toc", null);
       $etd_info['title'] = $answers['title'] = $this->_getParam('etd_title', null);
-      $etd_info['etd_author'] = $answers['etd_author_netid'] = $this->_getParam("etd_author", $this->current_user->netid);
-      $this->view->answers = $answers;
+      $etd_info['author_netid'] = $this->_getParam("author_netid", $this->current_user->netid);
 
       $esd = new esdPersonObject();
-      $etd_info["etd_author_user"] = $esd->findByUsername($etd_info["etd_author"]); 
+      $etd_info["etd_author_user"] = $esd->findByUsername($etd_info['author_netid']);
+      // Make sure netid is valid
+      $answers["author_user"] = $etd_info["etd_author_user"];
+      $this->view->answers = $answers;
 
       // if form is not valid, stop processing and re-display form with errors
       $form_errors = $this->validateQuestions($answers);
       if ($form_errors) {
         $this->view->form_errors = $form_errors;
         return;
-      } 
+      }
 
       $etd =  $this->initialize_etd($etd_info);
       $errtype = "";
@@ -91,26 +93,24 @@ class SubmissionController extends Etd_Controller_Action {
       } else {  // valid pid was returned
         $this->logger->info("Created new etd record with pid $pid");
         if ($this->debug) $this->_helper->flashMessenger->addMessage("Saved etd as $pid");
-    
+
         // retrieve a fresh copy of the record from fedora for additional updates
         $etd = $this->_helper->getFromFedora->findById($pid, "etd");
-        
-        // FIXME: can premis events be added before ingest ? 
+
+        // FIXME: can premis events be added before ingest ?
 
         // could use fullname as agent id, but netid seems more useful
-        $this->logger->info("Going to crete with the fullname " . $etd_info["etd_author_user"]->fullname . " and netid of " . $etd_info["etd_author"]);
-
-if ($etd_info["etd_author"] === $this->current_user->netid){
+        if ($etd_info['author_netid'] === $this->current_user->netid){
                 $etd->premis->addEvent("ingest", "Record created by " .
                         $etd_info["etd_author_user"]->fullname, "success",
-                        array("netid", $etd_info["etd_author"]));
+                        array("netid", $this->current_user->netid)));
         }
         else {
+                $this->logger->info($this->current_user->netid . "created ETD on behalf of " . $etd_info['author_netid'])
                 $etd->premis->addEvent("ingest", "Record created by " .
                         $this->current_user->fullname .
                         " on behalf of " .
                         $etd_info["etd_author_user"]->fullname, "success",
-                        //array("netid", $etd_info["etd_author"]));
                         array("netid", $this->current_user->netid));
         }
 
@@ -118,12 +118,12 @@ if ($etd_info["etd_author"] === $this->current_user->netid){
         $eventMsg = "The author " . ($answers["copyright"] == 'yes' ? "has" : "has not") . " submitted copyrighted material";
         $eventMsg .= ".";
         $etd->premis->addEvent("admin", $eventMsg, "success",
-             array("netid", $etd_info["etd_author"]));
-               
+             array("netid", $etd_info['author_netid']));
+
         // Save info for patent questions
         $eventMsg = "The author " . ($answers["patent"] == 'yes' ? "has" : "has not") . " submitted patented material.";
         $etd->premis->addEvent("admin", $eventMsg, "success",
-             array("netid", $etd_info["etd_author"]));
+             array("netid", $etd_info['author_netid']));
 
         // send email if patent screening question is yes
         if ($answers["patent"] == "yes") {
@@ -150,7 +150,7 @@ if ($etd_info["etd_author"] === $this->current_user->netid){
                               "action" => "record", "pid" => $etd->pid));
 
       }
-      
+
     } // end POST handling
 
     // on GET, display form
@@ -159,7 +159,7 @@ if ($etd_info["etd_author"] === $this->current_user->netid){
 
   /**
    * Validate screening questions on submission start page
-   * 
+   *
    * @return array with any missing required fields
    */
   public function validateQuestions($answers){
@@ -184,6 +184,10 @@ if ($etd_info["etd_author"] === $this->current_user->netid){
       $errors[] = 'title';
      }
 
+     if ($answers['author_user'] == null) {
+         $errors[] = 'author_user';
+     }
+
      return $errors;
   }
 
@@ -199,15 +203,13 @@ if ($etd_info["etd_author"] === $this->current_user->netid){
 
    // If this etd was created by an admin on behalf of a sturdent we will use
    // the provided netid to create the etd.
-   $author_netid = $etd_info['etd_author'];
+   $author_netid = $etd_info['author_netid'];
    $author_user = $etd_info['etd_author_user'];
-
-   $this->logger->err("\n\n\n\n\nSet author as\n" . $author_netid . "\nusername is\n". $author_user . "\n\n\n");
 
     // get per-school configuration for the current user
     $school_cfg = Zend_Registry::get("schools-config");
     $school_id = $author_user->getSchoolId();
-    $this->logger->info("school_id is " . $school_id);  
+    $this->logger->info("school_id is " . $school_id);
   // if no school id is found, set a default so no record is created without a school
     if (!$school_id) {
       $this->logger->info("NO SCHOOL ID FOUND");
@@ -217,30 +219,29 @@ if ($etd_info["etd_author"] === $this->current_user->netid){
     }
     // pass school-specific configuration to new etd record
     $etd = new etd($school_cfg->$school_id);
-    
+
     $etd->title = $etd_info['title'];
-    
+
     // use netid for object ownership and author relation
-    //$current_user = $this->current_user;
     $etd->owner = $author_netid;
     // set author info
     $etd->mods->setAuthorFromPerson($author_user);
-    
+
     // As of 2012/06, table of contents is no longer extracted from pdf.
     // Abstract is ignored (may be extracted, but not reliable)
-    
+
     // attempt to find a match for department from program list
     switch ($school_id) { // limit to relevant section
       case "graduate_school": $section = "#grad"; break;
       case "emory_college": $section = "#undergrad"; break;
       case "candler": $section = "#candler"; break;
-      case "rollins": $section = "#rollins"; break; 
+      case "rollins": $section = "#rollins"; break;
       default: $section = "#grad"; break;
     }
-    
-    $programObject = new foxmlPrograms($section); 
-    $programs = $programObject->skos;    
-    
+
+    $programObject = new foxmlPrograms($section);
+    $programs = $programObject->skos;
+
     // first try to use the academic_plan_id mapped to dc:identifier
     // to set the program, department, and subfield (if exists).
 
@@ -253,8 +254,8 @@ if ($etd_info["etd_author"] === $this->current_user->netid){
           $parent_id = $collection->parent->id;
       }
 
-      
-      if(($section == "#grad" && $level == 4) 
+
+      if(($section == "#grad" && $level == 4)
         || ($section == "#rollins" && $level == 3)){  // cases where subfield is populated
           $etd->rels_ext->program = strtolower($parent_id);
           $etd->department = $programObject->skos->findLabelbyId($parent_id);
@@ -270,22 +271,22 @@ if ($etd_info["etd_author"] === $this->current_user->netid){
       // second try to use "academic plan" from ESD to set department
       if ($author_user->academic_plan) {
         $department = $programs->findLabel($author_user->academic_plan);
-      } 
+      }
       // as of 2012/06, no longer attempting to detect department from PDF
 
       // if we found a department either way, set text in mods and id in rels-ext
       if (isset($department) && $department) {
         $etd->department = $department;
-        // find program id and store in rels       
+        // find program id and store in rels
         $prog_id = $programs->findIdbyElement("rdfs:label", $department);
         if ($prog_id) $etd->rels_ext->program = $prog_id;
-      }      
-    }    
+      }
+    }
 
 
     return $etd;
   }
-  
+
   public function reviewAction() {
     $etd = $this->_helper->getFromFedora("pid", "etd");
     if (!$this->_helper->access->allowedOnEtd("submit", $etd)) return false;
@@ -296,7 +297,7 @@ if ($etd_info["etd_author"] === $this->current_user->netid){
               "action" => "record",
               "pid" => $etd->pid));
     }
-   
+
     $this->view->etd = $etd;
     $this->view->title = "Final Review";
   }
@@ -304,7 +305,7 @@ if ($etd_info["etd_author"] === $this->current_user->netid){
   public function submitAction() {
     $etd = $this->_helper->getFromFedora("pid", "etd");
     if (!$this->_helper->access->allowedOnEtd("submit", $etd)) return false;
-    
+
     // double-check that etd is ready to submit
     if (! $etd->readyToSubmit()) {
       $this->_helper->flashMessenger->addMessage("Your record is not ready to submit; first complete any missing portions before you review and submit");
@@ -313,12 +314,12 @@ if ($etd_info["etd_author"] === $this->current_user->netid){
               "pid" => $etd->pid));
       return;
     }
-    
-    
+
+
     $newstatus = "submitted";
     $etd->setStatus($newstatus);
 
-    // log event in record history 
+    // log event in record history
     $etd->premis->addEvent("status change",
          "Submitted for Approval by " . $this->current_user->fullname,
          "success",  array("netid", $this->current_user->netid));
@@ -339,7 +340,7 @@ if ($etd_info["etd_author"] === $this->current_user->netid){
       $this->_helper->flashMessenger->addMessage("Record status changed to <b>$newstatus</b>");
       $this->logger->info("Successfully submitted " . $etd->pid);
 
-      // send notification only if submit succeeded 
+      // send notification only if submit succeeded
       $notify = new etd_notifier($etd);
       $to = $notify->submission();
       $this->_helper->flashMessenger->addMessage("Submission notification email sent to " . implode(', ', array_keys($to)));
@@ -347,7 +348,7 @@ if ($etd_info["etd_author"] === $this->current_user->netid){
       $this->logger->err("Problem submitting " . $etd->pid);
       $this->_helper->flashMessenger->addMessage("Error: there was a problem submitting your record");
     }
-    
+
     // forward to congratulations message
     $this->_helper->redirector->gotoRoute(array("controller" => "submission",
             "action" => "success", "pid" => $etd->pid), "", true);
