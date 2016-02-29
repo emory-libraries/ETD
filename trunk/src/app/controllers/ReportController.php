@@ -235,7 +235,7 @@ class ReportController extends Etd_Controller_Action {
         $optionsArray = array();
         $optionsArray['query'] = "(degree_name:PhD OR degree_name:MS OR degree_name:MA) AND dateIssued:[$start TO $end]";
         $optionsArray['sort'] = "author";
-        $optionsArray['max'] = 100;
+        $optionsArray['max'] = 10000000;
 
         $etdSet = new EtdSet();
         $etdSet->find($optionsArray);
