@@ -987,7 +987,7 @@ class etd extends foxml implements etdInterface {
     // mint a new pid if the pid is not already set
     if ($this->pid == "") {
       // could generate service unavailable exception - should be caught in the controller
-      $persis = new Emory_Service_Persis(Zend_Registry::get('persis-config'));
+      $persis = new Etd_Service_Persis(Zend_Registry::get('persis-config'));
 
       $logger = Zend_Registry::get('logger');
 
@@ -1448,7 +1448,7 @@ class etd extends foxml implements etdInterface {
       }
     }
 
-    ksort($options);	// Sort the results for easy reading
+    ksort($options);    // Sort the results for easy reading
     return ($options);
   }
 
@@ -1466,3 +1466,4 @@ function sort_etdfiles(etd_file $a, etd_file $b) {
     return 0;
   }
 }
+
