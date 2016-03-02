@@ -128,37 +128,29 @@ class Etd_Service_Persis {
    * @param string $external_system external system name; optional, defaults to none
    * @param string $external_key key/id within specified external system; optional, defaults to none
    * @return string ark
-   * @throws PersisServiceException
-   * @throws PersisServiceUnauthorized
    */
     public function generateArk($url, $title, $qualifier = null,
-				$proxy_id = null, $external_system = null, $external_key = null) {
-    //   $rqst = new GenerateArk();
-    //   $rqst->username = $this->username;
-    //   $rqst->password = $this->password;
-    //   $rqst->uri = $url;
-    //   $rqst->name = $title;
-    //   $rqst->qualifier = $qualifier;
-    //   $rqst->domain_id = $this->domain_id;
-    //   $rqst->proxy_id = $proxy_id;
-    //   $rqst->external_system = $external_system;
-    //   $rqst->external_system_key = $external_key;
+                $proxy_id = null, $external_system = null, $external_key = null) {
 
-	// $ark = $this->service->GenerateArk($rqst);
-    $this->logger = Zend_Registry::get('logger');
-        $payload = array('domain' => $this->pidman . 'domains/' . $this->domain_id . '/', 'name' => $title, 'target_uri' => $qualifier );
-        $this->logger->info('PAYLOAD = ' . implode(" ", $payload));
-        $this->logger->info('TRYING URL ' . $this->pidman . '/ark/');
-        $ch = curl_init($url . '/ark/');
+        // Use the PidMan REST client to generateArk
+        $payload = array('domain' => $this->pidman . 'domains/' . $this->domain_id . '/', 'name' => $title, 'target_uri' => $url );
+        $ch = curl_init($this->pidman . '/ark/');
+        curl_setopt($ch,CURLOPT_FAILONERROR,true);
         curl_setopt($ch, CURLOPT_USERPWD, $this->username . ":" . $this->password);
         curl_setopt($ch, CURLOPT_TIMEOUT, 30);
         curl_setopt($ch, CURLOPT_POST, TRUE);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
         $ark = curl_exec($ch);
-        curl_close($ch);
-
-      return $ark;
+        if (curl_error($ch)){
+            trigger_error("Failed to generate ARK: " .  curl_error($ch), E_USER_ERROR);
+            curl_close($ch);
+            return null;
+        } else {
+            curl_close($ch);
+            echo $ark;
+            return $ark;
+        }
     }
 
   /**
@@ -174,7 +166,7 @@ class Etd_Service_Persis {
    * @throws PersisServiceUnauthorized
    */
     public function generatePurl($url, $title, $proxy_id = null,
-				 $external_system = null, $external_key = null) {
+                 $external_system = null, $external_key = null) {
       $request = new GeneratePurl();
       $request->username = $this->username;
       $request->password = $this->password;
@@ -186,16 +178,16 @@ class Etd_Service_Persis {
       $request->external_system_key = $external_key;
 
       try {
-	$purl = $this->service->GeneratePurl($request);
+    $purl = $this->service->GeneratePurl($request);
       } catch (SoapFault $e) {
-	// throw an exception with an appropriate error message
-	switch($e->faultstring) {
-	case "request canceled: not authorized":
-	  echo ($e->getMessage());
-	default:
-	  echo ("Unknown error:" . $e->faultstring);
-	}
-	return null;
+    // throw an exception with an appropriate error message
+    switch($e->faultstring) {
+    case "request canceled: not authorized":
+      echo ($e->getMessage());
+    default:
+      echo ("Unknown error:" . $e->faultstring);
+    }
+    return null;
       }
       return $purl->return;
     }
@@ -272,14 +264,14 @@ class Etd_Service_Persis {
    */
     public function addArkTarget($ark, $qualifier, $uri, $proxy_id = null) {
       if ($this->isArk($ark)) {
-	// full ark has been given; strip out noid from the end
-	$parsed = $this->parseArk($ark);
-	$noid = $parsed[Emory_Service_Persis::NOID];
+    // full ark has been given; strip out noid from the end
+    $parsed = $this->parseArk($ark);
+    $noid = $parsed[Emory_Service_Persis::NOID];
       } elseif ($this->isNoid($ark)) {
-	// if param was not full ark, check that only the noid portion has been passed in
-	$noid = $ark;
+    // if param was not full ark, check that only the noid portion has been passed in
+    $noid = $ark;
       } else {
-	echo ("'$ark' is not a valid ark or noid");
+    echo ("'$ark' is not a valid ark or noid");
       }
 
       $rqst = new AddArkTarget();
@@ -291,17 +283,17 @@ class Etd_Service_Persis {
       $rqst->proxy_id = $proxy_id;
 
       try {
-	$result = $this->service->AddArkTarget($rqst);
+    $result = $this->service->AddArkTarget($rqst);
       } catch (SoapFault $e) {
-	// throw an exception with an appropriate error message
-	switch($e->faultstring) {
-	case "request canceled: not authorized":
-	  echo ($e->getMessage());
-	  // any other cases?
-	default:
-	  echo ("Unknown error:" . $e->faultstring);
-	}
-	return null;
+    // throw an exception with an appropriate error message
+    switch($e->faultstring) {
+    case "request canceled: not authorized":
+      echo ($e->getMessage());
+      // any other cases?
+    default:
+      echo ("Unknown error:" . $e->faultstring);
+    }
+    return null;
       }
       return $result->return;
     }
