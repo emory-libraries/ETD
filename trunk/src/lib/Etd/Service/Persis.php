@@ -1,22 +1,17 @@
 <?php
 
-// require_once("PersistentIdentifierService.php");
 
 /**
- * SOAP interface to Emory Persistent ID server to generate new arks
+ * REST interface to Emory Persistent ID server to generate new arks
  *
- * @category EmoryZF
- * @package Emory_Service
- * @subpackage Emory_Service_Persis
+ * @category Etd
+ * @package Etd_Service
+ * @subpackage Etd_Service_Persis
  */
 
-// class PersisServiceException extends Exception {}
-// class PersisServiceUnavailable extends PersisServiceException {}
-// class PersisServiceUnauthorized extends PersisServiceException {}
-
 /**
- * @package Emory_Service
- * @subpackage Emory_Service_Persis
+ * @package Etd_Service
+ * @subpackage Etd_Service_Persis
  */
 class Etd_Service_Persis {
     /**
@@ -71,6 +66,7 @@ class Etd_Service_Persis {
    * domain_id      => (int)    numeric domain id within which new arks should be created
 
    * @param  array|Zend_Config $config Array or instance of Zend_Config with configuration
+   * errors on Parameters must be in an array or a Zend_Config object
    */
     public function __construct($config) {
 
@@ -79,9 +75,9 @@ class Etd_Service_Persis {
             if ($config instanceof Zend_Config) {
                 $config = $config->toArray();
             }
-            // else {
-            //     throw new PersisServiceException('Parameters must be in an array or a Zend_Config object');
-            // }
+            else {
+                   trigger_error('Parameters must be in an array or a Zend_Config object', E_USER_ERROR);
+            }
         }
 
         $this->_checkRequiredOptions($config);
@@ -91,13 +87,6 @@ class Etd_Service_Persis {
         $this->domain_id = $config["domain_id"];
         $this->pidman = $config["url"];
 
-        // try {
-        //     $this->service = new PersistentIdentifierService($config["url"] . "persis_api/service.wsdl",
-        //         array("trace" => true));
-        // } catch (SoapFault $e) {
-        //     // can't even retrieve wsdl file - service is unavailable or misconfigured
-        //     // throw new PersisServiceUnavailable(); return;
-        // }
 
         $this->ark_regexp = "|^(https?://[a-z.]+)/ark:/([0-9]+)/([" .
                                 $this->noid_charset . "]+)/?(.*)?$|i";
@@ -107,13 +96,12 @@ class Etd_Service_Persis {
   /**
    * check that required options are included in configuration
    * @param array $config
-   * @throws PersisServiceException
+   * @errors missing required
    */
     protected function _checkRequiredOptions(array $config) {
         foreach (array("url", "username", "password", "domain_id") as $required) {
             if (!array_key_exists($required, $config))
-            echo 'hee';
-            // throw new PersisServiceException("Configuration does not include value for $required");
+            trigger_error('Configuration does not include value for ' . $required, E_USER_ERROR);
 
         }
     }
@@ -134,8 +122,6 @@ class Etd_Service_Persis {
 
         // Use the PidMan REST client to generateArk
         $logger = Zend_Registry::get('logger');
-        $logger->info('Going to make request to ' . $this->pidman . '/ark/');
-	$logger->info('Payload will look like: ' . $this->pidman . ' domains /' . $this->domain_id . ' /name ' . $title . ' target_uri '. $url);
         $payload = array('domain' => $this->pidman . 'domains/' . $this->domain_id . '/', 'name' => $title, 'target_uri' => $url );
         $ch = curl_init($this->pidman . '/ark/');
         curl_setopt($ch,CURLOPT_FAILONERROR,true);
@@ -144,8 +130,11 @@ class Etd_Service_Persis {
         curl_setopt($ch, CURLOPT_POST, TRUE);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-        $ark = curl_exec($ch);
-        $logger->info('HTTP response was: ' . curl_getinfo($ch, CURLINFO_HTTP_CODE));
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+	$ark = curl_exec($ch);
+        if (curl_getinfo($ch, CURLINFO_HTTP_CODE) !== 201){
+		trigger_error("Bad response from pidman. Response was: " . curl_getinfo($ch, CURLINFO_HTTP_CODE), E_USER_ERROR);
+	}
         if (curl_error($ch)){
             $logger->err(curl_error($ch));
             trigger_error("Failed to generate ARK: " .  curl_error($ch), E_USER_ERROR);
@@ -153,7 +142,6 @@ class Etd_Service_Persis {
             return null;
         } else {
             curl_close($ch);
-            $logger->info('Generated ARK: ' . $ark);
             return $ark;
         }
     }
@@ -167,8 +155,6 @@ class Etd_Service_Persis {
    * @param string $external_system external system name; optional, defaults to none
    * @param string $external_key key/id within specified external system; optional, defaults to none
    * @return string purl
-   * @throws PersisServiceException
-   * @throws PersisServiceUnauthorized
    */
     public function generatePurl($url, $title, $proxy_id = null,
                  $external_system = null, $external_key = null) {
@@ -188,9 +174,9 @@ class Etd_Service_Persis {
     // throw an exception with an appropriate error message
     switch($e->faultstring) {
     case "request canceled: not authorized":
-      echo ($e->getMessage());
+        trigger_error($e->getMessage(), E_USER_ERROR);
     default:
-      echo ("Unknown error:" . $e->faultstring);
+        trigger_error("Unknown error:" . $e->faultstring, E_USER_ERROR);
     }
     return null;
       }
@@ -264,8 +250,6 @@ class Etd_Service_Persis {
    * @param string $qualifier qualifier string to be appended to ark for new target
    * @param string $uri url to which the new target should resolve
    * @param string $proxy_id
-   * @throws PersisServiceException
-   * @throws PersisServiceUnauthorized
    */
     public function addArkTarget($ark, $qualifier, $uri, $proxy_id = null) {
       if ($this->isArk($ark)) {
@@ -276,7 +260,7 @@ class Etd_Service_Persis {
     // if param was not full ark, check that only the noid portion has been passed in
     $noid = $ark;
       } else {
-    echo ("'$ark' is not a valid ark or noid");
+        trigger_error("'$ark' is not a valid ark or noid", E_USER_ERROR); 
       }
 
       $rqst = new AddArkTarget();
@@ -290,13 +274,13 @@ class Etd_Service_Persis {
       try {
     $result = $this->service->AddArkTarget($rqst);
       } catch (SoapFault $e) {
-    // throw an exception with an appropriate error message
+    
     switch($e->faultstring) {
     case "request canceled: not authorized":
-      echo ($e->getMessage());
+      trigger_error($e->getMessage(), E_USER_ERROR);
       // any other cases?
     default:
-      echo ("Unknown error:" . $e->faultstring);
+        trigger_error("Unknown error:" . $e->faultstring, E_USER_ERROR);
     }
     return null;
       }
