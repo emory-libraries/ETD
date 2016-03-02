@@ -133,6 +133,9 @@ class Etd_Service_Persis {
                 $proxy_id = null, $external_system = null, $external_key = null) {
 
         // Use the PidMan REST client to generateArk
+        $logger = Zend_Registry::get('logger');
+        $logger->info('Going to make request to ' . $this->pidman . '/ark/');
+	$logger->info('Payload will look like: ' . $this->pidman . ' domains /' . $this->domain_id . ' /name ' . $title . ' target_uri '. $url);
         $payload = array('domain' => $this->pidman . 'domains/' . $this->domain_id . '/', 'name' => $title, 'target_uri' => $url );
         $ch = curl_init($this->pidman . '/ark/');
         curl_setopt($ch,CURLOPT_FAILONERROR,true);
@@ -142,13 +145,15 @@ class Etd_Service_Persis {
         curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
         $ark = curl_exec($ch);
+        $logger->info('HTTP response was: ' . curl_getinfo($ch, CURLINFO_HTTP_CODE));
         if (curl_error($ch)){
+            $logger->err(curl_error($ch));
             trigger_error("Failed to generate ARK: " .  curl_error($ch), E_USER_ERROR);
             curl_close($ch);
             return null;
         } else {
             curl_close($ch);
-            echo $ark;
+            $logger->info('Generated ARK: ' . $ark);
             return $ark;
         }
     }
