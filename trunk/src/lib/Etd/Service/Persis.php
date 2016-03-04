@@ -9,6 +9,10 @@
  * @subpackage Etd_Service_Persis
  */
 
+class PersisServiceException extends Exception {}
+class PersisServiceUnavailable extends PersisServiceException {}
+class PersisServiceUnauthorized extends PersisServiceException {}
+
 /**
  * @package Etd_Service
  * @subpackage Etd_Service_Persis
@@ -67,6 +71,8 @@ class Etd_Service_Persis {
 
    * @param  array|Zend_Config $config Array or instance of Zend_Config with configuration
    * errors on Parameters must be in an array or a Zend_Config object
+   * @throws PersisServiceException
+   * @throws PersisServiceUnavailable
    */
     public function __construct($config) {
 
@@ -76,7 +82,7 @@ class Etd_Service_Persis {
                 $config = $config->toArray();
             }
             else {
-                   trigger_error('Parameters must be in an array or a Zend_Config object', E_USER_ERROR);
+                   throw new PersisServiceException('Parameters must be in an array or a Zend_Config object');
             }
         }
 
@@ -97,11 +103,12 @@ class Etd_Service_Persis {
    * check that required options are included in configuration
    * @param array $config
    * @errors missing required
+   * @throws PersisServiceException
    */
     protected function _checkRequiredOptions(array $config) {
         foreach (array("url", "username", "password", "domain_id") as $required) {
             if (!array_key_exists($required, $config))
-            trigger_error('Configuration does not include value for ' . $required, E_USER_ERROR);
+            throw new PersisServiceException("Configuration does not include value for $required");
 
         }
     }
@@ -116,6 +123,8 @@ class Etd_Service_Persis {
    * @param string $external_system external system name; optional, defaults to none
    * @param string $external_key key/id within specified external system; optional, defaults to none
    * @return string ark
+   * @throws PersisServiceException
+   * @throws PersisServiceUnauthorized
    */
     public function generateArk($url, $title, $qualifier = null,
                 $proxy_id = null, $external_system = null, $external_key = null) {
@@ -124,6 +133,7 @@ class Etd_Service_Persis {
         $logger = Zend_Registry::get('logger');
         $payload = array('domain' => $this->pidman . 'domains/' . $this->domain_id . '/', 'name' => $title, 'target_uri' => $url );
         $ch = curl_init($this->pidman . '/ark/');
+        
         curl_setopt($ch,CURLOPT_FAILONERROR,true);
         curl_setopt($ch, CURLOPT_USERPWD, $this->username . ":" . $this->password);
         curl_setopt($ch, CURLOPT_TIMEOUT, 30);
@@ -133,11 +143,13 @@ class Etd_Service_Persis {
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
 	$ark = curl_exec($ch);
         if (curl_getinfo($ch, CURLINFO_HTTP_CODE) !== 201){
-		trigger_error("Bad response from pidman. Response was: " . curl_getinfo($ch, CURLINFO_HTTP_CODE), E_USER_ERROR);
-	}
+                $error = "Bad response from pidman. Response was: " . curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                $logger->err($error);
+		throw new PersisServiceUnauthorized($error);
+        }
         if (curl_error($ch)){
             $logger->err(curl_error($ch));
-            trigger_error("Failed to generate ARK: " .  curl_error($ch), E_USER_ERROR);
+            throw new PersisServiceUnauthorized("Failed to generate ARK: " .  curl_error($ch));
             curl_close($ch);
             return null;
         } else {
@@ -155,6 +167,8 @@ class Etd_Service_Persis {
    * @param string $external_system external system name; optional, defaults to none
    * @param string $external_key key/id within specified external system; optional, defaults to none
    * @return string purl
+   * @throws PersisServiceException
+   * @throws PersisServiceUnauthorized
    */
     public function generatePurl($url, $title, $proxy_id = null,
                  $external_system = null, $external_key = null) {
@@ -174,9 +188,9 @@ class Etd_Service_Persis {
     // throw an exception with an appropriate error message
     switch($e->faultstring) {
     case "request canceled: not authorized":
-        trigger_error($e->getMessage(), E_USER_ERROR);
+        throw new PersisServiceUnauthorized($e->getMessage());
     default:
-        trigger_error("Unknown error:" . $e->faultstring, E_USER_ERROR);
+        throw new PersisServiceException("Unknown error:" . $e->faultstring);
     }
     return null;
       }
@@ -194,7 +208,7 @@ class Etd_Service_Persis {
    */
     public function pidfromArk($ark, $namespace = "emory") {
         $parsed = $this->parseArk($ark);
-        return $namespace . ":" . $parsed[Emory_Service_Persis::NOID];
+        return $namespace . ":" . $parsed[Etd_Service_Persis::NOID];
     }
 
   /**
@@ -260,7 +274,7 @@ class Etd_Service_Persis {
     // if param was not full ark, check that only the noid portion has been passed in
     $noid = $ark;
       } else {
-        trigger_error("'$ark' is not a valid ark or noid", E_USER_ERROR); 
+	throw new PersisServiceException("'$ark' is not a valid ark or noid");
       }
 
       $rqst = new AddArkTarget();
@@ -277,16 +291,13 @@ class Etd_Service_Persis {
     
     switch($e->faultstring) {
     case "request canceled: not authorized":
-      trigger_error($e->getMessage(), E_USER_ERROR);
-      // any other cases?
+    	throw new PersisServiceUnauthorized($e->getMessage());  
+    // any other cases?
     default:
-        trigger_error("Unknown error:" . $e->faultstring, E_USER_ERROR);
+    	throw new PersisServiceException("Unknown error:" . $e->faultstring);
     }
     return null;
       }
       return $result->return;
     }
-
-
-
 }
