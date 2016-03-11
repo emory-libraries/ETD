@@ -7,6 +7,7 @@
     <skos:member rdf:resource="#candler"></skos:member>
     <skos:member rdf:resource="#rollins"></skos:member>
     <skos:member rdf:resource="#nhwson"></skos:member>
+    <skos:member rdf:resource="#biomedeng"></skos:member>
   </skos:Collection>
 
   <skos:Collection rdf:about="#grad">
