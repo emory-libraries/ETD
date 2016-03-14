@@ -175,10 +175,13 @@ class ReportController extends Etd_Controller_Action {
         if(!$this->_helper->access->allowed("report", "view")) {return false;}
         $this->view->title = "Reports : Graduate Schol Academic Year";
 
+	// Calculate the number of years to inclue. ETDs began in 2007.
+        $yearsToGet = date("Y") - 2008;
+
         // academic start and end months
         $acStart="Dec 31";
         $acEnd="Aug 31";
-        $numYears=2;  //number of years to include before most recent academic year
+        $numYears=$yearsToGet;  //number of years to include before most recent academic year
         $curDate=strtotime("now"); //current date
 
         //Create first and thus default choice
