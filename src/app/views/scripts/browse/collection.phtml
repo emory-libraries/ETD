@@ -1,11 +1,17 @@
 <p class="browse_heading">
    <?=  $this->render('browse/_collection_breadcrumb.phtml'); ?>
 </p>
+
+<? if ($this->collection->label == 'Biomedical Engineering'): ?>
+<p>
+	The theses and dissertations of the Wallace H. Coulter Department of Biomedical Engineering, a joint department created by Emory University and Georgia Tech, are available in <a href="https://smartech.gatech.edu/" title="SMARTech">SMARTech</a>, Georgia Tech’s repository, and Emory University’s <a href="http://discovere.emory.edu/primo_library/libweb/action/search.do" title="Emory's discoverE">discoverE catalog</a>.
+</p>
+<? endif ?>
   
     <? if ($this->coll != '') $linkmode = "subcoll"; else $linkmode = "coll"; ?>
 <? foreach ($this->collection->members as $member): ?>
    <? $link_id = str_replace("#", '', $member->id);?>
-
+  
   <p><a href="<?= $this->url(array('controller' => 'browse', 'action' => $this->action,
     'coll' => $link_id), '', true) ?>"><?= $member->label ?></a>
    <?/* category totals: only display if non-zero */?>
