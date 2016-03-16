@@ -195,7 +195,13 @@ class BrowseController extends Etd_Controller_Action {
       $prog = $programObject->skos;
       $coll = $prog->findIdbyLabel($name);
     }
-
+    // Redirect due to a namechange for the Rollins Career Masters of Public Health
+    if ($coll == '#rsph-cmph') {
+    	$helper = new Zend_Controller_Action_Helper_Redirector();
+        $helper->setCode(301);
+          $helper->gotoRoute(array("controller" => "browse",
+                      "action" => "programs", "coll" => 'rsph-emph'), "", true);
+     }
     // add year to sort options
     $this->view->sort_fields[] = "year";
 
