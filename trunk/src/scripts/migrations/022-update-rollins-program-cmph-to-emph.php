@@ -1,13 +1,15 @@
 #!/usr/bin/php -q
 <?php
 /**
- * Update ETDs program listings to add Rollins.
- *
+ * Update rsph-cmph to rsph-emph.
+ * NOTE: THIS DOES NOT WORK. Please see changelog for ....
+ * 
  * @category Etd
  * @package Etd_Scripts
  * @subpackage Etd_Migration_Scripts
  */
 
+exit('This migration DOES NOT WORK. Please see line 57 and changelog for 1.8 :('. PHP_EOL);
 // set working directory to the main scripts directory so all the paths work the same
 chdir("..");
 // set paths, load config files, set up connection objects for fedora, solr, and ESD
@@ -46,13 +48,15 @@ try {
 Zend_Registry::set("fedora", $maintenance_fedora);
 
 $programs = new foxmlPrograms();
+
 $skos = $programs->skos;
-$cmph = "#rsph-cmph";
+
 if ($skos->findLabelbyId('#rsph-cmph') != null) {
-    $skos->members_by_id['rsph-cmph']->label = 'Executive Masters of Public Health';
-    $skos->members_by_id['rsph-cmph']->id = '#rsph-emph';
-    $skos->rollins->collection->removeMember('#rsph-cmph');
-    $skos->rollins->collection->addMember('#rsph-emph');
+    $skos->rollins->collection->members_by_id['rsph-cmph']->label = 'Executive Masters of Public Health';
+    $skos->rollins->collection->members_by_id['rsph-cmph']->id = 'rsph-emph';
+    //TODO This is what doesn't work. The `id` for the collection does not update.
+    $skos->{"rsph-cmph"}->collection->id = 'rsph-emph';
+
 }
 else {
 echo 'nothing';
@@ -61,8 +65,6 @@ echo 'nothing';
 // if record has changed, save to Fedora
 if ($skos->hasChanged()){
   if (!$opts->noact) {
-    $skos->checksum = '216d20bb96dcf34ad16185f44d3f118c';
-    echo var_dump($skos);
     $result = $programs->save("updating program list to to reflect name change for Executive Masters of Public Health");
     if ($result) {
       $logger->info("Successfully updated progams (" . $programs->pid .
