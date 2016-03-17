@@ -1,5 +1,16 @@
 CHANGE LOG
 =================
+Version 1.18: Creating records for students & BME dissertations
+------------
+NOTE the migration added in this release, 022, DOES NOT WORK. It is left in for documentation purposes.
+In this release, a Rollins program was changed in the SKOS from `rsph-cmph` to `rsph-emph` and the label was changed to `Executive Masters of Public Health`. Migration 022 updates everything but the id on the collection. The changes to the SKOS were made manually. Sorry.
+
+* ETD admins can create records on behalf of students and the permissions are set properly for the student to edit.
+* PID creation was changed from using PIDMans soap api to the REST api.
+* Text was added to explain where to find biomedical engineering dissertations.
+* Reports can now be generated for every academic year that has ETDs.
+* Bug fix for Laney reports. They are no longer paginated to just give 100 ETDs. A few more zeros were added.
+
 Version 1.17.6
 --------------
 * It was determined that `fileinfo` is broken and now MimeTypes are determined using `/usr/local/bin/file`
@@ -501,3 +512,4 @@ Revision 1008 - April 2008
 * upgraded to ZendFramework 1.5
 * using Ldap credentials to authenticate to Fedora (instead of workaround)
 * new cron scripts: publish.php, embargo_expiration.php
+
