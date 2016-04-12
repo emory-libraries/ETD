@@ -1,5 +1,9 @@
 CHANGE LOG
 =================
+Version 1.18.1
+--------------
+Updated Honors Program submission notification
+
 Version 1.18: Creating records for students & BME dissertations
 ------------
 NOTE the migration added in this release, 022, DOES NOT WORK. It is left in for documentation purposes.
@@ -512,4 +516,3 @@ Revision 1008 - April 2008
 * upgraded to ZendFramework 1.5
 * using Ldap credentials to authenticate to Fedora (instead of workaround)
 * new cron scripts: publish.php, embargo_expiration.php
-
