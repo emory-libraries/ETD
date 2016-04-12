@@ -45,7 +45,7 @@ class AuthController extends Etd_Controller_Action {
 
      $result = $auth->authenticate($authAdapter);
      if (!$result->isValid()) {
-       $message = implode(",", $result->getMessages());
+       $message = "Error: login failed";
        switch($result->getCode()) {
        case Zend_Auth_Result::FAILURE_IDENTITY_NOT_FOUND :
        case Zend_Auth_Result::FAILURE_IDENTITY_AMBIGUOUS :

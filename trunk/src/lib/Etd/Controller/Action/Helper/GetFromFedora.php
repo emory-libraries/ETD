@@ -28,7 +28,7 @@ class Etd_Controller_Action_Helper_GetFromFedora extends Zend_Controller_Action_
    * @param string $type object type (passed to EtdFactory::init)
    * @return etd|etd_file|user
    */
-  public function findById($id, $type) { 
+  public function findById($id, $type) {
    return $this->handle_errors($id, $type);
   }
 
@@ -43,21 +43,17 @@ class Etd_Controller_Action_Helper_GetFromFedora extends Zend_Controller_Action_
       //TODO try to fixure out if errors have shifted to another place
     $request = $this->_actionController->getRequest();
     $id = $request->getParam($param, null);
-    
+
     return $this->handle_errors($id, $type);
   }
 
   private function handle_errors($id, $type) {
-    $logger = Zend_Registry::get('logger');
-    $logger->info("$id is " . $id);
-    $logger->info("$type is " . $type);
     $flashMessenger = $this->_actionController->getHelper("FlashMessenger");
     $redirector = $this->_actionController->getHelper("Redirector");
 
     $denied = false;
-    
+
     if (is_null($id)) {
-      $logger->info("$id is " . $id);
       $flashMessenger->addMessage("Error: No record specified for $type");
       $redirector->gotoRoute(array("controller" => "error"), "", true);
       return null;
@@ -114,13 +110,12 @@ class Etd_Controller_Action_Helper_GetFromFedora extends Zend_Controller_Action_
       // log denial info
       $logger = Zend_Registry::get('logger');
       $logger->warn($log_message);
-      
+
       return null;
     }
 
     // success
     return $object;
   }
-  
-}
 
+}

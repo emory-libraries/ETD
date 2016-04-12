@@ -19,8 +19,7 @@ $autoloader->setFallbackAutoloader(true);
 // NOTE: php is now outputting a notice when using __set on arrays / objects
 // (actual logic seems to work properly)
 // error_reporting(E_ALL ^ E_NOTICE);
-// error_reporting(E_ERROR | E_WARNING | E_PARSE);
-error_reporting(0);
+error_reporting(E_ERROR | E_WARNING | E_PARSE);
 
 require_once("api/FedoraConnection.php");
 
@@ -55,7 +54,7 @@ try {
       // use default fedora configuration, but override with logged-in user's credentials
       $fedora_opts["username"] = $current_user->netid;
       $fedora_opts["password"] = $current_user->getPassword();
-      $fedora = new FedoraConnection($fedora_opts);     
+      $fedora = new FedoraConnection($fedora_opts);
   } else {
     // clear identity in case user is partially logged in
     $auth->clearIdentity();
@@ -96,7 +95,7 @@ Zend_Registry::set('solr', $newsolr);
 // sqlite db for statistics data
 $db_config = new Zend_Config_Xml($config_dir . 'statistics.xml', $env_config->mode);
 $db = Zend_Db::factory($db_config);
-Zend_Registry::set('stat-db', $db);	
+Zend_Registry::set('stat-db', $db);
 
 
 $schools_config = new SchoolsConfig($config_dir . "schools.xml");
@@ -187,5 +186,3 @@ $front->throwExceptions((boolean)$env_config->display_exception);
 
 
 $front->dispatch();
-
-
