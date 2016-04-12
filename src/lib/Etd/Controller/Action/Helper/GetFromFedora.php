@@ -48,12 +48,16 @@ class Etd_Controller_Action_Helper_GetFromFedora extends Zend_Controller_Action_
   }
 
   private function handle_errors($id, $type) {
+    $logger = Zend_Registry::get('logger');
+    $logger->info("$id is " . $id);
+    $logger->info("$type is " . $type);
     $flashMessenger = $this->_actionController->getHelper("FlashMessenger");
     $redirector = $this->_actionController->getHelper("Redirector");
 
     $denied = false;
     
     if (is_null($id)) {
+      $logger->info("$id is " . $id);
       $flashMessenger->addMessage("Error: No record specified for $type");
       $redirector->gotoRoute(array("controller" => "error"), "", true);
       return null;
