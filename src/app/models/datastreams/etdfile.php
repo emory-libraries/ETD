@@ -222,10 +222,10 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
           $finfo = finfo_open(FILEINFO_MIME);
       }
     $filetype = finfo_file($finfo, $tmpfile);
-    
+
     # The PHP mime magic is broken so we use a bit of a brute force hammer here to get the mimetype
     $filetype = exec('/usr/local/bin/file -b --mime-type -m /usr/local/share/file/magic ' . $tmpfile);
-    
+
     if (isset($userfilename)) $filename = $userfilename;
     else $filename = $tmpfile;
 
@@ -388,7 +388,7 @@ class etd_file extends foxml implements Zend_Acl_Resource_Interface {
     // mint a new pid if the pid is not already set
     if ($this->pid == "") {
         // could generate service unavailable exception - should be caught in the controller
-        $persis = new Emory_Service_Persis(Zend_Registry::get('persis-config'));
+        $persis = new Etd_Service_Persis(Zend_Registry::get('persis-config'));
 
         // FIXME: is there any way to use view/controller helper to build this url?
         $ark = $persis->generateArk("http://etd.library.emory.edu/file/view/pid/emory:{%PID%}",

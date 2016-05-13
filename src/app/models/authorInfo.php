@@ -191,7 +191,7 @@ class authorInfo extends foxml {
   public function ingest($message ) {
     // mint a new pid if the pid is not already set
     if ($this->pid == "") {
-        $persis = new Emory_Service_Persis(Zend_Registry::get('persis-config'));
+        $persis = new Etd_Service_Persis(Zend_Registry::get('persis-config'));
 
         // FIXME: use view/controller toa build this url?
         $ark = $persis->generateArk("http://etd.library.emory.edu/author-info/view/pid/emory:{%PID%}", $this->label);
