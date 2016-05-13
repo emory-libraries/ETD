@@ -1,5 +1,10 @@
 CHANGE LOG
 =================
+
+Version 1.18.2
+--------------
+Creating ARKs for ETD files and author info now uses the REST API.
+
 Version 1.18.1
 --------------
 Updated Honors Program submission notification
