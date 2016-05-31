@@ -1,5 +1,9 @@
 CHANGE LOG
 =================
+Version 1.18.3
+--------------
+* Removed warning that abstract is too long.
+* Updated Google Analytics to send to multiple GA accounts.
 
 Version 1.18.2
 --------------
