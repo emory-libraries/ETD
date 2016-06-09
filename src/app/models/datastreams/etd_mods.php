@@ -74,11 +74,11 @@ class etd_mods extends mods {
     $this->embargo_name_map = array(etd_mods::EMBARGO_FILES => "files",
                                     etd_mods::EMBARGO_TOC => "toc",
                                     etd_mods::EMBARGO_ABSTRACT => "abstract");
-    
+
     parent::configure();
 
     $this->addNamespace("etd", etd_mods::ETDMS_NS);
-    
+
     $this->xmlconfig["author"] = array("xpath" => "mods:name[mods:role/mods:roleTerm = 'author']",
                "class_name" => "mods_name");
     $this->xmlconfig["department"] = array("xpath" => "mods:name[mods:role/mods:roleTerm = 'author']/mods:affiliation");
@@ -100,8 +100,8 @@ class etd_mods extends mods {
                "class_name" => "mods_name", "is_series" => true);
     $this->xmlconfig["degree_grantor"] = array("xpath" =>
                  "mods:name[@type='corporate'][mods:role/mods:roleTerm='Degree grantor']",
-                 "class_name" => "mods_name");  
-    
+                 "class_name" => "mods_name");
+
     $this->xmlconfig["researchfields"] = array("xpath" =>
                  "mods:subject[@authority='proquestresearchfield']",
                  "is_series" => true, "class_name" => "etdmods_subject");
@@ -120,25 +120,27 @@ class etd_mods extends mods {
 
 
     $this->xmlconfig["pq_submit"] = array("xpath" => "mods:note[@type='admin'][@ID='pq_submit']");
-    
+
     // FIXME: may need mods_date class to set keyDate, start/end, qualifier attributes
-    
+
     $this->xmlconfig["rights"] = array("xpath" => "mods:accessCondition[@type='useAndReproduction']");
 
     $this->xmlconfig["ark"] = array("xpath" => "mods:identifier[@type='ark']");
     $this->xmlconfig["identifier"] = array("xpath" => "mods:identifier[@type='uri']");
+    $this->xmlconfig["doi"] = array("xpath" => "mods:identifier[@type='doi']");
+    $this->xmlconfig["doi-identifier"] = array("xpath" => "mods:identifier[@type='doi-uri']");
 
     // only use aat genre for normal usage; add mapping for marc-specific genre term
     $this->xmlconfig["genre"] = array("xpath" => "mods:genre[@authority='aat']");
     $this->xmlconfig["marc_genre"] = array("xpath" => "mods:genre[@authority='marc']");
-    
+
     // partnering agencies- one to three entries for rollins
     $this->xmlconfig["partneringagencies"] = array("xpath" =>
-            "mods:note[@type='partneragencytype']", "is_series" => true, 
-            "class_name" => "mods_note");     
+            "mods:note[@type='partneragencytype']", "is_series" => true,
+            "class_name" => "mods_note");
 
   }
-  
+
 
   public function __set($name, $value) {
     switch ($name) {
@@ -146,7 +148,7 @@ class etd_mods extends mods {
       $value .= " p."; break; // value should be passed in as a number (check incoming value?)
     case "embargo":
       $value = "Embargoed for " . $value;
-    } 
+    }
     parent::__set($name, $value);
   }
 
@@ -186,10 +188,10 @@ class etd_mods extends mods {
    * @param string $text
    * @param string $id optional
    */
-  public function addPartneringAgency($text, $id = "") { 
-      $this->addNote($text, "partneragencytype", $id, "Type of partner agency"); 
-  }  
-  
+  public function addPartneringAgency($text, $id = "") {
+      $this->addNote($text, "partneragencytype", $id, "Type of partner agency");
+  }
+
   /**
    * add a new keyword
    * @param string $text keyword
@@ -199,7 +201,7 @@ class etd_mods extends mods {
   }
 
   /**
-   * Clear out the old keywords and add a list of new values. 
+   * Clear out the old keywords and add a list of new values.
    * @param array $values list of new keywords
    */
   public function setKeywords(array $values) {
@@ -215,13 +217,13 @@ class etd_mods extends mods {
     foreach ($this->keywords as $kw) {
       $kw->domnode->parentNode->removeChild($kw->domnode);
     }
-    foreach ($values as $val) {     
+    foreach ($values as $val) {
       $this->addKeyword($val);
     }
     $this->update();
-  } 
+  }
 
-  
+
   /**
    * add subject/topic pair - used for adding both keywords & research fields
    * @param string $text
@@ -243,16 +245,16 @@ class etd_mods extends mods {
     $topic = $this->dom->createElementNS($this->namespaceList["mods"],
            "mods:topic", $text);
     $topic = $subject->appendChild($topic);
-    
+
     // find first node following current type of subjects and append before
     $nodeList = $this->xpath->query("//mods:subject[@authority='$authority'][last()]/following-sibling::*");
-    
+
     // if a context node was found, insert the new node before it
     if ($nodeList->length) {
       $contextnode = $nodeList->item(0);
       //  print "attempting to insert before:\n";
       //  print $this->dom->saveXML($nodeList->item(0)) . "\n";
-      
+
       $contextnode->parentNode->insertBefore($subject, $contextnode);
     } else {
       // if no context node is found, new node will be appended at end of xml document
@@ -304,12 +306,12 @@ class etd_mods extends mods {
                 $type = "committee";
                 break;
     }
-    
+
     //New mods:name node
     $nameNode = $this->dom->createElementNS($this->namespaceList["mods"], "mods:name");
     //The empty ID is required by the mods object so that it can be filled
     //in later.  Empty ID is not valid.
-    if ($emory) $nameNode->setAttribute("ID", "");  
+    if ($emory) $nameNode->setAttribute("ID", "");
     $nameNode->setAttribute("type", "personal");
 
     //Add given name part
@@ -357,7 +359,7 @@ class etd_mods extends mods {
     if (isset($name->affiliation) && !is_null($affiliation)) {
       $name->affiliation = $affiliation;
     }
-        
+
     // find first node following current type of subjects and append before
     if (isset($name->description)) {
       $xpath = "//mods:name[mods:description='" . $name->description ."'][last()]/following-sibling::*";
@@ -384,15 +386,15 @@ class etd_mods extends mods {
         if (isset($this->map['chair']) && count($this->chair))
           $contextnode = $this->map['chair'][count($this->chair) - 1]->domnode;
     } else {
-      // this shouldn't happen unless there is something wrong with the xml.... 
+      // this shouldn't happen unless there is something wrong with the xml....
       trigger_error("Couldn't find context node to insert new committee member", E_USER_NOTICE);
-    } 
+    }
 
     if (isset($contextnode))
       $nameNode = $contextnode->parentNode->insertBefore($nameNode, $contextnode);
     else  // if no context is found, just add at the end of xml
       $nameNode = $this->domnode->appendChild($nameNode);
-    
+
 
     $this->update();
   }
@@ -431,14 +433,14 @@ class etd_mods extends mods {
    * @param string $type defaults to committee (member); can also be chair
    */
   public function setCommitteeFromPersons(array $people, $type = "committee") {
-    
+
     $needUpdate = false;
     $i = 0; // index for looping over committee array
     foreach ($people as $person) {
-      
-      if (isset($this->map[$type][$i])) {          
+
+      if (isset($this->map[$type][$i])) {
         $this->setNameFromPerson($this->map[$type][$i], $person);
-      } else {        
+      } else {
         $this->addCommittee($person->lastname, $person->name, $type);
         // FIXME: need a better way store netid... - should be part of addCommittee function ?
         $this->{$type}[$i]->id = $person->netid;
@@ -448,7 +450,7 @@ class etd_mods extends mods {
     }
 
     // remove any committee members beyond this set of new ones
-    while (isset($this->{$type}[$i]) ) {     
+    while (isset($this->{$type}[$i]) ) {
       $this->removeCommittee($this->{$type}[$i]->id);
       $needUpdate = true; // DOM has changed - removed nodes
     }
@@ -464,7 +466,7 @@ class etd_mods extends mods {
   public function setCommittee(array $netids, $type = "committee") {
     $esd = new esdPersonObject();
     $i = 0; // index for looping over committee array
-    
+
     foreach ($netids as $id) {  // if id is unchanged, don't lookup/reset
       if (isset($this->map[$type][$i]) && $this->committee[$i]->id == $id) {
         $i++;
@@ -538,12 +540,12 @@ class etd_mods extends mods {
       throw new XmlObjectException("Can't remove committee member/chair with non-existent id");
       return; // don't remove empty nodes (should be part of template)
     }
-    
+
     // remove the node from the xml dom
     $nodelist = $this->xpath->query("//mods:name[@ID = '$id'][mods:role/mods:roleTerm = 'Committee Member'
       or mods:role/mods:roleTerm = 'Thesis Advisor']");
     for ($i = 0; $i < $nodelist->length; $i++) {
-      $node = $nodelist->item($i);      
+      $node = $nodelist->item($i);
       $node->parentNode->removeChild($node);
     }
     // update in-memory array so it will reflect the change
@@ -584,17 +586,17 @@ class etd_mods extends mods {
   }
 
   /**
-   * clear out the old research fields, and write in the new. 
+   * clear out the old research fields, and write in the new.
    * @param array $values associative array of research field id => name
    */
   public function setResearchFields(array $values) {
     foreach ($this->researchfields as $field) {
       $this->removeResearchField($field->id);
-    }     
-    foreach ($values as $id => $text) {     
+    }
+    foreach ($values as $id => $text) {
       $this->addResearchField($text, $id);
     }
-  } 
+  }
 
   /**
    * remove a research field by id
@@ -605,7 +607,7 @@ class etd_mods extends mods {
     // NOTE: takes numerical id as parameter, prepends 'id' (needed for valid id)
     $nodelist = $this->xpath->query("//mods:subject[@authority='proquestresearchfield'][@ID = 'id$id']");
     for ($i = 0; $i < $nodelist->length; $i++) {
-      $node = $nodelist->item($i);      
+      $node = $nodelist->item($i);
       $node->parentNode->removeChild($node);
     }
 
@@ -636,7 +638,7 @@ class etd_mods extends mods {
     }
     return false;
   }
-  
+
   /**
    * clear out the old partnering agencies, and write in the new.
    * @param array $values associative array of partnering agency id => name
@@ -644,12 +646,12 @@ class etd_mods extends mods {
   public function setPartneringAgencies(array $values) {
     foreach ($this->partneringagencies as $field) {
       $this->removePartneringAgency($field->id);
-    }     
-    foreach ($values as $id => $text) {     
+    }
+    foreach ($values as $id => $text) {
       $this->addPartneringAgency($text, $id);
     }
   }
-  
+
   /**
    * remove a partnering agency by id
    * @param string|int $id
@@ -657,7 +659,7 @@ class etd_mods extends mods {
   public function removePartneringAgency($id) {
     $nodelist = $this->xpath->query("//mods:note[@ID = '$id']");
     for ($i = 0; $i < $nodelist->length; $i++) {
-      $node = $nodelist->item($i);      
+      $node = $nodelist->item($i);
       $node->parentNode->removeChild($node);
     }
 
@@ -676,7 +678,7 @@ class etd_mods extends mods {
         return $i;
     }
   }
-  
+
   /**
    * check by id if partneringagency is present
    * @param string|int $id
@@ -710,9 +712,9 @@ class etd_mods extends mods {
    * @return int|null null if not set
    */
   public function embargoRequestLevel() {
-    
+
     if (!isset($this->embargo_request)) return NULL;
-    
+
     $embargo = $this->embargo_request;
 
     if (strpos($embargo, "no") === 0)
@@ -746,7 +748,7 @@ class etd_mods extends mods {
 
   /**
    * set embargo request
-   * @param int $level 
+   * @param int $level
    */
   public function setEmbargoRequestLevel($level) {
     if ($level == etd_mods::EMBARGO_NONE) {
@@ -840,7 +842,7 @@ class etd_mods extends mods {
         list($nma, $naan, $noid) = $persis->parseArk($this->ark);
         $this->ark = "ark:/" . $naan . "/" . $noid;
     }
-  }    
+  }
 
   /**
    * remove a field from the xml
@@ -852,13 +854,13 @@ class etd_mods extends mods {
       return;
     }
     /*    for ($i = 0; $i < $nodelist->length; $i++) {
-      $node = $nodelist->item($i);      
+      $node = $nodelist->item($i);
       $node->parentNode->removeChild($node);*/
 
     if ($this->map[$mapname] instanceof DOMElementArray ||
         isset($this->xmlconfig[$mapname]["is_series"]) && $this->xmlconfig[$mapname]["is_series"]) {
       foreach ($this->map[$mapname] as $el) {
-        if ($el instanceof XmlObject) 
+        if ($el instanceof XmlObject)
           $el->domnode->parentNode->removeChild($el->domnode);
         else
           $el->parentNode->removeChild($el->domnode);
@@ -908,8 +910,8 @@ class etd_mods extends mods {
         }
       }
       return false;
-    }      
-      
+    }
+
     // all checks passed
     return true;
   }
@@ -922,7 +924,7 @@ class etd_mods extends mods {
   public function checkFields(array $fields) {
     $missing = array();
 
-    // check everything that is specified as required 
+    // check everything that is specified as required
     foreach ($fields as $field) {
       if (! $this->isComplete($field)) $missing[] = $field;
     }
@@ -933,7 +935,7 @@ class etd_mods extends mods {
   /**
    * check all available fields
    * @see etd_mods::checkFields
-   * @return array 
+   * @return array
    */
   public function checkAllFields() {
     return $this->checkFields($this->available_fields);
@@ -941,7 +943,7 @@ class etd_mods extends mods {
 
   /**
    * check if a required field is filled in completely (part of submission-ready check)
-   * 
+   *
    * @param string $field name
    * @return boolean
    */
@@ -982,7 +984,7 @@ class etd_mods extends mods {
     case "partnering agencies":
       // complete if there is at least one non-blank partnering agency field
       return ((count($this->partneringagencies) != 0) &&
-        ($this->partneringagencies[0]->id != "" || $this->partneringagencies[0]->topic != ""));        
+        ($this->partneringagencies[0]->id != "" || $this->partneringagencies[0]->topic != ""));
     case "keywords":
       // complete if there is at least one non-blank keyword
       return ((count($this->keywords) != 0) && (trim($this->keywords[0]->topic) != ""));
@@ -1006,11 +1008,11 @@ class etd_mods extends mods {
     case "abstract":
     case "degree":
       return (trim($this->$field) != "");   // complete if not empty (not just whitespace)
-      
+
     default:
       // if requested field matches a mapped variable, do a simple check
       if (isset($this->$field))
-        return (trim($this->$field) != ""); 
+        return (trim($this->$field) != "");
       else
         // otherwise, complain
         trigger_error("Cannot determine if '$field' is complete", E_USER_NOTICE);
@@ -1028,7 +1030,7 @@ class etd_mods extends mods {
       return "committee chair/thesis adviser";
     case "researchfields":
       return "ProQuest research fields";
-   
+
       // in most cases, field = label
     case "author":
     case "program":
@@ -1043,12 +1045,12 @@ class etd_mods extends mods {
     case "title":
     case "abstract":
     case "degree":
-    case "partnering agencies":     
+    case "partnering agencies":
       return $field;
     }
   }
 
-  
+
 
   /**
    * specialized version of check required - disregards rights completion status
@@ -1101,7 +1103,7 @@ class etd_mods extends mods {
   function ProquestRequired() {
     return ($this->degree->name == "PhD");
   }
-  
+
   /**
    * is submit to proquest set (yes/no)
    * @return bool
@@ -1137,7 +1139,7 @@ class etd_mods extends mods {
     $dom = new DOMDocument();
     $dom->loadXML(file_get_contents("etd_mods.xml", FILE_USE_INCLUDE_PATH));
     return $dom;
-  }  
+  }
 
 }
 
@@ -1153,7 +1155,7 @@ class etdmods_subject extends mods_subject {
   public function __set($name, $value) {
     if ($name == "id" && preg_match("/[0-9]{4}/", $value)) {
       $value = "id$value";
-    } 
+    }
     parent::__set($name, $value);
   }
 
@@ -1187,10 +1189,9 @@ class etd_degree extends modsXmlObject {
     parent::__construct($xml, $config, $xpath);
   }
 
-  // default conversion to string-- used for checking field is complete 
+  // default conversion to string-- used for checking field is complete
   public function __toString() {
     return $this->name;
   }
-    
-}
 
+}

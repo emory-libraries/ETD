@@ -1192,7 +1192,7 @@ class etd extends foxml implements etdInterface {
   }
 
 
-
+  // NOTE: this is deprecated. ProQuest no longer cares about abstract length
   public function abstract_word_count() {
     // return word count on text-only version, not formatted html version
     return str_word_count($this->mods->abstract);
@@ -1337,6 +1337,10 @@ class etd extends foxml implements etdInterface {
     return $this->mods->identifier;     // want the resolvable version of the ark
   }
 
+  public function doi() {
+    return $this->mods->doi-identifier;     // want the resolvable version of the doi
+  }
+
   // direct access to metadata disseminations for efficiency
    protected function getMetadataTransform($method) {
         $result = $this->fedora->getDisseminationSOAP($this->pid,
@@ -1466,4 +1470,3 @@ function sort_etdfiles(etd_file $a, etd_file $b) {
     return 0;
   }
 }
-
