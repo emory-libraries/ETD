@@ -128,7 +128,6 @@ class etd_mods extends mods {
     $this->xmlconfig["ark"] = array("xpath" => "mods:identifier[@type='ark']");
     $this->xmlconfig["identifier"] = array("xpath" => "mods:identifier[@type='uri']");
     $this->xmlconfig["doi"] = array("xpath" => "mods:identifier[@type='doi']");
-    $this->xmlconfig["doiIdentifier"] = array("xpath" => "mods:identifier[@type='doi-uri']");
 
     // only use aat genre for normal usage; add mapping for marc-specific genre term
     $this->xmlconfig["genre"] = array("xpath" => "mods:genre[@authority='aat']");

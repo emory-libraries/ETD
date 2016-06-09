@@ -1338,7 +1338,7 @@ class etd extends foxml implements etdInterface {
   }
 
   public function doiURI() {
-    $split(":", $this->mods->doi);
+    $doi = $split(":", $this->mods->doi);
     return 'http://doi.org/ ' . $doi[1];    // want the resolvable version of the doi
   }
 
