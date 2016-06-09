@@ -167,6 +167,7 @@
         <a class="record-edit" href="<?= $this->url(array("controller" => "edit", "action" => "program", "pid" => $this->etd->pid())) ?>" title="edit school and program">edit</a>
      <? endif ?>
      <? if ($this->etd->doiURI()): ?>
+        <br />
         <b>DOI</b> <a href="<?= $this->etd->doiURI() ?>"><?= $this->etd->doiURI() ?></a>
     <? endif ?>
      <br/>
