@@ -1,4 +1,4 @@
-<? /* summary ETD information - displayed in both full and short record views 
+<? /* summary ETD information - displayed in both full and short record views
     Only should use functions available in etdInterface */ ?>
 <? $published = ($this->etd->status() == "published"); ?>
 
@@ -8,7 +8,7 @@
 <? else: ?>   <?= $this->etd->author() ?> <? endif ?>
 
    <? if ($year = $this->etd->year()): ?>
-     <? if ($published): ?>       
+     <? if ($published): ?>
    (<a href="<?= $this->url(array('controller' => 'browse', 'action' => 'year',
   'value' => $year), '', true)?>"><?= $year ?></a>)
      <? else: ?>   <?= $year ?> <? endif ?>
@@ -18,7 +18,7 @@
    <? if (isset($this->etd->authorInfo)): ?>
       <? if ($this->acl->isAllowed($this->etd->getUserRole($this->current_user), "authorInfo", "view") ): ?>
          <span class="userinfo">[<a href="<?= $this->url(array('controller' => 'authorInfo', 'action' => 'view',
-         'pid' => $this->etd->authorInfo->pid), '', true, false) ?>" 
+         'pid' => $this->etd->authorInfo->pid), '', true, false) ?>"
          title="view contact information">contact info</a>]</span>
       <? endif ?>
       <? if ($this->acl->isAllowed($this->etd->getUserRole($this->current_user), "authorInfo", "edit") ): ?>
@@ -37,7 +37,7 @@
  <? if ($doctype = $this->etd->document_type()): ?><b><?= $doctype ?></b><? endif ?>
  <? if ($num_pages = $this->etd->num_pages()): ?>(<?= $num_pages ?> pages)<? endif ?>
    <br/>
-                  
+
  <? $chairs = $this->etd->chair(); // use simple array to determine last   ?>
  <b>Committee Chair / Thesis Adviser<? if (count($chairs) > 1): ?>s<? endif ?>:</b>
  <? $chairs_w_aff = $this->etd->chair_with_affiliation(); ?>
@@ -52,7 +52,7 @@
   'value' => urlencode($chair)), '', true)?>"><?= $chair ?></a><?= $affiliation ?><? if (!$last):?>; <? endif ?>
     <? else: ?>   <?= $chair ?><?= $affiliation ?><? if (!$last):?>; <? endif ?> <? endif ?>
  <? endforeach ?>
-  
+
   <? //  nonemory chairs ?>
   <? if (isset($this->etd->mods->nonemory_chair) &&
      isset($this->etd->mods->nonemory_chair[0]) &&
@@ -69,7 +69,7 @@
       <a class="record-edit" href="<?= $this->url(array("controller" => "edit", "action" => "faculty", "pid" => $this->etd->pid())) ?>" title="edit committee members">edit</a>
    <? endif ?>
     <? // linebreak only after both sets of committee members ?> <br/>
-     
+
 <b>Committee Members:</b> <? $committee = $this->etd->committee(); ?>
     <? $committee_w_aff = $this->etd->committee_with_affiliation(); ?>
     <? foreach ($committee_w_aff as $cm => $affiliation): ?>
@@ -83,21 +83,21 @@
     <? endforeach ?>
 
     <? if (isset($this->etd->mods->nonemory_committee) &&
-     isset($this->etd->mods->nonemory_committee[0]) && 
+     isset($this->etd->mods->nonemory_committee[0]) &&
      $this->etd->mods->nonemory_committee[0]->full): ?>
       <? foreach ($this->etd->mods->nonemory_committee as $cm): ?>
      <? if ($cm->first == "" && $cm->last == "") continue; /* skip blank names */ ?>
-        <? if ($published): ?>  
+        <? if ($published): ?>
          <a href="<?= $this->url(array('controller' => 'browse', 'action' => 'committee',
     'value' => urlencode($cm->full)),'', true)?>"><?= $cm->full ?></a> (<?= $cm->affiliation ?>);
-   <? else: ?><?= $cm->full ?> (<?= $cm->affiliation ?>);<? endif ?>     
-      <? endforeach ?> 
+   <? else: ?><?= $cm->full ?> (<?= $cm->affiliation ?>);<? endif ?>
+      <? endforeach ?>
     <? endif ?>
     <? if ($this->acl->isAllowed($this->role, $this->etd, "edit metadata")): ?>
        <a class="record-edit" href="<?= $this->url(array("controller" => "edit", "action" => "faculty", "pid" => $this->etd->pid())) ?>" title="edit committee members">edit</a>
     <? endif ?>
     <? // linebreak only after both sets of committee members ?> <br/>
-      
+
   <b>Research Fields:</b>
    <? $fields = $this->etd->researchfields(); ?>
    <? foreach ($fields as $field): ?>
@@ -115,7 +115,7 @@
       <a class="record-edit" href="<?= $this->url(array("controller" => "edit", "action" => "researchfield", "pid" => $this->etd->pid())) ?>" title="edit research fields">edit</a>
    <? endif ?>
    <br/>
-   
+
   <? if ($this->etd->school_config->acl_id == "rollins"): ?>
     <b>Partnering Agencies:</b>
     <? $fields = $this->etd->partneringagencies(); ?>
@@ -135,11 +135,11 @@
      <? endif ?>
      <br/>
    <? endif  ?>
-      
+
   <b>Keywords:</b>
     <? $keywords = $this->etd->keywords(); ?>
     <? foreach ($keywords as $keyword): ?>
-      <? if ($published): ?>  
+      <? if ($published): ?>
          <a href="<?= $this->url(array('controller' => 'search', 'action' => 'results',
   'keyword' => urlencode(strtolower($keyword))),
   '', true) ?>"><?= $keyword ?></a><? else: ?><?= $keyword ?><? endif ?><? if ($keyword != $keywords[count($keywords)-1]): ?>; <? endif ?>
@@ -151,7 +151,7 @@
 
     <b>Program:</b>
     <?= $this->etd->school_config->label ?>,
-    <? if ($published && $this->etd->program_id()): ?>  
+    <? if ($published && $this->etd->program_id()): ?>
        <a href="<?= $this->url(array('controller' => 'browse', 'action' => 'programs',
   'coll' => $this->etd->program_id()), '', true) ?>"><?= $this->etd->program() ?></a>
     <? else: ?><?= $this->etd->program() ?><? endif ?>
@@ -169,9 +169,9 @@
      <br/>
 
 <? if ($this->acl->isAllowed($this->etd->getUserRole($this->current_user), "etd", "view mods")): ?>
-  <span style="float:right;padding-right:5px;">          
+  <span style="float:right;padding-right:5px;">
     <a href="<?= $this->url(array("controller" => "view", "action" => "mods", "pid" => $this->etd->pid())) ?>"
-      title="view raw MODS XML">MODS</a>  
+      title="view raw MODS XML">MODS</a>
   | <a href="<?= $this->url(array("controller" => "view", "action" => "dc", "pid" => $this->etd->pid())) ?>"
        title="view raw DC XML">DC</a>
   | <a href="<?= $this->url(array("controller" => "view", "action" => "rels", "pid" => $this->etd->pid())) ?>"
@@ -181,5 +181,6 @@
 <? endif ?>
 
 <span class="permalink"><b>Permanent url:</b> <a href="<?= $this->etd->ark() ?>"><?= $this->etd->ark() ?></a></span>
+</span><span class="permalink"><span class="doi" style="display:block;float:left;width:115px"><a href="<?= $this->etd->doi() ?>"><?= $this->etd->doi() ?></a></span>
 <? /* TEMPORARY: suppressing unAPI for now, so COinS will be picked up instead
     <abbr class="unapi-id" title="<?= $this->etd->ark() ?>"> </abbr> */ ?>
