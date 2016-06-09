@@ -1,4 +1,4 @@
-body { 
+body {
   position:relative;    /* keep page from getting too small (doesn't work for IE) */
   min-width:900px;
   margin:0px;
@@ -9,41 +9,41 @@ body {
   background-color:#ffffff;
 }
 
-td { 
-  vertical-align:top; 
+td {
+  vertical-align:top;
 }
 
-a { 
+a {
  color:#1c1e2d;
 }
 
-a:hover { 
-  color:#881725;   
+a:hover {
+  color:#881725;
 }
 
-.current { 
+.current {
   color:#881725;
   font-weight:bold;
 }
 
-.top-space { 
+.top-space {
   margin-top:15px;
 }
 
 /* min-width alternative for IE */
-div.width { 
+div.width {
   height:1px;
   margin:0px;
   padding:0px;
   overflow:hidden;  /* keep vertical size minimal in IE */
 }
 
-input { 
+input {
   border:1px solid #14214d;
 }
 
 /* make certain submit buttons look like links */
-input.submitlink { 
+input.submitlink {
   border:none;
   background-color:transparent;
   text-decoration:underline;
@@ -53,26 +53,26 @@ input.submitlink {
   margin:0px;
   cursor:pointer;
 }
-input.submitlink * { 
+input.submitlink * {
   padding:0px;
   margin:0px;
 }
 
 
 /* correctly position 'submit thesis' link for IE */
-div#sidenav input { 
+div#sidenav input {
   text-align:left;
-  width:155px;  
+  width:155px;
 }
 
 
-div.suggestions { 
+div.suggestions {
   width:250px;
   margin-top:-2px;
 }
 
 
-div#header { 
+div#header {
   position:relative;
   margin:0px;
   padding:0px;
@@ -87,12 +87,12 @@ div#header {
 }
 
 /* min-width workaround for IE */
-div#header div.width { 
+div#header div.width {
   width:925px;
 }
 
 
-div#emory { 
+div#emory {
   position:absolute;
   width: 195px;
   left:0in;
@@ -102,13 +102,13 @@ div#emory {
   font-size:24pt;
   border-right:1px solid white;
 }
-div#emory img { 
+div#emory img {
   margin-top:12px;
   border:0px;
 }
 
 
-div#etd_title { 
+div#etd_title {
   position:absolute;
   font-style:italic;
   font-size:12pt;
@@ -117,12 +117,12 @@ div#etd_title {
 /*  border:1px solid white;*/
 }
 
-div#etd_title a { 
+div#etd_title a {
   color:white;
   text-decoration:none;
 }
 
-div#navbar { 
+div#navbar {
   position:absolute;
   top:100px;
   left:0px;
@@ -133,9 +133,9 @@ div#navbar {
   margin-right:40px;
   padding:0px;
   z-index:2;
-} 
+}
 
-div#navbar-curve { 
+div#navbar-curve {
   position:absolute;
   background-color:#ffffff;
   left:140px;
@@ -145,16 +145,16 @@ div#navbar-curve {
   z-index:2;
 }
 
-div#etdhome { 
+div#etdhome {
   padding-top:12px;
   padding-left:20px;
   width:135px;
 }
-div#etdhome a { 
+div#etdhome a {
   text-decoration:none;
 }
 
-div#login { 
+div#login {
   position:relative;
   margin-top:5px;
   border-top:7px solid #f1aa00;
@@ -167,15 +167,15 @@ div#login {
   padding:4px;
 }
 
-div#login div.width { 
+div#login div.width {
   width:595px;
 }
 
-div#login form { 
+div#login form {
   display:inline;
 }
 
-div#login input { 
+div#login input {
   width:80px;
 }
 
@@ -184,7 +184,7 @@ div#login input {
 body h2 {   /* IE doesn't apply without body */
   margin-top:0px;
   font-variant:small-caps;
-  font-size:10pt; 
+  font-size:10pt;
 }
 
 body h3 {   /* IE doesn't apply without body */
@@ -193,7 +193,7 @@ body h3 {   /* IE doesn't apply without body */
   font-size:10pt;
 }
 
-div#photo { 
+div#photo {
   position:absolute;
   right:25px;
   top:15px;
@@ -203,7 +203,7 @@ div#photo {
   z-index:3;
 }
 
-div#photo p { 
+div#photo p {
   font-size:90%;
   position:absolute;
   right:0px;
@@ -214,13 +214,13 @@ div#photo p {
   padding-right:115px;
 }
 
-div#photo img { 
+div#photo img {
   float:right;
   border:3px solid #f1aa00;
 }
 
 
-div#sidenav { 
+div#sidenav {
   position:absolute;
   top:190px;
   left:25px;
@@ -229,21 +229,21 @@ div#sidenav {
   color:black;
 }
 
-div#sidenav h2 { 
-  color:#881725;   
+div#sidenav h2 {
+  color:#881725;
   font-size:10pt;
   font-variant:normal;
 }
 
-div#sidenav div.section { 
+div#sidenav div.section {
   margin-bottom:30px;
 }
 
-div.proquest input { 
+div.proquest input {
   font-size:90%;
 }
 
-div.sidenav ul { 
+div.sidenav ul {
   list-style-type:none;
   margin:0px;
   padding:0px;
@@ -252,49 +252,49 @@ div.sidenav ul {
   text-indent:-10px;
 }
 
-ul.browse { 
+ul.browse {
   list-style-type:none;
   margin:0px;
   padding-left:15px;
 }
 
-p.browse_heading { 
+p.browse_heading {
   border-bottom:2px solid #f1aa00;
 }
-p.browse_heading a { 
+p.browse_heading a {
   text-decoration:none;
 }
 
 
-div#calendar { 
+div#calendar {
   float:left;
   width:185px;
   margin:0px;
 }
-div#news { 
+div#news {
   margin:0px;
   margin-left:205px;
   padding:0px;
  }
 
-ul.horizontal { 
+ul.horizontal {
   display:inline;
   margin-left:0px;
   padding-left:0px;
 }
 
-ol li { 
+ol li {
   padding-top:5px;
 }
 /* FIXME: probably not a permanent position (absolute positioning for input/go) */
-div#login li input { 
+div#login li input {
   position:absolute;
   font-size:9pt;
   width:185px;
   left:250px;
 }
 
-ul.horizontal li { 
+ul.horizontal li {
   list-style-type:none;
   display:inline;
   border-left:1px solid black;
@@ -302,12 +302,12 @@ ul.horizontal li {
   padding-right:10px;
 }
 
-ul.horizontal li.first { 
+ul.horizontal li.first {
   border:none;
 }
 
 
-div.content { 
+div.content {
   position:relative;
   margin-left:195px;
   padding-top:25px;
@@ -317,19 +317,19 @@ div.content {
   min-width:525px;
 }
 
-div.content div.width { 
+div.content div.width {
   width:730px;
 }
 
-div.content h1 { 
+div.content h1 {
   color:#f1aa00;
   font-size:20px;
   margin:0px;
 }
 
-div.content hr { 
+div.content hr {
   background-color: #f1aa00;  /* mozilla browsers */
-  color: #f1aa00;   /* IE */  
+  color: #f1aa00;   /* IE */
   border:0px;
   height: 2px;
   width: 100%;
@@ -338,7 +338,7 @@ div.content hr {
 
 }
 
-div#footer { 
+div#footer {
   clear:both;
   position:fixed; /* FIXME: fixed doesn't work properly in IE */
   bottom:0px;
@@ -353,23 +353,23 @@ div.shrink p{
     display:inline
 }
 
-.leftcorner { 
+.leftcorner {
   text-align:right;
   background-color:#ffffff;
 }
-.leftrightcorner { 
+.leftrightcorner {
   text-align:center;
   background-color:#ffffff;
   left:0px;
   right:0px;
 }
-.bottom { 
-  position:absolute;  
+.bottom {
+  position:absolute;
   bottom:0px;
 }
 
 
-.c {  
+.c {
   background-color:#f1aa00;
   height:1px;
   margin:0px;
@@ -388,7 +388,7 @@ div.shrink p{
 .leftcorner  .c2 { margin-left:1px; }
 .leftcorner  .c1 { margin-left:1px; }
 
-div#navbar-curve .c  { 
+div#navbar-curve .c  {
   background-color:#f1aa00;
 }
 
@@ -428,7 +428,7 @@ div#navbar-curve .c  {
 
 
 /* record list */
-div.listrecord { 
+div.listrecord {
   border:none;
   border-bottom:1px solid black;
   padding-bottom:10px;
@@ -436,16 +436,16 @@ div.listrecord {
 /*  clear:right;*/
 }
 
-div.fullrecord { 
+div.fullrecord {
   position:relative;
   width:100%;
 }
 
-div.record_title { 
+div.record_title {
  font-weight:bold;
 }
 
-div.record_title p { 
+div.record_title p {
   margin: 0px;
 }
 
@@ -454,21 +454,21 @@ div.record_title p {
 }
 
 /* workflow action links */
-div.actions { 
-  float:right;              
+div.actions {
+  float:right;
   text-align:right;
   background:#ffffff;
  }
 
-a.action { 
+a.action {
   float:right;
   color:blue;
   clear:right;
   text-decoration:none;
 }
-a.action img { 
+a.action img {
  border:0px;
- vertical-align:middle; 
+ vertical-align:middle;
 }
 
 a.edit {
@@ -477,13 +477,13 @@ a.edit {
   text-decoration:none;
 }
 
-div.info { 
+div.info {
   clear:right;
   float:right;
   text-align:right;
 }
 
-div.listrecord h3 { 
+div.listrecord h3 {
   font-size:115%;
   margin-top:0px;
   margin-bottom:5px;
@@ -492,15 +492,15 @@ div.listrecord p, .fullrecord p { /* div or body (in FCKeditor) */
   margin:0px;
 }
 
-div.fullrecord { 
+div.fullrecord {
   background:#ffffff;
 }
 
-div.fullrecord h1 { 
+div.fullrecord h1 {
   font-weight:normal;
 }
 
-div.fullrecord h2 { 
+div.fullrecord h2 {
 /*  font-variant:normal;*/
   margin-top:10px;
   border-top:1px solid #f1aa00;
@@ -509,11 +509,11 @@ div.fullrecord h2 {
   clear:both;
 }
 
-div.fullrecord div.use { 
+div.fullrecord div.use {
  margin:10px 0px;
  font-style:italic;
 }
-div.contact_info h2 { 
+div.contact_info h2 {
   margin:2px;
   border:none;
   background-color:white;
@@ -521,55 +521,55 @@ div.contact_info h2 {
 
 
 
-div.listrecord p.status { 
+div.listrecord p.status {
   margin-top:8px;
   font-size:125%;
  }
 
-div.listrecord div.record_status { 
+div.listrecord div.record_status {
   margin-top:5px;
   padding:4px;
   background-color:#efefef;
   border: 1px solid #565656;
 }
 
-h2.history { 
+h2.history {
   margin-top:15px;
 }
 
-table.history { 
+table.history {
 /*border-top:double #f1aa00;
 margin-top:15px;*/
  }
 
-table.history th { 
+table.history th {
   text-align:left;
 }
 
-p.note { 
+p.note {
   font-size:11pt;
   text-align:center;
   margin:15px;
 }
 
 
-table div.fullrecord { 
+table div.fullrecord {
   padding:0.5in;
 }
 
-div#files span.description, div#files .lastmodified { 
+div#files span.description, div#files .lastmodified {
  font-size:90%;
  color: #787878;
 }
 
-div#preview { 
+div#preview {
   float:right;
 /*  border:1px solid blue;*/
   text-align:right;
-  padding-bottom:10px;            
+  padding-bottom:10px;
 }
 
-.suggestor_value { 
+.suggestor_value {
   background:#efefef;
 /*  display:inline;*/
 /*  border:1px solid black;*/
@@ -577,10 +577,10 @@ div#preview {
  }
 
 
-h2.instructions { 
+h2.instructions {
   margin-bottom:0px;
 }
-ul.instructions { 
+ul.instructions {
   margin-top:0px;
   margin-bottom:0px;
   margin-right:0.5in;
@@ -589,7 +589,7 @@ ul.instructions {
 }
 
 
-div.buttons { 
+div.buttons {
  text-align:center;
  width:100%;
  font-size:14pt;
@@ -602,72 +602,72 @@ div.buttons {
 
 
 
-div.cv_select { 
+div.cv_select {
  margin:0.25in;
  position:relative;
- width:100%;      
+ width:100%;
  padding-bottom:0.5in;
 }
-div.close { 
+div.close {
  position:fixed;
  text-align:right;
  right:25px;
  top:25px;
 }
 
-div.listnav { 
+div.listnav {
   background-color:#14214d;
-  text-align:center;       
-  vertical-align:middle; 
+  text-align:center;
+  vertical-align:middle;
   height:20px;
 }
-.admin-nav { 
+.admin-nav {
  float:right;
 }
-.admin-nav select { 
+.admin-nav select {
  font-size:85%; /* hack: match the rest of listnav inputs */
  }
 
 /* statistics */
-ol.top50 { 
+ol.top50 {
  clear:right;
  padding-top:0.25in;
 }
 
-table.statistics { 
+table.statistics {
  width:100%;
  margin-top:15px;
  margin-bottom:15px;
  clear:right;
 }
 
-table.statistics td.caption {  
+table.statistics td.caption {
  text-align:left;
  border-bottom: 1px solid #f1aa00;
  border-top: 1px solid #f1aa00;
 }
 
-table.statistics td.count, table.statistics th { 
+table.statistics td.count, table.statistics th {
  text-align:right;
 }
 
-table.statistics td.caption {  
+table.statistics td.caption {
  text-align:left;
  border-bottom: 1px solid #f1aa00;
  border-top: 1px solid #f1aa00;
 }
 
-table.statistics td.count, table.statistics th { 
+table.statistics td.count, table.statistics th {
  text-align:right;
 }
 td.count { width:30px }
 td.label { width:250px }
 
-td.abstract, th.abstract { 
+td.abstract, th.abstract {
  background-color: #e8eeff/*#bac2d9*/;
 }
 
-td.download, th.download { 
+td.download, th.download {
 /* background-color:#f3e7c9;*/
  background-color:#fff8e8;
 }
@@ -677,7 +677,7 @@ td.separator{
     border-bottom-width:2px;
 }
 
-div.abstractviews { 
+div.abstractviews {
   background-color:#14214d;
   border:1px solid black;
   color:#fff;
@@ -686,7 +686,7 @@ div.abstractviews {
   text-align:right;
 }
 
-div.downloads { 
+div.downloads {
   background-color:#f1aa00;
   border:1px solid black;
   height:10px;
@@ -695,7 +695,7 @@ div.downloads {
   line-height:10px;
 }
 
-div.key { 
+div.key {
   float:left;
   height:10px;
   width:10px;
@@ -705,20 +705,20 @@ div.key {
 img.flag { border:1px solid black; }
 
 
-div#roadmap { 
+div#roadmap {
  text-transform:uppercase;
  font-size:15pt;
  font-weight:bold;
  margin:15px;
 }
 
-div#roadmap span.label { 
+div#roadmap span.label {
  font-size:12pt;
  text-transform:none;
  font-weight:normal;
 }
 
-div#roadmap div.state {  
+div#roadmap div.state {
   display:inline;
   padding:5px;
   font-size:12pt;
@@ -727,22 +727,22 @@ div#roadmap div.state {
   color:white;
 }
 
-div#roadmap div.current { 
+div#roadmap div.current {
  background-color:#0dac1c;
 }
 
-table.advanced_search th { 
+table.advanced_search th {
  text-align:right;
  font-size:11pt;
 }
 
-div.abstract p { 
+div.abstract p {
  margin-bottom:10px;
 }
 
 
 /* edit research fields */
-div#select_researchfields { 
+div#select_researchfields {
   height:300px;
   overflow:auto;
   border:1px solid gray;
@@ -752,26 +752,26 @@ div#select_researchfields a.selected, ul#select_program li.selected > a, span.se
  background-color:yellow;
 }
 
-div#submission_status { 
+div#submission_status {
  position:absolute;
- right:5px;        
- padding:5px;                
+ right:5px;
+ padding:5px;
  width:175px;
  border:1px solid #f1aa00;
  background-color: #fffdee; /* very faint yellow */
 }
 
-div#submission_status a { 
+div#submission_status a {
   text-decoration:none;
   clear: right;
 }
 
 div#submission_status ul { list-style: none; }
 
-ul.ui-menu { list-style: none; 
-          padding-left: 0; 
-          margin-left: 0; 
-          border: 1px solid; 
+ul.ui-menu { list-style: none;
+          padding-left: 0;
+          margin-left: 0;
+          border: 1px solid;
           width: 25em;
 }
 
@@ -795,7 +795,7 @@ div.status-key {
     padding-bottom: 0px;
 }
 
-div#submission { 
+div#submission {
  margin-right:175px !important;
 }
 
@@ -812,14 +812,14 @@ table#nonemory_list th { font-size:85%; text-align:left; }
 
 ul.suggestions span.count { float:right; font-size:80%;}
 
-.warning { 
+.warning {
   border: 2px solid #d70d0d;  /* darkish red */
   padding: 4px;
   background-color: #efefef; /* light grey */
 }
 ul.errors { color:red; }
 
-span#exclamation { 
+span#exclamation {
  color:#d70d0d;
  font-size:25pt;
  font-family:Times;
@@ -831,13 +831,13 @@ span#exclamation {
  padding-left:2px; padding-right:2px;
 }
 
-span#processing { 
+span#processing {
  padding-left: 25px;
  font-size:115%;
  font-weight: bold;
  color: green;
 }
-span#processing span.note { 
+span#processing span.note {
  font-size:80%;
  font-weight: normal;
 }
@@ -845,7 +845,7 @@ span#processing span.note {
 span.userinfo { padding-left:10px; font-size:90%; }
 span.userinfo, span.userinfo a { color:#565656; }
 
-div#whylogin { 
+div#whylogin {
  margin:5px;
  margin-left:350px;
  width:350px;
@@ -854,8 +854,8 @@ div#whylogin {
  padding:3px;
 }
 
-div#whylogin a.close { 
-  float:right; 
+div#whylogin a.close {
+  float:right;
   text-decoration:none;
   font-weight:bold;
   color:black;
@@ -864,7 +864,7 @@ div#whylogin a.close {
 div.indent { margin-left:25px; }
 
 /* consistent look for workflow links and buttons */
-.button { 
+.button {
  background-color:#efefef;
  border:1px solid black;
  font-weight:bold;
@@ -872,8 +872,8 @@ div.indent { margin-left:25px; }
  padding:3px;
  text-decoration:none;
 }
-.button:hover { 
-  color:#881725; 
+.button:hover {
+  color:#881725;
 }
 
 .button:disabled {
@@ -881,7 +881,7 @@ div.indent { margin-left:25px; }
   border:1px solid gray;
 }
 
-div.facets { 
+div.facets {
  position:absolute;
  right:5px;
  border:1px solid #f1aa00;
@@ -891,10 +891,10 @@ div.facets {
  padding:5px;
 }
 
-div.facets ul, div.facets li, div.facets p { 
+div.facets ul, div.facets li, div.facets p {
  margin:0px; padding:0px;
 }
-div.facets li { 
+div.facets li {
  margin-left:15px;
  list-style-type:none;
 }
@@ -919,20 +919,20 @@ div#quicksearch { padding:15px; }
 div#quicksearch p { margin:0px; }
 
 
-div.relevance { 
+div.relevance {
  float:right;
  border:1px solid #262c39;
  width:2cm;
  height:8px;
  background-color:#eeeeee;
 }
-div.relevance div.score { 
+div.relevance div.score {
  max-width:2cm;
  float:right;
  background-color:#14214d;
  height:8px;
 }
-div.relevance-label { 
+div.relevance-label {
  float:right;
  clear:right;
  font-size:8.5pt;
@@ -947,6 +947,7 @@ div.letters a { text-decoration:none; font-size:115%; padding:0px 2px;}
 div.letters a.current { font-weight:bold; }
 
 span.permalink { background-color: #ffda82; /*#fffdee; /* very faint yellow */ }
+span.doi { display: inline-block; min-width: 125px; }
 
 /* formatting used by FCKeditor -- explicitly include divs to override other formatting */
 .Indent1, div.Indent1 { margin-left: 40px !important; }
@@ -1003,7 +1004,7 @@ span.permalink { background-color: #ffda82; /*#fffdee; /* very faint yellow */ }
   border-width: 1px;
 }
 #helpPageContent {
-  margin-left: 75px;  
+  margin-left: 75px;
 }
 #reports_ul li {
   height: 25px;
@@ -1018,8 +1019,8 @@ a:hover .hdl {}
 
 /* autocomplete styles (FIXME: overlap with faculty suggestor?) */
 div.autocomplete {
-  margin:0px;  
-  padding:0px;  
+  margin:0px;
+  padding:0px;
   width:250px;
   background:#fff;
   border:1px solid #888;
@@ -1033,7 +1034,7 @@ div.autocomplete ul {
   list-style-type:none;
 }
 
-div.autocomplete ul li.selected, ul.ui-autocomplete li.selected, ul.ui-menu li.ui-menu-item a.ui-state-focus { 
+div.autocomplete ul li.selected, ul.ui-autocomplete li.selected, ul.ui-menu li.ui-menu-item a.ui-state-focus {
   background-color:#ffb;
 }
 
@@ -1045,8 +1046,8 @@ div.autocomplete ul li {
   cursor:pointer;
 }
 
-span.ok, span.incomplete, span.optional { 
-  display:inline-block; 
+span.ok, span.incomplete, span.optional {
+  display:inline-block;
   width: 10px;
   text-indent: 0px;
 }
@@ -1057,7 +1058,7 @@ span.optional {color: blue; }
 
 form#rightsForm p { margin-bottom:0px; }
 p.label { font-weight:bold }
-div.subchoice { 
+div.subchoice {
  margin-left:0.5in;
 }
 
@@ -1088,11 +1089,11 @@ div.subchoice {
   list-style-type: none;
 }
 
-div.grayed { 
+div.grayed {
   margin-top:5px;
   padding-left:3px;
   padding-top:2px;
-  margin-bottom:5px;  
+  margin-bottom:5px;
   background-color: #efefef; /* light grey */
   color:navy;
   line-height: 1.1;
@@ -1168,7 +1169,7 @@ form#submission br {
   display: none;
 }
 #screening-questions {
-  margin-bottom: 2.5em;  
+  margin-bottom: 2.5em;
 }
 #screening-questions label {
   display: inline-block;
@@ -1227,7 +1228,7 @@ h1 div#title, h1 div#title p{display: inline; }
  padding-bottom: 15px;
 }
 #submission_status :link {
-  text-decoration: underline; 
+  text-decoration: underline;
 }
 #submission_status .help {
   float: right;
