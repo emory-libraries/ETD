@@ -166,6 +166,9 @@
      <? if ($this->acl->isAllowed($this->role, $this->etd, "edit metadata")): ?>
         <a class="record-edit" href="<?= $this->url(array("controller" => "edit", "action" => "program", "pid" => $this->etd->pid())) ?>" title="edit school and program">edit</a>
      <? endif ?>
+     <? if ($this->etd->doiURI()): ?>
+        <b>DOI</b> <a href="<?= $this->etd->doiURI() ?>"><?= $this->etd->doiURI() ?></a>
+    <? endif ?>
      <br/>
 
 <? if ($this->acl->isAllowed($this->etd->getUserRole($this->current_user), "etd", "view mods")): ?>
@@ -182,8 +185,6 @@
 
 <span class="permalink">
     <b>Permanent url:</b> <a href="<?= $this->etd->ark() ?>"><?= $this->etd->ark() ?></a>
-    <br />
-    <span class="doi"></span><a href="<?= $this->etd->doiURI() ?>"><?= $this->etd->doiURI() ?></a>
 </span>
 <? /* TEMPORARY: suppressing unAPI for now, so COinS will be picked up instead
     <abbr class="unapi-id" title="<?= $this->etd->ark() ?>"> </abbr> */ ?>
