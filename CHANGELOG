@@ -1,5 +1,13 @@
 CHANGE LOG
 =================
+Version 1.18.4
+--------------
+* Removed, for real this time, warning that abstract is too long.
+* Added deprecation note to function that checks abstract length.
+* Added mapping for a DOI stored in the MODS.
+* Added display of DOI pulr if the ETD has a DOI.
+NOTE: DOI has not been implemented yet. This just adds the display of the DOI.
+
 Version 1.18.3
 --------------
 * Removed warning that abstract is too long.
