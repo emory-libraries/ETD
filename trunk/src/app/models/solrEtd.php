@@ -102,6 +102,16 @@ class solrEtd implements etdInterface {
     return "http://pid.emory.edu/ark:/25593/" . $pid;
   }
 
+  public function doiURI() {
+      if ($this->mods->doi) {
+          $doi = split(":", $this->mods->doi);
+          return 'http://doi.org/' . $doi[1];
+      }
+      else {
+          return false;
+      }
+  }
+
 
   private function getField($name, $array = false) {
     if (isset($this->$name))
