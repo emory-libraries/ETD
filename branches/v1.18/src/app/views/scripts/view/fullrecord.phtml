@@ -1,0 +1,65 @@
+<div class="fullrecord" >
+    <?=  $this->render('manage/_actions.phtml'); ?>
+    <? if ($this->etd->status() != "published"): ?>
+     <p class="note">This record is not published. Current status: <b><?= $this->etd->status() ?></b></p>
+    <? endif ?>
+
+<h1>
+     <?= $this->etd->title() ?>
+     <? if ($this->acl->isAllowed($this->role, $this->etd, "edit metadata")): ?>
+       <a class="record-edit" href="<?= $this->url(array("controller" => "edit", "action" => "title")) ?>"
+        title="edit title">edit</a>
+     <? endif ?>
+</h1>
+
+<?=  $this->render('view/summary.phtml'); ?>
+<? if ($this->etd->status() == "published"): ?>
+  <?= $this->etdCoins($this->etd); ?>
+<? endif?>
+
+
+  <h2>
+      Abstract
+      <? if ($this->acl->isAllowed($this->role, $this->etd, "edit metadata")): ?>
+         <a class="record-edit" href="<?= $this->url(array("controller" => "edit", "action" => "abstract")) ?>"
+          title="edit abstract">edit</a>
+      <? endif ?>
+  </h2>
+   <? if ($this->acl->isAllowed($this->role, $this->etd, "edit metadata")): ?>
+     <? $pq = Zend_Registry::get("proquest-config"); ?>
+   <? endif ?>
+  <div id="abstract">
+   <? if ($this->etd->isEmbargoed() && $this->etd->mods->isEmbargoRequested(etd_mods::EMBARGO_ABSTRACT)): ?>
+    <p>Access restricted until <b><?= $this->etd->mods->embargo_end ?></b></p>
+   <? endif ?>
+   <? if ( $this->role=='guest' && $this->etd->isEmbargoed() && $this->etd->mods->isEmbargoRequested(etd_mods::EMBARGO_ABSTRACT)): ?>
+    <!-- guest role and abstract is embargoed, so don't attempt to retrieve the abstract -->
+   <? else: ?>
+    <?= $this->etd->_abstract() ?>
+   <? endif ?>
+  </div>
+
+  <h2>
+      Table of Contents
+      <? $toc = $this->etd->tableOfContents(); /* save TOC contents and re-use for content checking / display */ ?>
+      <? if ($this->acl->isAllowed($this->role, $this->etd, "edit metadata")): ?>
+      <a class="record-edit" href="<?= $this->url(array("controller" => "edit", "action" => "contents")) ?>"
+        title="edit table of contents">edit</a>
+     <? endif ?>
+  </h2>
+    <div id="toc">
+   <? if ($this->etd->isEmbargoed() && $this->etd->mods->isEmbargoRequested(etd_mods::EMBARGO_TOC)): ?>
+    <p>Access restricted until <b><?= $this->etd->mods->embargo_end ?></b></p>
+   <? endif ?>
+
+   <? if ( $this->role=='guest' && $this->etd->isEmbargoed() && $this->etd->mods->isEmbargoRequested(etd_mods::EMBARGO_TOC)): ?>
+    <!-- guest role and TOC is embargoed, so don't attempt to retrieve the TOC -->
+   <? else: ?>
+    <?= $toc ?>
+   <? endif ?>
+
+  </div>
+
+  <?=  $this->render('view/_files.phtml'); ?>
+
+</div>
