@@ -27,6 +27,7 @@
   </h2>
    <? if ($this->acl->isAllowed($this->role, $this->etd, "edit metadata")): ?>
      <? $pq = Zend_Registry::get("proquest-config"); ?>
+   <? endif ?>
   <div id="abstract">
    <? if ($this->etd->isEmbargoed() && $this->etd->mods->isEmbargoRequested(etd_mods::EMBARGO_ABSTRACT)): ?>
     <p>Access restricted until <b><?= $this->etd->mods->embargo_end ?></b></p>
