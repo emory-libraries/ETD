@@ -4,11 +4,12 @@
  <? if (isset($this->current_user) && $this->acl->isAllowed($this->current_user, "etd", "create")): ?>
  <p><b><a
  	class ="start-submission" href="<?= $this->url(array("controller" => "submission", "action" => "intro"), "", true); ?>">Submit your Thesis &gt;</a></b></p>
-<? endif ?>	
+<? endif ?>
 
 
 <div class="section">
-  <p><a href="<?= $this->url(array("controller" => "docs", "action" => "about"), '', true); ?>">About Us</a></p>
+  <p><a href="https://vmch-etd.library.emory.edu/docs/contact">Contact Us</a></p>
+  <p><a href="<?= $this->url(array("controller" => "docs", "action" => "about"), '', true); ?>">Contact Us</a></p>
   <p><a href="<?= $this->url(array("controller" => "docs", "action" => "faq"), '', true); ?>">Frequently Asked Questions</a></p>
   <p><a href="<?= $this->url(array("controller" => "docs"), '', true); ?>/help" class="help">ETD Help</a></p>
   <p><a href="<?= $this->url(array("controller" => "docs", "action" => "policies"), '', true); ?>">Policies and Procedures</a></p>
@@ -41,4 +42,3 @@
   </div>
 <? endif ?> <? /* end suppress sidenav search & browse */ ?>
 </div>
-
