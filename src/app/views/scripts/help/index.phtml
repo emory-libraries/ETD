@@ -4,15 +4,15 @@
 <p>Your request has been sent.</p>
 
 <? else : ?>
-   
+
 <div>
 <p>Most general questions about submission will be answered on our <a href="<?= $this->url(array("controller" => "docs", "action" => "instructions"), '', true); ?>">instructions page.</a></p>
 <p>Check the <a href="<?= $this->url(array("controller" => "docs", "action" => "faq"), '', true); ?>">FAQ</a> for common problems.</p>
-<p>For general questions about submitting your thesis or dissertation, you should contact Queen Watson in the Laney Graduate School.</p>
-<p>For problems creating a PDF, please consult the support staff in ECIT, the Cox Hall Computer Lab, or the Tech staff for your individual programs.</p>
+<p>For general questions about submitting your thesis or dissertation, including formatting and paperwork requirements, contact your school's <a href="<?= $this->url(array("controller" => "docs", "action" => "contact"), '', true); ?>">administrator or ADAP</a>.</p>
+<p>For problems creating a PDF, consult the technology support staff in Emory Center for Digital Scholarship (located on the 3rd floor of Woodruff Library), MediaLab, Student Technology Support (located on the 1stfloor of Woodruff Library), or your department.</p>
 
  <h1>ETD Help Submission Form</h1>
-   
+
 <p>For problems with the ETD submission software, please submit your questions using the form below:</p>
 <? if(isset($this->error)): ?>
 <div id="messages">
@@ -20,10 +20,10 @@
 </div>
 <? endif ?>
 
-   
+
 <form id="help-request" action="<?= $this->url() ?>" method="post">
   <? if ($this->env != "production"): ?>
-   <div>          
+   <div>
      <label for="to_email" class="required">To:</label>
      <?= $this->formText("to_email", $this->to_email, array('class'=> 'required-field email-input')); ?>
      <p class="help-text">Send a test help message to this email address in order
@@ -32,11 +32,11 @@
   <? endif ?>
    <?= $this->formHidden('etd_link', $this->etd_link) ?>
 
-  <div>          
+  <div>
     <label for="username" class="required">Full Name:</label>
     <?= $this->formText("username", $this->fullname, array('class'=> 'required-field')); ?>
   </div>
-          
+
   <div>
      <label for="email" class="required">Email address:</label>
      <?= $this->formText("email", $this->email, array('class'=> 'required-field email-input')); ?>
@@ -52,13 +52,13 @@
      <p class="help-text">Expected graduation date in mm/yyyy format (for students submitting an ETD).</p>
    </div>
 
-   <div>          
+   <div>
      <label for="subject" class="required">Subject:</label>
      <?= $this->formText("subject", $this->subject, array('class'=> 'required-field')); ?>
      <p class="help-text">Brief description of your question or request.</p>
    </div>
 
-   <div>          
+   <div>
      <label for="message" class="required">Message:</label>
      <?= $this->formTextarea("message", $this->message, array('class'=> 'required-field')); ?>
      <p class="help-text">Full details of your question or request.  Please
@@ -75,7 +75,7 @@
 
 
 
-<script>          
+<script>
 var $j = jQuery.noConflict();
 /* avoid conflict with prototype/scriptaculous while ETD has both*/
 
@@ -86,7 +86,7 @@ $j(document).ready(function() {
     jQuery.validator.addClassRules("email-input", {email: true});
     jQuery.validator.addClassRules("required-field", {required: true});
 
-});                                       
+});
 </script>
 
 <? endif ?>
