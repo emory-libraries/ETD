@@ -1488,6 +1488,7 @@ class etd extends foxml implements etdInterface {
     }
 
     return $pids;
+  }
 
 
 }
