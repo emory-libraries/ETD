@@ -1481,7 +1481,7 @@ class etd extends foxml implements etdInterface {
 
     $pids = array();
     if (isset($etds->results->result)) {
-        foreach($pid in $etds->results){
+        foreach($etds->results as $pid){
             $pid = str_replace("info:fedora/", "", $pid['etd uri']);
             array_push($pids, $pid);
         }
