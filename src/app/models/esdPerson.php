@@ -298,8 +298,8 @@ class esdPerson extends Emory_Db_Table_Row implements Zend_Acl_Role_Interface {
     public function getEtdsNotOfStatus($status) {
         if (is_null($this->_etds)) {	// only initialize once (will be reset after serialization)
             $etds = new etd();
-            $etds->getByAuthorAndNotStatus($this->netid, $status);
-            $this->_etds = $etds;
+            $pids = $etds->getByAuthorAndNotStatus($this->netid, $status);
+            $this->_etds = $pids;
         }
         return $this->_etds;
     }

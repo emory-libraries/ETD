@@ -194,18 +194,18 @@ class risearch {
 
   /** static functions - deprecated **/
 
-  public static function query($queryString, $type = "tuples", $lang = "iTQL") {
+  public static function query($queryString, $type = "tuples", $lang = "sparql") {
 
     $format = "sparql";
 
     $config = Zend_Registry::get('fedora-config');
-    $search_url = "http://" . $config->server . ":" . $config->port .
-      "/fedora/" . $config->resourceindex .
+    $search_url = "http://" . $config->server . ":8080" .
+      "/fedora/risearch" . $config->resourceindex .
       "?type=$type&lang=$lang&format=$format&query=" . urlencode($queryString);
 
     try {
       //	return  simplexml_load_file($search_url);
-      return  simplexml_load_string(file_get_contents($search_url));
+      return  new SimpleXMLElement(file_get_contents($search_url));
     } catch (Exception $e) {
       print "Error: " . $e->message . "\n";
     }
