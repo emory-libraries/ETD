@@ -1,5 +1,10 @@
 CHANGE LOG
 =================
+Version 1.18.6
+--------------
+* Search Fedora instead of Solr when checking to see if a student already has an unpublished. Fixes PivitolTracker #61905182.
+* Notifier sets an SMTP server when in dev/QA.
+
 Version 1.18.5
 --------------
 * Updated text on the ETD help form.
