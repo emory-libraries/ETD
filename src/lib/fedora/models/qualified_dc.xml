@@ -1,0 +1,20 @@
+<oai_dc:dc
+	xmlns:dc="http://purl.org/dc/elements/1.1/"
+	xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+	xmlns:dcterms="http://purl.org/dc/terms/"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	>
+  <dc:identifier xsi:type='dcterms:URI'/>
+  <dc:identifier xsi:type='ark'/>
+  <dc:identifier xsi:type='fedora'/>
+  <dc:title/>
+  <dc:creator/>
+  <dc:contributor/>
+  <dc:description/>
+  <dc:language/>
+  <dc:format/>
+  <dc:subject/>
+  <dc:date/>
+  <dc:coverage/>
+  <dcterms:extent/>
+</oai_dc:dc>

@@ -6,10 +6,9 @@
  	class ="start-submission" href="<?= $this->url(array("controller" => "submission", "action" => "intro"), "", true); ?>">Submit your Thesis &gt;</a></b></p>
 <? endif ?>
 
-
 <div class="section">
-  <p><a href="/docs/contact">Contact Us</a></p>
-  <p><a href="/docs/instructions">Instructions</a></p>
+  <p><a href="<?= $this->url(array("controller" => "docs", "action" => "contact"), '', true); ?>">Contact Us</a></p>
+  <p><a href="<?= $this->url(array("controller" => "docs", "action" => "instructions"), '', true); ?>">Instructions</a></p>
   <p><a href="<?= $this->url(array("controller" => "docs", "action" => "faq"), '', true); ?>">Frequently Asked Questions</a></p>
   <p><a href="/help">ETD Help</a></p>
   <p><a href="<?= $this->url(array("controller" => "docs", "action" => "policies"), '', true); ?>">Policies and Procedures</a></p>

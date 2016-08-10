@@ -22,6 +22,7 @@ require_once("datastreams/etdfile.php");
 require_once("authorInfo.php");
 
 require_once("solrEtd.php");
+require_once("fedora/api/risearch.php");
 
 // email notifier
 require_once("etd_notifier.php");
@@ -45,6 +46,7 @@ require_once("etd_notifier.php");
  * @method string getMarcxml() get metadata in marcxml format
  * @method string getEtdms() get metadata in ETD-MS format
  * @method string getMods() get cleaned up MODS (without ETD-specific fields)
+ * @method array getByAuthorAndNotStatus() Fedora query by netid and status
  */
 class etd extends foxml implements etdInterface {
 
@@ -1461,6 +1463,33 @@ class etd extends foxml implements etdInterface {
     ksort($options);    // Sort the results for easy reading
     return ($options);
   }
+
+  /**
+   * Function to search Fedora, instead of Solr for newly created ETDs that are unpublished.
+   * This is to fix PivitoalTracker #61905182.
+   * @param string $username netid of user who created the record
+   * @param string $status status of the etd
+   * @return array of ETDs
+  **/
+  public function getByAuthorAndNotStatus($username, $status){
+    $query = 'select ?etd ?status where{ ?etd <fedora-model:hasModel> <info:fedora/emory-control:ETD-1.0> .
+                ?etd <fedora-rels-ext:etdStatus> ?status .
+                ?etd <fedora-model:ownerId> "' . $username . '" .
+                FILTER(?status != "'. $status . '")}';
+
+    $etds = risearch::query($query);
+
+    $pids = array();
+    if (isset($etds->results->result)) {
+        foreach($etds->results->result as $pid){
+            $pid = str_replace("info:fedora/", "", $pid->etd['uri']);
+            array_push($pids, $pid);
+        }
+    }
+
+    return $pids;
+  }
+
 
 }
 
