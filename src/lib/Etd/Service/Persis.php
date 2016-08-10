@@ -93,6 +93,11 @@ class Etd_Service_Persis {
         $this->domain_id = $config["domain_id"];
         $this->pidman = $config["url"];
 
+        // For creating DOIs
+        $this->ezid_url = $config["ezid_url"];
+        $this->ezid_password = $config["ezid_password"];
+        $this->ezid_username = $config["ezid_username"];
+
 
         $this->ark_regexp = "|^(https?://[a-z.]+)/ark:/([0-9]+)/([" .
                                 $this->noid_charset . "]+)/?(.*)?$|i";
@@ -133,7 +138,7 @@ class Etd_Service_Persis {
         $logger = Zend_Registry::get('logger');
         $payload = array('domain' => $this->pidman . 'domains/' . $this->domain_id . '/', 'name' => $title, 'target_uri' => $url );
         $ch = curl_init($this->pidman . '/ark/');
-        
+
         curl_setopt($ch,CURLOPT_FAILONERROR,true);
         curl_setopt($ch, CURLOPT_USERPWD, $this->username . ":" . $this->password);
         curl_setopt($ch, CURLOPT_TIMEOUT, 30);
@@ -141,11 +146,13 @@ class Etd_Service_Persis {
         curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-	$ark = curl_exec($ch);
+
+        $ark = curl_exec($ch);
+
         if (curl_getinfo($ch, CURLINFO_HTTP_CODE) !== 201){
                 $error = "Bad response from pidman. Response was: " . curl_getinfo($ch, CURLINFO_HTTP_CODE);
                 $logger->err($error);
-		throw new PersisServiceUnauthorized($error);
+                throw new PersisServiceUnauthorized($error);
         }
         if (curl_error($ch)){
             $logger->err(curl_error($ch));
@@ -196,6 +203,56 @@ class Etd_Service_Persis {
       }
       return $purl->return;
     }
+
+    /**
+     * Generate and return a new ark
+     *
+     * @param etd object
+     * @return string DOI
+     * @throws PersisServiceException
+     * @throws PersisServiceUnauthorized
+     */
+      public function generateDoi($etd) {
+
+          // Taken from
+          // http://ezid.cdlib.org/doc/apidoc.html#php-examples
+          $logger = Zend_Registry::get('logger');
+
+          // EasyID wants a multiline string.
+          $payload = "_target: " . $etd->mods->identifier . "\n";
+          $payload .= "datacite.creator: " . $etd->mods->author . "\n";
+          $payload .= "datacite.publicationyear:" . $etd->mods->date . "\n";
+          $payload .= "datacite.title: " . $etd->mods->title . "\n";
+          $payload .= "datacite.publisher: Emory University";
+
+          $ch = curl_init();
+
+          curl_setopt($ch, CURLOPT_URL, $this->ezid_url . $this->etd->pid);
+          curl_setopt($ch, CURLOPT_USERPWD, $this->ezid_username . ":" . $this->ezid_password);
+          curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
+          curl_setopt($ch, CURLOPT_HTTPHEADER,
+            array('Content-Type: text/plain; charset=UTF-8',
+                  'Content-Length: ' . strlen($payload)));
+          curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+          curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+          $doi = curl_exec($ch);
+
+
+          if (curl_getinfo($ch, CURLINFO_HTTP_CODE) !== 201){
+                  $error = "Bad response from pidman. Response was: " . curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                  $logger->err($error);
+  		            throw new PersisServiceUnauthorized($error);
+          }
+          if (curl_error($ch)){
+              $logger->err(curl_error($ch));
+              throw new PersisServiceUnauthorized("Failed to generate ARK: " .  curl_error($ch));
+              curl_close($ch);
+              return null;
+          } else {
+              curl_close($ch);
+              return $doi;
+          }
+      }
 
   /**
    * Strip out the unique id and return a fedora-style pid
@@ -288,10 +345,10 @@ class Etd_Service_Persis {
       try {
     $result = $this->service->AddArkTarget($rqst);
       } catch (SoapFault $e) {
-    
+
     switch($e->faultstring) {
     case "request canceled: not authorized":
-    	throw new PersisServiceUnauthorized($e->getMessage());  
+    	throw new PersisServiceUnauthorized($e->getMessage());
     // any other cases?
     default:
     	throw new PersisServiceException("Unknown error:" . $e->faultstring);
