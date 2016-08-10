@@ -34,7 +34,7 @@ class esdPerson extends Emory_Db_Table_Row implements Zend_Acl_Role_Interface {
 
     public function __construct(array $config = array()) {
       parent::__construct($config);
-      
+
         // alias ESD field names to something comprehensible
         $this->column_alias = array("netid" => "LOGN8NTWR_I",
              "type" => "PRSN_C_TYPE",
@@ -125,7 +125,7 @@ class esdPerson extends Emory_Db_Table_Row implements Zend_Acl_Role_Interface {
             }
 
             elseif ($admin_type) $this->role = $admin_type . " admin";
-            
+
             elseif (isset($config->techsupport->user) && valueInconfig($this->netid, $config->techsupport->user)) {
                     $this->role = "techsupport";
                 //Workaround to set  default school to solve issue when superuser submits a file
@@ -143,7 +143,7 @@ class esdPerson extends Emory_Db_Table_Row implements Zend_Acl_Role_Interface {
      * override magic __get function for some custom / constructed fields
      * @param string $field
      */
-    public function __get($field) {        
+    public function __get($field) {
       switch ($field) {
         case "address":
 	  // semi-dynamic for esd person address object
@@ -264,7 +264,7 @@ class esdPerson extends Emory_Db_Table_Row implements Zend_Acl_Role_Interface {
       return null;
     }
 
-    
+
 
     /**
      * check if this user has an unpublished etd (if not student or faculty, assumed false)
@@ -274,10 +274,10 @@ class esdPerson extends Emory_Db_Table_Row implements Zend_Acl_Role_Interface {
         // only student and faculty roles can have unpublished etds
         if (! preg_match("/^(student|faculty|honors student)/", $this->role)) // with or without submission
             return false;
-        elseif (count($this->getEtds())) return true;
+        elseif (count($this->getEtdsNotOfStatus('published'))) return true;
             else return false;
     }
-    
+
     /**
      * find any unpublished etds that belong to this user
      * @return Array of etd
@@ -287,6 +287,19 @@ class esdPerson extends Emory_Db_Table_Row implements Zend_Acl_Role_Interface {
             $etdSet = new EtdSet();
             $etdSet->findUnpublishedByOwner($this->netid);
             $this->_etds = $etdSet->etds;
+        }
+        return $this->_etds;
+    }
+
+    /**
+     * find any etds not of a specific status that belong to this user
+     * @return Array of etd
+     */
+    public function getEtdsNotOfStatus($status) {
+        if (is_null($this->_etds)) {	// only initialize once (will be reset after serialization)
+            $etds = new etd();
+            $pids = $etds->getByAuthorAndNotStatus($this->netid, $status);
+            $this->_etds = $pids;
         }
         return $this->_etds;
     }
@@ -347,7 +360,7 @@ class esdPersonObject extends Emory_Db_Table {
     protected $_primary        = 'PRSN_I';
 
     protected $_dependentTables = array('esdAddressObject');
-    
+
     // customize behavior of magic findBy* function
     protected $uppercase_fields = true;
 
@@ -369,7 +382,7 @@ class esdPersonObject extends Emory_Db_Table {
             $id = preg_replace("/^esdid/", "", $netid);
             return $this->findByPrsnI($id);
         }
-	
+
 	// student employees currently have *two* records in ESD, and only one has the information we need
 	// get all records from ESD for the current user, then return the right one if more than one are found
     $retRecord = null;
@@ -426,7 +439,7 @@ class esdPersonObject extends Emory_Db_Table {
         // rather than using the view which was too slow for a suggestor
 
         $current_flag = $current ? "Y" : "N";
-        return $this->_findByName($name, 25, array("current_flag" => $current_flag));       
+        return $this->_findByName($name, 25, array("current_flag" => $current_flag));
     }
 
     /**
@@ -438,10 +451,10 @@ class esdPersonObject extends Emory_Db_Table {
         // seach for persons with type code F for faculty
         return $this->_findByName($name, 1, array("person_type" => "F"));
     }
-    
+
     //$current_flag = null, $person_type = null
     private function _findByName($name, $limit, $opts = array()) {
-        $db = $this->getAdapter();        
+        $db = $this->getAdapter();
         $select = new Zend_Db_Table_Select($this);
 
         $where = "";
@@ -460,7 +473,7 @@ class esdPersonObject extends Emory_Db_Table {
                 $where .= $db->quoteInto(" LOWER(PRSN_N_LAST) LIKE ? ", $names[$i] . "%");
             }
         }
-        // optional filters if specified        
+        // optional filters if specified
         // if set, filter on current faculty using flag passed in
         if (isset($filters["current_flag"])) {
             $where .= $db->quoteInto(" AND PRSN_F_FCLT_CRNT = ?", $filters["current_flag"]);
@@ -468,8 +481,8 @@ class esdPersonObject extends Emory_Db_Table {
         // if set, filter on person type
         if (isset($filters["person_type"])) {
             $where .= $db->quoteInto(" AND PRSN_C_TYPE= ?",  $filters["person_type"]);
-        }        
-        
+        }
+
         $select->where($where);
         $select->order("PRSN_N_LAST");  // sort by last name
         if ($limit == 1) {
@@ -510,7 +523,7 @@ class esdAddressInfo extends Emory_Db_Table_Row {
 
       $this->current = new esdAddress();
       $this->permanent = new esdAddress();
-      
+
       $this->setAddress("current");
       $this->setAddress("permanent");
 
@@ -566,7 +579,7 @@ class esdAddressObject extends Emory_Db_Table {
 						       'columns' => array('PRSN_I'),
 						       'refTableClass' => 'esdPersonObject')
 				     );
-    
+
     protected $uppercase_fields = true;
 
     public function __construct($config = array()) {

@@ -21,12 +21,12 @@ class notifier {
     if (Zend_Registry::isRegistered('environment'))
       $this->env = Zend_Registry::get('environment');
     else $this->env = "";
-    
+
     $this->mail = new Zend_Mail();
     $this->view = new Zend_View();
 
     if ($this->env == "test")	   // set base path relative to test directory
-      $this->view->setBasePath("../../src/app/views");	
+      $this->view->setBasePath("../../src/app/views");
     else			   // default base path relative for normal setup
       $this->view->setBasePath("../app/views");
   }
@@ -48,12 +48,18 @@ class notifier {
    */
   public function send() {
     // don't actually send the email when testing
-    if ($this->env == "test")  return;
-
-    // NOTE: Would be nice to enhance this at some point --
+    // // NOTE: Would be nice to enhance this at some point --
     // store the email somewhere for inspection in test mode, ... ?
-    
-    $this->mail->send();
+    if ($this->env == "test")
+        return;
+    elseif ($this->env == "development") {
+        $tr1 = new Zend_Mail_Transport_Smtp('smtp.service.emory.edu');
+        $this->mail->send($tr1);
+    }
+    else {
+        $this->mail->send();
+    }
+
   }
-  
+
 }
