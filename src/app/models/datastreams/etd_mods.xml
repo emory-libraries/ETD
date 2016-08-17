@@ -1,5 +1,5 @@
-<mods:mods 
-  xmlns:mods="http://www.loc.gov/mods/v3" 
+<mods:mods
+  xmlns:mods="http://www.loc.gov/mods/v3"
   xmlns:etd="http://www.ndltd.org/standards/metadata/etdms/1.0/"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema">
   <mods:titleInfo>
@@ -27,7 +27,7 @@
     <mods:issuance>monographic</mods:issuance>
     <mods:dateIssued keyDate="yes"/>
   <!-- convert to 4-digit year, set encoding="marc" before handing off to marc transform -->
-    <mods:dateOther type="embargoedUntil"/> 
+    <mods:dateOther type="embargoedUntil"/>
   </mods:originInfo>
   <mods:language>
     <mods:languageTerm authority="iso639-2b" type="text">English</mods:languageTerm>
@@ -48,6 +48,7 @@
     <mods:topic/>
   </mods:subject>
   <mods:identifier type="ark"/>
+  <mods:identifier type="doi"/>
   <mods:identifier type="uri"/>
   <mods:location>
     <mods:url usage="primary display"/>

@@ -214,43 +214,52 @@ class Etd_Service_Persis {
      */
       public function generateDoi($etd) {
 
-          // Taken from
-          // http://ezid.cdlib.org/doc/apidoc.html#php-examples
-          $logger = Zend_Registry::get('logger');
+        if ($etd->mods->doi) {
+          return true;
+        }
 
-          // EasyID wants a multiline string.
-          $payload = "_target: " . $etd->mods->identifier . "\n";
-          $payload .= "datacite.creator: " . $etd->mods->author . "\n";
-          $payload .= "datacite.publicationyear:" . $etd->mods->date . "\n";
-          $payload .= "datacite.title: " . $etd->mods->title . "\n";
-          $payload .= "datacite.publisher: Emory University";
+        // Taken from
+        // http://ezid.cdlib.org/doc/apidoc.html#php-examples
 
-          $ch = curl_init();
+        // EasyID wants a multiline string.
+        $title = str_replace("\n", "", $etd->mods->title);
+        $pubYear = substr($etd->mods->date, 0, 4);
+        $payload = "_target: " . $etd->mods->identifier . "\n";
+        $payload .= "datacite.creator: " . $etd->mods->author . "\n";
+        $payload .= "datacite.publicationyear: " . $pubYear . "\n";
+        $payload .= "datacite.title: " . $title . "\n";
+        $payload .= "datacite.publisher: Emory University";
 
-          curl_setopt($ch, CURLOPT_URL, $this->ezid_url . $this->etd->pid);
-          curl_setopt($ch, CURLOPT_USERPWD, $this->ezid_username . ":" . $this->ezid_password);
-          curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
-          curl_setopt($ch, CURLOPT_HTTPHEADER,
-            array('Content-Type: text/plain; charset=UTF-8',
-                  'Content-Length: ' . strlen($payload)));
-          curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
-          curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-          $doi = curl_exec($ch);
+        $ch = curl_init();
 
+        $id = substr($etd->pid, strpos($etd->pid, ":") + 1) . '9';
+        curl_setopt($ch, CURLOPT_VERBOSE, 1);
+        curl_setopt($ch, CURLOPT_URL, $this->ezid_url . $id);
+        curl_setopt($ch, CURLOPT_USERPWD, $this->ezid_username . ":" . $this->ezid_password);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
+        curl_setopt($ch, CURLOPT_HTTPHEADER,
+          array('Content-Type: text/plain; charset=UTF-8',
+                'Content-Length: ' . strlen($payload)));
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $response = curl_exec($ch);
 
-          if (curl_getinfo($ch, CURLINFO_HTTP_CODE) !== 201){
-                  $error = "Bad response from pidman. Response was: " . curl_getinfo($ch, CURLINFO_HTTP_CODE);
-                  $logger->err($error);
-  		            throw new PersisServiceUnauthorized($error);
-          }
-          if (curl_error($ch)){
-              $logger->err(curl_error($ch));
-              throw new PersisServiceUnauthorized("Failed to generate ARK: " .  curl_error($ch));
-              curl_close($ch);
-              return null;
-          } else {
-              curl_close($ch);
-              return $doi;
+        if (curl_getinfo($ch, CURLINFO_HTTP_CODE) !== 201){
+            $error = "Bad response from ezid for " . $etd->pid . ". Response was: " . curl_getinfo($ch, CURLINFO_HTTP_CODE). ": " . curl_error($ch);
+            return $error;
+        }
+        if (curl_error($ch)){
+            $error = "Failed to generate DOI " . $etd->pid . ": " .  curl_error($ch);
+            curl_close($ch);
+            return $error;
+        } else {
+            curl_close($ch);
+            preg_match('/\bdoi.?[^\s]+/', $response, $doi);
+            // Add an empty field for the DOI in the mods.
+            $etd->mods->addDoi();
+            // Set the DOI. Save is called in the script.
+            $etd->mods->doi = $doi[0];
+            return $doi;
           }
       }
 

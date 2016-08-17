@@ -9,7 +9,7 @@
  *  it will parse the feed, find graduates and their ETD records, and
  *  then run those ETD records through the appropriate steps in the
  *  following order:
- *  
+ *
  *  - confirm graduation (simply add an event to the record history
  *    that system has confirmed graduation)
  *
@@ -29,9 +29,9 @@
  *
  *  This script should be access Fedora via a privileged maintenance
  *  account (with etdadmin-level permissions), because it needs to
- *  access unpublished records, modify the history, and modify the xacml. 
+ *  access unpublished records, modify the history, and modify the xacml.
  *
- *  
+ *
  *  This script should not be used to publish alumni submissions.
  *
  * @category Etd
@@ -41,7 +41,7 @@
 
 /**
 
- 
+
  */
 
 require_once("bootstrap.php");
@@ -62,7 +62,7 @@ array(
     'tmpdir|t=s'       => "Temp directory for proquest files (default: /tmp/pqsubmission-YYYYMMDD)",
     ),  $common_getopts	// use default verbose and noact opts from bootstrap
 );
-		       
+
 
 $opts = new Zend_Console_Getopt($getopts);
 
@@ -99,6 +99,7 @@ $counts["numOfProquestSubmissions"] = 0;
 $counts["numOfFailedProquest"] = 0;
 $counts["numOfPubs"] = 0;
 $counts["numOfFailedPubs"] = 0;
+$counts["doiFails"] = array();
 
 $do_all = false;
 // if no mode is specified, run all steps
@@ -124,7 +125,7 @@ if ($do_all) {
     print "Error! filename must be specified when running all steps\n";
     echo $usage;
     exit;
-  } 
+  }
   if (count($pids) != 0) {
     trigger_error("Specified pids will be ignored - will find records in feed", E_USER_WARNING);
   }
@@ -141,7 +142,7 @@ $logger = setup_logging($opts->verbose);
 $publish_date;
 // if not doing all steps *but* publishing, need to calculate publish date
 if (!$do_all && $opts->publish) {
-  last_term($opts->date); 
+  last_term($opts->date);
 }
 
 
@@ -160,21 +161,21 @@ if ($do_all) {
       $logger->warn("Record not found: $pid");
       //      trigger_error("Record not found: $pid", E_USER_WARNING);
     } catch (FoxmlBadContentModel $e) {
-      $logger->warn("Record is not an etd, ignoring: $pid");	
+      $logger->warn("Record is not an etd, ignoring: $pid");
       //      trigger_error("Record is not an etd, ignoring: $pid", E_USER_WARNING);
     }
   }
 }
 
 // look for any approved records still in the system ('orphaned' theses)
-if ($do_all || $opts->orphan) 		find_orphans();  
+if ($do_all || $opts->orphan) 		find_orphans();
 
 // if there are any records to be processed
 if (count($etds)) {
 
   if ($do_all || $opts->confirmgrad)
     confirm_graduation($etds);
-  if ($do_all || $opts->publish) 
+  if ($do_all || $opts->publish)
     $etds = publish($etds);	// if publication fails, record will not continue through the rest of the process
   if ($do_all || $opts->proquest)
     submit_to_proquest($etds);
@@ -228,7 +229,7 @@ function sendSummaryEmail($summary){
     $pubEmail->setSubject("Publication Summary - " . date("Y-m-d", time()));
     $emailToBeSent = ""; /* it's the email to be sent*/
     $emailBodyText = "";
-    
+
 
     $emailBodyText = $summary . $emailBodyText;
     $pubEmail->setBodyText($emailBodyText);
@@ -304,36 +305,36 @@ function get_graduate_etds($filename, $refdate = null) {
   $degree_status	= 10;		// awarded or revoked
   $degree		= 11;
   $honors		= 12;
-  
+
   // determine the term most recently *completed* (or about to end) relative to the specified date
   $last_term =  last_term($refdate);
 
-  $logger->debug("Finding graduates for most recently completed term " . 
+  $logger->debug("Finding graduates for most recently completed term " .
 		($refdate ? "relative to $refdate " : "" ) .  "(semester code $last_term)");
 
   //open alumni feed
   $fp = fopen($filename, 'r');
   if ($fp == false)
     die("Could not open file for reading: $filename\n");
-  
+
   $etds = array();
-  
+
   while (($data = fgetcsv($fp, 1500, ",")) !== FALSE) {
     if (count($data) < 2) continue;	// skip blank lines
     if(in_array($data[$degree], $honors_degrees) && empty($data[$honors])) { //skip entry if undergrad and honors not set
         $name_degree = $data[$lastname] . ", " . $data[$firstname] . " (" . $data[$major] . ")";
         //$logger->debug("Found undergrad, excluding because not honors: " . $data[$netid] . " $name_degree");
         continue;
-    } 
+    }
     if ($data[$degree_status] == "AW"  // degree status = awarded
 	&&  $data[$term] == $last_term  // graduate of most recently ended semester
 	&&  in_array($data[$degree], $etd_degrees)	// one of the degrees for which we expect ETDs
-	) {		      // found a relevant graduate 
+	) {		      // found a relevant graduate
 
       $name_degree = $data[$lastname] . ", " . $data[$firstname] . " (" . $data[$major] . ")";
-	  
+
       $logger->debug("Found graduate " . $data[$netid] . " $name_degree");
-      
+
       // find fedora record id, add to $pids
       $etdSet = new EtdSet();
       $etdSet->findUnpublishedByOwner($data[$netid]);
@@ -351,7 +352,7 @@ function get_graduate_etds($filename, $refdate = null) {
 	  $logger->warn("Warning: no ETD found for $name_degree");
           $orphanedGrads = $orphanedGrads . "\t" . $name_degree . "\n";
   	  $counts["numOfOrphanedGrad"]++;
-      } elseif ($count == 1) {			// what we expect 
+      } elseif ($count == 1) {			// what we expect
         $logger->info("Found etd record " . $etdSet->etds[0]->pid . " for $name_degree");
         if ($etdSet->etds[0]->status() != "approved") {
 	  $logger->info("Record is not yet approved, skipping");
@@ -364,7 +365,7 @@ function get_graduate_etds($filename, $refdate = null) {
     } elseif ($data[$degree_status] == "RE") {      // degree status revoked
       // note: no handling for this yet -- what should be done?
       // fixme: is it appropriate to make this an alert instead of a warning?
-      $logger->alert("Found a revoked degree for " . $data[$lastname] . ", " . $data[$firstname] . " (" . 
+      $logger->alert("Found a revoked degree for " . $data[$lastname] . ", " . $data[$firstname] . " (" .
         $data[$degree] . ", " . $data[$major] . ")
         There is not yet any code to handle this.");
     }
@@ -420,7 +421,7 @@ function last_semester($year, $month) {
     $semester = "FALL";
     $grad_month = "12";
   }
-  
+
   $msg = "Processing degrees awarded in $semester $year";
   $logger->info($msg);
   $emailBodyText = $emailBodyText . "\t" . $msg . "\n";
@@ -431,8 +432,8 @@ function last_semester($year, $month) {
 // semester logic based on decode_semester from reserves scripts
 
 /*
-OPUS uses a strange format to encode semester and year information.  This function will translate the 
-encode value to something useful 
+OPUS uses a strange format to encode semester and year information.  This function will translate the
+encode value to something useful
 
 We can translate Term to verbiage such as "Fall 2005" if you want.  The
 Term code itself is easy to interpret.  Term consists of CYYM where
@@ -442,14 +443,14 @@ century of '20'
     M value of '1' is Spring term
     M value of '6' is Summer term
     M value of '9' is Fall term
-    M value of '0' is Interim 
-    
+    M value of '0' is Interim
+
     Thus,
     5051 is Spring 2005
     5056 is Summer 2005
     5059 is Fall 2005
     5061 is Spring 2006
-    5066 is Summer 2006 
+    5066 is Summer 2006
 */
 
 /**
@@ -467,7 +468,7 @@ function semester_code ($year, $term) {
 
   $code = $C . $year . $M{"$term"};
   return $code;
-} 
+}
 
 
 
@@ -495,7 +496,7 @@ function confirm_graduation(array $etds) {
 
 /**
  * do everything needed to publish etds (most of the logic is handled in etd model class)
- * 
+ *
  * @param array $etds etd objects
  * @return array of etds that were successfully published
  */
@@ -503,9 +504,9 @@ function publish(array $etds) {
   global $opts, $publish_date, $logger, $counts;
   $logger->info("Publishing");
 
-  // store all etds that are successfully published 
+  // store all etds that are successfully published
   $published = array();
-  
+
   foreach ($etds as $etd) {
     // only records that are currently approved should be published
     if ($etd->status() != "approved") {
@@ -520,7 +521,7 @@ function publish(array $etds) {
       $counts["numOfPubs"]++;
       continue;
     }
-    
+
     try {
       // official publication date (end of semester), current date
       $etd->publish($publish_date, $opts->date);     // currently no return value / status -- needed?
@@ -530,14 +531,24 @@ function publish(array $etds) {
       // skip to the next record
       continue;
     }
-    
-    // if publish succeeded, add to array 
+
+    // if publish succeeded, add to array
     $published[] = $etd;
     $counts["numOfPubs"]++;
-    
+
+    // Add to array if DOI is not set
+    // Or add a notice to to the audit trail.
+    if (empty($etd->mods->doi)) {
+      $countes["doiFails"] = $etd->pid;
+    } elseif (preg_match('/^doi.{16}$/', $etd->doi)) {
+      $etd->premis->addEvent("notice",
+          "DOI generated " . $this->mods->doi,
+          "success", array("software", "etd system"));
+    }
+
     // send an email to notify author, and record in history
     $notify = new etd_notifier($etd);
-    
+
     try {
       $notify->publication();
     } catch (Zend_Db_Adapter_Exception $e) {
@@ -552,10 +563,11 @@ function publish(array $etds) {
       // don't add notification event to history, but continue processing other records
       continue;
     }
-    
+
     $etd->premis->addEvent("notice",
 			   "Publication Notification sent by ETD system",
 			   "success",  array("software", "etd system"));
+
   } // end looping through etds
   return $published;
 }
@@ -577,15 +589,15 @@ function submit_to_proquest(array $etds) {
     rdelete($tmpdir);	// recursively delete directory & all contents
   }
   mkdir($tmpdir);
-  
+
   $logger->info("Submitting to ProQuest");
   $logger->info("Temporary files will be created in $tmpdir");
-    
+
   // in test mode: create the metadata & zip files, but don't change the records, ftp, or send email
   $zipfiles = array();
 
   $submissions = array();
-  
+
   foreach ($etds as $etd) {
     // only records that are either approved or published should be sent to ProQuest
     if ($etd->status() != "approved" && $etd->status() != "published") {
@@ -599,7 +611,7 @@ function submit_to_proquest(array $etds) {
       $logger->info("Record " . $etd->pid . " will not be sent to ProQuest (not required and not requested by student)");
       continue;
     }
-    
+
 
     $logger->info("Preparing ProQuest submission file for " . $etd->pid);	// debug instead of info?
     $submission = new ProQuestSubmission();
@@ -617,7 +629,7 @@ function submit_to_proquest(array $etds) {
 
       $submission->create_zip($tmpdir);
 
-      // output more detailed validation information as info 
+      // output more detailed validation information as info
       $errors['ProQuest DTD'] = $submission->dtdValidationErrors();
       $errors['Schema'] = $submission->schemaValidationErrors();
       foreach ($errors as $name => $xml_errors) {
@@ -637,26 +649,26 @@ function submit_to_proquest(array $etds) {
       }
     }
   }
-  
+
   if ($counts["numOfFailedProquest"] != 0)
   {
      $emailBodyText = $emailBodyText . "\nFailed Proquest Submissions:\n" . $failedProquests;
   }
-  // batch post-processing for proquest submissions 
+  // batch post-processing for proquest submissions
   if ($opts->noact) {
     $logger->info("Test mode, so not ftping submission zip files to ProQuest");
     foreach ($submissions as $sub) $sub->ftped = true;		// pretend ftp worked
 
     $logger->info("Test mode, so not emailing submission list to ProQuest");
-    // generate & display email 
+    // generate & display email
     $logger->debug("Packing list email:\n" . proquest_email($submissions));
 
   } elseif (count($submissions)) {
     // only do ftp & email if there are submissions to send
-    
+
     //  - ftp all zip files to PQ	(with error checking)
     $logger->info("Ftping all submission zip files to ProQuest");
-    // ftp 
+    // ftp
     proquest_ftp($submissions);
     //  - send email with packing list
     $logger->info("Sending submission list email to ProQuest");
@@ -673,7 +685,7 @@ function submit_to_proquest(array $etds) {
   } else {
     $logger->info("No records to send to ProQuest");
   }
-    
+
 }
 
 
@@ -686,7 +698,7 @@ function proquest_ftp(array $submissions) {
   global $opts, $proquest, $logger;
 
   $success = array();
-  
+
   // set up basic connection
   $ftpsrv = ftp_connect($proquest->ftp->server);
   if (!$ftpsrv) {
@@ -713,7 +725,7 @@ function proquest_ftp(array $submissions) {
   // loop through the submissions and transfer the zipfiles to the ftp server
   foreach ($submissions as $submission) {
     $remotefile = basename($submission->zipfile);
-    
+
     // check if the file is already on the server
     if (is_array($serverfiles) && in_array($remotefile, $serverfiles)) {
       $logger->debug("$remotefile is already on the ftp server; deleting");
@@ -729,7 +741,7 @@ function proquest_ftp(array $submissions) {
       $logger->err("FTP upload failed for $remotefile");
       $submission->ftped = false;
     } else {
-      array_push($success, $remotefile);	
+      array_push($success, $remotefile);
       $logger->debug("Successfully uploaded $remotefile");
       $submission->ftped = true;
     }
@@ -744,7 +756,7 @@ function proquest_ftp(array $submissions) {
       }
     }
   }
-  
+
   // close the FTP connection
   ftp_close($ftpsrv);
 
@@ -765,8 +777,8 @@ function proquest_email(array $submissions) {
   $env_config = Zend_Registry::get('env-config');
 
   // if there are no records, don't send an email
-  if (!count($submissions)) return;	
-  
+  if (!count($submissions)) return;
+
   $lines = array();
   foreach ($submissions as $submission) {
     if ($submission->ftped) 	// only include if ftp was successfully
@@ -779,7 +791,7 @@ function proquest_email(array $submissions) {
 
   // in no-act mode, return the text of the email for debug output
   if ($opts->noact) return $text;
-  
+
   $mail = new Zend_Mail();
   $mail->setSubject("Emory Submissions")
        ->setFrom($config->email->etd->address, $config->email->etd->name)
@@ -791,14 +803,14 @@ function proquest_email(array $submissions) {
   if ($env_config->mode == "production") {
     $mail->addBcc($config->email->etd->address);
   }
-  
+
   try {
     $mail->send();
   } catch (Zend_Exception $ex) {
     $logger->err("There was a problem sending the Submission 'packing list' email to ProQuest: " .  $ex->getMessage());
     return false;
   }
-  
+
   return true;
 }
 
@@ -838,13 +850,13 @@ function find_orphans() {
   $etdSet = new EtdSet();
   $etdSet->findApproved();
   $count = $etdSet->numFound;
-  
+
   if ($count) {
     $logger->notice("Found " . $count . " approved record" . ($count != 1 ? "s" : ""));
     $counts["numOfOrphanedEtd"] = $count;
     foreach ($etdSet->etds as $etd) {
       $msg = $etd->author() . " " . $etd->ark();
-      $logger->info("    " . $msg); 
+      $logger->info("    " . $msg);
       $orphanedEtds = $orphanedEtds . "\t" . $msg . "\n";
     }
   } else {
