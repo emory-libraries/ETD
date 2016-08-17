@@ -202,7 +202,8 @@ $summary = "SUMMARY:\n" .
                "\tGraduates with no ETD: " . $counts["numOfOrphanedGrad"] . "\n" .
                "\tApproved ETDs not yet published: " . $counts["numOfOrphanedEtd"]. "\n" .
                "\tSuccessful Proquest Submissions: " . $counts["numOfProquestSubmissions"] . "\n" .
-               "\tFailed Proquest Submissions: " . $counts["numOfFailedProquest"] . "\n";
+               "\tFailed Proquest Submissions: " . $counts["numOfFailedProquest"] . "\n" .
+               "\tFailed To Create DOI: " . count($counts['doiFails']);
 
 if(!$opts->noact && ($do_all || $opts->proquest || $opts->publish || $opts->orphan)){
     sendSummaryEmail($summary);
@@ -215,7 +216,14 @@ else
 print $summary;
 
 if (count($counts['doiFails']) > 0){
-  sendDoiFailList();
+  $pids = implode("\n", $counts['doiFails']);
+  $payload = array(
+    'text' =>  "The following ETDs failed to get a DOI.\n{$pids}\n:unamused:",
+    'username' => 'etd-errors',
+    'icon_emoji' => ':raptor:'
+    );
+  slack(json_encode($payload));
+
 }
 
 /**
@@ -267,60 +275,32 @@ function sendSummaryEmail($summary){
     }
     $emailToBeSent = $emailToBeSent .
              "\n---- \n" . $emailBodyText;
+
+
+     $arr = array(
+       'text' =>  'ETD Publish Summary',
+       'attachments' => array(array('text' => $emailBodyText)),
+       'username' => 'publish-report',
+       'icon_emoji' => ':interrobang:'
+       );
+     slack(json_encode($arr));
+
+
 return true;
 }
 
-/**
- *        Send a summary email to the etd administrator
- * @param $summary - email body
- * @return boolean
- */
-function sendDoiFailList($summary){
-    $config = Zend_Registry::get('config');
-    $environment = Zend_Registry::get('env-config');
-    $failEmail = new Zend_Mail();
-    $failEmail->setFrom($config->email->etd->address,$config->email->etd->name);
-    $failEmail->setSubject("DOI forward_static_call_array Summary - " . date("Y-m-d", time()));
-    $emailToBeSent = ""; /* it's the email to be sent*/
-    $emailBodyText = "Below is a list of ETDs that failed to get a DOI :(\n";
-    $emailBodyText .= implode('"\n"', $doiFails);
-
-
-    $emailBodyText = $summary . $emailBodyText;
-    $failEmail->setBodyText($emailBodyText);
-
-    if ($environment->mode != "production")
-    {
-        $failEmail->addTo($config->email->test);
-    }
-    else
-    {
-        $failEmail->addTo($config->email->etd->address, $config->email->etd->name);
-    }
-
-    try{
-       $failEmail->send();
-    }
-    catch (Zend_Exception $ex)
-    {
-        $logger->err("There was a problem sending the publication email to ETD administrator: " .  $ex->getMessage());
-        return false;
-    }
-
-    foreach ($failEmail->getHeaders() as $elemHeader => $elemValue)
-    {
-      $emailToBeSent = $emailToBeSent . "\n" . $elemHeader . ": ";
-      foreach ($elemValue as $elem)
-      {
-        if(is_string($elem))
-        {
-          $emailToBeSent = $emailToBeSent . $elem . "\t";
-        }
-      }
-    }
-    $emailToBeSent = $emailToBeSent .
-    "\n---- \n" . $emailBodyText;
-    return true;
+function slack($payload){
+  $url = '';
+  $ch = curl_init();
+  curl_setopt($ch, CURLOPT_VERBOSE, 1);
+  curl_setopt($ch, CURLOPT_URL, $url);
+  curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
+  curl_setopt($ch, CURLOPT_HTTPHEADER,
+    array('Content-Type: text/plain; charset=UTF-8',
+          'Content-Length: ' . strlen($payload)));
+  curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+  curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+  $response = curl_exec($ch);
 }
 
 /**
