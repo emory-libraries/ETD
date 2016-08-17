@@ -214,7 +214,9 @@ else
 }
 print $summary;
 
-
+if (count($counts['doiFails']) > 0){
+  sendDoiFailList();
+}
 
 /**
  *        Send a summary email to the etd administrator
@@ -266,6 +268,59 @@ function sendSummaryEmail($summary){
     $emailToBeSent = $emailToBeSent .
              "\n---- \n" . $emailBodyText;
 return true;
+}
+
+/**
+ *        Send a summary email to the etd administrator
+ * @param $summary - email body
+ * @return boolean
+ */
+function sendDoiFailList($summary){
+    $config = Zend_Registry::get('config');
+    $environment = Zend_Registry::get('env-config');
+    $failEmail = new Zend_Mail();
+    $failEmail->setFrom($config->email->etd->address,$config->email->etd->name);
+    $failEmail->setSubject("DOI forward_static_call_array Summary - " . date("Y-m-d", time()));
+    $emailToBeSent = ""; /* it's the email to be sent*/
+    $emailBodyText = "Below is a list of ETDs that failed to get a DOI :(\n";
+    $emailBodyText .= implode('"\n"', $doiFails);
+
+
+    $emailBodyText = $summary . $emailBodyText;
+    $failEmail->setBodyText($emailBodyText);
+
+    if ($environment->mode != "production")
+    {
+        $failEmail->addTo($config->email->test);
+    }
+    else
+    {
+        $failEmail->addTo($config->email->etd->address, $config->email->etd->name);
+    }
+
+    try{
+       $failEmail->send();
+    }
+    catch (Zend_Exception $ex)
+    {
+        $logger->err("There was a problem sending the publication email to ETD administrator: " .  $ex->getMessage());
+        return false;
+    }
+
+    foreach ($failEmail->getHeaders() as $elemHeader => $elemValue)
+    {
+      $emailToBeSent = $emailToBeSent . "\n" . $elemHeader . ": ";
+      foreach ($elemValue as $elem)
+      {
+        if(is_string($elem))
+        {
+          $emailToBeSent = $emailToBeSent . $elem . "\t";
+        }
+      }
+    }
+    $emailToBeSent = $emailToBeSent .
+    "\n---- \n" . $emailBodyText;
+    return true;
 }
 
 /**
