@@ -232,6 +232,7 @@ if (count($counts['doiFails']) > 0){
  * @return boolean
  */
 function sendSummaryEmail($summary){
+    global $opts, $logger;
     $config = Zend_Registry::get('config');
     $environment = Zend_Registry::get('env-config');
     $pubEmail = new Zend_Mail();
@@ -573,12 +574,15 @@ function publish(array $etds) {
 
     // Add to array if DOI is not set
     // Or add a notice to to the audit trail.
+    $doi = $persis->generateDoi($etd);
     if (empty($etd->mods->doi)) {
-      $countes["doiFails"] = $etd->pid;
-    } elseif (preg_match('/^doi.{16}$/', $etd->doi)) {
+      $counts["doiFails"] = $etd->pid;
+    } elseif (preg_match('/^doi.{17}$/', $etd->mods->doi)) {
       $etd->premis->addEvent("notice",
-          "DOI generated " . $this->mods->doi,
+          "DOI generated " . $etd->mods->doi,
           "success", array("software", "etd system"));
+    } else {
+      $logger->error('DOI not created for ' . $etd->pid);
     }
 
     // send an email to notify author, and record in history
