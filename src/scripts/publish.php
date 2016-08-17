@@ -290,10 +290,10 @@ return true;
 }
 
 function slack($payload){
-  $url = '';
+  $config = Zend_Registry::get('config');
   $ch = curl_init();
   curl_setopt($ch, CURLOPT_VERBOSE, 1);
-  curl_setopt($ch, CURLOPT_URL, $url);
+  curl_setopt($ch, CURLOPT_URL, $config->slack_url);
   curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
   curl_setopt($ch, CURLOPT_HTTPHEADER,
     array('Content-Type: text/plain; charset=UTF-8',
