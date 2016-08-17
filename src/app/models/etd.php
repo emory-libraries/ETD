@@ -1075,7 +1075,10 @@ class etd extends foxml implements etdInterface {
     // set publication date (date issued)
     $this->mods->originInfo->issued = $publish_date;
 
-    $this->mods->doi = $persis->generateDoi($this);
+    // Only create a DOI if the ETD doesn't already have one.
+    if (empty($this->mods->doi)) {
+      $doi = $this->mods->doi = $persis->generateDoi($this);
+    }
 
     // TODO what do we don if we don't get a doi
 
