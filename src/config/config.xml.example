@@ -20,6 +20,7 @@
       <email></email>
       <name></name>
     </contact>
+    <slack_url>https://hooks.slack.com/services/.....</slack_url>
     <news_feed>
       <url>https://digital.library.emory.edu/taxonomy/term/22/all/feed</url>
       <lifetime>3600</lifetime>
@@ -35,12 +36,12 @@
     <tmpdir></tmpdir>
     <logfile></logfile>
     <!-- executable for pdftohtml; supply full path if necessary -->
-    <pdftohtml></pdftohtml> 
+    <pdftohtml></pdftohtml>
 
     <!-- override default role for superusers only here:
     NOTE: these people must also be listed permit-etds-to-etdadmins policy -->
     <superusers>
-      <user></user> 
+      <user></user>
       <user></user>
     </superusers>
     <!-- tech support : must also be listed as etdadmins in fedora policy -->
@@ -53,7 +54,7 @@
     </reportviewer>
 
     <!-- NOTE: for superusers, techsupport, and honors_admin,
-    there must be at least 2 user entries so Zend_Config_Xml 
+    there must be at least 2 user entries so Zend_Config_Xml
     will treat it as a multiple field -->
 
     <!-- rights statement to be used in the MODS record -->
@@ -62,30 +63,30 @@
     <!-- Foxml Collections -->
     <programs_collection>
       <id></id>
-      <pid></pid>  
+      <pid></pid>
       <skos_label>Programs</skos_label>
       <label>ETD Programs Hierarchy</label>
-      <model_object>emory-control:Hierarchy-1.0</model_object>   
-    </programs_collection>  
+      <model_object>emory-control:Hierarchy-1.0</model_object>
+    </programs_collection>
     <vocabularies_collection>
       <id></id>
       <pid></pid>
-      <skos_label>Vocabularies</skos_label>      
+      <skos_label>Vocabularies</skos_label>
       <label>ETD Controlled Vocabularies Hierarchy</label>
-      <model_object>emory-control:Hierarchy-1.0</model_object>   
+      <model_object>emory-control:Hierarchy-1.0</model_object>
     </vocabularies_collection>
 
     <contentModels>
       <etd>emory-control:ETD-1.0</etd>
       <etdfile>emory-control:EtdFile-1.0</etdfile>
-      <author>emory-control:AuthorInformation-1.0</author> 
+      <author>emory-control:AuthorInformation-1.0</author>
     </contentModels>
 
     <!-- Bypass the LDAP certificate authorization - available in non-prod envs only
     <certificate_required>
       <ldap>never</ldap>
-    </certificate_required> 
-    -->     
+    </certificate_required>
+    -->
   </development>
 
   <test extends="development">
