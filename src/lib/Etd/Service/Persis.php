@@ -214,6 +214,7 @@ class Etd_Service_Persis {
      */
       public function generateDoi($etd) {
 
+        // Bail if a DOI exists.
         if ($etd->mods->doi) {
           return true;
         }
@@ -232,7 +233,7 @@ class Etd_Service_Persis {
 
         $ch = curl_init();
 
-        $id = substr($etd->pid, strpos($etd->pid, ":") + 1) . '9';
+        $id = substr($etd->pid, strpos($etd->pid, ":") + 1);
         curl_setopt($ch, CURLOPT_VERBOSE, 1);
         curl_setopt($ch, CURLOPT_URL, $this->ezid_url . $id);
         curl_setopt($ch, CURLOPT_USERPWD, $this->ezid_username . ":" . $this->ezid_password);
@@ -246,20 +247,23 @@ class Etd_Service_Persis {
 
         if (curl_getinfo($ch, CURLINFO_HTTP_CODE) !== 201){
             $error = "Bad response from ezid for " . $etd->pid . ". Response was: " . curl_getinfo($ch, CURLINFO_HTTP_CODE). ": " . curl_error($ch);
-            return $error;
+            $logger->error($error);
+            return false;
         }
         if (curl_error($ch)){
             $error = "Failed to generate DOI " . $etd->pid . ": " .  curl_error($ch);
+            $logger->error($error);
             curl_close($ch);
-            return $error;
+            return null;
         } else {
             curl_close($ch);
             preg_match('/\bdoi.?[^\s]+/', $response, $doi);
+            $logger->info('DOI for ' . $etd->pid . ' ' . $doi);
             // Add an empty field for the DOI in the mods.
             $etd->mods->addDoi();
             // Set the DOI. Save is called in the script.
             $etd->mods->doi = $doi[0];
-            return $doi;
+            return $doi[0];
           }
       }
 
