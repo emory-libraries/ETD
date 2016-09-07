@@ -3,3 +3,6 @@ src/config/
 
 # ETD log files 
 logs/
+
+# .htaccess apache file
+src/public/.htaccess
