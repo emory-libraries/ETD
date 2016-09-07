@@ -1,1 +1,5 @@
+# local setting files
 src/config/
+
+# ETD log files 
+logs/
