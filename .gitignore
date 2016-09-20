@@ -1,3 +1,10 @@
-src/config
 .DS_Store
 src/scripts/updated-arks.csv
+# local setting files
+src/config/
+
+# ETD log files
+logs/
+
+# .htaccess apache file
+src/public/.htaccess
