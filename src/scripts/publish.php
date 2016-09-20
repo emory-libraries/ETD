@@ -574,6 +574,7 @@ function publish(array $etds) {
 
     // Add to array if DOI is not set
     // Or add a notice to to the audit trail.
+    $persis = new Etd_Service_Persis(Zend_Registry::get('persis-config'));
     $doi = $persis->generateDoi($etd);
     if (empty($etd->mods->doi)) {
       $counts["doiFails"] = $etd->pid;
