@@ -2,24 +2,24 @@ INSTALLATION NOTES
 ==================
 ETD requires that fedora-commons be configured as follows:
    - RIsearch enabled, with sync updates turned on
-   - xacml enforcement enabled and combining algorithm set to ordered, permit overrides 
+   - xacml enforcement enabled and combining algorithm set to ordered, permit overrides
    (set XACML-COMBINING-ALGORITHM to com.sun.xacml.combine.OrderedPermitOverridesPolicyAlg
    in fedora.fcfg)
  - etd repository-wide policies (in src/fedora-policies) should be
    included in xacml policies, and default policy to allow all API-A
    should be disabled.  Recommended: check this out of svn and replace
-   default fedora xacml policies https://svn.library.emory.edu/svn/fedora/repository-policies/  
+   default fedora xacml policies https://svn.library.emory.edu/svn/fedora/repository-policies/
  - Fedora 3.x requires a patch to allow cmodel xacml filtering
  - working LDAP authentication filter
  - custom ESD DeptData filter
  - Generic Search Service installed; use index script src/public/xslt/etdFoxmlToSolr.xslt
    - Solr instance, with schema from src/scripts/solr-schema.xml
- - ETD control objects (cmodel/sdef/sdep) loaded 
+ - ETD control objects (cmodel/sdef/sdep) loaded
 
 Site webroot should be pointed at src/public
  - requires apache override, mod_rewrite
  - copy src/htaccess-sample to public/.htaccess and edit
- - edit config files in src/config 
+ - edit config files in src/config
     - copy *.xml.example to *.xml and edit
     - which section of the config file is loaded depends on mode
       setting in environment.xml
@@ -27,7 +27,7 @@ Site webroot should be pointed at src/public
 Update the ETD control objects for particular fedora instance.
     (1) emory-control:ETD-metadataTransform/datastreams/WSDL
 
-        Update the "location" param for the particular instance of Fedora 
+        Update the "location" param for the particular instance of Fedora
 
         <wsdl:service name="FedoraSaxon">
          <wsdl:port binding="this:FedoraSaxon_http" name="FedoraSaxon_port">
@@ -46,7 +46,7 @@ Update the ETD control objects for particular fedora instance.
            <fmm:DefaultInputParm defaultValue="http://etd.library.emory.edu/xslt/mods2marc21.xsl" parmName="xslt" passBy="VALUE" required="true"></fmm:DefaultInputParm>
            <fmm:MethodReturnType wsdlMsgName="xslt_response" wsdlMsgTOMIME="text/xml"></fmm:MethodReturnType>
         </fmm:Method>
-     
+
 
     (3) emory-control::ETDformattedMetadataParts/datastreams/WSDL
 
@@ -68,6 +68,142 @@ Update the ETD control objects for particular fedora instance.
         environment, the hostname will not work. You must use localhost.
 
 
+DOCKER/ETD LOCAL SETUP NOTES
+=================
+Author: Yang Li
+Email: yli60@emory.edu
+Date: 09/07/2016
+
+ETD is contained in a Docker, and the best way to have it running locally is to ask for help from James.
+
+** (Wildcard?) Registry certificate CA issues OSX / Virtualbox #805 **
+https://github.com/boot2docker/boot2docker/issues/805
+
+** Problems using a custom boot2docker ISO hosted on an internal HTTPS site with self-signed cert #491**
+https://github.com/docker/machine/issues/491#issuecomment-76256467
+
+** Deploying a Registry Server **
+https://github.com/docker/distribution/blob/master/docs/deploying.md#running-a-domain-registry
+
+The way to pull down Docker image and run the container, from James:
+
+`docker pull --name=etd_webserver bela.library.emory.edu:5001/jbias/etd_webserver`
+
+`sudo docker run  --restart=always  -it  -p 8000:80 -p 8001:443 --name=etd_webserver bela.library.emory.edu:5001/jbias/etd_webserver`
+
+However I got a response from the registry that:
+
+`sudo docker run  --restart=always  -it  -p 8000:80 -p 8001:443 --name=etd_webserver bela.library.emory.edu:5000/jbias/etd
+Unable to find image 'bela.library.emory.edu:5000/jbias/etd:latest' locally
+docker: Error response from daemon: Get https://bela.library.emory.edu:5000/v1/_ping: EOF.`
+
+I kept getting the error from the daemon that the Docker registry returned an error response. It made me think that it is me being declined by the registry during the authentication process.
+
+With some research I realized that it is the Docker registry being insecure that rejected connection. There are essentially two ways to work around it:
+- Feed a valid certificate
+- Let the Docker registry take insecure connections
+
+The first solution is a little tricky because we are using a Mac and on OS X the imported certificate, managed by KeyChain, cannot be easily handled by Docker. And setting the file in `/etc/docker/cert.d/` doesn’t seem to work well either because OS X is different from Ubuntu or other Linux distributions.
+
+With the second method I have tried to pass Optional parameters to the Docker daemon but it didn’t seem like Docker picked them up. As it turns out, when I installed the Docker on the Mac with the official installer, there is a place in the Docker daemon monitor to add insecure registry. So I added a new entry with `'bela.library.emory.edu:5000/'`and it started to work well.
+
+File Locations in the ETD Docker
+
+** /etc/httpd/sites.d/ **
+
+Apache site specific configurations. The `namevirtualhost443.conf` is the one for HTTPS and the `namevirtualhost.conf` is for HTTP.
+
+`/etc/httpd/sites.d/namevirtualhost443.conf` In the `namevirtualhost443.conf` we need to add a line that defines the `DirectoryIndex`, and it should be something like:
+    ` DirectoryIndex index.php`
+
+If we do run into LDAP certificate issues it is possible to work around it by setting:
+     `SetEnv LDAPTLS_REQCERT never`
+to not let Apache validate the `LDAPTLS_REQCERT`
+
+Also in this file pay attention to these entries:
+     `SSLCertificateFile /etc/httpd/sites.d/ssl/library.emory.edu.crt
+     SSLCertificateKeyFile /etc/httpd/sites.d/ssl/wildcard.prm
+     SSLCertificateChainFile /etc/httpd/sites.d/ssl/gd_bundle.crt`
+Make sure that the certs do exist and are valid.
+
+In the `<Directory /home/httpd/phpinfo> `block we should make sure that we have the user’s IP defined in the Allow list. Or for a safe sandbox we can also try Allow from All
+
+**/etc/httpd/sites.d/namevirtualhost.conf**
+
+It might be helpful to have  LogLevel debug turned on in the Apache configuration file to collect more debugging information. Also make sure that irrelevant or conflicting entries in the configuration files are commented out correctly. It is important that we do restart the Apache service after we make changes to the configuration files, and the way to restart it could be done by stopping the Docker container and restarting it.
+
+** /etc/httpd/logs/ **
+
+This is where Apache stores its logs. They are very helpful when we get errors connecting to the web server.
+
+** /etc/httpd/conf.d/ssl.conf **
+
+There was a problem that when I tried to access the HTTPS version of the application, it takes me to the Apache placeholder page but not the actual ETD application page. The ETD configuration does exist and is setup correctly. However in the Apache log it prompts that there was an overriding configuration `Virtualhost` at 443, and it turns out to be that in this file, there is a default HTTPS profile defined. All we need to do is to comment out the relevant profile for HTTPS and make the ETD profile the only active profile.
+
+** /home/httpd/etd **
+
+This is the home directory of the ETD source code.
+
+** /home/httpd/etd/src/public/.htaccess **
+
+If the server reports there is a 500 Internal Server Error when you the execute search functionality, it could be an error as an infinite redirect loop in the `.htaccess` configuration file. And the solution for this problem is to change the default Rewrite from `/home/httpd/etd/` to `/`.
+
+It needs to be:
+`copy this file to public/.htaccess and update for the local installation.
+in particular, edit this url path to point to your project relative to the
+webroot:
+RewriteBase /`
+
+** /etc/openldap/ldap.conf **
+This is where the LDAP configuration lives. Ideally we should obtain a working copy of this file from a server but there are some certificate issues as the application communicates with the LDAP server. A quick workaround would be to disable the certificate validation with:
+    `TLS_REQCERT never`
+And this will allow LDAP to authenticate without using valid certificates.
+
+** /etc/php.ini **
+
+There is one setting about `compatability_mode` for Zend framework and we need to set it to Off as:
+     `sybase.compatability_mode = Off`
+
+** APP_ROOT/src/lib/Emory/View/Helper/LinkTo.php **
+
+`Zend_View_Helper_LinkTo` was declared twice according to the apache log file and a temporary solution was to comment out the linkTo helper in the code (so that it doesn't trigger the search for this helper). However I cannot find the place where this module is loaded twice in the application.
+
+** APP_ROOT/src/config/config.xml **
+
+Next one is when I attempt to login as a superuser. The first step is to add my username into the `config.xml` so that it has entry `<user>yli60</user>`.
+
+** PHP Error Output **
+
+`// NOTE: php is now outputting a notice when using __set on arrays / objects
+// (actual logic seems to work properly)
+error_reporting(-1);
+// error_reporting(E_ERROR | E_WARNING | E_PARSE);`
+
+This is in `APP_ROOT/src/public/index.php` directory and the `error_reporting` can be set to `-1` to print all error messages on the screen in the UI, which can be very handy at times.
+
+** APP_ROOT/src/config/config.xml **
+This is where the configuration for the ETD lives. Collect one that is working from a developer (e.g. Jay) and make appropriate updates such as the feeds like so:
+
+```
+<news_feed>
+  <url>http://web.library.emory.edu/etd-static/news-feed.rss</url>
+  <lifetime>3600</lifetime>
+</news_feed>
+<docs_feed>
+ <url>http://web.library.emory.edu/etd-static/pages-feed.rss</url>
+  <lifetime>3600</lifetime>
+</docs_feed>
+```
+
+** APP_ROOT/logs/etd_log.xml **
+
+This is the log file for the ETD application and it's set in the `config.xml` file. It might appear funny but we need to create the directory and touch the file if it doesn't exist, so that the application can write into it. Or otherwise it might not create this file and it appears that the log file is never created.
+
+** APP_ROOT/src/lib/Emory/View/Helper/LinkTo.php **
+
+In the Apache log `Zend_View_Helper_LinkTo` was claimed to have been declared twice according and a temporary solution was to comment out the `linkTo` helper in the code (so that it doesn't trigger the search for this helper). However I cannot find the place where this module is loaded twice in the application.
+
+
 
 UPGRADE NOTES
 =================
@@ -80,7 +216,7 @@ Version 1.15.0
 
 Version 1.14.1
 --------------
-* Make sure RFREEM2 has a recode in the etd DB with a blank program code. 
+* Make sure RFREEM2 has a recode in the etd DB with a blank program code.
 
 
 Version 1.14
@@ -99,9 +235,9 @@ Version 1.13 (preliminary)
 
 Version 1.12.5
 --------------
-* Change into the directory src/scripts/migrations/ 
-  - run the commands: 
-        php ./019-add-rollins-program.php -v debug 
+* Change into the directory src/scripts/migrations/
+  - run the commands:
+        php ./019-add-rollins-program.php -v debug
         php 020-add-grad-program.php -v debug
 
 * Copy the sql statement from src/scripts/migrations/DB/002-add_rsph_adap_to_program.sql
@@ -112,7 +248,7 @@ Version 1.12.4
 --------------
 * Update the svn repository to release 1.12.4
 * Update config.xml supported_browsers property:
-    <supported_browsers>IE 7.0,Firefox</supported_browsers> 
+    <supported_browsers>IE 7.0,Firefox</supported_browsers>
 
 
 Version 1.12.3
@@ -120,13 +256,13 @@ Version 1.12.3
 * Update the svn repository to release 1.12.3
 * Reindex etd using eulindexer
       example: manage.py reindex -s etd
-      
+
 Version 1.12.2
 --------------
 * Update the svn repository to release 1.12.2
 * Reindex etd using eulindexer
       example: manage.py reindex -s etd
-      
+
 Version 1.12.1
 --------------
 * Update the svn repository to release 1.12.1
@@ -153,11 +289,11 @@ Version 1.12
       example: manage.py reindex -s etd
 * Update the Solr etd-euli scheme with /src/scripts/solr-schema.xml
   /home/fedora34/gsearch/solr/multicore/etd-euli/conf/scheme.xml
-      
+
 Version 1.11.1
 --------------
 * Update the svn repository.
-  
+
 Version 1.11
 --------------
 * Update the svn repository to release 1.11.
@@ -354,13 +490,13 @@ Version 1.8.5
 
 Version 1.8.3
 -------------
-* Run the migration scripts to add two new programs the emory college school: 
+* Run the migration scripts to add two new programs the emory college school:
     - 018-add-programs.php
-    
+
 Version 1.8.1
 -------------
 * Edit the programs collection (emory:17r1x) and delete the last version of the SKOS datastream.
-* Run the migration scripts to reload the rollins school data: 
+* Run the migration scripts to reload the rollins school data:
     - 015-add-rollins-programs.php
     - 016-add_prog_codes_to_skos.php
 * Delete all the records from etd_admins in the etd database
@@ -379,7 +515,7 @@ Version 1.8
 * 015a-add-collection_program_owners.php - Change maintenance_account to use fedoraAdmin for this migration then change back to etdmaint
    -  create_collections.php
    -  015-add-rollins-programs.php
-   -  016-add-prog_codes_to_skos.php - before running this script, 
+   -  016-add-prog_codes_to_skos.php - before running this script,
        manually edit the config.xml defined programs_pid.
        Select the SKOS datastream for edit, then add this attribute to first line:
        xmlns:dc="http://purl.org/dc/elements/1.1/"
@@ -434,7 +570,7 @@ Version 1.4
 
 Version 1.2
 -----------
-* run migration: 005-add_program_ids.php 
+* run migration: 005-add_program_ids.php
 * update gsearch & solr to latest xslt index & solr schema, reindex
 
 Version 1.0
