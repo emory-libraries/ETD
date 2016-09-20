@@ -8,3 +8,6 @@ logs/
 
 # .htaccess apache file
 src/public/.htaccess
+
+# Python scripts
+src/scripts/*.py
