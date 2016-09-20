@@ -213,7 +213,7 @@ class Etd_Service_Persis {
      * @throws PersisServiceUnauthorized
      */
       public function generateDoi($etd) {
-
+        $logger = Zend_Registry::get('logger');
         // Bail if a DOI exists.
         if ($etd->mods->doi) {
           return true;
