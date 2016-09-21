@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doi_batch version="4.3.7" xmlns="http://www.crossref.org/schema/4.3.7"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.crossref.org/schema/4.3.7
+    http://www.crossref.org/schemas/crossref4.3.7.xsd">
+    <body>
+        <dissertation>
+            <person_name sequence="first" contributor_role="author">
+                <given_name></given_name>
+                <surname></surname>
+                <affiliation>Emory University</affiliation>
+                <ORCID></ORCID>
+            </person_name>
+            <titles>
+              <!-- $etd->mods->title -->
+              <titles></title>
+            </titles>
+            <approval_date>
+              <!-- $etd->mods->dateIssued -->
+                <month></month>
+                <day></day>
+                <year></year>
+            </approval_date>
+            <institution>
+                <institution_name>Emory University</institution_name>
+                <institution_place>Atlanta</institution_place>
+                <!-- $etd->mods->department -->
+                <institution_department></institution_department>
+            </institution>
+            <!-- $etd->mods->degree -->
+            <degree></degree>
+        </dissertation>
+    </body>
+</doi_batch>
