@@ -23,8 +23,9 @@ class CrossrefDeposit extends XmlObject {
   private $dtd_validation_errors;
 
   public function __construct($dom = null) {
-    if (is_null($dom)) {	// by default, initialize from template xml with Emory defaults
+    if (is_null($dom)) {    // by default, initialize from template xml with Emory defaults
       $xml = file_get_contents("crossref_deposit.xml", FILE_USE_INCLUDE_PATH);
+      print($xml);
       $this->dom = new DOMDocument();
       $this->dom->loadXML($xml);
     } else {
@@ -42,32 +43,27 @@ class CrossrefDeposit extends XmlObject {
   protected function configure() {
 
     $this->xmlconfig =  array(
-      "given_name" => array("xpath" => "dissertation/person_name/given_name"),
-      "surname" => array("xpath" => "dissertation/person_name/surname"),
-      "title" => array("xpath" => "dissertation/titles/title"),
-      "month" => array("xpath" => "dissertation/approval_date/month"),
-      "day" => array("xpath" => "dissertation/approval_date/day"),
-      "year" => array("xpath" => "dissertation/approval_date/year"),
-      "department" => array("xpath" => "dissertation/institution/institution_department"),
-      "degree" => array("xpath" => "dissertation/degree")
+      "dissertation" => array("xpath" => "dissertation", "class_name" => "dissertation")
     );
   }
 
-  public function initializeFromEtd(etd $etd) {
-    $this->etd = $etd;		// store reference (will be needed for file export)
+  public function initializeFromEtd($etd) {
+    $this->etd = $etd;        // store reference (will be needed for file export)
 
-    $this->given_name.set($this->etd->mods->given);
-    $this->surname.set($this->etd->mods->family);
-    $this->title.set($this->etd->mods->title);
+    print('!!!!!!!!!!!!!' . $etd->mods->issued . '!!!!!!!!!!!!!!');
+    $author = explode(', ', $etd->mods->author);
+    $this->dissertation->given = $author[1];
+    $this->surname = $author[0];
+    $this->title = $etd->mods->title;
 
     // 2016-08-31
-    $date = explode('-', $this->etd->mods->dateIssued);
-    $this->month.set($date[1]);
-    $this->day.set($date[2]);
-    $this->year.set($date[0]);
+    $date = explode('-', $etd->mods->issued);
+    $this->month = $date[1];
+    $this->day = $date[2];
+    $this->year = $date[0];
 
-    $this->department.set($this->etd->mods->department);
-    $this->degree.set($this->etd->mods->degreen);
+    $this->department = $etd->mods->department;
+    $this->degree = $etd->mods->degree;
  }
 
 
@@ -96,4 +92,35 @@ class CrossrefDeposit extends XmlObject {
   public function schemaValidationErrors() {
     return $this->schema_validation_errors;
   }
+}
+
+class dissertation extends XmlObject {
+  public function __construct($xml, $xpath) {
+    $config = $this->config(array(
+      "given_name" => array("xpath" => "person_name/given_name"),
+      "surname" => array("xpath" => "person_name/surname"),
+      "title" => array("xpath" => "titles/title"),
+      "month" => array("xpath" => "approval_date/month"),
+      "day" => array("xpath" => "approval_date/day"),
+      "year" => array("xpath" => "approval_date/year"),
+      "department" => array("xpath" => "institution/institution_department"),
+      "degree" => array("xpath" => "degree")
+    ));
+    parent::__construct($xml, $config, $xpath);
+  }
+
+  // public function set(mods $value) {
+  //   $this->given_name = $this->etd->mods->given);
+  //   $this->surname.set($this->etd->mods->family);
+  //   $this->title.set($this->etd->mods->title);
+  //
+  //   // 2016-08-31
+  //   $date = explode('-', $this->etd->mods->dateIssued);
+  //   $this->month.set($date[1]);
+  //   $this->day.set($date[2]);
+  //   $this->year.set($date[0]);
+  //
+  //   $this->department.set($this->etd->mods->department);
+  //   $this->degree.set($this->etd->mods->degreen);
+  // }
 }

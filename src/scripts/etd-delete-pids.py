@@ -125,9 +125,9 @@ if not args['no_action']:
     print str(len(pids_to_delete)) + ' will be purged.'
     raw_input("Press Enter to continue...")
 
-    for bad_pid in pids_to_delete:
-        # TODO add error handeling for a pid that might have already been deleted.
-        ark = bad_pid.split(':')[1]
-        # Important: we must deactive ark first. Otherwise we'll get a 404 on the uri.
-        client.update_target(type="ark", noid=ark, active=False)
-        repo.purge_object(bad_pid)
+    # for bad_pid in pids_to_delete:
+    #     # TODO add error handeling for a pid that might have already been deleted.
+    #     ark = bad_pid.split(':')[1]
+    #     # Important: we must deactive ark first. Otherwise we'll get a 404 on the uri.
+    #     client.update_target(type="ark", noid=ark, active=False)
+    #     repo.purge_object(bad_pid)

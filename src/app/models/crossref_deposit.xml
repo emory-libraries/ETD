@@ -10,12 +10,10 @@
                 <affiliation>Emory University</affiliation>
                 <ORCID></ORCID>
             </person_name>
-            <titles>
-              <!-- $etd->mods->title -->
-              <titles></title>
-            </titles>
+              <titles>
+               <title />
+             </titles>
             <approval_date>
-              <!-- $etd->mods->dateIssued -->
                 <month></month>
                 <day></day>
                 <year></year>
@@ -23,11 +21,9 @@
             <institution>
                 <institution_name>Emory University</institution_name>
                 <institution_place>Atlanta</institution_place>
-                <!-- $etd->mods->department -->
                 <institution_department></institution_department>
             </institution>
-            <!-- $etd->mods->degree -->
-            <degree></degree>
+            <degree />
         </dissertation>
     </body>
 </doi_batch>

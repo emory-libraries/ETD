@@ -604,6 +604,13 @@ function publish(array $etds) {
       continue;
     }
 
+    // Reconcile Title in Fedora and Pidman
+    $reconcile = $etd->reconcile_title();
+
+    if ($reconcile == false) {
+      $counts['reconcileFail'] = $etd->pid;
+    }
+
     $etd->premis->addEvent("notice",
 			   "Publication Notification sent by ETD system",
 			   "success",  array("software", "etd system"));
