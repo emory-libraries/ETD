@@ -1196,35 +1196,8 @@ class etd extends foxml implements etdInterface {
   }
 
   public function reconcile_title() {
-    $persis = new Zend_Config_Xml($config_dir . "persis.xml", $env_config->mode);
-
-    $payload = array('name' => $this->title );
-    $ch = curl_init($persis->url . '/ark/' . $this->pid.split(':')[1]);
-
-    curl_setopt($ch,CURLOPT_FAILONERROR,true);
-    curl_setopt($ch, CURLOPT_USERPWD, $persis->username . ":" . $persis->password);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 30);
-    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
-    curl_setopt($ch, CURLOPT_HTTPHEADER,
-      array('Content-Type: text/plain; charset=UTF-8',
-            'Content-Length: ' . strlen($payload)));
-    curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    $response = curl_exec($ch);
-
-    if (curl_getinfo($ch, CURLINFO_HTTP_CODE) !== 201){
-        $error = "Bad response from pidman for " . $this->pid . ". Response was: " . curl_getinfo($ch, CURLINFO_HTTP_CODE). ": " . curl_error($ch);
-        $logger->error($error);
-        return false;
-    }
-    if (curl_error($ch)){
-        $error = "Failed to reconcile title " . $this->pid . ": " .  curl_error($ch);
-        $logger->error($error);
-        curl_close($ch);
-        return null;
-    } else {
-      return true;
-    }
+    $persis = new Etd_Service_Persis(Zend_Registry::get('persis-config'));
+    return $persis->reconcile_title($this);
   }
 
 
