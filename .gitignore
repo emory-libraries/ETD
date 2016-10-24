@@ -10,4 +10,4 @@ logs/
 src/public/.htaccess
 
 # Python scripts
-src/scripts/*.py
+src/scripts/reconciledTitles.py
