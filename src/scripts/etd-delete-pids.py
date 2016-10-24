@@ -37,7 +37,7 @@ pp = pprint.PrettyPrinter(indent=2)
 REPOMGMT = Namespace(rdflib.URIRef('info:fedora/fedora-system:def/relations-external#'))
 repomgmt_ns = {'fedora-rels-ext': Namespace(u'http://pid.emory.edu/ns/2011/repo-management/#')}
 
-class ETD(DigitalObject):
+class ParentRecord(DigitalObject):
     """
     Subclass to collect all the pids realated to an ETD. We use the `ReverseRelation` so we can be
     confident that the related pids are aware they are related to an ETD that needs to be deleated.
@@ -66,7 +66,7 @@ class ETD(DigitalObject):
         [(pids_to_delete.append(p.pid)) for p in self.supplements]
         return pids_to_delete
 
-class Related(DigitalObject):
+class RelatedRecord(DigitalObject):
     """
     Sublass used to double check that the related pid is only associated with one ETD.
     """
@@ -86,10 +86,8 @@ class Related(DigitalObject):
         return True if self.auth_count() and self.ori_count() and self.pdf_count() and self.supp_count() else False
 
 
-repo = Repository('https://fedora.library.emory.edu:8443/fedora/', username='fedoraAdmin', password='B1gS3cr3t')
-client = PidmanRestClient('https://pid.emory.edu', 'etd', 'IDontCare')
-# repo = Repository('https://libfedqa1.library.emory.edu:8443/fedora/', username='fedoraAdmin', password='fedoraAdmin')
-# client = PidmanRestClient('https://testpid.library.emory.edu', 'etd', 'etd08NOW!')
+repo = Repository('https://some.rep', username='******', password='********')
+client = PidmanRestClient('*******', '****', '****')
 
 pids = []
 pids_to_delete = []
@@ -107,13 +105,13 @@ else:
     exit()
 
 for pid in pids:
-    etd = repo.get_object(pid.rstrip(), type=ETD)
+    etd = repo.get_object(pid.rstrip(), type=ParentRecord)
 
     pids_to_delete.append(etd.pid)
     pid_report.append(etd.related())
 
     for r in etd.get_related_pids():
-        related = etd = repo.get_object(r, type=Related)
+        related = etd = repo.get_object(r, type=RelatedRecord)
         if related.check():
             pids_to_delete.append(related.pid)
         else:
@@ -125,9 +123,9 @@ if not args['no_action']:
     print str(len(pids_to_delete)) + ' will be purged.'
     raw_input("Press Enter to continue...")
 
-    # for bad_pid in pids_to_delete:
-    #     # TODO add error handeling for a pid that might have already been deleted.
-    #     ark = bad_pid.split(':')[1]
-    #     # Important: we must deactive ark first. Otherwise we'll get a 404 on the uri.
-    #     client.update_target(type="ark", noid=ark, active=False)
-    #     repo.purge_object(bad_pid)
+    for bad_pid in pids_to_delete:
+        # TODO add error handeling for a pid that might have already been deleted.
+        ark = bad_pid.split(':')[1]
+        # Important: we must deactive ark first. Otherwise we'll get a 404 on the uri.
+        client.update_target(type="ark", noid=ark, active=False)
+        repo.purge_object(bad_pid)
