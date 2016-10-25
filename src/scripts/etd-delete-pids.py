@@ -8,6 +8,19 @@ from sys import exit
 import rdflib
 from rdflib.namespace import RDF, Namespace
 import pprint
+import ConfigParser
+
+
+# read valuses for config file
+config = ConfigParser.ConfigParser()
+config.read('./pid-delete.cfg')
+repo_url = config.get('repository', 'url')
+repo_user = config.get('repository', 'user')
+repo_password = config.get('repository', 'password')
+pidman_url = config.get('pidmanager', 'url')
+pidman_user = config.get('pidmanager', 'user')
+pidman_password = config.get('pidmanager', 'password')
+
 
 parser = argparse.ArgumentParser()
 
@@ -86,8 +99,8 @@ class RelatedRecord(DigitalObject):
         return True if self.auth_count() and self.ori_count() and self.pdf_count() and self.supp_count() else False
 
 
-repo = Repository('https://some.rep', username='******', password='********')
-client = PidmanRestClient('*******', '****', '****')
+repo = Repository(repo_url, username=repo_user, password=repo_password)
+client = PidmanRestClient(pidman_url, pidman_user, pidman_password)
 
 pids = []
 pids_to_delete = []
