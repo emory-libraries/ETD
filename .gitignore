@@ -1,5 +1,6 @@
 .DS_Store
 src/scripts/updated-arks.csv
+src/scripts/pid-delete.cfg
 # local setting files
 src/config/
 
