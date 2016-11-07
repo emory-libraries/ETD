@@ -572,19 +572,20 @@ function publish(array $etds) {
     $published[] = $etd;
     $counts["numOfPubs"]++;
 
+    // TODO finish DOI stuff.
     // Add to array if DOI is not set
     // Or add a notice to to the audit trail.
-    $persis = new Etd_Service_Persis(Zend_Registry::get('persis-config'));
-    $doi = $persis->generateDoi($etd);
-    if (empty($etd->mods->doi)) {
-      $counts["doiFails"] = $etd->pid;
-    } elseif (preg_match('/^doi.{17}$/', $etd->mods->doi)) {
-      $etd->premis->addEvent("notice",
-          "DOI generated " . $etd->mods->doi,
-          "success", array("software", "etd system"));
-    } else {
-      $logger->error('DOI not created for ' . $etd->pid);
-    }
+    // $persis = new Etd_Service_Persis(Zend_Registry::get('persis-config'));
+    // $doi = $persis->generateDoi($etd);
+    // if (empty($etd->mods->doi)) {
+    //   $counts["doiFails"] = $etd->pid;
+    // } elseif (preg_match('/^doi.{17}$/', $etd->mods->doi)) {
+    //   $etd->premis->addEvent("notice",
+    //       "DOI generated " . $etd->mods->doi,
+    //       "success", array("software", "etd system"));
+    // } else {
+    //   $logger->error('DOI not created for ' . $etd->pid);
+    // }
 
     // send an email to notify author, and record in history
     $notify = new etd_notifier($etd);

@@ -1197,7 +1197,13 @@ class etd extends foxml implements etdInterface {
 
   public function reconcile_title() {
     $persis = new Etd_Service_Persis(Zend_Registry::get('persis-config'));
-    return $persis->reconcile_title($this);
+    $persis->update_pidman_label($this);
+    $this->label = $this->mods->title;
+    $this->dc->title = $this->mods->title;
+    // $this->pdfs
+    // $this->originals
+    // $this->supplements
+    return true;
   }
 
 

@@ -165,14 +165,13 @@ class Etd_Service_Persis {
         }
     }
 
-    public function reconcile_title($etd) {
-      // $persis = new Zend_Config_Xml($config_dir . "persis.xml", $env_config->mode);
-      $persis = new Etd_Service_Persis(Zend_Registry::get('persis-config'));
-      $persis = new Etd_Service_Persis(Zend_Registry::get('persis-config'));
+    public function update_pidman_label($fed_obj) {
 
-      $payload = array('name' => $etd->label );
+      $etd = 'Get parent object.';
+      $pidman_label = $etd->mods->title . ' : ' . $fed_obj->dc->title . ' (' . $fed_obj->type . ')';
+      $payload = array('name' => $pidman_label );
       $ark = explode(':', $etd->pid);
-      $ch = curl_init($persis->url . '/ark/' . $ark[1]);
+      $ch = curl_init($this->pidman . '/ark/' . $ark[1]);
 
       curl_setopt($ch,CURLOPT_FAILONERROR,true);
       curl_setopt($ch, CURLOPT_USERPWD, $persis->username . ":" . $persis->password);
@@ -187,15 +186,14 @@ class Etd_Service_Persis {
 
       if (curl_getinfo($ch, CURLINFO_HTTP_CODE) !== 201){
           $error = "Bad response from pidman for " . $etd->pid . ". Response was: " . curl_getinfo($ch, CURLINFO_HTTP_CODE). ": " . curl_error($ch);
-          $logger->error($error);
-          return false;
+          return $error;
       }
       if (curl_error($ch)){
           $error = "Failed to reconcile title " . $etd->pid . ": " .  curl_error($ch);
-          $logger->error($error);
           curl_close($ch);
-          return null;
+          return $error;
       } else {
+
         return true;
       }
     }
@@ -379,7 +377,7 @@ class Etd_Service_Persis {
     // if param was not full ark, check that only the noid portion has been passed in
     $noid = $ark;
       } else {
-	throw new PersisServiceException("'$ark' is not a valid ark or noid");
+	       throw new PersisServiceException("'$ark' is not a valid ark or noid");
       }
 
       $rqst = new AddArkTarget();
