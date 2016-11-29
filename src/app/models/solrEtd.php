@@ -106,7 +106,7 @@ class solrEtd implements etdInterface {
   public function doiURI() {
       if ($this->mods->doi) {
           $doi = split(":", $this->mods->doi);
-          return 'http://doi.org/' . $doi[1];
+          return 'https://doi.org/' . $doi[1];
       }
       else {
           return false;

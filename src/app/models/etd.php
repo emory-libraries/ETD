@@ -1360,7 +1360,7 @@ class etd extends foxml implements etdInterface {
       if ($this->mods->doi) {
           $doi = split(":", $this->mods->doi);
           //needs to look like http://doi.org/10.5072/FK23
-          return 'http://doi.org/' . $doi[1];
+          return 'https://doi.org/' . $doi[1];
       }
       else {
           return false;

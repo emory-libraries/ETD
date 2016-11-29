@@ -1,5 +1,12 @@
 CHANGE LOG
 =================
+Version 1.18.7
+--------------
+* Updated email publication email #133041457
+* Added Slack notifications to publication script
+* Added Cancer Bio to programs #129467439
+* Added code to Nutrition program #129467439 
+
 Version 1.18.6
 --------------
 * Search Fedora instead of Solr when checking to see if a student already has an unpublished. Fixes PivitolTracker #61905182.

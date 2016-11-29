@@ -52,15 +52,15 @@ $proquest = new Zend_Config_Xml($config_dir . "proquest.xml", $env_config->mode)
 
 $getopts = array_merge(
 array(
-    'all|a'    	       => 'Run all steps in the proper order (default action)',
+    'all|a'               => 'Run all steps in the proper order (default action)',
     'confirmgrad|c'    => 'Confirm Graduation [pids]',
     'proquest|q'       => 'Submit to Proquest [pids]',
-    'publish|p'	       => 'Publish [pids]',
-    'orphan|o'	       => 'Check for "orphaned" ETDs (graduate not in feed)',
-    'file|f=s'	       => 'Registrar feed /path/to/file',
-    'date|d=s'	       => 'Date for calculating recent grads (defaults to current date)',
+    'publish|p'           => 'Publish [pids]',
+    'orphan|o'           => 'Check for "orphaned" ETDs (graduate not in feed)',
+    'file|f=s'           => 'Registrar feed /path/to/file',
+    'date|d=s'           => 'Date for calculating recent grads (defaults to current date)',
     'tmpdir|t=s'       => "Temp directory for proquest files (default: /tmp/pqsubmission-YYYYMMDD)",
-    ),  $common_getopts	// use default verbose and noact opts from bootstrap
+    ),  $common_getopts    // use default verbose and noact opts from bootstrap
 );
 
 
@@ -99,7 +99,6 @@ $counts["numOfProquestSubmissions"] = 0;
 $counts["numOfFailedProquest"] = 0;
 $counts["numOfPubs"] = 0;
 $counts["numOfFailedPubs"] = 0;
-$counts["doiFails"] = array();
 
 $do_all = false;
 // if no mode is specified, run all steps
@@ -151,8 +150,8 @@ if ($do_all) {
   $logger->info("Finding pids from Registrar feed");
   $etds = get_graduate_etds($filename, $opts->date);
   if (count($etds) == 0) $logger->info("No records to be processed");
-  else 			 $logger->info("Found " . count($etds) . " records");
- } else {	// not in do-all mode; initialize etd objects based on pids specified on command line
+  else              $logger->info("Found " . count($etds) . " records");
+ } else {    // not in do-all mode; initialize etd objects based on pids specified on command line
   $etds = array();
   foreach ($pids as $pid) {
     try {
@@ -168,7 +167,7 @@ if ($do_all) {
 }
 
 // look for any approved records still in the system ('orphaned' theses)
-if ($do_all || $opts->orphan) 		find_orphans();
+if ($do_all || $opts->orphan)         find_orphans();
 
 // if there are any records to be processed
 if (count($etds)) {
@@ -176,7 +175,7 @@ if (count($etds)) {
   if ($do_all || $opts->confirmgrad)
     confirm_graduation($etds);
   if ($do_all || $opts->publish)
-    $etds = publish($etds);	// if publication fails, record will not continue through the rest of the process
+    $etds = publish($etds);    // if publication fails, record will not continue through the rest of the process
   if ($do_all || $opts->proquest)
     submit_to_proquest($etds);
 
@@ -202,8 +201,7 @@ $summary = "SUMMARY:\n" .
                "\tGraduates with no ETD: " . $counts["numOfOrphanedGrad"] . "\n" .
                "\tApproved ETDs not yet published: " . $counts["numOfOrphanedEtd"]. "\n" .
                "\tSuccessful Proquest Submissions: " . $counts["numOfProquestSubmissions"] . "\n" .
-               "\tFailed Proquest Submissions: " . $counts["numOfFailedProquest"] . "\n" .
-               "\tFailed To Create DOI: " . count($counts['doiFails']);
+               "\tFailed Proquest Submissions: " . $counts["numOfFailedProquest"] . "\n";
 
 if(!$opts->noact && ($do_all || $opts->proquest || $opts->publish || $opts->orphan)){
     sendSummaryEmail($summary);
@@ -215,16 +213,7 @@ else
 }
 print $summary;
 
-if (count($counts['doiFails']) > 0){
-  $pids = implode("\n", $counts['doiFails']);
-  $payload = array(
-    'text' =>  "The following ETDs failed to get a DOI.\n{$pids}\n:unamused:",
-    'username' => 'etd-errors',
-    'icon_emoji' => ':raptor:'
-    );
-  slack(json_encode($payload));
 
-}
 
 /**
  *        Send a summary email to the etd administrator
@@ -232,7 +221,6 @@ if (count($counts['doiFails']) > 0){
  * @return boolean
  */
 function sendSummaryEmail($summary){
-    global $opts, $logger;
     $config = Zend_Registry::get('config');
     $environment = Zend_Registry::get('env-config');
     $pubEmail = new Zend_Mail();
@@ -259,7 +247,6 @@ function sendSummaryEmail($summary){
     }
         catch (Zend_Exception $ex)
         {
-            $logger->err("There was a problem sending the publication email to ETD administrator: " .  $ex->getMessage());
             return false;
         }
 
@@ -277,19 +264,22 @@ function sendSummaryEmail($summary){
     $emailToBeSent = $emailToBeSent .
              "\n---- \n" . $emailBodyText;
 
-
-     $arr = array(
-       'text' =>  'ETD Publish Summary',
-       'attachments' => array(array('text' => $emailBodyText)),
-       'username' => 'publish-report',
-       'icon_emoji' => ':interrobang:'
-       );
-     slack(json_encode($arr));
-
+    $arr = array(
+     'text' =>  'ETD Publish Summary',
+     'attachments' => array(array('text' => $emailBodyText)),
+     'username' => 'publish-report',
+     'icon_emoji' => ':interrobang:'
+     );
+    slack(json_encode($arr));
 
 return true;
 }
 
+/**
+* Send error report to slack
+*
+* @param $payload JSON of message body
+*/
 function slack($payload){
   $config = Zend_Registry::get('config');
   $ch = curl_init();
@@ -319,7 +309,7 @@ function get_graduate_etds($filename, $refdate = null) {
   $etd_degrees = array();
   // build list of degrees from degree config file
   foreach ($degrees->level as $degree_level) {
-    if (! isset($degree_level["genre"])) continue;	// skip place-holder in degree file
+    if (! isset($degree_level["genre"])) continue;    // skip place-holder in degree file
     foreach ($degree_level->degree as $dg) {
       // degrees in Registrar feed are all upper case
       $etd_degrees[] = strtoupper( getDegreeCode($dg) );  //uses registrar_code if set otherwise it uses name
@@ -328,25 +318,25 @@ function get_graduate_etds($filename, $refdate = null) {
   }
 
   // field order in registrar feed
-  $netid 		=  0;
-  $lastname 		=  1;
-  $firstname		=  2;
-  $email		=  3;
-  $emplid		=  4;
-  $major		=  5;
-  $major2		=  6;
-  $comajor		=  7;
-  $minor		=  8;
-  $term			=  9;		// 4-digit code for year/semester
-  $degree_status	= 10;		// awarded or revoked
-  $degree		= 11;
-  $honors		= 12;
+  $netid         =  0;
+  $lastname         =  1;
+  $firstname        =  2;
+  $email        =  3;
+  $emplid        =  4;
+  $major        =  5;
+  $major2        =  6;
+  $comajor        =  7;
+  $minor        =  8;
+  $term            =  9;        // 4-digit code for year/semester
+  $degree_status    = 10;        // awarded or revoked
+  $degree        = 11;
+  $honors        = 12;
 
   // determine the term most recently *completed* (or about to end) relative to the specified date
   $last_term =  last_term($refdate);
 
   $logger->debug("Finding graduates for most recently completed term " .
-		($refdate ? "relative to $refdate " : "" ) .  "(semester code $last_term)");
+        ($refdate ? "relative to $refdate " : "" ) .  "(semester code $last_term)");
 
   //open alumni feed
   $fp = fopen($filename, 'r');
@@ -356,16 +346,16 @@ function get_graduate_etds($filename, $refdate = null) {
   $etds = array();
 
   while (($data = fgetcsv($fp, 1500, ",")) !== FALSE) {
-    if (count($data) < 2) continue;	// skip blank lines
+    if (count($data) < 2) continue;    // skip blank lines
     if(in_array($data[$degree], $honors_degrees) && empty($data[$honors])) { //skip entry if undergrad and honors not set
         $name_degree = $data[$lastname] . ", " . $data[$firstname] . " (" . $data[$major] . ")";
         //$logger->debug("Found undergrad, excluding because not honors: " . $data[$netid] . " $name_degree");
         continue;
     }
     if ($data[$degree_status] == "AW"  // degree status = awarded
-	&&  $data[$term] == $last_term  // graduate of most recently ended semester
-	&&  in_array($data[$degree], $etd_degrees)	// one of the degrees for which we expect ETDs
-	) {		      // found a relevant graduate
+    &&  $data[$term] == $last_term  // graduate of most recently ended semester
+    &&  in_array($data[$degree], $etd_degrees)    // one of the degrees for which we expect ETDs
+    ) {              // found a relevant graduate
 
       $name_degree = $data[$lastname] . ", " . $data[$firstname] . " (" . $data[$major] . ")";
 
@@ -377,25 +367,25 @@ function get_graduate_etds($filename, $refdate = null) {
       // only allowing one unpublished record per student at a time, so this should be safe
       $count = count($etdSet->etds);
       if ($count == 0) {
-	// no unpublished etd found; has student's record already been published?
-	// look for any etd for this user
-	// FIXME: filter for recently published?!?
-	$etdSet->find(array('AND' =>
-			    array('ownerId' => strtolower($data[$netid])))
-		      );
-	// only warn if nothing found
-	if (! count($etdSet->etds))
-	  $logger->warn("Warning: no ETD found for $name_degree");
+    // no unpublished etd found; has student's record already been published?
+    // look for any etd for this user
+    // FIXME: filter for recently published?!?
+    $etdSet->find(array('AND' =>
+                array('ownerId' => strtolower($data[$netid])))
+              );
+    // only warn if nothing found
+    if (! count($etdSet->etds))
+      $logger->warn("Warning: no ETD found for $name_degree");
           $orphanedGrads = $orphanedGrads . "\t" . $name_degree . "\n";
-  	  $counts["numOfOrphanedGrad"]++;
-      } elseif ($count == 1) {			// what we expect
+        $counts["numOfOrphanedGrad"]++;
+      } elseif ($count == 1) {            // what we expect
         $logger->info("Found etd record " . $etdSet->etds[0]->pid . " for $name_degree");
         if ($etdSet->etds[0]->status() != "approved") {
-	  $logger->info("Record is not yet approved, skipping");
-	  continue;
+      $logger->info("Record is not yet approved, skipping");
+      continue;
         }
         $etds[] = $etdSet->etds[0];
-      } else {		      // should never happen (except maybe in development)
+      } else {              // should never happen (except maybe in development)
         $logger->warn("Found more than one record for $name_degree (this shouldn't happen)");
       }
     } elseif ($data[$degree_status] == "RE") {      // degree status revoked
@@ -405,7 +395,7 @@ function get_graduate_etds($filename, $refdate = null) {
         $data[$degree] . ", " . $data[$major] . ")
         There is not yet any code to handle this.");
     }
-  }	// finished processing feed (end while loop)
+  }    // finished processing feed (end while loop)
   if ($counts["numOfOrphanedGrad"] != 0)
   {
      $emailBodyText = $emailBodyText . "\nGraduates with no ETD:\n". $orphanedGrads ;
@@ -421,9 +411,9 @@ function get_graduate_etds($filename, $refdate = null) {
  * @return string 4-digit registrar semester code calculated by last semester
  */
 function last_term($refdate = null) {
-  if ($refdate) { 	  // calculate year-month relative to date specified
+  if ($refdate) {       // calculate year-month relative to date specified
     $date = date("Y-m", strtotime($refdate, 0));
-  } else { 	  // if no date is specified, use today's date
+  } else {       // if no date is specified, use today's date
     $date = date("Y-m");
   }
 
@@ -450,10 +440,10 @@ function last_semester($year, $month) {
   } elseif ($month >= 5 && $month < 8) { // after/during May but before August
     $semester = "SPRING";
     $grad_month = "05";
-  } elseif ($month >= 8 && $month < 12) {	// after/during August but before December
+  } elseif ($month >= 8 && $month < 12) {    // after/during August but before December
     $semester = "SUMMER";
     $grad_month = "08";
-  } elseif ($month == 12) {	// December
+  } elseif ($month == 12) {    // December
     $semester = "FALL";
     $grad_month = "12";
   }
@@ -499,7 +489,7 @@ function semester_code ($year, $term) {
   $century = substr($year, 0, 2);
   $year = substr($year, 2, 2);
 
-  $C = $century - 15;	// century code 5 = 20
+  $C = $century - 15;    // century code 5 = 20
   $M = array('INTERIM' => 0, 'SPRING' => 1, 'SUMMER' => 6, 'FALL' => 9);
 
   $code = $C . $year . $M{"$term"};
@@ -521,11 +511,11 @@ function confirm_graduation(array $etds) {
     // only records that are currently approved should have graduation confirmed
     if ($etd->status() != "approved") {
       $logger->warn("Cannot confirm graduation on record " . $etd->pid . ": status is " .
-		    $etd->status() . " instead of approved");
-      continue;	// skip to next etd
+            $etd->status() . " instead of approved");
+      continue;    // skip to next etd
     }
     if (!$opts->noact) {
-      $etd->confirm_graduation();	// note: no status returned (not much to go wrong here)
+      $etd->confirm_graduation();    // note: no status returned (not much to go wrong here)
     }
   }
 }
@@ -547,8 +537,8 @@ function publish(array $etds) {
     // only records that are currently approved should be published
     if ($etd->status() != "approved") {
       $logger->warn("Cannot publish record " . $etd->pid . ": status is " .
-		    $etd->status() . " instead of approved");
-      continue;	// skip to next etd
+            $etd->status() . " instead of approved");
+      continue;    // skip to next etd
     }
 
     if ($opts->noact) {
@@ -572,21 +562,6 @@ function publish(array $etds) {
     $published[] = $etd;
     $counts["numOfPubs"]++;
 
-    // TODO finish DOI stuff.
-    // Add to array if DOI is not set
-    // Or add a notice to to the audit trail.
-    // $persis = new Etd_Service_Persis(Zend_Registry::get('persis-config'));
-    // $doi = $persis->generateDoi($etd);
-    // if (empty($etd->mods->doi)) {
-    //   $counts["doiFails"] = $etd->pid;
-    // } elseif (preg_match('/^doi.{17}$/', $etd->mods->doi)) {
-    //   $etd->premis->addEvent("notice",
-    //       "DOI generated " . $etd->mods->doi,
-    //       "success", array("software", "etd system"));
-    // } else {
-    //   $logger->error('DOI not created for ' . $etd->pid);
-    // }
-
     // send an email to notify author, and record in history
     $notify = new etd_notifier($etd);
 
@@ -600,22 +575,14 @@ function publish(array $etds) {
       continue;
     } catch (Zend_Exception $ex) {
       $logger->err("There was a problem sending the publication notification email for " . $etd->pid . ": "
-		   .  $ex->getMessage());
+           .  $ex->getMessage());
       // don't add notification event to history, but continue processing other records
       continue;
     }
 
-    // Reconcile Title in Fedora and Pidman
-    $reconcile = $etd->reconcile_title();
-
-    if ($reconcile == false) {
-      $counts['reconcileFail'] = $etd->pid;
-    }
-
     $etd->premis->addEvent("notice",
-			   "Publication Notification sent by ETD system",
-			   "success",  array("software", "etd system"));
-
+               "Publication Notification sent by ETD system",
+               "success",  array("software", "etd system"));
   } // end looping through etds
   return $published;
 }
@@ -634,7 +601,7 @@ function submit_to_proquest(array $etds) {
 
   // delete temporary directory to ensure its contents are only from the last run of this script
   if (is_dir($tmpdir)) {
-    rdelete($tmpdir);	// recursively delete directory & all contents
+    rdelete($tmpdir);    // recursively delete directory & all contents
   }
   mkdir($tmpdir);
 
@@ -650,8 +617,8 @@ function submit_to_proquest(array $etds) {
     // only records that are either approved or published should be sent to ProQuest
     if ($etd->status() != "approved" && $etd->status() != "published") {
       $logger->warn("Cannot submit record " . $etd->pid . " to ProQuest: status is " .
-		    $etd->status() . " instead of approved or published");
-      continue;	// skip to next etd
+            $etd->status() . " instead of approved or published");
+      continue;    // skip to next etd
     }
 
     // submission optional for non-PhDs - do not submit if not required/requested
@@ -661,7 +628,7 @@ function submit_to_proquest(array $etds) {
     }
 
 
-    $logger->info("Preparing ProQuest submission file for " . $etd->pid);	// debug instead of info?
+    $logger->info("Preparing ProQuest submission file for " . $etd->pid);    // debug instead of info?
     $submission = new ProQuestSubmission();
     $submission->initializeFromEtd($etd);
     // still to do: save xml, get binary files from fedora, create zip file
@@ -681,19 +648,19 @@ function submit_to_proquest(array $etds) {
       $errors['ProQuest DTD'] = $submission->dtdValidationErrors();
       $errors['Schema'] = $submission->schemaValidationErrors();
       foreach ($errors as $name => $xml_errors) {
-	if (count($xml_errors)) {
-	  $logger->info("Invalid according to $name");
-	  foreach ($xml_errors as $err) {
-	    switch ($err->level) {
-	    case LIBXML_ERR_WARNING:
-	      $logger->info("Validation Warning, line " . $err->line . ": " . $err->message); break;
-	    case LIBXML_ERR_ERROR:
-	      $logger->info("Validation Error, line " . $err->line . ": " . $err->message); break;
-	    case LIBXML_ERR_FATAL:
-	      $logger->info("Fatal Validation Error, line " . $err->line . ": " . $err->message); break;
-	    }
-	  }
-	}
+    if (count($xml_errors)) {
+      $logger->info("Invalid according to $name");
+      foreach ($xml_errors as $err) {
+        switch ($err->level) {
+        case LIBXML_ERR_WARNING:
+          $logger->info("Validation Warning, line " . $err->line . ": " . $err->message); break;
+        case LIBXML_ERR_ERROR:
+          $logger->info("Validation Error, line " . $err->line . ": " . $err->message); break;
+        case LIBXML_ERR_FATAL:
+          $logger->info("Fatal Validation Error, line " . $err->line . ": " . $err->message); break;
+        }
+      }
+    }
       }
     }
   }
@@ -705,7 +672,7 @@ function submit_to_proquest(array $etds) {
   // batch post-processing for proquest submissions
   if ($opts->noact) {
     $logger->info("Test mode, so not ftping submission zip files to ProQuest");
-    foreach ($submissions as $sub) $sub->ftped = true;		// pretend ftp worked
+    foreach ($submissions as $sub) $sub->ftped = true;        // pretend ftp worked
 
     $logger->info("Test mode, so not emailing submission list to ProQuest");
     // generate & display email
@@ -714,7 +681,7 @@ function submit_to_proquest(array $etds) {
   } elseif (count($submissions)) {
     // only do ftp & email if there are submissions to send
 
-    //  - ftp all zip files to PQ	(with error checking)
+    //  - ftp all zip files to PQ    (with error checking)
     $logger->info("Ftping all submission zip files to ProQuest");
     // ftp
     proquest_ftp($submissions);
@@ -725,9 +692,9 @@ function submit_to_proquest(array $etds) {
     // add proquest submission to history for each etd record
     if (!$opts->noact) {
       foreach ($submissions as $submission) {
-	// if the submission was successfully created and sent to ProQuest
-	if ($submission->ftped) $submission->etd->sent_to_proquest();
-	// FIXME: more error checking here?
+    // if the submission was successfully created and sent to ProQuest
+    if ($submission->ftped) $submission->etd->sent_to_proquest();
+    // FIXME: more error checking here?
       }
     }
   } else {
@@ -778,7 +745,7 @@ function proquest_ftp(array $submissions) {
     if (is_array($serverfiles) && in_array($remotefile, $serverfiles)) {
       $logger->debug("$remotefile is already on the ftp server; deleting");
       if (!ftp_delete($ftpsrv, $remotefile)) {
-	$logger->warn("Unable to delete $remotefile already on the ftp server");
+    $logger->warn("Unable to delete $remotefile already on the ftp server");
       }
     }
 
@@ -796,11 +763,11 @@ function proquest_ftp(array $submissions) {
 
     // sanity check - compare file size
     $rsize = ftp_size($ftpsrv, $remotefile);
-    if ($rsize != -1) {		// -1 = couldn't get remote filesize - not supported by ftp server
+    if ($rsize != -1) {        // -1 = couldn't get remote filesize - not supported by ftp server
       if ($rsize != filesize($submission->zipfile)) {
-	$logger->err("Remote file is not the same size as local file " . $submission->zipfile);
-	// exit code?
-	$submission->ftped = false;
+    $logger->err("Remote file is not the same size as local file " . $submission->zipfile);
+    // exit code?
+    $submission->ftped = false;
       }
     }
   }
@@ -829,12 +796,12 @@ function proquest_email(array $submissions) {
 
   $lines = array();
   foreach ($submissions as $submission) {
-    if ($submission->ftped) 	// only include if ftp was successfully
+    if ($submission->ftped)     // only include if ftp was successfully
       $lines[] = sprintf("%-30s %s",
-			 $submission->author_info->name->last . ", " . $submission->author_info->name->first,
-			 basename($submission->zipfile));
+             $submission->author_info->name->last . ", " . $submission->author_info->name->first,
+             basename($submission->zipfile));
   }
-  sort($lines);		// sort alphabetically by author
+  sort($lines);        // sort alphabetically by author
   $text = implode("\n", $lines);
 
   // in no-act mode, return the text of the email for debug output
@@ -870,12 +837,12 @@ function proquest_email(array $submissions) {
 function rdelete($file) {
   if (is_dir($file)) {
     foreach (scandir($file) as $f) {
-      if ($f != '.' && $f != '..') {	// ignore current/parent dirs
-	// if the current file is a directory, recurse and delete all its files
-	if (is_dir("$file/$f")) {
-	  rdelete("$file/$f");	// needs full path
-	}
-	else unlink("$file/$f");
+      if ($f != '.' && $f != '..') {    // ignore current/parent dirs
+    // if the current file is a directory, recurse and delete all its files
+    if (is_dir("$file/$f")) {
+      rdelete("$file/$f");    // needs full path
+    }
+    else unlink("$file/$f");
       }
     }
     // all files have been deleted, now remove the directory
