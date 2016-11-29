@@ -1075,6 +1075,8 @@ class etd extends foxml implements etdInterface {
     // set publication date (date issued)
     $this->mods->originInfo->issued = $publish_date;
 
+    // TODO what do we don if we don't get a doi
+
     // set date if not specified
     if (!$date) $date = date("Y-m-d");  // defaults to today - this is what should be used in most cases
 
@@ -1191,6 +1193,17 @@ class etd extends foxml implements etdInterface {
     $this->premis->addEvent("administrative",
           "Access restriction ending date is updated to $newdate - $message",
           "success",  $agent);
+  }
+
+  public function reconcile_title() {
+    $persis = new Etd_Service_Persis(Zend_Registry::get('persis-config'));
+    $persis->update_pidman_label($this);
+    $this->label = $this->mods->title;
+    $this->dc->title = $this->mods->title;
+    // $this->pdfs
+    // $this->originals
+    // $this->supplements
+    return true;
   }
 
 
@@ -1339,10 +1352,15 @@ class etd extends foxml implements etdInterface {
     return $this->mods->identifier;     // want the resolvable version of the ark
   }
 
+  public function doi() {
+    return $this->mods->doi;
+  }
+
   public function doiURI() {
       if ($this->mods->doi) {
           $doi = split(":", $this->mods->doi);
-          return 'http://doi.org/' . $doi[1];
+          //needs to look like http://doi.org/10.5072/FK23
+          return 'https://doi.org/' . $doi[1];
       }
       else {
           return false;

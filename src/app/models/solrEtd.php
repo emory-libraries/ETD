@@ -43,7 +43,8 @@ class solrEtd implements etdInterface {
   public function pid() { return $this->getField("PID"); }
   public function status() { return $this->getField("status"); }
   public function title() { return $this->getField("title"); }
-  public function author() { return $this->getField("author"); }
+  // public function author() { return $this->getField("author"); }
+  public function author() { $author = $this->getField("author"); return $author[0]; }
   public function program() { return $this->getField("program"); }
   public function program_id() { return $this->getField("program_id"); }
   public function subfield() { return $this->getField("subfield"); }
@@ -105,7 +106,7 @@ class solrEtd implements etdInterface {
   public function doiURI() {
       if ($this->mods->doi) {
           $doi = split(":", $this->mods->doi);
-          return 'http://doi.org/' . $doi[1];
+          return 'https://doi.org/' . $doi[1];
       }
       else {
           return false;

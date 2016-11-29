@@ -7,7 +7,7 @@
 <p>This is to inform you that your dissertation or thesis entitled:
 <blockquote><?= $this->etd->title() ?></blockquote>
 can now be accessed in the Emory University ETD Repository at:
-<a href="<?= $this->etd->ark() ?>"><?= $this->etd->ark() ?></a></p>
+<a href="<?= $this->etd->ark() ?>"><?= $this->etd->ark() ?></a>/* or <a href="<?= $this->etd->doiURI() ?>"><?= $this->etd->doi_() ?></a>*/</p>
 
 <? if ($this->etd->mods->embargo_request == "no"): ?>
 <p>Upon submission, you agreed to grant open access to your work via the
@@ -47,4 +47,3 @@ once your thesis has been processed by them.)
 
 
 <p>Congratulations!</p>
-

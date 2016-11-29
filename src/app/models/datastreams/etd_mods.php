@@ -844,6 +844,17 @@ class etd_mods extends mods {
   }
 
   /**
+   * Add an empty field for a DOI
+   * Called from Persis.
+   */
+  public function addDoi(){
+    $newid = $this->dom->createElementNS(mods::MODS_NS, "mods:identifier");
+    $newid->setAttribute("type", "doi");
+    $this->domnode->appendChild($newid);
+    $this->update();
+  }
+
+  /**
    * remove a field from the xml
    * @param string $mapname configured field name (one of the magic properties)
    */

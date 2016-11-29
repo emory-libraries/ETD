@@ -1,0 +1,14 @@
+.DS_Store
+src/scripts/updated-arks.csv
+src/scripts/pid-delete.cfg
+# local setting files
+src/config/
+
+# ETD log files
+logs/
+
+# .htaccess apache file
+src/public/.htaccess
+
+# Python scripts
+src/scripts/reconciledTitles.py

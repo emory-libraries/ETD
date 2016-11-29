@@ -93,6 +93,11 @@ class Etd_Service_Persis {
         $this->domain_id = $config["domain_id"];
         $this->pidman = $config["url"];
 
+        // For creating DOIs
+        $this->ezid_url = $config["ezid_url"];
+        $this->ezid_password = $config["ezid_password"];
+        $this->ezid_username = $config["ezid_username"];
+
 
         $this->ark_regexp = "|^(https?://[a-z.]+)/ark:/([0-9]+)/([" .
                                 $this->noid_charset . "]+)/?(.*)?$|i";
@@ -133,7 +138,7 @@ class Etd_Service_Persis {
         $logger = Zend_Registry::get('logger');
         $payload = array('domain' => $this->pidman . 'domains/' . $this->domain_id . '/', 'name' => $title, 'target_uri' => $url );
         $ch = curl_init($this->pidman . '/ark/');
-        
+
         curl_setopt($ch,CURLOPT_FAILONERROR,true);
         curl_setopt($ch, CURLOPT_USERPWD, $this->username . ":" . $this->password);
         curl_setopt($ch, CURLOPT_TIMEOUT, 30);
@@ -141,11 +146,13 @@ class Etd_Service_Persis {
         curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-	$ark = curl_exec($ch);
+
+        $ark = curl_exec($ch);
+
         if (curl_getinfo($ch, CURLINFO_HTTP_CODE) !== 201){
                 $error = "Bad response from pidman. Response was: " . curl_getinfo($ch, CURLINFO_HTTP_CODE);
                 $logger->err($error);
-		throw new PersisServiceUnauthorized($error);
+                throw new PersisServiceUnauthorized($error);
         }
         if (curl_error($ch)){
             $logger->err(curl_error($ch));
@@ -156,6 +163,39 @@ class Etd_Service_Persis {
             curl_close($ch);
             return $ark;
         }
+    }
+
+    public function update_pidman_label($fed_obj) {
+
+      $etd = 'Get parent object.';
+      $pidman_label = $etd->mods->title . ' : ' . $fed_obj->dc->title . ' (' . $fed_obj->type . ')';
+      $payload = array('name' => $pidman_label );
+      $ark = explode(':', $etd->pid);
+      $ch = curl_init($this->pidman . '/ark/' . $ark[1]);
+
+      curl_setopt($ch,CURLOPT_FAILONERROR,true);
+      curl_setopt($ch, CURLOPT_USERPWD, $persis->username . ":" . $persis->password);
+      curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+      curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
+      curl_setopt($ch, CURLOPT_HTTPHEADER,
+        array('Content-Type: text/plain; charset=UTF-8',
+              'Content-Length: ' . strlen($payload)));
+      curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+      curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+      $response = curl_exec($ch);
+
+      if (curl_getinfo($ch, CURLINFO_HTTP_CODE) !== 201){
+          $error = "Bad response from pidman for " . $etd->pid . ". Response was: " . curl_getinfo($ch, CURLINFO_HTTP_CODE). ": " . curl_error($ch);
+          return $error;
+      }
+      if (curl_error($ch)){
+          $error = "Failed to reconcile title " . $etd->pid . ": " .  curl_error($ch);
+          curl_close($ch);
+          return $error;
+      } else {
+
+        return true;
+      }
     }
 
   /**
@@ -196,6 +236,69 @@ class Etd_Service_Persis {
       }
       return $purl->return;
     }
+
+    /**
+     * Generate and return a new ark
+     *
+     * @param etd object
+     * @return string DOI
+     * @throws PersisServiceException
+     * @throws PersisServiceUnauthorized
+     */
+      public function generateDoi($etd) {
+        $logger = Zend_Registry::get('logger');
+        // Bail if a DOI exists.
+        if ($etd->mods->doi) {
+          return true;
+        }
+
+        // Taken from
+        // http://ezid.cdlib.org/doc/apidoc.html#php-examples
+
+        // EasyID wants a multiline string.
+        $title = str_replace("\n", "", $etd->mods->title);
+        $pubYear = substr($etd->mods->date, 0, 4);
+        $payload = "_target: " . $etd->mods->identifier . "\n";
+        $payload .= "datacite.creator: " . $etd->mods->author . "\n";
+        $payload .= "datacite.publicationyear: " . $pubYear . "\n";
+        $payload .= "datacite.title: " . $title . "\n";
+        $payload .= "datacite.publisher: Emory University";
+
+        $ch = curl_init();
+
+        $id = substr($etd->pid, strpos($etd->pid, ":") + 1);
+        curl_setopt($ch, CURLOPT_VERBOSE, 1);
+        curl_setopt($ch, CURLOPT_URL, $this->ezid_url . $id);
+        curl_setopt($ch, CURLOPT_USERPWD, $this->ezid_username . ":" . $this->ezid_password);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
+        curl_setopt($ch, CURLOPT_HTTPHEADER,
+          array('Content-Type: text/plain; charset=UTF-8',
+                'Content-Length: ' . strlen($payload)));
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $response = curl_exec($ch);
+
+        if (curl_getinfo($ch, CURLINFO_HTTP_CODE) !== 201){
+            $error = "Bad response from ezid for " . $etd->pid . ". Response was: " . curl_getinfo($ch, CURLINFO_HTTP_CODE). ": " . curl_error($ch);
+            $logger->error($error);
+            return false;
+        }
+        if (curl_error($ch)){
+            $error = "Failed to generate DOI " . $etd->pid . ": " .  curl_error($ch);
+            $logger->error($error);
+            curl_close($ch);
+            return null;
+        } else {
+            curl_close($ch);
+            preg_match('/\bdoi.?[^\s]+/', $response, $doi);
+            $logger->info('DOI for ' . $etd->pid . ' ' . $doi);
+            // Add an empty field for the DOI in the mods.
+            $etd->mods->addDoi();
+            // Set the DOI. Save is called in the script.
+            $etd->mods->doi = $doi[0];
+            return $doi[0];
+          }
+      }
 
   /**
    * Strip out the unique id and return a fedora-style pid
@@ -274,7 +377,7 @@ class Etd_Service_Persis {
     // if param was not full ark, check that only the noid portion has been passed in
     $noid = $ark;
       } else {
-	throw new PersisServiceException("'$ark' is not a valid ark or noid");
+	       throw new PersisServiceException("'$ark' is not a valid ark or noid");
       }
 
       $rqst = new AddArkTarget();
@@ -288,10 +391,10 @@ class Etd_Service_Persis {
       try {
     $result = $this->service->AddArkTarget($rqst);
       } catch (SoapFault $e) {
-    
+
     switch($e->faultstring) {
     case "request canceled: not authorized":
-    	throw new PersisServiceUnauthorized($e->getMessage());  
+    	throw new PersisServiceUnauthorized($e->getMessage());
     // any other cases?
     default:
     	throw new PersisServiceException("Unknown error:" . $e->faultstring);
