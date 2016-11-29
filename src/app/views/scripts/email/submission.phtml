@@ -10,11 +10,6 @@ Emory's repository.</p>
 <p>In order to complete the submission process, please attend to the following tasks:</p>
 
 <ol>
-<? if ($this->etd->schoolId() == "grad"): ?>
-<li>Submit a paper copy for the Dean’s review</li>
-<? elseif ($this->etd->schoolId() == "candler"): ?>
-<li>Submit a paper copy (or copies) for binding, as necessary</li>
-<? endif ?>
 <li>Review your ETD record</li>
 <? if ($this->etd->schoolId() == "rollins"): ?>
 <li>Submit all required forms to the ADAP in your department</li>
@@ -29,19 +24,13 @@ Emory's repository.</p>
 <p>Details for each of these steps are included below.</p>
 
 <ol>
-<? if ($this->etd->schoolId() == "grad"): ?>
-<li>Print a paper copy of the document you deposited for the Dean's review. To ensure that the Dean  will be reviewing the final version of your document, click the link below to visit your record in the ETD repository, open your PDF file, and print a paper copy.</li>
-<?elseif($this->etd->schoolId() == "candler"): ?>
-<li>Submit the number of paper copies you want bound (with required signatures) to the Candler Registrar’s Office for binding.  Include a completed Thesis/Dissertation Binding Request Form available on-line at:<br> <a href='http://www.candler.emory.edu/ACADEMIC/REGISTRAR/pdfs/Thesis_form_Feb09.pdf'>http://www.candler.emory.edu/ACADEMIC/REGISTRAR/pdfs/Thesis_form_Feb09.pdf</a> </li>
-<?endif?>
 <li>Please review your record, checking for accuracy and formatting:<br>
   <a href="<?= $this->etd->ark() ?>"><?= $this->etd->ark() ?></a></li>
 
 <? if ($this->etd->schoolId() == "grad" || $this->etd->schoolId() == "candler" || $this->etd->schoolId() == "rollins"):?>
-<li><p>All students must submit the ETD Submission Agreement Form with the paper copy of their
-dissertation or thesis. In part 3 of that form, you must choose between the "Open" or "Restricted" Access options.
+<li><p>All students must submit the ETD Submission Agreement Form<? if ($this->etd->schoolId() == "candler"):?> and title page with original signatures<? endif ?>. In part 3 of that form, you must choose between the "Open" or "Restricted" Access options.
 <? if ($this->etd->mods->isEmbargoRequested()): ?>
-   You have requested <b>Restricted Access</b> (pending the approval of 
+   You have requested <b>Restricted Access</b> (pending the approval of
    <?= $this->etd->admin_agent ?>). The full text of your work will be published in
    the repository immediately after the expiration of your access
    restriction period.
@@ -71,7 +60,7 @@ dissertation or thesis. In part 3 of that form, you must choose between the "Ope
    will be published in the repository immediately after graduation.
 <? endif ?></p>
 
- <p>You will receive written notification confirming whether or not your dissertation or thesis has been approved by the <?= $this->etd->admin_agent ?>. 
+ <p>You will receive written notification confirming whether or not your dissertation or thesis has been approved by the <?= $this->etd->admin_agent ?>.
 </p>
 </li>
 <? endif ?>

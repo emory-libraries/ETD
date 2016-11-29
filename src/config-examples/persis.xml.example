@@ -2,8 +2,9 @@
   <development>
     <url></url>
     <username></username>
-    <password></password> 
+    <password></password>
     <domain_id></domain_id>
+    <ezid_url>https://ezid.cdlib.org/id/doi:........</ezid_url>
   </development>
   <test extends="development">
     <url>../fixtures/</url>
@@ -11,4 +12,4 @@
   <production extends="development">
     <url></url>
   </production>
-</persis>		
+</persis>
