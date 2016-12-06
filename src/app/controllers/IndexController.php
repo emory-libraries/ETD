@@ -22,7 +22,7 @@ class IndexController extends Etd_Controller_Action {
       trigger_error($message, E_USER_WARNING);
       $this->logger->err($message);
     }
-
+/*
     //Calendar Section
     // ETD calendar - rss feed from goodle calendar
     if (! isset($config->calendar_feed->url)) {
@@ -51,7 +51,7 @@ class IndexController extends Etd_Controller_Action {
       $this->logger->err($message);
     }
 
-
+*/
 
     //This section is displayed in the sidebar
     $feed = $this->_getParam("feed", "recent");	// by default, show recently published

@@ -1,6 +1,3 @@
-
-<?=  $this->render('index/_submission.phtml'); ?>
-
 <h1>Electronic Theses and Dissertations</h1>
 
 <p>The Emory Electronic Theses and Dissertations (ETD) Repository is a
@@ -33,7 +30,7 @@ College.</p>
 <h2 class="top-space">Emory dissertations in ProQuest</h2>
 
 <ul class="horizontal">
-<li class="first">Search: 
+<li class="first">Search:
 <input type="hidden" name="RQT" value="305"/>
 <input type="hidden" name="querySyntax" value="PQ"/>
 <input type="hidden" name="clientId" value="1917"/>
@@ -60,4 +57,3 @@ href="http://proquest.umi.com.proxy.library.emory.edu/pqdweb?RQT=305&amp;SQ=LSCH
 <? if ($this->news): ?>
  <?=  $this->render("index/news.phtml"); ?>
 <? endif ?>
-
