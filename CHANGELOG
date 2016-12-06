@@ -1,11 +1,17 @@
 CHANGE LOG
 =================
+Version 1.18.8
+--------------
+* Removed first line of src/app/views/scripts/index/index.phtml because it was causing an error.
+ `<?= $this->render('index/_submission.phtml');  ?>`
+* Removed attempts to add a Google calendar.
+
 Version 1.18.7
 --------------
 * Updated email publication email #133041457
 * Added Slack notifications to publication script
 * Added Cancer Bio to programs #129467439
-* Added code to Nutrition program #129467439 
+* Added code to Nutrition program #129467439
 
 Version 1.18.6
 --------------
