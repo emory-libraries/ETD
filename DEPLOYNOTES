@@ -76,6 +76,8 @@ Date: 09/07/2016
 
 ETD is contained in a Docker, and the best way to have it running locally is to ask for help from James.
 
+You need to login to bela using this command and the username password provide by Webhosting team. Use this command docker login `bela.library.emory.edu:5001`.
+
 ** (Wildcard?) Registry certificate CA issues OSX / Virtualbox #805 **
 https://github.com/boot2docker/boot2docker/issues/805
 
