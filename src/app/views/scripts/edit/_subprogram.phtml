@@ -1,6 +1,6 @@
 <? /* recursive partial template to generate program selection list; expects these variables:
       collection - skosCollection for this level of the program tree
-      level 	 - what level in the tree we are at
+      level      - what level in the tree we are at
       [parent_id - parent id of current collection, needed for subfield; only set when recursing]
 */ ?>
 
@@ -13,7 +13,7 @@ $label = $this->collection->label;
 $school = $this->school;
 $hasMembers = (count($this->collection->members) != 0);
 ?>
-
+<? if ($this->collection->status != 'inactive'): ?>
 <li id="<?= $id ?>">
 <!-- Specal cases for Rollins School-->
 <? if ($school ==  "rollins" && $this->level == 2 && ! $hasMembers): ?>
@@ -23,7 +23,7 @@ $hasMembers = (count($this->collection->members) != 0);
 
 <? elseif ($this->level ==  4 && isset($this->parent_id)): ?>
  <a onClick="setSubfield('<?= $id ?>', '<?= $this->parent_id ?>')"
-    id="<?= $id ?>_label"><?= $label ?></a>   
+    id="<?= $id ?>_label"><?= $label ?></a>
 <? elseif (! $hasMembers || $this->level ==  3): ?>
  <a onClick="setProgram('<?= $id ?>')" id="<?= $id ?>_label"><?= $label ?></a>
 <? else: ?>
@@ -31,14 +31,17 @@ $hasMembers = (count($this->collection->members) != 0);
     <a class="toggle" onClick="Element.toggle('<?= $id ?>_list')">&gt;</a>
   <? endif ?>
   <span id="<?= $id ?>_label"><?= $label ?></span>
-<? endif ?>       
+<? endif ?>
 <? if ($hasMembers): ?>
      <ul id="<?= $id ?>_list">
      <? foreach ($this->collection->members as $subcollection): ?>
-	<?=  $this->partial('edit/_subprogram.phtml', array("collection" => $subcollection,
-							    "level" => $this->level + 1,
-							    "parent_id" => $id, "school" => $school)); ?>
+     <? if ($this->collection->foo != 'inactive'): ?>
+    <?=  $this->partial('edit/_subprogram.phtml', array("collection" => $subcollection,
+                                "level" => $this->level + 1,
+                                "parent_id" => $id, "school" => $school)); ?>
+      <? endif ?>
      <? endforeach ?>
      </ul>
-<? endif ?>	  
+<? endif ?>
 </li>
+<? endif ?>

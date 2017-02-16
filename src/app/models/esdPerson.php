@@ -274,7 +274,7 @@ class esdPerson extends Emory_Db_Table_Row implements Zend_Acl_Role_Interface {
         // only student and faculty roles can have unpublished etds
         if (! preg_match("/^(student|faculty|honors student)/", $this->role)) // with or without submission
             return false;
-        elseif (count($this->getEtdsNotOfStatus('published'))) return true;
+        elseif (count($this->getUsersEtds()) > 0) return true;
             else return false;
     }
 
@@ -283,20 +283,26 @@ class esdPerson extends Emory_Db_Table_Row implements Zend_Acl_Role_Interface {
      * @return Array of etd
      */
     public function getEtds() {
-        if (is_null($this->_etds)) {	// only initialize once (will be reset after serialization)
+        //if (is_null($this->_etds)) {	// only initialize once (will be reset after serialization)
             $etdSet = new EtdSet();
             $etdSet->findUnpublishedByOwner($this->netid);
-            $this->_etds = $etdSet->etds;
-        }
+            $this->_etds = $etdSet;
+        //}
         return $this->_etds;
+    }
+
+    public function getUsersEtds() {
+      $etdSet = new EtdSet();
+      $etdSet->findUnpublishedByOwner($this->netid);
+      return $etdSet->etds;
     }
 
     /**
      * find any etds not of a specific status that belong to this user
      * @return Array of etd
      */
-    public function getEtdsNotOfStatus($status) {
-        if (is_null($this->_etds)) {	// only initialize once (will be reset after serialization)
+     public function getEtdsNotOfStatus($status) {
+        if (is_null($this->_etds)) {    // only initialize once (will be reset after serialization)
             $etds = new etd();
             $pids = $etds->getByAuthorAndNotStatus($this->netid, $status);
             $this->_etds = $pids;

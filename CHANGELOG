@@ -1,5 +1,11 @@
 CHANGE LOG
 =================
+Version 1.18.9
+--------------
+* Fixed bug in `_submission.phtml`. It now accounts for an empty array.
+* Added the abality for a program to be "inactive" so it does show up in the list of programs during submission.
+* An awful hack to allow two Laney admins to be admins again. :(
+
 Version 1.18.8
 --------------
 * Removed first line of src/app/views/scripts/index/index.phtml because it was causing an error.

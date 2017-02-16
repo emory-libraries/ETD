@@ -1,6 +1,7 @@
 from eulfedora.server import Repository
 from eulfedora.server import DigitalObject
 from eulfedora.models import  ReverseRelation
+import eulfedora
 import argparse
 import re
 from pidservices.clients import PidmanRestClient
@@ -9,7 +10,7 @@ import rdflib
 from rdflib.namespace import RDF, Namespace
 import pprint
 import ConfigParser
-
+import requests
 
 # read valuses for config file
 config = ConfigParser.ConfigParser()
@@ -128,17 +129,24 @@ for pid in pids:
         if related.check():
             pids_to_delete.append(related.pid)
         else:
-            print related.pid + ' is related to multiple ETDs.'
+            print(related.pid + ' is related to multiple ETDs.')
 
 pp.pprint(pid_report)
 
 if not args['no_action']:
-    print str(len(pids_to_delete)) + ' will be purged.'
+    print(str(len(pids_to_delete)) + ' will be purged.')
     raw_input("Press Enter to continue...")
 
     for bad_pid in pids_to_delete:
         # TODO add error handeling for a pid that might have already been deleted.
         ark = bad_pid.split(':')[1]
         # Important: we must deactive ark first. Otherwise we'll get a 404 on the uri.
-        client.update_target(type="ark", noid=ark, active=False)
-        repo.purge_object(bad_pid)
+        #try:
+        #    client.update_target(type="ark", noid=ark, active=False)
+        #except requests.exceptions.HTTPError:
+        #    pass
+        
+        try:
+            repo.purge_object(bad_pid)
+        except eulfedora.util.RequestFailed:
+            pass

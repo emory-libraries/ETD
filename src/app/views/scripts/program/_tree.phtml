@@ -4,7 +4,7 @@
       current_user - logged in user, for checking acl
       can_edit	 - boolean: can the current user edit this portion of the subtree   */ ?>
 <? if ($this->can_edit ||
-       ($this->collection->id == "#undergrad" && 
+       ($this->collection->id == "#undergrad" &&
 	$this->acl->isAllowed($this->current_user, "undergrad programs", "edit"))) {
      $this->can_edit = true;
 } ?>
@@ -22,11 +22,11 @@
    <? endif ?>
 
    <? if ($this->can_edit): ?>
-     <input type="text" value="<?= $this->collection->label ?>" name="<?= $id ?>"/>
+     <input type="text" value="<?= $this->collection->label ?> <? if ($this->collection->status == 'inactive'): ?>(<?= $this->collection->status ?>)<? endif ?>" name="<?= $id ?>"/>
    <? else: ?>
-       <?= $this->collection->label ?>
+       <?= $this->collection->label ?> (<?= $this->collection->status ?>)
    <? endif ?>
-	
+
     <input type="hidden" id="<?= $id ?>_members" name="<?= $id ?>_members" value=""/>
      <ul id="<?= $id ?>_list">
      <? foreach ($this->collection->members as $subcollection): ?>
@@ -36,7 +36,7 @@
 						       "can_edit" => $this->can_edit)); ?>
      <? endforeach ?>
 
-     
+
      <? /* special case */ ?>
      <? if ($id == "programs" && count($this->collection->findOrphans())): ?>
 	  <? foreach ($this->collection->findOrphans() as $orphan): ?>
@@ -45,13 +45,9 @@
 					 "acl" => $this->acl,
 					 "current_user" => $this->current_user,
 					 "can_edit" => $this->can_edit)); ?>
-  
+
      <? endforeach ?>
      <? endif ?>
 
      </ul>
  </li>
-
-
-
-

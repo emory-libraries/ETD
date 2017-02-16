@@ -11,7 +11,7 @@ require_once("skosCollection.php");
  * Foxml object with programs/SKOS datastream.
  * Extending from foxml class in order to inherit existing
  * functionality for interacting with Fedora.
- * 
+ *
  */
 class foxmlPrograms extends foxmlSkosCollection {
   public function __construct($id=null) {
@@ -23,48 +23,49 @@ class foxmlPrograms extends foxmlSkosCollection {
     if (! isset($config->programs_collection->pid) || $config->programs_collection->pid == "") {
       throw new FoxmlException("Configuration does not contain program pid, cannot initialize");
     }
-     
+
      // the default parameter setting will not allow '#' character, so set it here.
     if (!isset($id)) $id = "#programs";
 
     parent::__construct($config->programs_collection->pid);
-    
+
     // initializing SKOS datastream here in order to pass a collection id
     $dom = new DOMDocument();
-    $ds = "skos";     
+    $ds = "skos";
     $fedora_object_exists = true;
     try {
-      $xml = $this->fedora->getDatastream($this->pid, $this->xmlconfig[$ds]['dsID']);     
+      $xml = $this->fedora->getDatastream($this->pid, $this->xmlconfig[$ds]['dsID']);
       if ($xml) {
-        $dom->loadXML($xml);       
+        $dom->loadXML($xml);
         $this->map[$ds] = new $this->xmlconfig[$ds]['class_name']($dom, $id);
       }
-     
+
       // set datastream info on datastream object so it can be saved correctly
       $info = $this->fedora->getDatastreamInfo($this->pid, $this->xmlconfig[$ds]['dsID']);
       $this->map[$ds]->setDatastreamInfo($info, $this);
-    } 
-    catch (Exception $err) {  // Error detected when fedora object does not exist.
-      $fedora_object_exists = false;    
     }
-    
+    catch (Exception $err) {  // Error detected when fedora object does not exist.
+      $fedora_object_exists = false;
+    }
+
     if (!$fedora_object_exists) { // Create a new fedora object.
-      parent::__construct(); 
+      parent::__construct();
 
       // Set the properties for a newly create fedora object.
       $this->pid = $config->programs_collection->pid;
       $this->label = $config->programs_collection->label;
-      $this->skos->dslabel = $config->programs_collection->skos_label;       
+      $this->status = $config->programs_collection->status;
+      $this->skos->dslabel = $config->programs_collection->skos_label;
       $this->owner = $config->etdOwner;
-      
+
       // Add a model in the RELS-EXT datastream (Subject/Predicate/Object)
-      $this->setContentModel($config->programs_collection->model_object);      
+      $this->setContentModel($config->programs_collection->model_object);
     }
   }
   protected function configure() {
     parent::configure();
     $this->xmlconfig["skos"]["class_name"] = "programs";
-  }  
+  }
 }
 
 /**
@@ -73,11 +74,11 @@ class foxmlPrograms extends foxmlSkosCollection {
 class programs extends collectionHierarchy  {
   protected $collection_class = "programCollection";
 
-  public function __construct($dom=null, $id=null) {   
-    // The # char is not acceptable in parameter assignment     
-    if (is_null($id)) $id = "#programs"; 
+  public function __construct($dom=null, $id=null) {
+    // The # char is not acceptable in parameter assignment
+    if (is_null($id)) $id = "#programs";
     parent::__construct($dom, $id);
-    $this->index_field = "program_facet";   
+    $this->index_field = "program_facet";
   }
 
   public function getFields($mode) {
@@ -92,7 +93,7 @@ class programs extends collectionHierarchy  {
   }
 
   // this template is used when creating a new fedora object to ingest.
-  public function construct_from_template(){    
+  public function construct_from_template(){
     $base = '<rdf:RDF
       xmlns:dc="http://purl.org/dc/elements/1.1/"
       xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
@@ -100,9 +101,9 @@ class programs extends collectionHierarchy  {
       xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
       <skos:Collection rdf:about="#programs">
       <rdfs:label>Programs</rdfs:label>
-      </skos:Collection></rdf:RDF>';        
-    $dom = new DOMDocument();      
-    $dom->loadXML($base);     
+      </skos:Collection></rdf:RDF>';
+    $dom = new DOMDocument();
+    $dom->loadXML($base);
     return $dom;
   }
 
@@ -136,13 +137,13 @@ class programMember extends skosMember {
     if (in_array($this->id, array("#religion", "#biosci", "#psychology"))) return true;
 
     // otherwise, this item is not indexed
-    return false; 
+    return false;
   }
 
   // indexed on id instead of label
   protected function getIndexedData() {
     return (string)$this->getId();
   }
-    
+
 
 }
