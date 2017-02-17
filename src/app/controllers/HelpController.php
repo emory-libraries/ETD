@@ -10,7 +10,7 @@ class HelpController extends Etd_Controller_Action {
   protected $params;
   private $etd_pid;
   private $message;
-  
+
   public function indexAction() {
 
     $this->view->title = "Help Request";
@@ -24,14 +24,14 @@ class HelpController extends Etd_Controller_Action {
          "//ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/ui-lightness/jquery-ui.css",
     );
 
-    
+
     // on GET, display edit form with default values
     if ($this->getRequest()->isGet()) {
       // if user is logged in, pre-populate fields we know
       if (isset($this->current_user)) {
         $this->view->fullname = $this->current_user->fullname;
         $this->view->email    = $this->current_user->netid . "@emory.edu";
-        $user_etds = $this->current_user->getEtds();
+        $user_etds = $this->current_user->getUsersEtds();
         if ($user_etds != null) {
           $this->view->etd_link = $user_etds[0]->ark();
         }
@@ -44,7 +44,7 @@ class HelpController extends Etd_Controller_Action {
       }
 
       return;
-    } // end GET 
+    } // end GET
 
     if ($this->getRequest()->isPost()) {
       // on POST, process form data
@@ -58,23 +58,23 @@ class HelpController extends Etd_Controller_Action {
 
       // check for invalid form
       if (! $this->valid_submission()) {
-        $this->view->error = "There was a problem submitting your request. " 
+        $this->view->error = "There was a problem submitting your request. "
           . "Please check that you have filled in all required fields.";
         return;
       }
 
       if ($this->send_email()) {
-        $this->view->email_sent = true;        
+        $this->view->email_sent = true;
       }
 
     }
   }
-   
+
   // display success message with more information
   public function successAction() {
   	/**/
   }
-  
+
   protected function send_email() {
     $rqst = $this->getRequest();
     if ($this->env != "production") {
@@ -90,7 +90,7 @@ class HelpController extends Etd_Controller_Action {
       $config = Zend_Registry::get('config');
       $to_email = $config->contact->email;
     }
-	   
+
     $etd_ark = $rqst->getParam("etd_link", "NO RECORD FOUND");
     $grad_date = $rqst->getParam("grad_date", "NOT SPECIFIED");
 
@@ -121,10 +121,10 @@ class HelpController extends Etd_Controller_Action {
         . $exception->getMessage() . "]";
       return false;
     }
-    		
+
     // log help request details
-    $this->logger->info("Help request sent - '" 
-                        .  $rqst->getParam("subject") 
+    $this->logger->info("Help request sent - '"
+                        .  $rqst->getParam("subject")
                         . "' from " . $rqst->getParam("username", "")
 			. " <" . $rqst->getParam("email", "") . ">");
 
@@ -132,15 +132,15 @@ class HelpController extends Etd_Controller_Action {
     return $notify;
   }
 
-  
+
   protected function valid_submission() {
     // check that all required fields are filled in
     $rqst = $this->getRequest();
     return (
-            $rqst->getParam("username", null)!=null && 
-            $rqst->getParam("email", null)!=null && 
-            $rqst->getParam("message", null)!=null && 
-            $rqst->getParam("subject", null)!=null 
+            $rqst->getParam("username", null)!=null &&
+            $rqst->getParam("email", null)!=null &&
+            $rqst->getParam("message", null)!=null &&
+            $rqst->getParam("subject", null)!=null
             );
   }
 
