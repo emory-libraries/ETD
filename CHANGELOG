@@ -1,5 +1,9 @@
 CHANGE LOG
 =================
+Version 1.18.10
+---------------
+* The help page was affected by the same issue, presence empty array is true, as the link on the homepage. The help page now calls the new method.
+
 Version 1.18.9
 --------------
 * Fixed bug in `_submission.phtml`. It now accounts for an empty array.
