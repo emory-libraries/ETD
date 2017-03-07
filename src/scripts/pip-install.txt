@@ -1,0 +1,3 @@
+eulfedora
+-e git+https://github.com/emory-libraries/pidman-client.git@a0a40284749e684d09820977818b60c5a04e5727#egg=pidservices
+requests
