@@ -1,5 +1,9 @@
 CHANGE LOG
 =================
+Version 1.18.11
+---------------
+* Removed awful hack for Laney admins that was added in 1.18.9. The root issue was the name of the department changed in ESD.
+
 Version 1.18.10
 ---------------
 * The help page was affected by the same issue, presence empty array is true, as the link on the homepage. The help page now calls the new method.
@@ -7,7 +11,7 @@ Version 1.18.10
 Version 1.18.9
 --------------
 * Fixed bug in `_submission.phtml`. It now accounts for an empty array.
-* Added the abality for a program to be "inactive" so it does show up in the list of programs during submission.
+* Added the ability for a program to be "inactive" so it does show up in the list of programs during submission.
 * An awful hack to allow two Laney admins to be admins again. :(
 
 Version 1.18.8
