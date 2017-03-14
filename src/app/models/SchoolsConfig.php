@@ -45,19 +45,8 @@ class SchoolsConfig extends Zend_Config_Xml {
    * @return string|false
    */
   public function isAdmin(esdPerson $user) {
-    $logger = Zend_Registry::get('logger');
     $etd_db = Zend_Registry::get("etd-db"); //etd util DB
-    $logger->debug("HACK HACK netid is " . $user->netid);
     foreach ($this as $school) {
-      $dump = print_r($school, true);
-      $logger->debug($dump);
-      if ($user->netid == 'rlwebb' && $school->acl_id == 'grad') {
-        $logger->debug("HACK HACK netid is " . $school->acl_id);
-        return $school->acl_id;
-      }
-      if ($user->netid == 'twrig31' && $school->acl_id == 'grad') {
-        return $school->acl_id;
-      }
       // check for user netids explicitly specified
       // -- handle single netid or multiple
       // -- have to add additional check for admin section because all_schools do not have admin section
